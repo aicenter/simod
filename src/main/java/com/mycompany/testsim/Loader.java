@@ -6,6 +6,7 @@
 package com.mycompany.testsim;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mycompany.testsim.io.Trip;
 import cz.agents.basestructures.GPSLocation;
 import java.io.IOException;
 import java.sql.Connection;
@@ -38,7 +39,8 @@ public class Loader {
 	public void loadSCKData(){
 		try {
 			
-			String SQL = "SELECT trip_id, start_time, end_time, type, ST_AsGeoJSON(ST_GeomFromEWKT(path)) AS path FROM leg_log WHERE type = 'CAR' LIMIT 10";
+			String SQL = "SELECT trip_id, start_time, end_time, type, ST_AsGeoJSON(ST_GeomFromEWKT(path)) AS path "
+					+ "FROM leg_log WHERE type = 'CAR' LIMIT 100";
  
 			trips = new ArrayList<>();
 			
@@ -79,7 +81,7 @@ public class Loader {
 			Map<String, Object> jsonContent  = new ObjectMapper().readValue(locationsString, Map.class);
 			ArrayList<ArrayList<Double>> locationsParsed = (ArrayList<ArrayList<Double>>) jsonContent.get("coordinates");
 			for (ArrayList<Double> location : locationsParsed) {
-				locations.add(new GPSLocation(location.get(0), location.get(1), 0, 0));
+				locations.add(new GPSLocation(location.get(1), location.get(0), 0, 0));
 			}
 		} catch (IOException ex) {
 			Logger.getLogger(Loader.class.getName()).log(Level.SEVERE, null, ex);

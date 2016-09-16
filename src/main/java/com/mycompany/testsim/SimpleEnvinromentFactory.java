@@ -22,11 +22,11 @@ import java.util.Random;
  *
  * @author david
  */
-public class MyEnvironmentFactory implements EnvironmentFactory{
+public class SimpleEnvinromentFactory implements EnvironmentFactory{
 	
 	private final DelayingSegmentCapacityDeterminer delayingSegmentCapacityDeterminer;
 
-    public MyEnvironmentFactory(DelayingSegmentCapacityDeterminer delayingSegmentCapacityDeterminer) {
+    public SimpleEnvinromentFactory(DelayingSegmentCapacityDeterminer delayingSegmentCapacityDeterminer) {
         super();
 
         this.delayingSegmentCapacityDeterminer = delayingSegmentCapacityDeterminer;

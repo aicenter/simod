@@ -1,8 +1,5 @@
 package com.mycompany.testsim;
 
-import com.google.common.collect.Sets;
-
-import cz.agents.agentpolis.siminfrastructure.logger.LogItem;
 import cz.agents.agentpolis.simmodel.environment.model.delaymodel.impl.InfinityDelayingSegmentCapacityDeterminer;
 import cz.agents.agentpolis.simmodel.environment.model.vehiclemodel.importer.init.VehicleDataModelFactory;
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
@@ -13,7 +10,6 @@ import org.apache.log4j.Logger;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
 
 public class Main {
 
@@ -42,7 +38,7 @@ public class Main {
 //        final LogHandler logHandler = new LogHandler();
 
         SimulationCreator creator = new SimulationCreator(
-                new MyEnvironmentFactory(new InfinityDelayingSegmentCapacityDeterminer()),
+                new SimpleEnvinromentFactory(new InfinityDelayingSegmentCapacityDeterminer()),
                 parameters);
 		
 		creator.addInitModuleFactory(new VehicleDataModelFactory(parameters.vehicleDataModelFile));
@@ -101,7 +97,7 @@ public class Main {
 //        creator.addInitModuleFactory(new DispatchingAndTimersInitFactory(logicConstructor));
 
         // set up visual appearance of agents
-        creator.addEntityStyleVis(MyEntityType.TEST_TYPE, Color.GREEN, 8);
+        creator.addEntityStyleVis(DemandSimulationEntityType.TEST_TYPE, Color.GREEN, 8);
 
 
         // start it up

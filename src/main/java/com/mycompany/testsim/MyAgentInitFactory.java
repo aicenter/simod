@@ -21,7 +21,7 @@ public class MyAgentInitFactory implements AgentInitFactory{
 	public List<Agent> initAllAgentLifeCycles(Injector injector) {
 		List<Agent> agents = new ArrayList<Agent>();
 		
-		agents.add(new MyAgent("tets", MyEntityType.TEST_TYPE, injector));
+		agents.add(new MyAgent("tets", DemandSimulationEntityType.TEST_TYPE, injector));
 		
 		return agents;
 	}

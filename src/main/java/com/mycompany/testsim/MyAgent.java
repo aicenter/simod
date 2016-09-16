@@ -12,18 +12,13 @@ import cz.agents.agentpolis.siminfrastructure.planner.path.ShortestPathPlanner;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.Trip;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.TripItem;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.Trips;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.agentpolis.simmodel.agent.Agent;
 import cz.agents.agentpolis.simmodel.agent.activity.movement.DriveVehicleActivity;
-import cz.agents.agentpolis.simmodel.agent.activity.movement.MovementActivity;
 import cz.agents.agentpolis.simmodel.agent.activity.movement.callback.DrivingFinishedActivityCallback;
-import cz.agents.agentpolis.simmodel.agent.activity.movement.callback.MovementActivityCallback;
-import cz.agents.agentpolis.simmodel.entity.EntityType;
 import cz.agents.agentpolis.simmodel.entity.vehicle.Vehicle;
 import cz.agents.agentpolis.simmodel.entity.vehicle.VehicleType;
 import cz.agents.agentpolis.simmodel.environment.model.VehiclePositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
-import cz.agents.agentpolis.simmodel.environment.model.action.driving.DriveMovingAction;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.GraphType;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.HighwayNetwork;
@@ -37,7 +32,6 @@ import cz.agents.agentpolis.utils.VelocityConverter;
 import cz.agents.basestructures.Node;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -55,20 +49,20 @@ public class MyAgent extends Agent implements DrivingFinishedActivityCallback{
 	private final Injector injector;
 
 
-	MyAgent(String agentId, MyEntityType agentType, Injector injector) {
+	MyAgent(String agentId, DemandSimulationEntityType agentType, Injector injector) {
 		super(agentId, agentType);
 		this.injector = injector;
 	}
 
 	@Override
 	public void born() {
-		AgentPositionQuery positionQuery = injector.getInstance(AgentPositionQuery.class);
+//		AgentPositionQuery positionQuery = injector.getInstance(AgentPositionQuery.class);
 		VehicleDataModel vehicleDataModel = injector.getInstance(VehicleDataModel.class);
 		Set<GraphType> allowedGraphTypes = new HashSet<>();
 		allowedGraphTypes.add(EGraphType.HIGHWAY);
 		ShortestPathPlanner planner = ShortestPathPlanner.createShortestPathPlanner(injector, allowedGraphTypes);
 		
-		Integer currentPos = positionQuery.getCurrentPositionByNodeId(this.getId());
+//		Integer currentPos = positionQuery.getCurrentPositionByNodeId(this.getId());
 		
 		Random random = new Random();
 		Collection<SimulationNode> possibleNodesCollection = injector.getInstance(HighwayNetwork.class).getNetwork().getAllNodes();

@@ -11,14 +11,15 @@ import cz.agents.agentpolis.simmodel.entity.EntityType;
  *
  * @author david
  */
-public enum MyEntityType implements EntityType{
+public enum DemandSimulationEntityType implements EntityType{
 
-	TEST_TYPE("testType");
+	TEST_TYPE("testType"),
+	DEMAND("demand");
 	
 	private final String entityType;
 	
 
-	private MyEntityType(String entityType) {
+	private DemandSimulationEntityType(String entityType) {
 		this.entityType = entityType;
 	}	
 

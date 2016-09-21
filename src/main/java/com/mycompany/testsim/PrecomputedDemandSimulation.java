@@ -24,12 +24,13 @@ import java.util.logging.Logger;
  */
 public class PrecomputedDemandSimulation {
 	
-	private static final String EXPERIMENT_PATH = "C:\\AIC data\\cr\\";
+	private static final String EXPERIMENT_PATH = "C:\\AIC data\\prague\\";
 	
 	private static final String INPUT_FILE_PATH = "C:\\AIC data\\Prague\\trips.json";
 	
 	private static final int SRID = 2065;
 	
+	private static final int START_TIME = 25200000; // 7h
 	
 	public static void main(String[] args) throws MalformedURLException, ConfigReaderException {
 		try {

@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  */
 public class PrepareSCKData {
 	
-	private static final String OSM_FILE_PATH = "C:\\AIC data\\cr\\czech-republic-streets-tertiary-ele.osm";
+	private static final String OSM_FILE_PATH = "C:\\AIC data\\prague\\prague-filtered.osm";
 	
 	private static final String OUTPUT_FILE_PATH = "C:\\AIC data\\Prague\\trips.json";
 	

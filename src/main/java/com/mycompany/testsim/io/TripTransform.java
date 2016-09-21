@@ -75,8 +75,9 @@ public class TripTransform {
 					lastNodeId = nodeId;
 				}
 			}
-			
-			osmNodeTrips.add(new Trip<>(osmNodesList, trip.getStartTime(), trip.getEndTime()));
+			if(osmNodesList.size() > 1){
+				osmNodeTrips.add(new Trip<>(osmNodesList, trip.getStartTime(), trip.getEndTime()));
+			}
 		}
 		
 		return osmNodeTrips;

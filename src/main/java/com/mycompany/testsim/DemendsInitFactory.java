@@ -33,6 +33,8 @@ public class DemendsInitFactory implements InitFactory {
 	private Injector injector;
 	
 	
+	
+	
 	public DemendsInitFactory(List<Trip<Long>> osmNodeTrips, SimulationCreator simulationCreator){
 		this.osmNodeTrips = osmNodeTrips;
 		eventHandler = new DemandEventHandler();
@@ -45,7 +47,7 @@ public class DemendsInitFactory implements InitFactory {
 		
 		EventProcessor eventProcessor = injector.getInstance(EventProcessor.class);
 		
-		eventHandler.setNodeIdsMappedByNodeSourceIds();
+		eventHandler.init();
 		
 		for (Trip<Long> osmNodeTrip : osmNodeTrips) {
 			eventProcessor.addEvent(null, eventHandler, null, osmNodeTrip, osmNodeTrip.getStartTime());
@@ -59,10 +61,13 @@ public class DemendsInitFactory implements InitFactory {
 		private long idCounter = 0;
 		
 		private Map<Long,Integer> nodeIdsMappedByNodeSourceIds;
+		
+		private ShortestPathPlanner pathPlanner;
 
-		public void setNodeIdsMappedByNodeSourceIds() {
+		public void init() {
 			this.nodeIdsMappedByNodeSourceIds 
 					= injector.getInstance(HighwayNetwork.class).getNetwork().createSourceIdToNodeIdMap();
+			pathPlanner = getPathPlanner();
 		}
 		
 		
@@ -72,7 +77,7 @@ public class DemendsInitFactory implements InitFactory {
 			Trip<Long> osmNodeTrip = (Trip<Long>) event.getContent();
 			
 			DemandAgent demandAgent = new DemandAgent(Long.toString(idCounter++), DemandSimulationEntityType.DEMAND, 
-					osmNodeTrip, injector, nodeIdsMappedByNodeSourceIds, getPathPlanner());
+					osmNodeTrip, injector, nodeIdsMappedByNodeSourceIds, pathPlanner);
 			
 			simulationCreator.addAgent(demandAgent);
 			

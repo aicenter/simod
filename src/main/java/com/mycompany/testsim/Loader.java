@@ -39,8 +39,10 @@ public class Loader {
 	public void loadSCKData(){
 		try {
 			
-			String SQL = "SELECT trip_id, start_time, end_time, type, ST_AsGeoJSON(ST_GeomFromEWKT(path)) AS path "
-					+ "FROM leg_log WHERE type = 'CAR' LIMIT 100";
+			String SQL = 
+					"SELECT trip_id, start_time, end_time, type, ST_AsGeoJSON(ST_GeomFromEWKT(path)) AS path "
+						+ "FROM leg_log WHERE type = 'CAR' AND ST_GeomFromEWKT(path) "
+							+ "&& ST_MakeEnvelope(14.2714931, 49.9868519, 14.5966197, 50.1519053, 4326)";
  
 			trips = new ArrayList<>();
 			

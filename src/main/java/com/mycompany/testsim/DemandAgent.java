@@ -106,7 +106,7 @@ public class DemandAgent extends Agent implements DrivingFinishedActivityCallbac
 					finalTrips.getAndRemoveFirstTrip(), this);
 		}
 		else{
-		
+			exit();
 		}
 	}
 	

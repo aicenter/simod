@@ -20,9 +20,9 @@ import java.util.logging.Logger;
  */
 public class PrepareSCKData {
 	
-	private static final String OSM_FILE_PATH = "C:\\AIC data\\prague\\prague-filtered.osm";
+	private static final String OSM_FILE_PATH = "data/Prague/prague-filtered-complete.osm";
 	
-	private static final String OUTPUT_FILE_PATH = "C:\\AIC data\\Prague\\trips.json";
+	private static final String OUTPUT_FILE_PATH = "data/Prague/trips.json";
 	
 //	private static final int SRID = 6635;
 	

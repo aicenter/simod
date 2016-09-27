@@ -24,9 +24,9 @@ import java.util.logging.Logger;
  */
 public class PrecomputedDemandSimulation {
 	
-	private static final String EXPERIMENT_PATH = "C:\\AIC data\\prague\\";
+	private static final String EXPERIMENT_PATH = "data/Prague";
 	
-	private static final String INPUT_FILE_PATH = "C:\\AIC data\\Prague\\trips.json";
+	private static final String INPUT_FILE_PATH = "data/Prague/trips.json";
 	
 	private static final int SRID = 2065;
 	

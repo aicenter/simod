@@ -51,6 +51,7 @@ public class ShortestPathPlanner {
 		for (Integer nodeId : nodeIds) {
 			nodeSourceIds.add(graph.getNode(nodeId).getSourceId());
 		}
+		return null;
 	}
 
 	public LinkedList<Integer> findTrip(int startNodeById, int destinationNodeById) throws TripPlannerException {

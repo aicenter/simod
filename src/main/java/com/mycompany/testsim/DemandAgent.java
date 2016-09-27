@@ -41,6 +41,8 @@ public class DemandAgent extends Agent implements DrivingFinishedActivityCallbac
 	
 	private final ShortestPathPlanner pathPlanner;
 	
+	private final boolean precomputedPaths;
+	
 	Trips finalTrips;
 	
 	DriveVehicleActivity driveActivity;
@@ -48,12 +50,18 @@ public class DemandAgent extends Agent implements DrivingFinishedActivityCallbac
 	Vehicle vehicle;
 
 	public DemandAgent(String agentId, EntityType agentType, Trip<Long> osmNodeTrip, Injector injector,
-			Map<Long,Integer> nodeIdsMappedByNodeSourceIds, ShortestPathPlanner pathPlanner) {
+			Map<Long,Integer> nodeIdsMappedByNodeSourceIds, ShortestPathPlanner pathPlanner, boolean precomputedPaths) {
 		super(agentId, agentType);
 		this.osmNodeTrip = osmNodeTrip;
 		this.injector = injector;
 		this.nodeIdsMappedByNodeSourceIds = nodeIdsMappedByNodeSourceIds;
 		this.pathPlanner = pathPlanner;
+		this.precomputedPaths = precomputedPaths;
+	}
+	
+	public DemandAgent(String agentId, EntityType agentType, Trip<Long> osmNodeTrip, Injector injector,
+			Map<Long,Integer> nodeIdsMappedByNodeSourceIds, ShortestPathPlanner pathPlanner){
+		this(agentId, agentType, osmNodeTrip, injector, nodeIdsMappedByNodeSourceIds, pathPlanner, true);
 	}
 
 	@Override
@@ -66,20 +74,31 @@ public class DemandAgent extends Agent implements DrivingFinishedActivityCallbac
 		List<Long> locations = osmNodeTrip.getLocations();
 		long startNodeSourceId = locations.get(0);
 		finalTrips = new Trips();
+		
+		
 		for (int i = 1; i < locations.size(); i++) {
 			Long targetNodeSourceId = locations.get(i);
-			try {
-				Trips trips = pathPlanner.findTrip(vehicle.getId(), nodeIdsMappedByNodeSourceIds.get(startNodeSourceId),
-						nodeIdsMappedByNodeSourceIds.get(targetNodeSourceId));
-				for (cz.agents.agentpolis.siminfrastructure.planner.trip.Trip<?> trip : trips) {
-					finalTrips.addEndCurrentTrips(trip);
-				}
-				startNodeSourceId = targetNodeSourceId;
-			} catch (TripPlannerException ex) {
-				Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
+			if(precomputedPaths){
+				LinkedList<TripItem> tripItems = new LinkedList<>();
+				tripItems.add(new TripItem(nodeIdsMappedByNodeSourceIds.get(startNodeSourceId)));
+				tripItems.add(new TripItem(nodeIdsMappedByNodeSourceIds.get(targetNodeSourceId)));
+
+				finalTrips.addEndCurrentTrips(new VehicleTrip(tripItems, EGraphType.HIGHWAY, vehicle.getId()));
 			}
-//			trip.add(new TripItem(nodeIdsMappedByNodeSourceIds.get(locationSourceId)));
-			
+			else{
+				try {
+					Trips trips = pathPlanner.findTrip(vehicle.getId(), nodeIdsMappedByNodeSourceIds.get(startNodeSourceId),
+							nodeIdsMappedByNodeSourceIds.get(targetNodeSourceId));
+					for (cz.agents.agentpolis.siminfrastructure.planner.trip.Trip<?> trip : trips) {
+						finalTrips.addEndCurrentTrips(trip);
+					}
+					
+				} catch (TripPlannerException ex) {
+					Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
+				}
+	//			trip.add(new TripItem(nodeIdsMappedByNodeSourceIds.get(locationSourceId)));
+			}
+			startNodeSourceId = targetNodeSourceId;
 		}
 		
 //		VehicleTrip vehicleTrip = new VehicleTrip(finalTrip, EGraphType.HIGHWAY, vehicle.getId());

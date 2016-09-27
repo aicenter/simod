@@ -32,7 +32,8 @@ public class PrepareSCKData {
 		Loader loader = new Loader();
 		loader.loadSCKData();
 		List<Trip<GPSLocation>> gpsTrips = loader.getTrips();
-		List<Trip<Long>> osmNodeTrips = TripTransform.gpsTripsToOsmNodeTrips(gpsTrips, new File(OSM_FILE_PATH), SRID);
+		TripTransform tripTransform = new TripTransform();
+		List<Trip<Long>> osmNodeTrips = tripTransform.gpsTripsToOsmNodeTrips(gpsTrips, new File(OSM_FILE_PATH), SRID);
 		try {
 			TripTransform.tripsToJson(osmNodeTrips, new File(OUTPUT_FILE_PATH));
 		} catch (IOException ex) {

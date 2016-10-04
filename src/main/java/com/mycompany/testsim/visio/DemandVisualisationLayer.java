@@ -2,15 +2,19 @@
  */
 package com.mycompany.testsim.visio;
 
+import com.google.inject.Inject;
+import cz.agents.agentpolis.simmodel.entity.AgentPolisEntity;
+import cz.agents.agentpolis.simmodel.environment.model.EntityStorage;
+import cz.agents.agentpolis.simmodel.environment.model.EntityStorage.EntityIterator;
 import cz.agents.agentpolis.simulator.visualization.visio.entity.EntityPositionUtil;
-import cz.agents.agentpolis.simulator.visualization.visio.entity.EntityPositionUtil.EntityPositionIterator;
 import cz.agents.alite.vis.Vis;
 import cz.agents.alite.vis.layer.AbstractLayer;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.util.HashMap;
 import java.util.Random;
-import javafx.geometry.Point2D;
+import javax.vecmath.Point2d;
 
 /**
  *
@@ -24,15 +28,21 @@ public class DemandVisualisationLayer extends AbstractLayer{
 	
 	
 	private final EntityPositionUtil entityPostitionUtil;
+    
+    private final EntityStorage entityStorage;
 	
 	private final Random random;
+    
+    private final HashMap<AgentPolisEntity,Color> agentColors;
 
 	
 	
-	
-	public DemandVisualisationLayer(EntityPositionUtil entityPostitionUtil, Random random) {
+	@Inject
+	public DemandVisualisationLayer(EntityPositionUtil entityPostitionUtil, EntityStorage entityStorage) {
 		this.entityPostitionUtil = entityPostitionUtil;
-		this.random = random;
+        this.entityStorage = entityStorage;
+		this.random = new Random();
+        agentColors = new HashMap<>();
 	}
 
 	
@@ -41,18 +51,24 @@ public class DemandVisualisationLayer extends AbstractLayer{
 
 	@Override
     public void paint(Graphics2D canvas) {
-//        canvas.setStroke(new BasicStroke(1));
         Dimension dim = Vis.getDrawingDimension();
 		
-		EntityPositionIterator entityPositionIterator = entityPostitionUtil.new EntityPositionIterator();
-		Point2D agentPosition;
-        while((agentPosition = entityPositionIterator.getNextEntityPosition()) != null){
-			drawAgent(agentPosition, canvas, dim);
+//		EntityPositionIterator entityPositionIterator = entityPostitionUtil.new EntityPositionIterator();
+//		Point2d agentPosition;
+
+        EntityIterator entityIterator = entityStorage.new EntityIterator();
+        AgentPolisEntity agent;
+        while((agent = entityIterator.getNextEntity()) != null){
+            Point2d agentPosition = entityPostitionUtil.getEntityPosition(agent);
+            if(agentPosition == null){
+                continue;
+            }
+			drawAgent(agent, agentPosition, canvas, dim);
         }
     }
 
-    private void drawAgent(Point2D agentPosition, Graphics2D canvas, Dimension dim) {
-        canvas.setColor(getRandomColor());
+    private void drawAgent(AgentPolisEntity agent, Point2d agentPosition, Graphics2D canvas, Dimension dim) {
+        canvas.setColor(getColor(agent));
         int radius = DEMAND_REPRESENTATION_RADIUS;
 		int width = radius * 2;
 
@@ -79,4 +95,15 @@ public class DemandVisualisationLayer extends AbstractLayer{
 		
 		return new Color(r, g, b);
 	}
+
+    private Color getColor(AgentPolisEntity agent) {
+        if(agentColors.containsKey(agent)){
+            return agentColors.get(agent);
+        }
+        else{
+            Color color = getRandomColor();
+            agentColors.put(agent, color);
+            return color;
+        }
+    }
 }

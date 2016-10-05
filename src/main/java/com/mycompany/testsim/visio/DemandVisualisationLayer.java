@@ -59,7 +59,7 @@ public class DemandVisualisationLayer extends AbstractLayer{
         EntityIterator entityIterator = entityStorage.new EntityIterator();
         AgentPolisEntity agent;
         while((agent = entityIterator.getNextEntity()) != null){
-            Point2d agentPosition = entityPostitionUtil.getEntityPosition(agent);
+            Point2d agentPosition = entityPostitionUtil.getEntityCanvasPosition(agent);
             if(agentPosition == null){
                 continue;
             }

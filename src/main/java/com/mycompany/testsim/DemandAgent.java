@@ -16,8 +16,6 @@ import cz.agents.agentpolis.simmodel.agent.activity.movement.callback.DrivingFin
 import cz.agents.agentpolis.simmodel.entity.EntityType;
 import cz.agents.agentpolis.simmodel.entity.vehicle.Vehicle;
 import cz.agents.agentpolis.simmodel.entity.vehicle.VehicleType;
-import cz.agents.agentpolis.simmodel.environment.model.VehiclePositionModel;
-import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simmodel.environment.model.entityvelocitymodel.EntityVelocityModel;
 import cz.agents.agentpolis.utils.VelocityConverter;

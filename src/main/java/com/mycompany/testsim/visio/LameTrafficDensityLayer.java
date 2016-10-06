@@ -9,7 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.HighwayNetwork;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.AllEdgesLoad;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.AllNodesLoad;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
@@ -31,7 +31,7 @@ import javax.vecmath.Point2d;
  * @author fido
  */
 @Singleton
-public class TrafficDensityLayer extends AbstractLayer{
+public class LameTrafficDensityLayer extends AbstractLayer{
     
     private static final int EDGE_WIDTH = 2;
     
@@ -41,7 +41,7 @@ public class TrafficDensityLayer extends AbstractLayer{
     
     
     
-    private final Provider<AllEdgesLoad> allEdgesLoadProvider;
+    private final Provider<AllNodesLoad> allNodesLoadProvider;
     
     private final Graph<SimulationNode,SimulationEdge> graph;
     
@@ -54,10 +54,10 @@ public class TrafficDensityLayer extends AbstractLayer{
     
 
     @Inject
-    public TrafficDensityLayer(HighwayNetwork highwayNetwork, PositionUtil positionUtil, 
-            Provider<AllEdgesLoad> allEdgesLoadProvider) {
+    public LameTrafficDensityLayer(HighwayNetwork highwayNetwork, PositionUtil positionUtil, 
+            Provider<AllNodesLoad> allNodesLoadProvider) {
         this.positionUtil = positionUtil;
-        this.allEdgesLoadProvider = allEdgesLoadProvider;
+        this.allNodesLoadProvider = allNodesLoadProvider;
         graph = highwayNetwork.getNetwork();
         colorMap = new ColorMap(0, MAX_LOAD, ColorMap.HUE_BLUE_TO_RED);
     }
@@ -70,7 +70,7 @@ public class TrafficDensityLayer extends AbstractLayer{
 //        canvas.setColor(lineElements.getColor());
 //        canvas.setStroke(new BasicStroke(lineElements.getStrokeWidth()));
 
-        AllEdgesLoad allEdgesLoad = allEdgesLoadProvider.get();
+        AllNodesLoad allNodesLoad = allNodesLoadProvider.get();
 
         canvas.setStroke(new BasicStroke(EDGE_WIDTH));
 
@@ -78,7 +78,7 @@ public class TrafficDensityLayer extends AbstractLayer{
         Rectangle2D drawingRectangle = new Rectangle(dim);
         
         for (SimulationEdge edge : graph.getAllEdges()) {
-            canvas.setColor(getColorForEdge(allEdgesLoad, edge));
+            canvas.setColor(getColorForEdge(allNodesLoad, edge));
             Point2d from = positionUtil.getCanvasPosition(graph.getNode(edge.fromId));
             Point2d to = positionUtil.getCanvasPosition(graph.getNode(edge.toId));
             Line2D line2d = new Line2D.Double(from.x, from.y, to.x, to.y);
@@ -88,8 +88,8 @@ public class TrafficDensityLayer extends AbstractLayer{
         }
     }
 
-    private Color getColorForEdge(AllEdgesLoad allEdgesLoad, SimulationEdge edge) {
-        double averageLoad = allEdgesLoad.getLoadPerEdge(edge.wayID);
+    private Color getColorForEdge(AllNodesLoad allNodesLoad, SimulationEdge edge) {
+        double averageLoad = (allNodesLoad.getLoadPerNode(edge.fromId) + allNodesLoad.getLoadPerNode(edge.toId)) / 2;
         return colorMap.getColor(averageLoad);
     }
 }

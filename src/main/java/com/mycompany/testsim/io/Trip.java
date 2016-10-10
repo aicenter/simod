@@ -39,4 +39,16 @@ public class Trip<L> {
 		this.startTime = startTime;
 		this.endTime = endTime;
 	}
+    
+    public Trip(ArrayList<L> locations, long startTime) {
+		this(locations, startTime, 0);
+	}
+    
+    public Trip(L startLocation, L endLocation, long startTime) {
+        locations = new ArrayList<>();
+        locations.add(startLocation);
+        locations.add(endLocation);
+		this.startTime = startTime;
+		this.endTime = 0;
+	}
 }

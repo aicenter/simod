@@ -2,8 +2,10 @@
  */
 package com.mycompany.testsim;
 
+import com.mycompany.testsim.initfactory.DemendsInitFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.mycompany.testsim.io.RebalancingLoader;
 import com.mycompany.testsim.io.Trip;
 import com.mycompany.testsim.io.TripTransform;
 import cz.agents.agentpolis.simmodel.environment.StandardAgentPolisModule;
@@ -28,6 +30,8 @@ public class DemandSimulation {
 	private static final String EXPERIMENT_PATH = "data/Prague";
 	
 	private static final String INPUT_FILE_PATH = "data/Prague/trips.json";
+    
+    private static final String REBALANCING_FILE_PATH = "data/Prague/policy.json";
 	
 	private static final int SRID = 2065;
     
@@ -44,6 +48,8 @@ public class DemandSimulation {
 	public void run() throws ConfigReaderException{
 		try {
 			List<Trip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(INPUT_FILE_PATH), Long.class);
+            RebalancingLoader rebalancingLoader = new RebalancingLoader();
+            rebalancingLoader.load(new File(REBALANCING_FILE_PATH));
 			
 			File experimentDir = new File(EXPERIMENT_PATH);
 
@@ -54,9 +60,8 @@ public class DemandSimulation {
 			
 			Injector injector = Guice.createInjector(new MainModule(envinromentFactory, parameters));
 			
-
-//			SimulationCreator creator = new SimulationCreator(
-//					new SimpleEnvinromentFactory(new InfinityDelayingSegmentCapacityDeterminer()), parameters);
+            injector.getInstance(DemandEntityInitializer.class).initialize(osmNodesList, 
+                    rebalancingLoader.getOnDemandVehicleStations(), rebalancingLoader.getRebalancingTrips());
 			
 			SimulationCreator creator = injector.getInstance(SimulationCreator.class);
 			

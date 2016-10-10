@@ -14,7 +14,9 @@ import cz.agents.agentpolis.simmodel.entity.EntityType;
 public enum DemandSimulationEntityType implements EntityType{
 
 	TEST_TYPE("testType"),
-	DEMAND("demand");
+	DEMAND("demand"),
+    ON_DEMAND_VEHICLE("on demand vehicle"),
+    ON_DEMAND_VEHICLE_STATION("on demand vehicle station");
 	
 	private final String entityType;
 	

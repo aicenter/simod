@@ -2,6 +2,7 @@
  */
 package com.mycompany.testsim;
 
+import com.mycompany.testsim.initfactory.DemendsInitFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.mycompany.testsim.io.Trip;

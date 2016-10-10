@@ -1,8 +1,10 @@
 /*
  */
-package com.mycompany.testsim;
+package com.mycompany.testsim.initfactory;
 
 import com.google.inject.Injector;
+import com.mycompany.testsim.DemandAgent;
+import com.mycompany.testsim.DemandSimulationEntityType;
 import com.mycompany.testsim.io.Trip;
 import cz.agents.agentpolis.siminfrastructure.planner.path.ShortestPathPlanner;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;

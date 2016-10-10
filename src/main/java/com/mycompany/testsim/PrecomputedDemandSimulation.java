@@ -69,7 +69,9 @@ public class PrecomputedDemandSimulation {
 			creator.addEntityStyleVis(DemandSimulationEntityType.DEMAND, Color.GREEN, 8);
 
 			// start it up
-			creator.startSimulation(new MyMapInitFactory(SRID));
+			creator.prepareSimulation(new MyMapInitFactory(SRID));
+            
+            creator.startSimulation();
 
 			System.exit(0);
 			

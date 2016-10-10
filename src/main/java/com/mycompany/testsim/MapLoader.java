@@ -39,7 +39,9 @@ public class MapLoader {
 
 
         // start it up
-        creator.startSimulation(new MyMapInitFactory(2065));
+        creator.prepareSimulation(new MyMapInitFactory(2065));
+        
+        creator.startSimulation();
 
         System.exit(0);
 	}

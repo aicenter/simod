@@ -101,7 +101,9 @@ public class Main {
 
 
         // start it up
-        creator.startSimulation(new MyMapInitFactory(2000));
+        creator.prepareSimulation(new MyMapInitFactory(2000));
+        
+        creator.startSimulation();
 
         // after finishing the simulation, report statistics
 //        testbedLogAnalyser.processResult();

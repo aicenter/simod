@@ -10,6 +10,7 @@ import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
 import cz.agents.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.agents.agentpolis.simmodel.entity.EntityType;
 import cz.agents.basestructures.GPSLocation;
+import cz.agents.basestructures.Node;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,10 +19,13 @@ import java.util.List;
  * @author fido
  */
 public class OnDemandVehicleStation extends AgentPolisEntity{
-    
-    private final GPSLocation gpsLocation;
-    
+
     private final List<OnDemandVehicle> parkedVehicles;
+    
+    
+    private GPSLocation gpsLocation;
+    
+    private Node positionInGraph;
 
     
     
@@ -55,6 +59,11 @@ public class OnDemandVehicleStation extends AgentPolisEntity{
     @Override
     public DescriptionImpl getDescription() {
         return null;
+    }
+    
+    public void setNearestNode(final Node node){
+        positionInGraph = node;
+        gpsLocation = new GPSLocation(node.getLatitude(), node.getLongitude(), 0, 0);
     }
     
 }

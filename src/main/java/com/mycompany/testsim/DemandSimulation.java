@@ -60,11 +60,8 @@ public class DemandSimulation {
 			
 			Injector injector = Guice.createInjector(new MainModule(envinromentFactory, parameters));
 			
-            injector.getInstance(DemandEntityInitializer.class).initialize(osmNodesList, 
-                    rebalancingLoader.getOnDemandVehicleStations(), rebalancingLoader.getRebalancingTrips());
-			
 			SimulationCreator creator = injector.getInstance(SimulationCreator.class);
-			
+
 			creator.setMainEnvironment(injector);
 
 	//		creator.addInitModuleFactory(new VehicleDataModelFactory(parameters.vehicleDataModelFile));
@@ -75,9 +72,15 @@ public class DemandSimulation {
 
 			// set up visual appearance of agents
 			creator.addEntityStyleVis(DemandSimulationEntityType.DEMAND, Color.GREEN, 8);
+            
+            // prepare map, entity storages...
+            creator.prepareSimulation(new MyMapInitFactory(SRID));
+            
+            injector.getInstance(DemandEntityInitializer.class).initialize(osmNodesList, 
+                    rebalancingLoader.getOnDemandVehicleStations(), rebalancingLoader.getRebalancingTrips());
 
 			// start it up
-			creator.startSimulation(new MyMapInitFactory(SRID));
+			creator.startSimulation();
 
 			System.exit(0);
 			

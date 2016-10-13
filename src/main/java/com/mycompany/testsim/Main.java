@@ -36,12 +36,12 @@ public class Main {
 //                System.currentTimeMillis());
 
 //        final LogHandler logHandler = new LogHandler();
-
-        SimulationCreator creator = new SimulationCreator(
-                new SimpleEnvinromentFactory(new InfinityDelayingSegmentCapacityDeterminer()),
-                parameters);
+//
+//        SimulationCreator creator = new SimulationCreator(
+//                new SimpleEnvinromentFactory(new InfinityDelayingSegmentCapacityDeterminer()),
+//                parameters);
 		
-		creator.addInitModuleFactory(new VehicleDataModelFactory(parameters.vehicleDataModelFile));
+//		creator.addInitModuleFactory(new VehicleDataModelFactory(parameters.vehicleDataModelFile));
 
 //        creator.addLogger(testbedLogAnalyser);
 //        creator.addLogger(logHandler);
@@ -88,25 +88,25 @@ public class Main {
 
         // add agents into the environment
 //        final CentralizedLogicConstructor logicConstructor = new CentralizedLogicConstructor();
-        creator.addAgentInit(new MyAgentInitFactory());
-        // creator.addAgentInit(new PassengerInitFactory());
-//        creator.addAgentInit(new PassengerForBenchmarkInitFactory(parameters.passengerPopulationPath,
-//                logicConstructor));
-
-        // initialize the dispatching and timers
-//        creator.addInitModuleFactory(new DispatchingAndTimersInitFactory(logicConstructor));
-
-        // set up visual appearance of agents
-        creator.addEntityStyleVis(DemandSimulationEntityType.TEST_TYPE, Color.GREEN, 8);
-
-
-        // start it up
-        creator.prepareSimulation(new MyMapInitFactory(2000));
-        
-        creator.startSimulation();
-
-        // after finishing the simulation, report statistics
-//        testbedLogAnalyser.processResult();
+//        creator.addAgentInit(new MyAgentInitFactory());
+//        // creator.addAgentInit(new PassengerInitFactory());
+////        creator.addAgentInit(new PassengerForBenchmarkInitFactory(parameters.passengerPopulationPath,
+////                logicConstructor));
+//
+//        // initialize the dispatching and timers
+////        creator.addInitModuleFactory(new DispatchingAndTimersInitFactory(logicConstructor));
+//
+//        // set up visual appearance of agents
+//        creator.addEntityStyleVis(DemandSimulationEntityType.TEST_TYPE, Color.GREEN, 8);
+//
+//
+//        // start it up
+//        creator.prepareSimulation(new MyMapInitFactory(2000));
+//        
+//        creator.startSimulation();
+//
+//        // after finishing the simulation, report statistics
+////        testbedLogAnalyser.processResult();
 
         LOGGER.info("FINISHED!");
         System.exit(0);

@@ -1,9 +1,9 @@
-package com.mycompany.testsim;
+package com.mycompany.testsim.storage;
 
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.mycompany.testsim.simulationon.OnDemandVehicleStation;
+import com.mycompany.testsim.entity.OnDemandVehicleStation;
 import cz.agents.agentpolis.simmodel.environment.model.EntityStorage;
 import java.util.HashMap;
 

@@ -31,13 +31,18 @@ import cz.agents.alite.vis.VisManager;
  */
 public class DemandsVisioInItializer extends DefaultVisioInitializer{
     
-    private final DemandVisualisationLayer demandVisualisationLayer;
+    private final OnDemandVehicleLayer onDemandVehicleLayer;
     
     private final TrafficDensityLayer trafficDensityLayer;
     
     private final NodeIdLayer nodeIdLayer;
     
+    private final DemandLayer demandLayer;
+    
     private final OnDemandVehicleStationsLayer onDemandVehicleStationsLayer;
+    
+    
+    
     
     @Inject
     public DemandsVisioInItializer(PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork, 
@@ -45,22 +50,24 @@ public class DemandsVisioInItializer extends DefaultVisioInitializer{
             RailwayNetwork railwayNetwork, EntityStorage<AgentPolisEntity> entityStorage, AgentStorage agentStorage, 
             VehicleStorage vehicleStorage, AgentPositionModel agentPositionModel, 
             VehiclePositionModel vehiclePositionModel, AllNetworkNodes allNetworkNodes, 
-            SimulationCreator simulationCreator, DemandVisualisationLayer demandVisualisationLayer,
+            SimulationCreator simulationCreator, OnDemandVehicleLayer onDemandVehicleLayer,
             TrafficDensityLayer trafficDensityLayer, NodeIdLayer nodeIdLayer, 
-            OnDemandVehicleStationsLayer onDemandVehicleStationsLayer) {
+            OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, DemandLayer demandLayer) {
         super(pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork, 
                 entityStorage, agentStorage, vehicleStorage, agentPositionModel, vehiclePositionModel, allNetworkNodes, 
                 simulationCreator);
-        this.demandVisualisationLayer = demandVisualisationLayer;
+        this.onDemandVehicleLayer = onDemandVehicleLayer;
         this.trafficDensityLayer = trafficDensityLayer;
         this.nodeIdLayer = nodeIdLayer;
         this.onDemandVehicleStationsLayer = onDemandVehicleStationsLayer;
+        this.demandLayer = demandLayer;
     }
 
     @Override
     protected void initEntityLayers(Simulation simulation, Projection projection) {
         VisManager.registerLayer(onDemandVehicleStationsLayer);
-        VisManager.registerLayer(demandVisualisationLayer);
+        VisManager.registerLayer(onDemandVehicleLayer);
+        VisManager.registerLayer(demandLayer);
     }
 
     @Override

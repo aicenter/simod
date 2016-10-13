@@ -36,8 +36,7 @@ public class SimpleEnvinromentFactory implements EnvironmentFactory{
 	public Injector injectEnvironment(Injector injector, Simulation simulation, long seed, Map<GraphType, 
 			Graph<SimulationNode, SimulationEdge>> graphByGraphType, Map<Integer, SimulationNode> nodesFromAllGraphs) {
 		ZonedDateTime initDate = ZonedDateTime.now();
-		injector = injector.createChildInjector(new AgentPolisEnvironmentModule(simulation, new Random(),
-                graphByGraphType, nodesFromAllGraphs, delayingSegmentCapacityDeterminer, initDate));
+		injector = injector.createChildInjector(new AgentPolisEnvironmentModule(new Random(), initDate));
 
         return injector.createChildInjector(new MyEnvironment());
 	}

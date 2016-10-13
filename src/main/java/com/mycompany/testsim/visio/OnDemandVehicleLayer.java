@@ -3,10 +3,13 @@
 package com.mycompany.testsim.visio;
 
 import com.google.inject.Inject;
+import com.mycompany.testsim.storage.DemandStorage;
 import cz.agents.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.agents.agentpolis.simmodel.environment.model.EntityStorage;
 import cz.agents.agentpolis.simmodel.environment.model.EntityStorage.EntityIterator;
+import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
 import cz.agents.agentpolis.simulator.visualization.visio.entity.EntityPositionUtil;
+import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
 import cz.agents.alite.vis.Vis;
 import cz.agents.alite.vis.layer.AbstractLayer;
 import java.awt.Color;
@@ -20,7 +23,7 @@ import javax.vecmath.Point2d;
  *
  * @author F-I-D-O
  */
-public class DemandVisualisationLayer extends AbstractLayer{
+public class OnDemandVehicleLayer extends AbstractLayer{
 	
 	private static final int DEMAND_REPRESENTATION_RADIUS = 5;
 	
@@ -29,7 +32,7 @@ public class DemandVisualisationLayer extends AbstractLayer{
 	
 	private final EntityPositionUtil entityPostitionUtil;
     
-    private final EntityStorage entityStorage;
+    private final VehicleStorage vehicleStorage;
 	
 	private final Random random;
     
@@ -38,9 +41,9 @@ public class DemandVisualisationLayer extends AbstractLayer{
 	
 	
 	@Inject
-	public DemandVisualisationLayer(EntityPositionUtil entityPostitionUtil, EntityStorage entityStorage) {
+	public OnDemandVehicleLayer(VehiclePositionUtil entityPostitionUtil, VehicleStorage vehicleStorage) {
 		this.entityPostitionUtil = entityPostitionUtil;
-        this.entityStorage = entityStorage;
+        this.vehicleStorage = vehicleStorage;
 		this.random = new Random();
         agentColors = new HashMap<>();
 	}
@@ -56,7 +59,7 @@ public class DemandVisualisationLayer extends AbstractLayer{
 //		EntityPositionIterator entityPositionIterator = entityPostitionUtil.new EntityPositionIterator();
 //		Point2d agentPosition;
 
-        EntityIterator entityIterator = entityStorage.new EntityIterator();
+        EntityIterator entityIterator = vehicleStorage.new EntityIterator();
         AgentPolisEntity agent;
         while((agent = entityIterator.getNextEntity()) != null){
             Point2d agentPosition = entityPostitionUtil.getEntityCanvasPosition(agent);

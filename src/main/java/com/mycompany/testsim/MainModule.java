@@ -5,15 +5,28 @@
  */
 package com.mycompany.testsim;
 
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
+import com.google.inject.name.Names;
+import com.mycompany.testsim.entity.DemandAgent;
+import com.mycompany.testsim.entity.DemandAgent.DemandAgentFactory;
+import com.mycompany.testsim.entity.OnDemandVehicle;
+import com.mycompany.testsim.entity.OnDemandVehicle.OnDemandVehicleFactory;
+import com.mycompany.testsim.entity.OnDemandVehicleStation;
+import com.mycompany.testsim.entity.OnDemandVehicleStation.OnDemandVehicleStationFactory;
 import com.mycompany.testsim.visio.DemandsVisioInItializer;
-import cz.agents.agentpolis.simmodel.environment.EnvironmentFactory;
 import cz.agents.agentpolis.simmodel.environment.StandardAgentPolisModule;
-import cz.agents.agentpolis.simmodel.environment.model.AgentPositionModel;
-import cz.agents.agentpolis.simmodel.environment.model.AgentStorage;
 import cz.agents.agentpolis.simmodel.environment.model.EntityPositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.EntityStorage;
-import cz.agents.agentpolis.simulator.creator.SimulationParameters;
+import cz.agents.agentpolis.simmodel.environment.model.VehiclePositionModel;
+import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.AllNetworkNodes;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.HighwayNetwork;
 import cz.agents.agentpolis.simulator.visualization.visio.VisioInitializer;
+import cz.agents.basestructures.Node;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -21,8 +34,8 @@ import cz.agents.agentpolis.simulator.visualization.visio.VisioInitializer;
  */
 public class MainModule extends StandardAgentPolisModule{
     
-    public MainModule(EnvironmentFactory envinromentFactory, SimulationParameters parameters) {
-        super(envinromentFactory, parameters);
+    public MainModule() {
+        super();
     }
 
     @Override
@@ -32,9 +45,33 @@ public class MainModule extends StandardAgentPolisModule{
 
     @Override
     protected void configureNext() {
-        bind(EntityPositionModel.class).to(AgentPositionModel.class);
-        bind(EntityStorage.class).to(AgentStorage.class);
+        bindConstant().annotatedWith(Names.named("precomputedPaths")).to(true);
+        
+        bind(EntityPositionModel.class).to(VehiclePositionModel.class);
+        bind(EntityStorage.class).to(VehicleStorage.class);
+        
+        install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, OnDemandVehicle.class)
+            .build(OnDemandVehicleFactory.class));
+        install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, OnDemandVehicleStation.class)
+            .build(OnDemandVehicleStationFactory.class));
+        install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
+            .build(DemandAgentFactory.class));
     }
+    
+    @Provides
+	@Singleton
+	Map<Long,Node> provideNodesMappedByNodeSourceIds(HighwayNetwork highwayNetwork, AllNetworkNodes allNetworkNodes) {
+        Map<Long,Integer> nodeIdsMappedByNodeSourceIds = highwayNetwork.getNetwork().createSourceIdToNodeIdMap();
+        Map<Long,Node> nodesMappedByNodeSourceIds = new HashMap<>();
+        
+        for (Map.Entry<Long, Integer> entry : nodeIdsMappedByNodeSourceIds.entrySet()) {
+            Long key = entry.getKey();
+            Integer value = entry.getValue();
+            nodesMappedByNodeSourceIds.put(key, allNetworkNodes.getNode(value));
+        }
+        
+		return nodesMappedByNodeSourceIds;
+	}
     
     
 }

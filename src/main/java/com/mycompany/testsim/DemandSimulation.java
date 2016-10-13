@@ -2,13 +2,13 @@
  */
 package com.mycompany.testsim;
 
-import com.mycompany.testsim.initfactory.DemendsInitFactory;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.mycompany.testsim.init.EventInitializer;
 import com.mycompany.testsim.io.RebalancingLoader;
 import com.mycompany.testsim.io.Trip;
 import com.mycompany.testsim.io.TripTransform;
-import cz.agents.agentpolis.simmodel.environment.StandardAgentPolisModule;
+import cz.agents.agentpolis.AgentPolisInitializer;
 import cz.agents.agentpolis.simmodel.environment.model.delaymodel.impl.InfinityDelayingSegmentCapacityDeterminer;
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.agentpolis.utils.config.ConfigReader;
@@ -17,6 +17,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,28 +48,21 @@ public class DemandSimulation {
 	
 	public void run() throws ConfigReaderException{
 		try {
-			List<Trip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(INPUT_FILE_PATH), Long.class);
-            RebalancingLoader rebalancingLoader = new RebalancingLoader();
-            rebalancingLoader.load(new File(REBALANCING_FILE_PATH));
 			
 			File experimentDir = new File(EXPERIMENT_PATH);
 
 			ConfigReader scenario = ConfigReader.initConfigReader(new File(experimentDir, "scenario.groovy").toURI().toURL());
 			MyParams parameters = new MyParams(experimentDir, scenario);
+            ZonedDateTime initDate = ZonedDateTime.now();
 			SimpleEnvinromentFactory envinromentFactory = new SimpleEnvinromentFactory(new InfinityDelayingSegmentCapacityDeterminer());
 
 			
-			Injector injector = Guice.createInjector(new MainModule(envinromentFactory, parameters));
+			Injector injector 
+                    = new AgentPolisInitializer(envinromentFactory, parameters, initDate, new MainModule()).initialize();
 			
 			SimulationCreator creator = injector.getInstance(SimulationCreator.class);
 
 			creator.setMainEnvironment(injector);
-
-	//		creator.addInitModuleFactory(new VehicleDataModelFactory(parameters.vehicleDataModelFile));
-
-	//        creator.addAgentInit(new MyAgentInitFactory());
-	
-			creator.addInitFactory(new DemendsInitFactory(osmNodesList, creator));
 
 			// set up visual appearance of agents
 			creator.addEntityStyleVis(DemandSimulationEntityType.DEMAND, Color.GREEN, 8);
@@ -76,9 +70,15 @@ public class DemandSimulation {
             // prepare map, entity storages...
             creator.prepareSimulation(new MyMapInitFactory(SRID));
             
-            injector.getInstance(DemandEntityInitializer.class).initialize(osmNodesList, 
-                    rebalancingLoader.getOnDemandVehicleStations(), rebalancingLoader.getRebalancingTrips());
+            List<Trip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(INPUT_FILE_PATH), Long.class);
+            RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
+            rebalancingLoader.load(new File(REBALANCING_FILE_PATH));
+            
+//            injector.getInstance(EntityInitializer.class).initialize(rebalancingLoader.getOnDemandVehicleStations());
 
+            injector.getInstance(EventInitializer.class).initialize(osmNodesList, 
+                    rebalancingLoader.getRebalancingTrips());
+            
 			// start it up
 			creator.startSimulation();
 

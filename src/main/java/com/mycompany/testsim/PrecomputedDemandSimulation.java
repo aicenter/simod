@@ -2,7 +2,7 @@
  */
 package com.mycompany.testsim;
 
-import com.mycompany.testsim.initfactory.DemendsInitFactory;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.mycompany.testsim.io.Trip;
@@ -49,29 +49,29 @@ public class PrecomputedDemandSimulation {
 			SimpleEnvinromentFactory envinromentFactory = new SimpleEnvinromentFactory(new InfinityDelayingSegmentCapacityDeterminer());
 
 			
-			Injector injector = Guice.createInjector(new StandardAgentPolisModule(envinromentFactory, parameters));
+//			Injector injector = Guice.createInjector(new StandardAgentPolisModule(envinromentFactory, parameters));
 			
 
 //			SimulationCreator creator = new SimulationCreator(
 //					new SimpleEnvinromentFactory(new InfinityDelayingSegmentCapacityDeterminer()), parameters);
-			
-			SimulationCreator creator = injector.getInstance(SimulationCreator.class);
-			
-			creator.setMainEnvironment(injector);
+//			
+//			SimulationCreator creator = injector.getInstance(SimulationCreator.class);
+//			
+//			creator.setMainEnvironment(injector);
 
 	//		creator.addInitModuleFactory(new VehicleDataModelFactory(parameters.vehicleDataModelFile));
 
 	//        creator.addAgentInit(new MyAgentInitFactory());
 	
-			creator.addInitFactory(new DemendsInitFactory(osmNodesList, creator));
+//			creator.addInitFactory(new DemendsInitFactory(osmNodesList, creator));
 
 			// set up visual appearance of agents
-			creator.addEntityStyleVis(DemandSimulationEntityType.DEMAND, Color.GREEN, 8);
-
-			// start it up
-			creator.prepareSimulation(new MyMapInitFactory(SRID));
-            
-            creator.startSimulation();
+//			creator.addEntityStyleVis(DemandSimulationEntityType.DEMAND, Color.GREEN, 8);
+//
+//			// start it up
+//			creator.prepareSimulation(new MyMapInitFactory(SRID));
+//            
+//            creator.startSimulation();
 
 			System.exit(0);
 			

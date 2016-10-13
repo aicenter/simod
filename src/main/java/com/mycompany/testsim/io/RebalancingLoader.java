@@ -6,7 +6,10 @@
 package com.mycompany.testsim.io;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mycompany.testsim.simulationon.OnDemandVehicleStation;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.mycompany.testsim.entity.OnDemandVehicleStation;
+import com.mycompany.testsim.entity.OnDemandVehicleStation.OnDemandVehicleStationFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,6 +20,7 @@ import java.util.Map;
  *
  * @author fido
  */
+@Singleton
 public class RebalancingLoader {
     
     private static final int INTERVAL_COUNT = 140;
@@ -29,6 +33,8 @@ public class RebalancingLoader {
     private final List<OnDemandVehicleStation> onDemandVehicleStations;
     
     private final List<Trip<OnDemandVehicleStation>> rebalancingTrips;
+    
+    private final OnDemandVehicleStationFactory onDemandVehicleStationFactory;
 
     
     
@@ -44,8 +50,9 @@ public class RebalancingLoader {
     
     
     
-    
-    public RebalancingLoader() {
+    @Inject
+    public RebalancingLoader(OnDemandVehicleStationFactory onDemandVehicleStationFactory) {
+        this.onDemandVehicleStationFactory = onDemandVehicleStationFactory;
         this.onDemandVehicleStations = new ArrayList<>();
         this.rebalancingTrips = new ArrayList<>();
     }
@@ -63,8 +70,8 @@ public class RebalancingLoader {
         
         for (int i = 0; i < stations.size(); i++) {
             ArrayList station = (ArrayList) stations.get(i);
-            onDemandVehicleStations.add(new OnDemandVehicleStation(Integer.toString(i), (double) station.get(0), 
-                    (double) station.get(1), 0, 0, (int) initialVehicleCount.get(i)));
+            onDemandVehicleStations.add(onDemandVehicleStationFactory.create(Integer.toString(i), 
+                    (double) station.get(0), (double) station.get(1), (int) initialVehicleCount.get(i)));
         }
         
         ArrayList rebalancingTimes = (ArrayList) data.get("rebalancing");

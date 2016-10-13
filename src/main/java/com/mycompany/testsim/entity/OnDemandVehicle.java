@@ -12,9 +12,7 @@ import com.mycompany.testsim.DemandSimulationEntityType;
 import com.mycompany.testsim.OnDemandVehicleStationsCentral;
 import com.mycompany.testsim.TripsUtil;
 import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.Trip;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.TripItem;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.Trips;
+import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.agentpolis.simmodel.agent.Agent;
 import cz.agents.agentpolis.simmodel.agent.activity.movement.DriveVehicleActivity;
 import cz.agents.agentpolis.simmodel.agent.activity.movement.callback.DrivingFinishedActivityCallback;
@@ -70,18 +68,18 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
     
     private OnDemandVehicleStation targetStation;
     
-    private Trips currentTrips;
+    private VehicleTrip currentTrips;
     
-    private Trips demandTrips;
+    private VehicleTrip demandTrips;
 
     
     
     
-    public Trips getCurrentTrips() {
+    public VehicleTrip getCurrentTrips() {
         return currentTrips;
     }
 
-    public Trips getDemandTrips() {
+    public VehicleTrip getDemandTrips() {
         return demandTrips.clone();
     }
     
@@ -153,12 +151,13 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
 
     private void driveToDemandStartLocation() {
         state = OnDemandVehicleState.DRIVING_TO_START_LOCATION;
+        
 		currentTrips = tripsUtil.createTrips(vehiclePositionModel.getEntityPositionByNodeId(vehicle.getId()), 
                 demandNodes.get(0).getId(), vehicle);
         
         demandTrips =  tripsUtil.locationsToTrips(demandNodes, precomputedPaths, vehicle);
 				
-		driveVehicleActivity.drive(getId(), vehicle, (Trip<TripItem>) currentTrips.getAndRemoveFirstTrip(), this);
+		driveVehicleActivity.drive(getId(), vehicle, currentTrips, this);
     }
 
     
@@ -167,7 +166,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
         state = OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION;
         currentTrips = demandTrips;
 				
-		driveVehicleActivity.drive(getId(), vehicle, (Trip<TripItem>) currentTrips.getAndRemoveFirstTrip(), this);
+		driveVehicleActivity.drive(getId(), vehicle, currentTrips, this);
     }
 
     private void driveToNearestStation() {
@@ -180,7 +179,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
         currentTrips 
                 = tripsUtil.createTrips(currentNode.getId(), targetStation.getPositionInGraph().getId(), vehicle);
 				
-		driveVehicleActivity.drive(getId(), vehicle, (Trip<TripItem>) currentTrips.getAndRemoveFirstTrip(), this);
+		driveVehicleActivity.drive(getId(), vehicle, currentTrips, this);
     }
 
     private void waitInStation() {

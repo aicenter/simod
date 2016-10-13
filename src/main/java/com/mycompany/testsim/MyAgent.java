@@ -87,9 +87,9 @@ public class MyAgent extends Agent implements DrivingFinishedActivityCallback{
 		injector.getInstance(VehiclePositionModel.class).setNewEntityPosition(vehicle.getId(), sourcePos);
 		injector.getInstance(EntityVelocityModel.class).addEntityMaxVelocity(vehicle.getId(), velocityOfVehicle);
 		
-		try {
-			Trips trips = planner.findTrip(vehicle.getId(), sourcePos, destPos);
-			driveActivity.drive(getId(), vehicle, (Trip<TripItem>) trips.getAndRemoveFirstTrip(), this);
+//		try {
+//			Trips trips = planner.findTrip(vehicle.getId(), sourcePos, destPos);
+//			driveActivity.drive(getId(), vehicle, (Trip<TripItem>) trips.getAndRemoveFirstTrip(), this);
 			
 //		DriveMovingAction action = new DriveMovingAction(drivenAction, vehiclePlanNotifyAction, 0, vehicleId, 0, vehicleBeforePlanNotifyAction);
 		
@@ -98,9 +98,9 @@ public class MyAgent extends Agent implements DrivingFinishedActivityCallback{
 //		path.add(new TripItem(currentPos));
 //
 //		Trip<TripItem> trip = new VehicleTrip(path, graphType, vehicleId);
-		} catch (TripPlannerException ex) {
-			Logger.getLogger(MyAgent.class.getName()).log(Level.SEVERE, null, ex);
-		}
+//		} catch (TripPlannerException ex) {
+//			Logger.getLogger(MyAgent.class.getName()).log(Level.SEVERE, null, ex);
+//		}
 
 		
 

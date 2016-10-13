@@ -120,13 +120,13 @@ public class DemandAgent extends Agent implements EventHandler,
         OnDemandVehicle vehicle = (OnDemandVehicle) event.getContent();
         
         try{
-            LinkedList<TripItem> passengerDesitnation = new LinkedList<>();
-            passengerDesitnation.add(new TripItem(nodesMappedByNodeSourceIds.get(osmNodeTrip.getLocations().get(0)).getId()));
-            passengerDesitnation.add(new TripItem(nodesMappedByNodeSourceIds.get(osmNodeTrip.getLocations().get(osmNodeTrip.getLocations().size() - 1)).getId()));
+//            LinkedList<TripItem> passengerDesitnation = new LinkedList<>();
+//            passengerDesitnation.add(new TripItem(nodesMappedByNodeSourceIds.get(osmNodeTrip.getLocations().get(0)).getId()));
+//            passengerDesitnation.add(new TripItem(nodesMappedByNodeSourceIds.get(osmNodeTrip.getLocations().get(osmNodeTrip.getLocations().size() - 1)).getId()));
 
-            VehicleTrip passengerDriver = new VehicleTrip(passengerDesitnation, EGraphType.HIGHWAY, vehicle.getId());
+//            VehicleTrip passengerDriver = new VehicleTrip(vehicle.getDemandTrips(), EGraphType.HIGHWAY, vehicle.getId());
             rideAsPassengerActivity.usingVehicleAsPassenger(this.getId(), vehicle.getVehicleId(), 
-                passengerDriver, this);
+                vehicle.getDemandTrips(), this);
            
         }
         catch(Exception e){

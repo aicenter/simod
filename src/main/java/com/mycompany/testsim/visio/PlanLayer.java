@@ -6,29 +6,65 @@
 package com.mycompany.testsim.visio;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import com.mycompany.testsim.PlanningAgent;
+import cz.agents.agentpolis.siminfrastructure.planner.trip.TripItem;
+import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.agents.agentpolis.simmodel.environment.model.EntityStorage;
+import cz.agents.agentpolis.simmodel.environment.model.NearestEntityComparator;
+import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.agents.agentpolis.simulator.visualization.visio.entity.EntityPositionUtil;
+import cz.agents.alite.vis.Vis;
 import cz.agents.alite.vis.layer.AbstractLayer;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import javax.vecmath.Point2d;
 
 /**
  *
  * @author fido
+ * @param <E> entity type
  */
-@Singleton
-public class PlanLayer extends AbstractLayer{
+
+public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends AbstractLayer implements MouseListener{
+	
+	private static final Color TRIP_COLOR = Color.YELLOW;
+	
+	private static final float LINE_WIDTH = 0.5f;
+	
+	private static final int CLICK_DISTANCE_IN_PX = 15;
+	
     
-    private final EntityStorage<AgentPolisEntity> entityStorage;
+	
+	
+    protected final EntityStorage<E> entityStorage;
+	
+	protected final EntityPositionUtil entityPositionUtil;
     
-    private 
+    protected final PositionUtil positionUtil;
+	
+	protected final ArrayList<E> drawedEntities;
 
     
     
     
     @Inject
-    public PlanLayer(EntityStorage entityStorage) {
+    public PlanLayer(EntityStorage entityStorage, EntityPositionUtil entityPositionUtil, PositionUtil positionUtil) {
         this.entityStorage = entityStorage;
+		this.entityPositionUtil = entityPositionUtil;
+		this.positionUtil = positionUtil;
+		drawedEntities = new ArrayList<>();
     }
     
     
@@ -36,10 +72,100 @@ public class PlanLayer extends AbstractLayer{
 
     @Override
     public void paint(Graphics2D canvas) {
-        for (AgentPolisEntity entity : entityStorage) {
-            
+		canvas.setColor(TRIP_COLOR);
+		canvas.setStroke(new BasicStroke(LINE_WIDTH));
+		Dimension dim = Vis.getDrawingDimension();
+        Rectangle2D drawingRectangle = new Rectangle(dim);
+        for (E entity : drawedEntities) {
+			if(entity.getCurrentPlan() != null){
+				drawTrip(canvas, dim, drawingRectangle, entity);
+			}
         }
     }
+
+	protected void drawTrip(Graphics2D canvas, Dimension dim, Rectangle2D drawingRectangle, E entity) {
+		VehicleTrip trip = entity.getCurrentPlan();
+		LinkedList<TripItem> locations = trip.getLocations();
+		Iterator<TripItem> iterator = locations.iterator();
+		int startLocationNodeId = iterator.next().tripPositionByNodeId;
+		while(iterator.hasNext()){
+			int targetLocationNodeId = iterator.next().tripPositionByNodeId;
+			drawLine(canvas, drawingRectangle, startLocationNodeId, targetLocationNodeId);
+			startLocationNodeId = targetLocationNodeId;
+		}
+	}
+
+	protected void drawLine(Graphics2D canvas, Rectangle2D drawingRectangle, int startLocationNodeId, int targetLocationNodeId) {
+		Point2d startPosition = positionUtil.getCanvasPosition(startLocationNodeId);
+		Point2d targetPosition = positionUtil.getCanvasPosition(targetLocationNodeId);
+		
+		int x = (int) startPosition.x;
+        int y = (int) startPosition.y;
+        int xTo = (int) targetPosition.x;
+        int yTo = (int) targetPosition.y;
+
+        Line2D line2d = new Line2D.Double(x, y, xTo, yTo);
+
+        if (line2d.intersects(drawingRectangle)) {
+            canvas.draw(line2d);
+        }
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent mouseEvent) {
+		if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
+            double clickDistanceInM = Vis.transInvW(CLICK_DISTANCE_IN_PX);
+            Point2d clickInRealCoords = new Point2d(Vis.transInvX(mouseEvent.getX()), Vis.transInvY(mouseEvent.getY()));
+
+//            Collection<CrowdPersonState> allStates = new ArrayList<>(crowdPersonStorage.getAllStates());
+
+            if (entityStorage.isEmpty() == false) {
+                AgentPolisEntity closestAgent = Collections.min(entityStorage.getEntities(), 
+						new NearestEntityComparator<>(entityPositionUtil, clickInRealCoords));
+
+                if (entityPositionUtil.getEntityPosition(closestAgent).distance(clickInRealCoords) 
+						<= clickDistanceInM) {
+                    switchDrawPlan((E) closestAgent);
+                }
+            }
+        }
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent me) {
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent me) {
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent me) {
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent me) {
+		
+	}
+
+
+	private void switchDrawPlan(E agent) {
+		if(drawedEntities.contains(agent)){
+			drawedEntities.remove(agent);
+		}
+		else{
+			drawedEntities.add(agent);
+		}
+	}
+
+	@Override
+	public void init(Vis vis) {
+		super.init(vis); 
+		vis.addMouseListener((java.awt.event.MouseListener) this);
+	}
     
     
     

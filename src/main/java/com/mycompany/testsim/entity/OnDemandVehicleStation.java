@@ -12,9 +12,11 @@ import com.mycompany.testsim.DemandSimulationEntityType;
 import com.mycompany.testsim.storage.OnDemandvehicleStationStorage;
 import com.mycompany.testsim.event.OnDemandVehicleStationEvent;
 import com.mycompany.testsim.entity.OnDemandVehicle.OnDemandVehicleFactory;
+import com.mycompany.testsim.storage.OnDemandVehicleStorage;
 import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
 import cz.agents.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.agents.agentpolis.simmodel.entity.EntityType;
+import cz.agents.agentpolis.simmodel.environment.model.AgentPositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.NearestElementUtils;
 import cz.agents.alite.common.event.Event;
@@ -35,7 +37,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     
     private final EventProcessor eventProcessor;
     
-    private final GPSLocation gpsLocation;
+//    private final GPSLocation gpsLocation;
     
     private final Node positionInGraph;
 
@@ -43,9 +45,9 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     
     
     
-    public GPSLocation getGpsLocation() {
-        return gpsLocation;
-    }
+//    public GPSLocation getGpsLocation() {
+//        return gpsLocation;
+//    }
 
     public Node getPositionInGraph() {
         return positionInGraph;
@@ -59,15 +61,19 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     @Inject
     public OnDemandVehicleStation(EventProcessor eventProcessor, OnDemandVehicleFactory onDemandVehicleFactory, 
             NearestElementUtils nearestElementUtils, OnDemandvehicleStationStorage onDemandVehicleStationStorage,
-            @Assisted String id, @Assisted("lat") double lat, @Assisted("lon") double lon, 
-            @Assisted int initialVehicleCount) {
+			OnDemandVehicleStorage onDemandVehicleStorage, @Assisted String id, AgentPositionModel agentPositionModel,
+			@Assisted("lat") double lat, @Assisted("lon") double lon, @Assisted int initialVehicleCount) {
         super(id);
         this.eventProcessor = eventProcessor;
         positionInGraph = nearestElementUtils.getNearestElement(new GPSLocation(lat, lon, 0, 0), EGraphType.HIGHWAY);
-        gpsLocation = new GPSLocation(positionInGraph.getLatitude(), positionInGraph.getLongitude(), 0, 0);
+//        gpsLocation = new GPSLocation(positionInGraph.getLatitude(), positionInGraph.getLongitude(), 0, 0);
         parkedVehicles = new ArrayList<>();
         for (int i = 0; i < initialVehicleCount; i++) {
-            parkedVehicles.add(onDemandVehicleFactory.create(String.format("%s-%d", id, i), positionInGraph));
+			String onDemandVehicelId = String.format("%s-%d", id, i);
+			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, positionInGraph);
+            parkedVehicles.add(newVehicle);
+			onDemandVehicleStorage.addEntity(newVehicle);
+			agentPositionModel.setNewEntityPosition(newVehicle.getId(), positionInGraph.getId());
         }
         onDemandVehicleStationStorage.addEntity(this);
     }

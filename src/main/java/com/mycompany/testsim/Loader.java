@@ -6,7 +6,7 @@
 package com.mycompany.testsim;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mycompany.testsim.io.Trip;
+import com.mycompany.testsim.io.TimeTrip;
 import cz.agents.basestructures.GPSLocation;
 import java.io.IOException;
 import java.sql.Connection;
@@ -27,9 +27,9 @@ public class Loader {
 	
 //	private Connection connection;
 	
-	private ArrayList<Trip<GPSLocation>> trips;
+	private ArrayList<TimeTrip<GPSLocation>> trips;
 
-	public ArrayList<Trip<GPSLocation>> getTrips() {
+	public ArrayList<TimeTrip<GPSLocation>> getTrips() {
 		return trips;
 	}
 	
@@ -58,7 +58,7 @@ public class Loader {
 						System.out.println("count" + count);
 
 						while (resultSet.next()) {
-							trips.add(new Trip(getLocationsFromJson(resultSet.getString("path")), 
+							trips.add(new TimeTrip(getLocationsFromJson(resultSet.getString("path")), 
 									resultSet.getLong("start_time"), resultSet.getLong("end_time")));
 						}
 					}

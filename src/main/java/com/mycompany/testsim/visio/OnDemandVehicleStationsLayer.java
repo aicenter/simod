@@ -52,7 +52,7 @@ public class OnDemandVehicleStationsLayer extends AbstractLayer{
         OnDemandvehicleStationStorage.EntityIterator entityIterator = onDemandvehicleStationStorage.new EntityIterator();
         OnDemandVehicleStation onDemandVehicleStation;
         while((onDemandVehicleStation = entityIterator.getNextEntity()) != null){
-            Point2d agentPosition = postitionUtil.getCanvasPosition(onDemandVehicleStation.getGpsLocation());
+            Point2d agentPosition = postitionUtil.getCanvasPosition(onDemandVehicleStation.getPositionInGraph());
             if(agentPosition == null){
                 continue;
             }

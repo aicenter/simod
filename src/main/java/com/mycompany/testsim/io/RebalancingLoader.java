@@ -32,7 +32,7 @@ public class RebalancingLoader {
     
     private final List<OnDemandVehicleStation> onDemandVehicleStations;
     
-    private final List<Trip<OnDemandVehicleStation>> rebalancingTrips;
+    private final List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips;
     
     private final OnDemandVehicleStationFactory onDemandVehicleStationFactory;
 
@@ -43,7 +43,7 @@ public class RebalancingLoader {
         return onDemandVehicleStations;
     }
 
-    public List<Trip<OnDemandVehicleStation>> getRebalancingTrips() {
+    public List<TimeTrip<OnDemandVehicleStation>> getRebalancingTrips() {
         return rebalancingTrips;
     }
 
@@ -84,7 +84,7 @@ public class RebalancingLoader {
                 for (int k = 0; k < rebalancingTargetStations.size(); k++) {
                     int doRebalancingTrip = (int) rebalancingTargetStations.get(j);
                     if(doRebalancingTrip == 1){
-                        rebalancingTrips.add(new Trip<>(onDemandVehicleStations.get(j), onDemandVehicleStations.get(k), 
+                        rebalancingTrips.add(new TimeTrip<>(onDemandVehicleStations.get(j), onDemandVehicleStations.get(k), 
                         startTime));
                     }
                 }

@@ -5,7 +5,7 @@ package com.mycompany.testsim;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.mycompany.testsim.io.Trip;
+import com.mycompany.testsim.io.TimeTrip;
 import com.mycompany.testsim.io.TripTransform;
 import cz.agents.agentpolis.simmodel.environment.StandardAgentPolisModule;
 import cz.agents.agentpolis.simmodel.environment.model.delaymodel.impl.InfinityDelayingSegmentCapacityDeterminer;
@@ -40,7 +40,7 @@ public class PrecomputedDemandSimulation {
 	
 	public void run() throws ConfigReaderException{
 		try {
-			List<Trip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(INPUT_FILE_PATH), Long.class);
+			List<TimeTrip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(INPUT_FILE_PATH), Long.class);
 			
 			File experimentDir = new File(EXPERIMENT_PATH);
 

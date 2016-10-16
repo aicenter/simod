@@ -13,7 +13,6 @@ import com.google.inject.name.Named;
 import com.mycompany.testsim.entity.OnDemandVehicleStation;
 import com.mycompany.testsim.event.OnDemandVehicleStationsCentralEvent;
 import com.vividsolutions.jts.geom.Coordinate;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.NearestElementUtils;
 import cz.agents.agentpolis.utils.nearestelement.NearestElementUtil;
 import cz.agents.agentpolis.utils.nearestelement.NearestElementUtil.SerializableIntFunction;
 import cz.agents.alite.common.event.Event;
@@ -76,7 +75,7 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
         if(nearestElementUtil == null){
             nearestElementUtil = getNearestElementUtilForStations();
         }
-        return nearestElementUtil.getNearestElement(position);
+        return nearestElementUtil.getNearestElement(new GPSLocation(position.latE6, position.lonE6, 0, 0, position.elevation));
     }
     
     private NearestElementUtil<OnDemandVehicleStation> getNearestElementUtilForStations() {
@@ -86,8 +85,8 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
 		
         OnDemandVehicleStation station;
 		while ((station = iterator.getNextEntity()) != null) {
-            GPSLocation location = station.getGpsLocation();
-			pairs.add(new Pair<>(new Coordinate(location.getLongitude(), location.getLatitude()), station));
+            GPSLocation location = station.getPositionInGraph();
+			pairs.add(new Pair<>(new Coordinate(location.getLongitude(), location.getLatitude(), location.getElevation()), station));
 		}
 		
 		return new NearestElementUtil<>(pairs, transformer, new OnDemandVehicleStationArrayConstructor());
@@ -97,8 +96,7 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
         DemandData demandData = (DemandData) event.getContent();
         List<Long> locations = demandData.locations;
         Node startNode = nodesMappedByNodeSourceIds.get(locations.get(0));
-        OnDemandVehicleStation nearestStation = getNearestStation(
-                new GPSLocation(startNode.getLatitude(), startNode.getLongitude(), 0, 0));        
+        OnDemandVehicleStation nearestStation = getNearestStation(startNode);        
         eventProcessor.addEvent(OnDemandVehicleStationEvent.TRIP, nearestStation, null, demandData);
     }
     

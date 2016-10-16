@@ -45,7 +45,7 @@ public class MainModule extends StandardAgentPolisModule{
 
     @Override
     protected void configureNext() {
-        bindConstant().annotatedWith(Names.named("precomputedPaths")).to(true);
+        bindConstant().annotatedWith(Names.named("precomputedPaths")).to(false);
         
         bind(EntityPositionModel.class).to(VehiclePositionModel.class);
         bind(EntityStorage.class).to(VehicleStorage.class);

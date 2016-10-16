@@ -9,7 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mycompany.testsim.entity.DemandAgent;
 import com.mycompany.testsim.entity.DemandAgent.DemandAgentFactory;
-import com.mycompany.testsim.io.Trip;
+import com.mycompany.testsim.io.TimeTrip;
 import com.mycompany.testsim.entity.OnDemandVehicleStation;
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.alite.common.event.Event;
@@ -43,8 +43,8 @@ public class EventInitializer {
     }
     
     
-    public void initialize(List<Trip<Long>> osmNodeTrips, List<Trip<OnDemandVehicleStation>> rebalancingTrips){
-        for (Trip<Long> osmNodeTrip : osmNodeTrips) {
+    public void initialize(List<TimeTrip<Long>> osmNodeTrips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips){
+        for (TimeTrip<Long> osmNodeTrip : osmNodeTrips) {
 			eventProcessor.addEvent(null, demandEventHandler, null, osmNodeTrip, osmNodeTrip.getStartTime());
 		}
     }
@@ -58,7 +58,7 @@ public class EventInitializer {
 
 		@Override
 		public void handleEvent(Event event) {
-			Trip<Long> osmNodeTrip = (Trip<Long>) event.getContent();
+			TimeTrip<Long> osmNodeTrip = (TimeTrip<Long>) event.getContent();
 			
 			DemandAgent demandAgent = demandAgentFactory.create(Long.toString(idCounter++), osmNodeTrip);
 			

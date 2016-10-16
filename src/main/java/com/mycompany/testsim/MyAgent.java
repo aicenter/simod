@@ -9,7 +9,7 @@ import com.google.inject.Injector;
 import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
 import cz.agents.agentpolis.siminfrastructure.planner.TripPlannerException;
 import cz.agents.agentpolis.siminfrastructure.planner.path.ShortestPathPlanner;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.Trip;
+import cz.agents.agentpolis.siminfrastructure.planner.trip.GraphTrip;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.TripItem;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.Trips;
 import cz.agents.agentpolis.simmodel.agent.Agent;
@@ -89,7 +89,7 @@ public class MyAgent extends Agent implements DrivingFinishedActivityCallback{
 		
 //		try {
 //			Trips trips = planner.findTrip(vehicle.getId(), sourcePos, destPos);
-//			driveActivity.drive(getId(), vehicle, (Trip<TripItem>) trips.getAndRemoveFirstTrip(), this);
+//			driveActivity.drive(getId(), vehicle, (GraphTrip<TripItem>) trips.getAndRemoveFirstTrip(), this);
 			
 //		DriveMovingAction action = new DriveMovingAction(drivenAction, vehiclePlanNotifyAction, 0, vehicleId, 0, vehicleBeforePlanNotifyAction);
 		
@@ -97,7 +97,7 @@ public class MyAgent extends Agent implements DrivingFinishedActivityCallback{
 //		path.add(new TripItem(currentPos));
 //		path.add(new TripItem(currentPos));
 //
-//		Trip<TripItem> trip = new VehicleTrip(path, graphType, vehicleId);
+//		GraphTrip<TripItem> trip = new VehicleTrip(path, graphType, vehicleId);
 //		} catch (TripPlannerException ex) {
 //			Logger.getLogger(MyAgent.class.getName()).log(Level.SEVERE, null, ex);
 //		}

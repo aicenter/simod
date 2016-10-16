@@ -2,11 +2,10 @@
  */
 package com.mycompany.testsim;
 
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.mycompany.testsim.init.EventInitializer;
 import com.mycompany.testsim.io.RebalancingLoader;
-import com.mycompany.testsim.io.Trip;
+import com.mycompany.testsim.io.TimeTrip;
 import com.mycompany.testsim.io.TripTransform;
 import cz.agents.agentpolis.AgentPolisInitializer;
 import cz.agents.agentpolis.simmodel.environment.model.delaymodel.impl.InfinityDelayingSegmentCapacityDeterminer;
@@ -34,7 +33,9 @@ public class DemandSimulation {
     
     private static final String REBALANCING_FILE_PATH = "data/Prague/policy.json";
 	
-	private static final int SRID = 2065;
+//	private static final int SRID = 2065;
+	
+	private static final int SRID = 4326;
     
     
     
@@ -70,7 +71,7 @@ public class DemandSimulation {
             // prepare map, entity storages...
             creator.prepareSimulation(new MyMapInitFactory(SRID));
             
-            List<Trip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(INPUT_FILE_PATH), Long.class);
+            List<TimeTrip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(INPUT_FILE_PATH), Long.class);
             RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
             rebalancingLoader.load(new File(REBALANCING_FILE_PATH));
             

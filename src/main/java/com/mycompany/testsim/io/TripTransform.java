@@ -21,6 +21,7 @@ import cz.agents.multimodalstructures.nodes.RoadNode;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.javatuples.Pair;
 
@@ -32,12 +33,12 @@ public class TripTransform {
 	
 	private PathPlanner pathPlanner;
 	
-	public List<Trip<Long>> gpsTripsToOsmNodeTrips(List<Trip<GPSLocation>> gpsTrips, 
+	public List<TimeTrip<Long>> gpsTripsToOsmNodeTrips(List<TimeTrip<GPSLocation>> gpsTrips, 
 			File osmFile, int srid){
 		return gpsTripsToOsmNodeTrips(gpsTrips, osmFile, srid, true);
 	}
 	
-	public List<Trip<Long>> gpsTripsToOsmNodeTrips(List<Trip<GPSLocation>> gpsTrips, 
+	public List<TimeTrip<Long>> gpsTripsToOsmNodeTrips(List<TimeTrip<GPSLocation>> gpsTrips, 
 			File osmFile, int srid, boolean completedTrips){
 		Transformer transformer = new Transformer(srid);
 		
@@ -53,36 +54,36 @@ public class TripTransform {
 		
 		NearestElementUtil<RoadNode> nearestElementUtil = new NearestElementUtil<>(pairs, new Transformer(4326), 
 				new RoadNodeArrayConstructor());
-		ArrayList<Trip<Long>> osmNodeTrips = new ArrayList<>();
+		ArrayList<TimeTrip<Long>> osmNodeTrips = new ArrayList<>();
 		
 		if(completedTrips){
 			pathPlanner = new PathPlanner(highwayGraph);
 		}
 		
-		for (Trip<GPSLocation> trip : gpsTrips) {
+		for (TimeTrip<GPSLocation> trip : gpsTrips) {
 			processGpsTrip(trip, nearestElementUtil, osmNodeTrips, completedTrips);
 		}
 		
 		return osmNodeTrips;
 	}
 	
-	public static <T> void tripsToJson(List<Trip<T>> trips, File outputFile) throws IOException{
+	public static <T> void tripsToJson(List<TimeTrip<T>> trips, File outputFile) throws IOException{
 		ObjectMapper mapper = new ObjectMapper();
 		
 		mapper.writeValue(outputFile, trips);
 	}
 	
-	public static <T> List<Trip<T>> jsonToTrips(File inputFile, Class<T> locationType) throws IOException{
+	public static <T> List<TimeTrip<T>> jsonToTrips(File inputFile, Class<T> locationType) throws IOException{
 		ObjectMapper mapper = new ObjectMapper();
 		TypeFactory typeFactory = mapper.getTypeFactory();
 		
 		return mapper.readValue(inputFile, typeFactory.constructCollectionType(
-				List.class, typeFactory.constructParametricType(Trip.class, locationType)));
+				List.class, typeFactory.constructParametricType(TimeTrip.class, locationType)));
 	}
 
-	private void processGpsTrip(Trip<GPSLocation> trip, NearestElementUtil<RoadNode> nearestElementUtil, 
-			ArrayList<Trip<Long>> osmNodeTrips, boolean completedTrips) {
-		ArrayList<Long> osmNodesList = new ArrayList<>();
+	private void processGpsTrip(TimeTrip<GPSLocation> trip, NearestElementUtil<RoadNode> nearestElementUtil, 
+			ArrayList<TimeTrip<Long>> osmNodeTrips, boolean completedTrips) {
+		LinkedList<Long> osmNodesList = new LinkedList<>();
 		
 		List<GPSLocation> locations = trip.getLocations();
 		long lastNodeId = nearestElementUtil.getNearestElement(locations.get(0)).getSourceId();
@@ -105,7 +106,7 @@ public class TripTransform {
 			}
 		}
 		if(osmNodesList.size() > 1){
-			osmNodeTrips.add(new Trip<>(osmNodesList, trip.getStartTime(), trip.getEndTime()));
+			osmNodeTrips.add(new TimeTrip<>(osmNodesList, trip.getStartTime(), trip.getEndTime()));
 		}
 	}
 	

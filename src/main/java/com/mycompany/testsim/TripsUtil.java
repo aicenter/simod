@@ -7,6 +7,7 @@ import com.mycompany.testsim.entity.DemandAgent;
 import cz.agents.agentpolis.siminfrastructure.planner.TripPlannerException;
 import cz.agents.agentpolis.siminfrastructure.planner.path.ShortestPathPlanner;
 import cz.agents.agentpolis.siminfrastructure.planner.path.ShortestPathPlanners;
+import cz.agents.agentpolis.siminfrastructure.planner.trip.TripException;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.TripItem;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.agentpolis.simmodel.entity.vehicle.Vehicle;
@@ -65,7 +66,13 @@ public class TripsUtil {
         tripItems.add(new TripItem(startNodeId));
 		VehicleTrip finalTrip = null;
 		for (int i = 1; i < locations.size(); i++) {
+			try{
             int targetNodeId = locations.get(i).getId();
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+			int targetNodeId = locations.get(i).getId();
 			if(precomputedPaths){
 //				LinkedList<TripItem> tripItems = new LinkedList<>();
 //				tripItems.add(new TripItem(startNodeId));
@@ -122,4 +129,29 @@ public class TripsUtil {
     
         return finalTrip;
     }
+	
+	public static VehicleTrip mergeTrips(VehicleTrip... trips){
+		int i = 0;
+		VehicleTrip firstTrip = null;
+		do{
+			firstTrip = trips[i];
+			i++;
+		}while(firstTrip == null);
+		
+		VehicleTrip newTrip = new VehicleTrip(new LinkedList<>(), firstTrip.getGraphType(), firstTrip.getVehicleId());
+		
+		for(int j = 0; j < trips.length; j++){
+			VehicleTrip trip = trips[j];
+			if(trip != null){
+				for (TripItem location : trip.getLocations()) {
+					try {
+						newTrip.extendTrip(location);
+					} catch (TripException ex) {
+						Logger.getLogger(TripsUtil.class.getName()).log(Level.SEVERE, null, ex);
+					}
+				}
+			}
+		}
+		return newTrip;
+	}
 }

@@ -9,7 +9,7 @@ import com.mycompany.testsim.DemandData;
 import com.mycompany.testsim.DemandSimulationEntityType;
 import com.mycompany.testsim.OnDemandVehicleStationsCentral;
 import com.mycompany.testsim.event.OnDemandVehicleStationsCentralEvent;
-import com.mycompany.testsim.io.Trip;
+import com.mycompany.testsim.io.TimeTrip;
 import com.mycompany.testsim.storage.DemandStorage;
 import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
 import cz.agents.agentpolis.siminfrastructure.planner.TripPlannerException;
@@ -47,7 +47,7 @@ import java.util.logging.Logger;
 public class DemandAgent extends Agent implements EventHandler, 
         PassengerActivityCallback<VehicleTrip>{
 	
-	private final Trip<Long> osmNodeTrip;
+	private final TimeTrip<Long> osmNodeTrip;
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
 	
@@ -71,7 +71,7 @@ public class DemandAgent extends Agent implements EventHandler,
             RideInVehicleActivity rideAsPassengerActivity, DemandStorage demandStorage, 
             AgentPositionModel agentPositionModel, Map<Long,Node> nodesMappedByNodeSourceIds, 
             @Named("precomputedPaths") boolean precomputedPaths,@Assisted String agentId,
-            @Assisted Trip<Long> osmNodeTrip) {
+            @Assisted TimeTrip<Long> osmNodeTrip) {
 		super(agentId, DemandSimulationEntityType.DEMAND);
 		this.osmNodeTrip = osmNodeTrip;
 		this.precomputedPaths = precomputedPaths;
@@ -84,7 +84,7 @@ public class DemandAgent extends Agent implements EventHandler,
 	}
 	
     
-//	public DemandAgent(String agentId, EntityType agentType, Trip<Long> osmNodeTrip, 
+//	public DemandAgent(String agentId, EntityType agentType, TimeTrip<Long> osmNodeTrip, 
 //			Map<Long,Integer> nodeIdsMappedByNodeSourceIds, ShortestPathPlanner pathPlanner){
 //		this(agentId, agentType, osmNodeTrip, nodeIdsMappedByNodeSourceIds, pathPlanner, true);
 //	}
@@ -174,7 +174,7 @@ public class DemandAgent extends Agent implements EventHandler,
 //				try {
 //					Trips trips = pathPlanner.findTrip(vehicle.getId(), nodeIdsMappedByNodeSourceIds.get(startNodeSourceId),
 //							nodeIdsMappedByNodeSourceIds.get(targetNodeSourceId));
-//					for (cz.agents.agentpolis.siminfrastructure.planner.trip.Trip<?> trip : trips) {
+//					for (cz.agents.agentpolis.siminfrastructure.planner.trip.TimeTrip<?> trip : trips) {
 //						finalTrips.addEndCurrentTrips(trip);
 //					}
 //					
@@ -194,12 +194,12 @@ public class DemandAgent extends Agent implements EventHandler,
 ////		injector.getInstance(VehiclePositionModel.class).setNewEntityPosition(vehicle.getId(), sourcePos);
 //		injector.getInstance(EntityVelocityModel.class).addEntityMaxVelocity(vehicle.getId(), velocityOfVehicle);
 //				
-//		driveActivity.drive(getId(), vehicle, (cz.agents.agentpolis.siminfrastructure.planner.trip.Trip<TripItem>) 
+//		driveActivity.drive(getId(), vehicle, (cz.agents.agentpolis.siminfrastructure.planner.trip.TimeTrip<TripItem>) 
 //				finalTrips.getAndRemoveFirstTrip(), this);
 //    }
     
     public interface DemandAgentFactory {
-        public DemandAgent create(String agentId, Trip<Long> osmNodeTrip);
+        public DemandAgent create(String agentId, TimeTrip<Long> osmNodeTrip);
     }
 	
 }

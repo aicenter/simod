@@ -6,18 +6,18 @@
 package com.mycompany.testsim;
 
 import com.mycompany.testsim.entity.DemandAgent;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author fido
  */
 public class DemandData {
-    public ArrayList<Long> locations;
+    public List<Long> locations;
     
     public DemandAgent demandAgent;
 
-    public DemandData(ArrayList<Long> locList, DemandAgent demandAgent) {
+    public DemandData(List<Long> locList, DemandAgent demandAgent) {
         this.locations = locList;
         this.demandAgent = demandAgent;
     }

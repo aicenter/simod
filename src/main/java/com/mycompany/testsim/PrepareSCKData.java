@@ -5,7 +5,7 @@
  */
 package com.mycompany.testsim;
 
-import com.mycompany.testsim.io.Trip;
+import com.mycompany.testsim.io.TimeTrip;
 import com.mycompany.testsim.io.TripTransform;
 import cz.agents.basestructures.GPSLocation;
 import java.io.File;
@@ -31,9 +31,9 @@ public class PrepareSCKData {
 	public static void main(String[] args) {
 		Loader loader = new Loader();
 		loader.loadSCKData();
-		List<Trip<GPSLocation>> gpsTrips = loader.getTrips();
+		List<TimeTrip<GPSLocation>> gpsTrips = loader.getTrips();
 		TripTransform tripTransform = new TripTransform();
-		List<Trip<Long>> osmNodeTrips = tripTransform.gpsTripsToOsmNodeTrips(gpsTrips, new File(OSM_FILE_PATH), SRID);
+		List<TimeTrip<Long>> osmNodeTrips = tripTransform.gpsTripsToOsmNodeTrips(gpsTrips, new File(OSM_FILE_PATH), SRID);
 		try {
 			TripTransform.tripsToJson(osmNodeTrips, new File(OUTPUT_FILE_PATH));
 		} catch (IOException ex) {

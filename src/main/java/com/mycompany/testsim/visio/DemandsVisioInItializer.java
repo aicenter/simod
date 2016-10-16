@@ -40,6 +40,8 @@ public class DemandsVisioInItializer extends DefaultVisioInitializer{
     private final DemandLayer demandLayer;
     
     private final OnDemandVehicleStationsLayer onDemandVehicleStationsLayer;
+	
+	private final OnDemandVehiclePlanLayer onDemandVehiclePlanLayer;
     
     
     
@@ -52,7 +54,8 @@ public class DemandsVisioInItializer extends DefaultVisioInitializer{
             VehiclePositionModel vehiclePositionModel, AllNetworkNodes allNetworkNodes, 
             SimulationCreator simulationCreator, OnDemandVehicleLayer onDemandVehicleLayer,
             TrafficDensityLayer trafficDensityLayer, NodeIdLayer nodeIdLayer, 
-            OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, DemandLayer demandLayer) {
+            OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, DemandLayer demandLayer, 
+			OnDemandVehiclePlanLayer onDemandVehiclePlanLayer) {
         super(pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork, 
                 entityStorage, agentStorage, vehicleStorage, agentPositionModel, vehiclePositionModel, allNetworkNodes, 
                 simulationCreator);
@@ -61,6 +64,7 @@ public class DemandsVisioInItializer extends DefaultVisioInitializer{
         this.nodeIdLayer = nodeIdLayer;
         this.onDemandVehicleStationsLayer = onDemandVehicleStationsLayer;
         this.demandLayer = demandLayer;
+		this.onDemandVehiclePlanLayer = onDemandVehiclePlanLayer;
     }
 
     @Override
@@ -68,11 +72,12 @@ public class DemandsVisioInItializer extends DefaultVisioInitializer{
         VisManager.registerLayer(onDemandVehicleStationsLayer);
         VisManager.registerLayer(onDemandVehicleLayer);
         VisManager.registerLayer(demandLayer);
+		VisManager.registerLayer(onDemandVehiclePlanLayer);
     }
 
     @Override
     protected void initLayersBeforeEntityLayers() {
-        VisManager.registerLayer(trafficDensityLayer);
+//        VisManager.registerLayer(trafficDensityLayer);
     }
 
     @Override

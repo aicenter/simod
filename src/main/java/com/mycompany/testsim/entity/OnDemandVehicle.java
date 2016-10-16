@@ -10,8 +10,10 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 import com.mycompany.testsim.DemandSimulationEntityType;
 import com.mycompany.testsim.OnDemandVehicleStationsCentral;
+import com.mycompany.testsim.PlanningAgent;
 import com.mycompany.testsim.TripsUtil;
 import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
+import cz.agents.agentpolis.siminfrastructure.planner.trip.Trip;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.agentpolis.simmodel.agent.Agent;
 import cz.agents.agentpolis.simmodel.agent.activity.movement.DriveVehicleActivity;
@@ -34,7 +36,7 @@ import java.util.Map;
  *
  * @author fido
  */
-public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinishedActivityCallback{
+public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinishedActivityCallback, PlanningAgent {
     
     private static final double LENGTH = 4;
     
@@ -68,19 +70,22 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
     
     private OnDemandVehicleStation targetStation;
     
-    private VehicleTrip currentTrips;
+    private VehicleTrip currentTrip;
     
-    private VehicleTrip demandTrips;
-
+    private VehicleTrip demandTrip;
+	
+	private VehicleTrip tripToStation;
+	
+	private VehicleTrip completeTrip;
     
     
     
     public VehicleTrip getCurrentTrips() {
-        return currentTrips;
+        return currentTrip;
     }
 
     public VehicleTrip getDemandTrips() {
-        return demandTrips.clone();
+        return demandTrip.clone();
     }
     
     
@@ -102,7 +107,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
         this.precomputedPaths = precomputedPaths;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         
-        vehicle = new Vehicle(vehicleId, DemandSimulationEntityType.VEHICLE, LENGTH, CAPACITY, EGraphType.HIGHWAY);
+        vehicle = new Vehicle(vehicleId + " - vehicle", DemandSimulationEntityType.VEHICLE, LENGTH, CAPACITY, EGraphType.HIGHWAY);
         
         vehicleStorage.addEntity(vehicle);
         entityVelocityModel.addEntityMaxVelocity(vehicle.getId(), VelocityConverter.kmph2mps(VELOCITY));
@@ -128,9 +133,18 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
     public void handleEvent(Event event) {
         List<Long> locations = (List<Long>) event.getContent();
         demandNodes = new ArrayList<>();
-        for (Long location : locations) {
-            demandNodes.add(nodesMappedByNodeSourceIds.get(location));
-        }
+		if(precomputedPaths){
+			for (Long location : locations) {
+				demandNodes.add(nodesMappedByNodeSourceIds.get(location));
+				if(nodesMappedByNodeSourceIds.get(location) == null){
+					System.out.println("com.mycompany.testsim.entity.OnDemandVehicle.handleEvent()");
+				}
+			}
+		}
+		else{
+			demandNodes.add(nodesMappedByNodeSourceIds.get(locations.get(0)));
+			demandNodes.add(nodesMappedByNodeSourceIds.get(locations.get(locations.size() - 1)));
+		}
         driveToDemandStartLocation();
     }
     
@@ -150,42 +164,80 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
     }
 
     private void driveToDemandStartLocation() {
-        state = OnDemandVehicleState.DRIVING_TO_START_LOCATION;
         
-		currentTrips = tripsUtil.createTrips(vehiclePositionModel.getEntityPositionByNodeId(vehicle.getId()), 
+        if(vehiclePositionModel.getEntityPositionByNodeId(vehicle.getId()) ==  demandNodes.get(0).getId()){
+			currentTrip = null;
+		}
+		else{
+			currentTrip = tripsUtil.createTrips(vehiclePositionModel.getEntityPositionByNodeId(vehicle.getId()), 
                 demandNodes.get(0).getId(), vehicle);
+		}
         
-        demandTrips =  tripsUtil.locationsToTrips(demandNodes, precomputedPaths, vehicle);
-				
-		driveVehicleActivity.drive(getId(), vehicle, currentTrips, this);
+        demandTrip = tripsUtil.locationsToTrips(demandNodes, precomputedPaths, vehicle);
+		
+		Node demandEndNode = demandNodes.get(demandNodes.size() - 1);
+		
+		targetStation = onDemandVehicleStationsCentral.getNearestStation(demandEndNode);
+		
+		if(demandEndNode.getId() == targetStation.getPositionInGraph().getId()){
+			tripToStation = null;
+		}
+		else{
+			tripToStation = tripsUtil.createTrips(demandEndNode.getId(), 
+					targetStation.getPositionInGraph().getId(), vehicle);
+		}
+		
+		completeTrip = TripsUtil.mergeTrips(currentTrip, demandTrip, tripToStation);
+		
+		if(currentTrip == null){
+			driveToTargetLocation();
+			return;
+		}
+		
+		state = OnDemandVehicleState.DRIVING_TO_START_LOCATION;
+//				
+		driveVehicleActivity.drive(getId(), vehicle, currentTrip, this);
     }
 
     
 
     private void driveToTargetLocation() {
         state = OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION;
-        currentTrips = demandTrips;
+        currentTrip = demandTrip;
 				
-		driveVehicleActivity.drive(getId(), vehicle, currentTrips, this);
+		driveVehicleActivity.drive(getId(), vehicle, currentTrip, this);
     }
 
     private void driveToNearestStation() {
+		if(tripToStation == null){
+			waitInStation();
+			return;
+		}
+		
         state = OnDemandVehicleState.DRIVING_TO_STATION;
-        
-        Node currentNode = demandNodes.get(demandNodes.size() - 1);
-        
-        targetStation = onDemandVehicleStationsCentral.getNearestStation(currentNode);
-        
-        currentTrips 
-                = tripsUtil.createTrips(currentNode.getId(), targetStation.getPositionInGraph().getId(), vehicle);
+
+        currentTrip = tripToStation;  
 				
-		driveVehicleActivity.drive(getId(), vehicle, currentTrips, this);
+		driveVehicleActivity.drive(getId(), vehicle, currentTrip, this);
     }
 
     private void waitInStation() {
         state = OnDemandVehicleState.WAITING;
+		completeTrip = null;
         targetStation.parkVehicle(this);
     }
+
+	@Override
+	public VehicleTrip getCurrentPlan() {
+		if(completeTrip != null && completeTrip.getLocations().isEmpty()){
+			
+		}
+		return completeTrip;
+	}
+	
+	public Node getDemandTarget(){
+		return demandNodes.get(demandNodes.size() - 1);
+	}
     
     
     

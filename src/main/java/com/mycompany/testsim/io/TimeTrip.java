@@ -31,17 +31,17 @@ public class TimeTrip<L> extends Trip<L>{
 	
 	@JsonCreator
 	public TimeTrip(@JsonProperty("locations") LinkedList<L> locations, @JsonProperty("startTime") long startTime, 
-			@JsonProperty("endTime") long endTime) throws TripException {
+			@JsonProperty("endTime") long endTime){
 		super(locations);
 		this.startTime = startTime;
 		this.endTime = endTime;
 	}
     
-    public TimeTrip(LinkedList<L> locations, long startTime) throws TripException {
+    public TimeTrip(LinkedList<L> locations, long startTime){
 		this(locations, startTime, 0);
 	}
     
-    public TimeTrip(L startLocation, L endLocation, long startTime) throws TripException {
+    public TimeTrip(L startLocation, L endLocation, long startTime){
         super(startLocation, endLocation);
 		this.startTime = startTime;
 		this.endTime = 0;

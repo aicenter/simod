@@ -84,13 +84,13 @@ public class RebalancingLoader {
                 for (int k = 0; k < rebalancingTargetStations.size(); k++) {
                     int doRebalancingTrip = (int) rebalancingTargetStations.get(j);
                     if(doRebalancingTrip == 1){
-                        rebalancingTrips.add(new TimeTrip<>(onDemandVehicleStations.get(j), onDemandVehicleStations.get(k), 
-                        startTime));
+							rebalancingTrips.add(new TimeTrip<>(onDemandVehicleStations.get(j), onDemandVehicleStations.get(k),
+									startTime));
+						}
                     }
                 }
             }
         }
-    }
 
     private long computeStartTime(int interval) {
         return MILIS_IN_DAY / INTERVAL_COUNT * interval;

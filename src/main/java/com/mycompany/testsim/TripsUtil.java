@@ -100,7 +100,7 @@ public class TripsUtil {
 			startNodeId = targetNodeId;
 		}
         
-        finalTrip = new VehicleTrip(tripItems, EGraphType.HIGHWAY, vehicle.getId());
+		finalTrip = new VehicleTrip(tripItems, EGraphType.HIGHWAY, vehicle.getId());
         
     
         return finalTrip;
@@ -144,11 +144,7 @@ public class TripsUtil {
 			VehicleTrip trip = trips[j];
 			if(trip != null){
 				for (TripItem location : trip.getLocations()) {
-					try {
-						newTrip.extendTrip(location);
-					} catch (TripException ex) {
-						Logger.getLogger(TripsUtil.class.getName()).log(Level.SEVERE, null, ex);
-					}
+					newTrip.extendTrip(location);
 				}
 			}
 		}

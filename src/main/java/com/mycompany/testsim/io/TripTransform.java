@@ -106,8 +106,8 @@ public class TripTransform {
 			}
 		}
 		if(osmNodesList.size() > 1){
-			osmNodeTrips.add(new TimeTrip<>(osmNodesList, trip.getStartTime(), trip.getEndTime()));
+				osmNodeTrips.add(new TimeTrip<>(osmNodesList, trip.getStartTime(), trip.getEndTime()));
+			}
 		}
-	}
 	
 }

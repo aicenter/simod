@@ -13,7 +13,6 @@ import com.mycompany.testsim.OnDemandVehicleStationsCentral;
 import com.mycompany.testsim.PlanningAgent;
 import com.mycompany.testsim.TripsUtil;
 import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.Trip;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.agentpolis.simmodel.agent.Agent;
 import cz.agents.agentpolis.simmodel.agent.activity.movement.DriveVehicleActivity;
@@ -174,6 +173,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
 		}
         
         demandTrip = tripsUtil.locationsToTrips(demandNodes, precomputedPaths, vehicle);
+		
+		demandTrip.getLocations().remove();
 		
 		Node demandEndNode = demandNodes.get(demandNodes.size() - 1);
 		

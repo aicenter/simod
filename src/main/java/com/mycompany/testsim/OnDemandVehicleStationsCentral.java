@@ -12,6 +12,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.mycompany.testsim.entity.OnDemandVehicleStation;
 import com.mycompany.testsim.event.OnDemandVehicleStationsCentralEvent;
+import com.mycompany.testsim.io.TimeTrip;
 import com.vividsolutions.jts.geom.Coordinate;
 import cz.agents.agentpolis.utils.nearestelement.NearestElementUtil;
 import cz.agents.agentpolis.utils.nearestelement.NearestElementUtil.SerializableIntFunction;
@@ -67,15 +68,32 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
             case DEMAND:
                 serveDemand(event);
                 break;
+            case REBALANCING:
+                serveRebalancing(event);
+                break;
         }
         
     }
     
-    public OnDemandVehicleStation getNearestStation(GPSLocation position){
+    public OnDemandVehicleStation getNearestReadyStation(GPSLocation position){
         if(nearestElementUtil == null){
             nearestElementUtil = getNearestElementUtilForStations();
         }
-        return nearestElementUtil.getNearestElement(new GPSLocation(position.latE6, position.lonE6, 0, 0, position.elevation));
+        
+        OnDemandVehicleStation[] onDemandVehicleStationsSorted = (OnDemandVehicleStation[]) nearestElementUtil.getKNearestElements(
+                new GPSLocation(position.latE6, position.lonE6, 0, 0, position.elevation), getNumberOfstations() - 1);
+        
+        OnDemandVehicleStation nearestStation = null;
+        int i = 0;
+        while(i < onDemandVehicleStationsSorted.length){
+            if(!onDemandVehicleStationsSorted[i].isEmpty()){
+                nearestStation = onDemandVehicleStationsSorted[i];
+                break;
+            }
+            i++;
+        }
+        
+        return nearestStation;
     }
     
     private NearestElementUtil<OnDemandVehicleStation> getNearestElementUtilForStations() {
@@ -96,8 +114,18 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
         DemandData demandData = (DemandData) event.getContent();
         List<Long> locations = demandData.locations;
         Node startNode = nodesMappedByNodeSourceIds.get(locations.get(0));
-        OnDemandVehicleStation nearestStation = getNearestStation(startNode);        
+        OnDemandVehicleStation nearestStation = getNearestReadyStation(startNode);        
         eventProcessor.addEvent(OnDemandVehicleStationEvent.TRIP, nearestStation, null, demandData);
+    }
+
+    private void serveRebalancing(Event event) {
+        TimeTrip<OnDemandVehicleStation> rebalancingTrip = (TimeTrip<OnDemandVehicleStation>) event.getContent();
+        OnDemandVehicleStation sourceStation = rebalancingTrip.getLocations().peek();
+        sourceStation.rebalance(rebalancingTrip);
+    }
+
+    private int getNumberOfstations() {
+        return onDemandvehicleStationStorage.getEntityIds().size();
     }
     
     

@@ -12,20 +12,19 @@ import com.mycompany.testsim.DemandSimulationEntityType;
 import com.mycompany.testsim.storage.OnDemandvehicleStationStorage;
 import com.mycompany.testsim.event.OnDemandVehicleStationEvent;
 import com.mycompany.testsim.entity.OnDemandVehicle.OnDemandVehicleFactory;
+import com.mycompany.testsim.io.TimeTrip;
 import com.mycompany.testsim.storage.OnDemandVehicleStorage;
 import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
 import cz.agents.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.agents.agentpolis.simmodel.entity.EntityType;
 import cz.agents.agentpolis.simmodel.environment.model.AgentPositionModel;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
+import cz.agents.agentpolis.simmodel.environment.model.VehiclePositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.NearestElementUtils;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandler;
 import cz.agents.alite.common.event.EventProcessor;
-import cz.agents.basestructures.GPSLocation;
 import cz.agents.basestructures.Node;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 
 /**
  *
@@ -33,9 +32,11 @@ import java.util.List;
  */
 public class OnDemandVehicleStation extends AgentPolisEntity implements EventHandler{
 
-    private final List<OnDemandVehicle> parkedVehicles;
+    private final LinkedList<OnDemandVehicle> parkedVehicles;
     
     private final EventProcessor eventProcessor;
+    
+    private final VehiclePositionModel vehiclePositionModel;
     
 //    private final GPSLocation gpsLocation;
     
@@ -62,12 +63,12 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     public OnDemandVehicleStation(EventProcessor eventProcessor, OnDemandVehicleFactory onDemandVehicleFactory, 
             NearestElementUtils nearestElementUtils, OnDemandvehicleStationStorage onDemandVehicleStationStorage,
 			OnDemandVehicleStorage onDemandVehicleStorage, @Assisted String id, AgentPositionModel agentPositionModel,
-			@Assisted("lat") double lat, @Assisted("lon") double lon, @Assisted int initialVehicleCount) {
+			@Assisted Node node, @Assisted int initialVehicleCount,
+            VehiclePositionModel vehiclePositionModel) {
         super(id);
         this.eventProcessor = eventProcessor;
-        positionInGraph = nearestElementUtils.getNearestElement(new GPSLocation(lat, lon, 0, 0), EGraphType.HIGHWAY);
-//        gpsLocation = new GPSLocation(positionInGraph.getLatitude(), positionInGraph.getLongitude(), 0, 0);
-        parkedVehicles = new ArrayList<>();
+        positionInGraph = node;
+        parkedVehicles = new LinkedList<>();
         for (int i = 0; i < initialVehicleCount; i++) {
 			String onDemandVehicelId = String.format("%s-%d", id, i);
 			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, positionInGraph);
@@ -76,6 +77,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 			agentPositionModel.setNewEntityPosition(newVehicle.getId(), positionInGraph.getId());
         }
         onDemandVehicleStationStorage.addEntity(this);
+        this.vehiclePositionModel = vehiclePositionModel;
     }
     
     
@@ -116,14 +118,48 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     }
 
     private void handleTripRequest(DemandData demandData) {
-        OnDemandVehicle vehicle = parkedVehicles.remove(0);
-        eventProcessor.addEvent(null, vehicle, null, demandData.locations);
-        eventProcessor.addEvent(null, demandData.demandAgent, null, vehicle);
+        
+        // hack for demands that starts and ends in the same position
+        if(demandData.locations.get(0).equals(demandData.locations.get(demandData.locations.size() - 1))){
+            return;
+        }
+        
+        OnDemandVehicle vehicle = getVehicle();
+        if(vehicle != null){
+            eventProcessor.addEvent(null, vehicle, null, demandData.locations);
+            eventProcessor.addEvent(null, demandData.demandAgent, null, vehicle);
+        }
+    }
+
+    public void rebalance(TimeTrip<OnDemandVehicleStation> rebalancingTrip) {
+        OnDemandVehicle vehicle = getVehicle();
+        if(vehicle != null){
+            if(rebalancingTrip.getLocations().getLast() == this){
+                System.out.println("com.mycompany.testsim.entity.OnDemandVehicleStation.rebalance()");
+            }
+            if(rebalancingTrip.getLocations().getLast().getPositionInGraph().getId()
+                    == vehiclePositionModel.getEntityPositionByNodeId(vehicle.getVehicleId())){
+                System.out.println("com.mycompany.testsim.entity.OnDemandVehicleStation.rebalance()");
+            }
+//            if(this.getPositionInGraph() = vehicle)
+            vehicle.driveToStation(rebalancingTrip.getLocations().getLast());
+        }
     }
     
+    public boolean isEmpty(){
+        return parkedVehicles.isEmpty();
+    }
+
+    private OnDemandVehicle getVehicle() {
+        return parkedVehicles.poll();
+    }
+    
+    
+    
+    
+    
     public interface OnDemandVehicleStationFactory {
-        public OnDemandVehicleStation create(String id, @Assisted("lat") double lat, @Assisted("lon") double lon, 
-                int initialVehicleCount);
+        public OnDemandVehicleStation create(String id, Node node, int initialVehicleCount);
     }
     
 }

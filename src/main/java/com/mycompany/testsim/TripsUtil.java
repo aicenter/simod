@@ -66,21 +66,17 @@ public class TripsUtil {
         tripItems.add(new TripItem(startNodeId));
 		VehicleTrip finalTrip = null;
 		for (int i = 1; i < locations.size(); i++) {
-			try{
-            int targetNodeId = locations.get(i).getId();
-			}
-			catch(Exception e){
-				e.printStackTrace();
-			}
 			int targetNodeId = locations.get(i).getId();
+            if(startNodeId == targetNodeId){
+                try {
+                    throw new Exception("There can't be two identical locations in a row");
+                } catch (Exception ex) {
+                    Logger.getLogger(TripsUtil.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            
 			if(precomputedPaths){
-//				LinkedList<TripItem> tripItems = new LinkedList<>();
-//				tripItems.add(new TripItem(startNodeId));
-//				tripItems.add(new TripItem(targetNodeId));
-
-//				finalTrip.addEndCurrentTrips(new VehicleTrip(tripItems, EGraphType.HIGHWAY, vehicle.getId()));
                 tripItems.add(new TripItem(targetNodeId));
-                
 			}
 			else{
 				try {
@@ -88,10 +84,6 @@ public class TripsUtil {
                     while (partialTrip.hasNextTripItem()) {
                         tripItems.add(partialTrip.getAndRemoveFirstTripItem());
                     }
-//					for (cz.agents.agentpolis.siminfrastructure.planner.trip.Trip<?> trip : trips) {
-////						finalTrip.addEndCurrentTrips(trip);
-//                        tripItems.add(trip.getAndRemoveFirstTripItem());
-//					}
 					
 				} catch (TripPlannerException ex) {
 					Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
@@ -106,26 +98,24 @@ public class TripsUtil {
         return finalTrip;
     }
     
-    public VehicleTrip createTrips(int startNodeId, int targetNodeId, Vehicle vehicle){
+    public VehicleTrip createTrip(int startNodeId, int targetNodeId, Vehicle vehicle){
+        if(startNodeId == targetNodeId){
+            try {
+                throw new Exception("Start node cannot be the same as end node");
+            } catch (Exception ex) {
+                Logger.getLogger(TripsUtil.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         if(pathPlanner == null){
             pathPlanner = pathPlanners.getPathPlanner(GRAPH_TYPES);
         }
         
-//        Trips finalTrips = new Trips();
-        LinkedList<TripItem> tripItems = new LinkedList<>();
-        
         VehicleTrip finalTrip = null;
         try {
             finalTrip = pathPlanner.findTrip(vehicle.getId(), startNodeId, targetNodeId);
-//            for (cz.agents.agentpolis.siminfrastructure.planner.trip.Trip<?> trip : trips) {
-////                finalTrips.addEndCurrentTrips(trip);
-//                tripItems.add(trip.getAndRemoveFirstTripItem());
-//            }
         } catch (TripPlannerException ex) {
             Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-//        VehicleTrip finalTrip = new VehicleTrip(tripItems, EGraphType.HIGHWAY, vehicle.getId());
     
         return finalTrip;
     }

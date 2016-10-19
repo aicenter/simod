@@ -12,5 +12,6 @@ import cz.agents.alite.common.event.EventType;
  * @author fido
  */
 public enum OnDemandVehicleStationsCentralEvent implements EventType{
-    DEMAND
+    DEMAND,
+    REBALANCING
 }

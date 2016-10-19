@@ -3,20 +3,15 @@
 package com.mycompany.testsim.visio;
 
 import com.google.inject.Inject;
-import com.mycompany.testsim.storage.DemandStorage;
-import cz.agents.agentpolis.simmodel.entity.AgentPolisEntity;
-import cz.agents.agentpolis.simmodel.environment.model.EntityStorage;
+import com.mycompany.testsim.entity.OnDemandVehicle;
+import com.mycompany.testsim.storage.OnDemandVehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.EntityStorage.EntityIterator;
-import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
-import cz.agents.agentpolis.simulator.visualization.visio.entity.EntityPositionUtil;
-import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
+import cz.agents.agentpolis.simulator.visualization.visio.entity.AgentPositionUtil;
 import cz.agents.alite.vis.Vis;
 import cz.agents.alite.vis.layer.AbstractLayer;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.util.HashMap;
-import java.util.Random;
 import javax.vecmath.Point2d;
 
 /**
@@ -26,26 +21,27 @@ import javax.vecmath.Point2d;
 public class OnDemandVehicleLayer extends AbstractLayer{
 	
 	private static final int DEMAND_REPRESENTATION_RADIUS = 5;
-	
-	
-	
-	
-	private final EntityPositionUtil entityPostitionUtil;
     
-    private final VehicleStorage vehicleStorage;
-	
-	private final Random random;
+    private static final Color NORMAL_COLOR = new Color(5, 89, 12);
     
-    private final HashMap<AgentPolisEntity,Color> agentColors;
+    private static final Color REBALANCING_COLOR = new Color(20, 252, 80);
+    
+	
+	
+	
+	
+	private final AgentPositionUtil agentPostitionUtil;
+    
+    private final OnDemandVehicleStorage onDemandVehicleStorage;
+    
+    
 
 	
 	
 	@Inject
-	public OnDemandVehicleLayer(VehiclePositionUtil entityPostitionUtil, VehicleStorage vehicleStorage) {
-		this.entityPostitionUtil = entityPostitionUtil;
-        this.vehicleStorage = vehicleStorage;
-		this.random = new Random();
-        agentColors = new HashMap<>();
+	public OnDemandVehicleLayer(AgentPositionUtil agentPostitionUtil, OnDemandVehicleStorage onDemandVehicleStorage) {
+		this.agentPostitionUtil = agentPostitionUtil;
+        this.onDemandVehicleStorage = onDemandVehicleStorage;
 	}
 
 	
@@ -59,10 +55,10 @@ public class OnDemandVehicleLayer extends AbstractLayer{
 //		EntityPositionIterator entityPositionIterator = entityPostitionUtil.new EntityPositionIterator();
 //		Point2d agentPosition;
 
-        EntityIterator entityIterator = vehicleStorage.new EntityIterator();
-        AgentPolisEntity agent;
+        OnDemandVehicleStorage.EntityIterator entityIterator = onDemandVehicleStorage.new EntityIterator();
+        OnDemandVehicle agent;
         while((agent = entityIterator.getNextEntity()) != null){
-            Point2d agentPosition = entityPostitionUtil.getEntityCanvasPosition(agent);
+            Point2d agentPosition = agentPostitionUtil.getEntityCanvasPosition(agent);
             if(agentPosition == null){
                 continue;
             }
@@ -70,7 +66,7 @@ public class OnDemandVehicleLayer extends AbstractLayer{
         }
     }
 
-    private void drawAgent(AgentPolisEntity agent, Point2d agentPosition, Graphics2D canvas, Dimension dim) {
+    private void drawAgent(OnDemandVehicle agent, Point2d agentPosition, Graphics2D canvas, Dimension dim) {
         canvas.setColor(getColor(agent));
         int radius = DEMAND_REPRESENTATION_RADIUS;
 		int width = radius * 2;
@@ -87,26 +83,18 @@ public class OnDemandVehicleLayer extends AbstractLayer{
 
     @Override
     public String getLayerDescription() {
-        String description = "Layer shows demannds as raandomlz colored points";
+        String description = "Layer shows demannds as randomly colored points";
         return buildLayersDescription(description);
     }
 	
-	private Color getRandomColor(){
-		float r = random.nextFloat();
-		float g = random.nextFloat();
-		float b = random.nextFloat();
-		
-		return new Color(r, g, b);
-	}
+	
 
-    private Color getColor(AgentPolisEntity agent) {
-        if(agentColors.containsKey(agent)){
-            return agentColors.get(agent);
-        }
-        else{
-            Color color = getRandomColor();
-            agentColors.put(agent, color);
-            return color;
-        }
+    protected Color getColor(OnDemandVehicle agent) {
+       switch(agent.getState()){
+           case REBALANCING:
+               return REBALANCING_COLOR;
+           default:
+               return NORMAL_COLOR;
+       }
     }
 }

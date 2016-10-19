@@ -10,9 +10,14 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mycompany.testsim.entity.OnDemandVehicleStation;
 import com.mycompany.testsim.entity.OnDemandVehicleStation.OnDemandVehicleStationFactory;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.NearestElementUtils;
+import cz.agents.basestructures.GPSLocation;
+import cz.agents.basestructures.Node;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +32,8 @@ public class RebalancingLoader {
     
     private static final int MILIS_IN_DAY = 86400000;
     
+    private static final int NUMBER_OF_LOCATIONS_TRIED_PER_STATION = 5;
+    
     
     
     
@@ -35,6 +42,9 @@ public class RebalancingLoader {
     private final List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips;
     
     private final OnDemandVehicleStationFactory onDemandVehicleStationFactory;
+    
+    private final NearestElementUtils nearestElementUtils;
+    
 
     
     
@@ -51,8 +61,10 @@ public class RebalancingLoader {
     
     
     @Inject
-    public RebalancingLoader(OnDemandVehicleStationFactory onDemandVehicleStationFactory) {
+    public RebalancingLoader(OnDemandVehicleStationFactory onDemandVehicleStationFactory, 
+            NearestElementUtils nearestElementUtils) {
         this.onDemandVehicleStationFactory = onDemandVehicleStationFactory;
+        this.nearestElementUtils = nearestElementUtils;
         this.onDemandVehicleStations = new ArrayList<>();
         this.rebalancingTrips = new ArrayList<>();
     }
@@ -65,15 +77,36 @@ public class RebalancingLoader {
         ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> data = mapper.readValue(file, Map.class);
         
+        
+        // stations
         ArrayList stations = (ArrayList) data.get("stations");
         ArrayList initialVehicleCount = (ArrayList) data.get("initial_vehicles");
         
+        HashSet<Integer> usedPositions = new HashSet<>();
+        
         for (int i = 0; i < stations.size(); i++) {
             ArrayList station = (ArrayList) stations.get(i);
-            onDemandVehicleStations.add(onDemandVehicleStationFactory.create(Integer.toString(i), 
-                    (double) station.get(0), (double) station.get(1), (int) initialVehicleCount.get(i)));
+            Node[] positionsInGraph = nearestElementUtils.getNearestElements(new GPSLocation((double) station.get(0), 
+                    (double) station.get(1), 0, 0), EGraphType.HIGHWAY, NUMBER_OF_LOCATIONS_TRIED_PER_STATION);
+            
+            int j = 0;
+            Node positionInGraph;
+            do{
+                positionInGraph = positionsInGraph[j];
+                if(!usedPositions.contains(positionInGraph.getId())){
+                    usedPositions.add(positionInGraph.getId());
+                    break;
+                }
+                j++;
+            }while (j < positionsInGraph.length);
+            
+            
+            onDemandVehicleStations.add(onDemandVehicleStationFactory.create(Integer.toString(i), positionInGraph, 
+                    (int) initialVehicleCount.get(i)));
         }
         
+        
+        // rebalancing
         ArrayList rebalancingTimes = (ArrayList) data.get("rebalancing");
         
         for (int i = 0; i < rebalancingTimes.size(); i++) {
@@ -82,17 +115,23 @@ public class RebalancingLoader {
                 ArrayList rebalancingTargetStations = (ArrayList) rebalancingStations.get(j);
                 long startTime = computeStartTime(i);
                 for (int k = 0; k < rebalancingTargetStations.size(); k++) {
-                    int doRebalancingTrip = (int) rebalancingTargetStations.get(j);
-                    if(doRebalancingTrip == 1){
-							rebalancingTrips.add(new TimeTrip<>(onDemandVehicleStations.get(j), onDemandVehicleStations.get(k),
-									startTime));
-						}
+                    int rebalancingTripsCount = (int) rebalancingTargetStations.get(k);
+                    if(rebalancingTripsCount > 0){
+                        // hack for the rebalancing with identical from to
+                        if(j == k){
+                            continue;
+                        }
+                        for (int l = 0; l < rebalancingTripsCount; l++) {
+                            rebalancingTrips.add(new TimeTrip<>(onDemandVehicleStations.get(j), 
+                                    onDemandVehicleStations.get(k), startTime));
+                        }
                     }
                 }
             }
         }
+    }
 
     private long computeStartTime(int interval) {
-        return MILIS_IN_DAY / INTERVAL_COUNT * interval;
+        return 1 + (MILIS_IN_DAY - 1) / INTERVAL_COUNT * interval;
     }
 }

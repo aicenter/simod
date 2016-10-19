@@ -3,7 +3,6 @@ package com.mycompany.testsim.io;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.Trip;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.TripException;
 import java.util.LinkedList;
 
 /**

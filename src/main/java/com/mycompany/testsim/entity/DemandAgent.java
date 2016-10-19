@@ -118,20 +118,8 @@ public class DemandAgent extends Agent implements EventHandler,
     @Override
     public void handleEvent(Event event) {
         OnDemandVehicle vehicle = (OnDemandVehicle) event.getContent();
-        
-        try{
-//            LinkedList<TripItem> passengerDesitnation = new LinkedList<>();
-//            passengerDesitnation.add(new TripItem(nodesMappedByNodeSourceIds.get(osmNodeTrip.getLocations().get(0)).getId()));
-//            passengerDesitnation.add(new TripItem(nodesMappedByNodeSourceIds.get(osmNodeTrip.getLocations().get(osmNodeTrip.getLocations().size() - 1)).getId()));
-
-//            VehicleTrip passengerDriver = new VehicleTrip(vehicle.getDemandTrips(), EGraphType.HIGHWAY, vehicle.getId());
             rideAsPassengerActivity.usingVehicleAsPassenger(this.getId(), vehicle.getVehicleId(), 
-                vehicle.getDemandTrips(), this);
-           
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
+                vehicle.getDemandTrip(), this);
     }
 
     @Override

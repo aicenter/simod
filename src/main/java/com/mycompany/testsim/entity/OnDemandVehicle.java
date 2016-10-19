@@ -83,8 +83,12 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
         return currentTrip;
     }
 
-    public VehicleTrip getDemandTrips() {
+    public VehicleTrip getDemandTrip() {
         return demandTrip.clone();
+    }
+
+    public OnDemandVehicleState getState() {
+        return state;
     }
     
     
@@ -157,6 +161,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
                 driveToNearestStation();
                 break;
             case DRIVING_TO_STATION:
+            case REBALANCING:
                 waitInStation();
                 break;
         }
@@ -168,7 +173,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
 			currentTrip = null;
 		}
 		else{
-			currentTrip = tripsUtil.createTrips(vehiclePositionModel.getEntityPositionByNodeId(vehicle.getId()), 
+			currentTrip = tripsUtil.createTrip(vehiclePositionModel.getEntityPositionByNodeId(vehicle.getId()), 
                 demandNodes.get(0).getId(), vehicle);
 		}
         
@@ -178,13 +183,13 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
 		
 		Node demandEndNode = demandNodes.get(demandNodes.size() - 1);
 		
-		targetStation = onDemandVehicleStationsCentral.getNearestStation(demandEndNode);
+		targetStation = onDemandVehicleStationsCentral.getNearestReadyStation(demandEndNode);
 		
 		if(demandEndNode.getId() == targetStation.getPositionInGraph().getId()){
 			tripToStation = null;
 		}
 		else{
-			tripToStation = tripsUtil.createTrips(demandEndNode.getId(), 
+			tripToStation = tripsUtil.createTrip(demandEndNode.getId(), 
 					targetStation.getPositionInGraph().getId(), vehicle);
 		}
 		
@@ -230,15 +235,23 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
 
 	@Override
 	public VehicleTrip getCurrentPlan() {
-		if(completeTrip != null && completeTrip.getLocations().isEmpty()){
-			
-		}
 		return completeTrip;
 	}
 	
 	public Node getDemandTarget(){
 		return demandNodes.get(demandNodes.size() - 1);
 	}
+
+    void driveToStation(OnDemandVehicleStation targetStation) {
+        state = OnDemandVehicleState.REBALANCING;
+        
+        currentTrip = tripsUtil.createTrip(vehiclePositionModel.getEntityPositionByNodeId(vehicle.getId()), 
+                targetStation.getPositionInGraph().getId(), vehicle);
+        
+        this.targetStation = targetStation;
+        
+        driveVehicleActivity.drive(getId(), vehicle, currentTrip, this);
+    }
     
     
     

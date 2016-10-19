@@ -7,10 +7,12 @@ package com.mycompany.testsim.init;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.mycompany.testsim.OnDemandVehicleStationsCentral;
 import com.mycompany.testsim.entity.DemandAgent;
 import com.mycompany.testsim.entity.DemandAgent.DemandAgentFactory;
 import com.mycompany.testsim.io.TimeTrip;
 import com.mycompany.testsim.entity.OnDemandVehicleStation;
+import com.mycompany.testsim.event.OnDemandVehicleStationsCentralEvent;
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandlerAdapter;
@@ -31,15 +33,18 @@ public class EventInitializer {
     
     private final DemandAgentFactory demandAgentFactory;
     
+    private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
+    
     
     
     @Inject
     public EventInitializer(EventProcessor eventProcessor, SimulationCreator simulationCreator,
-            DemandAgentFactory demandAgentFactory) {
+            DemandAgentFactory demandAgentFactory, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral) {
         this.eventProcessor = eventProcessor;
         this.simulationCreator = simulationCreator;
         this.demandEventHandler = new DemandEventHandler();
         this.demandAgentFactory = demandAgentFactory;
+        this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
     }
     
     
@@ -47,6 +52,11 @@ public class EventInitializer {
         for (TimeTrip<Long> osmNodeTrip : osmNodeTrips) {
 			eventProcessor.addEvent(null, demandEventHandler, null, osmNodeTrip, osmNodeTrip.getStartTime());
 		}
+        
+        for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
+            eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 
+                    null, rebalancingTrip, rebalancingTrip.getStartTime());
+        }
     }
     
     public class DemandEventHandler extends EventHandlerAdapter{
@@ -64,6 +74,5 @@ public class EventInitializer {
 			
 			simulationCreator.addAgent(demandAgent);
 		}
-	}
-    
+	}    
 }

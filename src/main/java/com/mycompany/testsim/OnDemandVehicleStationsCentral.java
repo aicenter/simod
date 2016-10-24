@@ -80,8 +80,8 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
             nearestElementUtil = getNearestElementUtilForStations();
         }
         
-        OnDemandVehicleStation[] onDemandVehicleStationsSorted = (OnDemandVehicleStation[]) nearestElementUtil.getKNearestElements(
-                new GPSLocation(position.latE6, position.lonE6, 0, 0, position.elevation), getNumberOfstations() - 1);
+        OnDemandVehicleStation[] onDemandVehicleStationsSorted 
+                = (OnDemandVehicleStation[]) nearestElementUtil.getKNearestElements(position, getNumberOfstations() - 1);
         
         OnDemandVehicleStation nearestStation = null;
         int i = 0;
@@ -104,7 +104,9 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
         OnDemandVehicleStation station;
 		while ((station = iterator.getNextEntity()) != null) {
             GPSLocation location = station.getPositionInGraph();
-			pairs.add(new Pair<>(new Coordinate(location.getLongitude(), location.getLatitude(), location.getElevation()), station));
+            
+			pairs.add(new Pair<>(new Coordinate(
+                    location.getLongitude(), location.getLatitude(), location.getElevation()), station));
 		}
 		
 		return new NearestElementUtil<>(pairs, transformer, new OnDemandVehicleStationArrayConstructor());

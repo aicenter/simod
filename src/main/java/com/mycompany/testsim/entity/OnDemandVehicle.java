@@ -239,7 +239,10 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
 	}
 	
 	public Node getDemandTarget(){
-		return demandNodes.get(demandNodes.size() - 1);
+        if(demandNodes != null){
+            return demandNodes.get(demandNodes.size() - 1);
+        }
+		return null;
 	}
 
     void driveToStation(OnDemandVehicleStation targetStation) {
@@ -247,6 +250,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
         
         currentTrip = tripsUtil.createTrip(vehiclePositionModel.getEntityPositionByNodeId(vehicle.getId()), 
                 targetStation.getPositionInGraph().getId(), vehicle);
+        
+        completeTrip = currentTrip.clone();
         
         this.targetStation = targetStation;
         

@@ -27,6 +27,7 @@ import cz.agents.agentpolis.simulator.visualization.visio.VisioInitializer;
 import cz.agents.basestructures.Node;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 /**
  *
@@ -36,6 +37,7 @@ public class MainModule extends StandardAgentPolisModule{
     
     public MainModule() {
         super();
+        Log.init("AgentPolis logger", Level.FINEST, "log.txt");
     }
 
     @Override

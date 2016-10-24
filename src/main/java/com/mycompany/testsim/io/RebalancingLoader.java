@@ -8,6 +8,7 @@ package com.mycompany.testsim.io;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.mycompany.testsim.Log;
 import com.mycompany.testsim.entity.OnDemandVehicleStation;
 import com.mycompany.testsim.entity.OnDemandVehicleStation.OnDemandVehicleStationFactory;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 /**
  *
@@ -119,6 +121,8 @@ public class RebalancingLoader {
                     if(rebalancingTripsCount > 0){
                         // hack for the rebalancing with identical from to
                         if(j == k){
+                            Log.log(this, Level.WARNING, "Cannot rebalance to the same station (station number: {0}" + 
+                                    "interval: {1}", k, i);
                             continue;
                         }
                         for (int l = 0; l < rebalancingTripsCount; l++) {

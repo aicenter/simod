@@ -48,6 +48,8 @@ public class OnDemandVehiclePlanLayer extends PlanLayer<OnDemandVehicle>{
         if (x2 > 0 && x1 < dim.width && y2 > 0 && y1 < dim.height) {
             canvas.fillOval(x1, y1, width, width);
         }
+        
+        canvas.setColor(PlanLayer.TRIP_COLOR);
 	}
 	
 	

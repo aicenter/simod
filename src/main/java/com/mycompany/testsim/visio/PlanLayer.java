@@ -39,7 +39,7 @@ import javax.vecmath.Point2d;
 
 public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends AbstractLayer implements MouseListener{
 	
-	private static final Color TRIP_COLOR = Color.YELLOW;
+	protected static final Color TRIP_COLOR = Color.YELLOW;
 	
 	private static final float LINE_WIDTH = 0.5f;
 	

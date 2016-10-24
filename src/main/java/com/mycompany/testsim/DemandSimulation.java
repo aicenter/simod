@@ -33,9 +33,9 @@ public class DemandSimulation {
     
     private static final String REBALANCING_FILE_PATH = "data/Prague/policy.json";
 	
-//	private static final int SRID = 2065;
+	private static final int SRID = 2065;
 	
-	private static final int SRID = 4326;
+//	private static final int SRID = 4326;
     
     
     

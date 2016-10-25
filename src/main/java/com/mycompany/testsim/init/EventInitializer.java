@@ -29,6 +29,10 @@ public class EventInitializer {
     
     private static final long TRIP_MULTIPLICATION_TIME_SHIFT = 60000;
     
+    private static final long MAX_EVENTS = 0;
+    
+    
+    
     
     private final EventProcessor eventProcessor;
 
@@ -41,6 +45,8 @@ public class EventInitializer {
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
     
+    private long eventCount;
+    
     
     @Inject
     public EventInitializer(EventProcessor eventProcessor, SimulationCreator simulationCreator,
@@ -50,6 +56,7 @@ public class EventInitializer {
         this.demandEventHandler = new DemandEventHandler();
         this.demandAgentFactory = demandAgentFactory;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
+        eventCount = 0;
     }
     
     
@@ -59,6 +66,10 @@ public class EventInitializer {
             for(int i = 0; i < TRIP_MULTIPLICATION_FACTOR; i++){
                 long startTime = osmNodeTrip.getStartTime() + i * TRIP_MULTIPLICATION_TIME_SHIFT;
                 eventProcessor.addEvent(null, demandEventHandler, null, osmNodeTrip, startTime);
+                eventCount++;
+                if(MAX_EVENTS != 0 && eventCount >= MAX_EVENTS){
+                    return;
+                }
             }
         }
         for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {

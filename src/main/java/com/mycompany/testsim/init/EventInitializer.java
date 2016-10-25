@@ -25,6 +25,11 @@ import java.util.List;
  */
 @Singleton
 public class EventInitializer {
+    private static final int TRIP_MULTIPLICATION_FACTOR = 10;
+    
+    private static final long TRIP_MULTIPLICATION_TIME_SHIFT = 60000;
+    
+    
     private final EventProcessor eventProcessor;
 
     private final DemandEventHandler demandEventHandler;
@@ -49,10 +54,13 @@ public class EventInitializer {
     
     
     public void initialize(List<TimeTrip<Long>> osmNodeTrips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips){
-        for (TimeTrip<Long> osmNodeTrip : osmNodeTrips) {
-			eventProcessor.addEvent(null, demandEventHandler, null, osmNodeTrip, osmNodeTrip.getStartTime());
-		}
         
+        for (TimeTrip<Long> osmNodeTrip : osmNodeTrips) {
+            for(int i = 0; i < TRIP_MULTIPLICATION_FACTOR; i++){
+                long startTime = osmNodeTrip.getStartTime() + i * TRIP_MULTIPLICATION_TIME_SHIFT;
+                eventProcessor.addEvent(null, demandEventHandler, null, osmNodeTrip, startTime);
+            }
+        }
         for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
             eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 
                     null, rebalancingTrip, rebalancingTrip.getStartTime());

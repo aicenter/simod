@@ -4,6 +4,7 @@ package com.mycompany.testsim;
 
 import com.google.inject.Injector;
 import com.mycompany.testsim.init.EventInitializer;
+import com.mycompany.testsim.init.StatisticInitializer;
 import com.mycompany.testsim.io.RebalancingLoader;
 import com.mycompany.testsim.io.TimeTrip;
 import com.mycompany.testsim.io.TripTransform;
@@ -79,6 +80,8 @@ public class DemandSimulation {
 
             injector.getInstance(EventInitializer.class).initialize(osmNodesList, 
                     rebalancingLoader.getRebalancingTrips());
+            
+            injector.getInstance(StatisticInitializer.class).initialize();
             
 			// start it up
 			creator.startSimulation();

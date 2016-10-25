@@ -80,7 +80,7 @@ public class DemandsVisioInItializer extends DefaultVisioInitializer{
 
     @Override
     protected void initLayersBeforeEntityLayers() {
-//        VisManager.registerLayer(trafficDensityLayer);
+        VisManager.registerLayer(trafficDensityLayer);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class DemandsVisioInItializer extends DefaultVisioInitializer{
 
     @Override
     protected void initGraphLayers(Projection projection) {
-        VisManager.registerLayer(highwayLayer);
+//        VisManager.registerLayer(highwayLayer);
     }
     
     

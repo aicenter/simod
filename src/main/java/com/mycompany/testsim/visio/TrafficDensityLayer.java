@@ -35,7 +35,7 @@ public class TrafficDensityLayer extends AbstractLayer{
     
     private static final int EDGE_WIDTH = 2;
     
-    private static final int MAX_LOAD = 10;
+    private static final double MAX_LOAD = 0.05;
     
     
     
@@ -67,9 +67,6 @@ public class TrafficDensityLayer extends AbstractLayer{
     
    @Override
     public void paint(Graphics2D canvas) {
-//        canvas.setColor(lineElements.getColor());
-//        canvas.setStroke(new BasicStroke(lineElements.getStrokeWidth()));
-
         AllEdgesLoad allEdgesLoad = allEdgesLoadProvider.get();
 
         canvas.setStroke(new BasicStroke(EDGE_WIDTH));
@@ -90,6 +87,7 @@ public class TrafficDensityLayer extends AbstractLayer{
 
     private Color getColorForEdge(AllEdgesLoad allEdgesLoad, SimulationEdge edge) {
         double averageLoad = allEdgesLoad.getLoadPerEdge(edge.wayID);
-        return colorMap.getColor(averageLoad);
+        double loadPerLength = averageLoad / edge.getLength();
+        return colorMap.getColor(loadPerLength);
     }
 }

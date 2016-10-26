@@ -1,6 +1,7 @@
 
 *.log
 *.ser
+*.iml
 
 data
 
@@ -9,3 +10,4 @@ nb-configuration.xml
 /target/
 /log.txt
 /result.json
+/.idea/

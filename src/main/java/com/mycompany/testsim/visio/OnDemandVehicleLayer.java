@@ -4,6 +4,7 @@ package com.mycompany.testsim.visio;
 
 import com.google.inject.Inject;
 import com.mycompany.testsim.entity.OnDemandVehicle;
+import com.mycompany.testsim.entity.OnDemandVehicleState;
 import com.mycompany.testsim.storage.OnDemandVehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.EntityStorage.EntityIterator;
 import cz.agents.agentpolis.simulator.visualization.visio.entity.AgentPositionUtil;
@@ -58,6 +59,10 @@ public class OnDemandVehicleLayer extends AbstractLayer{
         OnDemandVehicleStorage.EntityIterator entityIterator = onDemandVehicleStorage.new EntityIterator();
         OnDemandVehicle agent;
         while((agent = entityIterator.getNextEntity()) != null){
+            if(agent.getState() == OnDemandVehicleState.WAITING){
+                continue;
+            }
+            
             Point2d agentPosition = agentPostitionUtil.getEntityCanvasPosition(agent);
             if(agentPosition == null){
                 continue;

@@ -35,9 +35,9 @@ public class HighwayLayer extends AbstractLayer{
     
     
     
-    private final PositionUtil positionUtil;
+    protected final PositionUtil positionUtil;
     
-    private final Graph<SimulationNode,SimulationEdge> graph;
+    protected final Graph<SimulationNode,SimulationEdge> graph;
     
     
     
@@ -59,6 +59,10 @@ public class HighwayLayer extends AbstractLayer{
         Dimension dim = Vis.getDrawingDimension();
         Rectangle2D drawingRectangle = new Rectangle(dim);
         
+        paintGraph(canvas, drawingRectangle);
+    }
+
+    protected void paintGraph(Graphics2D canvas, Rectangle2D drawingRectangle) {
         for (SimulationEdge edge : graph.getAllEdges()) {
             Point2d from = positionUtil.getCanvasPosition(graph.getNode(edge.fromId));
             Point2d to = positionUtil.getCanvasPosition(graph.getNode(edge.toId));

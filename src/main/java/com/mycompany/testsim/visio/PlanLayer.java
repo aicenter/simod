@@ -6,14 +6,20 @@
 package com.mycompany.testsim.visio;
 
 import com.google.inject.Inject;
+import com.mycompany.testsim.NearestVehicleComparator;
 import com.mycompany.testsim.PlanningAgent;
+import com.mycompany.testsim.entity.OnDemandVehicle;
+import com.mycompany.testsim.storage.OnDemandVehicleStorage;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.TripItem;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.agents.agentpolis.simmodel.environment.model.EntityStorage;
 import cz.agents.agentpolis.simmodel.environment.model.NearestEntityComparator;
+import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.agents.agentpolis.simulator.visualization.visio.entity.AgentPositionUtil;
 import cz.agents.agentpolis.simulator.visualization.visio.entity.EntityPositionUtil;
+import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
 import cz.agents.alite.vis.Vis;
 import cz.agents.alite.vis.layer.AbstractLayer;
 import java.awt.BasicStroke;
@@ -48,9 +54,11 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
     
 	
 	
-    protected final EntityStorage<E> entityStorage;
+    protected final OnDemandVehicleStorage entityStorage;
 	
-	protected final EntityPositionUtil entityPositionUtil;
+	protected final AgentPositionUtil entityPositionUtil;
+    
+    protected final VehiclePositionUtil vehiclePositionUtil;
     
     protected final PositionUtil positionUtil;
 	
@@ -60,9 +68,11 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
     
     
     @Inject
-    public PlanLayer(EntityStorage entityStorage, EntityPositionUtil entityPositionUtil, PositionUtil positionUtil) {
+    public PlanLayer(OnDemandVehicleStorage entityStorage, AgentPositionUtil entityPositionUtil, 
+            PositionUtil positionUtil, VehiclePositionUtil vehiclePositionUtil) {
         this.entityStorage = entityStorage;
 		this.entityPositionUtil = entityPositionUtil;
+        this.vehiclePositionUtil = vehiclePositionUtil;
 		this.positionUtil = positionUtil;
 		drawedEntities = new ArrayList<>();
     }
@@ -111,20 +121,35 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
         }
 	}
 
-	@Override
+//	@Override
+//	public void mouseClicked(MouseEvent mouseEvent) {
+//		if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
+//            double clickDistanceInM = Vis.transInvW(CLICK_DISTANCE_IN_PX);
+//            Point2d clickInRealCoords = new Point2d(Vis.transInvX(mouseEvent.getX()), Vis.transInvY(mouseEvent.getY()));
+//
+//            if (entityStorage.isEmpty() == false) {
+//                AgentPolisEntity closestAgent = Collections.min(entityStorage.getEntities(), 
+//						new NearestEntityComparator<>(entityPositionUtil, clickInRealCoords));
+//
+//                if (entityPositionUtil.getEntityPosition(closestAgent).distance(clickInRealCoords) 
+//						<= clickDistanceInM) {
+//                    switchDrawPlan((E) closestAgent);
+//                }
+//            }
+//        }
+//	}
+    
+    @Override
 	public void mouseClicked(MouseEvent mouseEvent) {
-		if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
-            double clickDistanceInM = Vis.transInvW(CLICK_DISTANCE_IN_PX);
-            Point2d clickInRealCoords = new Point2d(Vis.transInvX(mouseEvent.getX()), Vis.transInvY(mouseEvent.getY()));
-
-//            Collection<CrowdPersonState> allStates = new ArrayList<>(crowdPersonStorage.getAllStates());
+		if (mouseEvent.getButton() == MouseEvent.BUTTON1) {;
+            Point2d click = new Point2d(mouseEvent.getX(), mouseEvent.getY());
 
             if (entityStorage.isEmpty() == false) {
-                AgentPolisEntity closestAgent = Collections.min(entityStorage.getEntities(), 
-						new NearestEntityComparator<>(entityPositionUtil, clickInRealCoords));
+                OnDemandVehicle closestAgent = Collections.min(entityStorage.getEntities(), 
+						new NearestVehicleComparator(vehiclePositionUtil, click));
 
-                if (entityPositionUtil.getEntityPosition(closestAgent).distance(clickInRealCoords) 
-						<= clickDistanceInM) {
+                if (vehiclePositionUtil.getVehicleCanvasPositionInterpolated(closestAgent.getVehicle(), closestAgent)
+                        .distance(click) <= CLICK_DISTANCE_IN_PX) {
                     switchDrawPlan((E) closestAgent);
                 }
             }

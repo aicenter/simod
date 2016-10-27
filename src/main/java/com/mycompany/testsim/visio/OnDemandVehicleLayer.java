@@ -8,6 +8,7 @@ import com.mycompany.testsim.entity.OnDemandVehicleState;
 import com.mycompany.testsim.storage.OnDemandVehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.EntityStorage.EntityIterator;
 import cz.agents.agentpolis.simulator.visualization.visio.entity.AgentPositionUtil;
+import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
 import cz.agents.alite.vis.Vis;
 import cz.agents.alite.vis.layer.AbstractLayer;
 import java.awt.Color;
@@ -31,7 +32,7 @@ public class OnDemandVehicleLayer extends AbstractLayer{
 	
 	
 	
-	private final AgentPositionUtil agentPostitionUtil;
+	private final VehiclePositionUtil vehiclePositionUtil;
     
     private final OnDemandVehicleStorage onDemandVehicleStorage;
     
@@ -40,8 +41,8 @@ public class OnDemandVehicleLayer extends AbstractLayer{
 	
 	
 	@Inject
-	public OnDemandVehicleLayer(AgentPositionUtil agentPostitionUtil, OnDemandVehicleStorage onDemandVehicleStorage) {
-		this.agentPostitionUtil = agentPostitionUtil;
+	public OnDemandVehicleLayer(VehiclePositionUtil vehiclePositionUtil, OnDemandVehicleStorage onDemandVehicleStorage) {
+		this.vehiclePositionUtil = vehiclePositionUtil;
         this.onDemandVehicleStorage = onDemandVehicleStorage;
 	}
 
@@ -52,9 +53,6 @@ public class OnDemandVehicleLayer extends AbstractLayer{
 	@Override
     public void paint(Graphics2D canvas) {
         Dimension dim = Vis.getDrawingDimension();
-		
-//		EntityPositionIterator entityPositionIterator = entityPostitionUtil.new EntityPositionIterator();
-//		Point2d agentPosition;
 
         OnDemandVehicleStorage.EntityIterator entityIterator = onDemandVehicleStorage.new EntityIterator();
         OnDemandVehicle agent;
@@ -63,7 +61,7 @@ public class OnDemandVehicleLayer extends AbstractLayer{
                 continue;
             }
             
-            Point2d agentPosition = agentPostitionUtil.getEntityCanvasPosition(agent);
+            Point2d agentPosition = vehiclePositionUtil.getVehicleCanvasPositionInterpolated(agent.getVehicle(), agent);
             if(agentPosition == null){
                 continue;
             }

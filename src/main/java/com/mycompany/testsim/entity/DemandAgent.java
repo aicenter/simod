@@ -12,33 +12,17 @@ import com.mycompany.testsim.event.OnDemandVehicleStationsCentralEvent;
 import com.mycompany.testsim.io.TimeTrip;
 import com.mycompany.testsim.storage.DemandStorage;
 import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
-import cz.agents.agentpolis.siminfrastructure.planner.TripPlannerException;
-import cz.agents.agentpolis.siminfrastructure.planner.path.ShortestPathPlanner;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.TripItem;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.TripVisitior;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.Trips;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.agentpolis.simmodel.agent.Agent;
-import cz.agents.agentpolis.simmodel.agent.activity.movement.DriveVehicleActivity;
-import cz.agents.agentpolis.simmodel.agent.activity.movement.RideAsPassengerActivity;
 import cz.agents.agentpolis.simmodel.agent.activity.movement.RideInVehicleActivity;
-import cz.agents.agentpolis.simmodel.agent.activity.movement.callback.DrivingFinishedActivityCallback;
 import cz.agents.agentpolis.simmodel.agent.activity.movement.callback.PassengerActivityCallback;
 import cz.agents.agentpolis.simmodel.entity.vehicle.Vehicle;
-import cz.agents.agentpolis.simmodel.entity.vehicle.VehicleType;
 import cz.agents.agentpolis.simmodel.environment.model.AgentPositionModel;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
-import cz.agents.agentpolis.simmodel.environment.model.entityvelocitymodel.EntityVelocityModel;
-import cz.agents.agentpolis.utils.VelocityConverter;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandler;
 import cz.agents.alite.common.event.EventProcessor;
 import cz.agents.basestructures.Node;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -62,6 +46,32 @@ public class DemandAgent extends Agent implements EventHandler,
     private final AgentPositionModel agentPositionModel;
     
     private final Map<Long,Node> nodesMappedByNodeSourceIds;
+    
+    
+    private DemandAgentState state;
+    
+    private Vehicle vehicle;
+    
+    private OnDemandVehicle onDemandVehicle;
+
+    
+    
+    
+    
+    public DemandAgentState getState() {
+        return state;
+    }
+
+    public Vehicle getVehicle() {
+        return vehicle;
+    }
+
+    public OnDemandVehicle getOnDemandVehicle() {
+        return onDemandVehicle;
+    }
+    
+    
+
 
     
     
@@ -81,13 +91,11 @@ public class DemandAgent extends Agent implements EventHandler,
         this.demandStorage = demandStorage;
         this.agentPositionModel = agentPositionModel;
         this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
+        state = DemandAgentState.WAITING;
 	}
-	
+
     
-//	public DemandAgent(String agentId, EntityType agentType, TimeTrip<Long> osmNodeTrip, 
-//			Map<Long,Integer> nodeIdsMappedByNodeSourceIds, ShortestPathPlanner pathPlanner){
-//		this(agentId, agentType, osmNodeTrip, nodeIdsMappedByNodeSourceIds, pathPlanner, true);
-//	}
+    
 
 	@Override
 	public void born() {
@@ -117,9 +125,11 @@ public class DemandAgent extends Agent implements EventHandler,
 
     @Override
     public void handleEvent(Event event) {
-        OnDemandVehicle vehicle = (OnDemandVehicle) event.getContent();
-            rideAsPassengerActivity.usingVehicleAsPassenger(this.getId(), vehicle.getVehicleId(), 
-                vehicle.getDemandTrip(), this);
+        OnDemandVehicle onDemandVehicle = (OnDemandVehicle) event.getContent();
+        vehicle = onDemandVehicle.getVehicle();
+        this.onDemandVehicle = onDemandVehicle;
+        rideAsPassengerActivity.usingVehicleAsPassenger(this.getId(), onDemandVehicle.getVehicleId(), 
+                onDemandVehicle.getDemandTrip(), this);
     }
 
     @Override
@@ -137,54 +147,13 @@ public class DemandAgent extends Agent implements EventHandler,
         die();
     }
 
+    @Override
+    public void tripStarted() {
+        state = DemandAgentState.RIDING;
+    }
+
     
-//    private void drive(){
-//        driveActivity = injector.getInstance(DriveVehicleActivity.class);
-//		vehicle = new Vehicle("demand " + getId(), VehicleType.CAR, 5, 5, EGraphType.HIGHWAY);
-//		
-////		LinkedList<TripItem> finalTrip = new LinkedList<>();
-//
-//		List<Long> locations = osmNodeTrip.getLocations();
-//		long startNodeSourceId = locations.get(0);
-//		finalTrips = new Trips();
-//		
-//		
-//		for (int i = 1; i < locations.size(); i++) {
-//			Long targetNodeSourceId = locations.get(i);
-//			if(precomputedPaths){
-//				LinkedList<TripItem> tripItems = new LinkedList<>();
-//				tripItems.add(new TripItem(nodeIdsMappedByNodeSourceIds.get(startNodeSourceId)));
-//				tripItems.add(new TripItem(nodeIdsMappedByNodeSourceIds.get(targetNodeSourceId)));
-//
-//				finalTrips.addEndCurrentTrips(new VehicleTrip(tripItems, EGraphType.HIGHWAY, vehicle.getId()));
-//			}
-//			else{
-//				try {
-//					Trips trips = pathPlanner.findTrip(vehicle.getId(), nodeIdsMappedByNodeSourceIds.get(startNodeSourceId),
-//							nodeIdsMappedByNodeSourceIds.get(targetNodeSourceId));
-//					for (cz.agents.agentpolis.siminfrastructure.planner.trip.TimeTrip<?> trip : trips) {
-//						finalTrips.addEndCurrentTrips(trip);
-//					}
-//					
-//				} catch (TripPlannerException ex) {
-//					Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
-//				}
-//	//			trip.add(new TripItem(nodeIdsMappedByNodeSourceIds.get(locationSourceId)));
-//			}
-//			startNodeSourceId = targetNodeSourceId;
-//		}
-//		
-////		VehicleTrip vehicleTrip = new VehicleTrip(finalTrip, EGraphType.HIGHWAY, vehicle.getId());
-//		
-//		double velocityOfVehicle = VelocityConverter.kmph2mps(15);
-//		
-////		injector.getInstance(VehicleStorage.class).addEntity(vehicle);
-////		injector.getInstance(VehiclePositionModel.class).setNewEntityPosition(vehicle.getId(), sourcePos);
-//		injector.getInstance(EntityVelocityModel.class).addEntityMaxVelocity(vehicle.getId(), velocityOfVehicle);
-//				
-//		driveActivity.drive(getId(), vehicle, (cz.agents.agentpolis.siminfrastructure.planner.trip.TimeTrip<TripItem>) 
-//				finalTrips.getAndRemoveFirstTrip(), this);
-//    }
+    
     
     public interface DemandAgentFactory {
         public DemandAgent create(String agentId, TimeTrip<Long> osmNodeTrip);

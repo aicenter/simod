@@ -23,8 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author F-I-D-O
+ * @author David Fiedler
  */
 public class DemandSimulation {
 	
@@ -35,18 +34,12 @@ public class DemandSimulation {
     private static final String REBALANCING_FILE_PATH = "data/Prague/policy.json";
 	
 	private static final int SRID = 2065;
-	
-//	private static final int SRID = 4326;
-    
-    
-    
-	
+
+
 	public static void main(String[] args) throws MalformedURLException, ConfigReaderException {
 		new DemandSimulation().run();
 	}
-    
-    
-    
+
 	
 	public void run() throws ConfigReaderException{
 		try {

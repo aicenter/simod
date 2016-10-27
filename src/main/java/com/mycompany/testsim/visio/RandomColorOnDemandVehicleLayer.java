@@ -6,6 +6,7 @@ import com.mycompany.testsim.storage.OnDemandVehicleStorage;
 import com.mycompany.testsim.visio.OnDemandVehicleLayer;
 import cz.agents.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.agents.agentpolis.simulator.visualization.visio.entity.AgentPositionUtil;
+import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Random;
@@ -28,7 +29,7 @@ public class RandomColorOnDemandVehicleLayer extends OnDemandVehicleLayer{
     
     
     
-    public RandomColorOnDemandVehicleLayer(AgentPositionUtil entityPostitionUtil, 
+    public RandomColorOnDemandVehicleLayer(VehiclePositionUtil entityPostitionUtil, 
             OnDemandVehicleStorage vehicleStorage) {
         super(entityPostitionUtil, vehicleStorage);
         this.random = new Random();

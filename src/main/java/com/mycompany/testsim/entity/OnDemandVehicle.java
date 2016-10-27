@@ -257,6 +257,10 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
         
         driveVehicleActivity.drive(getId(), vehicle, currentTrip, this);
     }
+
+    public Vehicle getVehicle() {
+        return vehicle;
+    }
     
     
     

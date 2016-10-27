@@ -8,11 +8,13 @@ package com.mycompany.testsim.visio;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mycompany.testsim.entity.DemandAgent;
+import com.mycompany.testsim.entity.DemandAgentState;
 import com.mycompany.testsim.entity.OnDemandVehicleStation;
 import com.mycompany.testsim.storage.DemandStorage;
 import com.mycompany.testsim.storage.OnDemandvehicleStationStorage;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.agentpolis.simulator.visualization.visio.entity.AgentPositionUtil;
+import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
 import cz.agents.alite.vis.Vis;
 import cz.agents.alite.vis.layer.AbstractLayer;
 import java.awt.Color;
@@ -37,15 +39,18 @@ public class DemandLayer extends AbstractLayer{
     private final AgentPositionUtil postitionUtil;
     
     private final DemandStorage demandStorage;
+    
+    private final VehiclePositionUtil vehiclePositionUtil;
 
     
     
     
     @Inject
-    public DemandLayer(AgentPositionUtil postitionUtil, 
-            DemandStorage demandStorage) {
+    public DemandLayer(AgentPositionUtil postitionUtil, DemandStorage demandStorage, 
+            VehiclePositionUtil vehiclePositionUtil) {
         this.postitionUtil = postitionUtil;
         this.demandStorage = demandStorage;
+        this.vehiclePositionUtil = vehiclePositionUtil;
     }
     
     @Override
@@ -55,23 +60,32 @@ public class DemandLayer extends AbstractLayer{
         DemandStorage.EntityIterator entityIterator = demandStorage.new EntityIterator();
         DemandAgent demandAgent;
         while((demandAgent = entityIterator.getNextEntity()) != null){
-            Point2d agentPosition = postitionUtil.getEntityCanvasPosition(demandAgent);
+            Point2d agentPosition;
+            if(demandAgent.getState() == DemandAgentState.RIDING){
+                agentPosition = vehiclePositionUtil.getVehicleCanvasPositionInterpolated(
+                        demandAgent.getVehicle(), demandAgent.getOnDemandVehicle());
+            }
+            else{
+                agentPosition = postitionUtil.getEntityCanvasPosition(demandAgent);
+            }
+            
             if(agentPosition == null){
                 continue;
             }
-			drawStation(agentPosition, canvas, dim);
+            
+			drawDemand(agentPosition, canvas, dim);
         }
     }
 
-    private void drawStation(Point2d stationPosition, Graphics2D canvas, Dimension dim) {
+    private void drawDemand(Point2d demandPosition, Graphics2D canvas, Dimension dim) {
         canvas.setColor(STATIONS_COLOR);
         int radius = SIZE;
 		int width = radius * 2;
 
-        int x1 = (int) (stationPosition.getX() - radius);
-        int y1 = (int) (stationPosition.getY() - radius);
-        int x2 = (int) (stationPosition.getX() + radius);
-        int y2 = (int) (stationPosition.getY() + radius);
+        int x1 = (int) (demandPosition.getX() - radius);
+        int y1 = (int) (demandPosition.getY() - radius);
+        int x2 = (int) (demandPosition.getX() + radius);
+        int y2 = (int) (demandPosition.getY() + radius);
         if (x2 > 0 && x1 < dim.width && y2 > 0 && y1 < dim.height) {
             canvas.fillOval(x1, y1, width, width);
         }

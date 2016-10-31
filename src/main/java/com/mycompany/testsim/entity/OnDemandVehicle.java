@@ -183,7 +183,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
 		
 		Node demandEndNode = demandNodes.get(demandNodes.size() - 1);
 		
-		targetStation = onDemandVehicleStationsCentral.getNearestReadyStation(demandEndNode);
+		targetStation = onDemandVehicleStationsCentral.getNearestStation(demandEndNode);
 		
 		if(demandEndNode.getId() == targetStation.getPositionInGraph().getId()){
 			tripToStation = null;

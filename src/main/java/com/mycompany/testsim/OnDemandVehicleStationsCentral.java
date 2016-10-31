@@ -96,6 +96,15 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
         return nearestStation;
     }
     
+     public OnDemandVehicleStation getNearestStation(GPSLocation position){
+        if(nearestElementUtil == null){
+            nearestElementUtil = getNearestElementUtilForStations();
+        }
+        
+        OnDemandVehicleStation nearestStation = nearestElementUtil.getNearestElement(position);
+        return nearestStation;
+    }
+    
     private NearestElementUtil<OnDemandVehicleStation> getNearestElementUtilForStations() {
         List<Pair<Coordinate,OnDemandVehicleStation>> pairs = new ArrayList<>();
         
@@ -116,8 +125,10 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
         DemandData demandData = (DemandData) event.getContent();
         List<Long> locations = demandData.locations;
         Node startNode = nodesMappedByNodeSourceIds.get(locations.get(0));
-        OnDemandVehicleStation nearestStation = getNearestReadyStation(startNode);        
-        eventProcessor.addEvent(OnDemandVehicleStationEvent.TRIP, nearestStation, null, demandData);
+        OnDemandVehicleStation nearestStation = getNearestReadyStation(startNode); 
+        if(nearestStation != null){
+            eventProcessor.addEvent(OnDemandVehicleStationEvent.TRIP, nearestStation, null, demandData);
+        }
     }
 
     private void serveRebalancing(Event event) {

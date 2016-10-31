@@ -60,7 +60,7 @@ public class DemandSimulation {
 			creator.setMainEnvironment(injector);
 
 			// set up visual appearance of agents
-			creator.addEntityStyleVis(DemandSimulationEntityType.DEMAND, Color.GREEN, 8);
+//			creator.addEntityStyleVis(DemandSimulationEntityType.DEMAND, Color.GREEN, 8);
             
             // prepare map, entity storages...
             creator.prepareSimulation(new MyMapInitFactory(SRID));

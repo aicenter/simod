@@ -7,7 +7,6 @@ import com.mycompany.testsim.entity.OnDemandVehicle;
 import com.mycompany.testsim.entity.OnDemandVehicleState;
 import com.mycompany.testsim.storage.OnDemandVehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.EntityStorage.EntityIterator;
-import cz.agents.agentpolis.simulator.visualization.visio.entity.AgentPositionUtil;
 import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
 import cz.agents.alite.vis.Vis;
 import cz.agents.alite.vis.layer.AbstractLayer;

@@ -15,7 +15,7 @@ import com.mycompany.testsim.entity.OnDemandVehicle;
 import com.mycompany.testsim.entity.OnDemandVehicle.OnDemandVehicleFactory;
 import com.mycompany.testsim.entity.OnDemandVehicleStation;
 import com.mycompany.testsim.entity.OnDemandVehicleStation.OnDemandVehicleStationFactory;
-import com.mycompany.testsim.visio.DemandsVisioInItializer;
+import com.mycompany.testsim.visio.DemandsVisioInitializer;
 import cz.agents.agentpolis.simmodel.environment.StandardAgentPolisModule;
 import cz.agents.agentpolis.simmodel.environment.model.EntityPositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.EntityStorage;
@@ -42,7 +42,7 @@ public class MainModule extends StandardAgentPolisModule{
 
     @Override
     protected void bindVisioInitializer() {
-        bind(VisioInitializer.class).to(DemandsVisioInItializer.class);
+        bind(VisioInitializer.class).to(DemandsVisioInitializer.class);
     }
 
     @Override

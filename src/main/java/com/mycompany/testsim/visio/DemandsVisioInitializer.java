@@ -29,7 +29,7 @@ import cz.agents.alite.vis.VisManager;
  *
  * @author fido
  */
-public class DemandsVisioInItializer extends DefaultVisioInitializer{
+public class DemandsVisioInitializer extends DefaultVisioInitializer{
     
     private final OnDemandVehicleLayer onDemandVehicleLayer;
     
@@ -51,7 +51,7 @@ public class DemandsVisioInItializer extends DefaultVisioInitializer{
     
     
     @Inject
-    public DemandsVisioInItializer(PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork, 
+    public DemandsVisioInitializer(PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork, 
             HighwayNetwork highwayNetwork, TramwayNetwork tramwayNetwork, MetrowayNetwork metrowayNetwork, 
             RailwayNetwork railwayNetwork, EntityStorage<AgentPolisEntity> entityStorage, AgentStorage agentStorage, 
             VehicleStorage vehicleStorage, AgentPositionModel agentPositionModel, 

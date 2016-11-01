@@ -139,9 +139,6 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
 		if(precomputedPaths){
 			for (Long location : locations) {
 				demandNodes.add(nodesMappedByNodeSourceIds.get(location));
-				if(nodesMappedByNodeSourceIds.get(location) == null){
-					System.out.println("com.mycompany.testsim.entity.OnDemandVehicle.handleEvent()");
-				}
 			}
 		}
 		else{
@@ -177,9 +174,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
                 demandNodes.get(0).getId(), vehicle);
 		}
         
-        demandTrip = tripsUtil.locationsToTrips(demandNodes, precomputedPaths, vehicle);
-		
-		demandTrip.getLocations().remove();
+        demandTrip = tripsUtil.locationsToVehicleTrip(demandNodes, precomputedPaths, vehicle);
 		
 		Node demandEndNode = demandNodes.get(demandNodes.size() - 1);
 		
@@ -202,7 +197,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
 		
 		state = OnDemandVehicleState.DRIVING_TO_START_LOCATION;
 //				
-		driveVehicleActivity.drive(getId(), vehicle, currentTrip, this);
+		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
     }
 
     
@@ -211,7 +206,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
         state = OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION;
         currentTrip = demandTrip;
 				
-		driveVehicleActivity.drive(getId(), vehicle, currentTrip, this);
+		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
     }
 
     private void driveToNearestStation() {
@@ -224,7 +219,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
 
         currentTrip = tripToStation;  
 				
-		driveVehicleActivity.drive(getId(), vehicle, currentTrip, this);
+		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
     }
 
     private void waitInStation() {

@@ -80,7 +80,7 @@ public class DemandAgent extends Agent implements EventHandler,
 	public DemandAgent(OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
             RideInVehicleActivity rideAsPassengerActivity, DemandStorage demandStorage, 
             AgentPositionModel agentPositionModel, Map<Long,Node> nodesMappedByNodeSourceIds, 
-            @Named("precomputedPaths") boolean precomputedPaths,@Assisted String agentId,
+            @Named("precomputedPaths") boolean precomputedPaths, @Assisted String agentId,
             @Assisted TimeTrip<Long> osmNodeTrip) {
 		super(agentId, DemandSimulationEntityType.DEMAND);
 		this.osmNodeTrip = osmNodeTrip;
@@ -125,9 +125,8 @@ public class DemandAgent extends Agent implements EventHandler,
 
     @Override
     public void handleEvent(Event event) {
-        OnDemandVehicle onDemandVehicle = (OnDemandVehicle) event.getContent();
+        onDemandVehicle = (OnDemandVehicle) event.getContent();
         vehicle = onDemandVehicle.getVehicle();
-        this.onDemandVehicle = onDemandVehicle;
         rideAsPassengerActivity.usingVehicleAsPassenger(this.getId(), onDemandVehicle.getVehicleId(), 
                 onDemandVehicle.getDemandTrip(), this);
     }

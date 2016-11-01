@@ -63,7 +63,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     public OnDemandVehicleStation(EventProcessor eventProcessor, OnDemandVehicleFactory onDemandVehicleFactory, 
             NearestElementUtils nearestElementUtils, OnDemandvehicleStationStorage onDemandVehicleStationStorage,
 			OnDemandVehicleStorage onDemandVehicleStorage, @Assisted String id, AgentPositionModel agentPositionModel,
-			@Assisted Node node, @Assisted int initialVehicleCount,
+			@Assisted Node node, @Assisted int initialVehicleCount, 
             VehiclePositionModel vehiclePositionModel) {
         super(id);
         this.eventProcessor = eventProcessor;
@@ -116,6 +116,11 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     public void parkVehicle(OnDemandVehicle onDemandVehicle){
         parkedVehicles.add(onDemandVehicle);
     }
+    
+    public int getParkedVehiclesCount(){
+        return parkedVehicles.size();
+    }
+    
 
     private void handleTripRequest(DemandData demandData) {
         

@@ -52,15 +52,15 @@ public class OnDemandVehicleStationsLayer extends AbstractLayer{
         OnDemandvehicleStationStorage.EntityIterator entityIterator = onDemandvehicleStationStorage.new EntityIterator();
         OnDemandVehicleStation onDemandVehicleStation;
         while((onDemandVehicleStation = entityIterator.getNextEntity()) != null){
-            Point2d agentPosition = postitionUtil.getCanvasPosition(onDemandVehicleStation.getPositionInGraph());
-            if(agentPosition == null){
+            Point2d stationPosition = postitionUtil.getCanvasPosition(onDemandVehicleStation.getPositionInGraph());
+            if(stationPosition == null){
                 continue;
             }
-			drawStation(agentPosition, canvas, dim);
+			drawStation(stationPosition, canvas, dim, onDemandVehicleStation);
         }
     }
 
-    private void drawStation(Point2d stationPosition, Graphics2D canvas, Dimension dim) {
+    private void drawStation(Point2d stationPosition, Graphics2D canvas, Dimension dim, OnDemandVehicleStation station) {
         canvas.setColor(STATIONS_COLOR);
         int radius = SIZE;
 		int width = radius * 2;
@@ -71,6 +71,7 @@ public class OnDemandVehicleStationsLayer extends AbstractLayer{
         int y2 = (int) (stationPosition.getY() + radius);
         if (x2 > 0 && x1 < dim.width && y2 > 0 && y1 < dim.height) {
             canvas.fillRect(x1, y1, width, width);
+            canvas.drawString(Integer.toString(station.getParkedVehiclesCount()), (int) x1, y1);
         }
 
     }

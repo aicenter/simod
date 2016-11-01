@@ -54,17 +54,20 @@ public class TripsUtil {
     
     
     
-    public VehicleTrip locationsToTrips(List<Node> locations, boolean precomputedPaths, Vehicle vehicle){
+    public VehicleTrip locationsToVehicleTrip(List<Node> locations, boolean precomputedPaths, Vehicle vehicle){
         if(!precomputedPaths && pathPlanner == null){
             pathPlanner = pathPlanners.getPathPlanner(GRAPH_TYPES);
         }
         
+        VehicleTrip finalTrip = null;
         LinkedList<TripItem> tripItems = new LinkedList<>();
         
         int startNodeId = locations.get(0).getId();
         
-        tripItems.add(new TripItem(startNodeId));
-		VehicleTrip finalTrip = null;
+        if(precomputedPaths){
+            tripItems.add(new TripItem(startNodeId));
+        }
+		
 		for (int i = 1; i < locations.size(); i++) {
 			int targetNodeId = locations.get(i).getId();
             if(startNodeId == targetNodeId){
@@ -93,7 +96,6 @@ public class TripsUtil {
 		}
         
 		finalTrip = new VehicleTrip(tripItems, EGraphType.HIGHWAY, vehicle.getId());
-        
     
         return finalTrip;
     }

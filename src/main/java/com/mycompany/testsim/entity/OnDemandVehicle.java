@@ -22,6 +22,7 @@ import cz.agents.agentpolis.simmodel.environment.model.VehiclePositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simmodel.environment.model.entityvelocitymodel.EntityVelocityModel;
+import cz.agents.agentpolis.simulator.visualization.visio.entity.EntityPositionUtil;
 import cz.agents.agentpolis.utils.VelocityConverter;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandler;
@@ -61,6 +62,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
+    private final EntityPositionUtil entityPositionUtil;
     
     
     private List<Node> demandNodes;
@@ -77,6 +79,14 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
 	
 	private VehicleTrip completeTrip;
     
+    private int metersWithPassenger;
+    
+    private int metersToStartLocation;
+    
+    private int metersToStation;
+    
+    private int metersRebalancing;
+    
     
     
     public VehicleTrip getCurrentTrips() {
@@ -90,6 +100,22 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
     public OnDemandVehicleState getState() {
         return state;
     }
+
+    public int getMetersWithPassenger() {
+        return metersWithPassenger;
+    }
+
+    public int getMetersToStartLocation() {
+        return metersToStartLocation;
+    }
+
+    public int getMetersToStation() {
+        return metersToStation;
+    }
+
+    public int getMetersRebalancing() {
+        return metersRebalancing;
+    }
     
     
     
@@ -99,7 +125,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
     public OnDemandVehicle(DriveVehicleActivity driveVehicleActivity, Map<Long,Node> nodesMappedByNodeSourceIds, 
             VehicleStorage vehicleStorage, EntityVelocityModel entityVelocityModel, 
             VehiclePositionModel vehiclePositionModel, TripsUtil tripsUtil, 
-            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral,
+            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EntityPositionUtil entityPositionUtil,
             @Named("precomputedPaths") boolean precomputedPaths, @Assisted String vehicleId, 
             @Assisted Node startPosition) {
         super(vehicleId + " - autonomus agent", DemandSimulationEntityType.ON_DEMAND_VEHICLE);
@@ -109,6 +135,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
         this.vehiclePositionModel = vehiclePositionModel;
         this.precomputedPaths = precomputedPaths;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
+        this.entityPositionUtil = entityPositionUtil;
         
         vehicle = new Vehicle(vehicleId + " - vehicle", DemandSimulationEntityType.VEHICLE, LENGTH, CAPACITY, EGraphType.HIGHWAY);
         
@@ -116,6 +143,11 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
         entityVelocityModel.addEntityMaxVelocity(vehicle.getId(), VelocityConverter.kmph2mps(VELOCITY));
         vehiclePositionModel.setNewEntityPosition(vehicle.getId(), startPosition.getId());
         state = OnDemandVehicleState.WAITING;
+        
+        metersWithPassenger = 0;
+        metersToStartLocation = 0;
+        metersToStation = 0;
+        metersRebalancing = 0;
     }
 
     @Override
@@ -172,9 +204,11 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
 		else{
 			currentTrip = tripsUtil.createTrip(vehiclePositionModel.getEntityPositionByNodeId(vehicle.getId()), 
                 demandNodes.get(0).getId(), vehicle);
+            metersToStartLocation += entityPositionUtil.getTripLengthInMeters(currentTrip);
 		}
         
         demandTrip = tripsUtil.locationsToVehicleTrip(demandNodes, precomputedPaths, vehicle);
+        metersWithPassenger += entityPositionUtil.getTripLengthInMeters(demandTrip);
 		
 		Node demandEndNode = demandNodes.get(demandNodes.size() - 1);
 		
@@ -186,6 +220,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
 		else{
 			tripToStation = tripsUtil.createTrip(demandEndNode.getId(), 
 					targetStation.getPositionInGraph().getId(), vehicle);
+            metersToStation += entityPositionUtil.getTripLengthInMeters(tripToStation);
 		}
 		
 		completeTrip = TripsUtil.mergeTrips(currentTrip, demandTrip, tripToStation);
@@ -245,6 +280,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
         
         currentTrip = tripsUtil.createTrip(vehiclePositionModel.getEntityPositionByNodeId(vehicle.getId()), 
                 targetStation.getPositionInGraph().getId(), vehicle);
+        metersRebalancing += entityPositionUtil.getTripLengthInMeters(currentTrip);
         
         completeTrip = currentTrip.clone();
         

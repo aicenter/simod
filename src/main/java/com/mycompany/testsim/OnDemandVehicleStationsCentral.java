@@ -42,7 +42,33 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     
     private final EventProcessor eventProcessor;
     
+    
     private NearestElementUtil<OnDemandVehicleStation> nearestElementUtil;
+    
+    private int numberOfDemandsNotServedFromNearestStation;
+    
+    private int numberOfDemandsDropped;
+    
+    private int demandsCount;
+
+    
+    
+    
+    public int getNumberOfDemandsNotServedFromNearestStation() {
+        return numberOfDemandsNotServedFromNearestStation;
+    }
+
+    public int getNumberOfDemandsDropped() {
+        return numberOfDemandsDropped;
+    }
+
+    public int getDemandsCount() {
+        return demandsCount;
+    }
+    
+    
+    
+    
     
     
     
@@ -54,6 +80,9 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
         this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
         this.eventProcessor = eventProcessor;
         transformer = new Transformer(srid);
+        numberOfDemandsNotServedFromNearestStation = 0;
+        numberOfDemandsDropped = 0;
+        demandsCount = 0;
     }
 
     
@@ -87,6 +116,9 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
         int i = 0;
         while(i < onDemandVehicleStationsSorted.length){
             if(!onDemandVehicleStationsSorted[i].isEmpty()){
+                if(i > 0){
+                    numberOfDemandsNotServedFromNearestStation++;
+                }
                 nearestStation = onDemandVehicleStationsSorted[i];
                 break;
             }
@@ -122,12 +154,16 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     }
 
     private void serveDemand(Event event) {
+        demandsCount++;
         DemandData demandData = (DemandData) event.getContent();
         List<Long> locations = demandData.locations;
         Node startNode = nodesMappedByNodeSourceIds.get(locations.get(0));
         OnDemandVehicleStation nearestStation = getNearestReadyStation(startNode); 
         if(nearestStation != null){
             eventProcessor.addEvent(OnDemandVehicleStationEvent.TRIP, nearestStation, null, demandData);
+        }
+        else{
+            numberOfDemandsDropped++;
         }
     }
 

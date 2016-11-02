@@ -15,6 +15,20 @@ public class Result {
     private final double averageLoadTotal;
     
     private final int maxLoad;
+    
+    private final double averageKmWithPassenger;
+    
+    private final double averageKmToStartLocation;
+    
+    private final double averageKmToStation;
+    
+    private final double averageKmRebalancing;
+    
+    private final int numberOfDemandsNotServedFromNearestStation;
+    
+    private final int numberOfDemandsDropped;
+    
+    private final int demandsCount;
 
     
     
@@ -32,14 +46,49 @@ public class Result {
         return maxLoad;
     }
 
+    public double getAverageKmWithPassenger() {
+        return averageKmWithPassenger;
+    }
+
+    public double getAverageKmToStartLocation() {
+        return averageKmToStartLocation;
+    }
+
+    public double getAverageKmToStation() {
+        return averageKmToStation;
+    }
+
+    public double getAverageKmRebalancing() {
+        return averageKmRebalancing;
+    }
+
+    public int getNumberOfDemandsNotServedFromNearestStation() {
+        return numberOfDemandsNotServedFromNearestStation;
+    }
+
+    public int getNumberOfDemandsDropped() {
+        return numberOfDemandsDropped;
+    }
+
+    public int getDemandsCount() {
+        return demandsCount;
+    }
     
     
-    
-    
-    public Result(long tickCount, double averageLoadTotal, int maxLoad) {
+
+    public Result(long tickCount, double averageLoadTotal, int maxLoad, double averageKmWithPassenger, 
+            double averageKmToStartLocation, double averageKmToStation, double averageKmRebalancing,
+            int numberOfDemandsNotServedFromNearestStation, int numberOfDemandsDropped, int demandsCount) {
         this.tickCount = tickCount;
         this.averageLoadTotal = averageLoadTotal;
         this.maxLoad = maxLoad;
+        this.averageKmWithPassenger = averageKmWithPassenger;
+        this.averageKmToStartLocation = averageKmToStartLocation;
+        this.averageKmToStation = averageKmToStation;
+        this.averageKmRebalancing = averageKmRebalancing;
+        this.numberOfDemandsNotServedFromNearestStation = numberOfDemandsNotServedFromNearestStation;
+        this.numberOfDemandsDropped = numberOfDemandsDropped;
+        this.demandsCount = demandsCount;
     }
     
     

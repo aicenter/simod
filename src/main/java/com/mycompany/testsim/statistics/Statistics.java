@@ -9,6 +9,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import com.mycompany.testsim.OnDemandVehicleStationsCentral;
+import com.mycompany.testsim.entity.OnDemandVehicle;
+import com.mycompany.testsim.storage.OnDemandVehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.AllEdgesLoad;
 import cz.agents.agentpolis.simulator.creator.SimulationFinishedListener;
 import cz.agents.alite.common.event.Event;
@@ -39,18 +42,34 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     
     private final Provider<AllEdgesLoad> allEdgesLoadProvider;
     
+    private final OnDemandVehicleStorage onDemandVehicleStorage;
+    
+    private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
+    
     
     private long tickCount;
     
     private int maxLoad;
     
+    private double averageKmWithPassenger;
+    
+    private double averageKmToStartLocation;
+    
+    private double averageKmToStation;
+    
+    private double averageKmRebalancing;
+    
+    
     
     
     
     @Inject
-    public Statistics(EventProcessor eventProcessor, Provider<AllEdgesLoad> allEdgesLoadProvider) {
+    public Statistics(EventProcessor eventProcessor, Provider<AllEdgesLoad> allEdgesLoadProvider, 
+            OnDemandVehicleStorage onDemandVehicleStorage, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral) {
         this.eventProcessor = eventProcessor;
         this.allEdgesLoadProvider = allEdgesLoadProvider;
+        this.onDemandVehicleStorage = onDemandVehicleStorage;
+        this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         tickCount = 0;
         averageEdgeLoad = new LinkedList<>();
         maxLoad = 0;
@@ -79,7 +98,11 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     private void saveResult(){
         double averageLoadTotal = countAverageEdgeLoad();
         
-        Result result = new Result(tickCount, averageLoadTotal, maxLoad);
+        Result result = new Result(tickCount, averageLoadTotal, maxLoad, averageKmWithPassenger, 
+                averageKmToStartLocation, averageKmToStation, averageKmRebalancing, 
+                onDemandVehicleStationsCentral.getNumberOfDemandsNotServedFromNearestStation(), 
+                onDemandVehicleStationsCentral.getNumberOfDemandsDropped(), 
+                onDemandVehicleStationsCentral.getDemandsCount());
         
         ObjectMapper mapper = new ObjectMapper();
 		
@@ -92,6 +115,7 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
 
     @Override
     public void simulationFinished() {
+        countAveragesFromAgents();
         saveResult();
     }
 
@@ -114,6 +138,28 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
             totalAverageLoad += loadForFrame;
         }
         return totalAverageLoad / averageEdgeLoad.size();
+    }
+
+    private void countAveragesFromAgents() {
+        int metersWithPassengerSum = 0;
+        int metersToStartLocationSum = 0;
+        int metersToStationSum = 0;
+        int metersRebalancingSum = 0;
+        
+        
+        for (OnDemandVehicle onDemandVehicle : onDemandVehicleStorage) {
+            metersWithPassengerSum += onDemandVehicle.getMetersWithPassenger();
+            metersToStartLocationSum += onDemandVehicle.getMetersToStartLocation();
+            metersToStationSum += onDemandVehicle.getMetersToStation();
+            metersRebalancingSum += onDemandVehicle.getMetersRebalancing();
+        }
+        
+        int numberOfVehicles = onDemandVehicleStorage.getEntityIds().size();
+        
+        averageKmWithPassenger = (double) metersWithPassengerSum / numberOfVehicles;
+        averageKmToStartLocation = (double) metersToStartLocationSum / numberOfVehicles;
+        averageKmToStation = (double) metersToStationSum / numberOfVehicles;
+        averageKmRebalancing = (double) metersRebalancingSum / numberOfVehicles;
     }
     
     

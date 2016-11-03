@@ -42,7 +42,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
     
     private static final int CAPACITY = 5;
     
-    private static final int VELOCITY = 15;
+    private static final int VELOCITY = 50;
     
     
     

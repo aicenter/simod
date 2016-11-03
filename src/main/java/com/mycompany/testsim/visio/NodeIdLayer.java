@@ -7,13 +7,14 @@ package com.mycompany.testsim.visio;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.AllNetworkNodes;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.HighwayNetwork;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.vis.layer.AbstractLayer;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
+import java.util.LinkedList;
 import javax.vecmath.Point2d;
 
 /**
@@ -26,6 +27,8 @@ public class NodeIdLayer extends AbstractLayer{
     private final HighwayNetwork highwayNetwork;
     
     private final PositionUtil positionUtil;
+    
+    private final LinkedList<Integer> highLightedNodes;
 
     
     
@@ -33,6 +36,13 @@ public class NodeIdLayer extends AbstractLayer{
     public NodeIdLayer(HighwayNetwork highwayNetwork, PositionUtil positionUtil) {
         this.highwayNetwork = highwayNetwork;
         this.positionUtil = positionUtil;
+        highLightedNodes = new LinkedList<>();
+        
+        highLightedNodes.add(8721);
+        highLightedNodes.add(39675);
+        
+        highLightedNodes.add(37832);
+        highLightedNodes.add(19420);
     }
 
     
@@ -40,10 +50,22 @@ public class NodeIdLayer extends AbstractLayer{
     
     @Override
     public void paint(Graphics2D canvas) {
-        canvas.setColor(Color.BLACK);
+        canvas.setColor(Color.BLUE);
         for (SimulationNode node : highwayNetwork.getNetwork().getAllNodes()) {
+            Font f = null;
+            if(highLightedNodes.contains(node.getId())){
+                canvas.setColor(Color.GREEN);
+                f = canvas.getFont();
+                canvas.setFont(new Font("TimesRoman", Font.BOLD, 25)); 
+            }
+            
             Point2d nodePoint = positionUtil.getCanvasPosition(node);
             canvas.drawString(Integer.toString(node.getId()), (int) nodePoint.x, (int) nodePoint.y);
+            
+            if(highLightedNodes.contains(node.getId())){
+                canvas.setColor(Color.BLUE);
+                canvas.setFont(f);
+            }
         }
     }
     

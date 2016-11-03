@@ -156,10 +156,10 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
         
         int numberOfVehicles = onDemandVehicleStorage.getEntityIds().size();
         
-        averageKmWithPassenger = (double) metersWithPassengerSum / numberOfVehicles;
-        averageKmToStartLocation = (double) metersToStartLocationSum / numberOfVehicles;
-        averageKmToStation = (double) metersToStationSum / numberOfVehicles;
-        averageKmRebalancing = (double) metersRebalancingSum / numberOfVehicles;
+        averageKmWithPassenger = (double) metersWithPassengerSum / numberOfVehicles / 1000;
+        averageKmToStartLocation = (double) metersToStartLocationSum / numberOfVehicles / 1000;
+        averageKmToStation = (double) metersToStationSum / numberOfVehicles / 1000;
+        averageKmRebalancing = (double) metersRebalancingSum / numberOfVehicles / 1000;
     }
     
     

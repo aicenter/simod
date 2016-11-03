@@ -25,7 +25,7 @@ import java.util.List;
  */
 @Singleton
 public class EventInitializer {
-    private static final int TRIP_MULTIPLICATION_FACTOR = 1;
+    private static final int TRIP_MULTIPLICATION_FACTOR = 10;
     
     private static final long TRIP_MULTIPLICATION_TIME_SHIFT = 60000;
     

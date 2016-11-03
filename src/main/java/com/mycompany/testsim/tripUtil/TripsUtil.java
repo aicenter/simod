@@ -1,4 +1,4 @@
-package com.mycompany.testsim;
+package com.mycompany.testsim.tripUtil;
 
 
 import com.google.inject.Inject;
@@ -7,7 +7,6 @@ import com.mycompany.testsim.entity.DemandAgent;
 import cz.agents.agentpolis.siminfrastructure.planner.TripPlannerException;
 import cz.agents.agentpolis.siminfrastructure.planner.path.ShortestPathPlanner;
 import cz.agents.agentpolis.siminfrastructure.planner.path.ShortestPathPlanners;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.TripException;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.TripItem;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.agentpolis.simmodel.entity.vehicle.Vehicle;
@@ -35,13 +34,14 @@ import java.util.logging.Logger;
 @Singleton
 public class TripsUtil {
     
-    private static final Set<GraphType> GRAPH_TYPES = new HashSet(Arrays.asList(EGraphType.HIGHWAY));
+    protected static final Set<GraphType> GRAPH_TYPES = new HashSet(Arrays.asList(EGraphType.HIGHWAY));
     
     
     
-    private final ShortestPathPlanners pathPlanners;
+    protected final ShortestPathPlanners pathPlanners;
     
-    private ShortestPathPlanner pathPlanner;
+    
+    protected ShortestPathPlanner pathPlanner;
 
     
     

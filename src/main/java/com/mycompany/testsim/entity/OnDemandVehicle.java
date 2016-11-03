@@ -11,7 +11,7 @@ import com.google.inject.name.Named;
 import com.mycompany.testsim.DemandSimulationEntityType;
 import com.mycompany.testsim.OnDemandVehicleStationsCentral;
 import com.mycompany.testsim.PlanningAgent;
-import com.mycompany.testsim.TripsUtil;
+import com.mycompany.testsim.tripUtil.TripsUtil;
 import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.agentpolis.simmodel.agent.Agent;
@@ -206,8 +206,12 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
                 demandNodes.get(0).getId(), vehicle);
             metersToStartLocation += entityPositionUtil.getTripLengthInMeters(currentTrip);
 		}
-        
-        demandTrip = tripsUtil.locationsToVehicleTrip(demandNodes, precomputedPaths, vehicle);
+        if(precomputedPaths){
+            demandTrip = tripsUtil.locationsToVehicleTrip(demandNodes, precomputedPaths, vehicle);
+        }
+        else{
+            demandTrip = tripsUtil.createTrip(demandNodes.get(0).getId(), demandNodes.get(1).getId(), vehicle);
+        }
         metersWithPassenger += entityPositionUtil.getTripLengthInMeters(demandTrip);
 		
 		Node demandEndNode = demandNodes.get(demandNodes.size() - 1);
@@ -286,7 +290,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
         
         this.targetStation = targetStation;
         
-        driveVehicleActivity.drive(getId(), vehicle, currentTrip, this);
+        driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
     }
 
     public Vehicle getVehicle() {

@@ -23,11 +23,12 @@ public class OnDemandVehicleLayer extends AbstractLayer{
 	
 	private static final int DEMAND_REPRESENTATION_RADIUS = 5;
     
-    private static final Color NORMAL_COLOR = new Color(5, 89, 12);
+//    private static final Color NORMAL_COLOR = new Color(5, 89, 12);
     
     private static final Color REBALANCING_COLOR = new Color(20, 252, 80);
     
-	
+    private static final Color NORMAL_COLOR = Color.BLUE;
+    
 	
 	
 	

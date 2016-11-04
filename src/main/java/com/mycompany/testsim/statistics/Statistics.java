@@ -141,10 +141,10 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     }
 
     private void countAveragesFromAgents() {
-        int metersWithPassengerSum = 0;
-        int metersToStartLocationSum = 0;
-        int metersToStationSum = 0;
-        int metersRebalancingSum = 0;
+        long metersWithPassengerSum = 0;
+        long metersToStartLocationSum = 0;
+        long metersToStationSum = 0;
+        long metersRebalancingSum = 0;
         
         
         for (OnDemandVehicle onDemandVehicle : onDemandVehicleStorage) {

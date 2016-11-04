@@ -46,7 +46,7 @@ public class PrecomputedDemandSimulation {
 
 			ConfigReader scenario = ConfigReader.initConfigReader(new File(experimentDir, "scenario.groovy").toURI().toURL());
 			MyParams parameters = new MyParams(experimentDir, scenario);
-			SimpleEnvinromentFactory envinromentFactory = new SimpleEnvinromentFactory(new InfinityDelayingSegmentCapacityDeterminer());
+//			SimpleEnvinromentFactory envinromentFactory = new SimpleEnvinromentFactory(new InfinityDelayingSegmentCapacityDeterminer());
 
 			
 //			Injector injector = Guice.createInjector(new StandardAgentPolisModule(envinromentFactory, parameters));

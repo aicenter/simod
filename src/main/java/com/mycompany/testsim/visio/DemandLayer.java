@@ -9,10 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mycompany.testsim.entity.DemandAgent;
 import com.mycompany.testsim.entity.DemandAgentState;
-import com.mycompany.testsim.entity.OnDemandVehicleStation;
 import com.mycompany.testsim.storage.DemandStorage;
-import com.mycompany.testsim.storage.OnDemandvehicleStationStorage;
-import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.agentpolis.simulator.visualization.visio.entity.AgentPositionUtil;
 import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
 import cz.agents.alite.vis.Vis;
@@ -29,7 +26,7 @@ import javax.vecmath.Point2d;
 @Singleton
 public class DemandLayer extends AbstractLayer{
     
-    private static final Color STATIONS_COLOR = Color.YELLOW;
+    private static final Color STATIONS_COLOR = Color.RED;
     
     private static final int SIZE = 3;
     
@@ -42,7 +39,6 @@ public class DemandLayer extends AbstractLayer{
     
     private final VehiclePositionUtil vehiclePositionUtil;
 
-    
     
     
     @Inject

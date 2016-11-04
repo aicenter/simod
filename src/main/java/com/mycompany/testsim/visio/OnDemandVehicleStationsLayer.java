@@ -24,7 +24,7 @@ import javax.vecmath.Point2d;
 @Singleton
 public class OnDemandVehicleStationsLayer extends AbstractLayer{
     
-    private static final Color STATIONS_COLOR = Color.GREEN;
+    private static final Color STATIONS_COLOR = Color.PINK;
     
     private static final int SIZE = 6;
     

@@ -18,11 +18,15 @@ import cz.agents.gtdgraphimporter.GTDGraphBuilder;
 import cz.agents.multimodalstructures.additional.ModeOfTransport;
 import cz.agents.multimodalstructures.edges.RoadEdge;
 import cz.agents.multimodalstructures.nodes.RoadNode;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.javatuples.Pair;
 
 /**
@@ -80,6 +84,26 @@ public class TripTransform {
 		return mapper.readValue(inputFile, typeFactory.constructCollectionType(
 				List.class, typeFactory.constructParametricType(TimeTrip.class, locationType)));
 	}
+    
+    public void tripsFromTxtToJson(File inputFile, File osmFile, int srid, File outputFile) throws IOException{
+        List<TimeTrip<GPSLocation>> gpsTrips = new LinkedList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+               String[] parts = line.split(" ");
+               GPSLocation startLocation
+                       = new GPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, 0);
+               GPSLocation targetLocation
+                       = new GPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, 0);
+               gpsTrips.add(new TimeTrip<>(startLocation, targetLocation, 
+                       Long.parseLong(parts[0].split("\\.")[0])));
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(TripTransform.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        tripsToJson(gpsTripsToOsmNodeTrips(gpsTrips, osmFile, srid, false), outputFile); 
+    }
 
 	private void processGpsTrip(TimeTrip<GPSLocation> trip, NearestElementUtil<RoadNode> nearestElementUtil, 
 			ArrayList<TimeTrip<Long>> osmNodeTrips, boolean completedTrips) {

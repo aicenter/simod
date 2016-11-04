@@ -110,7 +110,10 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
         }
         
         OnDemandVehicleStation[] onDemandVehicleStationsSorted 
-                = (OnDemandVehicleStation[]) nearestElementUtil.getKNearestElements(position, getNumberOfstations() - 1);
+                = (OnDemandVehicleStation[]) nearestElementUtil.getKNearestElements(position, 1);
+        
+//        OnDemandVehicleStation[] onDemandVehicleStationsSorted 
+//                = (OnDemandVehicleStation[]) nearestElementUtil.getKNearestElements(position, getNumberOfstations() - 1);
         
         OnDemandVehicleStation nearestStation = null;
         int i = 0;

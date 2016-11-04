@@ -11,3 +11,4 @@ nb-configuration.xml
 /log.txt
 /result.json
 /.idea/
+/trip_cache.json

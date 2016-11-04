@@ -18,6 +18,7 @@ import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandlerAdapter;
 import cz.agents.alite.common.event.EventProcessor;
 import java.util.List;
+import java.util.Random;
 
 /**
  *
@@ -25,11 +26,13 @@ import java.util.List;
  */
 @Singleton
 public class EventInitializer {
-    private static final int TRIP_MULTIPLICATION_FACTOR = 10;
+    private static final double TRIP_MULTIPLICATION_FACTOR = 2.573;
     
     private static final long TRIP_MULTIPLICATION_TIME_SHIFT = 60000;
     
     private static final long MAX_EVENTS = 0;
+    
+    private static final int RANDOM_SEED = 1;
     
     
     
@@ -61,9 +64,17 @@ public class EventInitializer {
     
     
     public void initialize(List<TimeTrip<Long>> osmNodeTrips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips){
+        Random random = new Random(RANDOM_SEED);
         
         for (TimeTrip<Long> osmNodeTrip : osmNodeTrips) {
             for(int i = 0; i < TRIP_MULTIPLICATION_FACTOR; i++){
+                if(i + 1 >= TRIP_MULTIPLICATION_FACTOR){
+                    double randomNum = random.nextDouble();
+                    if(randomNum > TRIP_MULTIPLICATION_FACTOR - i){
+                        break;
+                    }
+                }
+                
                 long startTime = osmNodeTrip.getStartTime() + i * TRIP_MULTIPLICATION_TIME_SHIFT;
                 eventProcessor.addEvent(null, demandEventHandler, null, osmNodeTrip, startTime);
                 eventCount++;

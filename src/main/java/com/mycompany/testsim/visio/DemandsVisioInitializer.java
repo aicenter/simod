@@ -6,10 +6,8 @@
 package com.mycompany.testsim.visio;
 
 import com.google.inject.Inject;
-import cz.agents.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.agents.agentpolis.simmodel.environment.model.AgentPositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.AgentStorage;
-import cz.agents.agentpolis.simmodel.environment.model.EntityStorage;
 import cz.agents.agentpolis.simmodel.environment.model.VehiclePositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.AllNetworkNodes;
@@ -22,6 +20,7 @@ import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwor
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.agentpolis.simulator.visualization.visio.Projection;
 import cz.agents.agentpolis.simulator.visualization.visio.DefaultVisioInitializer;
+import cz.agents.agentpolis.simulator.visualization.visio.SimulationControlLayer;
 import cz.agents.alite.simulation.Simulation;
 import cz.agents.alite.vis.VisManager;
 
@@ -60,10 +59,11 @@ public class DemandsVisioInitializer extends DefaultVisioInitializer{
             TrafficDensityLayer trafficDensityLayer, NodeIdLayer nodeIdLayer, 
             OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, DemandLayer demandLayer, 
 			OnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer, 
-            BufferedHighwayLayer bufferedHighwayLayer) {
+            BufferedHighwayLayer bufferedHighwayLayer, SimulationControlLayer simulationControlLayer,
+             Projection projection) {
         super(pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork, 
                 agentStorage, vehicleStorage, agentPositionModel, vehiclePositionModel, allNetworkNodes, 
-                simulationCreator);
+                simulationCreator, simulationControlLayer, projection);
         this.onDemandVehicleLayer = onDemandVehicleLayer;
         this.trafficDensityLayer = trafficDensityLayer;
         this.nodeIdLayer = nodeIdLayer;

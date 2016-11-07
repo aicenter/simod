@@ -53,7 +53,7 @@ public class DemandsVisioInitializer extends DefaultVisioInitializer{
     @Inject
     public DemandsVisioInitializer(PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork, 
             HighwayNetwork highwayNetwork, TramwayNetwork tramwayNetwork, MetrowayNetwork metrowayNetwork, 
-            RailwayNetwork railwayNetwork, EntityStorage<AgentPolisEntity> entityStorage, AgentStorage agentStorage, 
+            RailwayNetwork railwayNetwork, AgentStorage agentStorage, 
             VehicleStorage vehicleStorage, AgentPositionModel agentPositionModel, 
             VehiclePositionModel vehiclePositionModel, AllNetworkNodes allNetworkNodes, 
             SimulationCreator simulationCreator, OnDemandVehicleLayer onDemandVehicleLayer,
@@ -62,7 +62,7 @@ public class DemandsVisioInitializer extends DefaultVisioInitializer{
 			OnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer, 
             BufferedHighwayLayer bufferedHighwayLayer) {
         super(pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork, 
-                entityStorage, agentStorage, vehicleStorage, agentPositionModel, vehiclePositionModel, allNetworkNodes, 
+                agentStorage, vehicleStorage, agentPositionModel, vehiclePositionModel, allNetworkNodes, 
                 simulationCreator);
         this.onDemandVehicleLayer = onDemandVehicleLayer;
         this.trafficDensityLayer = trafficDensityLayer;

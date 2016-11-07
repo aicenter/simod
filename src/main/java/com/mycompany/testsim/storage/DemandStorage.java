@@ -18,7 +18,7 @@ import java.util.HashMap;
 public class DemandStorage extends EntityStorage<DemandAgent>{
     
     public DemandStorage() {
-        super(new HashMap<>(), new HashMap<>());
+        super();
     }
     
 }

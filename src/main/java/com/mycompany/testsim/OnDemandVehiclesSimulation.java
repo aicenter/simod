@@ -9,15 +9,12 @@ import com.mycompany.testsim.io.RebalancingLoader;
 import com.mycompany.testsim.io.TimeTrip;
 import com.mycompany.testsim.io.TripTransform;
 import cz.agents.agentpolis.AgentPolisInitializer;
-import cz.agents.agentpolis.simmodel.environment.model.delaymodel.impl.InfinityDelayingSegmentCapacityDeterminer;
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.agentpolis.utils.config.ConfigReader;
 import cz.agents.agentpolis.utils.config.ConfigReaderException;
-import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,9 +46,6 @@ public class OnDemandVehiclesSimulation {
 			Injector injector = new AgentPolisInitializer(parameters, new MainModule()).initialize();
 			
 			SimulationCreator creator = injector.getInstance(SimulationCreator.class);
-
-            // to be removed
-			creator.setMainEnvironment(injector);
             
             // prepare map, entity storages...
             creator.prepareSimulation(new MyMapInitFactory(SRID));

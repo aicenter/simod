@@ -65,14 +65,14 @@ public class MyMapInitFactory implements MapInitFactory{
 	 
 
 	@Override
-	public MapData initMap(File mapFile, Injector injector, long simulationDurationInMilisec) {
+	public MapData initMap(File mapFile, long simulationDurationInMilisec) {
 		Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs;
         try {
             graphs = deserializeGraphs(mapFile);
         } catch (Exception ex) {
             LOGGER.warn("Cannot perform deserialization of the cached graphs:" + ex.getMessage());
             LOGGER.warn("Generating graphs from the OSM");
-            graphs = generateGraphsFromOSM(mapFile, injector, simulationDurationInMilisec);
+            graphs = generateGraphsFromOSM(mapFile, simulationDurationInMilisec);
             serializeGraphs(graphs, mapFile.getName() + ".ser");
         }
         Map<Integer, SimulationNode> nodes = createAllGraphNodes(graphs);
@@ -90,10 +90,12 @@ public class MyMapInitFactory implements MapInitFactory{
         return (Map<GraphType, Graph<SimulationNode, SimulationEdge>>) input.readObject();
     }
 	
-	private Map<GraphType, Graph<SimulationNode, SimulationEdge>> generateGraphsFromOSM(File mapFile, Injector injector, long simulationDurationInMilisec) {
+	private Map<GraphType, Graph<SimulationNode, SimulationEdge>> generateGraphsFromOSM(File mapFile, 
+            long simulationDurationInMilisec) {
         Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs;
         ZonedDateTime initDate = ZonedDateTime.now();
-        Graph<SimulationNode, SimulationEdge> highwayGraphFromOSM = createHighwayGraphFromPlannerGraph(mapFile, injector, simulationDurationInMilisec, initDate, 0);
+        Graph<SimulationNode, SimulationEdge> highwayGraphFromOSM 
+                = createHighwayGraphFromPlannerGraph(mapFile, simulationDurationInMilisec, initDate, 0);
         Graph<SimulationNode, SimulationEdge> highwayGraph = connectivity(highwayGraphFromOSM);
 
         graphs = new HashMap<>();
@@ -106,7 +108,7 @@ public class MyMapInitFactory implements MapInitFactory{
         return graphs;
     }
 	
-	private Graph<SimulationNode, SimulationEdge> createHighwayGraphFromPlannerGraph(File mapFile, Injector injector, 
+	private Graph<SimulationNode, SimulationEdge> createHighwayGraphFromPlannerGraph(File mapFile, 
 			long durationInMilisec, ZonedDateTime initDate, long simulationDurationInMilisec) {
         LOGGER.info(epsg);
         GTDGraphBuilder gtdBuilder = new GTDGraphBuilder(new Transformer(epsg), mapFile, Sets.immutableEnumSet

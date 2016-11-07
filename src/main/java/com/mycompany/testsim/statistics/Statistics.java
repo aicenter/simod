@@ -19,6 +19,7 @@ import cz.agents.alite.common.event.EventHandlerAdapter;
 import cz.agents.alite.common.event.EventProcessor;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,6 +35,10 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     
     private static final File RESULT_FILE = new File("result.json");
     
+    public static final long ALL_EDGES_LOAD_INTERVAL = 600000;
+    
+    private static final File ALL_EDGES_LOAD_HISTORY_FILE = new File("allEdgesLoadHistory.json");
+    
     
     
     private final EventProcessor eventProcessor;
@@ -45,6 +50,8 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     private final OnDemandVehicleStorage onDemandVehicleStorage;
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
+    
+    private final LinkedList<HashMap<Long, Integer>> allEdgesLoadHistory;
     
     
     private long tickCount;
@@ -70,6 +77,7 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
         this.allEdgesLoadProvider = allEdgesLoadProvider;
         this.onDemandVehicleStorage = onDemandVehicleStorage;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
+        allEdgesLoadHistory = new LinkedList<>();
         tickCount = 0;
         averageEdgeLoad = new LinkedList<>();
         maxLoad = 0;
@@ -117,11 +125,17 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     public void simulationFinished() {
         countAveragesFromAgents();
         saveResult();
+        saveAllEdgesLoadHistory();
     }
 
     @Inject
     private void countEdgeLoadForInterval() {
         AllEdgesLoad allEdgesLoad = allEdgesLoadProvider.get();
+        
+        if(tickCount % ALL_EDGES_LOAD_INTERVAL / STATISTIC_INTERVAL == 0){
+            allEdgesLoadHistory.add(allEdgesLoad.getLoadPerEdge());
+        }
+        
         int edgeLoadTotal = 0;
         for (int edgeLoad : allEdgesLoad.loadsIterator) {
             edgeLoadTotal += edgeLoad;
@@ -160,6 +174,16 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
         averageKmToStartLocation = (double) metersToStartLocationSum / numberOfVehicles / 1000;
         averageKmToStation = (double) metersToStationSum / numberOfVehicles / 1000;
         averageKmRebalancing = (double) metersRebalancingSum / numberOfVehicles / 1000;
+    }
+
+    private void saveAllEdgesLoadHistory() {
+        ObjectMapper mapper = new ObjectMapper();
+		
+        try {
+            mapper.writeValue(ALL_EDGES_LOAD_HISTORY_FILE, allEdgesLoadHistory);
+        } catch (IOException ex) {
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     

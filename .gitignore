@@ -12,3 +12,4 @@ nb-configuration.xml
 /result.json
 /.idea/
 /trip_cache.json
+/allEdgesLoadHistory.json

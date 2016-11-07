@@ -23,7 +23,7 @@ public class OnDemandvehicleStationStorage extends EntityStorage<OnDemandVehicle
     
     @Inject
     public OnDemandvehicleStationStorage() {
-        super(new HashMap<>(), new HashMap<>());
+        super();
     }
     
 }

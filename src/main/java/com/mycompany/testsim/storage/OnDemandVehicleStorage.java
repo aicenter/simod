@@ -15,7 +15,7 @@ public class OnDemandVehicleStorage extends EntityStorage<OnDemandVehicle>{
 	
 	@Inject
 	public OnDemandVehicleStorage() {
-		super(new HashMap<>(), new HashMap<>());
+		super();
 	}
 	
 }

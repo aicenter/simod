@@ -5,12 +5,9 @@
  */
 package com.mycompany.testsim;
 
-import com.mycompany.testsim.io.TimeTrip;
 import com.mycompany.testsim.io.TripTransform;
-import cz.agents.basestructures.GPSLocation;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

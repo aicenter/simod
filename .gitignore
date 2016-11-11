@@ -13,3 +13,4 @@ nb-configuration.xml
 /.idea/
 /trip_cache.json
 /allEdgesLoadHistory.json
+/src/main/python/.idea/

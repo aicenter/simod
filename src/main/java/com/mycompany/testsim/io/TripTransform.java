@@ -8,6 +8,7 @@ package com.mycompany.testsim.io;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.collect.Sets;
+import com.mycompany.testsim.OsmUtil;
 import com.mycompany.testsim.pathPlanner.PathPlanner;
 import com.vividsolutions.jts.geom.Coordinate;
 import cz.agents.agentpolis.utils.nearestelement.NearestElementUtil;
@@ -44,11 +45,7 @@ public class TripTransform {
 	
 	public List<TimeTrip<Long>> gpsTripsToOsmNodeTrips(List<TimeTrip<GPSLocation>> gpsTrips, 
 			File osmFile, int srid, boolean completedTrips){
-		Transformer transformer = new Transformer(srid);
-		
-		GTDGraphBuilder gtdBuilder = new GTDGraphBuilder(transformer, osmFile, 
-				Sets.immutableEnumSet(ModeOfTransport.CAR), null, null);
-        Graph<RoadNode, RoadEdge> highwayGraph = gtdBuilder.buildSimplifiedRoadGraph();
+        Graph<RoadNode, RoadEdge> highwayGraph = OsmUtil.getHigwayGraph(osmFile,srid);
 
 		List<Pair<Coordinate, RoadNode>> pairs = new ArrayList<>();
 		

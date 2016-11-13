@@ -23,17 +23,21 @@ import java.util.logging.Logger;
  * @author David Fiedler
  */
 public class OnDemandVehiclesSimulation {
-	
-	private static final File EXPERIMENT_DIR = new File("data/Prague");
-	
-	private static final String INPUT_FILE_PATH = "data/Prague/trips.json";
-    
-    private static final String REBALANCING_FILE_PATH = "data/Prague/policy.json";
-	
-	private static final int SRID = 2065;
+
+    private static File EXPERIMENT_DIR = new File("data/Prague");
+
+    private static final String INPUT_FILE_PATH = "trips.json";
+
+    private static final String REBALANCING_FILE_PATH = "policy.json";
+
+    private static final int SRID = 2065;
 
 
 	public static void main(String[] args) throws MalformedURLException, ConfigReaderException {
+        if (args.length >= 1) {
+            EXPERIMENT_DIR = new File(args[0]);
+        }
+
 		new OnDemandVehiclesSimulation().run();
 	}
 
@@ -49,10 +53,10 @@ public class OnDemandVehiclesSimulation {
             
             // prepare map, entity storages...
             creator.prepareSimulation(new MyMapInitFactory(SRID));
-            
-            List<TimeTrip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(INPUT_FILE_PATH), Long.class);
+
+            List<TimeTrip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(EXPERIMENT_DIR, INPUT_FILE_PATH), Long.class);
             RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
-            rebalancingLoader.load(new File(REBALANCING_FILE_PATH));
+            rebalancingLoader.load(new File(EXPERIMENT_DIR, REBALANCING_FILE_PATH));
             
 //            injector.getInstance(EntityInitializer.class).initialize(rebalancingLoader.getOnDemandVehicleStations());
 

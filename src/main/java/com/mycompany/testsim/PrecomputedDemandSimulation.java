@@ -25,27 +25,28 @@ import java.util.logging.Logger;
  * @author F-I-D-O
  */
 public class PrecomputedDemandSimulation {
-	
-	private static final String EXPERIMENT_PATH = "data/Prague";
-	
-	private static final String INPUT_FILE_PATH = "data/Prague/trips.json";
-	
+
+    private static File EXPERIMENT_DIR = new File("data/Prague");
+
+    private static final String INPUT_FILE_PATH = "trips.json";
+
 	private static final int SRID = 2065;
 	
 	private static final int START_TIME = 25200000; // 7h
 	
 	public static void main(String[] args) throws MalformedURLException, ConfigReaderException {
-		new PrecomputedDemandSimulation().run();
-	}
+        if (args.length >= 1) {
+            EXPERIMENT_DIR = new File(args[0]);
+        }
+        new PrecomputedDemandSimulation().run();
+    }
 	
 	public void run() throws ConfigReaderException{
 		try {
-			List<TimeTrip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(INPUT_FILE_PATH), Long.class);
-			
-			File experimentDir = new File(EXPERIMENT_PATH);
+            List<TimeTrip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(EXPERIMENT_DIR, INPUT_FILE_PATH), Long.class);
 
-			ConfigReader scenario = ConfigReader.initConfigReader(new File(experimentDir, "scenario.groovy").toURI().toURL());
-			MyParams parameters = new MyParams(experimentDir, scenario);
+            ConfigReader scenario = ConfigReader.initConfigReader(new File(EXPERIMENT_DIR, "scenario.groovy").toURI().toURL());
+            MyParams parameters = new MyParams(EXPERIMENT_DIR, scenario);
 //			SimpleEnvinromentFactory envinromentFactory = new SimpleEnvinromentFactory(new InfinityDelayingSegmentCapacityDeterminer());
 
 			

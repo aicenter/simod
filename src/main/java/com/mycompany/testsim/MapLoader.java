@@ -16,11 +16,14 @@ import java.net.MalformedURLException;
  * @author F-I-D-O
  */
 public class MapLoader {
-	
-	private static final String EXPERIMENT_DIR = "C:\\AIC data\\cr";
-	
-	public static void main(String[] args) throws MalformedURLException, ConfigReaderException {
-//		File experimentDir = new File(EXPERIMENT_DIR);
+
+    private static File EXPERIMENT_DIR = new File("C:\\AIC data\\cr");
+
+    public static void main(String[] args) throws MalformedURLException, ConfigReaderException {
+        if (args.length >= 1) {
+            EXPERIMENT_DIR = new File(args[0]);
+        }
+//		File experimentDir = EXPERIMENT_DIR;
 //        ConfigReader scenario = ConfigReader.initConfigReader(new File(experimentDir, "scenario.groovy").toURI().toURL());
 //        MyParams parameters = new MyParams(experimentDir, scenario);
 //

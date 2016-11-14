@@ -21,6 +21,8 @@ import cz.agents.agentpolis.simmodel.entity.vehicle.Vehicle;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.agentpolis.simulator.creator.SimulationFinishedListener;
+import cz.agents.agentpolis.simulator.creator.SimulationParameters;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -28,56 +30,52 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author fido
  */
 @Singleton
 public class TripsUtilCached extends TripsUtil implements SimulationFinishedListener {
-    
-    private final HashMap<StartTargetNodePair,Trip<TripItem>> tripCache;
-    
-    private static final File TRIP_CACHE_FILE = new File("trip_cache.json");
-    
-    
+
+    private final HashMap<StartTargetNodePair, Trip<TripItem>> tripCache;
+
+    private static String TRIP_CACHE_FILE_NAME = "trip_cache.json";
+
+    private static File tripCacheFile;
+
+
     @Inject
-    public TripsUtilCached(ShortestPathPlanners pathPlanners, SimulationCreator simulationCreator) {
+    public TripsUtilCached(ShortestPathPlanners pathPlanners, SimulationCreator simulationCreator, SimulationParameters simParameters) {
         super(pathPlanners);
-        
+
+        tripCacheFile = new File(simParameters.experimentPath.getPath(), TRIP_CACHE_FILE_NAME);
+
         tripCache = loadTripCache();
-        
 //        tripCache = new HashMap<>();
-        
         simulationCreator.addSimulationFinishedListener(this);
     }
 
-    
-    
-    
-    
+
     @Override
     public VehicleTrip createTrip(int startNodeId, int targetNodeId, Vehicle vehicle) {
-        if(startNodeId == targetNodeId){
+        if (startNodeId == targetNodeId) {
             try {
                 throw new Exception("Start node cannot be the same as end node");
             } catch (Exception ex) {
                 Logger.getLogger(TripsUtil.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        if(pathPlanner == null){
+        if (pathPlanner == null) {
             pathPlanner = pathPlanners.getPathPlanner(GRAPH_TYPES);
         }
-        
-        
-        
+
+
         StartTargetNodePair tripStartTargetPair = new StartTargetNodePair(startNodeId, targetNodeId);
-        
+
         VehicleTrip finalTrip = null;
-               
-        if(tripCache.containsKey(tripStartTargetPair)){
-            finalTrip = 
-                new VehicleTrip(tripCache.get(tripStartTargetPair).getLocations(), EGraphType.HIGHWAY, vehicle.getId());
-        }
-        else{
+
+        if (tripCache.containsKey(tripStartTargetPair)) {
+            finalTrip =
+                    new VehicleTrip(tripCache.get(tripStartTargetPair).getLocations(), EGraphType.HIGHWAY, vehicle.getId());
+        } else {
             try {
                 finalTrip = pathPlanner.findTrip(vehicle.getId(), startNodeId, targetNodeId);
                 tripCache.put(tripStartTargetPair, new Trip<>(finalTrip.getLocations()));
@@ -85,7 +83,7 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
                 Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    
+
         return finalTrip;
     }
 
@@ -93,32 +91,35 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
     public void simulationFinished() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new MyModule());
-		
+
+
         try {
-            mapper.writeValue(TRIP_CACHE_FILE, tripCache);
+            mapper.writeValue(tripCacheFile, tripCache);
         } catch (IOException ex) {
             Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     private HashMap<StartTargetNodePair, Trip<TripItem>> loadTripCache() {
-        HashMap<StartTargetNodePair,Trip<TripItem>> tripCache = null;
-        
+        HashMap<StartTargetNodePair, Trip<TripItem>> tripCache = null;
+
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new MyModule());
-        
-        TypeReference<HashMap<StartTargetNodePair,SimpleJsonTrip>> typeRef = 
-                new TypeReference<HashMap<StartTargetNodePair,SimpleJsonTrip>>() {};
-		
+
+        System.out.println(mapper.getSerializationConfig().toString());
+
+        TypeReference<HashMap<StartTargetNodePair, SimpleJsonTrip>> typeRef =
+                new TypeReference<HashMap<StartTargetNodePair, SimpleJsonTrip>>() {
+                };
+
         try {
-            tripCache = mapper.readValue(TRIP_CACHE_FILE, typeRef);
+            tripCache = mapper.readValue(tripCacheFile, typeRef);
         } catch (IOException ex) {
             Logger.getLogger(TripsUtilCached.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return tripCache;
     }
-    
-    
-    
+
+
 }

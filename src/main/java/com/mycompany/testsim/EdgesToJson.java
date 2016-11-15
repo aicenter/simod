@@ -22,9 +22,12 @@ public class EdgesToJson {
     
     private static final File OUTPUT_FILE = new File("data/Prague/edges.json");
     
+    private static final File OUTPUT_FILE_PAIRS = new File("data/Prague/edgePairs.json");
+    
     
     public static void main(String[] args) {
         Graph<RoadNode, RoadEdge> roadGraph = OsmUtil.getHigwayGraph(OSM_FILE, SRID);
         OsmUtil.edgesToJson(OsmUtil.buildSimulationGraph(roadGraph), OUTPUT_FILE);
+        OsmUtil.edgePairsToJson(OsmUtil.buildSimulationGraph(roadGraph), OUTPUT_FILE_PAIRS);
     }
 }

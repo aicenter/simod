@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.mycompany.testsim;
+package com.mycompany.testsim.io;
 
 import cz.agents.basestructures.GPSLocation;
 
@@ -16,7 +16,7 @@ public class ExportEdge {
     
     private final GPSLocation to;
     
-    private final long id;
+    private final String id;
     
     private final int laneCount;
     
@@ -36,7 +36,7 @@ public class ExportEdge {
         return to;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
@@ -56,7 +56,7 @@ public class ExportEdge {
     
     
     
-    public ExportEdge(GPSLocation from, GPSLocation to, long id, int laneCount, float maxSpeed, int length) {
+    public ExportEdge(GPSLocation from, GPSLocation to, String id, int laneCount, float maxSpeed, int length) {
         this.from = from;
         this.to = to;
         this.id = id;

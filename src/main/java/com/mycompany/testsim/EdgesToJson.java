@@ -23,7 +23,8 @@ public class EdgesToJson {
     private static final String OSM_FILE = "prague-filtered-complete.osm";
 
     private static final String OUTPUT_FILE = "edges.json";
-    
+
+    private static final String OUTPUT_FILE_PAIRS = "data/Prague/edgePairs.json";
     
     public static void main(String[] args) {
         if (args.length >= 1) {
@@ -31,5 +32,6 @@ public class EdgesToJson {
         }
         Graph<RoadNode, RoadEdge> roadGraph = OsmUtil.getHigwayGraph(new File(EXPERIMENT_DIR, OSM_FILE), SRID);
         OsmUtil.edgesToJson(OsmUtil.buildSimulationGraph(roadGraph), new File(EXPERIMENT_DIR, OUTPUT_FILE));
+        OsmUtil.edgePairsToJson(OsmUtil.buildSimulationGraph(roadGraph), new File(EXPERIMENT_DIR, OUTPUT_FILE_PAIRS));
     }
 }

@@ -112,7 +112,11 @@ public class TrafficDensityByDirectionLayer extends AbstractLayer {
     }
 
     private Color getColorForEdge(AllEdgesLoad allEdgesLoad, SimulationEdge edge) {
-        double averageLoad = allEdgesLoad.getLoadPerEdge(edge.wayID);
+        // TODO - proper edge id mechanism
+        String id = null;
+//        String id = Long.toString(network.getNode(currentNodeId).getSourceId()) + "-"
+//                        + Long.toString(network.getNode(targetNodeId).getSourceId());
+        double averageLoad = allEdgesLoad.getLoadPerEdge(id);
         double loadPerLength = averageLoad / edge.getLength();
         return colorMap.getColor(loadPerLength);
     }

@@ -50,8 +50,8 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     private final OnDemandVehicleStorage onDemandVehicleStorage;
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
-    
-    private final LinkedList<HashMap<Long, Integer>> allEdgesLoadHistory;
+
+    private final LinkedList<HashMap<String, Integer>> allEdgesLoadHistory;
     
     
     private long tickCount;

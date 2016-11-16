@@ -25,6 +25,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Layer that shows traffic on edges. Two-way edges are split for each direction.
@@ -213,11 +214,14 @@ public class TrafficDensityByDirectionLayer extends AbstractLayer {
      * @return Color based on load per length(m) or by default gray
      */
     private Color getColorForEdge(AllEdgesLoad allEdgesLoad, SimulationEdge edge) {
-        // TODO - proper edge id mechanism, dependency on FIDO´s work.
-        String id = null;
-//        String id = Long.toString(network.getNode(currentNodeId).getSourceId()) + "-"
-//                        + Long.toString(network.getNode(targetNodeId).getSourceId());
-        if (id != null) {
+        String id;
+        try {
+            id = Long.toString(graph.getNode(edge.getFromId()).getSourceId()) + "-"
+                    + Long.toString(graph.getNode(edge.getToId()).getSourceId());
+        } catch (Exception e) {
+            id = Integer.toString(-1);
+        }
+        if (!Objects.equals(id, "-1")) {
             double averageLoad = allEdgesLoad.getLoadPerEdge(id);
             double loadPerLength = averageLoad / edge.getLength();
             return colorMap.getColor(loadPerLength);

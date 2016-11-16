@@ -24,7 +24,7 @@ public class EdgesToJson {
 
     private static final String OUTPUT_FILE = "edges.json";
 
-    private static final String OUTPUT_FILE_PAIRS = "data/Prague/edgePairs.json";
+    private static final String OUTPUT_FILE_PAIRS = "edgePairs.json";
     
     public static void main(String[] args) {
         if (args.length >= 1) {

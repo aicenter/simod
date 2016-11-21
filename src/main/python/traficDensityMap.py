@@ -26,11 +26,21 @@ SHIFT_DISTANCE = 30
 
 CHOSEN_WINDOW = 989;
 
+CHOSEN_WINDOW_START = 950;
+
+CHOSEN_WINDOW_END = 1050;
+
 NORMAL_COLOR = "black"
+
+COLOR_1 = "sandybrown"
+
+COLOR_2 = "darkorange"
+
+COLOR_3 = "orangered"
 
 CONGESTED_COLOR = "red"
 
-
+color_list = {NORMAL_COLOR, COLOR_1, COLOR_2, COLOR_3, CONGESTED_COLOR}
 
 
 os.chdir("../../../")
@@ -44,54 +54,22 @@ edgePairs = json.loads(jsonFile.read())
 jsonFile = open(LOADS_FILE_PATH, 'r')
 loads = json.loads(jsonFile.read())
 
-plt.gca().set_aspect('equal', adjustable='box')
+colorTypes = {}
 
-fig, axis = plt.subplots(1)
-axis.axis('equal')
-
-xPairs = [];
-yPairs = [];
-xPairsCong = [];
-yPairsCong = [];
-
-
-
-
-def plot_edges(pairs, axis, loads):
-    jet = plt.get_cmap('jet')
-    cNorm = colors.Normalize(vmin=0, vmax=300)
-    scalarMap = cm.ScalarMappable(norm=cNorm, cmap=jet)
-    
-    for pair in itertools.islice(pairs, 0, 100000000):
-#        axis.plot([edge["from"]["latProjected"],edge["from"]["lonProjected"]],
-#        [edge["to"]["latProjected"],edge["to"]["lonProjected"]], linewidth = 1.2, color='black')
-
-        edge1 = pair["edge1"];
-        id1 = str(edge1["id"])
-        color1 = get_color(loads=loads, id=id1, length=edge1["length"], laneCount=edge1["laneCount"])
-
-        if not pair["edge2"]:
-            plot_edge([edge1["from"]["lonE6"], edge1["from"]["latE6"]], [edge1["to"]["lonE6"], edge1["to"]["latE6"]],
-                      id1, color1)
-        else:
-            edge2 = pair["edge2"];
-            id2 = str(edge2["id"])
-            color2 = get_color(loads=loads, id=id2, length=edge2["length"], laneCount=edge2["laneCount"])
-            line1 = compute_shift(
-                [[edge1["from"]["lonE6"], edge1["from"]["latE6"]], [edge1["to"]["lonE6"], edge1["to"]["latE6"]]],
-                SHIFT_DISTANCE, 1)
-            line2 = compute_shift(
-                [[edge1["from"]["lonE6"], edge1["from"]["latE6"]], [edge1["to"]["lonE6"], edge1["to"]["latE6"]]],
-                SHIFT_DISTANCE, -1)
-            plot_edge(line1[0], line1[1], id1, color1)
-            plot_edge(line2[0], line2[1], id2, color2)
 
 
 def plot_edges_optimized(pairs, axis, loads):
+    for color in color_list:
+        colorType = {}
+        colorType["xPairs"] = []
+        colorType["yPairs"] = []
+        colorTypes[color] = colorType
+
+
     for pair in itertools.islice(pairs, 0, 100000000):
         edge1 = pair["edge1"];
         id1 = str(edge1["id"])
-        color1 = get_color(loads=loads, id=id1, length=edge1["length"], laneCount=edge1["laneCount"])
+        color1 = get_color(loads=loads, id=id1, length=edge1["length"], lane_count=edge1["laneCount"])
 
         if not pair["edge2"]:
             add_line([edge1["from"]["lonE6"], edge1["from"]["latE6"]], [edge1["to"]["lonE6"], edge1["to"]["latE6"]],
@@ -99,7 +77,7 @@ def plot_edges_optimized(pairs, axis, loads):
         else:
             edge2 = pair["edge2"];
             id2 = str(edge2["id"])
-            color2 = get_color(loads=loads, id=id2, length=edge2["length"], laneCount=edge2["laneCount"])
+            color2 = get_color(loads=loads, id=id2, length=edge2["length"], lane_count=edge2["laneCount"])
             line1 = compute_shift(
                 [[edge1["from"]["lonE6"], edge1["from"]["latE6"]], [edge1["to"]["lonE6"], edge1["to"]["latE6"]]],
                 SHIFT_DISTANCE, 1)
@@ -109,30 +87,14 @@ def plot_edges_optimized(pairs, axis, loads):
             add_line(line1[0], line1[1], id1, color1)
             add_line(line2[0], line2[1], id2, color2)
 
-    xList, yList = lines_to_list(xPairs, yPairs)
-    xCongList, yCongList = lines_to_list(xPairsCong, yPairsCong)
-
-    axis.plot(xList, yList, linewidth=1.2, color=NORMAL_COLOR)
-    axis.plot(xCongList, yCongList, linewidth=1.2, color=CONGESTED_COLOR)
-
-
-def plot_edge(a, b, id, color):
-    if id in loads[CHOSEN_WINDOW]:
-        axis.plot([a[0], b[0]], [a[1], b[1]], linewidth=1.2, color=color)
-        # color = get_color(edge, loads, scalarMap))
-    # else:
-    #     axis.plot([edge["from"]["lonE6"], edge["to"]["lonE6"]], [edge["from"]["latE6"], edge["to"]["latE6"]],
-    #
-    #         linewidth=1.2, color="black")
+    for color, colorType in colorTypes.iteritems():
+        xList, yList = lines_to_list(colorType["xPairs"], colorType["yPairs"])
+        axis.plot(xList, yList, linewidth=1.2, color=color)
 
 
 def add_line(a, b, id, color):
-    if color == "black":
-        xPairs.append([a[0], b[0]])
-        yPairs.append([a[1], b[1]])
-    else:
-        xPairsCong.append([a[0], b[0]])
-        yPairsCong.append([a[1], b[1]])
+        colorTypes[color]["xPairs"].append([a[0], b[0]])
+        colorTypes[color]["yPairs"].append([a[1], b[1]])
 
 
 def lines_to_list(xpairs, ypairs):
@@ -154,19 +116,36 @@ def lines_to_list(xpairs, ypairs):
 #         return 'black'
 
 
-def get_color(loads, id, length, laneCount):
-    if id not in loads[CHOSEN_WINDOW]:
-        return "black"
-    return get_color_from_load(load=loads[CHOSEN_WINDOW][id], length=length, laneCount=laneCount)
+def get_color(loads, id, length, lane_count):
+    load_total = 0
+    current_frame = CHOSEN_WINDOW_START
+    while current_frame <= CHOSEN_WINDOW_END:
+        if id in loads[current_frame]:
+            load_total += loads[current_frame][id]
+        current_frame += 1
+
+    average_load = load_total / (CHOSEN_WINDOW_END - CHOSEN_WINDOW_START)
+
+    return get_color_from_load(load=average_load, length=length, lane_count=lane_count)
 
 
-def get_color_from_load(load, length, laneCount):
+def get_color_from_load(load, length, lane_count):
     if length == 0:
-        return "black"
-    if load / length / laneCount > CRITICAL_DENSITY:
-        return "red"
+        return NORMAL_COLOR
+    elif get_normalized_load(load, length, lane_count) > CRITICAL_DENSITY:
+        return CONGESTED_COLOR
+    elif get_normalized_load(load, length, lane_count) > CRITICAL_DENSITY * 0.75:
+        return COLOR_3
+    elif get_normalized_load(load, length, lane_count) > CRITICAL_DENSITY * 0.5:
+        return COLOR_2
+    elif get_normalized_load(load, length, lane_count) > CRITICAL_DENSITY * 0.25:
+        return COLOR_1
     else:
-        return "black"
+        return NORMAL_COLOR
+
+
+def get_normalized_load(load, length, lane_count):
+    return load / length / lane_count
 
 
 def compute_shift(line, distance, direction):
@@ -218,9 +197,33 @@ def location_quals(loc1, loc2):
 
 pairs = edgePairs;
 
+# fig, axis = plt.subplots(1)
+
+fig1 = plt.figure()
+fig2 = plt.figure()
+fig3 = plt.figure()
+fig4 = plt.figure()
+fig5 = plt.figure()
+
+axis1 = fig1.add_subplot(111)
+axis2 = fig2.add_subplot(111)
+axis3 = fig3.add_subplot(111)
+axis4 = fig4.add_subplot(111)
+axis5 = fig5.add_subplot(111)
+
+axis1.axis('equal')
+axis2.axis('equal')
+axis3.axis('equal')
+axis4.axis('equal')
+axis5.axis('equal')
+
 # plot_edges(pairs, axis, loads)
 
-plot_edges_optimized(pairs, axis, loads)
+plot_edges_optimized(pairs, axis1, loads["ALL"])
+plot_edges_optimized(pairs, axis2, loads["DRIVING_TO_START_LOCATION"])
+plot_edges_optimized(pairs, axis3, loads["DRIVING_TO_TARGET_LOCATION"])
+plot_edges_optimized(pairs, axis4, loads["DRIVING_TO_STATION"])
+plot_edges_optimized(pairs, axis5, loads["REBALANCING"])
 
 plt.show()
 

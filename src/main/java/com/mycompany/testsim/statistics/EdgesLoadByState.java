@@ -55,8 +55,4 @@ public class EdgesLoadByState extends AllEdgesLoad{
         CollectionUtil.incrementMapValue(edgeLoadsPerState.get(vehicleState), edgeId, 1);
     }
 
-    
-    
-    
-    
 }

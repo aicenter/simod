@@ -1,3 +1,5 @@
+from __future__ import print_function, division
+
 import matplotlib.pyplot as plt
 import json
 import os
@@ -70,6 +72,10 @@ def create_edge_time_matrix_normalized(edges, dictionary, loads):
 
 # edgeTimeMatrix = create_edge_time_matrix(edges, {}, loads)
 
-edgeTimeMatrix = create_edge_time_matrix_normalized(edges, {}, loads)
+edgeTimeMatrix = create_edge_time_matrix_normalized(edges, {}, loads["ALL"])
 
 reducedMatrix = np.delete(edgeTimeMatrix, np.nonzero(edgeTimeMatrix.sum()), axis=0)
+
+edgeTimeMatrix = create_edge_time_matrix_normalized(edges, {}, loads["DRIVING_TO_TARGET_LOCATION"])
+
+reducedMatrix2 = np.delete(edgeTimeMatrix, np.nonzero(edgeTimeMatrix.sum()), axis=0)

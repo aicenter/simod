@@ -11,8 +11,8 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.mycompany.testsim.OnDemandVehicleStationsCentral;
 import com.mycompany.testsim.entity.OnDemandVehicle;
+import com.mycompany.testsim.entity.OnDemandVehicleState;
 import com.mycompany.testsim.storage.OnDemandVehicleStorage;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.AllEdgesLoad;
 import cz.agents.agentpolis.simulator.creator.SimulationFinishedListener;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandlerAdapter;
@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,11 +34,11 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     
     public static final long STATISTIC_INTERVAL = 60000;
     
-    private static final File RESULT_FILE = new File("result.json");
+    private static final File RESULT_FILE = new File("data/Prague/result.json");
     
     public static final long ALL_EDGES_LOAD_INTERVAL = 600000;
     
-    private static final File ALL_EDGES_LOAD_HISTORY_FILE = new File("allEdgesLoadHistory.json");
+    private static final File ALL_EDGES_LOAD_HISTORY_FILE = new File("data/Prague/allEdgesLoadHistory.json");
     
     
     
@@ -45,13 +46,15 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     
     private final LinkedList<Double> averageEdgeLoad;
     
-    private final Provider<AllEdgesLoad> allEdgesLoadProvider;
+    private final Provider<EdgesLoadByState> allEdgesLoadProvider;
     
     private final OnDemandVehicleStorage onDemandVehicleStorage;
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
-    private final LinkedList<HashMap<String, Integer>> allEdgesLoadHistory;
+    private final LinkedList<HashMap<String,Integer>> allEdgesLoadHistory;
+    
+    private final HashMap<OnDemandVehicleState, LinkedList<HashMap<String,Integer>>> allEdgesLoadHistoryPerState;
     
     
     private long tickCount;
@@ -71,13 +74,17 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     
     
     @Inject
-    public Statistics(EventProcessor eventProcessor, Provider<AllEdgesLoad> allEdgesLoadProvider, 
+    public Statistics(EventProcessor eventProcessor, Provider<EdgesLoadByState> allEdgesLoadProvider, 
             OnDemandVehicleStorage onDemandVehicleStorage, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral) {
         this.eventProcessor = eventProcessor;
         this.allEdgesLoadProvider = allEdgesLoadProvider;
         this.onDemandVehicleStorage = onDemandVehicleStorage;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         allEdgesLoadHistory = new LinkedList<>();
+        allEdgesLoadHistoryPerState = new HashMap<>();
+        for(OnDemandVehicleState onDemandVehicleState : OnDemandVehicleState.values()){
+            allEdgesLoadHistoryPerState.put(onDemandVehicleState, new LinkedList<>());
+        }
         tickCount = 0;
         averageEdgeLoad = new LinkedList<>();
         maxLoad = 0;
@@ -130,10 +137,17 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
 
     @Inject
     private void countEdgeLoadForInterval() {
-        AllEdgesLoad allEdgesLoad = allEdgesLoadProvider.get();
+        EdgesLoadByState allEdgesLoad = allEdgesLoadProvider.get();
         
         if(tickCount % ALL_EDGES_LOAD_INTERVAL / STATISTIC_INTERVAL == 0){
             allEdgesLoadHistory.add(allEdgesLoad.getLoadPerEdge());
+            for (Map.Entry<OnDemandVehicleState,HashMap<String, Integer>> stateEntry 
+                    : allEdgesLoad.getEdgeLoadsPerState().entrySet()) {
+                OnDemandVehicleState onDemandVehicleState = stateEntry.getKey();
+                HashMap<String, Integer> loadPerState = stateEntry.getValue();
+                allEdgesLoadHistoryPerState.get(onDemandVehicleState).add(loadPerState);
+            }
+            
         }
         
         int edgeLoadTotal = 0;
@@ -178,9 +192,16 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
 
     private void saveAllEdgesLoadHistory() {
         ObjectMapper mapper = new ObjectMapper();
+        
+        Map<String,Object> outputMap = new HashMap<>();
+        outputMap.put("ALL", allEdgesLoadHistory);
+        for (Map.Entry<OnDemandVehicleState, LinkedList<HashMap<String,Integer>>> stateEntry 
+                : allEdgesLoadHistoryPerState.entrySet()) {
+            outputMap.put(stateEntry.getKey().name(), stateEntry.getValue());
+        }
 		
         try {
-            mapper.writeValue(ALL_EDGES_LOAD_HISTORY_FILE, allEdgesLoadHistory);
+            mapper.writeValue(ALL_EDGES_LOAD_HISTORY_FILE, outputMap);
         } catch (IOException ex) {
             Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
         }

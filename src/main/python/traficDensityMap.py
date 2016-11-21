@@ -1,6 +1,8 @@
 #!/usr/bin/env python2
 #encoding: UTF-8
 
+from __future__ import print_function, division
+
 import matplotlib.pyplot as plt
 import json
 import os
@@ -18,8 +20,9 @@ EDGE_PAIRS_FILE_PATH = "data/Prague/edgePairs.json"
 LOADS_FILE_PATH = "data/Prague/allEdgesLoadHistory.json"
 
 CRITICAL_DENSITY = 0.08
+# CRITICAL_DENSITY = 0.08
 
-SHIFT_DISTANCE = 3
+SHIFT_DISTANCE = 30
 
 CHOSEN_WINDOW = 989;
 
@@ -44,6 +47,7 @@ loads = json.loads(jsonFile.read())
 plt.gca().set_aspect('equal', adjustable='box')
 
 fig, axis = plt.subplots(1)
+axis.axis('equal')
 
 xPairs = [];
 yPairs = [];
@@ -82,6 +86,7 @@ def plot_edges(pairs, axis, loads):
             plot_edge(line1[0], line1[1], id1, color1)
             plot_edge(line2[0], line2[1], id2, color2)
 
+
 def plot_edges_optimized(pairs, axis, loads):
     for pair in itertools.islice(pairs, 0, 100000000):
         edge1 = pair["edge1"];
@@ -89,18 +94,17 @@ def plot_edges_optimized(pairs, axis, loads):
         color1 = get_color(loads=loads, id=id1, length=edge1["length"], laneCount=edge1["laneCount"])
 
         if not pair["edge2"]:
-            add_line([edge1["from"]["lonProjected"], edge1["from"]["latProjected"]], [edge1["to"]["lonProjected"], edge1["to"]["latProjected"]],
+            add_line([edge1["from"]["lonE6"], edge1["from"]["latE6"]], [edge1["to"]["lonE6"], edge1["to"]["latE6"]],
                       id1, color1)
         else:
             edge2 = pair["edge2"];
             id2 = str(edge2["id"])
             color2 = get_color(loads=loads, id=id2, length=edge2["length"], laneCount=edge2["laneCount"])
             line1 = compute_shift(
-                [[edge1["from"]["lonProjected"], edge1["from"]["latProjected"]], [edge1["to"]["lonProjected"], edge1["to"]["latProjected"]]],
+                [[edge1["from"]["lonE6"], edge1["from"]["latE6"]], [edge1["to"]["lonE6"], edge1["to"]["latE6"]]],
                 SHIFT_DISTANCE, 1)
             line2 = compute_shift(
-                [[edge1["from"]["lonProjected"], edge1["from"]["latProjected"]], [edge1["to"]["lonProjected"], edge1["to"]["latProjected"
-                                                                                                                           ""]]],
+                [[edge1["from"]["lonE6"], edge1["from"]["latE6"]], [edge1["to"]["lonE6"], edge1["to"]["latE6"]]],
                 SHIFT_DISTANCE, -1)
             add_line(line1[0], line1[1], id1, color1)
             add_line(line2[0], line2[1], id2, color2)
@@ -113,7 +117,7 @@ def plot_edges_optimized(pairs, axis, loads):
 
 
 def plot_edge(a, b, id, color):
-    # if id in loads[CHOSEN_WINDOW]:
+    if id in loads[CHOSEN_WINDOW]:
         axis.plot([a[0], b[0]], [a[1], b[1]], linewidth=1.2, color=color)
         # color = get_color(edge, loads, scalarMap))
     # else:
@@ -143,11 +147,11 @@ def lines_to_list(xpairs, ypairs):
     return xlist, ylist
 
 
-def get_color(edge, loads, scalarMap):
-    if str(edge["id"]) in loads[50]:
-        return scalarMap.to_rgba(loads[50][str(edge["id"])])
-    else:
-        return 'black'
+# def get_color(edge, loads, scalarMap):
+#     if str(edge["id"]) in loads[50]:
+#         return scalarMap.to_rgba(loads[50][str(edge["id"])])
+#     else:
+#         return 'black'
 
 
 def get_color(loads, id, length, laneCount):
@@ -170,6 +174,7 @@ def compute_shift(line, distance, direction):
     length = np.linalg.norm(normalVector)
     finalVector = normalVector / length * distance * direction
     return np.array([line[0] + finalVector, line[1] + finalVector])
+
 
 def make_edge_pairs(edges):
     # for edge in edges:

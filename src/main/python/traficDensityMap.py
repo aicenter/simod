@@ -30,7 +30,7 @@ CHOSEN_WINDOW_START = 950;
 
 CHOSEN_WINDOW_END = 1050;
 
-NORMAL_COLOR = "black"
+NORMAL_COLOR = "grey"
 
 COLOR_1 = "sandybrown"
 
@@ -40,7 +40,9 @@ COLOR_3 = "orangered"
 
 CONGESTED_COLOR = "red"
 
-color_list = {NORMAL_COLOR, COLOR_1, COLOR_2, COLOR_3, CONGESTED_COLOR}
+color_list = [NORMAL_COLOR, COLOR_1, COLOR_2, COLOR_3, CONGESTED_COLOR]
+
+# color_list = list(reversed(color_list))
 
 
 os.chdir("../../../")
@@ -63,6 +65,7 @@ def plot_edges_optimized(pairs, axis, loads):
         colorType = {}
         colorType["xPairs"] = []
         colorType["yPairs"] = []
+        colorType["width"] = 1.0 if color == NORMAL_COLOR else 2.0
         colorTypes[color] = colorType
 
 
@@ -82,14 +85,15 @@ def plot_edges_optimized(pairs, axis, loads):
                 [[edge1["from"]["lonE6"], edge1["from"]["latE6"]], [edge1["to"]["lonE6"], edge1["to"]["latE6"]]],
                 SHIFT_DISTANCE, 1)
             line2 = compute_shift(
-                [[edge1["from"]["lonE6"], edge1["from"]["latE6"]], [edge1["to"]["lonE6"], edge1["to"]["latE6"]]],
-                SHIFT_DISTANCE, -1)
+                [[edge2["from"]["lonE6"], edge2["from"]["latE6"]], [edge2["to"]["lonE6"], edge2["to"]["latE6"]]],
+                SHIFT_DISTANCE, 1)
             add_line(line1[0], line1[1], id1, color1)
             add_line(line2[0], line2[1], id2, color2)
 
-    for color, colorType in colorTypes.iteritems():
+    for color in color_list:
+        colorType = colorTypes[color]
         xList, yList = lines_to_list(colorType["xPairs"], colorType["yPairs"])
-        axis.plot(xList, yList, linewidth=1.2, color=color)
+        axis.plot(xList, yList, linewidth=colorType["width"], color=color)
 
 
 def add_line(a, b, id, color):
@@ -149,7 +153,7 @@ def get_normalized_load(load, length, lane_count):
 
 
 def compute_shift(line, distance, direction):
-    normalVector = np.array([-abs(line[0][1] - line[1][1]), abs(line[0][0] - line[1][0])])
+    normalVector = np.array([-(line[0][1] - line[1][1]), line[0][0] - line[1][0]])
     length = np.linalg.norm(normalVector)
     finalVector = normalVector / length * distance * direction
     return np.array([line[0] + finalVector, line[1] + finalVector])
@@ -197,33 +201,46 @@ def location_quals(loc1, loc2):
 
 pairs = edgePairs;
 
-# fig, axis = plt.subplots(1)
 
-fig1 = plt.figure()
+# "adjustable": 'datalim', "aspect": 1.0 - naprosto nevim proc to takhle funguje - dokumentace == NULL
+fig, axis = \
+    plt.subplots(2, 3, sharex=True, sharey=True, squeeze=True, subplot_kw={"adjustable": 'datalim', "aspect": 1.0})
+
+# for ax in fig.get_axes():
+#     ax.axis("scaled")
+
+
+# fig1 = plt.figure()
 # fig2 = plt.figure()
 # fig3 = plt.figure()
 # fig4 = plt.figure()
 # fig5 = plt.figure()
+#
+# axis1 = fig1.add_subplot(321)
+# axis2 = fig1.add_subplot(322, sharex=axis1, sharey=axis1)
+# axis3 = fig1.add_subplot(323, sharex=axis1, sharey=axis1)
+# axis4 = fig1.add_subplot(324, sharex=axis1, sharey=axis1)
+# axis5 = fig1.add_subplot(325, sharex=axis1, sharey=axis1)
 
-axis1 = fig1.add_subplot(321)
-axis2 = fig1.add_subplot(322, sharex=axis1, sharey=axis1)
-axis3 = fig1.add_subplot(323, sharex=axis1, sharey=axis1)
-axis4 = fig1.add_subplot(324, sharex=axis1, sharey=axis1)
-axis5 = fig1.add_subplot(325, sharex=axis1, sharey=axis1)
-
-axis1.axis('equal')
-axis2.axis('equal')
-axis3.axis('equal')
-axis4.axis('equal')
-axis5.axis('equal')
+# axis1.axis('equal')
+# axis2.axis('equal')
+# axis3.axis('equal')
+# axis4.axis('equal')
+# axis5.axis('equal')
 
 # plot_edges(pairs, axis, loads)
 
-plot_edges_optimized(pairs, axis1, loads["ALL"])
-plot_edges_optimized(pairs, axis2, loads["DRIVING_TO_START_LOCATION"])
-plot_edges_optimized(pairs, axis3, loads["DRIVING_TO_TARGET_LOCATION"])
-plot_edges_optimized(pairs, axis4, loads["DRIVING_TO_STATION"])
-plot_edges_optimized(pairs, axis5, loads["REBALANCING"])
+axis[0][0].set_xlabel("All")
+axis[0][1].set_xlabel("To passanger")
+axis[0][2].set_xlabel("Demanded trip")
+axis[1][0].set_xlabel("To station")
+axis[1][1].set_xlabel("Rebalancing")
+
+plot_edges_optimized(pairs, axis[0][0], loads["ALL"])
+plot_edges_optimized(pairs, axis[0][1], loads["DRIVING_TO_START_LOCATION"])
+plot_edges_optimized(pairs, axis[0][2], loads["DRIVING_TO_TARGET_LOCATION"])
+plot_edges_optimized(pairs, axis[1][0], loads["DRIVING_TO_STATION"])
+plot_edges_optimized(pairs, axis[1][1], loads["REBALANCING"])
 
 plt.show()
 

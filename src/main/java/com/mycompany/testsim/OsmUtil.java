@@ -33,19 +33,19 @@ import java.util.logging.Logger;
 public class OsmUtil {
     public static Graph<RoadNode, RoadEdge> getHigwayGraph(File osmFile, int srid){
         Transformer transformer = new Transformer(srid);
-		
-		GTDGraphBuilder gtdBuilder = new GTDGraphBuilder(transformer, osmFile, 
-				Sets.immutableEnumSet(ModeOfTransport.CAR), null, null);
+
+        GTDGraphBuilder gtdBuilder = new GTDGraphBuilder(transformer, osmFile,
+                Sets.immutableEnumSet(ModeOfTransport.CAR), null, null);
         Graph<RoadNode, RoadEdge> highwayGraph = gtdBuilder.buildSimplifiedRoadGraph();
-        
+
         return highwayGraph;
     }
-    
+
     public static void edgesToJson(Graph<SimulationNode, SimulationEdge> higwayGraph, File outputFile){
         ObjectMapper mapper = new ObjectMapper();
-        
+
         LinkedList<ExportEdge> edges = new LinkedList<>();
-        
+
         for (SimulationEdge edge : higwayGraph.getAllEdges()) {
             String id = Long.toString(higwayGraph.getNode(edge.getFromId()).getSourceId()) + "-"
                         + Long.toString(higwayGraph.getNode(edge.getToId()).getSourceId());
@@ -53,14 +53,14 @@ public class OsmUtil {
                     id, edge.getLaneCount(EGraphType.HIGHWAY), edge.getAllowedMaxSpeedInMpS(), 
                     edge.getLength()));
         }
-		
+
         try {
             mapper.writeValue(outputFile, edges);
         } catch (IOException ex) {
             Logger.getLogger(OsmUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public static Graph<SimulationNode, SimulationEdge> buildSimulationGraph(Graph<RoadNode, RoadEdge> highwayGraph) {
         GraphBuilder<SimulationNode, SimulationEdge> graphBuilder = GraphBuilder.createGraphBuilder();
         for (RoadNode roadNode : highwayGraph.getAllNodes()) {

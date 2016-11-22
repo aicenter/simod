@@ -15,19 +15,23 @@ import java.io.File;
  * @author fido
  */
 public class EdgesToJson {
+
+    private static File EXPERIMENT_DIR = new File("data/Prague");
     
     private static final int SRID = 2065;
-    
-    private static final File OSM_FILE = new File("data/Prague/prague-filtered-complete.osm");
-    
-    private static final File OUTPUT_FILE = new File("data/Prague/edges.json");
-    
-    private static final File OUTPUT_FILE_PAIRS = new File("data/Prague/edgePairs.json");
-    
+
+    private static final String OSM_FILE = "prague-filtered-complete.osm";
+
+    private static final String OUTPUT_FILE = "edges.json";
+
+    private static final String OUTPUT_FILE_PAIRS = "edgePairs.json";
     
     public static void main(String[] args) {
-        Graph<RoadNode, RoadEdge> roadGraph = OsmUtil.getHigwayGraph(OSM_FILE, SRID);
-        OsmUtil.edgesToJson(OsmUtil.buildSimulationGraph(roadGraph), OUTPUT_FILE);
-        OsmUtil.edgePairsToJson(OsmUtil.buildSimulationGraph(roadGraph), OUTPUT_FILE_PAIRS);
+        if (args.length >= 1) {
+            EXPERIMENT_DIR = new File(args[0]);
+        }
+        Graph<RoadNode, RoadEdge> roadGraph = OsmUtil.getHigwayGraph(new File(EXPERIMENT_DIR, OSM_FILE), SRID);
+        OsmUtil.edgesToJson(OsmUtil.buildSimulationGraph(roadGraph), new File(EXPERIMENT_DIR, OUTPUT_FILE));
+        OsmUtil.edgePairsToJson(OsmUtil.buildSimulationGraph(roadGraph), new File(EXPERIMENT_DIR, OUTPUT_FILE_PAIRS));
     }
 }

@@ -22,6 +22,7 @@ import cz.agents.agentpolis.simulator.visualization.visio.Projection;
 import cz.agents.agentpolis.simulator.visualization.visio.DefaultVisioInitializer;
 import cz.agents.agentpolis.simulator.visualization.visio.SimulationControlLayer;
 import cz.agents.alite.simulation.Simulation;
+import cz.agents.alite.vis.Vis;
 import cz.agents.alite.vis.VisManager;
 
 /**
@@ -45,22 +46,25 @@ public class DemandsVisioInitializer extends DefaultVisioInitializer{
     private final HighwayLayer highwayLayer;
     
     private final BufferedHighwayLayer bufferedHighwayLayer;
-    
+
+    private final TrafficDensityByDirectionLayer trafficDensityByDirectionLayer;
+
     
     
     
     @Inject
-    public DemandsVisioInitializer(PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork, 
-            HighwayNetwork highwayNetwork, TramwayNetwork tramwayNetwork, MetrowayNetwork metrowayNetwork, 
-            RailwayNetwork railwayNetwork, AgentStorage agentStorage, 
-            VehicleStorage vehicleStorage, AgentPositionModel agentPositionModel, 
-            VehiclePositionModel vehiclePositionModel, AllNetworkNodes allNetworkNodes, 
-            SimulationCreator simulationCreator, OnDemandVehicleLayer onDemandVehicleLayer,
-            TrafficDensityLayer trafficDensityLayer, NodeIdLayer nodeIdLayer, 
-            OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, DemandLayer demandLayer, 
-			OnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer, 
-            BufferedHighwayLayer bufferedHighwayLayer, SimulationControlLayer simulationControlLayer,
-             Projection projection) {
+    public DemandsVisioInitializer(PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork,
+                                   HighwayNetwork highwayNetwork, TramwayNetwork tramwayNetwork, MetrowayNetwork metrowayNetwork,
+                                   RailwayNetwork railwayNetwork, AgentStorage agentStorage,
+                                   VehicleStorage vehicleStorage, AgentPositionModel agentPositionModel,
+                                   VehiclePositionModel vehiclePositionModel, AllNetworkNodes allNetworkNodes,
+                                   SimulationCreator simulationCreator, OnDemandVehicleLayer onDemandVehicleLayer,
+                                   TrafficDensityLayer trafficDensityLayer, NodeIdLayer nodeIdLayer,
+                                   OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, DemandLayer demandLayer,
+                                   OnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer,
+                                   BufferedHighwayLayer bufferedHighwayLayer, SimulationControlLayer simulationControlLayer,
+                                   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer,
+                                   Projection projection) {
         super(pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork, 
                 agentStorage, vehicleStorage, agentPositionModel, vehiclePositionModel, allNetworkNodes, 
                 simulationCreator, simulationControlLayer, projection);
@@ -72,6 +76,7 @@ public class DemandsVisioInitializer extends DefaultVisioInitializer{
 		this.onDemandVehiclePlanLayer = onDemandVehiclePlanLayer;
         this.highwayLayer = highwayLayer;
         this.bufferedHighwayLayer = bufferedHighwayLayer;
+        this.trafficDensityByDirectionLayer = trafficDensityByDirectionLayer;
     }
 
     @Override
@@ -85,6 +90,7 @@ public class DemandsVisioInitializer extends DefaultVisioInitializer{
     @Override
     protected void initLayersBeforeEntityLayers() {
 //        VisManager.registerLayer(trafficDensityLayer);
+        VisManager.registerLayer(trafficDensityByDirectionLayer);
     }
 
     @Override

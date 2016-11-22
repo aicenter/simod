@@ -16,18 +16,22 @@ import java.util.logging.Logger;
  * @author david
  */
 public class PrepareSCKData {
-	
-	private static final File OSM_FILE = new File("data/Prague/prague-filtered-complete.osm");
-	
-	private static final File OUTPUT_FILE = new File("data/Prague/trips.json");
-    
-    private static final File INPUT_FILE = new File("data/Prague/car-trips.txt");
-	
-//	private static final int SRID = 6635;
-	
-	private static final int SRID = 2065;
+
+    private static File EXPERIMENT_DIR = new File("data/Prague");
+
+    private static final String OSM_FILE = "prague-filtered-complete.osm";
+
+    private static final String OUTPUT_FILE = "trips.json";
+
+    private static final String INPUT_FILE = "car-trips.txt";
+
+    //	private static final int SRID = 6635;
+    private static final int SRID = 2065;
 	
 	public static void main(String[] args) {
+        if (args.length >= 1) {
+            EXPERIMENT_DIR = new File(args[0]);
+        }
         try {
             //		Loader loader = new Loader();
 //		loader.loadSCKData();
@@ -40,7 +44,7 @@ public class PrepareSCKData {
 //			Logger.getLogger(PrepareSCKData.class.getName()).log(Level.SEVERE, null, ex);
 //		}
 
-            tripTransform.tripsFromTxtToJson(INPUT_FILE, OSM_FILE, SRID, OUTPUT_FILE);
+            tripTransform.tripsFromTxtToJson(new File(EXPERIMENT_DIR, INPUT_FILE), new File(EXPERIMENT_DIR, OSM_FILE), SRID, new File(EXPERIMENT_DIR, OUTPUT_FILE));
         } catch (IOException ex) {
             Logger.getLogger(PrepareSCKData.class.getName()).log(Level.SEVERE, null, ex);
         }

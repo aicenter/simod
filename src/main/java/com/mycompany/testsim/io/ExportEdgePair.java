@@ -33,8 +33,4 @@ public class ExportEdgePair {
         this.edge2 = edge2;
     }
 
-
-    
-    
 }
-

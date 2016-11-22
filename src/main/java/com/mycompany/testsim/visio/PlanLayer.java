@@ -141,7 +141,7 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
             Point2d click = new Point2d(mouseEvent.getX(), mouseEvent.getY());
 
             if (entityStorage.isEmpty() == false) {
-                OnDemandVehicle closestAgent = Collections.min(entityStorage.getEntities(), 
+				OnDemandVehicle closestAgent = (OnDemandVehicle) Collections.min(entityStorage.getEntities(),
 						new NearestVehicleComparator(vehiclePositionUtil, click));
 
                 if (vehiclePositionUtil.getVehicleCanvasPositionInterpolated(closestAgent.getVehicle(), closestAgent)

@@ -11,7 +11,6 @@ import itertools
 import matplotlib.cm as cm
 import matplotlib.colors as colors
 import numpy as np
-from cPickle import loads
 
 EDGES_FILE_PATH = "data/Prague/edges.json"
 
@@ -30,17 +29,21 @@ CHOSEN_WINDOW_START = 950;
 
 CHOSEN_WINDOW_END = 1050;
 
-NORMAL_COLOR = "grey"
+NORMAL_COLOR = "lightgrey"
 
-COLOR_1 = "sandybrown"
+COLOR_1 = "lemonchiffon"
 
-COLOR_2 = "darkorange"
+COLOR_2 = "navajowhite"
 
-COLOR_3 = "orangered"
+COLOR_3 = "lightsalmon"
+
+COLOR_4 = "darkorange"
+
+COLOR_5 = "orangered"
 
 CONGESTED_COLOR = "red"
 
-color_list = [NORMAL_COLOR, COLOR_1, COLOR_2, COLOR_3, CONGESTED_COLOR]
+color_list = [NORMAL_COLOR, COLOR_1, COLOR_2, COLOR_3, COLOR_4, COLOR_5, CONGESTED_COLOR]
 
 # color_list = list(reversed(color_list))
 
@@ -60,7 +63,10 @@ colorTypes = {}
 
 
 
-def plot_edges_optimized(pairs, axis, loads):
+def plot_edges_optimized(pairs, axis, loads=loads["ALL"], color_func=None):
+    if color_func == None:
+        color_func = get_color;
+
     for color in color_list:
         colorType = {}
         colorType["xPairs"] = []
@@ -72,7 +78,7 @@ def plot_edges_optimized(pairs, axis, loads):
     for pair in itertools.islice(pairs, 0, 100000000):
         edge1 = pair["edge1"];
         id1 = str(edge1["id"])
-        color1 = get_color(loads=loads, id=id1, length=edge1["length"], lane_count=edge1["laneCount"])
+        color1 = color_func(loads, id=id1, length=edge1["length"], lane_count=edge1["laneCount"])
 
         if not pair["edge2"]:
             add_line([edge1["from"]["lonE6"], edge1["from"]["latE6"]], [edge1["to"]["lonE6"], edge1["to"]["latE6"]],
@@ -80,7 +86,7 @@ def plot_edges_optimized(pairs, axis, loads):
         else:
             edge2 = pair["edge2"];
             id2 = str(edge2["id"])
-            color2 = get_color(loads=loads, id=id2, length=edge2["length"], lane_count=edge2["laneCount"])
+            color2 = color_func(loads, id=id2, length=edge2["length"], lane_count=edge2["laneCount"])
             line1 = compute_shift(
                 [[edge1["from"]["lonE6"], edge1["from"]["latE6"]], [edge1["to"]["lonE6"], edge1["to"]["latE6"]]],
                 SHIFT_DISTANCE, 1)
@@ -120,7 +126,30 @@ def lines_to_list(xpairs, ypairs):
 #         return 'black'
 
 
+def new_congestion_color(loads_all, id, length, lane_count):
+    if length == 0:
+        return NORMAL_COLOR
+    loads_passanger_trip = loads["DRIVING_TO_TARGET_LOCATION"]
+    load_total_passanger_trip = 0
+    load_total_all = 0
+    current_frame = CHOSEN_WINDOW_START
+    while current_frame <= CHOSEN_WINDOW_END:
+        if id in loads_passanger_trip[current_frame]:
+            load_total_all += loads_all[current_frame][id]
+            load_total_passanger_trip += loads_passanger_trip[current_frame][id]
+        current_frame += 1
+
+    average_load_all = load_total_all / (CHOSEN_WINDOW_END - CHOSEN_WINDOW_START)
+    average_load_passanger_trip = load_total_passanger_trip / (CHOSEN_WINDOW_END - CHOSEN_WINDOW_START)
+    if get_normalized_load(average_load_all, length, lane_count) > CRITICAL_DENSITY \
+        and get_normalized_load(average_load_passanger_trip, length, lane_count) <= CRITICAL_DENSITY:
+            return CONGESTED_COLOR
+    else:
+        return NORMAL_COLOR
+
 def get_color(loads, id, length, lane_count):
+    if length == 0:
+        return NORMAL_COLOR
     load_total = 0
     current_frame = CHOSEN_WINDOW_START
     while current_frame <= CHOSEN_WINDOW_END:
@@ -134,15 +163,17 @@ def get_color(loads, id, length, lane_count):
 
 
 def get_color_from_load(load, length, lane_count):
-    if length == 0:
-        return NORMAL_COLOR
-    elif get_normalized_load(load, length, lane_count) > CRITICAL_DENSITY:
+    if get_normalized_load(load, length, lane_count) > CRITICAL_DENSITY:
         return CONGESTED_COLOR
     elif get_normalized_load(load, length, lane_count) > CRITICAL_DENSITY * 0.75:
-        return COLOR_3
+        return COLOR_5
     elif get_normalized_load(load, length, lane_count) > CRITICAL_DENSITY * 0.5:
-        return COLOR_2
+        return COLOR_4
     elif get_normalized_load(load, length, lane_count) > CRITICAL_DENSITY * 0.25:
+        return COLOR_3
+    elif get_normalized_load(load, length, lane_count) > CRITICAL_DENSITY * 0.1:
+        return COLOR_2
+    elif get_normalized_load(load, length, lane_count) > CRITICAL_DENSITY * 0.05:
         return COLOR_1
     else:
         return NORMAL_COLOR
@@ -235,12 +266,14 @@ axis[0][1].set_xlabel("To passanger")
 axis[0][2].set_xlabel("Demanded trip")
 axis[1][0].set_xlabel("To station")
 axis[1][1].set_xlabel("Rebalancing")
+axis[1][2].set_xlabel("New congestions")
 
 plot_edges_optimized(pairs, axis[0][0], loads["ALL"])
 plot_edges_optimized(pairs, axis[0][1], loads["DRIVING_TO_START_LOCATION"])
 plot_edges_optimized(pairs, axis[0][2], loads["DRIVING_TO_TARGET_LOCATION"])
 plot_edges_optimized(pairs, axis[1][0], loads["DRIVING_TO_STATION"])
 plot_edges_optimized(pairs, axis[1][1], loads["REBALANCING"])
+plot_edges_optimized(pairs, axis[1][2], color_func=new_congestion_color)
 
 plt.show()
 

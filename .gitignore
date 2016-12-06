@@ -2,6 +2,7 @@
 *.log
 *.ser
 *.iml
+*.pyc
 
 data
 

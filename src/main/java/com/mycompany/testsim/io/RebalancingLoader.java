@@ -36,6 +36,8 @@ public class RebalancingLoader {
     
     private static final int NUMBER_OF_LOCATIONS_TRIED_PER_STATION = 5;
     
+    private static final int REBALANCING_INTERVAL = 600000;
+    
     
     
     
@@ -125,9 +127,14 @@ public class RebalancingLoader {
                                     "interval: {1}", k, i);
                             continue;
                         }
+                        
+                        int intervalBetweenCars = REBALANCING_INTERVAL / rebalancingTripsCount;
+                        long finalStartTime = startTime;
+                        
                         for (int l = 0; l < rebalancingTripsCount; l++) {
                             rebalancingTrips.add(new TimeTrip<>(onDemandVehicleStations.get(j), 
-                                    onDemandVehicleStations.get(k), startTime));
+                                    onDemandVehicleStations.get(k), finalStartTime));
+                            finalStartTime += intervalBetweenCars;
                         }
                     }
                 }

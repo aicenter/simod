@@ -10,11 +10,13 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.mycompany.testsim.entity.OnDemandVehicleStation;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.agents.agentpolis.simulator.visualization.visio.VisioUtils;
 import cz.agents.alite.vis.Vis;
 import cz.agents.alite.vis.layer.AbstractLayer;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import javax.vecmath.Point2d;
 
 /**
@@ -23,6 +25,10 @@ import javax.vecmath.Point2d;
  */
 @Singleton
 public class OnDemandVehicleStationsLayer extends AbstractLayer{
+    
+    private static final Double TEXT_MARGIN_BOTTOM = 5.0;
+    
+    private static final Color TEXT_BACKGROUND_COLOR = Color.WHITE;
     
     private static final Color STATIONS_COLOR = Color.PINK;
     
@@ -71,7 +77,10 @@ public class OnDemandVehicleStationsLayer extends AbstractLayer{
         int y2 = (int) (stationPosition.getY() + radius);
         if (x2 > 0 && x1 < dim.width && y2 > 0 && y1 < dim.height) {
             canvas.fillRect(x1, y1, width, width);
-            canvas.drawString(Integer.toString(station.getParkedVehiclesCount()), (int) x1, y1);
+            
+            VisioUtils.printTextWithBackgroud(canvas, Integer.toString(station.getParkedVehiclesCount()), 
+                    new Point((int) (x1 - TEXT_MARGIN_BOTTOM), y1 - (y2 - y1) / 2), STATIONS_COLOR, 
+                    TEXT_BACKGROUND_COLOR);
         }
 
     }

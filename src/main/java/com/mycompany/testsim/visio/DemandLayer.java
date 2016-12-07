@@ -33,18 +33,19 @@ public class DemandLayer extends AbstractLayer{
     
     
     
-    private final AgentPositionUtil postitionUtil;
+    protected final AgentPositionUtil entityPostitionUtil;
     
     private final DemandStorage demandStorage;
     
     private final VehiclePositionUtil vehiclePositionUtil;
+    
 
     
     
     @Inject
     public DemandLayer(AgentPositionUtil postitionUtil, DemandStorage demandStorage, 
             VehiclePositionUtil vehiclePositionUtil) {
-        this.postitionUtil = postitionUtil;
+        this.entityPostitionUtil = postitionUtil;
         this.demandStorage = demandStorage;
         this.vehiclePositionUtil = vehiclePositionUtil;
     }
@@ -58,11 +59,10 @@ public class DemandLayer extends AbstractLayer{
         while((demandAgent = entityIterator.getNextEntity()) != null){
             Point2d agentPosition;
             if(demandAgent.getState() == DemandAgentState.RIDING){
-                agentPosition = vehiclePositionUtil.getVehicleCanvasPositionInterpolated(
-                        demandAgent.getVehicle(), demandAgent.getOnDemandVehicle());
+                agentPosition = getDrivingAgentPosition(demandAgent);
             }
             else{
-                agentPosition = postitionUtil.getEntityCanvasPosition(demandAgent);
+                agentPosition = getWaitingAgentPosition(demandAgent, dim);
             }
             
             if(agentPosition == null){
@@ -71,6 +71,15 @@ public class DemandLayer extends AbstractLayer{
             
 			drawDemand(agentPosition, canvas, dim);
         }
+    }
+    
+    protected Point2d getDrivingAgentPosition(DemandAgent demandAgent){
+        return vehiclePositionUtil.getVehicleCanvasPositionInterpolated(
+                        demandAgent.getVehicle(), demandAgent.getOnDemandVehicle());
+    }
+    
+    protected Point2d getWaitingAgentPosition(DemandAgent demandAgent, Dimension drawingDimension){
+        return entityPostitionUtil.getEntityCanvasPosition(demandAgent);
     }
 
     private void drawDemand(Point2d demandPosition, Graphics2D canvas, Dimension dim) {

@@ -17,6 +17,8 @@ import com.mycompany.testsim.entity.OnDemandVehicleStation;
 import com.mycompany.testsim.entity.OnDemandVehicleStation.OnDemandVehicleStationFactory;
 import com.mycompany.testsim.tripUtil.TripsUtil;
 import com.mycompany.testsim.tripUtil.TripsUtilCached;
+import com.mycompany.testsim.visio.DemandLayer;
+import com.mycompany.testsim.visio.DemandLayerWithJitter;
 import com.mycompany.testsim.visio.DemandsVisioInitializer;
 import cz.agents.agentpolis.simmodel.environment.StandardAgentPolisModule;
 import cz.agents.agentpolis.simmodel.environment.model.EntityPositionModel;
@@ -54,6 +56,7 @@ public class MainModule extends StandardAgentPolisModule{
         bind(EntityPositionModel.class).to(VehiclePositionModel.class);
         bind(EntityStorage.class).to(VehicleStorage.class);
         bind(TripsUtil.class).to(TripsUtilCached.class);
+        bind(DemandLayer.class).to(DemandLayerWithJitter.class);
         
         install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, OnDemandVehicle.class)
             .build(OnDemandVehicleFactory.class));

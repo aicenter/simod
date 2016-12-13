@@ -6,6 +6,7 @@
 package com.mycompany.testsim.visio;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import cz.agents.agentpolis.simmodel.environment.model.AgentPositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.AgentStorage;
 import cz.agents.agentpolis.simmodel.environment.model.VehiclePositionModel;
@@ -29,6 +30,7 @@ import cz.agents.alite.vis.VisManager;
  *
  * @author fido
  */
+@Singleton
 public class DemandsVisioInitializer extends DefaultVisioInitializer{
     
     private final OnDemandVehicleLayer onDemandVehicleLayer;
@@ -90,7 +92,7 @@ public class DemandsVisioInitializer extends DefaultVisioInitializer{
     @Override
     protected void initLayersBeforeEntityLayers() {
 //        VisManager.registerLayer(trafficDensityLayer);
-        VisManager.registerLayer(trafficDensityByDirectionLayer);
+//        VisManager.registerLayer(trafficDensityByDirectionLayer);
     }
 
     @Override

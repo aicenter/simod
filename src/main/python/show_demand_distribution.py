@@ -60,12 +60,18 @@ plot_borders(regions, axis)
 plot_motorways(motorways, axis)
 plot_roads(roads, axis)
 trips_jitter = trips + 20 * np.random.standard_normal(trips.shape)
+#trips_jitter = trips
+
 plot_trips(trips_jitter, axis, 1000000)
 mesh = axis.pcolormesh(grid.edges_x / 1000, grid.edges_y / 1000, diff[0].reshape(grid.yslices, grid.xslices),
                           alpha=1, cmap='RdBu', vmin=-extreme, vmax=extreme)
 cbar_ax = fig.add_axes([0.45, 0.15, 0.05, 0.7])
 plt.colorbar(mesh, cax=cbar_ax)
 mesh.set_array(diff[0])
+
+# debug boundaries
+#points = np.array([[49.9910, 14.376], [49.994, 14.379]])
+#axis.plot(latlon2tutm(points, projection)[:,0] / 1000, latlon2tutm(points, projection)[:,1] / 1000,'cx')
 
 axis = axes[1]
 axis.axis('equal')

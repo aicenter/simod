@@ -69,17 +69,24 @@ def get_legs(cursor, connection, mode="CAR", limit=50):
         LIMIT = ""
 
     # sqlfilter = "WHERE ST_Within(ST_GeomFromEWKT(path), ST_MakeEnvelope(14.2714931, 49.9868519, 14.5966197, 50.1519053, 4326))"
-    sqlfilter = "WHERE ST_Within(ST_GeomFromEWKT(path), ST_MakePolygon(ST_GeomFromText('LINESTRING(" + LINESTRING + ")', 4326)))"
+    # sqlfilter = "WHERE ST_Within(ST_GeomFromEWKT(path), ST_MakePolygon(ST_GeomFromText('LINESTRING(" + LINESTRING + ")', 4326)))"
 
 
 
-    # if mode != "":
-    #     sqlfilter += " AND type='""" + mode + "' "
+    if mode != "":
+        sqlfilter += " AND legs.type='""" + mode + "' "
+
+    # sqlfilter += " AND ST_Within(ST_Startpoint(ST_GeomFromEWKT(legs.path)), ST_MakeEnvelope(14.376, 49.9910, 14.379, 49.994, 4326))"
+
+    # sqlfilter += " AND legs.trip_id = 4864398"
 
     cursor.execute("SET search_path TO \"$user\", public, topology, sck_log")
 
-    query = """SELECT trip_id, start_time, end_time, type, ST_AsGeoJSON(ST_GeomFromEWKT(path)) from leg_log """ \
-            + sqlfilter + LIMIT + " ;"
+    query = """SELECT legs.trip_id, legs.start_time, legs.end_time, legs.type, ST_AsGeoJSON(ST_GeomFromEWKT(legs.path))
+                  FROM leg_log AS legs LEFT JOIN leg_log AS outer_legs
+                    ON NOT ST_Within(ST_GeomFromEWKT(outer_legs.path), ST_MakePolygon(ST_GeomFromText('LINESTRING(""" + LINESTRING + """)', 4326)))
+			          AND outer_legs.trip_id = legs.trip_id
+                  WHERE outer_legs.trip_id IS NULL """ + sqlfilter + LIMIT + " ;"
 
     # query = "SELECT COUNT(trip_id) from leg_log WHERE " \
     #         "ST_GeomFromEWKT(path) && ST_MakeEnvelope(14.2714931, 49.9868519, 14.5966197, 50.1519053, 4326) AND type = 'CAR'"
@@ -103,17 +110,18 @@ def parse_leg(leg):
 
 
 def legs2od(legs):
-    odmatrix = np.zeros((len(legs), 5), dtype=np.float64)
+    odmatrix = np.zeros((len(legs), 6), dtype=np.float64)
     for i in range(len(legs)):
         leg = parse_leg(legs[i])
 
         odmatrix[i, 0] = leg[1]
+        odmatrix[i, 1] = leg[2]
 
-        odmatrix[i, 1] = leg[4][1][1]
-        odmatrix[i, 2] = leg[4][1][0]
+        odmatrix[i, 2] = leg[4][0][1]
+        odmatrix[i, 3] = leg[4][0][0]
 
-        odmatrix[i, 3] = leg[4][-1][1]
-        odmatrix[i, 4] = leg[4][-1][0]
+        odmatrix[i, 4] = leg[4][-1][1]
+        odmatrix[i, 5] = leg[4][-1][0]
 
     return odmatrix
 

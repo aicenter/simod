@@ -1,10 +1,9 @@
 import numpy as np
 
-import sys
+# import sys
 
-sys.path.insert(0,'../../../../amod/python/')
+# sys.path.insert(0,'../../../../amod/python/')
 
-from amod.common import TransposedUTM, tutm2latlon
 from postgis_trips import load_trips
 from settings import SCK_PATH
 

@@ -22,7 +22,7 @@ DIFF_THRESHOLD = 100
 projection = TransposedUTM(50.0877506,14.4209293)
 
 # load the data
-trips = load_trips(PRAGUE_DATA + "car-trips-new.npz", projection)
+trips = load_trips(PRAGUE_DATA + "car-trips-valid.npz", projection)
 regions = load_shapes(PRAGUE_DATA + "shapefiles/prague-border", projection)
 motorways = load_shapes(PRAGUE_DATA + "shapefiles/motorways", projection)
 roads = load_shapes(PRAGUE_DATA + "shapefiles/roads", projection)

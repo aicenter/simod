@@ -28,7 +28,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Layer that shows traffic on edges. Two-way edges are split for each direction.
+ * Layer that shows traffic on edges. Two-way edges are split for each direction. Start of each edge is with light blue
+ * dot.
  * Refreshing of computed positions in a canvas is only done when something has changed.
  *
  * @author Zdenek Bousa

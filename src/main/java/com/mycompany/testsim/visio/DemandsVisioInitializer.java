@@ -11,19 +11,12 @@ import cz.agents.agentpolis.simmodel.environment.model.AgentPositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.AgentStorage;
 import cz.agents.agentpolis.simmodel.environment.model.VehiclePositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.AllNetworkNodes;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.BikewayNetwork;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.HighwayNetwork;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.MetrowayNetwork;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.PedestrianNetwork;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.RailwayNetwork;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.TramwayNetwork;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.*;
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
-import cz.agents.agentpolis.simulator.visualization.visio.Projection;
 import cz.agents.agentpolis.simulator.visualization.visio.DefaultVisioInitializer;
+import cz.agents.agentpolis.simulator.visualization.visio.Projection;
 import cz.agents.agentpolis.simulator.visualization.visio.SimulationControlLayer;
 import cz.agents.alite.simulation.Simulation;
-import cz.agents.alite.vis.Vis;
 import cz.agents.alite.vis.VisManager;
 
 /**
@@ -92,7 +85,7 @@ public class DemandsVisioInitializer extends DefaultVisioInitializer{
     @Override
     protected void initLayersBeforeEntityLayers() {
 //        VisManager.registerLayer(trafficDensityLayer);
-//        VisManager.registerLayer(trafficDensityByDirectionLayer);
+        VisManager.registerLayer(trafficDensityByDirectionLayer);
     }
 
     @Override

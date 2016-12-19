@@ -6,30 +6,28 @@
 package com.mycompany.testsim;
 
 import com.google.common.collect.Sets;
-import cz.agents.agentpolis.siminfrastructure.planner.path.ShortestPathPlanner;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.GraphType;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.builder.SimulationNetworkGraphBuilder;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.builder.TransportNetworkGraphBuilder;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.agentpolis.simulator.creator.initializator.MapInitFactory;
 import cz.agents.agentpolis.simulator.creator.initializator.impl.MapData;
 import cz.agents.basestructures.BoundingBox;
 import cz.agents.basestructures.Graph;
-import cz.agents.basestructures.GraphBuilder;
 import cz.agents.basestructures.Node;
 import cz.agents.geotools.Transformer;
-import cz.agents.gtdgraphimporter.GTDGraphBuilder;
 import cz.agents.multimodalstructures.additional.ModeOfTransport;
 import cz.agents.multimodalstructures.edges.RoadEdge;
 import cz.agents.multimodalstructures.nodes.RoadNode;
 import org.apache.log4j.Logger;
-import org.jgrapht.DirectedGraph;
-import org.jgrapht.alg.StrongConnectivityInspector;
-import org.jgrapht.graph.DefaultDirectedGraph;
 
 import java.io.*;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author david
@@ -44,12 +42,12 @@ public class MyMapInitFactory implements MapInitFactory {
         this.epsg = epsg;
     }
 
-
     @Override
     public MapData initMap(File mapFile, long simulationDurationInMilisec) {
         Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs;
         try {
             graphs = deserializeGraphs(mapFile);
+            throw new IOException(); // TODO: debug, remove it afterwards
         } catch (Exception ex) {
             LOGGER.warn("Cannot perform deserialization of the cached graphs:" + ex.getMessage());
             LOGGER.warn("Generating graphs from the OSM");
@@ -75,9 +73,11 @@ public class MyMapInitFactory implements MapInitFactory {
                                                                                         long simulationDurationInMilisec) {
         Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs;
         ZonedDateTime initDate = ZonedDateTime.now();
-        Graph<SimulationNode, SimulationEdge> highwayGraphFromOSM
-                = createHighwayGraphFromPlannerGraph(mapFile, simulationDurationInMilisec, initDate, 0);
-        Graph<SimulationNode, SimulationEdge> highwayGraph = connectivity(highwayGraphFromOSM);
+        Graph<RoadNode, RoadEdge> highwayGraphFromOSM = createHighwayGraphFromPlannerGraph(mapFile);
+
+        SimulationNetworkGraphBuilder simulationNetworkGraphBuilder = new SimulationNetworkGraphBuilder();
+        Graph<SimulationNode, SimulationEdge> simulationHighwayGraph = simulationNetworkGraphBuilder.buildSimulationGraph(highwayGraphFromOSM);
+        Graph<SimulationNode, SimulationEdge> highwayGraph = simulationNetworkGraphBuilder.connectivity(simulationHighwayGraph);
 
         graphs = new HashMap<>();
         graphs.put(EGraphType.HIGHWAY, highwayGraph);
@@ -89,104 +89,15 @@ public class MyMapInitFactory implements MapInitFactory {
         return graphs;
     }
 
-    private Graph<SimulationNode, SimulationEdge> createHighwayGraphFromPlannerGraph(File mapFile,
-                                                                                     long durationInMilisec, ZonedDateTime initDate, long simulationDurationInMilisec) {
+    private Graph<RoadNode, RoadEdge> createHighwayGraphFromPlannerGraph(File mapFile) {
         LOGGER.info(epsg);
-        GTDGraphBuilder gtdBuilder = new GTDGraphBuilder(new Transformer(epsg), mapFile, Sets.immutableEnumSet
-                (ModeOfTransport.CAR), null, null);
-        Graph<RoadNode, RoadEdge> highwayGraph = gtdBuilder.buildSimplifiedRoadGraph();
 
-        return buildSimulationGraph(highwayGraph);
-    }
-
-    private Graph<SimulationNode, SimulationEdge> buildSimulationGraph(Graph<RoadNode, RoadEdge> highwayGraph) {
-        GraphBuilder<SimulationNode, SimulationEdge> graphBuilder = GraphBuilder.createGraphBuilder();
-        for (RoadNode roadNode : highwayGraph.getAllNodes()) {
-            SimulationNode simulationNode = new SimulationNode(roadNode);
-            graphBuilder.addNode(simulationNode);
-        }
-
-        for (RoadEdge roadEdge : highwayGraph.getAllEdges()) {
-            SimulationEdge.SimulationEdgeBuilder edgeBuilder = new SimulationEdge.SimulationEdgeBuilder(roadEdge);
-            SimulationEdge simulationEdge = edgeBuilder.build(roadEdge.fromId, roadEdge.toId);
-            // simulationEdge.getUniqueID();
-            graphBuilder.addEdge(simulationEdge);
-
-        }
-        return graphBuilder.createGraph();
-    }
-
-
-    private Graph<SimulationNode, SimulationEdge> connectivity(Graph<SimulationNode, SimulationEdge> graph) {
-
-        DirectedGraph<Integer, ShortestPathPlanner.PlannerEdge> plannerGraph = prepareGraphForFindComponents(graph);
-
-        StrongConnectivityInspector<Integer, ShortestPathPlanner.PlannerEdge> strongConnectivityInspector = new StrongConnectivityInspector<>(
-                plannerGraph);
-
-        if (strongConnectivityInspector.isStronglyConnected()) {
-            return graph;
-        }
-
-        LOGGER.debug("The Highway map has more then one strong component, it will be selected the largest components");
-
-        Set<Integer> strongestComponents = getTheLargestGraphComponent(strongConnectivityInspector);
-
-        return createGraphBasedOnTheLargestComponent(graph, strongestComponents);
-    }
-
-    private DirectedGraph<Integer, ShortestPathPlanner.PlannerEdge> prepareGraphForFindComponents(Graph<SimulationNode,
-            SimulationEdge> graph) {
-
-        DirectedGraph<Integer, ShortestPathPlanner.PlannerEdge> plannerGraph = new DefaultDirectedGraph<>(
-                ShortestPathPlanner.PlannerEdge.class);
-        Set<Integer> addedNodes = new HashSet<>();
-
-        for (SimulationNode node : graph.getAllNodes()) {
-            Integer fromPositionByNodeId = node.getId();
-            if (!addedNodes.contains(fromPositionByNodeId)) {
-                addedNodes.add(fromPositionByNodeId);
-                plannerGraph.addVertex(fromPositionByNodeId);
-            }
-
-            for (SimulationEdge edge : graph.getOutEdges(node.getId())) {
-                Integer toPositionByNodeId = edge.getToId();
-                if (!addedNodes.contains(toPositionByNodeId)) {
-                    addedNodes.add(toPositionByNodeId);
-                    plannerGraph.addVertex(toPositionByNodeId);
-                }
-
-                ShortestPathPlanner.PlannerEdge plannerEdge = new ShortestPathPlanner.PlannerEdge(null, fromPositionByNodeId, toPositionByNodeId);
-                plannerGraph.addEdge(fromPositionByNodeId, toPositionByNodeId, plannerEdge);
-                // plannerGraph.setEdgeWeight(plannerEdge, edge.getLenght());
-            }
-
-        }
-        return plannerGraph;
-    }
-
-    private Set<Integer> getTheLargestGraphComponent(
-            StrongConnectivityInspector<Integer, ShortestPathPlanner.PlannerEdge> strongConnectivityInspector) {
-        List<Set<Integer>> components = strongConnectivityInspector.stronglyConnectedSets();
-        Collections.sort(components, (o1, o2) -> o2.size() - o1.size());
-        return components.get(0);
-    }
-
-    private Graph<SimulationNode, SimulationEdge> createGraphBasedOnTheLargestComponent(Graph<SimulationNode, SimulationEdge> graph,
-                                                                                        Set<Integer> strongestComponents) {
-        GraphBuilder<SimulationNode, SimulationEdge> graphBuilder = new GraphBuilder<>();
-        for (Integer nodeId : strongestComponents) {
-            graphBuilder.addNode(graph.getNode(nodeId));
-        }
-
-        for (Integer nodeId : strongestComponents) {
-            for (SimulationEdge edge : graph.getOutEdges(nodeId)) {
-                if (strongestComponents.contains(edge.getToId())) {
-                    graphBuilder.addEdge(graph.getEdge(nodeId, edge.getToId()));
-                }
-            }
-        }
-        return graphBuilder.createGraph();
+        TransportNetworkGraphBuilder builder = new TransportNetworkGraphBuilder(new Transformer(epsg), mapFile, Sets.immutableEnumSet
+                (ModeOfTransport.CAR));
+        //GTDGraphBuilder gtdBuilder = new GTDGraphBuilder(new Transformer(epsg), mapFile, Sets.immutableEnumSet(ModeOfTransport.CAR), null, null);
+        //Graph<RoadNode, RoadEdge> highwayGraph = gtdBuilder.buildSimplifiedRoadGraph();
+        //return buildSimulationGraphWithTags(highwayGraph);
+        return builder.buildRoadGraph();
     }
 
     private void serializeGraphs(Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs, String outputFilename) {
@@ -235,4 +146,5 @@ public class MyMapInitFactory implements MapInitFactory {
         }
         return new BoundingBox((int) (lonMin * 1E6), (int) (latMin * 1E6), (int) (lonMax * 1E6), (int) (latMax * 1E6));
     }
+
 }

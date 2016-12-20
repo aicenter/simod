@@ -11,7 +11,7 @@ import cz.agents.agentpolis.simmodel.environment.model.AgentPositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.AgentStorage;
 import cz.agents.agentpolis.simmodel.environment.model.VehiclePositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.*;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.*;
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.agentpolis.simulator.visualization.visio.DefaultVisioInitializer;
 import cz.agents.agentpolis.simulator.visualization.visio.Projection;

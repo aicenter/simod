@@ -10,8 +10,8 @@ import com.mycompany.testsim.entity.OnDemandVehicleState;
 import com.mycompany.testsim.storage.OnDemandVehicleStorage;
 import cz.agents.agentpolis.siminfrastructure.CollectionUtil;
 import cz.agents.agentpolis.simmodel.environment.model.AgentPositionModel;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.HighwayNetwork;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.load.AllEdgesLoad;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
 
 import java.util.HashMap;
 

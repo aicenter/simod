@@ -9,7 +9,7 @@ import com.google.common.collect.Sets;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.GraphType;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.builder.RoadNetworkGraphBuilder;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.builder.SimulationNetworkGraphBuilder;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.builder.RoadSimulationGraphBuilder;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadEdgeExtended;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadNodeExtended;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
@@ -76,14 +76,14 @@ public class MyMapInitFactory implements MapInitFactory {
      */
     private Map<GraphType, Graph<SimulationNode, SimulationEdge>> generateGraphsFromOSM(File mapFile) {
         Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs;
-        Graph<RoadNodeExtended, RoadEdgeExtended> highwayGraphFromOSM = createHighwayGraphFromPlannerGraph(mapFile);
+        Graph<RoadNodeExtended, RoadEdgeExtended> roadNetworkGraphFromOSM = createRoadNetworkGraph(mapFile);
 
-        SimulationNetworkGraphBuilder simulationNetworkGraphBuilder = new SimulationNetworkGraphBuilder();
-        Graph<SimulationNode, SimulationEdge> simulationHighwayGraph = simulationNetworkGraphBuilder.buildSimulationGraph(highwayGraphFromOSM);
-        Graph<SimulationNode, SimulationEdge> highwayGraph = simulationNetworkGraphBuilder.connectivity(simulationHighwayGraph);
+        RoadSimulationGraphBuilder roadSimulationGraphBuilder = new RoadSimulationGraphBuilder();
+        Graph<SimulationNode, SimulationEdge> simulationRoadGraph = roadSimulationGraphBuilder.build(roadNetworkGraphFromOSM);
+        Graph<SimulationNode, SimulationEdge> roadGraph = roadSimulationGraphBuilder.connectivity(simulationRoadGraph);
 
         graphs = new HashMap<>();
-        graphs.put(EGraphType.HIGHWAY, highwayGraph);
+        graphs.put(EGraphType.HIGHWAY, roadGraph);
         //graphs.put(EGraphType.TRAMWAY, (new GraphBuilder()).createGraph());
         //graphs.put(EGraphType.METROWAY, (new GraphBuilder()).createGraph());
         //graphs.put(EGraphType.PEDESTRIAN, (new GraphBuilder()).createGraph());
@@ -92,7 +92,7 @@ public class MyMapInitFactory implements MapInitFactory {
         return graphs;
     }
 
-    private Graph<RoadNodeExtended, RoadEdgeExtended> createHighwayGraphFromPlannerGraph(File mapFile){
+    private Graph<RoadNodeExtended, RoadEdgeExtended> createRoadNetworkGraph(File mapFile) {
         LOGGER.info(epsg);
         RoadNetworkGraphBuilder roadNetworkGraphBuilder = new RoadNetworkGraphBuilder(new Transformer(epsg), mapFile, Sets.immutableEnumSet
                 (ModeOfTransport.CAR));

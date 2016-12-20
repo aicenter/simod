@@ -8,8 +8,10 @@ package com.mycompany.testsim;
 import com.google.common.collect.Sets;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.GraphType;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.builder.RoadNetworkGraphBuilder;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.builder.SimulationNetworkGraphBuilder;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.builder.TransportNetworkGraphBuilder;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadEdgeExtended;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadNodeExtended;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.agentpolis.simulator.creator.initializator.MapInitFactory;
@@ -19,12 +21,9 @@ import cz.agents.basestructures.Graph;
 import cz.agents.basestructures.Node;
 import cz.agents.geotools.Transformer;
 import cz.agents.multimodalstructures.additional.ModeOfTransport;
-import cz.agents.multimodalstructures.edges.RoadEdge;
-import cz.agents.multimodalstructures.nodes.RoadNode;
 import org.apache.log4j.Logger;
 
 import java.io.*;
-import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,10 +37,22 @@ public class MyMapInitFactory implements MapInitFactory {
 
     private final int epsg;
 
+    /**
+     * Constructor
+     *
+     * @param epsg coordinate system
+     */
     public MyMapInitFactory(int epsg) {
         this.epsg = epsg;
     }
 
+
+    /**
+     * init map
+     * @param mapFile osm map
+     * @param simulationDurationInMilisec not in use, so place whatever number you want
+     * @return map data with simulation graph
+     */
     @Override
     public MapData initMap(File mapFile, long simulationDurationInMilisec) {
         Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs;
@@ -51,7 +62,7 @@ public class MyMapInitFactory implements MapInitFactory {
         } catch (Exception ex) {
             LOGGER.warn("Cannot perform deserialization of the cached graphs:" + ex.getMessage());
             LOGGER.warn("Generating graphs from the OSM");
-            graphs = generateGraphsFromOSM(mapFile, simulationDurationInMilisec);
+            graphs = generateGraphsFromOSM(mapFile);
             serializeGraphs(graphs, mapFile.getName() + ".ser");
         }
         Map<Integer, SimulationNode> nodes = createAllGraphNodes(graphs);
@@ -60,20 +71,12 @@ public class MyMapInitFactory implements MapInitFactory {
         return new MapData(bounds, graphs, nodes);
     }
 
-    private Map<GraphType, Graph<SimulationNode, SimulationEdge>> deserializeGraphs(File osmFile)
-            throws IOException, ClassNotFoundException {
-        InputStream file = new FileInputStream(osmFile.getName() + ".ser");
-        InputStream buffer = new BufferedInputStream(file);
-        ObjectInput input = new ObjectInputStream(buffer);
-
-        return (Map<GraphType, Graph<SimulationNode, SimulationEdge>>) input.readObject();
-    }
-
-    private Map<GraphType, Graph<SimulationNode, SimulationEdge>> generateGraphsFromOSM(File mapFile,
-                                                                                        long simulationDurationInMilisec) {
+    /**
+     * Graph build section
+     */
+    private Map<GraphType, Graph<SimulationNode, SimulationEdge>> generateGraphsFromOSM(File mapFile) {
         Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs;
-        ZonedDateTime initDate = ZonedDateTime.now();
-        Graph<RoadNode, RoadEdge> highwayGraphFromOSM = createHighwayGraphFromPlannerGraph(mapFile);
+        Graph<RoadNodeExtended, RoadEdgeExtended> highwayGraphFromOSM = createHighwayGraphFromPlannerGraph(mapFile);
 
         SimulationNetworkGraphBuilder simulationNetworkGraphBuilder = new SimulationNetworkGraphBuilder();
         Graph<SimulationNode, SimulationEdge> simulationHighwayGraph = simulationNetworkGraphBuilder.buildSimulationGraph(highwayGraphFromOSM);
@@ -89,15 +92,23 @@ public class MyMapInitFactory implements MapInitFactory {
         return graphs;
     }
 
-    private Graph<RoadNode, RoadEdge> createHighwayGraphFromPlannerGraph(File mapFile) {
+    private Graph<RoadNodeExtended, RoadEdgeExtended> createHighwayGraphFromPlannerGraph(File mapFile){
         LOGGER.info(epsg);
-
-        TransportNetworkGraphBuilder builder = new TransportNetworkGraphBuilder(new Transformer(epsg), mapFile, Sets.immutableEnumSet
+        RoadNetworkGraphBuilder roadNetworkGraphBuilder = new RoadNetworkGraphBuilder(new Transformer(epsg), mapFile, Sets.immutableEnumSet
                 (ModeOfTransport.CAR));
-        //GTDGraphBuilder gtdBuilder = new GTDGraphBuilder(new Transformer(epsg), mapFile, Sets.immutableEnumSet(ModeOfTransport.CAR), null, null);
-        //Graph<RoadNode, RoadEdge> highwayGraph = gtdBuilder.buildSimplifiedRoadGraph();
-        //return buildSimulationGraphWithTags(highwayGraph);
-        return builder.buildRoadGraph();
+        return roadNetworkGraphBuilder.build();
+    }
+
+    /**
+     * Serialization section
+     */
+    private Map<GraphType, Graph<SimulationNode, SimulationEdge>> deserializeGraphs(File osmFile)
+            throws IOException, ClassNotFoundException {
+        InputStream file = new FileInputStream(osmFile.getName() + ".ser");
+        InputStream buffer = new BufferedInputStream(file);
+        ObjectInput input = new ObjectInputStream(buffer);
+
+        return (Map<GraphType, Graph<SimulationNode, SimulationEdge>>) input.readObject();
     }
 
     private void serializeGraphs(Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs, String outputFilename) {
@@ -112,6 +123,9 @@ public class MyMapInitFactory implements MapInitFactory {
         }
     }
 
+    /**
+     * Build map data
+     */
     private Map<Integer, SimulationNode> createAllGraphNodes(Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphByGraphType) {
 
         Map<Integer, SimulationNode> nodesFromAllGraphs = new HashMap<>();

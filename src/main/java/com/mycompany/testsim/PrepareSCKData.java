@@ -19,11 +19,14 @@ public class PrepareSCKData {
 
     private static File EXPERIMENT_DIR = new File("data/Prague");
 
-    private static final String OSM_FILE = "prague-filtered-complete.osm";
+//    private static final String OSM_FILE = "prague-filtered-complete.osm";
+    
+    private static final String OSM_FILE = "prague-latest.osm";  
 
     private static final String OUTPUT_FILE = "trips.json";
 
-    private static final String INPUT_FILE = "car-trips.txt";
+//    private static final String INPUT_FILE = "car-trips-valid.txt";
+    private static final String INPUT_FILE = "car-trips-mixed-trips-completed.txt";
 
     //	private static final int SRID = 6635;
     private static final int SRID = 2065;

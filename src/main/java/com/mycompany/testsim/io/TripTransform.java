@@ -37,6 +37,13 @@ import org.javatuples.Pair;
 public class TripTransform {
 	
 	private PathPlanner pathPlanner;
+    
+    private int zeroLenghtTripsCount = 0;
+    
+    private int sameStartAndTargetInDataCount = 0;
+    
+    
+    
 	
 	public List<TimeTrip<Long>> gpsTripsToOsmNodeTrips(List<TimeTrip<GPSLocation>> gpsTrips, 
 			File osmFile, int srid){
@@ -64,6 +71,9 @@ public class TripTransform {
 		for (TimeTrip<GPSLocation> trip : gpsTrips) {
 			processGpsTrip(trip, nearestElementUtil, osmNodeTrips, completedTrips);
 		}
+        
+        System.out.println("Number of trips with same source and destination: " + sameStartAndTargetInDataCount);
+        System.out.println(zeroLenghtTripsCount + " trips with zero lenght discarded");
 		
 		return osmNodeTrips;
 	}
@@ -92,13 +102,19 @@ public class TripTransform {
                        = new GPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, 0);
                GPSLocation targetLocation
                        = new GPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, 0);
-               gpsTrips.add(new TimeTrip<>(startLocation, targetLocation, 
+               
+               if(startLocation.equals(targetLocation)){
+                   sameStartAndTargetInDataCount++;
+               }
+               else{
+                    gpsTrips.add(new TimeTrip<>(startLocation, targetLocation, 
                        Long.parseLong(parts[0].split("\\.")[0])));
+               }
             }
         } catch (IOException ex) {
             Logger.getLogger(TripTransform.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         tripsToJson(gpsTripsToOsmNodeTrips(gpsTrips, osmFile, srid, false), outputFile); 
     }
 
@@ -127,8 +143,11 @@ public class TripTransform {
 			}
 		}
 		if(osmNodesList.size() > 1){
-				osmNodeTrips.add(new TimeTrip<>(osmNodesList, trip.getStartTime(), trip.getEndTime()));
-			}
-		}
+            osmNodeTrips.add(new TimeTrip<>(osmNodesList, trip.getStartTime(), trip.getEndTime()));
+        }   
+        else{
+            zeroLenghtTripsCount++;
+        }
+    }
 	
 }

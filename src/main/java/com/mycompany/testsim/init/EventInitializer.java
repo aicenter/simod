@@ -26,7 +26,10 @@ import java.util.Random;
  */
 @Singleton
 public class EventInitializer {
-    private static final double TRIP_MULTIPLICATION_FACTOR = 2.573;
+//    private static final double TRIP_MULTIPLICATION_FACTOR = 2.573;
+//    private static final double TRIP_MULTIPLICATION_FACTOR = 13.63;
+//    private static final double TRIP_MULTIPLICATION_FACTOR = 1.615;
+    private static final double TRIP_MULTIPLICATION_FACTOR = 3.433;
     
     private static final long TRIP_MULTIPLICATION_TIME_SHIFT = 60000;
     

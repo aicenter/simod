@@ -8,7 +8,7 @@ from scripts.config_loader import config
 
 print_info("PREPARATIONS STARTED")
 
-get_trips()
+get_trips(config)
 
 
 

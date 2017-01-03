@@ -7,11 +7,7 @@ package com.mycompany.testsim;
 
 import com.google.inject.Injector;
 import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
-import cz.agents.agentpolis.siminfrastructure.planner.TripPlannerException;
 import cz.agents.agentpolis.siminfrastructure.planner.path.ShortestPathPlanner;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.GraphTrip;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.TripItem;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.Trips;
 import cz.agents.agentpolis.simmodel.agent.Agent;
 import cz.agents.agentpolis.simmodel.agent.activity.movement.DriveVehicleActivity;
 import cz.agents.agentpolis.simmodel.agent.activity.movement.callback.DrivingFinishedActivityCallback;
@@ -21,23 +17,16 @@ import cz.agents.agentpolis.simmodel.environment.model.VehiclePositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.GraphType;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.HighwayNetwork;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
 import cz.agents.agentpolis.simmodel.environment.model.entityvelocitymodel.EntityVelocityModel;
-import cz.agents.agentpolis.simmodel.environment.model.query.AgentPositionQuery;
 import cz.agents.agentpolis.simmodel.environment.model.vehiclemodel.VehicleDataModel;
 import cz.agents.agentpolis.simmodel.environment.model.vehiclemodel.VehicleTemplate;
 import cz.agents.agentpolis.simmodel.environment.model.vehiclemodel.VehicleTemplateId;
 import cz.agents.agentpolis.utils.VelocityConverter;
 import cz.agents.basestructures.Node;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**

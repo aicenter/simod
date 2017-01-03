@@ -8,10 +8,10 @@ package com.mycompany.testsim.visio;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.HighwayNetwork;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.AllEdgesLoad;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.load.AllEdgesLoad;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.vis.Vis;
 import cz.agents.alite.vis.layer.AbstractLayer;
@@ -28,7 +28,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Layer that shows traffic on edges. Two-way edges are split for each direction.
+ * Layer that shows traffic on edges. Two-way edges are split for each direction. Start of each edge is with light blue
+ * dot.
  * Refreshing of computed positions in a canvas is only done when something has changed.
  *
  * @author Zdenek Bousa
@@ -216,10 +217,9 @@ public class TrafficDensityByDirectionLayer extends AbstractLayer {
     private Color getColorForEdge(AllEdgesLoad allEdgesLoad, SimulationEdge edge) {
         String id;
         try {
-            id = Long.toString(graph.getNode(edge.getFromId()).getSourceId()) + "-"
-                    + Long.toString(graph.getNode(edge.getToId()).getSourceId());
+            id = edge.getUniqueID();
         } catch (Exception e) {
-            id = Integer.toString(-1);
+            id = "-1";
         }
         if (!Objects.equals(id, "-1")) {
             double averageLoad = allEdgesLoad.getLoadPerEdge(id);

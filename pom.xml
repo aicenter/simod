@@ -21,7 +21,6 @@
             <groupId>cz.agents</groupId>
             <artifactId>gtd-graph-importer</artifactId>
             <version>1.7-SNAPSHOT</version>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>

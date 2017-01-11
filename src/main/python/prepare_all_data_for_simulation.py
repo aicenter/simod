@@ -6,6 +6,9 @@ from scripts.prague.prepare_trips import get_trips
 from amod.common import TransposedUTM
 from scripts.prague.generate_stations import generate_stations
 from scripts.distance_matrix import compute_distance_matrix
+from scripts.prague.process_distance_matrix import process_distance_matrix
+from scripts.prague.smooth_demand import smooth_demand
+from scripts.prague.generate_data_for_agentpolis_experiment import generate_data_for_agentsim
 
 
 print_info("PREPARATIONS STARTED")
@@ -21,6 +24,16 @@ generate_stations(config, projection)
 
 print_info("3) - computing distance matrix")
 compute_distance_matrix(config)
+
+print_info("4) - procesing distance matrix")
+process_distance_matrix(config)
+
+print_info("5) - smoothing demand")
+smooth_demand(config)
+
+print_info("6) - generating policy")
+smooth_demand(config)
+
 
 
 print_info("PREPARATIONS COMPLETED")

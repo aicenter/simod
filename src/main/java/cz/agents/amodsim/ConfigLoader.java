@@ -21,6 +21,8 @@ public class ConfigLoader {
     
     private static File CONFIG_FILE = new File("data/Prague/default.json");
     
+    private static final String CONFIG_LOADER_PATH = "/home/fido/Workspaces/AIC/amod/python/scripts/config_loader.py";
+    
     public static void main(String[] args) throws IOException {
         Properties props = new Properties();
         props.setProperty("python.path", "../config-0.3.9");
@@ -29,7 +31,7 @@ public class ConfigLoader {
         PythonInterpreter interpreter = new PythonInterpreter();
         
 //        String realpath = new File("./src/main/python/config_loader.py").getAbsolutePath();
-        interpreter.execfile("./src/main/python/config_loader.py");
+        interpreter.execfile(CONFIG_LOADER_PATH);
         interpreter.eval("serialize()");
         
         ObjectMapper mapper = new ObjectMapper();
@@ -40,4 +42,6 @@ public class ConfigLoader {
 		Object config = mapper.readValue(CONFIG_FILE, typeRef);
         return;
     }
+    
+    public static Object get()
 }

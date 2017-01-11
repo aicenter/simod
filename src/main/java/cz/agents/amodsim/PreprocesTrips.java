@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  *
  * @author david
  */
-public class PrepareSCKData {
+public class PreprocesTrips {
 
     private static File EXPERIMENT_DIR = new File("data/Prague");
 
@@ -49,7 +49,7 @@ public class PrepareSCKData {
 
             tripTransform.tripsFromTxtToJson(new File(EXPERIMENT_DIR, INPUT_FILE), new File(EXPERIMENT_DIR, OSM_FILE), SRID, new File(EXPERIMENT_DIR, OUTPUT_FILE));
         } catch (IOException ex) {
-            Logger.getLogger(PrepareSCKData.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PreprocesTrips.class.getName()).log(Level.SEVERE, null, ex);
         }
 	}
 }

@@ -58,7 +58,7 @@ public class MyMapInitFactory implements MapInitFactory {
         Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs;
         try {
             graphs = deserializeGraphs(mapFile);
-            throw new IOException(); // TODO: debug, remove it afterwards
+//            throw new IOException(); // TODO: debug, remove it afterwards
         } catch (Exception ex) {
             LOGGER.warn("Cannot perform deserialization of the cached graphs:" + ex.getMessage());
             LOGGER.warn("Generating graphs from the OSM");

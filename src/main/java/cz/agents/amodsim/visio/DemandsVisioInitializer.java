@@ -85,7 +85,7 @@ public class DemandsVisioInitializer extends DefaultVisioInitializer{
     @Override
     protected void initLayersBeforeEntityLayers() {
 //        VisManager.registerLayer(trafficDensityLayer);
-        VisManager.registerLayer(trafficDensityByDirectionLayer);
+//        VisManager.registerLayer(trafficDensityByDirectionLayer);
     }
 
     @Override

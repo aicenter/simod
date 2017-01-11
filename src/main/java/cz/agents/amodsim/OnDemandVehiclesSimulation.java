@@ -32,6 +32,9 @@ public class OnDemandVehiclesSimulation {
     private static final String REBALANCING_FILE_PATH = "policy.json";
 
     private static final int SRID = 2065;
+    
+    public static final int START_TIME = 25200000;
+//    public static final int START_TIME = 0;
 
 
     public static void main(String[] args) throws MalformedURLException, ConfigReaderException {

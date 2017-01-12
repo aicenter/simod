@@ -1,5 +1,7 @@
 from __future__ import print_function, division
 
+from mx.Tools.Tools import projection
+
 from scripts.config_loader import cfg as config
 from scripts.printer import print_info
 from scripts.prague.prepare_trips import get_trips
@@ -9,7 +11,8 @@ from scripts.distance_matrix import compute_distance_matrix
 from scripts.prague.process_distance_matrix import process_distance_matrix
 from scripts.prague.smooth_demand import smooth_demand
 from scripts.prague.generate_data_for_agentpolis_experiment import generate_data_for_agentsim
-
+from export_trips_for_agentpolis import export_data_for_amodsim
+from process_trips_for_amodsim import process_trips_in_agentsim
 
 print_info("PREPARATIONS STARTED")
 
@@ -34,11 +37,17 @@ smooth_demand(config)
 print_info("6) - generating policy")
 smooth_demand(config)
 
+print_info("7) - generating data for agentsim")
+generate_data_for_agentsim(config, projection)
+
+print_info("8) - exporting trips for agentsim")
+export_data_for_amodsim(config,projection)
+
+print_info("9) - preprocessing trips in agentsim")
+process_trips_in_agentsim(config)
+
 
 
 print_info("PREPARATIONS COMPLETED")
-
-
-
 
 

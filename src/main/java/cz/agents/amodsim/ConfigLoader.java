@@ -42,6 +42,4 @@ public class ConfigLoader {
 		Object config = mapper.readValue(CONFIG_FILE, typeRef);
         return;
     }
-    
-    public static Object get()
 }

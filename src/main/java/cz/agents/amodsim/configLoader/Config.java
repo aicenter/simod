@@ -14,6 +14,12 @@ import java.util.HashMap;
 public class Config {
     private final HashMap<String,Object> config;
 
+	public HashMap<String, Object> getConfig() {
+		return config;
+	}
+	
+	
+
     public Config(HashMap<String, Object> config) {
         this.config = config;
     }

@@ -3,25 +3,18 @@ package cz.agents.amodsim.config;
 import java.lang.String;
 
 public final class Shapefiles {
-  public final String border;
+  public final String border = "/home/fido/AIC data/Shared/amod-data/agentpolis-experiment/prague/shapefiles/prague-border";
 
-  public final String rivers;
+  public final String rivers = "/home/fido/AIC data/Shared/amod-data/agentpolis-experiment/prague/shapefiles/main-rivers";
 
-  public final String towns;
+  public final String towns = "/home/fido/AIC data/Shared/amod-data/agentpolis-experiment/prague/shapefiles/towns";
 
-  public final String motorways;
+  public final String motorways = "/home/fido/AIC data/Shared/amod-data/agentpolis-experiment/prague/shapefiles/motorways";
 
-  public final String roads;
+  public final String roads = "/home/fido/AIC data/Shared/amod-data/agentpolis-experiment/prague/shapefiles/roads12T";
 
-  public final String dir;
+  public final String dir = "/home/fido/AIC data/Shared/amod-data/agentpolis-experiment/prague/shapefiles/";
 
-  public Shapefiles(String border, String rivers, String towns, String motorways, String roads,
-      String dir) {
-    this.border = border;
-    this.rivers = rivers;
-    this.towns = towns;
-    this.motorways = motorways;
-    this.roads = roads;
-    this.dir = dir;
+  public Shapefiles() {
   }
 }

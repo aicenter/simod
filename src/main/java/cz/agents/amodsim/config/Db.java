@@ -3,15 +3,12 @@ package cz.agents.amodsim.config;
 import java.lang.String;
 
 public final class Db {
-  public final String password;
+  public final String password = "fidofido";
 
-  public final String dbName;
+  public final String dbName = "sck_log";
 
-  public final String user;
+  public final String user = "postgres";
 
-  public Db(String password, String dbName, String user) {
-    this.password = password;
-    this.dbName = dbName;
-    this.user = user;
+  public Db() {
   }
 }

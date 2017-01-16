@@ -2,6 +2,7 @@ package cz.agents.amodsim.configLoader;
 
 import com.google.common.base.CaseFormat;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.MethodSpec.Builder;
@@ -117,18 +118,30 @@ public class ConfigBuilder {
 				Object value = entry.getValue();
 				
 				String propertyName = getPropertyName(key);
+                
+                FieldSpec.Builder fieldBuilder;
 				
 				if(value instanceof Map){
 					ClassName newObjectType = ClassName.get(configPackageName, getClassName(key));
-					constructorBuilder.addParameter(newObjectType, propertyName);
-					objectBuilder.addField(newObjectType, propertyName, Modifier.PUBLIC, Modifier.FINAL);
+//					constructorBuilder.addParameter(newObjectType, propertyName);
+//					objectBuilder.addField(newObjectType, propertyName, Modifier.PUBLIC, Modifier.FINAL);
 					generateConfig((HashMap<String, Object>) value, key);
+                    fieldBuilder = FieldSpec.builder(newObjectType, propertyName);
+                    fieldBuilder.initializer("new $T()", newObjectType)
+                           .build();
 				}
 				else{
-					constructorBuilder.addParameter(value.getClass(), propertyName);
-					objectBuilder.addField(value.getClass(), propertyName, Modifier.PUBLIC, Modifier.FINAL);
+//					constructorBuilder.addParameter(value.getClass(), propertyName);
+                    fieldBuilder = FieldSpec.builder(value.getClass(), propertyName);
+                    if(value instanceof String){
+                        fieldBuilder.initializer("$S", value).build();
+                    }
+                    else{
+                        fieldBuilder.initializer("$L", value).build();
+                    }
 				}
-				constructorBuilder.addStatement("this.$N = $N", propertyName, propertyName);
+                objectBuilder.addField(fieldBuilder.addModifiers(Modifier.PUBLIC, Modifier.FINAL).build());
+//				constructorBuilder.addStatement("this.$N = $N", propertyName, propertyName);
 			}
 
 			

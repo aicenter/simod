@@ -9,8 +9,6 @@ import com.squareup.javapoet.MethodSpec.Builder;
 import com.squareup.javapoet.TypeSpec;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,9 +29,12 @@ public class ConfigBuilder {
 	private final File srcDir;
 	
 	private final String configPackageName;
+    
+    private final Class callerclass;
 
 	public ConfigBuilder(File configFile) {
 		this.configFile = configFile;
+        callerclass = getCallerClass();
 		configPackageDir = getConfigPackageDir();
 		configPackageName = getConfigPackageName();
 		srcDir = getSrcDir();
@@ -74,37 +75,52 @@ public class ConfigBuilder {
 	
 	private String getMainClassDir(){
 		String path = null;
-		try {
-			Class mainClass = findMainClass();
+//		try {
+//			Class mainClass = findMainClass();
+            Class mainClass = callerclass;
 			String mainClassFilename = mainClass.getSimpleName() + ".class";
 			path = mainClass.getResource(mainClassFilename).getPath().replace(mainClassFilename, "");
-		} catch (ClassNotFoundException ex) {
-			Logger.getLogger(ConfigBuilder.class.getName()).log(Level.SEVERE, null, ex);
-		}
+//		} catch (ClassNotFoundException ex) {
+//			Logger.getLogger(ConfigBuilder.class.getName()).log(Level.SEVERE, null, ex);
+//		}
 		return path;
 	}
 	
 	public static Class findMainClass() throws ClassNotFoundException{
-        for (Entry<Thread, StackTraceElement[]> entry : Thread.getAllStackTraces().entrySet()) {
-            Thread thread = entry.getKey();
-            if (thread.getThreadGroup() != null && thread.getThreadGroup().getName().equals("main")) {
-                for (StackTraceElement stackTraceElement : entry.getValue()) {
-                    if (stackTraceElement.getMethodName().equals("main")) {
-                        try {
-                            Class<?> c = Class.forName(stackTraceElement.getClassName());
-                            Class[] argTypes = new Class[] { String[].class };
-                            //This will throw NoSuchMethodException in case of fake main methods
-                            c.getDeclaredMethod("main", argTypes);
-//                            return stackTraceElement.getClassName();
-							return c;
-                        } catch (NoSuchMethodException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
+//        for (Entry<Thread, StackTraceElement[]> entry : Thread.getAllStackTraces().entrySet()) {
+//            Thread thread = entry.getKey();
+//            if (thread.getThreadGroup() != null && thread.getThreadGroup().getName().equals("main")) {
+//                for (StackTraceElement stackTraceElement : entry.getValue()) {
+//                    if (stackTraceElement.getMethodName().equals("main")) {
+//                        try {
+//                            Class<?> c = Class.forName(stackTraceElement.getClassName());
+//                            Class[] argTypes = new Class[] { String[].class };
+//                            //This will throw NoSuchMethodException in case of fake main methods
+//                            c.getDeclaredMethod("main", argTypes);
+////                            return stackTraceElement.getClassName();
+//							return c;
+//                        } catch (NoSuchMethodException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
+//            }
+//        }
+        StackTraceElement[] stack = Thread.currentThread ().getStackTrace();
+        StackTraceElement main = stack[stack.length - 1];
+        return Class.forName(main.getClassName());
+    }
+    
+    public static Class getCallerClass(){
+        Class callerClass = null;
+        
+        try {
+            callerClass = Class.forName(new Exception().getStackTrace()[2].getClassName());
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ConfigBuilder.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return null;
+        
+        return callerClass;
     }
 
 	private void generateConfig(HashMap<String, Object> configMap, String objectName) {
@@ -156,12 +172,13 @@ public class ConfigBuilder {
 
 	private String getConfigPackageName() {
 		String packageName = null;
-		try {
-			Class mainClass = findMainClass();
+//		try {
+//			Class mainClass = findMainClass();
+            Class mainClass = callerclass;
 			packageName = mainClass.getPackage().getName() + ".config";
-		} catch (ClassNotFoundException ex) {
-			Logger.getLogger(ConfigBuilder.class.getName()).log(Level.SEVERE, null, ex);
-		}
+//		} catch (ClassNotFoundException ex) {
+//			Logger.getLogger(ConfigBuilder.class.getName()).log(Level.SEVERE, null, ex);
+//		}
 		return packageName;
 	}
 	
@@ -174,13 +191,6 @@ public class ConfigBuilder {
 	}
 
 	private File getSrcDir() {
-		File srcDir = null;
-		try {
-			Class mainClass = findMainClass();
-			srcDir = new File(getMainClassDir().replaceFirst("target/classes.*", "src/main/java"));
-		} catch (ClassNotFoundException ex) {
-			Logger.getLogger(ConfigBuilder.class.getName()).log(Level.SEVERE, null, ex);
-		}
-		return srcDir;
+        return new File(getMainClassDir().replaceFirst("target/classes.*", "src/main/java"));
 	}
 }

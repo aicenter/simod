@@ -42,5 +42,7 @@ public class PreprocessTrips {
         } catch (IOException ex) {
             Logger.getLogger(PreprocessTrips.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        System.exit(0);
 	}
 }

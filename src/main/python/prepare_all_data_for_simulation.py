@@ -16,11 +16,11 @@ from process_trips_for_amodsim import process_trips_in_agentsim
 
 print_info("PREPARATIONS STARTED")
 
-print_info("1) - getting trips")
-get_trips(config)
-
 projection = TransposedUTM(config["tutm_projection_centre"]["latitude"],
                                config["tutm_projection_centre"]["longitude"])
+
+print_info("1) - getting trips")
+get_trips(config)
 
 print_info("2) - generating stations")
 generate_stations(config, projection)

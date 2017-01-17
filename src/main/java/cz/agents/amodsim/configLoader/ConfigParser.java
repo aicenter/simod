@@ -27,6 +27,7 @@ public class ConfigParser {
     private static final Pattern KEY_PATTERN = Pattern.compile("^([a-zA-Z_]+)(:)");
     private static final Pattern SIMPLE_VALUE_PATTERN = Pattern.compile("^\\s*([^\\s]+.*)");
     private static final Pattern NUMBER_PATTERN = Pattern.compile("^([0-9])");
+    private static final Pattern BOOLEAN_PATTERN = Pattern.compile("^(true|false)");
     private static final Pattern REFERENCE_PATTERN = Pattern.compile("\\$([\\S_]+)");
     private static final Pattern OPERATOR_PATTERN = Pattern.compile("[+\\-]");
     private static final Pattern OPERATOR_EXPRESSION_PATTERN = Pattern.compile("\\s*('[^']+'+)\\s*([+])?");
@@ -157,13 +158,19 @@ public class ConfigParser {
             }
         }
         else{
-            if(value.startsWith("'")){
-                return value.replace("'", "");
+            matcher = BOOLEAN_PATTERN.matcher(value);
+            if(matcher.find()){
+                return Boolean.parseBoolean(value);
             }
-            if(value.startsWith("\"")){
-                return value.replace("\"", "");
+            else{
+                if(value.startsWith("'")){
+                    return value.replace("'", "");
+                }
+                if(value.startsWith("\"")){
+                    return value.replace("\"", "");
+                }
+                return value;
             }
-            return value;
         }
     }
 

@@ -18,6 +18,7 @@ import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandlerAdapter;
 import cz.agents.alite.common.event.EventProcessor;
 import cz.agents.amodsim.OnDemandVehiclesSimulation;
+import cz.agents.amodsim.config.Config;
 import java.util.List;
 import java.util.Random;
 
@@ -67,11 +68,12 @@ public class EventInitializer {
     }
     
     
-    public void initialize(List<TimeTrip<Long>> osmNodeTrips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips){
+    public void initialize(List<TimeTrip<Long>> osmNodeTrips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips, 
+            Config config){
         Random random = new Random(RANDOM_SEED);
         
         for (TimeTrip<Long> osmNodeTrip : osmNodeTrips) {
-            if(osmNodeTrip.getStartTime() < OnDemandVehiclesSimulation.START_TIME){
+            if(osmNodeTrip.getStartTime() < config.agentpolis.startTime){
                 continue;
             }
             
@@ -92,7 +94,7 @@ public class EventInitializer {
             }
         }
         for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
-            if(rebalancingTrip.getStartTime() < OnDemandVehiclesSimulation.START_TIME){
+            if(rebalancingTrip.getStartTime() < config.agentpolis.startTime){
                 continue;
             }
             eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 

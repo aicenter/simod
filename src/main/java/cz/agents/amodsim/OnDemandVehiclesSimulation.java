@@ -10,8 +10,8 @@ import cz.agents.amodsim.io.TimeTrip;
 import cz.agents.amodsim.io.TripTransform;
 import cz.agents.agentpolis.AgentPolisInitializer;
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
-import cz.agents.agentpolis.utils.config.ConfigReader;
 import cz.agents.agentpolis.utils.config.ConfigReaderException;
+import cz.agents.amodsim.config.Config;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,57 +25,43 @@ import java.util.logging.Logger;
  */
 public class OnDemandVehiclesSimulation {
 
-    private static File EXPERIMENT_DIR = new File("data/Prague");
-
-    private static final String INPUT_FILE_PATH = "trips.json";
-
-    private static final String REBALANCING_FILE_PATH = "policy.json";
-
-    private static final int SRID = 2065;
-    
-    public static final int START_TIME = 25200000;
-//    public static final int START_TIME = 0;
-
-
     public static void main(String[] args) throws MalformedURLException, ConfigReaderException {
-        if (args.length >= 1) {
-            EXPERIMENT_DIR = new File(args[0]);
-        }
-
         new OnDemandVehiclesSimulation().run();
     }
 
 
     public void run() throws ConfigReaderException {
+        Config config = new Configuration().load();
+        AmodsimAgentPolisConfiguration configuration = new AmodsimAgentPolisConfiguration(config);
+        
+        Injector injector = new AgentPolisInitializer(configuration, new MainModule()).initialize();
+
+        SimulationCreator creator = injector.getInstance(SimulationCreator.class);
+
+        // prepare map, entity storages...
+        creator.prepareSimulation(new MyMapInitFactory(config.srid));
+
+        List<TimeTrip<Long>> osmNodesList;
         try {
-            ConfigReader scenario = ConfigReader.initConfigReader(new File(EXPERIMENT_DIR, "scenario.groovy").toURI().toURL());
-            MyParams parameters = new MyParams(EXPERIMENT_DIR, scenario);
-
-            Injector injector = new AgentPolisInitializer(parameters, new MainModule()).initialize();
-
-            SimulationCreator creator = injector.getInstance(SimulationCreator.class);
-
-            // prepare map, entity storages...
-            creator.prepareSimulation(new MyMapInitFactory(SRID));
-
-            List<TimeTrip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(EXPERIMENT_DIR, INPUT_FILE_PATH), Long.class);
+            osmNodesList = TripTransform.jsonToTrips(new File(config.agentpolis.preprocessedTrips), Long.class);
             RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
-            rebalancingLoader.load(new File(EXPERIMENT_DIR, REBALANCING_FILE_PATH));
+            rebalancingLoader.load(new File(config.rebalancing.policyFilePath));
 
-//            injector.getInstance(EntityInitializer.class).initialize(rebalancingLoader.getOnDemandVehicleStations());
+            //  injector.getInstance(EntityInitializer.class).initialize(rebalancingLoader.getOnDemandVehicleStations());
 
             injector.getInstance(EventInitializer.class).initialize(osmNodesList,
-                    rebalancingLoader.getRebalancingTrips());
+                    rebalancingLoader.getRebalancingTrips(), config);
 
             injector.getInstance(StatisticInitializer.class).initialize();
 
             // start it up
             creator.startSimulation();
-
-            System.exit(0);
-
+        
         } catch (IOException ex) {
-            Logger.getLogger(PrecomputedDemandSimulation.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(OnDemandVehiclesSimulation.class.getName()).log(Level.SEVERE, null, ex);
         }
+       
+        System.exit(0);
+
     }
 }

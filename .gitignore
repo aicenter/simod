@@ -15,3 +15,4 @@ nb-configuration.xml
 /trip_cache.json
 /allEdgesLoadHistory.json
 /src/main/python/.idea/
+/src/main/java/cz/agents/amodsim/config/

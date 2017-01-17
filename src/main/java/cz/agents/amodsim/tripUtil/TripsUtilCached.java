@@ -21,7 +21,7 @@ import cz.agents.agentpolis.simmodel.entity.vehicle.Vehicle;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.agentpolis.simulator.creator.SimulationFinishedListener;
-import cz.agents.agentpolis.simulator.creator.SimulationParameters;
+import cz.agents.amodsim.config.Config;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,10 +43,10 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
 
 
     @Inject
-    public TripsUtilCached(ShortestPathPlanners pathPlanners, SimulationCreator simulationCreator, SimulationParameters simParameters) {
+    public TripsUtilCached(ShortestPathPlanners pathPlanners, SimulationCreator simulationCreator, Config configuration) {
         super(pathPlanners);
 
-        tripCacheFile = new File(simParameters.experimentPath.getPath(), TRIP_CACHE_FILE_NAME);
+        tripCacheFile = new File(configuration.agentpolis.tripCacheFile);
 
         tripCache = loadTripCache();
 //        tripCache = new HashMap<>();

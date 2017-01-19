@@ -37,8 +37,6 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
 
     private final HashMap<StartTargetNodePair, Trip<TripItem>> tripCache;
 
-    private static String TRIP_CACHE_FILE_NAME = "trip_cache.json";
-
     private static File tripCacheFile;
 
 
@@ -47,9 +45,14 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
         super(pathPlanners);
 
         tripCacheFile = new File(configuration.agentpolis.tripCacheFile);
-
-        tripCache = loadTripCache();
-//        tripCache = new HashMap<>();
+        
+        if(tripCacheFile.exists()){
+             tripCache = loadTripCache();
+        }
+        else{
+            tripCache = new HashMap<>();
+        }
+        
         simulationCreator.addSimulationFinishedListener(this);
     }
 

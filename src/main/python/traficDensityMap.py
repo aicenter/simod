@@ -6,28 +6,14 @@ from __future__ import print_function, division
 import matplotlib.pyplot as plt
 import json
 import os
-import os.path as pathi
 import itertools
-import matplotlib.cm as cm
-import matplotlib.colors as colors
 import numpy as np
 
-EDGES_FILE_PATH = "data/Prague/edges.json"
+from scripts.config_loader import cfg as config
+from scripts.printer import print_info
 
-EDGE_PAIRS_FILE_PATH = "data/Prague/edgePairs.json"
-
-LOADS_FILE_PATH = "data/Prague/allEdgesLoadHistory.json"
-
-CRITICAL_DENSITY = 0.08
-# CRITICAL_DENSITY = 0.08
 
 SHIFT_DISTANCE = 30
-
-CHOSEN_WINDOW = 989;
-
-CHOSEN_WINDOW_START = 950;
-
-CHOSEN_WINDOW_END = 1000;
 
 NORMAL_COLOR = "lightgrey"
 
@@ -47,20 +33,23 @@ color_list = [NORMAL_COLOR, COLOR_1, COLOR_2, COLOR_3, COLOR_4, COLOR_5, CONGEST
 
 # color_list = list(reversed(color_list))
 
-
-os.chdir("../../../")
-
-jsonFile = open(EDGES_FILE_PATH, 'r')
+print_info("loading edges")
+jsonFile = open(config.agentpolis.edges_file_path, 'r')
 edges = json.loads(jsonFile.read())
 
-jsonFile = open(EDGE_PAIRS_FILE_PATH, 'r')
+print_info("loading edge pairs")
+jsonFile = open(config.agentpolis.edge_pairs_file_path, 'r')
 edgePairs = json.loads(jsonFile.read())
 
-jsonFile = open(LOADS_FILE_PATH, 'r')
+print_info("loading edge load history")
+jsonFile = open(config.agentpolis.all_edges_load_history_file_path, 'r')
 loads = json.loads(jsonFile.read())
 
 colorTypes = {}
 
+CHOSEN_WINDOW_START = config.density_map.chosen_window_start
+CHOSEN_WINDOW_END = config.density_map.chosen_window_end
+CRITICAL_DENSITY = config.critical_density
 
 
 def plot_edges_optimized(pairs, axis, loads=loads["ALL"], color_func=None):
@@ -146,6 +135,7 @@ def new_congestion_color(loads_all, id, length, lane_count):
             return CONGESTED_COLOR
     else:
         return NORMAL_COLOR
+
 
 def get_color(loads, id, length, lane_count):
     if length == 0:
@@ -262,17 +252,28 @@ fig, axis = \
 # plot_edges(pairs, axis, loads)
 
 axis[0][0].set_xlabel("All")
-axis[0][1].set_xlabel("To passanger")
+axis[0][1].set_xlabel("To passenger")
 axis[0][2].set_xlabel("Demanded trip")
 axis[1][0].set_xlabel("To station")
 axis[1][1].set_xlabel("Rebalancing")
-axis[1][2].set_xlabel("New congestions")
+axis[1][2].set_xlabel("New congestion")
 
+print_info("plotting all load")
 plot_edges_optimized(pairs, axis[0][0], loads["ALL"])
+
+print_info("plotting to start location load")
 plot_edges_optimized(pairs, axis[0][1], loads["DRIVING_TO_START_LOCATION"])
+
+print_info("plotting to target location load")
 plot_edges_optimized(pairs, axis[0][2], loads["DRIVING_TO_TARGET_LOCATION"])
+
+print_info("plotting to station load")
 plot_edges_optimized(pairs, axis[1][0], loads["DRIVING_TO_STATION"])
+
+print_info("plotting rebalancing load")
 plot_edges_optimized(pairs, axis[1][1], loads["REBALANCING"])
+
+print_info("plotting new congestion")
 plot_edges_optimized(pairs, axis[1][2], color_func=new_congestion_color)
 
 plt.show()

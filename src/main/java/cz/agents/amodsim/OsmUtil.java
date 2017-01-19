@@ -47,8 +47,7 @@ public class OsmUtil {
         LinkedList<ExportEdge> edges = new LinkedList<>();
 
         for (SimulationEdge edge : higwayGraph.getAllEdges()) {
-            String id = Long.toString(higwayGraph.getNode(edge.getFromId()).getSourceId()) + "-"
-                        + Long.toString(higwayGraph.getNode(edge.getToId()).getSourceId());
+            String id = edge.getUniqueID();
             edges.add(new ExportEdge(higwayGraph.getNode(edge.getFromId()), higwayGraph.getNode(edge.getToId()), 
                     id, edge.getLaneCount(EGraphType.HIGHWAY), edge.getAllowedMaxSpeedInMpS(), 
                     edge.getLength()));
@@ -86,8 +85,7 @@ public class OsmUtil {
             }
             
             processedEdges.add(simEdge1);
-            String id = Long.toString(higwayGraph.getNode(simEdge1.getFromId()).getSourceId()) + "-"
-                        + Long.toString(higwayGraph.getNode(simEdge1.getToId()).getSourceId());
+            String id = simEdge1.getUniqueID();
             ExportEdge expEdge1 = new ExportEdge(higwayGraph.getNode(simEdge1.getFromId()), 
                     higwayGraph.getNode(simEdge1.getToId()), id, 
                     simEdge1.getLaneCount(EGraphType.HIGHWAY), simEdge1.getAllowedMaxSpeedInMpS(), 
@@ -99,8 +97,7 @@ public class OsmUtil {
             }
             else{
                 processedEdges.add(simEdge2);
-                id = Long.toString(higwayGraph.getNode(simEdge2.getFromId()).getSourceId()) + "-"
-                        + Long.toString(higwayGraph.getNode(simEdge2.getToId()).getSourceId());
+                id = simEdge2.getUniqueID();
                 ExportEdge expEdge2 = new ExportEdge(higwayGraph.getNode(simEdge2.getFromId()), 
                     higwayGraph.getNode(simEdge2.getToId()), id, 
                     simEdge2.getLaneCount(EGraphType.HIGHWAY), simEdge2.getAllowedMaxSpeedInMpS(), 

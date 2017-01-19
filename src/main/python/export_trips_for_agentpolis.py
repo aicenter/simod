@@ -1,6 +1,7 @@
 from __future__ import print_function, division
 
 import numpy as np
+import os
 
 from amod.common import tutm2latlon
 from amod.common import load_trips
@@ -15,6 +16,9 @@ def export_data_for_amodsim(config, projection):
 
     trips_out[:,1:3] = tutm2latlon(trips[:,2:4], projection)
     trips_out[:,3:5] = tutm2latlon(trips[:,4:6], projection)
+
+    if not os.path.exists(config.amodsim_experiment_dir):
+        os.makedirs(config.amodsim_experiment_dir)
 
     np.savetxt(config.agentpolis.trips_path, trips_out, delimiter=" ", fmt='%f')
 

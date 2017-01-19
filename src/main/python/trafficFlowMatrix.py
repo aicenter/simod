@@ -1,10 +1,12 @@
 from __future__ import print_function, division
 
-import matplotlib.pyplot as plt
 import json
 import os
 import numpy as np
-import math
+
+from scripts.config_loader import cfg as config
+from scripts.printer import print_info
+
 
 edgesfilePath = "data/Prague/edges.json"
 

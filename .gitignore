@@ -16,3 +16,4 @@ nb-configuration.xml
 /allEdgesLoadHistory.json
 /src/main/python/.idea/
 /src/main/java/cz/agents/amodsim/config/
+/src/main/java/cz/agents/amodsim/LocalConfig.java

@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,32 +35,24 @@ public class ConfigParser {
     
     
     private final HashMap<String,Object> config;
+	
+	private final Stack<HashMap<String,Object>> objectStack;
     
     private final Queue<QueueEntry> referenceQueue;
     
-    private int lastIndentionLevel;
-    
     private HashMap currentObject;
-    
-    private HashMap parentObject;
     
     private String currentKey;
     
     private Object currentValue;
+	
     
     
     
-
-//    public HashMap<String, Object> getConfig() {
-//        return config;
-//    }
-    
-    
-    
-
     public ConfigParser() {
-        this.config = new HashMap<>();
-        currentObject = config;
+        config = new HashMap<>();
+		currentObject = config;
+		objectStack = new Stack<>();
         referenceQueue = new LinkedList<>();
     }
     
@@ -78,7 +71,7 @@ public class ConfigParser {
                     continue;
                 }
                 if(line.contains("}")){
-                    currentObject = parentObject;
+                    currentObject = objectStack.pop();
                     continue;
                 }
                 if(line.contains("#")){
@@ -102,7 +95,7 @@ public class ConfigParser {
         else{
             HashMap<String, Object> newObject = new HashMap<>();
             currentObject.put(currentKey, newObject);
-            parentObject = currentObject; // TODO enable hierarchy
+            objectStack.push(currentObject); // TODO enable hierarchy
             currentObject = newObject; 
         }
     }
@@ -110,8 +103,6 @@ public class ConfigParser {
     private String stripIndention(String line) {
         Matcher matcher = INDENTION_PATTERN.matcher(line);
         if (matcher.find()){
-            int indentionLevel = matcher.groupCount();
-            lastIndentionLevel = indentionLevel;
             return matcher.replaceAll("");
         }
         else{

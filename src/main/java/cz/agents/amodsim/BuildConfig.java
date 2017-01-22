@@ -13,10 +13,8 @@ import java.io.File;
  * @author fido
  */
 public class BuildConfig {
-    public static File configFile
-			= new File("/home/fido/AIC data/Shared/amod-data/agentpolis-experiment/Prague/default.cfg");
-	
+    
 	public static void main(String[] args) {
-		new ConfigBuilder(configFile).buildConfig();
+		new ConfigBuilder(LocalConfig.CONFIG_FILE).buildConfig();
 	}
 }

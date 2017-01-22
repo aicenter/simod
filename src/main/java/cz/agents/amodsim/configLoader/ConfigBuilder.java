@@ -123,47 +123,44 @@ public class ConfigBuilder {
         return callerClass;
     }
 
-	private void generateConfig(HashMap<String, Object> configMap, String objectName) {
-		try {
-			Builder constructorBuilder = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC);
-			TypeSpec.Builder objectBuilder 
-					= TypeSpec.classBuilder(getClassName(objectName)).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
-			
-			for (Entry<String, Object> entry : configMap.entrySet()) {
-				String key = entry.getKey();
-				Object value = entry.getValue();
-				
-				String propertyName = getPropertyName(key);
-                
-                FieldSpec.Builder fieldBuilder;
-				
-				if(value instanceof Map){
-					ClassName newObjectType = ClassName.get(configPackageName, getClassName(key));
-//					constructorBuilder.addParameter(newObjectType, propertyName);
-//					objectBuilder.addField(newObjectType, propertyName, Modifier.PUBLIC, Modifier.FINAL);
-					generateConfig((HashMap<String, Object>) value, key);
-                    fieldBuilder = FieldSpec.builder(newObjectType, propertyName);
-                    fieldBuilder.initializer("new $T()", newObjectType)
-                           .build();
-				}
-				else{
-//					constructorBuilder.addParameter(value.getClass(), propertyName);
-                    fieldBuilder = FieldSpec.builder(value.getClass(), propertyName);
-                    if(value instanceof String){
-                        fieldBuilder.initializer("$S", value).build();
-                    }
-                    else{
-                        fieldBuilder.initializer("$L", value).build();
-                    }
-				}
-                objectBuilder.addField(fieldBuilder.addModifiers(Modifier.PUBLIC, Modifier.FINAL).build());
-//				constructorBuilder.addStatement("this.$N = $N", propertyName, propertyName);
+	private void generateConfig(HashMap<String, Object> configMap, String mapName) {
+		
+		Builder constructorBuilder = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC);
+		TypeSpec.Builder objectBuilder 
+				= TypeSpec.classBuilder(getClassName(mapName)).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+		
+		String mapParamName = getPropertyName(mapName);
+
+		constructorBuilder.addParameter(HashMap.class, mapParamName);
+
+		for (Entry<String, Object> entry : configMap.entrySet()) {
+			String key = entry.getKey();
+			Object value = entry.getValue();
+
+			String propertyName = getPropertyName(key);
+
+			FieldSpec.Builder fieldBuilder;
+
+			if(value instanceof Map){
+				ClassName newObjectType = ClassName.get(configPackageName, getClassName(key));
+				generateConfig((HashMap<String, Object>) value, key);
+				fieldBuilder = FieldSpec.builder(newObjectType, propertyName);
+				constructorBuilder.addStatement("this.$N = new $T(($T) $N.get(\"$N\"))", propertyName, newObjectType, 
+						HashMap.class, mapName, key);
 			}
+			else{
+				fieldBuilder = FieldSpec.builder(value.getClass(), propertyName);
+				constructorBuilder.addStatement("this.$N = ($T) $N.get(\"$N\")", propertyName, value.getClass(), 
+						mapParamName, key);
+			}
+			objectBuilder.addField(fieldBuilder.addModifiers(Modifier.PUBLIC, Modifier.FINAL).build());
+		}
 
 			
-			TypeSpec object = objectBuilder.addMethod(constructorBuilder.build()).build();
-			
-			JavaFile javaFile = JavaFile.builder(configPackageName, object).build();
+		TypeSpec object = objectBuilder.addMethod(constructorBuilder.build()).build();
+
+		JavaFile javaFile = JavaFile.builder(configPackageName, object).build();
+		try {
 			javaFile.writeTo(srcDir);
 		} catch (IOException ex) {
 			Logger.getLogger(ConfigBuilder.class.getName()).log(Level.SEVERE, null, ex);

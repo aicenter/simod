@@ -97,7 +97,7 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     private void handleTick() {
         tickCount++;
         measure();
-        eventProcessor.addEvent(this, config.agentpolis.statisticIntervalMilis);
+        eventProcessor.addEvent(this, config.agentpolis.statistics.statisticIntervalMilis);
     }
 
     private void measure() {
@@ -117,7 +117,7 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
         ObjectMapper mapper = new ObjectMapper();
 		
         try {
-            mapper.writeValue(new File(config.agentpolis.resultFilePath), result);
+            mapper.writeValue(new File(config.agentpolis.statistics.resultFilePath), result);
         } catch (IOException ex) {
             Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -134,7 +134,8 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     private void countEdgeLoadForInterval() {
         EdgesLoadByState allEdgesLoad = allEdgesLoadProvider.get();
         
-        if(tickCount % config.agentpolis.allEdgesLoadIntervalMilis / config.agentpolis.statisticIntervalMilis == 0){
+        if(tickCount % config.agentpolis.statistics.allEdgesLoadIntervalMilis 
+				/ config.agentpolis.statistics.statisticIntervalMilis == 0){
             allEdgesLoadHistory.add(allEdgesLoad.getLoadPerEdge());
             for (Map.Entry<OnDemandVehicleState,HashMap<String, Integer>> stateEntry 
                     : allEdgesLoad.getEdgeLoadsPerState().entrySet()) {
@@ -196,7 +197,7 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
         }
 		
         try {
-            mapper.writeValue(new File(config.agentpolis.allEdgesLoadHistoryFilePath), outputMap);
+            mapper.writeValue(new File(config.agentpolis.statistics.allEdgesLoadHistoryFilePath), outputMap);
         } catch (IOException ex) {
             Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
         }

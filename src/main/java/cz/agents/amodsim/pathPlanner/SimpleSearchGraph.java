@@ -2,15 +2,12 @@
  */
 package cz.agents.amodsim.pathPlanner;
 
-import cz.agents.basestructures.Edge;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadEdgeExtended;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadNodeExtended;
 import cz.agents.basestructures.Graph;
-import cz.agents.basestructures.Node;
-import cz.agents.multimodalplanning.searchstructures.nodes.RoadSearchNode;
 import cz.agents.multimodalstructures.edges.RoadEdge;
-import cz.agents.multimodalstructures.edges.TimeDependentEdge;
 import cz.agents.multimodalstructures.nodes.RoadNode;
 import cz.agents.planningalgorithms.SearchGraph;
-import cz.agents.planningalgorithms.SearchNode;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,14 +17,14 @@ import java.util.Set;
  */
 public class SimpleSearchGraph extends SearchGraph<SimpleSearchNode>{
 	
-	private final Graph<RoadNode,RoadEdge> graph;
+	private final Graph<RoadNodeExtended,RoadEdgeExtended> graph;
 	
 	private final int speed;
 
 	
 	
 	
-	public SimpleSearchGraph(Graph<RoadNode,RoadEdge> graph, int speed) {
+	public SimpleSearchGraph(Graph<RoadNodeExtended,RoadEdgeExtended> graph, int speed) {
 		this.graph = graph;
 		this.speed = speed;
 	}

@@ -2,13 +2,10 @@
  */
 package cz.agents.amodsim.pathPlanner;
 
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadEdgeExtended;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadNodeExtended;
 import cz.agents.basestructures.Graph;
-import cz.agents.multimodalstructures.edges.RoadEdge;
-import cz.agents.multimodalstructures.nodes.RoadNode;
-import cz.agents.planningalgorithms.SearchGraph;
 import cz.agents.planningalgorithms.singlecriteria.algorithms.DijkstraSimpleGraphSingleGoal;
-import cz.agents.planningalgorithms.singlecriteria.structures.GoalChecker;
-import cz.agents.planningalgorithms.singlecriteria.structures.GraphPath;
 import cz.agents.planningalgorithms.singlecriteria.structures.SingleCriteriaVertexEvaluator;
 import cz.agents.planningalgorithms.singlecriteria.structures.SingleIDGoalChecker;
 import java.util.ArrayList;
@@ -23,7 +20,7 @@ import java.util.Set;
  */
 public class PathPlanner {
 	
-	private final Graph<RoadNode,RoadEdge> highwayGraph;
+	private final Graph<RoadNodeExtended,RoadEdgeExtended> highwayGraph;
 	
 	private final SimpleSearchGraph searchGraph;
 	
@@ -33,7 +30,7 @@ public class PathPlanner {
 	
 	private DijkstraSimpleGraphSingleGoal<SimpleSearchNode> engine;
 
-	public PathPlanner(Graph<RoadNode, RoadEdge> highwayGraph) {
+	public PathPlanner(Graph<RoadNodeExtended, RoadEdgeExtended> highwayGraph) {
 		this.highwayGraph = highwayGraph;
 		searchGraph = new SimpleSearchGraph(highwayGraph, 30);
 		nodeIdsMappedBySourceIds = highwayGraph.createSourceIdToNodeIdMap();

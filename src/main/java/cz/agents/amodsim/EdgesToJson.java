@@ -5,10 +5,10 @@
  */
 package cz.agents.amodsim;
 
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadEdgeExtended;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadNodeExtended;
 import cz.agents.amodsim.config.Config;
 import cz.agents.basestructures.Graph;
-import cz.agents.multimodalstructures.edges.RoadEdge;
-import cz.agents.multimodalstructures.nodes.RoadNode;
 import java.io.File;
 
 /**
@@ -21,8 +21,9 @@ public class EdgesToJson {
         
         Config config = new Configuration().load();
 
-        Graph<RoadNode, RoadEdge> roadGraph = OsmUtil.getHigwayGraph(new File(config.mapFilePath), config.srid);
-        OsmUtil.edgesToJson(OsmUtil.buildSimulationGraph(roadGraph), new File(config.agentpolis.edgesFilePath));
-        OsmUtil.edgePairsToJson(OsmUtil.buildSimulationGraph(roadGraph), new File(config.agentpolis.edgePairsFilePath));
+        Graph<RoadNodeExtended, RoadEdgeExtended> roadGraph 
+                = OsmUtil.getHigwayGraph(new File(config.mapFilePath), config.srid);
+        OsmUtil.edgesToJson(roadGraph, new File(config.agentpolis.edgesFilePath));
+        OsmUtil.edgePairsToJson(roadGraph, new File(config.agentpolis.edgePairsFilePath));
     }
 }

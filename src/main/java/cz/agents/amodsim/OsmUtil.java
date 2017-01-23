@@ -10,12 +10,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import cz.agents.amodsim.io.ExportEdgePair;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadEdgeExtended;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadNodeExtended;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
+import cz.agents.amodsim.graphbuilder.RoadNetworkGraphBuilder;
 import cz.agents.basestructures.Graph;
 import cz.agents.basestructures.GraphBuilder;
 import cz.agents.geotools.Transformer;
-import cz.agents.gtdgraphimporter.GTDGraphBuilder;
 import cz.agents.multimodalstructures.additional.ModeOfTransport;
 import cz.agents.multimodalstructures.edges.RoadEdge;
 import cz.agents.multimodalstructures.nodes.RoadNode;
@@ -31,25 +33,23 @@ import java.util.logging.Logger;
  * @author fido
  */
 public class OsmUtil {
-    public static Graph<RoadNode, RoadEdge> getHigwayGraph(File osmFile, int srid){
+    public static Graph<RoadNodeExtended, RoadEdgeExtended> getHigwayGraph(File osmFile, int srid){
         Transformer transformer = new Transformer(srid);
-
-        GTDGraphBuilder gtdBuilder = new GTDGraphBuilder(transformer, osmFile,
-                Sets.immutableEnumSet(ModeOfTransport.CAR), null, null);
-        Graph<RoadNode, RoadEdge> highwayGraph = gtdBuilder.buildSimplifiedRoadGraph();
-
-        return highwayGraph;
+        
+        RoadNetworkGraphBuilder roadNetworkGraphBuilder = new RoadNetworkGraphBuilder(
+                transformer, osmFile, Sets.immutableEnumSet(ModeOfTransport.CAR));
+        return roadNetworkGraphBuilder.build();
     }
 
-    public static void edgesToJson(Graph<SimulationNode, SimulationEdge> higwayGraph, File outputFile){
+    public static void edgesToJson(Graph<RoadNodeExtended, RoadEdgeExtended> higwayGraph, File outputFile){
         ObjectMapper mapper = new ObjectMapper();
 
         LinkedList<ExportEdge> edges = new LinkedList<>();
 
-        for (SimulationEdge edge : higwayGraph.getAllEdges()) {
-            String id = edge.getUniqueID();
+        for (RoadEdgeExtended edge : higwayGraph.getAllEdges()) {
+            int id = edge.getUniqueWayId();
             edges.add(new ExportEdge(higwayGraph.getNode(edge.getFromId()), higwayGraph.getNode(edge.getToId()), 
-                    id, edge.getLaneCount(EGraphType.HIGHWAY), edge.getAllowedMaxSpeedInMpS(), 
+                    id, edge.getLanesCount(), edge.getAllowedMaxSpeedInMpS(), 
                     edge.getLength()));
         }
 
@@ -60,7 +60,8 @@ public class OsmUtil {
         }
     }
 
-    public static Graph<SimulationNode, SimulationEdge> buildSimulationGraph(Graph<RoadNode, RoadEdge> highwayGraph) {
+    public static Graph<SimulationNode, SimulationEdge> buildSimulationGraph(
+            Graph<RoadNodeExtended, RoadEdgeExtended> highwayGraph) {
         GraphBuilder<SimulationNode, SimulationEdge> graphBuilder = GraphBuilder.createGraphBuilder();
         for (RoadNode roadNode : highwayGraph.getAllNodes()) {
             SimulationNode simulationNode = new SimulationNode(roadNode);
@@ -73,34 +74,34 @@ public class OsmUtil {
         return graphBuilder.createGraph();
     }
 
-    static void edgePairsToJson(Graph<SimulationNode, SimulationEdge> higwayGraph, File outputFile) {
+    static void edgePairsToJson(Graph<RoadNodeExtended, RoadEdgeExtended> higwayGraph, File outputFile) {
         ObjectMapper mapper = new ObjectMapper();
         
-        HashSet<SimulationEdge> processedEdges = new HashSet<>();
+        HashSet<RoadEdgeExtended> processedEdges = new HashSet<>();
         LinkedList<ExportEdgePair> edgePairs = new LinkedList<>();
         
-        for (SimulationEdge simEdge1 : higwayGraph.getAllEdges()) {
+        for (RoadEdgeExtended simEdge1 : higwayGraph.getAllEdges()) {
             if(processedEdges.contains(simEdge1)){
                 continue;
             }
             
             processedEdges.add(simEdge1);
-            String id = simEdge1.getUniqueID();
+            int id = simEdge1.getUniqueWayId();
             ExportEdge expEdge1 = new ExportEdge(higwayGraph.getNode(simEdge1.getFromId()), 
                     higwayGraph.getNode(simEdge1.getToId()), id, 
-                    simEdge1.getLaneCount(EGraphType.HIGHWAY), simEdge1.getAllowedMaxSpeedInMpS(), 
+                    simEdge1.getLanesCount(), simEdge1.getAllowedMaxSpeedInMpS(), 
                     simEdge1.getLength());
             
-            SimulationEdge simEdge2 = higwayGraph.getEdge(simEdge1.getToId(), simEdge1.getFromId());
+            RoadEdgeExtended simEdge2 = higwayGraph.getEdge(simEdge1.getToId(), simEdge1.getFromId());
             if(simEdge2 == null){
                 edgePairs.add(new ExportEdgePair(expEdge1, null));
             }
             else{
                 processedEdges.add(simEdge2);
-                id = simEdge2.getUniqueID();
+                id = simEdge2.getUniqueWayId();
                 ExportEdge expEdge2 = new ExportEdge(higwayGraph.getNode(simEdge2.getFromId()), 
                     higwayGraph.getNode(simEdge2.getToId()), id, 
-                    simEdge2.getLaneCount(EGraphType.HIGHWAY), simEdge2.getAllowedMaxSpeedInMpS(), 
+                    simEdge2.getLanesCount(), simEdge2.getAllowedMaxSpeedInMpS(), 
                     simEdge2.getLength());
                 edgePairs.add(new ExportEdgePair(expEdge1, expEdge2));
             }

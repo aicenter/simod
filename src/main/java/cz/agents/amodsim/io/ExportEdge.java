@@ -16,7 +16,7 @@ public class ExportEdge {
     
     private final GPSLocation to;
     
-    private final String id;
+    private final int id;
     
     private final int laneCount;
     
@@ -36,7 +36,7 @@ public class ExportEdge {
         return to;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
@@ -56,7 +56,7 @@ public class ExportEdge {
     
     
     
-    public ExportEdge(GPSLocation from, GPSLocation to, String id, int laneCount, float maxSpeed, int length) {
+    public ExportEdge(GPSLocation from, GPSLocation to, int id, int laneCount, float maxSpeed, int length) {
         this.from = from;
         this.to = to;
         this.id = id;
@@ -64,12 +64,5 @@ public class ExportEdge {
         this.maxSpeed = maxSpeed;
         this.length = length;
     }
-    
-    
-    
 
-    
-    
-    
-    
 }

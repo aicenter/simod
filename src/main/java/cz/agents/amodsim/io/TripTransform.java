@@ -7,17 +7,15 @@ package cz.agents.amodsim.io;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.common.collect.Sets;
 import cz.agents.amodsim.OsmUtil;
 import cz.agents.amodsim.pathPlanner.PathPlanner;
 import com.vividsolutions.jts.geom.Coordinate;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadEdgeExtended;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadNodeExtended;
 import cz.agents.agentpolis.utils.nearestelement.NearestElementUtil;
 import cz.agents.basestructures.GPSLocation;
 import cz.agents.basestructures.Graph;
 import cz.agents.geotools.Transformer;
-import cz.agents.gtdgraphimporter.GTDGraphBuilder;
-import cz.agents.multimodalstructures.additional.ModeOfTransport;
-import cz.agents.multimodalstructures.edges.RoadEdge;
 import cz.agents.multimodalstructures.nodes.RoadNode;
 import java.io.BufferedReader;
 import java.io.File;
@@ -52,7 +50,7 @@ public class TripTransform {
 	
 	public List<TimeTrip<Long>> gpsTripsToOsmNodeTrips(List<TimeTrip<GPSLocation>> gpsTrips, 
 			File osmFile, int srid, boolean completedTrips){
-        Graph<RoadNode, RoadEdge> highwayGraph = OsmUtil.getHigwayGraph(osmFile,srid);
+        Graph<RoadNodeExtended, RoadEdgeExtended> highwayGraph = OsmUtil.getHigwayGraph(osmFile,srid);
 
 		List<Pair<Coordinate, RoadNode>> pairs = new ArrayList<>();
 		

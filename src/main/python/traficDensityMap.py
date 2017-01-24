@@ -42,7 +42,7 @@ jsonFile = open(config.agentpolis.edge_pairs_file_path, 'r')
 edgePairs = json.loads(jsonFile.read())
 
 print_info("loading edge load history")
-jsonFile = open(config.agentpolis.all_edges_load_history_file_path, 'r')
+jsonFile = open(config.agentpolis.statistics.all_edges_load_history_file_path, 'r')
 loads = json.loads(jsonFile.read())
 
 colorTypes = {}

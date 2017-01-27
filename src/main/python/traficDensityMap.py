@@ -4,6 +4,8 @@
 from __future__ import print_function, division
 
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import matplotlib.dates as dates
 import json
 import os
 import itertools
@@ -11,39 +13,19 @@ import numpy as np
 
 from scripts.config_loader import cfg as config
 from scripts.printer import print_info
+import traffic_load
 
 
 SHIFT_DISTANCE = 30
 
-NORMAL_COLOR = "lightgrey"
 
-COLOR_1 = "lemonchiffon"
-
-COLOR_2 = "navajowhite"
-
-COLOR_3 = "lightsalmon"
-
-COLOR_4 = "darkorange"
-
-COLOR_5 = "orangered"
-
-CONGESTED_COLOR = "red"
-
-color_list = [NORMAL_COLOR, COLOR_1, COLOR_2, COLOR_3, COLOR_4, COLOR_5, CONGESTED_COLOR]
-
-# color_list = list(reversed(color_list))
-
-print_info("loading edges")
-jsonFile = open(config.agentpolis.edges_file_path, 'r')
-edges = json.loads(jsonFile.read())
+# edges = traffic_load.load_edges()
 
 print_info("loading edge pairs")
 jsonFile = open(config.agentpolis.edge_pairs_file_path, 'r')
 edgePairs = json.loads(jsonFile.read())
 
-print_info("loading edge load history")
-jsonFile = open(config.agentpolis.statistics.all_edges_load_history_file_path, 'r')
-loads = json.loads(jsonFile.read())
+loads = traffic_load.load_all_edges_load_history()
 
 colorTypes = {}
 
@@ -56,11 +38,11 @@ def plot_edges_optimized(pairs, axis, loads=loads["ALL"], color_func=None):
     if color_func == None:
         color_func = get_color;
 
-    for color in color_list:
+    for color in traffic_load.COLOR_LIST:
         colorType = {}
         colorType["xPairs"] = []
         colorType["yPairs"] = []
-        colorType["width"] = 1.0 if color == NORMAL_COLOR else 2.0
+        colorType["width"] = 1.0 if color == traffic_load.NORMAL_COLOR else 2.0
         colorTypes[color] = colorType
 
 
@@ -85,7 +67,7 @@ def plot_edges_optimized(pairs, axis, loads=loads["ALL"], color_func=None):
             add_line(line1[0], line1[1], id1, color1)
             add_line(line2[0], line2[1], id2, color2)
 
-    for color in color_list:
+    for color in traffic_load.COLOR_LIST:
         colorType = colorTypes[color]
         xList, yList = lines_to_list(colorType["xPairs"], colorType["yPairs"])
         axis.plot(xList, yList, linewidth=colorType["width"], color=color)
@@ -117,7 +99,7 @@ def lines_to_list(xpairs, ypairs):
 
 def new_congestion_color(loads_all, id, length, lane_count):
     if length == 0:
-        return NORMAL_COLOR
+        return traffic_load.NORMAL_COLOR
     loads_passanger_trip = loads["DRIVING_TO_TARGET_LOCATION"]
     load_total_passanger_trip = 0
     load_total_all = 0
@@ -130,16 +112,16 @@ def new_congestion_color(loads_all, id, length, lane_count):
 
     average_load_all = load_total_all / (CHOSEN_WINDOW_END - CHOSEN_WINDOW_START)
     average_load_passanger_trip = load_total_passanger_trip / (CHOSEN_WINDOW_END - CHOSEN_WINDOW_START)
-    if get_normalized_load(average_load_all, length, lane_count) > CRITICAL_DENSITY \
-        and get_normalized_load(average_load_passanger_trip, length, lane_count) <= CRITICAL_DENSITY:
-            return CONGESTED_COLOR
+    if traffic_load.get_normalized_load(average_load_all, length, lane_count) > CRITICAL_DENSITY \
+        and traffic_load.get_normalized_load(average_load_passanger_trip, length, lane_count) <= CRITICAL_DENSITY:
+            return traffic_load.CONGESTED_COLOR
     else:
-        return NORMAL_COLOR
+        return traffic_load.NORMAL_COLOR
 
 
 def get_color(loads, id, length, lane_count):
     if length == 0:
-        return NORMAL_COLOR
+        return traffic_load.NORMAL_COLOR
     load_total = 0
     current_frame = CHOSEN_WINDOW_START
     while current_frame <= CHOSEN_WINDOW_END:
@@ -149,28 +131,7 @@ def get_color(loads, id, length, lane_count):
 
     average_load = load_total / (CHOSEN_WINDOW_END - CHOSEN_WINDOW_START)
 
-    return get_color_from_load(load=average_load, length=length, lane_count=lane_count)
-
-
-def get_color_from_load(load, length, lane_count):
-    if get_normalized_load(load, length, lane_count) > CRITICAL_DENSITY:
-        return CONGESTED_COLOR
-    elif get_normalized_load(load, length, lane_count) > CRITICAL_DENSITY * 0.75:
-        return COLOR_5
-    elif get_normalized_load(load, length, lane_count) > CRITICAL_DENSITY * 0.5:
-        return COLOR_4
-    elif get_normalized_load(load, length, lane_count) > CRITICAL_DENSITY * 0.25:
-        return COLOR_3
-    elif get_normalized_load(load, length, lane_count) > CRITICAL_DENSITY * 0.1:
-        return COLOR_2
-    elif get_normalized_load(load, length, lane_count) > CRITICAL_DENSITY * 0.05:
-        return COLOR_1
-    else:
-        return NORMAL_COLOR
-
-
-def get_normalized_load(load, length, lane_count):
-    return load / length / lane_count
+    return traffic_load.get_color_from_load(load=average_load, length=length, lane_count=lane_count)
 
 
 def compute_shift(line, distance, direction):
@@ -200,56 +161,27 @@ def make_edge_pairs(edges):
 def location_quals(loc1, loc2):
     return loc1["lonE6"] == loc2["lonE6"] and loc1["latE6"] == loc2["latE6"]
 
-#
-# line = [[1,3],[5,10]]
-#
-# line2 = compute_shift(line, 2, 1)
 
-# reducedMatrix = np.delete(edgeTimeMatrix, np.nonzero(edgeTimeMatrix.sum()), axis=0)
-
-# average load histogram
-# plt.plot(np.sum(reducedMatrix, axis=0))
-
-# for row in np.nditer(reducedMatrix):
-#     if np.sum(row) == 0:
-
-
-# matrix[matrix == 0] = np.nan
-
-# plt.plot(np.sum(np.transpose(reducedMatrix), axis=0))
-
-# pairs = make_edge_pairs(edges)
-
-pairs = edgePairs;
+pairs = edgePairs
 
 
 # "adjustable": 'datalim', "aspect": 1.0 - naprosto nevim proc to takhle funguje - dokumentace == NULL
 fig, axis = \
-    plt.subplots(2, 3, sharex=True, sharey=True, squeeze=True, subplot_kw={"adjustable": 'datalim', "aspect": 1.0})
-
-# for ax in fig.get_axes():
-#     ax.axis("scaled")
+    plt.subplots(2, 3, sharex=True, sharey=True, subplot_kw={"adjustable": 'datalim', "aspect": 1.0},
+                 figsize=(25, 12))
 
 
-# fig1 = plt.figure()
-# fig2 = plt.figure()
-# fig3 = plt.figure()
-# fig4 = plt.figure()
-# fig5 = plt.figure()
-#
-# axis1 = fig1.add_subplot(321)
-# axis2 = fig1.add_subplot(322, sharex=axis1, sharey=axis1)
-# axis3 = fig1.add_subplot(323, sharex=axis1, sharey=axis1)
-# axis4 = fig1.add_subplot(324, sharex=axis1, sharey=axis1)
-# axis5 = fig1.add_subplot(325, sharex=axis1, sharey=axis1)
+def set_mat_not(axis):
+    # axis.fmt_xdata = ticker.ScalarFormatter(useMathText=True)
+    # axis.fmt_ydata = ticker.ScalarFormatter(useMathText=True)
+    # axis.fmt_xdata = dates.DateFormatter('%Y-%m-%d')
+    # axis.yaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
+    axis.set_xticklabels([])
+    axis.set_yticklabels([])
 
-# axis1.axis('equal')
-# axis2.axis('equal')
-# axis3.axis('equal')
-# axis4.axis('equal')
-# axis5.axis('equal')
 
-# plot_edges(pairs, axis, loads)
+np.vectorize(set_mat_not)(axis)
+
 
 axis[0][0].set_xlabel("All")
 axis[0][1].set_xlabel("To passenger")
@@ -276,16 +208,14 @@ plot_edges_optimized(pairs, axis[1][1], loads["REBALANCING"])
 print_info("plotting new congestion")
 plot_edges_optimized(pairs, axis[1][2], color_func=new_congestion_color)
 
+
+
+# zoom
+plt.axis([14308000, 14578000, 49970000, 50186000])
+
+plt.savefig(config.images.main_map, bbox_inches='tight', transparent=True)
+
 plt.show()
 
-# for pair in edgePairs:
-#     if pair["edge2"] and str(pair["edge1"]["id"]) in loads[1000] and str(pair["edge2"]["id"]) in loads[1000]:
-#         print(loads[1000][str(pair["edge1"]["id"])], loads[1000][str(pair["edge2"]["id"])])
-
-# while edges:
-#     edge1 = edges.pop()
-#     for edge2 in edges:
-#         if edge1["from"]["id"] == edge2["from"]["id"] and edge1["to"]["id"] == edge2["to"]["id"]:
-#             print(1)
 
 

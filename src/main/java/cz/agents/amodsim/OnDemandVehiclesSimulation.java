@@ -34,7 +34,7 @@ public class OnDemandVehiclesSimulation {
         Config config = new Configuration().load();
         AmodsimAgentPolisConfiguration configuration = new AmodsimAgentPolisConfiguration(config);
         
-        Injector injector = new AgentPolisInitializer(configuration, new MainModule()).initialize();
+        Injector injector = new AgentPolisInitializer(configuration, new MainModule(config)).initialize();
 
         SimulationCreator creator = injector.getInstance(SimulationCreator.class);
 

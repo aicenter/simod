@@ -28,6 +28,7 @@ import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.AllNetworkNodes;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
 import cz.agents.agentpolis.simulator.visualization.visio.VisioInitializer;
+import cz.agents.amodsim.config.Config;
 import cz.agents.basestructures.Node;
 
 import java.util.HashMap;
@@ -40,8 +41,11 @@ import java.util.logging.Level;
  */
 public class MainModule extends StandardAgentPolisModule{
     
-    public MainModule() {
+    private final Config config;
+    
+    public MainModule(Config config) {
         super();
+        this.config = config;
         Log.init("AgentPolis logger", Level.FINEST, "log.txt");
     }
 
@@ -58,6 +62,7 @@ public class MainModule extends StandardAgentPolisModule{
         bind(EntityStorage.class).to(VehicleStorage.class);
         bind(TripsUtil.class).to(TripsUtilCached.class);
         bind(DemandLayer.class).to(DemandLayerWithJitter.class);
+        bind(Config.class).toInstance(config);
         
         install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, OnDemandVehicle.class)
             .build(OnDemandVehicleFactory.class));

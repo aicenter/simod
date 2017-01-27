@@ -29,6 +29,8 @@ public class Result {
     private final int numberOfDemandsDropped;
     
     private final int demandsCount;
+    
+    private final int numberOfVehicles;
 
     
     
@@ -73,12 +75,19 @@ public class Result {
     public int getDemandsCount() {
         return demandsCount;
     }
+
+    public int getNumberOfVehicles() {
+        return numberOfVehicles;
+    }
+    
+    
     
     
 
     public Result(long tickCount, double averageLoadTotal, int maxLoad, double averageKmWithPassenger, 
             double averageKmToStartLocation, double averageKmToStation, double averageKmRebalancing,
-            int numberOfDemandsNotServedFromNearestStation, int numberOfDemandsDropped, int demandsCount) {
+            int numberOfDemandsNotServedFromNearestStation, int numberOfDemandsDropped, int demandsCount,
+            int numberOfVehicles) {
         this.tickCount = tickCount;
         this.averageLoadTotal = averageLoadTotal;
         this.maxLoad = maxLoad;
@@ -89,6 +98,7 @@ public class Result {
         this.numberOfDemandsNotServedFromNearestStation = numberOfDemandsNotServedFromNearestStation;
         this.numberOfDemandsDropped = numberOfDemandsDropped;
         this.demandsCount = demandsCount;
+        this.numberOfVehicles = numberOfVehicles;
     }
     
     

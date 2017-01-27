@@ -62,6 +62,8 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     
     private double averageKmRebalancing;
     
+    private int numberOfVehicles;
+    
     
     
     
@@ -112,7 +114,7 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
                 averageKmToStartLocation, averageKmToStation, averageKmRebalancing, 
                 onDemandVehicleStationsCentral.getNumberOfDemandsNotServedFromNearestStation(), 
                 onDemandVehicleStationsCentral.getNumberOfDemandsDropped(), 
-                onDemandVehicleStationsCentral.getDemandsCount());
+                onDemandVehicleStationsCentral.getDemandsCount(), numberOfVehicles);
         
         ObjectMapper mapper = new ObjectMapper();
 		
@@ -134,8 +136,8 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     private void countEdgeLoadForInterval() {
         EdgesLoadByState allEdgesLoad = allEdgesLoadProvider.get();
         
-        if(tickCount % config.agentpolis.statistics.allEdgesLoadIntervalMilis 
-				/ config.agentpolis.statistics.statisticIntervalMilis == 0){
+        if(tickCount % (config.agentpolis.statistics.allEdgesLoadIntervalMilis 
+				/ config.agentpolis.statistics.statisticIntervalMilis) == 0){
             allEdgesLoadHistory.add(allEdgesLoad.getLoadPerEdge());
             for (Map.Entry<OnDemandVehicleState,HashMap<String, Integer>> stateEntry 
                     : allEdgesLoad.getEdgeLoadsPerState().entrySet()) {
@@ -178,7 +180,7 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
             metersRebalancingSum += onDemandVehicle.getMetersRebalancing();
         }
         
-        int numberOfVehicles = onDemandVehicleStorage.getEntityIds().size();
+        numberOfVehicles = onDemandVehicleStorage.getEntityIds().size();
         
         averageKmWithPassenger = (double) metersWithPassengerSum / numberOfVehicles / 1000;
         averageKmToStartLocation = (double) metersToStartLocationSum / numberOfVehicles / 1000;

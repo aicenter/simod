@@ -5,15 +5,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from scripts.config_loader import cfg as config
-from scripts.printer import print_info
+from scripts.printer import print_info, print_table
 from traffic_load import WINDOW_START, WINDOW_END, WINDOW_LENGTH, VehiclePhase
+from utils import to_percetnt, col_to_percent
 import traffic_load
 
 
 HISTOGRAM_SAMPLES = 16
 LOW_THRESHOLD = traffic_load.CRITICAL_DENSITY * 0.01
 HIGH_THRESHOLD = traffic_load.CRITICAL_DENSITY * 2
-
+CONGESTION_INDEX = int(traffic_load.CRITICAL_DENSITY / (HIGH_THRESHOLD / HISTOGRAM_SAMPLES))
 
 class TrafficDensityHistogram:
 
@@ -32,19 +33,47 @@ class TrafficDensityHistogram:
             i += 1
         return edge_set
 
-    def plot_state(self, axis, average_density_list):
+    @staticmethod
+    def get_histogram(average_density_list, bins, hist_step):
+        average_density_list = np.clip(average_density_list, bins[0], bins[-1] + hist_step / 2)
+        hist, bins = np.histogram(average_density_list, bins=bins)
+        return hist, bins
 
-        print_info("plotting")
+    def plot_state(self, axis, average_density_list, hist_step, bins, centers, colors):
 
-        hist_step = HIGH_THRESHOLD / HISTOGRAM_SAMPLES
-        bins = np.arange(0, HIGH_THRESHOLD + hist_step, hist_step)
-        counts, bins, patches = axis.hist(np.clip(average_density_list, bins[0], bins[-1] + hist_step/2), normed=False, bins=bins)
+        hist, bins = self.get_histogram(average_density_list, bins, hist_step)
 
-        # labels
-        # self.set_histogram_labels(axis, bins)
+        axis.bar(centers, hist, hist_step, color=colors)
 
-        for value, patch in zip(bins, patches):
-            plt.setp(patch, 'facecolor', traffic_load.get_color_from_normalized_load(value))
+        return hist
+
+    def plot_phases_share_histogram(self, loads, axis, average_density_list_total, hist_step, bins, centers):
+        average_density_by_phase = self.get_average_density_by_phase(loads)
+        average_density_share_by_phase = average_density_by_phase / average_density_by_phase.sum(axis=0)
+
+        hist_total, bins_total = self.get_histogram(average_density_list_total, bins, hist_step)
+
+        hist_per_phase = []
+
+        for phase in VehiclePhase:
+            hist_per_phase.append(np.zeros(len(hist_total)))
+
+        for index, density in enumerate(average_density_list_total):
+            target_bin_index = 0
+            for bin_index, bin_min_density in enumerate(bins_total):
+                if bin_min_density > density:
+                    target_bin_index = bin_index - 1
+                    break
+
+            for phase in VehiclePhase:
+                hist_per_phase[phase.index][target_bin_index] += average_density_share_by_phase[phase.index][index]
+
+        bottom = np.zeros(len(hist_total))
+        for phase in VehiclePhase:
+            axis.bar(centers, hist_per_phase[phase.index], 0.01, color=phase.color, bottom=bottom)
+            bottom += hist_per_phase[phase.index]
+
+        return hist_per_phase
 
     def get_average_density_list(self, load):
         edge_id_set = self.get_all_edge_ids_for_window(load, WINDOW_START, WINDOW_END)
@@ -137,54 +166,9 @@ class TrafficDensityHistogram:
                         textcoords='offset points', va='top', ha='center')
             i += 1;
 
-    def plot_phases_share_histogram(self, loads, axis, average_density_list_total):
-
-        # for the sum of right outliers
-        hist_step = HIGH_THRESHOLD / HISTOGRAM_SAMPLES
-        bins = np.arange(0, HIGH_THRESHOLD, hist_step)
-
-        colors = []
-        for phase in VehiclePhase:
-            colors.append(phase.color)
-
-        average_density_by_phase = self.get_average_density_by_phase(loads)
-        average_density_share_by_phase = average_density_by_phase / average_density_by_phase.sum(axis=0)
-
-        hist_total, bins_total = np.histogram(average_density_list_total, bins=bins)
-
-        hist_per_phase = []
-
-        for phase in VehiclePhase:
-            hist_per_phase.append(np.zeros(len(hist_total)))
-
-        for index, density in enumerate(average_density_list_total):
-            target_bin_index = 0
-            for bin_index, bin_min_density in enumerate(bins_total):
-                if bin_min_density > density:
-                    target_bin_index = bin_index - 1
-                    break
-
-            for phase in VehiclePhase:
-                hist_per_phase[phase.index][target_bin_index] += average_density_share_by_phase[phase.index][index]
-
-        bottom = np.zeros(len(hist_total))
-        centers = (bins_total[:-1] + bins_total[1:]) / 2
-        for phase in VehiclePhase:
-            p1 = axis.bar(centers, hist_per_phase[phase.index], 0.01, color=phase.color, bottom=bottom)
-            bottom += hist_per_phase[phase.index]
-            # p2 = plt.bar(ind, womenMeans, width,
-            #              bottom=menMeans, yerr=womenStd)
-
-
-
-
-
-
-        # stack = []
-        # edge_id_list = self.get_all_edge_ids_for_window(loads["ALL"], WINDOW_START, WINDOW_END)
-        # for id in edge_id_list:
-        #     for phase in VehiclePhase:
-
+    @staticmethod
+    def get_number_of_congested_edges(hist, congestion_index):
+        return np.sum(hist[congestion_index:])
 
 
 edges = traffic_load.load_edges_mapped_by_id()
@@ -195,24 +179,63 @@ fig, axis = \
 
 histogram = TrafficDensityHistogram()
 
-average_density_list_total = histogram.get_average_density_list(loads[VehiclePhase.DRIVING_TO_TARGET_LOCATION.name]);
+# for the sum of right outliers
+hist_step = HIGH_THRESHOLD / HISTOGRAM_SAMPLES
+bins = np.arange(0, HIGH_THRESHOLD + hist_step, hist_step)
+centers = bins[0:HISTOGRAM_SAMPLES]
+colors = np.vectorize(traffic_load.get_color_from_normalized_load)(np.copy(bins))
 
-histogram.plot_state(axis, average_density_list_total)
+
 # histogram.plot_phases_histogram(loads, axis[1])
-# histogram.plot_phases_share_histogram(loads, axis[1], average_density_list_total)
 
 
+# curent histogram
+average_density_list_total = histogram.get_average_density_list(loads[VehiclePhase.DRIVING_TO_TARGET_LOCATION.name]);
+hist = histogram.plot_state(axis, average_density_list_total, hist_step, bins, centers, colors)
 plt.savefig(config.images.traffic_density_current, bbox_inches='tight', transparent=True)
 
+
+# DETAILED HISTOGRAMS
+
+#  current histogram
 plt.axis([0.04, 0.16, 0, 2000])
 plt.savefig(config.images.traffic_density_current_detail, bbox_inches='tight', transparent=True)
 
+# future histogram
 average_density_list_total = histogram.get_average_density_list(loads["ALL"]);
-histogram.plot_state(axis, average_density_list_total)
+hist_total = histogram.plot_state(axis, average_density_list_total, hist_step, bins, centers, colors)
 plt.savefig(config.images.traffic_density_future_detail, bbox_inches='tight', transparent=True)
+
+# stacked histogram
+hist_per_phase = histogram.plot_phases_share_histogram(loads, axis, average_density_list_total, hist_step, bins, centers)
+plt.savefig(config.images.traffic_density_future_detail_stacked, bbox_inches='tight', transparent=True)
 
 del edges
 del loads
+
+
+
+congested_edges_before = histogram.get_number_of_congested_edges(hist, CONGESTION_INDEX)
+congested_edges_now = histogram.get_number_of_congested_edges(hist_total, CONGESTION_INDEX)
+congestion_increase = (congested_edges_now - congested_edges_before) / congested_edges_before
+
+print("Congested edges before: {0}".format(congested_edges_before))
+print("Congested edges now: {0}".format(congested_edges_now))
+print("Congestion increase: {0}".format(to_percetnt(congestion_increase)))
+print("Share per trip type:")
+
+output_table = np.empty((len(VehiclePhase), 3), dtype=object)
+
+for phase in VehiclePhase:
+    sum_congested = histogram.get_number_of_congested_edges(hist_per_phase[phase.index], CONGESTION_INDEX)
+    share_congested = sum_congested / congested_edges_now
+    output_table[phase.index][0] = phase.name
+    output_table[phase.index][1] = sum_congested
+    output_table[phase.index][2] = share_congested
+
+output_table[:,2] = col_to_percent(output_table[:,2])
+print_table(output_table)
+
 
 plt.show()
 

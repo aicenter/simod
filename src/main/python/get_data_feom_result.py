@@ -4,21 +4,8 @@ import json
 import numpy as np
 
 from scripts.config_loader import cfg as config
-
-
-def print_table(table):
-    col_width = max(len(str(word)) for row in table for word in row) + 2  # padding
-    for row in table:
-        print "".join(str(word).ljust(col_width) for word in row)
-
-
-def to_percent(collection):
-    i = 0
-    for float_number in collection:
-        collection[i] = "{0:.1f}%".format(float(float_number) * 100)
-        i += 1
-    return collection
-
+from utils import col_to_percent
+from scripts.printer import print_table
 
 
 json_file = open(config.agentpolis.statistics.result_file_path, 'r')
@@ -38,6 +25,6 @@ output_table = np.array([["TRIP TYPE", "AVG KM PER VEHICLE", "SHARE ON TRAFFIC"]
                 ["drop off trips", result["averageKmToStation"], drop_off_share],
                 ["rebalancing trips", result["averageKmRebalancing"], rebalancing_share]])
 
-output_table[1:,2] = to_percent(output_table[1:,2])
+output_table[1:,2] = col_to_percent(output_table[1:,2])
 
 print_table(output_table)

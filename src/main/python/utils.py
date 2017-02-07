@@ -1,6 +1,7 @@
 
-def to_percetnt(float_number):
-    return "{0:.1f}%".format(float(float_number) * 100)
+def to_percetnt(float_number, decimals=1):
+    pattern = "{0:." + str(decimals) + "f}%"
+    return pattern.format(float(float_number) * 100)
 
 
 def col_to_percent(collection):

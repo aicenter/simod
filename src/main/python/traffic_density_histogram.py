@@ -3,6 +3,7 @@ from __future__ import print_function, division
 import json
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.collections as collections
 
 from scripts.config_loader import cfg as config
 from scripts.printer import print_info, print_table
@@ -72,6 +73,16 @@ class TrafficDensityHistogram:
         for phase in VehiclePhase:
             axis.bar(centers, hist_per_phase[phase.index], 0.01, color=phase.color, bottom=bottom)
             bottom += hist_per_phase[phase.index]
+
+        min_density = 0
+
+        # background
+        for traffic_level in traffic_load.TrafficDensityLevel:
+            max_density = traffic_level.get_max_density()
+            collection = collections.BrokenBarHCollection([(min_density, max_density - min_density)], (0,1000000),
+                                                          facecolor=traffic_level.color, alpha=0.75)
+            axis.add_collection(collection)
+            min_density = max_density
 
         return hist_per_phase
 
@@ -175,7 +186,9 @@ edges = traffic_load.load_edges_mapped_by_id()
 loads = traffic_load.load_all_edges_load_history()
 
 fig, axis = \
-    plt.subplots(1, 1, sharex=True, sharey=True, subplot_kw={"adjustable": 'datalim'}, figsize=(25, 12))
+    plt.subplots(1, 1, sharex=True, sharey=True, subplot_kw={"adjustable": 'datalim'}, figsize=(6, 4))
+
+np.vectorize(lambda x: x.grid(True))(axis)
 
 histogram = TrafficDensityHistogram()
 
@@ -190,8 +203,8 @@ colors = np.vectorize(traffic_load.get_color_from_normalized_load)(np.copy(bins)
 
 
 # curent histogram
-average_density_list_total = histogram.get_average_density_list(loads[VehiclePhase.DRIVING_TO_TARGET_LOCATION.name]);
-hist = histogram.plot_state(axis, average_density_list_total, hist_step, bins, centers, colors)
+average_density_list_total_current = histogram.get_average_density_list(loads[VehiclePhase.DRIVING_TO_TARGET_LOCATION.name]);
+hist = histogram.plot_state(axis, average_density_list_total_current, hist_step, bins, centers, colors)
 plt.savefig(config.images.traffic_density_current, bbox_inches='tight', transparent=True)
 
 
@@ -202,25 +215,29 @@ plt.axis([0.04, 0.16, 0, 2000])
 plt.savefig(config.images.traffic_density_current_detail, bbox_inches='tight', transparent=True)
 
 # future histogram
-average_density_list_total = histogram.get_average_density_list(loads["ALL"]);
-hist_total = histogram.plot_state(axis, average_density_list_total, hist_step, bins, centers, colors)
+average_density_list_total_future = histogram.get_average_density_list(loads["ALL"]);
+hist_total = histogram.plot_state(axis, average_density_list_total_future, hist_step, bins, centers, colors)
 plt.savefig(config.images.traffic_density_future_detail, bbox_inches='tight', transparent=True)
 
 # stacked histogram
-hist_per_phase = histogram.plot_phases_share_histogram(loads, axis, average_density_list_total, hist_step, bins, centers)
+hist_per_phase = histogram.plot_phases_share_histogram(loads, axis, average_density_list_total_future, hist_step, bins, centers)
 plt.savefig(config.images.traffic_density_future_detail_stacked, bbox_inches='tight', transparent=True)
 
-del edges
 del loads
 
 
-
+edge_count = len(edges)
 congested_edges_before = histogram.get_number_of_congested_edges(hist, CONGESTION_INDEX)
 congested_edges_now = histogram.get_number_of_congested_edges(hist_total, CONGESTION_INDEX)
 congestion_increase = (congested_edges_now - congested_edges_before) / congested_edges_before
+empty_edges_now = edge_count - len(average_density_list_total_current)
+empty_edges_future = edge_count - len(average_density_list_total_future)
 
+print("Total edges: {0}".format(edge_count))
 print("Congested edges before: {0}".format(congested_edges_before))
+print("Empty edges before: {0} - {1} of total edges".format(empty_edges_now, to_percetnt(empty_edges_now / edge_count)))
 print("Congested edges now: {0}".format(congested_edges_now))
+print("Empty edges now: {0} - {1} of total edges".format(empty_edges_future, to_percetnt(empty_edges_future / edge_count)))
 print("Congestion increase: {0}".format(to_percetnt(congestion_increase)))
 print("Share per trip type:")
 
@@ -236,6 +253,7 @@ for phase in VehiclePhase:
 output_table[:,2] = col_to_percent(output_table[:,2])
 print_table(output_table)
 
+del edges
 
 plt.show()
 

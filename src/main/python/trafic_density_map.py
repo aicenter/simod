@@ -21,9 +21,7 @@ SHIFT_DISTANCE = 30
 
 # edges = traffic_load.load_edges()
 
-print_info("loading edge pairs")
-jsonFile = open(config.agentpolis.edge_pairs_file_path, 'r')
-edgePairs = json.loads(jsonFile.read())
+edgePairs = traffic_load.load_edge_pairs()
 
 loads = traffic_load.load_all_edges_load_history()
 

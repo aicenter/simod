@@ -1,10 +1,10 @@
-
+from __future__ import print_function, division
 
 import json
 import numpy as np
 
 from scripts.config_loader import cfg as config
-from utils import col_to_percent
+from utils import col_to_percent, to_percetnt
 from scripts.printer import print_table
 
 
@@ -18,6 +18,9 @@ demand_share = result["averageKmWithPassenger"] / avg_km_total
 pickup_share = result["averageKmToStartLocation"] / avg_km_total
 drop_off_share = result["averageKmToStation"] / avg_km_total
 rebalancing_share = result["averageKmRebalancing"] / avg_km_total
+total_vehicles = result["numberOfVehicles"]
+total_demands = result["demandsCount"]
+dropped_demands = result["numberOfDemandsDropped"]
 
 output_table = np.array([["TRIP TYPE", "AVG KM PER VEHICLE", "SHARE ON TRAFFIC"],
                 ["demnad trips", result["averageKmWithPassenger"], demand_share],
@@ -27,4 +30,11 @@ output_table = np.array([["TRIP TYPE", "AVG KM PER VEHICLE", "SHARE ON TRAFFIC"]
 
 output_table[1:,2] = col_to_percent(output_table[1:,2])
 
+
+print("Total vehicles: {0}".format(total_vehicles))
+
 print_table(output_table)
+
+print("Total demands: {0}".format(total_demands))
+
+print("Dropped demands: {0} - {1}".format(dropped_demands, to_percetnt(dropped_demands / total_demands, 2)))

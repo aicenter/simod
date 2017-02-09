@@ -5,7 +5,8 @@
  */
 package cz.agents.amodsim;
 
-import com.google.common.collect.Sets;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.GraphType;
 import cz.agents.amodsim.graphbuilder.RoadNetworkGraphBuilder;
@@ -14,13 +15,10 @@ import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwor
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadNodeExtended;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
-import cz.agents.agentpolis.simulator.creator.initializator.MapInitFactory;
 import cz.agents.agentpolis.simulator.creator.initializator.impl.MapData;
 import cz.agents.basestructures.BoundingBox;
 import cz.agents.basestructures.Graph;
 import cz.agents.basestructures.Node;
-import cz.agents.geotools.Transformer;
-import cz.agents.multimodalstructures.additional.ModeOfTransport;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -31,19 +29,29 @@ import java.util.Map;
 /**
  * @author david
  */
-public class MyMapInitFactory implements MapInitFactory {
+public class MapInitializer{
 
-    private static final Logger LOGGER = Logger.getLogger(MyMapInitFactory.class);
+    private static final Logger LOGGER = Logger.getLogger(MapInitializer.class);
 
-    private final int epsg;
+    private final int srid;
+    
+    private final File mapFile;
+    
+    private final RoadNetworkGraphBuilder roadNetworkGraphBuilder;
 
     /**
      * Constructor
      *
-     * @param epsg coordinate system
+     * @param srid coordinate system
+     * @param mapFile
+     * @param roadNetworkGraphBuilder
      */
-    public MyMapInitFactory(int epsg) {
-        this.epsg = epsg;
+    @Inject
+    public MapInitializer(@Named("mapSrid") int srid, @Named("osm File") File mapFile, 
+            RoadNetworkGraphBuilder roadNetworkGraphBuilder) {
+        this.srid = srid;
+        this.mapFile = mapFile;
+        this.roadNetworkGraphBuilder = roadNetworkGraphBuilder;
     }
 
 
@@ -53,8 +61,7 @@ public class MyMapInitFactory implements MapInitFactory {
      * @param simulationDurationInMilisec not in use, so place whatever number you want
      * @return map data with simulation graph
      */
-    @Override
-    public MapData initMap(File mapFile, long simulationDurationInMilisec) {
+    public MapData getMap() {
         Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs;
         try {
             graphs = deserializeGraphs(mapFile);
@@ -93,9 +100,7 @@ public class MyMapInitFactory implements MapInitFactory {
     }
 
     private Graph<RoadNodeExtended, RoadEdgeExtended> createRoadNetworkGraph(File mapFile) {
-        LOGGER.info(epsg);
-        RoadNetworkGraphBuilder roadNetworkGraphBuilder = new RoadNetworkGraphBuilder(new Transformer(epsg), mapFile, Sets.immutableEnumSet
-                (ModeOfTransport.CAR));
+        LOGGER.info(srid);
         return roadNetworkGraphBuilder.build();
     }
 

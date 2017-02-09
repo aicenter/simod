@@ -39,7 +39,7 @@ public class OnDemandVehiclesSimulation {
         SimulationCreator creator = injector.getInstance(SimulationCreator.class);
 
         // prepare map, entity storages...
-        creator.prepareSimulation(new MyMapInitFactory(config.srid));
+        creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
 
         List<TimeTrip<Long>> osmNodesList;
         try {

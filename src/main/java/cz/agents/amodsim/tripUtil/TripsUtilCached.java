@@ -37,14 +37,14 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
 
     private final HashMap<StartTargetNodePair, Trip<TripItem>> tripCache;
 
-    private static File tripCacheFile;
+    private final File tripCacheFile;
 
 
     @Inject
     public TripsUtilCached(ShortestPathPlanners pathPlanners, SimulationCreator simulationCreator, Config configuration) {
         super(pathPlanners);
 
-        tripCacheFile = new File(configuration.agentpolis.tripCacheFile);
+        tripCacheFile = getCacheFile(configuration);
         
         if(tripCacheFile.exists()){
              tripCache = loadTripCache();
@@ -124,5 +124,12 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
         return tripCache;
     }
 
+    private File getCacheFile(Config config) {
+        String filename = config.agentpolis.tripCacheFile;
+        if(config.agentpolis.simplifyGraph){
+            filename += "-simplified";
+        }
+        return new File(filename + ".json");
+    }
 
 }

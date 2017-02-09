@@ -3,10 +3,12 @@ package cz.agents.amodsim.graphbuilder;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
+import com.google.inject.Inject;
 import cz.agents.amodsim.graphbuilder.structurebuilders.RoadNetworkGraphSimplifier;
 import cz.agents.amodsim.graphbuilder.structurebuilders.edge.RoadEdgeExtendedBuilder;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadEdgeExtended;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadNodeExtended;
+import cz.agents.amodsim.config.Config;
 import cz.agents.basestructures.Graph;
 import cz.agents.geotools.StronglyConnectedComponentsFinder;
 import cz.agents.geotools.Transformer;
@@ -18,6 +20,7 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.util.*;
 import java.util.function.Predicate;
+import javax.inject.Named;
 
 /**
  * Instead of {@link cz.agents.gtdgraphimporter.GTDGraphBuilder}
@@ -27,6 +30,19 @@ import java.util.function.Predicate;
  */
 public class RoadNetworkGraphBuilder {
     private static final Logger LOGGER = Logger.getLogger(RoadNetworkGraphBuilder.class);
+    
+    /**
+     * Set of all modes that can be loaded from OSM without any additional information required.
+     */
+    public static final Set<ModeOfTransport> OSM_MODES = Sets.immutableEnumSet(
+            ModeOfTransport.WALK,
+            ModeOfTransport.TAXI,
+            ModeOfTransport.CAR,
+            ModeOfTransport.MOTORCYCLE,
+            ModeOfTransport.BIKE);
+    
+    
+    
 
     /**
      * Modes to be loaded from OSM.
@@ -37,26 +53,24 @@ public class RoadNetworkGraphBuilder {
      * Builder and parser OSM for RoadExtended
      */
     private final OsmGraphBuilderExtended.Builder osmBuilderBuilderExtended;
+    
+    private final Config config;
 
-    /**
-     * Set of all modes that can be loaded from OSM without any additional information required.
-     */
-    public static final Set<ModeOfTransport> OSM_MODES = Sets.immutableEnumSet(
-            ModeOfTransport.WALK,
-            ModeOfTransport.TAXI,
-            ModeOfTransport.CAR,
-            ModeOfTransport.MOTORCYCLE,
-            ModeOfTransport.BIKE);
+    
 
     /**
      * Constructor
      *
+     * @param config
      * @param projection      SRID
      * @param osmFile         file with OSM map
      * @param allowedOsmModes based on {@link RoadNetworkGraphBuilder#OSM_MODES}
      */
-    public RoadNetworkGraphBuilder(Transformer projection, File osmFile, Set<ModeOfTransport> allowedOsmModes) {
+    @Inject
+    public RoadNetworkGraphBuilder(@Named("osm File") File osmFile, Set<ModeOfTransport> allowedOsmModes, 
+            Config config, Transformer projection) {
         this.allowedOsmModes = allowedOsmModes;
+        this.config = config;
         this.osmBuilderBuilderExtended = new OsmGraphBuilderExtended.Builder(osmFile, projection, allowedOsmModes);
     }
 
@@ -70,7 +84,9 @@ public class RoadNetworkGraphBuilder {
         //TODO: Simplifier - make switch for Visio and for Simulation.
         //TODO: Properly handle RoadEdgeExtended - find opposite way and uniqueWayId
         LOGGER.debug("Graph [#nodes=" + osmGraph.getNodeCount() + ", #edges=" + osmGraph.getEdgeCount() + "] simplification");
-        RoadNetworkGraphSimplifier.simplify(osmGraph, Collections.emptySet()); //not working for RoadExtended
+        if(config.agentpolis.simplifyGraph){
+            RoadNetworkGraphSimplifier.simplify(osmGraph, Collections.emptySet()); //not working for RoadExtended
+        }
         return osmGraph.createGraph();
     }
 

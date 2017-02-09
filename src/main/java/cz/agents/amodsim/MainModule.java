@@ -5,8 +5,10 @@
  */
 package cz.agents.amodsim;
 
+import com.google.common.collect.Sets;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
 import cz.agents.amodsim.entity.DemandAgent;
@@ -30,9 +32,13 @@ import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwor
 import cz.agents.agentpolis.simulator.visualization.visio.VisioInitializer;
 import cz.agents.amodsim.config.Config;
 import cz.agents.basestructures.Node;
+import cz.agents.geotools.Transformer;
+import cz.agents.multimodalstructures.additional.ModeOfTransport;
+import java.io.File;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -57,13 +63,18 @@ public class MainModule extends StandardAgentPolisModule{
     @Override
     protected void configureNext() {
         bindConstant().annotatedWith(Names.named("precomputedPaths")).to(false);
+
+        bind(File.class).annotatedWith(Names.named("osm File")).toInstance(new File(config.mapFilePath));
+        
+        bind(new TypeLiteral<Set<ModeOfTransport>>(){}).toInstance(Sets.immutableEnumSet(ModeOfTransport.CAR));
+        bind(Config.class).toInstance(config);
+        bind(Transformer.class).toInstance(new Transformer(config.srid));
         
         bind(EntityPositionModel.class).to(VehiclePositionModel.class);
         bind(EntityStorage.class).to(VehicleStorage.class);
         bind(TripsUtil.class).to(TripsUtilCached.class);
         bind(DemandLayer.class).to(DemandLayerWithJitter.class);
-        bind(Config.class).toInstance(config);
-        
+
         install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, OnDemandVehicle.class)
             .build(OnDemandVehicleFactory.class));
         install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, OnDemandVehicleStation.class)

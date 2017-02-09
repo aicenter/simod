@@ -74,7 +74,7 @@ public class OsmUtil {
     }
     
     public static Graph<SimulationNode, SimulationEdge> getSimulationGraph(File osmFile, int srid){
-        return new MyMapInitFactory(srid).initMap(osmFile, 10).graphByType.get(EGraphType.HIGHWAY);
+        return new MapInitializer(srid).initMap(osmFile, 10).graphByType.get(EGraphType.HIGHWAY);
     }
 
     static void edgePairsToJson(Graph<SimulationNode, SimulationEdge> higwayGraph, File outputFile) {

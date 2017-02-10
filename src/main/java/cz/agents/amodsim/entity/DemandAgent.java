@@ -128,7 +128,7 @@ public class DemandAgent extends Agent implements EventHandler,
         onDemandVehicle = (OnDemandVehicle) event.getContent();
         vehicle = onDemandVehicle.getVehicle();
         rideAsPassengerActivity.usingVehicleAsPassenger(this.getId(), onDemandVehicle.getVehicleId(), 
-                onDemandVehicle.getDemandTrip(), this);
+                onDemandVehicle.getDemandTrip(this), this);
     }
 
     @Override

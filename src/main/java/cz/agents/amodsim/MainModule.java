@@ -31,6 +31,7 @@ import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwor
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
 import cz.agents.agentpolis.simulator.visualization.visio.VisioInitializer;
 import cz.agents.amodsim.config.Config;
+import cz.agents.amodsim.entity.RebalancingOnDemandVehicle;
 import cz.agents.basestructures.Node;
 import cz.agents.geotools.Transformer;
 import cz.agents.multimodalstructures.additional.ModeOfTransport;
@@ -74,8 +75,11 @@ public class MainModule extends StandardAgentPolisModule{
         bind(EntityStorage.class).to(VehicleStorage.class);
         bind(TripsUtil.class).to(TripsUtilCached.class);
         bind(DemandLayer.class).to(DemandLayerWithJitter.class);
+//        bind(OnDemandVehicleFactory.class).to(RebalancingOnDemandVehicleFactory.class);
 
-        install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, OnDemandVehicle.class)
+//        install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, OnDemandVehicle.class)
+//            .build(OnDemandVehicleFactory.class));
+        install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, RebalancingOnDemandVehicle.class)
             .build(OnDemandVehicleFactory.class));
         install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, OnDemandVehicleStation.class)
             .build(OnDemandVehicleStationFactory.class));

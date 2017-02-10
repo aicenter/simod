@@ -22,9 +22,11 @@ public class EdgesToJson {
         Config config = new Configuration().load();
 
 //        Graph<RoadNode, RoadEdge> roadGraph = OsmUtil.getHigwayGraph(new File(config.mapFilePath), config.srid);
-        Graph<SimulationNode, SimulationEdge> roadGraph 
-                = OsmUtil.getSimulationGraph(new File(config.mapFilePath), config.srid);
-        OsmUtil.edgesToJson(roadGraph, new File(config.agentpolis.edgesFilePath));
-        OsmUtil.edgePairsToJson(roadGraph, new File(config.agentpolis.edgePairsFilePath));
+
+// TODO - modify OsmUtilTo Support new MapInitializer
+//        Graph<SimulationNode, SimulationEdge> roadGraph 
+//                = OsmUtil.getSimulationGraph(new File(config.mapFilePath), config.srid);
+//        OsmUtil.edgesToJson(roadGraph, new File(config.agentpolis.edgesFilePath));
+//        OsmUtil.edgePairsToJson(roadGraph, new File(config.agentpolis.edgePairsFilePath));
     }
 }

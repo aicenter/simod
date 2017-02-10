@@ -23,10 +23,12 @@ import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simmodel.environment.model.entityvelocitymodel.EntityVelocityModel;
 import cz.agents.agentpolis.simulator.visualization.visio.entity.EntityPositionUtil;
+import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
 import cz.agents.agentpolis.utils.VelocityConverter;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandler;
 import cz.agents.alite.common.event.EventProcessor;
+import cz.agents.basestructures.GPSLocation;
 import cz.agents.basestructures.Node;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,30 +50,34 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
     
     
     
-    private final Vehicle vehicle;
+    protected final Vehicle vehicle;
     
-    private final DriveVehicleActivity driveVehicleActivity;
+    protected final DriveVehicleActivity driveVehicleActivity;
     
-    private final Map<Long,Node> nodesMappedByNodeSourceIds;
+    protected final Map<Long,Node> nodesMappedByNodeSourceIds;
     
-    private final TripsUtil tripsUtil;
+    protected final TripsUtil tripsUtil;
     
-    private final VehiclePositionModel vehiclePositionModel;
+    protected final VehiclePositionModel vehiclePositionModel;
     
     private final boolean precomputedPaths;
     
-    private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
+    protected final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
-    private final EntityPositionUtil entityPositionUtil;
+    protected final EntityPositionUtil entityPositionUtil;
+    
+    private final VehiclePositionUtil vehiclePositionUtil;
     
     
     private List<Node> demandNodes;
     
-    private OnDemandVehicleState state;
+    protected OnDemandVehicleState state;
     
-    private OnDemandVehicleStation targetStation;
+    protected OnDemandVehicleStation departureStation;
     
-    private VehicleTrip currentTrip;
+    protected OnDemandVehicleStation targetStation;
+    
+    protected VehicleTrip currentTrip;
     
     private VehicleTrip demandTrip;
 	
@@ -79,11 +85,11 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
 	
 	private VehicleTrip completeTrip;
     
-    private int metersWithPassenger;
+    protected int metersWithPassenger;
     
-    private int metersToStartLocation;
+    protected int metersToStartLocation;
     
-    private int metersToStation;
+    protected int metersToStation;
     
     private int metersRebalancing;
     
@@ -93,7 +99,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
         return currentTrip;
     }
 
-    public VehicleTrip getDemandTrip() {
+    public VehicleTrip getDemandTrip(DemandAgent agent) {
         return demandTrip.clone();
     }
 
@@ -116,6 +122,11 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
     public int getMetersRebalancing() {
         return metersRebalancing;
     }
+
+    // remove in future to be more agent-like
+    public void setDepartureStation(OnDemandVehicleStation departureStation) {
+        this.departureStation = departureStation;
+    }
     
     
     
@@ -126,8 +137,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
             VehicleStorage vehicleStorage, EntityVelocityModel entityVelocityModel, 
             VehiclePositionModel vehiclePositionModel, TripsUtil tripsUtil, 
             OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EntityPositionUtil entityPositionUtil,
-            @Named("precomputedPaths") boolean precomputedPaths, @Assisted String vehicleId, 
-            @Assisted Node startPosition) {
+            VehiclePositionUtil vehiclePositionUtil, @Named("precomputedPaths") boolean precomputedPaths, 
+            @Assisted String vehicleId, @Assisted Node startPosition) {
         super(vehicleId + " - autonomus agent", DemandSimulationEntityType.ON_DEMAND_VEHICLE);
         this.driveVehicleActivity = driveVehicleActivity;
         this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
@@ -136,6 +147,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
         this.precomputedPaths = precomputedPaths;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.entityPositionUtil = entityPositionUtil;
+        this.vehiclePositionUtil = vehiclePositionUtil;
         
         vehicle = new Vehicle(vehicleId + " - vehicle", DemandSimulationEntityType.VEHICLE, LENGTH, CAPACITY, EGraphType.HIGHWAY);
         
@@ -166,7 +178,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
 
     @Override
     public void handleEvent(Event event) {
-        List<Long> locations = (List<Long>) event.getContent();
+        List<Long> locations = ((cz.agents.amodsim.DemandData) event.getContent()).locations;
         demandNodes = new ArrayList<>();
 		if(precomputedPaths){
 			for (Long location : locations) {
@@ -196,9 +208,9 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
         }
     }
 
-    private void driveToDemandStartLocation() {
+    protected void driveToDemandStartLocation() {
         
-        if(vehiclePositionModel.getEntityPositionByNodeId(vehicle.getId()) ==  demandNodes.get(0).getId()){
+        if(vehiclePositionModel.getEntityPositionByNodeId(vehicle.getId()) == demandNodes.get(0).getId()){
 			currentTrip = null;
 		}
 		else{
@@ -235,20 +247,23 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
 		}
 		
 		state = OnDemandVehicleState.DRIVING_TO_START_LOCATION;
-//				
+				
 		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
     }
 
     
 
-    private void driveToTargetLocation() {
+    protected void driveToTargetLocation() {
         state = OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION;
+        
+        departureStation.departure(this);
+        
         currentTrip = demandTrip;
 				
 		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
     }
 
-    private void driveToNearestStation() {
+    protected void driveToNearestStation() {
 		if(tripToStation == null){
 			waitInStation();
 			return;
@@ -261,7 +276,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
 		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
     }
 
-    private void waitInStation() {
+    protected void waitInStation() {
         state = OnDemandVehicleState.WAITING;
 		completeTrip = null;
         targetStation.parkVehicle(this);
@@ -296,8 +311,11 @@ public class OnDemandVehicle extends Agent implements EventHandler, DrivingFinis
     public Vehicle getVehicle() {
         return vehicle;
     }
-    
-    
+
+    public GPSLocation getPosition() {
+        return vehiclePositionUtil.getEntityNodePosition(vehicle);
+    }
+
     
     
     public interface OnDemandVehicleFactory {

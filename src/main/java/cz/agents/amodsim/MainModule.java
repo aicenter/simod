@@ -5,6 +5,7 @@
  */
 package cz.agents.amodsim;
 
+import cz.agents.agentpolis.siminfrastructure.Log;
 import com.google.common.collect.Sets;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -21,7 +22,7 @@ import cz.agents.amodsim.tripUtil.TripsUtil;
 import cz.agents.amodsim.tripUtil.TripsUtilCached;
 import cz.agents.amodsim.visio.DemandLayer;
 import cz.agents.amodsim.visio.DemandLayerWithJitter;
-import cz.agents.amodsim.visio.DemandsVisioInitializer;
+import cz.agents.amodsim.visio.AmodsimVisioInItializer;
 import cz.agents.agentpolis.simmodel.environment.StandardAgentPolisModule;
 import cz.agents.agentpolis.simmodel.environment.model.EntityPositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.EntityStorage;
@@ -31,7 +32,7 @@ import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwor
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
 import cz.agents.agentpolis.simulator.visualization.visio.VisioInitializer;
 import cz.agents.amodsim.config.Config;
-import cz.agents.amodsim.entity.RebalancingOnDemandVehicle;
+import cz.agents.amodsim.entity.RideSharingOnDemandVehicle;
 import cz.agents.basestructures.Node;
 import cz.agents.geotools.Transformer;
 import cz.agents.multimodalstructures.additional.ModeOfTransport;
@@ -58,7 +59,7 @@ public class MainModule extends StandardAgentPolisModule{
 
     @Override
     protected void bindVisioInitializer() {
-        bind(VisioInitializer.class).to(DemandsVisioInitializer.class);
+        bind(VisioInitializer.class).to(AmodsimVisioInItializer.class);
     }
 
     @Override
@@ -79,7 +80,7 @@ public class MainModule extends StandardAgentPolisModule{
 
 //        install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, OnDemandVehicle.class)
 //            .build(OnDemandVehicleFactory.class));
-        install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, RebalancingOnDemandVehicle.class)
+        install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, RideSharingOnDemandVehicle.class)
             .build(OnDemandVehicleFactory.class));
         install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, OnDemandVehicleStation.class)
             .build(OnDemandVehicleStationFactory.class));

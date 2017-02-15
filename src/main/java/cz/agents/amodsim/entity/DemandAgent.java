@@ -12,12 +12,8 @@ import cz.agents.amodsim.event.OnDemandVehicleStationsCentralEvent;
 import cz.agents.amodsim.io.TimeTrip;
 import cz.agents.amodsim.storage.DemandStorage;
 import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
-import cz.agents.agentpolis.simmodel.agent.Agent;
-import cz.agents.agentpolis.simmodel.agent.activity.movement.RideInVehicleActivity;
-import cz.agents.agentpolis.simmodel.agent.activity.movement.callback.PassengerActivityCallback;
+import cz.agents.agentpolis.simmodel.Agent;
 import cz.agents.agentpolis.simmodel.entity.vehicle.Vehicle;
-import cz.agents.agentpolis.simmodel.environment.model.AgentPositionModel;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandler;
 import cz.agents.alite.common.event.EventProcessor;
@@ -28,8 +24,7 @@ import java.util.Map;
  *
  * @author F-I-D-O
  */
-public class DemandAgent extends Agent implements EventHandler, 
-        PassengerActivityCallback<VehicleTrip>{
+public class DemandAgent extends Agent implements EventHandler {
 	
 	private final TimeTrip<Long> osmNodeTrip;
     
@@ -39,11 +34,7 @@ public class DemandAgent extends Agent implements EventHandler,
     
     private final EventProcessor eventProcessor;
     
-    private final RideInVehicleActivity rideAsPassengerActivity;
-    
     private final DemandStorage demandStorage;
-    
-    private final AgentPositionModel agentPositionModel;
     
     private final Map<Long,Node> nodesMappedByNodeSourceIds;
     
@@ -78,8 +69,7 @@ public class DemandAgent extends Agent implements EventHandler,
     
     @Inject
 	public DemandAgent(OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
-            RideInVehicleActivity rideAsPassengerActivity, DemandStorage demandStorage, 
-            AgentPositionModel agentPositionModel, Map<Long,Node> nodesMappedByNodeSourceIds, 
+            DemandStorage demandStorage, Map<Long,Node> nodesMappedByNodeSourceIds, 
             @Named("precomputedPaths") boolean precomputedPaths, @Assisted String agentId,
             @Assisted TimeTrip<Long> osmNodeTrip) {
 		super(agentId, DemandSimulationEntityType.DEMAND);
@@ -87,9 +77,7 @@ public class DemandAgent extends Agent implements EventHandler,
 		this.precomputedPaths = precomputedPaths;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.eventProcessor = eventProcessor;
-        this.rideAsPassengerActivity = rideAsPassengerActivity;
         this.demandStorage = demandStorage;
-        this.agentPositionModel = agentPositionModel;
         this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
         state = DemandAgentState.WAITING;
 	}
@@ -100,8 +88,7 @@ public class DemandAgent extends Agent implements EventHandler,
 	@Override
 	public void born() {
         demandStorage.addEntity(this);
-        agentPositionModel.setNewEntityPosition(
-                this.getId(), nodesMappedByNodeSourceIds.get(osmNodeTrip.getLocations().get(0)).getId());
+        setPosition(nodesMappedByNodeSourceIds.get(osmNodeTrip.getLocations().get(0)));
 		eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.DEMAND, onDemandVehicleStationsCentral, null, 
                 new DemandData(osmNodeTrip.getLocations(), this));
 	}
@@ -126,27 +113,16 @@ public class DemandAgent extends Agent implements EventHandler,
     @Override
     public void handleEvent(Event event) {
         onDemandVehicle = (OnDemandVehicle) event.getContent();
-        vehicle = onDemandVehicle.getVehicle();
-        rideAsPassengerActivity.usingVehicleAsPassenger(this.getId(), onDemandVehicle.getVehicleId(), 
-                onDemandVehicle.getDemandTrip(this), this);
+//        vehicle = onDemandVehicle.getVehicle();
+//        rideAsPassengerActivity.usingVehicleAsPassenger(this.getId(), onDemandVehicle.getVehicleId(), 
+//                onDemandVehicle.getDemandTrip(this), this);
     }
 
-    @Override
-    public void doneFullTrip() {
+
+    public void tripEnded() {
         die();
     }
 
-    @Override
-    public void donePartTrip(VehicleTrip partNotDoneTrip) {
-        die();
-    }
-
-    @Override
-    public void tripFail(VehicleTrip failedTrip) {
-        die();
-    }
-
-    @Override
     public void tripStarted() {
         state = DemandAgentState.RIDING;
     }

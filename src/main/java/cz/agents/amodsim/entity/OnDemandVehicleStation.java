@@ -154,8 +154,9 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         }
         
         OnDemandVehicle vehicle = getVehicle(startLocation, targetLocation);
-        vehicle.setDepartureStation(this);
+        
         if(vehicle != null){
+            vehicle.setDepartureStation(this);
             eventProcessor.addEvent(null, vehicle, null, demandData);
             eventProcessor.addEvent(null, demandData.demandAgent, null, vehicle);
         }
@@ -165,13 +166,13 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         OnDemandVehicle vehicle = getVehicle(this.getPositionInGraph(), 
                 rebalancingTrip.getLocations().getLast().getPositionInGraph());
         if(vehicle != null){
-            if(rebalancingTrip.getLocations().getLast() == this){
-                System.out.println("com.mycompany.testsim.entity.OnDemandVehicleStation.rebalance()");
-            }
-            if(rebalancingTrip.getLocations().getLast().getPositionInGraph().getId()
-                    == vehiclePositionModel.getEntityPositionByNodeId(vehicle.getVehicleId())){
-                System.out.println("com.mycompany.testsim.entity.OnDemandVehicleStation.rebalance()");
-            }
+//            if(rebalancingTrip.getLocations().getLast() == this){
+//                System.out.println("com.mycompany.testsim.entity.OnDemandVehicleStation.rebalance()");
+//            }
+//            if(rebalancingTrip.getLocations().getLast().getPositionInGraph().getId()
+//                    == vehiclePositionModel.getEntityPositionByNodeId(vehicle.getVehicleId())){
+//                System.out.println("com.mycompany.testsim.entity.OnDemandVehicleStation.rebalance()");
+//            }
 //            if(this.getPositionInGraph() = vehicle)
             vehicle.driveToStation(rebalancingTrip.getLocations().getLast());
         }

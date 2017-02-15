@@ -8,7 +8,7 @@ package cz.agents.amodsim.io;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.agents.amodsim.Log;
+import cz.agents.agentpolis.siminfrastructure.Log;
 import cz.agents.amodsim.entity.OnDemandVehicleStation;
 import cz.agents.amodsim.entity.OnDemandVehicleStation.OnDemandVehicleStationFactory;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;

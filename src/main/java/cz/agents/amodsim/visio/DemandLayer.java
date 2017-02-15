@@ -7,11 +7,10 @@ package cz.agents.amodsim.visio;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.amodsim.entity.DemandAgent;
 import cz.agents.amodsim.entity.DemandAgentState;
 import cz.agents.amodsim.storage.DemandStorage;
-import cz.agents.agentpolis.simulator.visualization.visio.entity.AgentPositionUtil;
-import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
 import cz.agents.alite.vis.Vis;
 import cz.agents.alite.vis.layer.AbstractLayer;
 import java.awt.Color;
@@ -33,21 +32,17 @@ public class DemandLayer extends AbstractLayer{
     
     
     
-    protected final AgentPositionUtil entityPostitionUtil;
+    protected final PositionUtil positionUtil;
     
     private final DemandStorage demandStorage;
-    
-    private final VehiclePositionUtil vehiclePositionUtil;
     
 
     
     
     @Inject
-    public DemandLayer(AgentPositionUtil postitionUtil, DemandStorage demandStorage, 
-            VehiclePositionUtil vehiclePositionUtil) {
-        this.entityPostitionUtil = postitionUtil;
+    public DemandLayer(PositionUtil postitionUtil, DemandStorage demandStorage) {
+        this.positionUtil = postitionUtil;
         this.demandStorage = demandStorage;
-        this.vehiclePositionUtil = vehiclePositionUtil;
     }
     
     @Override
@@ -74,12 +69,11 @@ public class DemandLayer extends AbstractLayer{
     }
     
     protected Point2d getDrivingAgentPosition(DemandAgent demandAgent){
-        return vehiclePositionUtil.getVehicleCanvasPositionInterpolated(
-                        demandAgent.getVehicle(), demandAgent.getOnDemandVehicle());
+        return positionUtil.getCanvasPositionInterpolated(demandAgent.getOnDemandVehicle());
     }
     
     protected Point2d getWaitingAgentPosition(DemandAgent demandAgent, Dimension drawingDimension){
-        return entityPostitionUtil.getEntityCanvasPosition(demandAgent);
+        return positionUtil.getCanvasPosition(demandAgent.getPosition());
     }
 
     private void drawDemand(Point2d demandPosition, Graphics2D canvas, Dimension dim) {

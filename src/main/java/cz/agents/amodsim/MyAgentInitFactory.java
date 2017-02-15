@@ -6,7 +6,7 @@
 package cz.agents.amodsim;
 
 import com.google.inject.Injector;
-import cz.agents.agentpolis.simmodel.agent.Agent;
+import cz.agents.agentpolis.simmodel.Agent;
 import cz.agents.agentpolis.simulator.creator.initializator.AgentInitFactory;
 import java.util.ArrayList;
 import java.util.List;

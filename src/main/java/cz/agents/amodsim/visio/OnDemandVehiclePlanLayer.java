@@ -4,10 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.agents.amodsim.entity.OnDemandVehicle;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
-import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
-import cz.agents.agentpolis.simulator.visualization.visio.entity.AgentPositionUtil;
-import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
 import cz.agents.basestructures.Node;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -27,9 +24,8 @@ public class OnDemandVehiclePlanLayer extends PlanLayer<OnDemandVehicle>{
     private static final int SIZE = 3;
 	
 	@Inject
-	public OnDemandVehiclePlanLayer(OnDemandVehicleStorage entityStorage, AgentPositionUtil agentPositionUtil,
-			PositionUtil positionUtil, VehiclePositionUtil vehiclePositionUtil1) {
-		super(entityStorage, agentPositionUtil, positionUtil, vehiclePositionUtil1);
+	public OnDemandVehiclePlanLayer(OnDemandVehicleStorage entityStorage, PositionUtil positionUtil) {
+		super(entityStorage, positionUtil);
 	}
 
 	@Override

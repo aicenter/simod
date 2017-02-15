@@ -5,6 +5,7 @@ import cz.agents.amodsim.entity.OnDemandVehicle;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
 import cz.agents.amodsim.visio.OnDemandVehicleLayer;
 import cz.agents.agentpolis.simmodel.entity.AgentPolisEntity;
+import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.agentpolis.simulator.visualization.visio.entity.AgentPositionUtil;
 import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
 import java.awt.Color;
@@ -29,9 +30,9 @@ public class RandomColorOnDemandVehicleLayer extends OnDemandVehicleLayer{
     
     
     
-    public RandomColorOnDemandVehicleLayer(VehiclePositionUtil entityPostitionUtil, 
+    public RandomColorOnDemandVehicleLayer(PositionUtil postitionUtil, 
             OnDemandVehicleStorage vehicleStorage) {
-        super(entityPostitionUtil, vehicleStorage);
+        super(vehicleStorage, postitionUtil);
         this.random = new Random();
         agentColors = new HashMap<>();
     }

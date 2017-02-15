@@ -9,12 +9,12 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
+import cz.agents.agentpolis.simmodel.activity.activityFactory.DriveActivityFactory;
 import cz.agents.agentpolis.simmodel.agent.activity.movement.DriveVehicleActivity;
 import cz.agents.agentpolis.simmodel.environment.model.VehiclePositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.entityvelocitymodel.EntityVelocityModel;
-import cz.agents.agentpolis.simulator.visualization.visio.entity.EntityPositionUtil;
-import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
+import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.common.event.Event;
 import cz.agents.amodsim.OnDemandVehicleStationsCentral;
 import cz.agents.amodsim.tripUtil.TripsUtil;
@@ -28,30 +28,39 @@ import java.util.Map;
  *
  * @author fido
  */
-public class RebalancingOnDemandVehicle extends OnDemandVehicle{
+public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     
     private final LinkedList<Node> startNodes;
     
     private final LinkedList<Node> targetNodes;
     
+    private final LinkedList<DemandData> demands;
+    
+    private final LinkedList<DemandData> pickedDemands;
+    
     private final Map<DemandAgent,DemandData> demandsData;
     
-    private Node target;
+    private final PositionUtil positionUtil;
+    
+    private DemandData currentlyServedDemmand;
     
     
     @Inject
-    public RebalancingOnDemandVehicle(DriveVehicleActivity driveVehicleActivity, Map<Long,Node> nodesMappedByNodeSourceIds, 
+    public RideSharingOnDemandVehicle(DriveVehicleActivity driveVehicleActivity, Map<Long,Node> nodesMappedByNodeSourceIds, 
             VehicleStorage vehicleStorage, EntityVelocityModel entityVelocityModel, 
             VehiclePositionModel vehiclePositionModel, TripsUtil tripsUtil, 
-            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EntityPositionUtil entityPositionUtil,
-            VehiclePositionUtil vehiclePositionUtil, @Named("precomputedPaths") boolean precomputedPaths, 
+            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, DriveActivityFactory driveActivityFactory, 
+            PositionUtil positionUtil, @Named("precomputedPaths") boolean precomputedPaths, 
             @Assisted String vehicleId, @Assisted Node startPosition) {
         super(driveVehicleActivity, nodesMappedByNodeSourceIds, vehicleStorage, entityVelocityModel,
-                vehiclePositionModel, tripsUtil, onDemandVehicleStationsCentral, entityPositionUtil, vehiclePositionUtil,
-                precomputedPaths, vehicleId, startPosition);
+                vehiclePositionModel, tripsUtil, onDemandVehicleStationsCentral,
+                driveActivityFactory, positionUtil, precomputedPaths, vehicleId, startPosition);
+        this.positionUtil = positionUtil;
         startNodes = new LinkedList<>();
         targetNodes = new LinkedList<>();
         demandsData = new HashMap<>();
+        demands = new LinkedList<>();
+        pickedDemands = new LinkedList<>();
     }
     
         
@@ -72,7 +81,8 @@ public class RebalancingOnDemandVehicle extends OnDemandVehicle{
         
         // for the UseVehicleAsPassangerAction
         VehicleTrip demandTrip = tripsUtil.createTrip(startNode.id, targetNode.id, vehicle);
-        demandsData.put(demandData.demandAgent, new DemandData(demandData.demandAgent, demandTrip));
+//        demandsData.put(demandData.demandAgent, new DemandData(demandData.demandAgent, demandTrip));
+        demands.add(new DemandData(demandData.demandAgent, demandTrip));
         
         if(state == OnDemandVehicleState.WAITING){
             state = OnDemandVehicleState.DRIVING_TO_START_LOCATION;
@@ -83,65 +93,76 @@ public class RebalancingOnDemandVehicle extends OnDemandVehicle{
 
     @Override
     protected void driveToDemandStartLocation() {
-        if(vehiclePositionModel.getEntityPositionByNodeId(vehicle.getId()) == target.getId()){
+        if(getPosition().id == currentlyServedDemmand.getStartNodeId()){
 			finishedDriving();
             return;
 		}
 		else{
-			currentTrip = tripsUtil.createTrip(vehiclePositionModel.getEntityPositionByNodeId(vehicle.getId()), 
-                target.getId(), vehicle);
-            metersToStartLocation += entityPositionUtil.getTripLengthInMeters(currentTrip);
+			currentTrip = tripsUtil.createTrip(getPosition().id, 
+                currentlyServedDemmand.getStartNodeId(), vehicle);
+            metersToStartLocation += positionUtil.getTripLengthInMeters(currentTrip);
 		}
 
-		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
+//		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
+        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
     }
 
     @Override
     protected void driveToTargetLocation() {
-        currentTrip = tripsUtil.createTrip(vehiclePositionModel.getEntityPositionByNodeId(vehicle.getId()), 
-                target.getId(), vehicle);
+        currentlyServedDemmand.getDemandAgent().tripStarted();
+        if(getPosition().id == currentlyServedDemmand.getTargetNodeId()){
+			finishedDriving();
+            return;
+		}
         
-        metersWithPassenger += entityPositionUtil.getTripLengthInMeters(currentTrip);
+        currentTrip = tripsUtil.createTrip(getPosition().id, 
+                currentlyServedDemmand.getTargetNodeId(), vehicle);
+        
+        metersWithPassenger += positionUtil.getTripLengthInMeters(currentTrip);
 				
-		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
+//		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
+        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
     }
 
     @Override
     protected void driveToNearestStation() {
-        targetStation = onDemandVehicleStationsCentral.getNearestStation(target);
+        targetStation = onDemandVehicleStationsCentral.getNearestStation(getPosition());
 		
-		if(target.getId() == targetStation.getPositionInGraph().getId()){
+		if(getPosition().equals(targetStation.getPositionInGraph())){
 			currentTrip = null;
 		}
 		else{
-			currentTrip = tripsUtil.createTrip(target.getId(), 
+			currentTrip = tripsUtil.createTrip(getPosition().id, 
 					targetStation.getPositionInGraph().getId(), vehicle);
-            metersToStation += entityPositionUtil.getTripLengthInMeters(currentTrip);
+            metersToStation += positionUtil.getTripLengthInMeters(currentTrip);
 		}
         
         if(currentTrip == null){
 			finishedDriving();
 			return;
 		}
-		
-        
-				
-		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
+
+//		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
+        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
     }
     
     
 
     // change to find the nearest
     private void chooseTarget() {
-        LinkedList<Node> collection = startNodes.isEmpty() ? targetNodes : startNodes;
-        target = collection.poll();
+//        LinkedList<Node> collection = startNodes.isEmpty() ? targetNodes : startNodes;
+//        target = collection.poll();
+        LinkedList<DemandData> collection = demands.isEmpty() ? pickedDemands : demands;
+        currentlyServedDemmand = collection.poll();
     }
 
     @Override
     public void finishedDriving() {
         switch(state){
             case DRIVING_TO_START_LOCATION:
-                boolean departure = startNodes.isEmpty();
+                cargo.add(currentlyServedDemmand.demandAgent);
+                pickedDemands.add(currentlyServedDemmand);
+                boolean departure = demands.isEmpty();
                 chooseTarget();
                 if(departure){
                     state = OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION;
@@ -153,8 +174,10 @@ public class RebalancingOnDemandVehicle extends OnDemandVehicle{
                 }
                 break;
             case DRIVING_TO_TARGET_LOCATION:
+                cargo.remove(currentlyServedDemmand.demandAgent);
+                currentlyServedDemmand.demandAgent.tripEnded();
                 chooseTarget();
-                if(target == null){
+                if(currentlyServedDemmand == null){
                     state = OnDemandVehicleState.DRIVING_TO_STATION;
                     driveToNearestStation();
                 }
@@ -197,7 +220,13 @@ public class RebalancingOnDemandVehicle extends OnDemandVehicle{
             this.demandTrip = demandTrip;
         }
         
+        public int getStartNodeId(){
+            return demandTrip.getLocations().getFirst().tripPositionByNodeId;
+        }
         
+        public int getTargetNodeId(){
+            return demandTrip.getLocations().getLast().tripPositionByNodeId;
+        }
         
     }
     

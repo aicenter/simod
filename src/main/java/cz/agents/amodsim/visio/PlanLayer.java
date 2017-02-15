@@ -51,10 +51,6 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
 	
 	
     protected final OnDemandVehicleStorage entityStorage;
-	
-	protected final AgentPositionUtil entityPositionUtil;
-    
-    protected final VehiclePositionUtil vehiclePositionUtil;
     
     protected final PositionUtil positionUtil;
 	
@@ -64,11 +60,8 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
     
     
     @Inject
-    public PlanLayer(OnDemandVehicleStorage entityStorage, AgentPositionUtil entityPositionUtil, 
-            PositionUtil positionUtil, VehiclePositionUtil vehiclePositionUtil) {
+    public PlanLayer(OnDemandVehicleStorage entityStorage, PositionUtil positionUtil) {
         this.entityStorage = entityStorage;
-		this.entityPositionUtil = entityPositionUtil;
-        this.vehiclePositionUtil = vehiclePositionUtil;
 		this.positionUtil = positionUtil;
 		drawedEntities = new ArrayList<>();
     }
@@ -142,10 +135,9 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
 
             if (entityStorage.isEmpty() == false) {
 				OnDemandVehicle closestAgent = (OnDemandVehicle) Collections.min(entityStorage.getEntities(),
-						new NearestVehicleComparator(vehiclePositionUtil, click));
+						new NearestVehicleComparator(positionUtil, click));
 
-                if (vehiclePositionUtil.getVehicleCanvasPositionInterpolated(closestAgent.getVehicle(), closestAgent)
-                        .distance(click) <= CLICK_DISTANCE_IN_PX) {
+                if (positionUtil.getCanvasPositionInterpolated(closestAgent).distance(click) <= CLICK_DISTANCE_IN_PX) {
                     switchDrawPlan((E) closestAgent);
                 }
             }

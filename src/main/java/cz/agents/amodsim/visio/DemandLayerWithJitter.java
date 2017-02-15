@@ -10,8 +10,6 @@ import com.google.inject.Singleton;
 import cz.agents.amodsim.entity.DemandAgent;
 import cz.agents.amodsim.storage.DemandStorage;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
-import cz.agents.agentpolis.simulator.visualization.visio.entity.AgentPositionUtil;
-import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
 import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Random;
@@ -29,8 +27,6 @@ public class DemandLayerWithJitter extends DemandLayer{
     
     
     
-    private final PositionUtil postitionUtil;
-    
     private final HashMap<DemandAgent,Point2d> waitingAgentCachedPosition;
     
     private final Random random;
@@ -39,17 +35,15 @@ public class DemandLayerWithJitter extends DemandLayer{
     
     
     @Inject
-    public DemandLayerWithJitter(AgentPositionUtil agentPostitionUtil, DemandStorage demandStorage, 
-            VehiclePositionUtil vehiclePositionUtil, PositionUtil postitionUtil) {
-        super(agentPostitionUtil, demandStorage, vehiclePositionUtil);
-        this.postitionUtil = postitionUtil;
+    public DemandLayerWithJitter(PositionUtil postitionUtil, DemandStorage demandStorage) {
+        super(postitionUtil, demandStorage);
         waitingAgentCachedPosition = new HashMap<>();
         random = new Random();
     }
 
     @Override
     protected Point2d getWaitingAgentPosition(DemandAgent demandAgent, Dimension drawingDimension) {
-        Point2d agentPosition =  entityPostitionUtil.getEntityPosition(demandAgent); 
+        Point2d agentPosition =  positionUtil.getPosition(demandAgent.getPosition()); 
         Point2d agentJitter;
         if(waitingAgentCachedPosition.containsKey(demandAgent)){
             agentJitter = waitingAgentCachedPosition.get(demandAgent);
@@ -61,7 +55,7 @@ public class DemandLayerWithJitter extends DemandLayer{
         
         jitte(agentPosition, agentJitter);
         
-        return postitionUtil.getCanvasPosition(agentPosition);
+        return positionUtil.getCanvasPosition(agentPosition);
     }
 
     @Override

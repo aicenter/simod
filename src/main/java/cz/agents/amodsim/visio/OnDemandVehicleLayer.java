@@ -7,7 +7,7 @@ import cz.agents.amodsim.entity.OnDemandVehicle;
 import cz.agents.amodsim.entity.OnDemandVehicleState;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.EntityStorage.EntityIterator;
-import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
+import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.vis.Vis;
 import cz.agents.alite.vis.layer.AbstractLayer;
 import java.awt.Color;
@@ -31,19 +31,17 @@ public class OnDemandVehicleLayer extends AbstractLayer{
     
 	
 	
-	
-	private final VehiclePositionUtil vehiclePositionUtil;
     
     private final OnDemandVehicleStorage onDemandVehicleStorage;
     
-    
+    private final PositionUtil positionUtil;
 
 	
 	
 	@Inject
-	public OnDemandVehicleLayer(VehiclePositionUtil vehiclePositionUtil, OnDemandVehicleStorage onDemandVehicleStorage) {
-		this.vehiclePositionUtil = vehiclePositionUtil;
+	public OnDemandVehicleLayer(OnDemandVehicleStorage onDemandVehicleStorage, PositionUtil positionUtil) {
         this.onDemandVehicleStorage = onDemandVehicleStorage;
+        this.positionUtil = positionUtil;
 	}
 
 	
@@ -61,10 +59,10 @@ public class OnDemandVehicleLayer extends AbstractLayer{
                 continue;
             }
             
-            Point2d agentPosition = vehiclePositionUtil.getVehicleCanvasPositionInterpolated(agent.getVehicle(), agent);
-            if(agentPosition == null){
-                continue;
-            }
+            Point2d agentPosition = positionUtil.getCanvasPositionInterpolated(agent);
+//            if(agentPosition == null){
+//                continue;
+//            }
 			drawAgent(agent, agentPosition, canvas, dim);
         }
     }

@@ -13,6 +13,7 @@ import numpy as np
 
 from scripts.config_loader import cfg as config
 from scripts.printer import print_info
+from traffic_load import TrafficDensityLevel
 import traffic_load
 
 
@@ -34,14 +35,14 @@ CRITICAL_DENSITY = config.critical_density
 
 def plot_edges_optimized(pairs, axis, loads=loads["ALL"], color_func=None):
     if color_func == None:
-        color_func = get_color;
+        color_func = get_level;
 
-    for color in traffic_load.COLOR_LIST:
+    for level in TrafficDensityLevel:
         colorType = {}
         colorType["xPairs"] = []
         colorType["yPairs"] = []
-        colorType["width"] = 1.0 if color == traffic_load.NORMAL_COLOR else 2.0
-        colorTypes[color] = colorType
+        colorType["width"] = 1.0 if level == TrafficDensityLevel.FREE else 2.0
+        colorTypes[level] = colorType
 
 
     for pair in itertools.islice(pairs, 0, 100000000):
@@ -65,10 +66,10 @@ def plot_edges_optimized(pairs, axis, loads=loads["ALL"], color_func=None):
             add_line(line1[0], line1[1], id1, color1)
             add_line(line2[0], line2[1], id2, color2)
 
-    for color in traffic_load.COLOR_LIST:
-        colorType = colorTypes[color]
+    for level in TrafficDensityLevel:
+        colorType = colorTypes[level]
         xList, yList = lines_to_list(colorType["xPairs"], colorType["yPairs"])
-        axis.plot(xList, yList, linewidth=colorType["width"], color=color)
+        axis.plot(xList, yList, linewidth=colorType["width"], color=level.color)
 
 
 def add_line(a, b, id, color):
@@ -95,9 +96,9 @@ def lines_to_list(xpairs, ypairs):
 #         return 'black'
 
 
-def new_congestion_color(loads_all, id, length, lane_count):
+def new_congestion_level(loads_all, id, length, lane_count):
     if length == 0:
-        return traffic_load.NORMAL_COLOR
+        return TrafficDensityLevel.FREE
     loads_passanger_trip = loads["DRIVING_TO_TARGET_LOCATION"]
     load_total_passanger_trip = 0
     load_total_all = 0
@@ -112,14 +113,14 @@ def new_congestion_color(loads_all, id, length, lane_count):
     average_load_passanger_trip = load_total_passanger_trip / (CHOSEN_WINDOW_END - CHOSEN_WINDOW_START)
     if traffic_load.get_normalized_load(average_load_all, length, lane_count) > CRITICAL_DENSITY \
         and traffic_load.get_normalized_load(average_load_passanger_trip, length, lane_count) <= CRITICAL_DENSITY:
-            return traffic_load.CONGESTED_COLOR
+            return TrafficDensityLevel.CONGESTED
     else:
-        return traffic_load.NORMAL_COLOR
+        return TrafficDensityLevel.FREE
 
 
-def get_color(loads, id, length, lane_count):
+def get_level(loads, id, length, lane_count):
     if length == 0:
-        return traffic_load.NORMAL_COLOR
+        return TrafficDensityLevel.FREE
     load_total = 0
     current_frame = CHOSEN_WINDOW_START
     while current_frame <= CHOSEN_WINDOW_END:
@@ -129,7 +130,8 @@ def get_color(loads, id, length, lane_count):
 
     average_load = load_total / (CHOSEN_WINDOW_END - CHOSEN_WINDOW_START)
 
-    return traffic_load.get_color_from_load(load=average_load, length=length, lane_count=lane_count)
+    # return traffic_load.get_color_from_load(load=average_load, length=length, lane_count=lane_count)
+    return TrafficDensityLevel.get_by_density(traffic_load.get_normalized_load(average_load, length, lane_count))
 
 
 def compute_shift(line, distance, direction):
@@ -204,7 +206,7 @@ print_info("plotting rebalancing load")
 plot_edges_optimized(pairs, axis[1][1], loads["REBALANCING"])
 
 print_info("plotting new congestion")
-plot_edges_optimized(pairs, axis[1][2], color_func=new_congestion_color)
+plot_edges_optimized(pairs, axis[1][2], color_func=new_congestion_level)
 
 
 

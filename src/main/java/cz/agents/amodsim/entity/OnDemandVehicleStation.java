@@ -127,12 +127,12 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 
     @Override
     public void handleEvent(Event event) {
-        OnDemandVehicleStationEvent eventType = (OnDemandVehicleStationEvent) event.getType();
-        switch(eventType){
-            case TRIP:
-                handleTripRequest((DemandData) event.getContent());
-                break;
-        }
+//        OnDemandVehicleStationEvent eventType = (OnDemandVehicleStationEvent) event.getType();
+//        switch(eventType){
+//            case TRIP:
+//                handleTripRequest((DemandData) event.getContent());
+//                break;
+//        }
     }
     
     public void parkVehicle(OnDemandVehicle onDemandVehicle){
@@ -144,7 +144,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     }
     
 
-    private void handleTripRequest(DemandData demandData) {
+    public void handleTripRequest(DemandData demandData) {
         Node startLocation = nodesMappedByNodeSourceIds.get(demandData.locations.get(0));
         Node targetLocation = nodesMappedByNodeSourceIds.get(demandData.locations.get(demandData.locations.size() - 1));
         
@@ -153,7 +153,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             return;
         }
         
-        OnDemandVehicle vehicle = getVehicle(startLocation, targetLocation);
+        OnDemandVehicle vehicle = getVehicle(startLocation, targetLocation, true);
         
         if(vehicle != null){
             vehicle.setDepartureStation(this);
@@ -162,9 +162,9 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         }
     }
 
-    public void rebalance(TimeTrip<OnDemandVehicleStation> rebalancingTrip) {
+    public boolean rebalance(TimeTrip<OnDemandVehicleStation> rebalancingTrip) {
         OnDemandVehicle vehicle = getVehicle(this.getPositionInGraph(), 
-                rebalancingTrip.getLocations().getLast().getPositionInGraph());
+                rebalancingTrip.getLocations().getLast().getPositionInGraph(), false);
         if(vehicle != null){
 //            if(rebalancingTrip.getLocations().getLast() == this){
 //                System.out.println("com.mycompany.testsim.entity.OnDemandVehicleStation.rebalance()");
@@ -175,6 +175,10 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 //            }
 //            if(this.getPositionInGraph() = vehicle)
             vehicle.driveToStation(rebalancingTrip.getLocations().getLast());
+            return true;
+        }
+        else{
+            return false;
         }
     }
     
@@ -182,28 +186,34 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         return parkedVehicles.isEmpty();
     }
 
-    private OnDemandVehicle getVehicle(Node startLocation, Node targetLocation) {
-        OnDemandVehicleStation targetStation 
-                = onDemandVehicleStationsCentral.getNearestStation(targetLocation);
-        NearestElementUtil<OnDemandVehicle> nearestElementUtil 
-                = getNearestElementUtilForVehiclesBeforeDeparture(targetStation);
-        
+    private OnDemandVehicle getVehicle(Node startLocation, Node targetLocation, boolean useRideSharing) {
         OnDemandVehicle nearestVehicle;
         
-        // ridesharing posibility test
-        if(nearestElementUtil != null){
-            nearestVehicle = nearestElementUtil.getNearestElement(startLocation);
+        OnDemandVehicleStation targetStation 
+                    = onDemandVehicleStationsCentral.getNearestStation(targetLocation);
+           
+        if(useRideSharing){
+            NearestElementUtil<OnDemandVehicle> nearestElementUtil 
+                    = getNearestElementUtilForVehiclesBeforeDeparture(targetStation);
         
-            // currently cartesian distance check only!
-            if(positionUtil.getPosition(nearestVehicle.getPosition()).distance(positionUtil.getPosition(startLocation))
-                < positionUtil.getPosition(positionInGraph).distance(positionUtil.getPosition(startLocation))){
-                // ridesharing successfully locked
-                return nearestVehicle;
+            // ridesharing posibility test
+            if(nearestElementUtil != null){
+                nearestVehicle = nearestElementUtil.getNearestElement(startLocation);
+
+                // currently cartesian distance check only!
+                if(positionUtil.getPosition(nearestVehicle.getPosition()).distance(positionUtil.getPosition(startLocation))
+                    < positionUtil.getPosition(positionInGraph).distance(positionUtil.getPosition(startLocation))){
+                    // ridesharing successfully locked
+                    return nearestVehicle;
+                }
             }
         }
 
         nearestVehicle = parkedVehicles.poll();
-        departureCards.add(new DepartureCard(nearestVehicle, targetStation));
+        
+        if(useRideSharing && nearestVehicle != null){
+            departureCards.add(new DepartureCard(nearestVehicle, targetStation));
+        }
         
         return nearestVehicle;
     }
@@ -229,7 +239,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         }
     }
     
-    public void departure(OnDemandVehicle onDemandVehicle){
+    public void release(OnDemandVehicle onDemandVehicle){
         Iterator<DepartureCard> iterator = departureCards.iterator();
         while(iterator.hasNext()){
             DepartureCard departureCard = iterator.next();

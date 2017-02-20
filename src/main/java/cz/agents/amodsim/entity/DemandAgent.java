@@ -19,6 +19,8 @@ import cz.agents.alite.common.event.EventHandler;
 import cz.agents.alite.common.event.EventProcessor;
 import cz.agents.basestructures.Node;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -120,6 +122,13 @@ public class DemandAgent extends Agent implements EventHandler {
 
 
     public void tripEnded() {
+        if(!getPosition().equals(nodesMappedByNodeSourceIds.get(osmNodeTrip.getLocations().getLast()))){
+            try {
+                throw new Exception("Demand not served properly");
+            } catch (Exception ex) {
+                Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         die();
     }
 

@@ -50,6 +50,8 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     private int numberOfDemandsDropped;
     
     private int demandsCount;
+    
+    private int rebalancingDropped;
 
     
     
@@ -65,9 +67,10 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     public int getDemandsCount() {
         return demandsCount;
     }
-    
-    
-    
+
+    public int getNumberOfRebalancingDropped() {
+        return rebalancingDropped;
+    }
     
     
     
@@ -83,6 +86,7 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
         numberOfDemandsNotServedFromNearestStation = 0;
         numberOfDemandsDropped = 0;
         demandsCount = 0;
+        rebalancingDropped = 0;
     }
 
     
@@ -163,7 +167,8 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
         Node startNode = nodesMappedByNodeSourceIds.get(locations.get(0));
         OnDemandVehicleStation nearestStation = getNearestReadyStation(startNode); 
         if(nearestStation != null){
-            eventProcessor.addEvent(OnDemandVehicleStationEvent.TRIP, nearestStation, null, demandData);
+//            eventProcessor.addEvent(OnDemandVehicleStationEvent.TRIP, nearestStation, null, demandData);
+            nearestStation.handleTripRequest(demandData);
         }
         else{
             numberOfDemandsDropped++;
@@ -173,7 +178,10 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     private void serveRebalancing(Event event) {
         TimeTrip<OnDemandVehicleStation> rebalancingTrip = (TimeTrip<OnDemandVehicleStation>) event.getContent();
         OnDemandVehicleStation sourceStation = rebalancingTrip.getLocations().peek();
-        sourceStation.rebalance(rebalancingTrip);
+        boolean success = sourceStation.rebalance(rebalancingTrip);
+        if(!success){
+            rebalancingDropped++;
+        }
     }
 
     private int getNumberOfstations() {

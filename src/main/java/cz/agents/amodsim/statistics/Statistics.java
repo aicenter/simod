@@ -67,7 +67,6 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     
     
     
-    
     @Inject
     public Statistics(EventProcessor eventProcessor, Provider<EdgesLoadByState> allEdgesLoadProvider, 
             OnDemandVehicleStorage onDemandVehicleStorage, 
@@ -114,7 +113,8 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
                 averageKmToStartLocation, averageKmToStation, averageKmRebalancing, 
                 onDemandVehicleStationsCentral.getNumberOfDemandsNotServedFromNearestStation(), 
                 onDemandVehicleStationsCentral.getNumberOfDemandsDropped(), 
-                onDemandVehicleStationsCentral.getDemandsCount(), numberOfVehicles);
+                onDemandVehicleStationsCentral.getDemandsCount(), numberOfVehicles,
+                onDemandVehicleStationsCentral.getNumberOfRebalancingDropped());
         
         ObjectMapper mapper = new ObjectMapper();
 		
@@ -149,7 +149,10 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
         }
         
         int edgeLoadTotal = 0;
-        for (int edgeLoad : allEdgesLoad.loadsIterator) {
+        
+//        ArrayList<Integer> test = allEdgesLoad.test;
+        
+        for (Integer edgeLoad : (Iterable<Integer>) allEdgesLoad.loadsIterable) {
             edgeLoadTotal += edgeLoad;
             if(edgeLoad > maxLoad){
                 maxLoad = edgeLoad;

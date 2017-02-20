@@ -280,7 +280,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     protected void driveToTargetLocation() {
         state = OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION;
         
-        departureStation.departure(this);
+        departureStation.release(this);
         
         currentTrip = demandTrip;
 				
@@ -366,7 +366,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     }
     
     // todo - repair path planner and remove this
-    protected Trip<Node> vehicleTripToTrip(VehicleTrip vehicleTrip){
+    protected Trip<Node> vehicleTripToTrip(VehicleTrip<TripItem> vehicleTrip){
         LinkedList<Node>  locations = new LinkedList<>();
         for (TripItem tripItem : vehicleTrip.getLocations()) {
             locations.add(positionUtil.getNode(tripItem.tripPositionByNodeId));

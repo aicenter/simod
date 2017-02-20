@@ -6,6 +6,7 @@
 package cz.agents.amodsim.tripUtil;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.Trip;
 import java.util.LinkedList;
@@ -20,5 +21,19 @@ public class SimpleJsonTrip extends Trip<JsonTripItem>{
     public SimpleJsonTrip(@JsonProperty("locations") LinkedList<JsonTripItem> locations) {
         super(locations);
     }
+
+    @Override
+    @JsonIgnore
+    public boolean isEmpty() {
+        return super.isEmpty();
+    }
+
+    @Override
+    @JsonIgnore
+    public JsonTripItem getAndRemoveFirstLocation() {
+        return super.getAndRemoveFirstLocation(); 
+    }
+    
+    
     
 }

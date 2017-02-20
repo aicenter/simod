@@ -8,11 +8,13 @@ import cz.agents.amodsim.entity.OnDemandVehicleState;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.EntityStorage.EntityIterator;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.agents.agentpolis.simulator.visualization.visio.VisioUtils;
 import cz.agents.alite.vis.Vis;
 import cz.agents.alite.vis.layer.AbstractLayer;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import javax.vecmath.Point2d;
 
 /**
@@ -28,6 +30,10 @@ public class OnDemandVehicleLayer extends AbstractLayer{
     private static final Color REBALANCING_COLOR = new Color(20, 252, 80);
     
     private static final Color NORMAL_COLOR = Color.BLUE;
+    
+    private static final Double TEXT_MARGIN_BOTTOM = 5.0;
+    
+    private static final Color TEXT_BACKGROUND_COLOR = Color.WHITE;
     
 	
 	
@@ -68,7 +74,8 @@ public class OnDemandVehicleLayer extends AbstractLayer{
     }
 
     private void drawAgent(OnDemandVehicle agent, Point2d agentPosition, Graphics2D canvas, Dimension dim) {
-        canvas.setColor(getColor(agent));
+        Color color = getColor(agent);
+        canvas.setColor(color);
         int radius = DEMAND_REPRESENTATION_RADIUS;
 		int width = radius * 2;
 
@@ -78,6 +85,11 @@ public class OnDemandVehicleLayer extends AbstractLayer{
         int y2 = (int) (agentPosition.getY() + radius);
         if (x2 > 0 && x1 < dim.width && y2 > 0 && y1 < dim.height) {
             canvas.fillOval(x1, y1, width, width);
+            if(agent.getCargo().size() > 1){
+                VisioUtils.printTextWithBackgroud(canvas, Integer.toString(agent.getCargo().size()), 
+                    new Point((int) (x1 - TEXT_MARGIN_BOTTOM), y1 - (y2 - y1) / 2), color, 
+                    TEXT_BACKGROUND_COLOR);
+            }
         }
 
     }

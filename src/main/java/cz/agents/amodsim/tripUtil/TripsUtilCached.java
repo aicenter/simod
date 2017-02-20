@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 @Singleton
 public class TripsUtilCached extends TripsUtil implements SimulationFinishedListener {
 
-    private final HashMap<StartTargetNodePair, Trip<TripItem>> tripCache;
+    private final HashMap<StartTargetNodePair, SimpleJsonTrip> tripCache;
 
     private final File tripCacheFile;
 
@@ -81,7 +81,7 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
         } else {
             try {
                 finalTrip = pathPlanner.findTrip(vehicle.getId(), startNodeId, targetNodeId);
-                tripCache.put(tripStartTargetPair, new Trip<>(finalTrip.getLocations()));
+                tripCache.put(tripStartTargetPair, new SimpleJsonTrip(finalTrip.getLocations()));
             } catch (TripPlannerException ex) {
                 Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -103,8 +103,8 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
         }
     }
 
-    private HashMap<StartTargetNodePair, Trip<TripItem>> loadTripCache() {
-        HashMap<StartTargetNodePair, Trip<TripItem>> tripCache = null;
+    private HashMap<StartTargetNodePair, SimpleJsonTrip> loadTripCache() {
+        HashMap<StartTargetNodePair, SimpleJsonTrip> tripCache = null;
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new MyModule());

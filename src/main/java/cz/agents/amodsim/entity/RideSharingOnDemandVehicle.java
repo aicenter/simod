@@ -8,6 +8,7 @@ package cz.agents.amodsim.entity;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
+import cz.agents.agentpolis.siminfrastructure.planner.trip.TripItem;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.agentpolis.simmodel.activity.activityFactory.DriveActivityFactory;
 import cz.agents.agentpolis.simmodel.agent.activity.movement.DriveVehicleActivity;
@@ -84,6 +85,11 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 //        demandsData.put(demandData.demandAgent, new DemandData(demandData.demandAgent, demandTrip));
         demands.add(new DemandData(demandData.demandAgent, demandTrip));
         
+        // release from station in case of full car
+        if(demands.size() + pickedDemands.size() == vehicle.getCapacity()){
+            departureStation.release(this);
+        }
+        
         if(state == OnDemandVehicleState.WAITING){
             state = OnDemandVehicleState.DRIVING_TO_START_LOCATION;
             chooseTarget();
@@ -109,7 +115,6 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
     @Override
     protected void driveToTargetLocation() {
-        currentlyServedDemmand.getDemandAgent().tripStarted();
         if(getPosition().id == currentlyServedDemmand.getTargetNodeId()){
 			finishedDriving();
             return;
@@ -161,12 +166,17 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
         switch(state){
             case DRIVING_TO_START_LOCATION:
                 cargo.add(currentlyServedDemmand.demandAgent);
+                currentlyServedDemmand.getDemandAgent().tripStarted();
                 pickedDemands.add(currentlyServedDemmand);
                 boolean departure = demands.isEmpty();
                 chooseTarget();
                 if(departure){
                     state = OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION;
-                    departureStation.departure(this);
+                    
+                    // release from station if not done yet
+                    if(pickedDemands.size() < vehicle.getCapacity()){
+                        departureStation.release(this);
+                    }
                     driveToTargetLocation();
                 }
                 else{
@@ -203,7 +213,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     private class DemandData{
         private final DemandAgent demandAgent;
         
-        private final VehicleTrip demandTrip;
+        private final VehicleTrip<TripItem> demandTrip;
 
         public DemandAgent getDemandAgent() {
             return demandAgent;

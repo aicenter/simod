@@ -122,7 +122,7 @@ public class TripsUtil {
         return finalTrip;
     }
 	
-	public static VehicleTrip mergeTrips(VehicleTrip... trips){
+	public static VehicleTrip mergeTrips(VehicleTrip<TripItem>... trips){
 		int i = 0;
 		VehicleTrip firstTrip = null;
 		do{
@@ -130,10 +130,10 @@ public class TripsUtil {
 			i++;
 		}while(firstTrip == null);
 		
-		VehicleTrip newTrip = new VehicleTrip(new LinkedList<>(), firstTrip.getGraphType(), firstTrip.getVehicleId());
+		VehicleTrip<TripItem> newTrip = new VehicleTrip<>(new LinkedList<>(), firstTrip.getGraphType(), firstTrip.getVehicleId());
 		
 		for(int j = 0; j < trips.length; j++){
-			VehicleTrip trip = trips[j];
+			VehicleTrip<TripItem> trip = trips[j];
 			if(trip != null){
 				for (TripItem location : trip.getLocations()) {
 					newTrip.extendTrip(location);

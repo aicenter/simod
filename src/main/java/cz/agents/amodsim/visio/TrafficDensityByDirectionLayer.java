@@ -15,6 +15,8 @@ import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwor
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.vis.Vis;
 import cz.agents.alite.vis.layer.AbstractLayer;
+import cz.agents.amodsim.entity.OnDemandVehicle;
+import cz.agents.amodsim.storage.OnDemandVehicleStorage;
 import cz.agents.basestructures.Edge;
 import cz.agents.basestructures.Graph;
 import edu.mines.jtk.awt.ColorMap;
@@ -42,7 +44,7 @@ public class TrafficDensityByDirectionLayer extends AbstractLayer {
     private static final double MAX_LOAD = 0.05;
 
 
-    private final Provider<AllEdgesLoad> allEdgesLoadProvider;
+    private final Provider<AllEdgesLoad<OnDemandVehicle, OnDemandVehicleStorage>> allEdgesLoadProvider;
 
     private final Graph<SimulationNode, SimulationEdge> graph;
 
@@ -63,10 +65,13 @@ public class TrafficDensityByDirectionLayer extends AbstractLayer {
 
     /**
      * On/Off {@link DemandsVisioInitializer}
+     * @param highwayNetwork
+     * @param positionUtil
+     * @param allEdgesLoadProvider
      */
     @Inject
     public TrafficDensityByDirectionLayer(HighwayNetwork highwayNetwork, PositionUtil positionUtil,
-                                          Provider<AllEdgesLoad> allEdgesLoadProvider) {
+                                Provider<AllEdgesLoad<OnDemandVehicle, OnDemandVehicleStorage>> allEdgesLoadProvider) {
         this.positionUtil = positionUtil;
         this.allEdgesLoadProvider = allEdgesLoadProvider;
         graph = highwayNetwork.getNetwork();

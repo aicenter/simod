@@ -73,9 +73,9 @@ public class OsmUtil {
         return graphBuilder.createGraph();
     }
     
-//    public static Graph<SimulationNode, SimulationEdge> getSimulationGraph(File osmFile, int srid){
-//        return new MapInitializer(srid).initMap(osmFile, 10).graphByType.get(EGraphType.HIGHWAY);
-//    }
+    public static Graph<SimulationNode, SimulationEdge> getSimulationGraph(MapInitializer mapInitializer){
+        return mapInitializer.getMap().graphByType.get(EGraphType.HIGHWAY);
+    }
 
     static void edgePairsToJson(Graph<SimulationNode, SimulationEdge> higwayGraph, File outputFile) {
         ObjectMapper mapper = new ObjectMapper();

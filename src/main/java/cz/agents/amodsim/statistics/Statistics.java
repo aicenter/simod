@@ -17,8 +17,10 @@ import cz.agents.agentpolis.simulator.creator.SimulationFinishedListener;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandlerAdapter;
 import cz.agents.alite.common.event.EventProcessor;
+import cz.agents.amodsim.CsvWriter;
 import cz.agents.amodsim.config.Config;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -49,6 +51,10 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     
     private final Config config;
     
+    private final LinkedList<Long> vehicleLeftStationToServeDemandTimes;
+    
+    private final LinkedList<DemandServiceStatistic> demandServiceStatistics;
+   
     
     private long tickCount;
     
@@ -78,12 +84,16 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
         this.config = config;
         allEdgesLoadHistory = new LinkedList<>();
         allEdgesLoadHistoryPerState = new HashMap<>();
+        vehicleLeftStationToServeDemandTimes = new LinkedList<>();
+        demandServiceStatistics = new LinkedList<>();
         for(OnDemandVehicleState onDemandVehicleState : OnDemandVehicleState.values()){
             allEdgesLoadHistoryPerState.put(onDemandVehicleState, new LinkedList<>());
         }
         tickCount = 0;
         averageEdgeLoad = new LinkedList<>();
         maxLoad = 0;
+        
+        eventProcessor.addEventHandler(this);
     }
     
     
@@ -91,14 +101,27 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
 
     @Override
     public void handleEvent(Event event) {
-        handleTick();
+        if(event.getType() instanceof StatisticEvent){
+            switch((StatisticEvent) event.getType()){
+                case TICK:
+                    handleTick();
+                    break;
+                case VEHICLE_LEFT_STATION_TO_SERVE_DEMAND:
+                    vehicleLeftStationToServeDemandTimes.add((Long) event.getContent());
+                    break;
+                case DEMAND_PICKED_UP:
+                    demandServiceStatistics.add((DemandServiceStatistic) event.getContent());
+            }
+        }
+        
     }
 
     
     private void handleTick() {
         tickCount++;
         measure();
-        eventProcessor.addEvent(this, config.agentpolis.statistics.statisticIntervalMilis);
+        eventProcessor.addEvent(StatisticEvent.TICK, this, null, null,
+                config.agentpolis.statistics.statisticIntervalMilis);
     }
 
     private void measure() {
@@ -130,6 +153,8 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
         countAveragesFromAgents();
         saveResult();
         saveAllEdgesLoadHistory();
+        saveDepartures();
+        saveServiceStatistics();
     }
 
     @Inject
@@ -203,6 +228,33 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
 		
         try {
             mapper.writeValue(new File(config.agentpolis.statistics.allEdgesLoadHistoryFilePath), outputMap);
+        } catch (IOException ex) {
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void saveDepartures() {
+        try {
+            CsvWriter writer = new CsvWriter(
+                    new FileWriter(config.agentpolis.statistics.carLeftStationToServeDemandTimesFilePath));
+            for (long departureTime : vehicleLeftStationToServeDemandTimes) {
+                writer.writeLine(Long.toString(departureTime));
+            }
+            writer.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void saveServiceStatistics() {
+        try {
+            CsvWriter writer = new CsvWriter(
+                    new FileWriter(config.agentpolis.statistics.demandServiceStatisticFilePath));
+            for (DemandServiceStatistic demandServiceStatistic : demandServiceStatistics) {
+                writer.writeLine(Long.toString(demandServiceStatistic.getDemandTime()),
+                        Long.toString(demandServiceStatistic.getPickupTime()));
+            }
+            writer.close();
         } catch (IOException ex) {
             Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
         }

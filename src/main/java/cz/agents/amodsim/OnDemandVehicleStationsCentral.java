@@ -7,7 +7,6 @@ package cz.agents.amodsim;
 
 import cz.agents.amodsim.storage.OnDemandvehicleStationStorage;
 import com.google.inject.Inject;
-import cz.agents.amodsim.event.OnDemandVehicleStationEvent;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import cz.agents.amodsim.entity.OnDemandVehicleStation;

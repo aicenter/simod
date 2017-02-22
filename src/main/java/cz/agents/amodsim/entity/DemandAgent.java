@@ -12,11 +12,14 @@ import cz.agents.amodsim.event.OnDemandVehicleStationsCentralEvent;
 import cz.agents.amodsim.io.TimeTrip;
 import cz.agents.amodsim.storage.DemandStorage;
 import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
+import cz.agents.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.agents.agentpolis.simmodel.Agent;
 import cz.agents.agentpolis.simmodel.entity.vehicle.Vehicle;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandler;
 import cz.agents.alite.common.event.EventProcessor;
+import cz.agents.amodsim.statistics.DemandServiceStatistic;
+import cz.agents.amodsim.statistics.StatisticEvent;
 import cz.agents.basestructures.Node;
 import java.util.Map;
 import java.util.logging.Level;
@@ -40,12 +43,16 @@ public class DemandAgent extends Agent implements EventHandler {
     
     private final Map<Long,Node> nodesMappedByNodeSourceIds;
     
+    private final TimeProvider timeProvider;
+    
     
     private DemandAgentState state;
     
     private Vehicle vehicle;
     
     private OnDemandVehicle onDemandVehicle;
+    
+    private Long demandTime;
 
     
     
@@ -71,7 +78,7 @@ public class DemandAgent extends Agent implements EventHandler {
     
     @Inject
 	public DemandAgent(OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
-            DemandStorage demandStorage, Map<Long,Node> nodesMappedByNodeSourceIds, 
+            DemandStorage demandStorage, Map<Long,Node> nodesMappedByNodeSourceIds, TimeProvider timeProvider,
             @Named("precomputedPaths") boolean precomputedPaths, @Assisted String agentId,
             @Assisted TimeTrip<Long> osmNodeTrip) {
 		super(agentId, DemandSimulationEntityType.DEMAND);
@@ -81,6 +88,7 @@ public class DemandAgent extends Agent implements EventHandler {
         this.eventProcessor = eventProcessor;
         this.demandStorage = demandStorage;
         this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
+        this.timeProvider = timeProvider;
         state = DemandAgentState.WAITING;
 	}
 
@@ -93,6 +101,7 @@ public class DemandAgent extends Agent implements EventHandler {
         setPosition(nodesMappedByNodeSourceIds.get(osmNodeTrip.getLocations().get(0)));
 		eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.DEMAND, onDemandVehicleStationsCentral, null, 
                 new DemandData(osmNodeTrip.getLocations(), this));
+        demandTime = timeProvider.getCurrentSimTime();
 	}
 
     @Override
@@ -129,6 +138,8 @@ public class DemandAgent extends Agent implements EventHandler {
                 Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        eventProcessor.addEvent(StatisticEvent.DEMAND_PICKED_UP, null, null, 
+                new DemandServiceStatistic(demandTime, timeProvider.getCurrentSimTime()));
         die();
     }
 

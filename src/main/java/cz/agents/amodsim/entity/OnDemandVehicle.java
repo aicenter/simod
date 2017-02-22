@@ -16,6 +16,7 @@ import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.Trip;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.TripItem;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
+import cz.agents.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.agents.agentpolis.simmodel.Activity;
 import cz.agents.agentpolis.simmodel.Agent;
 import cz.agents.agentpolis.simmodel.activity.activityFactory.DriveActivityFactory;
@@ -23,7 +24,6 @@ import cz.agents.agentpolis.simmodel.agent.TransportAgent;
 import cz.agents.agentpolis.simmodel.agent.activity.movement.DriveVehicleActivity;
 import cz.agents.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.agents.agentpolis.simmodel.entity.vehicle.Vehicle;
-import cz.agents.agentpolis.simmodel.environment.model.VehiclePositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.action.driving.DelayData;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
@@ -32,6 +32,7 @@ import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandler;
 import cz.agents.alite.common.event.EventProcessor;
+import cz.agents.amodsim.statistics.StatisticEvent;
 import cz.agents.basestructures.Node;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -64,8 +65,6 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     
     protected final TripsUtil tripsUtil;
     
-    protected final VehiclePositionModel vehiclePositionModel;
-    
     private final boolean precomputedPaths;
     
     protected final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
@@ -75,6 +74,10 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     protected final  DriveActivityFactory driveActivityFactory;
     
     private final PositionUtil positionUtil;
+    
+    private final EventProcessor eventProcessor;
+    
+    private final TimeProvider timeProvider;
     
     
     private List<Node> demandNodes;
@@ -156,20 +159,21 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     
     @Inject
     public OnDemandVehicle(DriveVehicleActivity driveVehicleActivity, Map<Long,Node> nodesMappedByNodeSourceIds, 
-            VehicleStorage vehicleStorage, EntityVelocityModel entityVelocityModel, 
-            VehiclePositionModel vehiclePositionModel, TripsUtil tripsUtil, 
+            VehicleStorage vehicleStorage, EntityVelocityModel entityVelocityModel, TripsUtil tripsUtil, 
             OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, DriveActivityFactory driveActivityFactory, 
-            PositionUtil positionUtil, @Named("precomputedPaths") boolean precomputedPaths, @Assisted String vehicleId, 
+            PositionUtil positionUtil, EventProcessor eventProcessor, TimeProvider timeProvider, 
+            @Named("precomputedPaths") boolean precomputedPaths, @Assisted String vehicleId, 
             @Assisted Node startPosition) {
         super(vehicleId + " - autonomus agent", DemandSimulationEntityType.ON_DEMAND_VEHICLE);
         this.driveVehicleActivity = driveVehicleActivity;
         this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
         this.tripsUtil = tripsUtil;
-        this.vehiclePositionModel = vehiclePositionModel;
         this.precomputedPaths = precomputedPaths;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.driveActivityFactory = driveActivityFactory;
         this.positionUtil = positionUtil;
+        this.eventProcessor = eventProcessor;
+        this.timeProvider = timeProvider;
         
         vehicle = new Vehicle(vehicleId + " - vehicle", DemandSimulationEntityType.VEHICLE, LENGTH, CAPACITY, EGraphType.HIGHWAY);
         
@@ -202,6 +206,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
     @Override
     public void handleEvent(Event event) {
+        leavingStationEvent();
         List<Long> locations = ((cz.agents.amodsim.DemandData) event.getContent()).locations;
         demandNodes = new ArrayList<>();
 		if(precomputedPaths){
@@ -233,11 +238,11 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
     protected void driveToDemandStartLocation() {
         
-        if(vehiclePositionModel.getEntityPositionByNodeId(vehicle.getId()) == demandNodes.get(0).getId()){
+        if(getPosition() == demandNodes.get(0)){
 			currentTrip = null;
 		}
 		else{
-			currentTrip = tripsUtil.createTrip(vehiclePositionModel.getEntityPositionByNodeId(vehicle.getId()), 
+			currentTrip = tripsUtil.createTrip(getPosition().id, 
                 demandNodes.get(0).getId(), vehicle);
             metersToStartLocation += positionUtil.getTripLengthInMeters(currentTrip);
 		}
@@ -357,6 +362,11 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     @Override
     public Node getTargetNode() {
         return targetNode;
+    }
+
+    protected void leavingStationEvent() {
+        eventProcessor.addEvent(StatisticEvent.VEHICLE_LEFT_STATION_TO_SERVE_DEMAND, null, null, 
+                timeProvider.getCurrentSimTime());
     }
 
     

@@ -20,13 +20,15 @@ WINDOW_END = config.density_map.chosen_window_end
 
 def load_edges():
     print_info("loading edges")
-    json_file = open(config.agentpolis.edges_file_path, 'r')
+    modifier = "-simplified" if config.agentpolis.simplify_graph else ""
+    json_file = open(config.agentpolis.edges_file_path + modifier + ".json", 'r')
     return json.loads(json_file.read())
 
 
 def load_edge_pairs():
     print_info("loading edge pairs")
-    jsonFile = open(config.agentpolis.edge_pairs_file_path, 'r')
+    modifier = "-simplified" if config.agentpolis.simplify_graph else ""
+    jsonFile = open(config.agentpolis.edge_pairs_file_path + modifier + ".json", 'r')
     return json.loads(jsonFile.read())
 
 

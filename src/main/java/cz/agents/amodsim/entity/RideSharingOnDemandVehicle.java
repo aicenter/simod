@@ -10,13 +10,14 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.TripItem;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
+import cz.agents.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.agents.agentpolis.simmodel.activity.activityFactory.DriveActivityFactory;
 import cz.agents.agentpolis.simmodel.agent.activity.movement.DriveVehicleActivity;
-import cz.agents.agentpolis.simmodel.environment.model.VehiclePositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.entityvelocitymodel.EntityVelocityModel;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.common.event.Event;
+import cz.agents.alite.common.event.EventProcessor;
 import cz.agents.amodsim.OnDemandVehicleStationsCentral;
 import cz.agents.amodsim.tripUtil.TripsUtil;
 import cz.agents.basestructures.Node;
@@ -48,14 +49,15 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     
     @Inject
     public RideSharingOnDemandVehicle(DriveVehicleActivity driveVehicleActivity, Map<Long,Node> nodesMappedByNodeSourceIds, 
-            VehicleStorage vehicleStorage, EntityVelocityModel entityVelocityModel, 
-            VehiclePositionModel vehiclePositionModel, TripsUtil tripsUtil, 
+            VehicleStorage vehicleStorage, EntityVelocityModel entityVelocityModel, TripsUtil tripsUtil, 
             OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, DriveActivityFactory driveActivityFactory, 
-            PositionUtil positionUtil, @Named("precomputedPaths") boolean precomputedPaths, 
+            PositionUtil positionUtil, EventProcessor eventProcessor, TimeProvider timeProvider,
+            @Named("precomputedPaths") boolean precomputedPaths, 
             @Assisted String vehicleId, @Assisted Node startPosition) {
         super(driveVehicleActivity, nodesMappedByNodeSourceIds, vehicleStorage, entityVelocityModel,
-                vehiclePositionModel, tripsUtil, onDemandVehicleStationsCentral,
-                driveActivityFactory, positionUtil, precomputedPaths, vehicleId, startPosition);
+                tripsUtil, onDemandVehicleStationsCentral,
+                driveActivityFactory, positionUtil, eventProcessor, timeProvider, precomputedPaths, vehicleId,
+                startPosition);
         this.positionUtil = positionUtil;
         startNodes = new LinkedList<>();
         targetNodes = new LinkedList<>();
@@ -92,6 +94,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
         
         if(state == OnDemandVehicleState.WAITING){
             state = OnDemandVehicleState.DRIVING_TO_START_LOCATION;
+            leavingStationEvent();
             chooseTarget();
             driveToDemandStartLocation();
         }

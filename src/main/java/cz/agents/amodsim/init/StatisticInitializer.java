@@ -10,6 +10,7 @@ import com.google.inject.Singleton;
 import cz.agents.amodsim.statistics.Statistics;
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.alite.common.event.EventProcessor;
+import cz.agents.amodsim.statistics.StatisticEvent;
 
 /**
  *
@@ -41,6 +42,6 @@ public class StatisticInitializer {
     
     public void initialize(){
         simulationCreator.addSimulationFinishedListener(statistics);
-        eventProcessor.addEvent(statistics);
+        eventProcessor.addEvent(StatisticEvent.TICK, statistics, null, null);
     }
 }

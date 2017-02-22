@@ -76,12 +76,15 @@ public class MainModule extends StandardAgentPolisModule{
         bind(EntityStorage.class).to(VehicleStorage.class);
         bind(TripsUtil.class).to(TripsUtilCached.class);
         bind(DemandLayer.class).to(DemandLayerWithJitter.class);
-//        bind(OnDemandVehicleFactory.class).to(RebalancingOnDemandVehicleFactory.class);
 
-//        install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, OnDemandVehicle.class)
-//            .build(OnDemandVehicleFactory.class));
-        install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, RideSharingOnDemandVehicle.class)
-            .build(OnDemandVehicleFactory.class));
+        if(config.agentpolis.ridesharing){
+            install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, RideSharingOnDemandVehicle.class)
+                .build(OnDemandVehicleFactory.class));
+        }
+        else{
+            install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, OnDemandVehicle.class)
+                .build(OnDemandVehicleFactory.class));
+        }
         install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, OnDemandVehicleStation.class)
             .build(OnDemandVehicleStationFactory.class));
         install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)

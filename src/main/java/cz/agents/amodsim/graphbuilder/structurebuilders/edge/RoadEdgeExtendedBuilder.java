@@ -1,6 +1,6 @@
 package cz.agents.amodsim.graphbuilder.structurebuilders.edge;
 
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadEdgeExtended;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.gtdgraphimporter.structurebuilders.edge.EdgeBuilder;
 import cz.agents.multimodalstructures.additional.ModeOfTransport;
 
@@ -11,7 +11,7 @@ import java.util.Set;
  * RoadEdgeExtendedBuilder is used for temporary store of edge. Use build() to create RoadEdgeExtended
  * @author Zdenek Bousa
  */
-public class RoadEdgeExtendedBuilder extends EdgeBuilder<RoadEdgeExtended> {
+public class RoadEdgeExtendedBuilder extends EdgeBuilder<SimulationEdge> {
 
     private float allowedMaxSpeedInMpS;
     private long wayID; // OsmWay ID
@@ -51,8 +51,8 @@ public class RoadEdgeExtendedBuilder extends EdgeBuilder<RoadEdgeExtended> {
      * Build of new edge
      */
     @Override
-    public RoadEdgeExtended build(int fromId, int toId) {
-        return new RoadEdgeExtended(fromId, toId, wayID, uniqueWayID, oppositeWayUniqueId, getLength(), modeOfTransports,
+    public SimulationEdge build(int fromId, int toId) {
+        return new SimulationEdge(fromId, toId, wayID, uniqueWayID, oppositeWayUniqueId, getLength(), modeOfTransports,
                 allowedMaxSpeedInMpS, lanesCount);
     }
 

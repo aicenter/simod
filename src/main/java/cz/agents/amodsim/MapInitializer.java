@@ -11,7 +11,7 @@ import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwor
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.GraphType;
 import cz.agents.amodsim.graphbuilder.RoadNetworkGraphBuilder;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.builder.RoadSimulationGraphBuilder;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadEdgeExtended;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadNodeExtended;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
@@ -57,8 +57,6 @@ public class MapInitializer{
 
     /**
      * init map
-     * @param mapFile osm map
-     * @param simulationDurationInMilisec not in use, so place whatever number you want
      * @return map data with simulation graph
      */
     public MapData getMap() {
@@ -70,7 +68,7 @@ public class MapInitializer{
             LOGGER.warn("Cannot perform deserialization of the cached graphs:" + ex.getMessage());
             LOGGER.warn("Generating graphs from the OSM");
             graphs = generateGraphsFromOSM(mapFile);
-            serializeGraphs(graphs, mapFile.getName() + ".ser");
+            serializeGraphs(graphs, mapFile.getAbsolutePath() + ".ser");
         }
         Map<Integer, SimulationNode> nodes = createAllGraphNodes(graphs);
         BoundingBox bounds = computeBounds(nodes.values());
@@ -82,14 +80,13 @@ public class MapInitializer{
      * Graph build section
      */
     private Map<GraphType, Graph<SimulationNode, SimulationEdge>> generateGraphsFromOSM(File mapFile) {
-        Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs;
-        Graph<RoadNodeExtended, RoadEdgeExtended> roadNetworkGraphFromOSM = createRoadNetworkGraph(mapFile);
+        Graph<RoadNodeExtended, SimulationEdge> roadNetworkGraphFromOSM = roadNetworkGraphBuilder.build();
 
         RoadSimulationGraphBuilder roadSimulationGraphBuilder = new RoadSimulationGraphBuilder();
         Graph<SimulationNode, SimulationEdge> simulationRoadGraph = roadSimulationGraphBuilder.build(roadNetworkGraphFromOSM);
         Graph<SimulationNode, SimulationEdge> roadGraph = roadSimulationGraphBuilder.connectivity(simulationRoadGraph);
 
-        graphs = new HashMap<>();
+        Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs = new HashMap<>();
         graphs.put(EGraphType.HIGHWAY, roadGraph);
         //graphs.put(EGraphType.TRAMWAY, (new GraphBuilder()).createGraph());
         //graphs.put(EGraphType.METROWAY, (new GraphBuilder()).createGraph());
@@ -99,17 +96,13 @@ public class MapInitializer{
         return graphs;
     }
 
-    private Graph<RoadNodeExtended, RoadEdgeExtended> createRoadNetworkGraph(File mapFile) {
-        LOGGER.info(srid);
-        return roadNetworkGraphBuilder.build();
-    }
 
     /**
      * Serialization section
      */
     private Map<GraphType, Graph<SimulationNode, SimulationEdge>> deserializeGraphs(File osmFile)
             throws IOException, ClassNotFoundException {
-        InputStream file = new FileInputStream(osmFile.getName() + ".ser");
+        InputStream file = new FileInputStream(osmFile.getAbsolutePath() + ".ser");
         InputStream buffer = new BufferedInputStream(file);
         ObjectInput input = new ObjectInputStream(buffer);
 

@@ -3,7 +3,7 @@ package cz.agents.amodsim.graphbuilder.structurebuilders;
 import cz.agents.amodsim.graphbuilder.structurebuilders.edge.RoadEdgeExtendedBuilder;
 import cz.agents.amodsim.graphbuilder.structurebuilders.edge.SimplifiedRoadEdgeExtendedBuilder;
 import cz.agents.amodsim.graphbuilder.structurebuilders.node.RoadNodeExtendedBuilder;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadEdgeExtended;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadNodeExtended;
 import cz.agents.basestructures.EdgeId;
 import cz.agents.gtdgraphimporter.structurebuilders.TmpGraphBuilder;
@@ -20,7 +20,7 @@ import java.util.function.Predicate;
 public class RoadNetworkGraphSimplifier {
     private static final Logger LOGGER = Logger.getLogger(RoadNetworkGraphSimplifier.class);
 
-    private final TmpGraphBuilder<RoadNodeExtended, RoadEdgeExtended> graph;
+    private final TmpGraphBuilder<RoadNodeExtended, SimulationEdge> graph;
     private final Set<Integer> notToBeRemovedNodes;
 
     /**
@@ -39,7 +39,7 @@ public class RoadNetworkGraphSimplifier {
     // test if node has any special function
     private static final Predicate<RoadNodeExtendedBuilder> NOT_DELETE = n -> n.isBikeSharingStation() || n.isParkAndRide();
 
-    private RoadNetworkGraphSimplifier(TmpGraphBuilder<RoadNodeExtended, RoadEdgeExtended> graph, Set<Integer> notToBeRemovedNodes) {
+    private RoadNetworkGraphSimplifier(TmpGraphBuilder<RoadNodeExtended, SimulationEdge> graph, Set<Integer> notToBeRemovedNodes) {
         this.graph = graph;
         this.notToBeRemovedNodes = notToBeRemovedNodes;
         for (NodeBuilder<? extends RoadNodeExtended> node : graph.getAllNodes()) {
@@ -97,8 +97,8 @@ public class RoadNetworkGraphSimplifier {
     private void prepareTwoWays(Map<Integer, Set<Integer>> inDegree, Map<Integer, Set<Integer>> outDegree) {
         Set<Integer> simplNodes4 = getRemovableNodes(inDegree, outDegree, 2);
         for (Integer nodeId : simplNodes4) {
-            List<EdgeBuilder<? extends RoadEdgeExtended>> ins = graph.getIncomingEdges(nodeId);
-            List<EdgeBuilder<? extends RoadEdgeExtended>> outs = graph.getOutgoingEdges(nodeId);
+            List<EdgeBuilder<? extends SimulationEdge>> ins = graph.getIncomingEdges(nodeId);
+            List<EdgeBuilder<? extends SimulationEdge>> outs = graph.getOutgoingEdges(nodeId);
 
             RoadEdgeExtendedBuilder in1 = (RoadEdgeExtendedBuilder) ins.get(0);
             RoadEdgeExtendedBuilder in2 = (RoadEdgeExtendedBuilder) ins.get(1);
@@ -306,7 +306,7 @@ public class RoadNetworkGraphSimplifier {
      * @param graph               graph to be merged
      * @param notToBeRemovedNodes nodes that has to stay in graph builder (they have special function, such as parkAndRideStation)
      */
-    public static void simplify(TmpGraphBuilder<RoadNodeExtended, RoadEdgeExtended> graph, Set<Integer> notToBeRemovedNodes) {
+    public static void simplify(TmpGraphBuilder<RoadNodeExtended, SimulationEdge> graph, Set<Integer> notToBeRemovedNodes) {
         new RoadNetworkGraphSimplifier(graph, notToBeRemovedNodes).simplify();
     }
 }

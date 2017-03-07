@@ -8,7 +8,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import cz.agents.amodsim.graphbuilder.structurebuilders.edge.RoadEdgeExtendedBuilder;
 import cz.agents.amodsim.graphbuilder.structurebuilders.node.RoadNodeExtendedBuilder;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadEdgeExtended;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadNodeExtended;
 import cz.agents.basestructures.GPSLocation;
 import cz.agents.geotools.GPSLocationTools;
@@ -99,9 +99,13 @@ public class OsmGraphBuilderExtended implements OsmElementConsumer {
     private final TagEvaluator oppositeDirectionEvaluator;
 
     protected final Map<Long, OsmNode> osmNodes = new HashMap<>();
-    protected final TmpGraphBuilder<RoadNodeExtended, RoadEdgeExtended> builder = new TmpGraphBuilder<>();
+    protected final TmpGraphBuilder<RoadNodeExtended, SimulationEdge> builder = new TmpGraphBuilder<>();
 
     private int mergedEdges = 0;
+    
+    protected OsmGraphBuilderExtended(){
+        
+    }
 
     /**
      * Constructor
@@ -130,7 +134,7 @@ public class OsmGraphBuilderExtended implements OsmElementConsumer {
      *
      * @return built graph
      */
-    public TmpGraphBuilder<RoadNodeExtended, RoadEdgeExtended> readOsmAndGetGraphBuilder() {
+    public TmpGraphBuilder<RoadNodeExtended, SimulationEdge> readOsmAndGetGraphBuilder() {
         parseOSM();
         return builder;
     }

@@ -13,7 +13,7 @@ import numpy as np
 
 from scripts.config_loader import cfg as config
 from scripts.printer import print_info
-from traffic_load import TrafficDensityLevel
+from traffic_load import TrafficDensityLevel, WINDOW_END as CHOSEN_WINDOW_END, WINDOW_START as CHOSEN_WINDOW_START
 import traffic_load
 
 
@@ -28,8 +28,6 @@ loads = traffic_load.load_all_edges_load_history()
 
 colorTypes = {}
 
-CHOSEN_WINDOW_START = config.density_map.chosen_window_start
-CHOSEN_WINDOW_END = config.density_map.chosen_window_end
 CRITICAL_DENSITY = config.critical_density
 
 
@@ -52,7 +50,7 @@ def plot_edges_optimized(pairs, axis, loads=loads["ALL"], color_func=None):
 
         if not pair["edge2"]:
             add_line([edge1["from"]["lonE6"], edge1["from"]["latE6"]], [edge1["to"]["lonE6"], edge1["to"]["latE6"]],
-                      id1, color1)
+                      color1)
         else:
             edge2 = pair["edge2"];
             id2 = str(edge2["id"])
@@ -63,8 +61,8 @@ def plot_edges_optimized(pairs, axis, loads=loads["ALL"], color_func=None):
             line2 = compute_shift(
                 [[edge2["from"]["lonE6"], edge2["from"]["latE6"]], [edge2["to"]["lonE6"], edge2["to"]["latE6"]]],
                 SHIFT_DISTANCE, 1)
-            add_line(line1[0], line1[1], id1, color1)
-            add_line(line2[0], line2[1], id2, color2)
+            add_line(line1[0], line1[1], color1)
+            add_line(line2[0], line2[1], color2)
 
     for level in TrafficDensityLevel:
         colorType = colorTypes[level]
@@ -72,7 +70,7 @@ def plot_edges_optimized(pairs, axis, loads=loads["ALL"], color_func=None):
         axis.plot(xList, yList, linewidth=colorType["width"], color=level.color)
 
 
-def add_line(a, b, id, color):
+def add_line(a, b, color):
         colorTypes[color]["xPairs"].append([a[0], b[0]])
         colorTypes[color]["yPairs"].append([a[1], b[1]])
 
@@ -168,7 +166,7 @@ pairs = edgePairs
 # "adjustable": 'datalim', "aspect": 1.0 - naprosto nevim proc to takhle funguje - dokumentace == NULL
 fig, axis = \
     plt.subplots(2, 3, sharex=True, sharey=True, subplot_kw={"adjustable": 'datalim', "aspect": 1.0},
-                 figsize=(25, 12))
+                 figsize=(12, 6))
 
 
 def set_mat_not(axis):

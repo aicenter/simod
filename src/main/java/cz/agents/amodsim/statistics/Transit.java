@@ -12,22 +12,22 @@ package cz.agents.amodsim.statistics;
 public class Transit {
     private final long time;
     
-    private final String id;
+    private final long osmId;
 
     public long getTime() {
         return time;
     }
 
-    public String getId() {
-        return id;
+    public long getId() {
+        return osmId;
     }
 
     
     
     
-    public Transit(long time, String id) {
+    public Transit(long time, long osmId) {
         this.time = time;
-        this.id = id;
+        this.osmId = osmId;
     }
     
     

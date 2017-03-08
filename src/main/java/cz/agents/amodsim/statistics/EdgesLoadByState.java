@@ -20,11 +20,11 @@ import java.util.HashMap;
  */
 public class EdgesLoadByState extends AllEdgesLoad{
     
-    private final HashMap<OnDemandVehicleState,HashMap<String,Integer>> edgeLoadsPerState;
+    private final HashMap<OnDemandVehicleState,HashMap<Integer,Integer>> edgeLoadsPerState;
     
     private final OnDemandVehicleStorage onDemandVehicleStorage;
 
-    public HashMap<OnDemandVehicleState, HashMap<String, Integer>> getEdgeLoadsPerState() {
+    public HashMap<OnDemandVehicleState, HashMap<Integer, Integer>> getEdgeLoadsPerState() {
         return edgeLoadsPerState;
     }
 
@@ -47,7 +47,7 @@ public class EdgesLoadByState extends AllEdgesLoad{
     
     
     @Override
-    protected void countLoadForPosition(String entityId, String edgeId) {
+    protected void countLoadForPosition(String entityId, int edgeId) {
         super.countLoadForPosition(entityId, edgeId); 
         
         OnDemandVehicleState vehicleState = onDemandVehicleStorage.getEntityById(entityId).getState();

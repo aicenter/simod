@@ -2,7 +2,7 @@ package cz.agents.amodsim.graphbuilder.structurebuilders.edge;
 
 import com.google.common.collect.Lists;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadNodeExtended;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.basestructures.EdgeId;
 import cz.agents.basestructures.GPSLocation;
 import cz.agents.geotools.GPSLocationTools;
@@ -120,7 +120,7 @@ public class SimplifiedRoadEdgeExtendedBuilder {
      * @param removedEdges
      * @return
      */
-    public List<RoadEdgeExtendedBuilder> build(int numberOfParts, TmpGraphBuilder<RoadNodeExtended, SimulationEdge> graph,
+    public List<RoadEdgeExtendedBuilder> build(int numberOfParts, TmpGraphBuilder<SimulationNode, SimulationEdge> graph,
                                                Map<EdgeId, RoadEdgeExtendedBuilder> removedEdges) {
         if (numberOfParts < 1) throw new IllegalArgumentException("Number of parts must be positive.");
         if (numberOfParts > 3) throw new UnsupportedOperationException("More parts than three aren't supported now.");
@@ -150,7 +150,7 @@ public class SimplifiedRoadEdgeExtendedBuilder {
         throw new IllegalStateException("Not reachable");
     }
 
-    private List<RoadEdgeExtendedBuilder> build(List<Integer> nodes, TmpGraphBuilder<RoadNodeExtended, SimulationEdge> graph,
+    private List<RoadEdgeExtendedBuilder> build(List<Integer> nodes, TmpGraphBuilder<SimulationNode, SimulationEdge> graph,
                                                 Map<EdgeId, RoadEdgeExtendedBuilder> removedEdges) {
         int length = (int) Math.round(calculateLength(nodes, graph));
         List<RoadEdgeExtendedBuilder> result = new ArrayList<>(2);
@@ -175,7 +175,7 @@ public class SimplifiedRoadEdgeExtendedBuilder {
         return referenceEdge.copy(from, to, length);
     }
 
-    private double calculateLength(List<Integer> nodes, TmpGraphBuilder<RoadNodeExtended, SimulationEdge> graph) {
+    private double calculateLength(List<Integer> nodes, TmpGraphBuilder<SimulationNode, SimulationEdge> graph) {
         double length = 0;
         GPSLocation prev = graph.getNode(nodes.get(0)).location;
         for (int i = 1; i < nodes.size(); i++) {
@@ -186,7 +186,7 @@ public class SimplifiedRoadEdgeExtendedBuilder {
         return length;
     }
 
-    public double calculateAndSetLength(TmpGraphBuilder<RoadNodeExtended, SimulationEdge> graph) {
+    public double calculateAndSetLength(TmpGraphBuilder<SimulationNode, SimulationEdge> graph) {
         List<Integer> nodes = new ArrayList<>(numberOfNodes());
         nodes.add(getTmpFromId());
         nodes.addAll(removedNodes);

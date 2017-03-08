@@ -11,9 +11,9 @@ CRITICAL_DENSITY = config.critical_density
 
 
 
-WINDOW_LENGTH = config.density_map.chosen_window_end - config.density_map.chosen_window_start
-WINDOW_START = config.density_map.chosen_window_start
-WINDOW_END = config.density_map.chosen_window_end
+WINDOW_LENGTH = config.analysis.chosen_window_end - config.analysis.chosen_window_start
+WINDOW_START = config.analysis.chosen_window_start
+WINDOW_END = config.analysis.chosen_window_end
 
 # COLOR_LIST = [NORMAL_COLOR, COLOR_1, COLOR_2, COLOR_3, COLOR_4, COLOR_5, CONGESTED_COLOR]
 

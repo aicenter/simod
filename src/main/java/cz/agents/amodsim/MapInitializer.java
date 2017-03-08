@@ -9,12 +9,9 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.GraphType;
-import cz.agents.amodsim.graphbuilder.RoadNetworkGraphBuilder;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.builder.RoadSimulationGraphBuilder;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadNodeExtended;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
+import cz.agents.amodsim.graphbuilder.SimulationGraphBuilder;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.agentpolis.simulator.creator.initializator.impl.MapData;
 import cz.agents.basestructures.BoundingBox;
 import cz.agents.basestructures.Graph;
@@ -37,7 +34,7 @@ public class MapInitializer{
     
     private final File mapFile;
     
-    private final RoadNetworkGraphBuilder roadNetworkGraphBuilder;
+    private final SimulationGraphBuilder roadNetworkGraphBuilder;
 
     /**
      * Constructor
@@ -48,7 +45,7 @@ public class MapInitializer{
      */
     @Inject
     public MapInitializer(@Named("mapSrid") int srid, @Named("osm File") File mapFile, 
-            RoadNetworkGraphBuilder roadNetworkGraphBuilder) {
+            SimulationGraphBuilder roadNetworkGraphBuilder) {
         this.srid = srid;
         this.mapFile = mapFile;
         this.roadNetworkGraphBuilder = roadNetworkGraphBuilder;
@@ -80,14 +77,9 @@ public class MapInitializer{
      * Graph build section
      */
     private Map<GraphType, Graph<SimulationNode, SimulationEdge>> generateGraphsFromOSM(File mapFile) {
-        Graph<RoadNodeExtended, SimulationEdge> roadNetworkGraphFromOSM = roadNetworkGraphBuilder.build();
-
-        RoadSimulationGraphBuilder roadSimulationGraphBuilder = new RoadSimulationGraphBuilder();
-        Graph<SimulationNode, SimulationEdge> simulationRoadGraph = roadSimulationGraphBuilder.build(roadNetworkGraphFromOSM);
-        Graph<SimulationNode, SimulationEdge> roadGraph = roadSimulationGraphBuilder.connectivity(simulationRoadGraph);
-
+        Graph<SimulationNode, SimulationEdge> roadNetworkGraphFromOSM = roadNetworkGraphBuilder.build();
         Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs = new HashMap<>();
-        graphs.put(EGraphType.HIGHWAY, roadGraph);
+        graphs.put(EGraphType.HIGHWAY, roadNetworkGraphFromOSM);
         //graphs.put(EGraphType.TRAMWAY, (new GraphBuilder()).createGraph());
         //graphs.put(EGraphType.METROWAY, (new GraphBuilder()).createGraph());
         //graphs.put(EGraphType.PEDESTRIAN, (new GraphBuilder()).createGraph());

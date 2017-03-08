@@ -47,7 +47,7 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     
     private final LinkedList<HashMap<String,Integer>> allEdgesLoadHistory;
     
-    private final HashMap<OnDemandVehicleState, LinkedList<HashMap<String,Integer>>> allEdgesLoadHistoryPerState;
+    private final HashMap<OnDemandVehicleState, LinkedList<HashMap<Integer,Integer>>> allEdgesLoadHistoryPerState;
     
     private final Config config;
     
@@ -164,10 +164,10 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
         if(tickCount % (config.agentpolis.statistics.allEdgesLoadIntervalMilis 
 				/ config.agentpolis.statistics.statisticIntervalMilis) == 0){
             allEdgesLoadHistory.add(allEdgesLoad.getLoadPerEdge());
-            for (Map.Entry<OnDemandVehicleState,HashMap<String, Integer>> stateEntry 
+            for (Map.Entry<OnDemandVehicleState,HashMap<Integer, Integer>> stateEntry 
                     : allEdgesLoad.getEdgeLoadsPerState().entrySet()) {
                 OnDemandVehicleState onDemandVehicleState = stateEntry.getKey();
-                HashMap<String, Integer> loadPerState = stateEntry.getValue();
+                HashMap<Integer, Integer> loadPerState = stateEntry.getValue();
                 allEdgesLoadHistoryPerState.get(onDemandVehicleState).add(loadPerState);
             }
             
@@ -221,7 +221,7 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
         
         Map<String,Object> outputMap = new HashMap<>();
         outputMap.put("ALL", allEdgesLoadHistory);
-        for (Map.Entry<OnDemandVehicleState, LinkedList<HashMap<String,Integer>>> stateEntry 
+        for (Map.Entry<OnDemandVehicleState, LinkedList<HashMap<Integer,Integer>>> stateEntry 
                 : allEdgesLoadHistoryPerState.entrySet()) {
             outputMap.put(stateEntry.getKey().name(), stateEntry.getValue());
         }

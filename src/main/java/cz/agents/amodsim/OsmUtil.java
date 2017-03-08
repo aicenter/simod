@@ -13,7 +13,6 @@ import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwor
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.basestructures.Graph;
-import cz.agents.basestructures.GraphBuilder;
 import cz.agents.geotools.Transformer;
 import cz.agents.gtdgraphimporter.GTDGraphBuilder;
 import cz.agents.multimodalstructures.additional.ModeOfTransport;
@@ -47,9 +46,9 @@ public class OsmUtil {
         LinkedList<ExportEdge> edges = new LinkedList<>();
 
         for (SimulationEdge edge : higwayGraph.getAllEdges()) {
-            String id = edge.getUniqueID();
+            String id = Integer.toString(edge.getUniqueId());
             edges.add(new ExportEdge(higwayGraph.getNode(edge.getFromId()), higwayGraph.getNode(edge.getToId()), 
-                    id, edge.getLaneCount(EGraphType.HIGHWAY), edge.getAllowedMaxSpeedInMpS(), 
+                    id, edge.getLanesCount(), edge.getAllowedMaxSpeedInMpS(), 
                     edge.getLength()));
         }
 
@@ -60,18 +59,18 @@ public class OsmUtil {
         }
     }
 
-    public static Graph<SimulationNode, SimulationEdge> buildSimulationGraph(Graph<RoadNode, RoadEdge> highwayGraph) {
-        GraphBuilder<SimulationNode, SimulationEdge> graphBuilder = GraphBuilder.createGraphBuilder();
-        for (RoadNode roadNode : highwayGraph.getAllNodes()) {
-            SimulationNode simulationNode = new SimulationNode(roadNode);
-            graphBuilder.addNode(simulationNode);
-        }
-        for (RoadEdge roadEdge : highwayGraph.getAllEdges()) {
-            SimulationEdge.SimulationEdgeBuilder edgeBuilder = new SimulationEdge.SimulationEdgeBuilder(roadEdge);
-            graphBuilder.addEdge(edgeBuilder.build(roadEdge.fromId, roadEdge.toId));
-        }
-        return graphBuilder.createGraph();
-    }
+//    public static Graph<OldSimulationNode, SimulationEdge> buildSimulationGraph(Graph<RoadNode, RoadEdge> highwayGraph) {
+//        GraphBuilder<OldSimulationNode, SimulationEdge> graphBuilder = GraphBuilder.createGraphBuilder();
+//        for (RoadNode roadNode : highwayGraph.getAllNodes()) {
+//            OldSimulationNode simulationNode = new OldSimulationNode(roadNode);
+//            graphBuilder.addNode(simulationNode);
+//        }
+//        for (RoadEdge roadEdge : highwayGraph.getAllEdges()) {
+//            SimulationEdge.SimulationEdgeBuilder edgeBuilder = new SimulationEdge.SimulationEdgeBuilder(roadEdge);
+//            graphBuilder.addEdge(edgeBuilder.build(roadEdge.fromId, roadEdge.toId));
+//        }
+//        return graphBuilder.createGraph();
+//    }
     
     public static Graph<SimulationNode, SimulationEdge> getSimulationGraph(MapInitializer mapInitializer){
         return mapInitializer.getMap().graphByType.get(EGraphType.HIGHWAY);
@@ -89,10 +88,10 @@ public class OsmUtil {
             }
             
             processedEdges.add(simEdge1);
-            String id = simEdge1.getUniqueID();
+            String id = Integer.toString(simEdge1.getUniqueId());
             ExportEdge expEdge1 = new ExportEdge(higwayGraph.getNode(simEdge1.getFromId()), 
                     higwayGraph.getNode(simEdge1.getToId()), id, 
-                    simEdge1.getLaneCount(EGraphType.HIGHWAY), simEdge1.getAllowedMaxSpeedInMpS(), 
+                    simEdge1.getLanesCount(), simEdge1.getAllowedMaxSpeedInMpS(), 
                     simEdge1.getLength());
             
             SimulationEdge simEdge2 = higwayGraph.getEdge(simEdge1.getToId(), simEdge1.getFromId());
@@ -101,10 +100,10 @@ public class OsmUtil {
             }
             else{
                 processedEdges.add(simEdge2);
-                id = simEdge2.getUniqueID();
+                id = Integer.toString(simEdge2.getUniqueId());
                 ExportEdge expEdge2 = new ExportEdge(higwayGraph.getNode(simEdge2.getFromId()), 
                     higwayGraph.getNode(simEdge2.getToId()), id, 
-                    simEdge2.getLaneCount(EGraphType.HIGHWAY), simEdge2.getAllowedMaxSpeedInMpS(), 
+                    simEdge2.getLanesCount(), simEdge2.getAllowedMaxSpeedInMpS(), 
                     simEdge2.getLength());
                 edgePairs.add(new ExportEdgePair(expEdge1, expEdge2));
             }

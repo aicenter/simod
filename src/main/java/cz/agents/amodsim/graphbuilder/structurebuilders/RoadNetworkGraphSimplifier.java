@@ -4,7 +4,7 @@ import cz.agents.amodsim.graphbuilder.structurebuilders.edge.RoadEdgeExtendedBui
 import cz.agents.amodsim.graphbuilder.structurebuilders.edge.SimplifiedRoadEdgeExtendedBuilder;
 import cz.agents.amodsim.graphbuilder.structurebuilders.node.RoadNodeExtendedBuilder;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadNodeExtended;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.basestructures.EdgeId;
 import cz.agents.gtdgraphimporter.structurebuilders.TmpGraphBuilder;
 import cz.agents.gtdgraphimporter.structurebuilders.edge.EdgeBuilder;
@@ -20,7 +20,7 @@ import java.util.function.Predicate;
 public class RoadNetworkGraphSimplifier {
     private static final Logger LOGGER = Logger.getLogger(RoadNetworkGraphSimplifier.class);
 
-    private final TmpGraphBuilder<RoadNodeExtended, SimulationEdge> graph;
+    private final TmpGraphBuilder<SimulationNode, SimulationEdge> graph;
     private final Set<Integer> notToBeRemovedNodes;
 
     /**
@@ -39,10 +39,10 @@ public class RoadNetworkGraphSimplifier {
     // test if node has any special function
     private static final Predicate<RoadNodeExtendedBuilder> NOT_DELETE = n -> n.isBikeSharingStation() || n.isParkAndRide();
 
-    private RoadNetworkGraphSimplifier(TmpGraphBuilder<RoadNodeExtended, SimulationEdge> graph, Set<Integer> notToBeRemovedNodes) {
+    private RoadNetworkGraphSimplifier(TmpGraphBuilder<SimulationNode, SimulationEdge> graph, Set<Integer> notToBeRemovedNodes) {
         this.graph = graph;
         this.notToBeRemovedNodes = notToBeRemovedNodes;
-        for (NodeBuilder<? extends RoadNodeExtended> node : graph.getAllNodes()) {
+        for (NodeBuilder<? extends SimulationNode> node : graph.getAllNodes()) {
             RoadNodeExtendedBuilder n = (RoadNodeExtendedBuilder) node;
             if (NOT_DELETE.test(n)) {
                 this.notToBeRemovedNodes.add(n.tmpId);
@@ -306,7 +306,7 @@ public class RoadNetworkGraphSimplifier {
      * @param graph               graph to be merged
      * @param notToBeRemovedNodes nodes that has to stay in graph builder (they have special function, such as parkAndRideStation)
      */
-    public static void simplify(TmpGraphBuilder<RoadNodeExtended, SimulationEdge> graph, Set<Integer> notToBeRemovedNodes) {
+    public static void simplify(TmpGraphBuilder<SimulationNode, SimulationEdge> graph, Set<Integer> notToBeRemovedNodes) {
         new RoadNetworkGraphSimplifier(graph, notToBeRemovedNodes).simplify();
     }
 }

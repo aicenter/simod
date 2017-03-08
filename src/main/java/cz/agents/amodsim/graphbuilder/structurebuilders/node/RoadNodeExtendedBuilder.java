@@ -1,6 +1,6 @@
 package cz.agents.amodsim.graphbuilder.structurebuilders.node;
 
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.RoadNodeExtended;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.basestructures.GPSLocation;
 import cz.agents.gtdgraphimporter.structurebuilders.node.NodeBuilder;
 
@@ -10,7 +10,7 @@ import cz.agents.gtdgraphimporter.structurebuilders.node.NodeBuilder;
  * @author Marek Cuchý
  * @author Zdenek Bousa
  */
-public class RoadNodeExtendedBuilder extends NodeBuilder<RoadNodeExtended> {
+public class RoadNodeExtendedBuilder extends NodeBuilder<SimulationNode> {
     private boolean isParkAndRide;
     private boolean isBikeSharingStation;
 
@@ -38,8 +38,8 @@ public class RoadNodeExtendedBuilder extends NodeBuilder<RoadNodeExtended> {
     }
 
     @Override
-    public RoadNodeExtended buildNode(int id) {
-        return new RoadNodeExtended(id, sourceId, location.latE6, location.lonE6, location.latProjected, location
+    public SimulationNode buildNode(int id) {
+        return new SimulationNode(id, sourceId, location.latE6, location.lonE6, location.latProjected, location
                 .lonProjected, location.elevation, isParkAndRide, isBikeSharingStation);
     }
 

@@ -258,12 +258,12 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		
 		targetStation = onDemandVehicleStationsCentral.getNearestStation(demandEndNode);
 		
-		if(demandEndNode.getId() == targetStation.getPositionInGraph().getId()){
+		if(demandEndNode.getId() == targetStation.getPosition().getId()){
 			tripToStation = null;
 		}
 		else{
 			tripToStation = tripsUtil.createTrip(demandEndNode.getId(), 
-					targetStation.getPositionInGraph().getId(), vehicle);
+					targetStation.getPosition().getId(), vehicle);
             metersToStation += positionUtil.getTripLengthInMeters(tripToStation);
 		}
 		
@@ -308,9 +308,9 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     }
 
     protected void waitInStation() {
+        targetStation.parkVehicle(this);
         state = OnDemandVehicleState.WAITING;
 		completeTrip = null;
-        targetStation.parkVehicle(this);
     }
 
 	@Override
@@ -329,7 +329,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         state = OnDemandVehicleState.REBALANCING;
         
         currentTrip = tripsUtil.createTrip(getPosition().id, 
-                targetStation.getPositionInGraph().getId(), vehicle);
+                targetStation.getPosition().getId(), vehicle);
         metersRebalancing += positionUtil.getTripLengthInMeters(currentTrip);
         
         completeTrip = currentTrip.clone();

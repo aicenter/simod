@@ -150,7 +150,7 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
 		
         OnDemandVehicleStation station;
 		while ((station = iterator.getNextEntity()) != null) {
-            GPSLocation location = station.getPositionInGraph();
+            GPSLocation location = station.getPosition();
             
 			pairs.add(new Pair<>(new Coordinate(
                     location.getLongitude(), location.getLatitude(), location.getElevation()), station));

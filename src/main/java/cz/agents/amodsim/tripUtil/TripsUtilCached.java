@@ -14,8 +14,6 @@ import cz.agents.amodsim.jackson.MyModule;
 import cz.agents.amodsim.statistics.Statistics;
 import cz.agents.agentpolis.siminfrastructure.planner.TripPlannerException;
 import cz.agents.agentpolis.siminfrastructure.planner.path.ShortestPathPlanners;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.Trip;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.TripItem;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.agentpolis.simmodel.entity.vehicle.Vehicle;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
@@ -34,24 +32,41 @@ import java.util.logging.Logger;
  */
 @Singleton
 public class TripsUtilCached extends TripsUtil implements SimulationFinishedListener {
+    
+    private static final int OUTPUT_BATCH_SIZE = 10000;
 
     private final HashMap<StartTargetNodePair, SimpleJsonTrip> tripCache;
 
-    private final File tripCacheFile;
+    private final File tripCacheFolder;
+    
+    private final ObjectMapper mapper;
+    
+    
+    private HashMap<StartTargetNodePair, SimpleJsonTrip> newTrips;
+    
+    private int cacheFileCounter;
 
 
     @Inject
-    public TripsUtilCached(ShortestPathPlanners pathPlanners, SimulationCreator simulationCreator, Config configuration) {
+    public TripsUtilCached(ShortestPathPlanners pathPlanners, SimulationCreator simulationCreator, 
+            Config configuration) throws IOException {
         super(pathPlanners);
-
-        tripCacheFile = getCacheFile(configuration);
         
-        if(tripCacheFile.exists()){
-             tripCache = loadTripCache();
+        mapper = new ObjectMapper();
+        mapper.registerModule(new MyModule());
+
+        tripCacheFolder = getCacheFolder(configuration);
+        
+        tripCache = new HashMap<>();
+        if(tripCacheFolder.exists()){
+            loadTripCache();
         }
         else{
-            tripCache = new HashMap<>();
+            tripCacheFolder.mkdir();
+            cacheFileCounter = 0;
         }
+        
+        newTrips = new HashMap<>();
         
         simulationCreator.addSimulationFinishedListener(this);
     }
@@ -82,6 +97,10 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
             try {
                 finalTrip = pathPlanner.findTrip(vehicle.getId(), startNodeId, targetNodeId);
                 tripCache.put(tripStartTargetPair, new SimpleJsonTrip(finalTrip.getLocations()));
+                newTrips.put(tripStartTargetPair, new SimpleJsonTrip(finalTrip.getLocations()));
+                if(newTrips.size() > OUTPUT_BATCH_SIZE){
+                    saveNewTrips();
+                }
             } catch (TripPlannerException ex) {
                 Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -92,44 +111,40 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
 
     @Override
     public void simulationFinished() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MyModule());
-
-
-        try {
-            mapper.writeValue(tripCacheFile, tripCache);
-        } catch (IOException ex) {
-            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        saveNewTrips();
     }
 
-    private HashMap<StartTargetNodePair, SimpleJsonTrip> loadTripCache() {
-        HashMap<StartTargetNodePair, SimpleJsonTrip> tripCache = null;
-
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MyModule());
-
-        System.out.println(mapper.getSerializationConfig().toString());
-
+    private void loadTripCache() throws IOException {
         TypeReference<HashMap<StartTargetNodePair, SimpleJsonTrip>> typeRef =
                 new TypeReference<HashMap<StartTargetNodePair, SimpleJsonTrip>>() {
                 };
-
-        try {
-            tripCache = mapper.readValue(tripCacheFile, typeRef);
-        } catch (IOException ex) {
-            Logger.getLogger(TripsUtilCached.class.getName()).log(Level.SEVERE, null, ex);
+        
+        for (final File file : tripCacheFolder.listFiles()) {
+            HashMap<StartTargetNodePair, SimpleJsonTrip> tripCachePart = mapper.readValue(file, typeRef);
+            tripCache.putAll(tripCachePart);
+            cacheFileCounter++;
         }
 
-        return tripCache;
+//        System.out.println(mapper.getSerializationConfig().toString());
     }
 
-    private File getCacheFile(Config config) {
+    private File getCacheFolder(Config config) {
         String filename = config.agentpolis.tripCacheFile;
         if(config.agentpolis.simplifyGraph){
             filename += "-simplified";
         }
-        return new File(filename + ".json");
+        return new File(filename);
+    }
+
+    private void saveNewTrips() {
+        File outputFile = new File(tripCacheFolder + File.separator + cacheFileCounter + ".json");
+        cacheFileCounter++;
+        try {
+            mapper.writeValue(outputFile, newTrips);
+            newTrips = new HashMap<>();
+        } catch (IOException ex) {
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }

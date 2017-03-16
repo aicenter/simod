@@ -136,12 +136,12 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     protected void driveToNearestStation() {
         targetStation = onDemandVehicleStationsCentral.getNearestStation(getPosition());
 		
-		if(getPosition().equals(targetStation.getPositionInGraph())){
+		if(getPosition().equals(targetStation.getPosition())){
 			currentTrip = null;
 		}
 		else{
 			currentTrip = tripsUtil.createTrip(getPosition().id, 
-					targetStation.getPositionInGraph().getId(), vehicle);
+					targetStation.getPosition().getId(), vehicle);
             metersToStation += positionUtil.getTripLengthInMeters(currentTrip);
 		}
         

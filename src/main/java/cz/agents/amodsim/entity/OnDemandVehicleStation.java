@@ -28,6 +28,7 @@ import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandler;
 import cz.agents.alite.common.event.EventProcessor;
 import cz.agents.amodsim.OnDemandVehicleStationsCentral;
+import cz.agents.amodsim.config.Config;
 import cz.agents.basestructures.GPSLocation;
 import cz.agents.basestructures.Node;
 import cz.agents.geotools.Transformer;
@@ -36,6 +37,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.javatuples.Pair;
 
 /**
@@ -49,8 +52,6 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     private final EventProcessor eventProcessor;
     
     private final VehiclePositionModel vehiclePositionModel;
-    
-    private final Node positionInGraph;
 
     private final LinkedList<DepartureCard> departureCards;
     
@@ -63,18 +64,14 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
     private final Map<Long,Node> nodesMappedByNodeSourceIds;
-
     
+    private final Config config;
 
-    public Node getPositionInGraph() {
-        return positionInGraph;
-    }
-    
     
     
     
     @Inject
-    public OnDemandVehicleStation(EventProcessor eventProcessor, OnDemandVehicleFactory onDemandVehicleFactory, 
+    public OnDemandVehicleStation(Config config, EventProcessor eventProcessor, OnDemandVehicleFactory onDemandVehicleFactory, 
             NearestElementUtils nearestElementUtils, OnDemandvehicleStationStorage onDemandVehicleStationStorage,
 			OnDemandVehicleStorage onDemandVehicleStorage, @Assisted String id, AgentPositionModel agentPositionModel,
 			@Assisted Node node, @Assisted int initialVehicleCount, 
@@ -83,14 +80,14 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             Map<Long,Node> nodesMappedByNodeSourceIds) {
         super(id);
         this.eventProcessor = eventProcessor;
-        positionInGraph = node;
+        setPosition(node);
         parkedVehicles = new LinkedList<>();
         for (int i = 0; i < initialVehicleCount; i++) {
 			String onDemandVehicelId = String.format("%s-%d", id, i);
-			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, positionInGraph);
+			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, getPosition());
             parkedVehicles.add(newVehicle);
 			onDemandVehicleStorage.addEntity(newVehicle);
-			agentPositionModel.setNewEntityPosition(newVehicle.getId(), positionInGraph.getId());
+			agentPositionModel.setNewEntityPosition(newVehicle.getId(), getPosition().getId());
         }
         onDemandVehicleStationStorage.addEntity(this);
         this.vehiclePositionModel = vehiclePositionModel;
@@ -100,6 +97,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         this.positionUtil = positionUtil;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
+        this.config = config;
     }
     
     
@@ -136,6 +134,13 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     }
     
     public void parkVehicle(OnDemandVehicle onDemandVehicle){
+        if(onDemandVehicle.getPosition() != getPosition()){
+            try {
+                throw new Exception("Vehicle cannot be parked in station, beacause it's not present in the station!");
+            } catch (Exception ex) {
+                Logger.getLogger(OnDemandVehicleStation.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         parkedVehicles.add(onDemandVehicle);
     }
     
@@ -153,7 +158,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             return;
         }
         
-        OnDemandVehicle vehicle = getVehicle(startLocation, targetLocation, true);
+        OnDemandVehicle vehicle = getVehicle(startLocation, targetLocation, config.agentpolis.ridesharing);
         
         if(vehicle != null){
             vehicle.setDepartureStation(this);
@@ -163,8 +168,8 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     }
 
     public boolean rebalance(TimeTrip<OnDemandVehicleStation> rebalancingTrip) {
-        OnDemandVehicle vehicle = getVehicle(this.getPositionInGraph(), 
-                rebalancingTrip.getLocations().getLast().getPositionInGraph(), false);
+        OnDemandVehicle vehicle = getVehicle(this.getPosition(), 
+                rebalancingTrip.getLocations().getLast().getPosition(), false);
         if(vehicle != null){
 //            if(rebalancingTrip.getLocations().getLast() == this){
 //                System.out.println("com.mycompany.testsim.entity.OnDemandVehicleStation.rebalance()");
@@ -202,7 +207,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 
                 // currently cartesian distance check only!
                 if(positionUtil.getPosition(nearestVehicle.getPosition()).distance(positionUtil.getPosition(startLocation))
-                    < positionUtil.getPosition(positionInGraph).distance(positionUtil.getPosition(startLocation))){
+                    < positionUtil.getPosition(getPosition()).distance(positionUtil.getPosition(startLocation))){
                     // ridesharing successfully locked
                     return nearestVehicle;
                 }

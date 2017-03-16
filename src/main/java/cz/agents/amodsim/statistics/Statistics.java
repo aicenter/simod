@@ -5,10 +5,12 @@
  */
 package cz.agents.amodsim.statistics;
 
+import cz.agents.agentpolis.simmodel.eventType.Transit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+import cz.agents.agentpolis.simmodel.eventType.DriveEvent;
 import cz.agents.amodsim.OnDemandVehicleStationsCentral;
 import cz.agents.amodsim.entity.OnDemandVehicle;
 import cz.agents.amodsim.entity.OnDemandVehicleState;
@@ -35,6 +37,8 @@ import java.util.logging.Logger;
 @Singleton
 public class Statistics extends EventHandlerAdapter implements SimulationFinishedListener {
     
+    private static final int TRANSIT_OUTPUT_BATCH_SIZE = 1000000;
+    
     private final EventProcessor eventProcessor;
     
     private final LinkedList<Double> averageEdgeLoad;
@@ -54,6 +58,10 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     private final LinkedList<Long> vehicleLeftStationToServeDemandTimes;
     
     private final LinkedList<DemandServiceStatistic> demandServiceStatistics;
+    
+    private LinkedList<Transit> allTransit;
+    
+    private final CsvWriter transitWriter;
    
     
     private long tickCount;
@@ -76,7 +84,7 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     @Inject
     public Statistics(EventProcessor eventProcessor, Provider<EdgesLoadByState> allEdgesLoadProvider, 
             OnDemandVehicleStorage onDemandVehicleStorage, 
-            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, Config config) {
+            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, Config config) throws IOException {
         this.eventProcessor = eventProcessor;
         this.allEdgesLoadProvider = allEdgesLoadProvider;
         this.onDemandVehicleStorage = onDemandVehicleStorage;
@@ -86,6 +94,9 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
         allEdgesLoadHistoryPerState = new HashMap<>();
         vehicleLeftStationToServeDemandTimes = new LinkedList<>();
         demandServiceStatistics = new LinkedList<>();
+        allTransit = new LinkedList<>();
+        transitWriter = new CsvWriter(
+                    new FileWriter(config.agentpolis.statistics.transitStatisticFilePath));
         for(OnDemandVehicleState onDemandVehicleState : OnDemandVehicleState.values()){
             allEdgesLoadHistoryPerState.put(onDemandVehicleState, new LinkedList<>());
         }
@@ -111,6 +122,12 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
                     break;
                 case DEMAND_PICKED_UP:
                     demandServiceStatistics.add((DemandServiceStatistic) event.getContent());
+            }
+        }
+        if(event.getType() instanceof DriveEvent){
+            allTransit.add((Transit) event.getContent());
+            if(allTransit.size() > TRANSIT_OUTPUT_BATCH_SIZE){
+                saveTransit();
             }
         }
         
@@ -155,6 +172,12 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
         saveAllEdgesLoadHistory();
         saveDepartures();
         saveServiceStatistics();
+        saveTransit();
+        try {
+            transitWriter.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Inject
@@ -255,6 +278,18 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
                         Long.toString(demandServiceStatistic.getPickupTime()));
             }
             writer.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void saveTransit() {
+        try {
+            for (Transit transit : allTransit) {
+                transitWriter.writeLine(Long.toString(transit.getTime()), Long.toString(transit.getId()));
+            }
+            transitWriter.flush();
+            allTransit = new LinkedList<>();
         } catch (IOException ex) {
             Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
         }

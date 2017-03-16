@@ -1,6 +1,7 @@
 package cz.agents.amodsim.io;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.Trip;
 import java.util.LinkedList;
@@ -45,4 +46,20 @@ public class TimeTrip<L> extends Trip<L>{
 		this.startTime = startTime;
 		this.endTime = 0;
 	}
+
+    @Override
+    @JsonIgnore
+    public L getAndRemoveFirstLocation() {
+        return super.getAndRemoveFirstLocation();
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isEmpty() {
+        return super.isEmpty(); 
+    }
+    
+    
+    
+    
 }

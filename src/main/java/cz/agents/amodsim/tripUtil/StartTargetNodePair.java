@@ -30,9 +30,8 @@ public class StartTargetNodePair {
     
     
     
-    @JsonCreator
-    public StartTargetNodePair(@JsonProperty("startNodeId") int startNodeId, 
-            @JsonProperty("targetNodeId") int targetNodeId) {
+    
+    public StartTargetNodePair(int startNodeId, int targetNodeId) {
         this.startNodeId = startNodeId;
         this.targetNodeId = targetNodeId;
     }
@@ -68,7 +67,7 @@ public class StartTargetNodePair {
 
     @Override
     public String toString() {
-        return "{" + "startNodeId=" + startNodeId + ", targetNodeId=" + targetNodeId + '}';
+        return startNodeId + "-" + targetNodeId;
     }
     
     

@@ -15,5 +15,4 @@ public enum StatisticEvent implements EventType{
     TICK,
     VEHICLE_LEFT_STATION_TO_SERVE_DEMAND,
     DEMAND_PICKED_UP
-    
 }

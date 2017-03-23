@@ -286,7 +286,8 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     private void saveTransit() {
         try {
             for (Transit transit : allTransit) {
-                transitWriter.writeLine(Long.toString(transit.getTime()), Long.toString(transit.getId()));
+                transitWriter.writeLine(Long.toString(transit.getTime()), Long.toString(transit.getId()), 
+                        Integer.toString(transit.getTripId()));
             }
             transitWriter.flush();
             allTransit = new LinkedList<>();

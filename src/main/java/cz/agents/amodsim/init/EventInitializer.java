@@ -31,7 +31,7 @@ public class EventInitializer {
 //    private static final double TRIP_MULTIPLICATION_FACTOR = 2.573;
 //    private static final double TRIP_MULTIPLICATION_FACTOR = 13.63;
 //    private static final double TRIP_MULTIPLICATION_FACTOR = 1.615;
-    private static final double TRIP_MULTIPLICATION_FACTOR = 3.433;
+//    private static final double TRIP_MULTIPLICATION_FACTOR = 3.433;
     
     private static final long TRIP_MULTIPLICATION_TIME_SHIFT = 60000;
     
@@ -52,18 +52,22 @@ public class EventInitializer {
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
+    private final Config config;
+    
     
     private long eventCount;
     
     
     @Inject
     public EventInitializer(EventProcessor eventProcessor, SimulationCreator simulationCreator,
-            DemandAgentFactory demandAgentFactory, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral) {
+            DemandAgentFactory demandAgentFactory, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral,
+            Config config) {
         this.eventProcessor = eventProcessor;
         this.simulationCreator = simulationCreator;
         this.demandEventHandler = new DemandEventHandler();
         this.demandAgentFactory = demandAgentFactory;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
+        this.config = config;
         eventCount = 0;
     }
     
@@ -77,10 +81,10 @@ public class EventInitializer {
                 continue;
             }
             
-            for(int i = 0; i < TRIP_MULTIPLICATION_FACTOR; i++){
-                if(i + 1 >= TRIP_MULTIPLICATION_FACTOR){
+            for(int i = 0; i < config.tripsMultiplier; i++){
+                if(i + 1 >= config.tripsMultiplier){
                     double randomNum = random.nextDouble();
-                    if(randomNum > TRIP_MULTIPLICATION_FACTOR - i){
+                    if(randomNum > config.tripsMultiplier - i){
                         break;
                     }
                 }

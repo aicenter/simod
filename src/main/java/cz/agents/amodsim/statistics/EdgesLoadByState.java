@@ -11,6 +11,7 @@ import cz.agents.amodsim.storage.OnDemandVehicleStorage;
 import cz.agents.agentpolis.siminfrastructure.CollectionUtil;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.load.AllEdgesLoad;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
+import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
 
 import java.util.HashMap;
 
@@ -18,11 +19,12 @@ import java.util.HashMap;
  *
  * @author fido
  */
-public class EdgesLoadByState extends AllEdgesLoad{
+public class EdgesLoadByState extends AllEdgesLoad<OnDemandVehicle, OnDemandVehicleStorage>{
     
     private final HashMap<OnDemandVehicleState,HashMap<Integer,Integer>> edgeLoadsPerState;
     
-    private final OnDemandVehicleStorage onDemandVehicleStorage;
+    
+    
 
     public HashMap<OnDemandVehicleState, HashMap<Integer, Integer>> getEdgeLoadsPerState() {
         return edgeLoadsPerState;
@@ -35,7 +37,6 @@ public class EdgesLoadByState extends AllEdgesLoad{
     public EdgesLoadByState(HighwayNetwork highwayNetwork, 
             OnDemandVehicleStorage onDemandVehicleStorage) {
         super(onDemandVehicleStorage, highwayNetwork);
-        this.onDemandVehicleStorage = onDemandVehicleStorage;
         edgeLoadsPerState = new HashMap<>();
         for(OnDemandVehicleState onDemandVehicleState : OnDemandVehicleState.values()){
             edgeLoadsPerState.put(onDemandVehicleState, new HashMap<>());
@@ -50,7 +51,7 @@ public class EdgesLoadByState extends AllEdgesLoad{
     protected void countLoadForPosition(String entityId, int edgeId) {
         super.countLoadForPosition(entityId, edgeId); 
         
-        OnDemandVehicleState vehicleState = onDemandVehicleStorage.getEntityById(entityId).getState();
+        OnDemandVehicleState vehicleState = entityStorage.getEntityById(entityId).getState();
         
         CollectionUtil.incrementMapValue(edgeLoadsPerState.get(vehicleState), edgeId, 1);
     }

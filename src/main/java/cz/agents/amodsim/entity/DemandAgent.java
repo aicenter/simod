@@ -2,6 +2,7 @@
  */
 package cz.agents.amodsim.entity;
 
+import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;

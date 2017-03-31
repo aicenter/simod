@@ -4,6 +4,7 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.collections as collections
+import sys
 
 from scripts.config_loader import cfg as config
 from scripts.printer import print_info, print_table
@@ -16,6 +17,7 @@ HISTOGRAM_SAMPLES = 16
 LOW_THRESHOLD = traffic_load.CRITICAL_DENSITY * 0.01
 HIGH_THRESHOLD = traffic_load.CRITICAL_DENSITY * 2
 CONGESTION_INDEX = int(traffic_load.CRITICAL_DENSITY / (HIGH_THRESHOLD / HISTOGRAM_SAMPLES))
+
 
 class TrafficDensityHistogram:
 
@@ -188,6 +190,9 @@ loads = traffic_load.load_all_edges_load_history()
 fig, axis = \
     plt.subplots(1, 1, sharex=True, sharey=True, subplot_kw={"adjustable": 'datalim'}, figsize=(6, 4))
 
+axis.set_xlabel("y")
+axis.set_ylabel("count")
+
 np.vectorize(lambda x: x.grid(True))(axis)
 
 histogram = TrafficDensityHistogram()
@@ -196,8 +201,9 @@ histogram = TrafficDensityHistogram()
 hist_step = HIGH_THRESHOLD / HISTOGRAM_SAMPLES
 bins = np.arange(0, HIGH_THRESHOLD + hist_step, hist_step)
 centers = bins[0:HISTOGRAM_SAMPLES]
-colors = np.vectorize(traffic_load.get_color_from_normalized_load)(np.copy(bins))
-
+# colors = np.vectorize(traffic_load.get_color_from_normalized_load, [np.float, np.str])(np.copy(bins))
+# colors = np.frompyfunc(traffic_load.get_color_from_normalized_load, 1, 1)(np.copy(bins))
+colors = np.asarray(map(traffic_load.get_color_from_normalized_load, np.copy(bins)))
 
 # histogram.plot_phases_histogram(loads, axis[1])
 
@@ -223,6 +229,16 @@ plt.savefig(config.images.traffic_density_future_detail, bbox_inches='tight', tr
 hist_per_phase = histogram.plot_phases_share_histogram(loads, axis, average_density_list_total_future, hist_step, bins, centers)
 plt.savefig(config.images.traffic_density_future_detail_stacked, bbox_inches='tight', transparent=True)
 
+total_load = 0
+total_load_in_window = 0
+for type_name in loads:
+    type = loads[type_name]
+    for index, timestep in enumerate(type):
+        for edge_name in timestep:
+            total_load += timestep[edge_name]
+            if index >= WINDOW_START and index <= WINDOW_END:
+                total_load_in_window += timestep[edge_name]
+
 del loads
 
 
@@ -234,6 +250,8 @@ empty_edges_now = edge_count - len(average_density_list_total_current)
 empty_edges_future = edge_count - len(average_density_list_total_future)
 
 print("Total edges: {0}".format(edge_count))
+print("Total load on all edges: {0}".format(total_load))
+print("Total load on all edges in time window: {0}".format(total_load_in_window))
 print("Congested edges before: {0}".format(congested_edges_before))
 print("Empty edges before: {0} - {1} of total edges".format(empty_edges_now, to_percetnt(empty_edges_now / edge_count)))
 print("Congested edges now: {0}".format(congested_edges_now))

@@ -12,7 +12,7 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import cz.agents.agentpolis.simmodel.eventType.DriveEvent;
 import cz.agents.amodsim.OnDemandVehicleStationsCentral;
-import cz.agents.amodsim.entity.OnDemandVehicle;
+import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.agents.amodsim.entity.OnDemandVehicleState;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
 import cz.agents.agentpolis.simulator.creator.SimulationFinishedListener;
@@ -21,6 +21,7 @@ import cz.agents.alite.common.event.EventHandlerAdapter;
 import cz.agents.alite.common.event.EventProcessor;
 import cz.agents.amodsim.CsvWriter;
 import cz.agents.amodsim.config.Config;
+import cz.agents.amodsim.io.Common;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
-    private final LinkedList<HashMap<String,Integer>> allEdgesLoadHistory;
+    private final LinkedList<HashMap<Integer,Integer>> allEdgesLoadHistory;
     
     private final HashMap<OnDemandVehicleState, LinkedList<HashMap<Integer,Integer>>> allEdgesLoadHistoryPerState;
     
@@ -96,7 +97,7 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
         demandServiceStatistics = new LinkedList<>();
         allTransit = new LinkedList<>();
         transitWriter = new CsvWriter(
-                    new FileWriter(config.agentpolis.statistics.transitStatisticFilePath));
+                    Common.getFileWriter(config.agentpolis.statistics.transitStatisticFilePath));
         for(OnDemandVehicleState onDemandVehicleState : OnDemandVehicleState.values()){
             allEdgesLoadHistoryPerState.put(onDemandVehicleState, new LinkedList<>());
         }

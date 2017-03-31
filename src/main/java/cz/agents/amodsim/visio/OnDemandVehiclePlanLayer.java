@@ -2,7 +2,7 @@ package cz.agents.amodsim.visio;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.agents.amodsim.entity.OnDemandVehicle;
+import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.basestructures.Node;

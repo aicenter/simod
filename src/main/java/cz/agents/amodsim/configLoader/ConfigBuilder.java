@@ -127,7 +127,7 @@ public class ConfigBuilder {
 		
 		Builder constructorBuilder = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC);
 		TypeSpec.Builder objectBuilder 
-				= TypeSpec.classBuilder(getClassName(mapName)).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+				= TypeSpec.classBuilder(getClassName(mapName)).addModifiers(Modifier.PUBLIC);
 		
 		String mapParamName = getPropertyName(mapName);
 
@@ -153,7 +153,7 @@ public class ConfigBuilder {
 				constructorBuilder.addStatement("this.$N = ($T) $N.get(\"$N\")", propertyName, value.getClass(), 
 						mapParamName, key);
 			}
-			objectBuilder.addField(fieldBuilder.addModifiers(Modifier.PUBLIC, Modifier.FINAL).build());
+			objectBuilder.addField(fieldBuilder.addModifiers(Modifier.PUBLIC).build());
 		}
 
 			

@@ -15,7 +15,7 @@ import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwor
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.vis.Vis;
 import cz.agents.alite.vis.layer.AbstractLayer;
-import cz.agents.amodsim.entity.OnDemandVehicle;
+import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
 import cz.agents.basestructures.Graph;
 import edu.mines.jtk.awt.ColorMap;

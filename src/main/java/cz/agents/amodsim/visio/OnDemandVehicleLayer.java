@@ -3,7 +3,7 @@
 package cz.agents.amodsim.visio;
 
 import com.google.inject.Inject;
-import cz.agents.amodsim.entity.OnDemandVehicle;
+import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.agents.amodsim.entity.OnDemandVehicleState;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.EntityStorage.EntityIterator;

@@ -5,14 +5,14 @@
  */
 package cz.agents.amodsim.entity;
 
+import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.vividsolutions.jts.geom.Coordinate;
 import cz.agents.amodsim.DemandData;
 import cz.agents.amodsim.DemandSimulationEntityType;
 import cz.agents.amodsim.storage.OnDemandvehicleStationStorage;
-import cz.agents.amodsim.event.OnDemandVehicleStationEvent;
-import cz.agents.amodsim.entity.OnDemandVehicle.OnDemandVehicleFactory;
+import cz.agents.amodsim.entity.vehicle.OnDemandVehicle.OnDemandVehicleFactory;
 import cz.agents.amodsim.io.TimeTrip;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
 import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
@@ -155,6 +155,11 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         
         // hack for demands that starts and ends in the same position
         if(startLocation.equals(targetLocation)){
+            try {
+                throw new Exception("Start and target location cannot be the same!");
+            } catch (Exception ex) {
+                Logger.getLogger(OnDemandVehicleStation.class.getName()).log(Level.SEVERE, null, ex);
+            }
             return;
         }
         
@@ -164,6 +169,13 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             vehicle.setDepartureStation(this);
             eventProcessor.addEvent(null, vehicle, null, demandData);
             eventProcessor.addEvent(null, demandData.demandAgent, null, vehicle);
+        }
+        else{
+            try {
+                throw new Exception("Request cannot be handeled - station has not any vehicles available!");
+            } catch (Exception ex) {
+                Logger.getLogger(OnDemandVehicleStation.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 

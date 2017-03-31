@@ -77,7 +77,8 @@ public class EventInitializer {
         Random random = new Random(RANDOM_SEED);
         
         for (TimeTrip<Long> osmNodeTrip : osmNodeTrips) {
-            if(osmNodeTrip.getStartTime() < config.agentpolis.startTime){
+            long startTime = osmNodeTrip.getStartTime() - config.agentpolis.startTime;
+            if(startTime < 1 || startTime > config.agentpolis.simulationDurationInMillis){
                 continue;
             }
             
@@ -89,7 +90,7 @@ public class EventInitializer {
                     }
                 }
                 
-                long startTime = osmNodeTrip.getStartTime() + i * TRIP_MULTIPLICATION_TIME_SHIFT;
+                startTime = startTime + i * TRIP_MULTIPLICATION_TIME_SHIFT;
                 eventProcessor.addEvent(null, demandEventHandler, null, osmNodeTrip, startTime);
                 eventCount++;
                 if(MAX_EVENTS != 0 && eventCount >= MAX_EVENTS){
@@ -98,11 +99,12 @@ public class EventInitializer {
             }
         }
         for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
-            if(rebalancingTrip.getStartTime() < config.agentpolis.startTime){
+            long startTime = rebalancingTrip.getStartTime() - config.agentpolis.startTime;
+            if(startTime < 1 || startTime > config.agentpolis.simulationDurationInMillis){
                 continue;
             }
             eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 
-                    null, rebalancingTrip, rebalancingTrip.getStartTime());
+                    null, rebalancingTrip, startTime);
         }
     }
     

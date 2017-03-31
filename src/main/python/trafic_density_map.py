@@ -39,7 +39,8 @@ def plot_edges_optimized(pairs, axis, loads=loads["ALL"], color_func=None):
         colorType = {}
         colorType["xPairs"] = []
         colorType["yPairs"] = []
-        colorType["width"] = 1.0 if level == TrafficDensityLevel.FREE else 2.0
+        colorType["width"] = 0.5 if level == TrafficDensityLevel.FREE else 3.0
+        colorType["opacity"] = 1.0 if level == TrafficDensityLevel.FREE else 1.0
         colorTypes[level] = colorType
 
 
@@ -67,12 +68,12 @@ def plot_edges_optimized(pairs, axis, loads=loads["ALL"], color_func=None):
     for level in TrafficDensityLevel:
         colorType = colorTypes[level]
         xList, yList = lines_to_list(colorType["xPairs"], colorType["yPairs"])
-        axis.plot(xList, yList, linewidth=colorType["width"], color=level.color)
+        axis.plot(xList, yList, linewidth=colorType["width"], color=level.color, alpha=colorType["opacity"])
 
 
 def add_line(a, b, color):
-        colorTypes[color]["xPairs"].append([a[0], b[0]])
-        colorTypes[color]["yPairs"].append([a[1], b[1]])
+    colorTypes[color]["xPairs"].append([a[0], b[0]])
+    colorTypes[color]["yPairs"].append([a[1], b[1]])
 
 
 def lines_to_list(xpairs, ypairs):
@@ -156,64 +157,103 @@ def make_edge_pairs(edges):
 
     return pairs
 
+
 def location_quals(loc1, loc2):
     return loc1["lonE6"] == loc2["lonE6"] and loc1["latE6"] == loc2["latE6"]
 
 
-pairs = edgePairs
-
-
-# "adjustable": 'datalim', "aspect": 1.0 - naprosto nevim proc to takhle funguje - dokumentace == NULL
-fig, axis = \
-    plt.subplots(2, 3, sharex=True, sharey=True, subplot_kw={"adjustable": 'datalim', "aspect": 1.0},
-                 figsize=(12, 6))
-
-
-def set_mat_not(axis):
+def set_axis_params(axis):
     # axis.fmt_xdata = ticker.ScalarFormatter(useMathText=True)
     # axis.fmt_ydata = ticker.ScalarFormatter(useMathText=True)
     # axis.fmt_xdata = dates.DateFormatter('%Y-%m-%d')
     # axis.yaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
     axis.set_xticklabels([])
     axis.set_yticklabels([])
+    axis.tick_params(
+        which='both',  # both major and minor ticks are affected
+        bottom='off',  # ticks along the bottom edge are off
+        top='off',  # ticks along the top edge are off
+        labelbottom='off', right='off', left='off', labelleft='off', labelright='off', labeltop='off')
+    # axis.axis("off")
 
 
-np.vectorize(set_mat_not)(axis)
+def plot_main_map():
+    # "adjustable": 'datalim', "aspect": 1.0 - naprosto nevim proc to takhle funguje - dokumentace == NULL
+    fig, axis = \
+        plt.subplots(2, 3, sharex=True, sharey=True, subplot_kw={"adjustable": 'datalim', "aspect": 1.0},
+                     figsize=(12, 6))
+
+    np.vectorize(set_axis_params)(axis)
+
+    # axis[0][0].set_xlabel("All")
+    # axis[0][1].set_xlabel("To passenger")
+    # axis[0][2].set_xlabel("Demanded trip")
+    # axis[1][0].set_xlabel("To station")
+    # axis[1][1].set_xlabel("Rebalancing")
+    # axis[1][2].set_xlabel("New congestion")
+
+    axis[0][0].set_xlabel("a)")
+    axis[0][1].set_xlabel("b)")
+    axis[0][2].set_xlabel("c)")
+    axis[1][0].set_xlabel("d)")
+    axis[1][1].set_xlabel("e)")
+    axis[1][2].set_xlabel("f)")
+
+    print_info("plotting all load")
+    plot_edges_optimized(pairs, axis[0][0], loads["ALL"])
+
+    print_info("plotting to start location load")
+    plot_edges_optimized(pairs, axis[0][1], loads["DRIVING_TO_START_LOCATION"])
+
+    print_info("plotting to target location load")
+    plot_edges_optimized(pairs, axis[0][2], loads["DRIVING_TO_TARGET_LOCATION"])
+
+    print_info("plotting to station load")
+    plot_edges_optimized(pairs, axis[1][0], loads["DRIVING_TO_STATION"])
+
+    print_info("plotting rebalancing load")
+    plot_edges_optimized(pairs, axis[1][1], loads["REBALANCING"])
+
+    print_info("plotting new congestion")
+    plot_edges_optimized(pairs, axis[1][2], color_func=new_congestion_level)
+
+    # zoom
+    plt.axis([14308000, 14578000, 49970000, 50186000])
+
+    plt.savefig(config.images.main_map, bbox_inches='tight', transparent=True)
+
+    plt.show()
 
 
-axis[0][0].set_xlabel("All")
-axis[0][1].set_xlabel("To passenger")
-axis[0][2].set_xlabel("Demanded trip")
-axis[1][0].set_xlabel("To station")
-axis[1][1].set_xlabel("Rebalancing")
-axis[1][2].set_xlabel("New congestion")
+def plot_map_in_detail():
+    # "adjustable": 'datalim', "aspect": 1.0 - naprosto nevim proc to takhle funguje - dokumentace == NULL
+    fig, axis = \
+        plt.subplots(1, 1, sharex=True, sharey=True, subplot_kw={"adjustable": 'datalim', "aspect": 1.0},
+                     figsize=(12, 6))
 
-print_info("plotting all load")
-plot_edges_optimized(pairs, axis[0][0], loads["ALL"])
+    plt.tick_params(
+        which='both',  # both major and minor ticks are affected
+        bottom='off',  # ticks along the bottom edge are off
+        top='off',  # ticks along the top edge are off
+        labelbottom='off', right='off', left='off', labelleft='off')
 
-print_info("plotting to start location load")
-plot_edges_optimized(pairs, axis[0][1], loads["DRIVING_TO_START_LOCATION"])
+    np.vectorize(set_axis_params)(axis)
 
-print_info("plotting to target location load")
-plot_edges_optimized(pairs, axis[0][2], loads["DRIVING_TO_TARGET_LOCATION"])
+    axis.set_xlabel("All")
 
-print_info("plotting to station load")
-plot_edges_optimized(pairs, axis[1][0], loads["DRIVING_TO_STATION"])
+    print_info("plotting all load")
+    plot_edges_optimized(pairs, axis, loads["ALL"])
 
-print_info("plotting rebalancing load")
-plot_edges_optimized(pairs, axis[1][1], loads["REBALANCING"])
+    # zoom
+    plt.axis([14308000, 14578000, 49970000, 50186000])
 
-print_info("plotting new congestion")
-plot_edges_optimized(pairs, axis[1][2], color_func=new_congestion_level)
+    # plt.savefig(config.images.main_map, bbox_inches='tight', transparent=True)
 
+    plt.show()
 
-
-# zoom
-plt.axis([14308000, 14578000, 49970000, 50186000])
-
-plt.savefig(config.images.main_map, bbox_inches='tight', transparent=True)
-
-plt.show()
+pairs = edgePairs
 
 
+# plot_map_in_detail()
 
+plot_main_map()

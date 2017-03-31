@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.agents.amodsim.entity;
+package cz.agents.amodsim.entity.vehicle;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -32,6 +32,10 @@ import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandler;
 import cz.agents.alite.common.event.EventProcessor;
+import cz.agents.amodsim.DemandData;
+import cz.agents.amodsim.entity.DemandAgent;
+import cz.agents.amodsim.entity.OnDemandVehicleState;
+import cz.agents.amodsim.entity.OnDemandVehicleStation;
 import cz.agents.amodsim.statistics.StatisticEvent;
 import cz.agents.basestructures.Node;
 import java.util.ArrayList;
@@ -107,6 +111,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     private Node targetNode;
     
     private DelayData delayData;
+    
+    protected DemandData currentlyServedDemmand;
     
     
     
@@ -206,8 +212,9 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
     @Override
     public void handleEvent(Event event) {
-        leavingStationEvent();
-        List<Long> locations = ((cz.agents.amodsim.DemandData) event.getContent()).locations;
+        currentlyServedDemmand = (DemandData) event.getContent();
+        List<Long> locations = currentlyServedDemmand.locations;
+        
         demandNodes = new ArrayList<>();
 		if(precomputedPaths){
 			for (Long location : locations) {
@@ -218,6 +225,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 			demandNodes.add(nodesMappedByNodeSourceIds.get(locations.get(0)));
 			demandNodes.add(nodesMappedByNodeSourceIds.get(locations.get(locations.size() - 1)));
 		}
+        leavingStationEvent();
         driveToDemandStartLocation();
     }
     
@@ -227,6 +235,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
                 driveToTargetLocation();
                 break;
             case DRIVING_TO_TARGET_LOCATION:
+                dropOffDemand();
                 driveToNearestStation();
                 break;
             case DRIVING_TO_STATION:
@@ -284,6 +293,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
     protected void driveToTargetLocation() {
         state = OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION;
+        pickupDemand();
         
         departureStation.release(this);
         
@@ -291,6 +301,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 				
 //		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
         driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+        
     }
 
     protected void driveToNearestStation() {
@@ -325,7 +336,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		return null;
 	}
 
-    void driveToStation(OnDemandVehicleStation targetStation) {
+    public void driveToStation(OnDemandVehicleStation targetStation) {
         state = OnDemandVehicleState.REBALANCING;
         
         currentTrip = tripsUtil.createTrip(getPosition().id, 
@@ -367,6 +378,16 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     protected void leavingStationEvent() {
         eventProcessor.addEvent(StatisticEvent.VEHICLE_LEFT_STATION_TO_SERVE_DEMAND, null, null, 
                 timeProvider.getCurrentSimTime());
+    }
+
+    private void pickupDemand() {
+        currentlyServedDemmand.demandAgent.tripStarted();
+        cargo.add(currentlyServedDemmand.demandAgent);
+    }
+    
+    private void dropOffDemand() {
+        currentlyServedDemmand.demandAgent.tripEnded();
+        cargo.remove(currentlyServedDemmand.demandAgent);
     }
 
     

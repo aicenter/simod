@@ -1,7 +1,7 @@
 package cz.agents.amodsim.visio;
 
 
-import cz.agents.amodsim.entity.OnDemandVehicle;
+import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
 import cz.agents.amodsim.visio.OnDemandVehicleLayer;
 import cz.agents.agentpolis.simmodel.entity.AgentPolisEntity;

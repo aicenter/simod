@@ -8,6 +8,7 @@ import time
 import subprocess
 import os
 from sys import getsizeof
+import matplotlib.pyplot as plt
 
 from scripts.config_loader import cfg as config
 from scripts.printer import print_info, print_table
@@ -69,11 +70,72 @@ else:
 
 # a = 1
 
-sum_ap = result['counts'].sum()
+tsk_counts = result['join_VSE2015'] - result['join_POM2015'] - result['join_BUSMHD2015'] - result['join_TRAM2015']
 
-sum_tsk = result['join_VSE2015'].sum()
+ap_counts = result['counts']
 
-print("Total transit TSK: ")
+sum_ap = ap_counts.sum()
+
+sum_tsk = tsk_counts.sum()
+
+# fig, axis = \
+#     plt.subplots(1, 3, figsize=(24, 12))
+#
+# differences = tsk_counts - ap_counts
+# axis[0].hist(differences, 100)
+#
+# relative_diff = differences / tsk_counts
+# axis[1].hist(relative_diff, 100)
+#
+# ap_tsk_ratio = ap_counts / tsk_counts
+# axis[2].hist(ap_tsk_ratio, 100)
+#
+# plt.show()
+
+# fig, axis = \
+#     plt.subplots(2, 1, figsize=(24, 12), sharex=True, sharey=True)
+#
+# axis[0].hist(tsk_counts, 100)
+#
+# axis[1].hist(ap_counts, 100)
+#
+#
+# plt.show()
+
+# fig, axis = \
+#     plt.subplots(1, 1, figsize=(24, 12), sharex=True, sharey=True)
+#
+# axis.plot(sorted(tsk_counts))
+#
+# axis.plot(sorted(ap_counts))
+#
+#
+# plt.show()
+
+# fig, axis = \
+#     plt.subplots(1, 1, figsize=(24, 12), sharex=True, sharey=True)
+#
+# axis.plot(tsk_counts[ap_counts>1000])
+#
+# axis.plot(ap_counts[ap_counts>1000])
+#
+#
+# plt.show()
+
+fig, axis = \
+    plt.subplots(1, 1, figsize=(24, 12), sharex=True, sharey=True)
+
+axis.scatter(tsk_counts[ap_counts>1000], ap_counts[ap_counts>1000], alpha=0.3
+             )
+
+# axis.plot(ap_counts[ap_counts>1000])
+
+
+plt.show()
+
+
+
+# print("Total transit TSK: ")
 
 # if os.path.isfile(config.analysis.transit_statistic_filtered_file_path + ".npy"):
 #     print_info("loading filtered transit from cache")

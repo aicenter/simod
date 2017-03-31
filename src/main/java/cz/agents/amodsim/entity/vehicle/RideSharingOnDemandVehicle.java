@@ -3,12 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.agents.amodsim.entity;
+package cz.agents.amodsim.entity.vehicle;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.TripItem;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.agents.agentpolis.simmodel.activity.activityFactory.DriveActivityFactory;
@@ -19,6 +18,8 @@ import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventProcessor;
 import cz.agents.amodsim.OnDemandVehicleStationsCentral;
+import cz.agents.amodsim.entity.DemandAgent;
+import cz.agents.amodsim.entity.OnDemandVehicleState;
 import cz.agents.amodsim.tripUtil.TripsUtil;
 import cz.agents.basestructures.Node;
 import java.util.HashMap;
@@ -36,15 +37,15 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     
     private final LinkedList<Node> targetNodes;
     
-    private final LinkedList<DemandData> demands;
+    private final LinkedList<Demand> demands;
     
-    private final LinkedList<DemandData> pickedDemands;
+    private final LinkedList<Demand> pickedDemands;
     
-    private final Map<DemandAgent,DemandData> demandsData;
+    private final Map<DemandAgent,Demand> demandsData;
     
     private final PositionUtil positionUtil;
     
-    private DemandData currentlyServedDemmand;
+    private Demand currentlyServedDemmand;
     
     
     @Inject
@@ -85,7 +86,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
         // for the UseVehicleAsPassangerAction
         VehicleTrip demandTrip = tripsUtil.createTrip(startNode.id, targetNode.id, vehicle);
 //        demandsData.put(demandData.demandAgent, new DemandData(demandData.demandAgent, demandTrip));
-        demands.add(new DemandData(demandData.demandAgent, demandTrip));
+        demands.add(new Demand(demandData.demandAgent, demandTrip));
         
         // release from station in case of full car
         if(demands.size() + pickedDemands.size() == vehicle.getCapacity()){
@@ -160,7 +161,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     private void chooseTarget() {
 //        LinkedList<Node> collection = startNodes.isEmpty() ? targetNodes : startNodes;
 //        target = collection.poll();
-        LinkedList<DemandData> collection = demands.isEmpty() ? pickedDemands : demands;
+        LinkedList<Demand> collection = demands.isEmpty() ? pickedDemands : demands;
         currentlyServedDemmand = collection.poll();
     }
 
@@ -213,34 +214,6 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     
     
     
-    private class DemandData{
-        private final DemandAgent demandAgent;
-        
-        private final VehicleTrip<TripItem> demandTrip;
-
-        public DemandAgent getDemandAgent() {
-            return demandAgent;
-        }
-
-        public VehicleTrip getDemandTrip() {
-            return demandTrip;
-        }
-        
-        
-
-        public DemandData(DemandAgent demandAgent, VehicleTrip demandTrip) {
-            this.demandAgent = demandAgent;
-            this.demandTrip = demandTrip;
-        }
-        
-        public int getStartNodeId(){
-            return demandTrip.getLocations().getFirst().tripPositionByNodeId;
-        }
-        
-        public int getTargetNodeId(){
-            return demandTrip.getLocations().getLast().tripPositionByNodeId;
-        }
-        
-    }
+    
     
 }

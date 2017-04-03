@@ -12,8 +12,9 @@ def print_load_history(path):
 path1 = "/home/fido/AIC data/Shared/amod-data/agentpolis-experiment/Prague/experiment/default/allEdgesLoadHistory-minuteInterval.json"
 path2 = "/home/fido/AIC data/Shared/amod-data/agentpolis-experiment/Prague/experiment/default/allEdgesLoadHistory.json"
 path3 = "/home/fido/AIC data/Shared/amod-data/agentpolis-experiment/Prague/experiment/scaled/allEdgesLoadHistory.json"
+path4 = "/home/fido/AIC data/Shared/amod-data/agentpolis-experiment/Prague/experiment/scaled/test/allEdgesLoadHistory.json"
 
-print_load_history(path1)
+# print_load_history(path1)
 print_load_history(path2)
 print_load_history(path3)
-
+print_load_history(path4)

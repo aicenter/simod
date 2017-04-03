@@ -217,7 +217,7 @@ plt.savefig(config.images.traffic_density_current, bbox_inches='tight', transpar
 # DETAILED HISTOGRAMS
 
 #  current histogram
-plt.axis([0.04, 0.16, 0, 2000])
+plt.axis([0.04, 0.16, 0, 400])
 plt.savefig(config.images.traffic_density_current_detail, bbox_inches='tight', transparent=True)
 
 # future histogram

@@ -128,7 +128,14 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
                     demandServiceStatistics.add((DemandServiceStatistic) event.getContent());
             }
         }
-        if(event.getType() instanceof DriveEvent){
+        else if(event.getType() instanceof OnDemandVehicleEvent){
+            switch((OnDemandVehicleEvent) event.getType()){
+                case LEAVE_STATION:
+                    vehicleLeftStationToServeDemandTimes.add((Long) event.getContent());
+                    break;
+            }
+        }
+        else if(event.getType() instanceof DriveEvent){
             allTransit.add((Transit) event.getContent());
             if(allTransit.size() > TRANSIT_OUTPUT_BATCH_SIZE){
                 saveTransit();

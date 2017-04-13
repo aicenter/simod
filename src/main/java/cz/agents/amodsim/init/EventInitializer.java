@@ -7,6 +7,7 @@ package cz.agents.amodsim.init;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.agents.agentpolis.simmodel.IdGenerator;
 import cz.agents.amodsim.OnDemandVehicleStationsCentral;
 import cz.agents.amodsim.entity.DemandAgent;
 import cz.agents.amodsim.entity.DemandAgent.DemandAgentFactory;
@@ -60,10 +61,10 @@ public class EventInitializer {
     @Inject
     public EventInitializer(EventProcessor eventProcessor, SimulationCreator simulationCreator,
             DemandAgentFactory demandAgentFactory, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral,
-            Config config) {
+            Config config, DemandEventHandler demandEventHandler) {
         this.eventProcessor = eventProcessor;
         this.simulationCreator = simulationCreator;
-        this.demandEventHandler = new DemandEventHandler();
+        this.demandEventHandler = demandEventHandler;
         this.demandAgentFactory = demandAgentFactory;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.config = config;
@@ -109,7 +110,16 @@ public class EventInitializer {
     
     public class DemandEventHandler extends EventHandlerAdapter{
 		
-		private long idCounter = 0;
+		private final IdGenerator demandIdGenerator;
+
+        
+        
+        
+        @Inject
+        public DemandEventHandler(IdGenerator demandIdGenerator) {
+            this.demandIdGenerator = demandIdGenerator;
+        }
+
         
 		
 		
@@ -117,8 +127,10 @@ public class EventInitializer {
 		@Override
 		public void handleEvent(Event event) {
 			TimeTrip<Long> osmNodeTrip = (TimeTrip<Long>) event.getContent();
+            
+            int id = demandIdGenerator.getId();
 			
-			DemandAgent demandAgent = demandAgentFactory.create(Long.toString(idCounter++), osmNodeTrip);
+			DemandAgent demandAgent = demandAgentFactory.create("Demand " + Integer.toString(id), id, osmNodeTrip);
 			
 			simulationCreator.addAgent(demandAgent);
 		}

@@ -10,10 +10,9 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.agentpolis.siminfrastructure.time.TimeProvider;
+import cz.agents.agentpolis.simmodel.IdGenerator;
 import cz.agents.agentpolis.simmodel.activity.activityFactory.DriveActivityFactory;
-import cz.agents.agentpolis.simmodel.agent.activity.movement.DriveVehicleActivity;
 import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
-import cz.agents.agentpolis.simmodel.environment.model.entityvelocitymodel.EntityVelocityModel;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventProcessor;
@@ -52,11 +51,12 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     public RideSharingOnDemandVehicle(Map<Long,Node> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             DriveActivityFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor, 
-            TimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, @Assisted String vehicleId, 
+            TimeProvider timeProvider, IdGenerator rebalancingIdGenerator, 
+            @Named("precomputedPaths") boolean precomputedPaths, @Assisted String vehicleId, 
             @Assisted Node startPosition) {
         super(nodesMappedByNodeSourceIds, vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
-                driveActivityFactory, positionUtil, eventProcessor, timeProvider, precomputedPaths, vehicleId,
-                startPosition);
+                driveActivityFactory, positionUtil, eventProcessor, timeProvider, rebalancingIdGenerator,
+                precomputedPaths, vehicleId, startPosition);
         this.positionUtil = positionUtil;
         startNodes = new LinkedList<>();
         targetNodes = new LinkedList<>();

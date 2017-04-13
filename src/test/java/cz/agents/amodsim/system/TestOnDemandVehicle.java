@@ -9,6 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 import cz.agents.agentpolis.siminfrastructure.time.TimeProvider;
+import cz.agents.agentpolis.simmodel.IdGenerator;
 import cz.agents.agentpolis.simmodel.activity.activityFactory.DriveActivityFactory;
 import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
@@ -39,12 +40,12 @@ public class TestOnDemandVehicle extends OnDemandVehicle{
     public TestOnDemandVehicle(Map<Long, Node> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage,
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             DriveActivityFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor, 
-            TimeProvider timeProvider, StatisticControl statisticControl, 
+            TimeProvider timeProvider, StatisticControl statisticControl, IdGenerator rebalancingIdGenerator,
             @Named("precomputedPaths") boolean precomputedPaths, @Assisted String vehicleId, 
             @Assisted Node startPosition) {
         super(nodesMappedByNodeSourceIds, vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
-                driveActivityFactory, positionUtil, eventProcessor, timeProvider, precomputedPaths, vehicleId, 
-                startPosition);
+                driveActivityFactory, positionUtil, eventProcessor, timeProvider, rebalancingIdGenerator,
+                precomputedPaths, vehicleId, startPosition);
         this.statisticControl = statisticControl;
         demandTripsFinished = 0;
         tripsToStationFinished = 0;

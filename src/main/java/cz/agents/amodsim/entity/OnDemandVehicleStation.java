@@ -191,7 +191,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 //                System.out.println("com.mycompany.testsim.entity.OnDemandVehicleStation.rebalance()");
 //            }
 //            if(this.getPositionInGraph() = vehicle)
-            vehicle.driveToStation(rebalancingTrip.getLocations().getLast());
+            vehicle.startRebalancing(rebalancingTrip.getLocations().getLast());
             return true;
         }
         else{

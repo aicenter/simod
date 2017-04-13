@@ -31,6 +31,8 @@ import java.util.logging.Logger;
  * @author F-I-D-O
  */
 public class DemandAgent extends Agent implements EventHandler {
+    
+    private final int simpleId;
 	
 	private final TimeTrip<Long> osmNodeTrip;
     
@@ -58,6 +60,12 @@ public class DemandAgent extends Agent implements EventHandler {
     
     
     
+    public int getSimpleId() {
+        return simpleId;
+    }
+
+    
+    
     
     public DemandAgentState getState() {
         return state;
@@ -80,9 +88,10 @@ public class DemandAgent extends Agent implements EventHandler {
     @Inject
 	public DemandAgent(OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
             DemandStorage demandStorage, Map<Long,Node> nodesMappedByNodeSourceIds, TimeProvider timeProvider,
-            @Named("precomputedPaths") boolean precomputedPaths, @Assisted String agentId,
+            @Named("precomputedPaths") boolean precomputedPaths, @Assisted String agentId, @Assisted int id,
             @Assisted TimeTrip<Long> osmNodeTrip) {
 		super(agentId, DemandSimulationEntityType.DEMAND);
+        this.simpleId = id;
 		this.osmNodeTrip = osmNodeTrip;
 		this.precomputedPaths = precomputedPaths;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
@@ -152,7 +161,7 @@ public class DemandAgent extends Agent implements EventHandler {
     
     
     public interface DemandAgentFactory {
-        public DemandAgent create(String agentId, TimeTrip<Long> osmNodeTrip);
+        public DemandAgent create(String agentId, int id, TimeTrip<Long> osmNodeTrip);
     }
 	
 }

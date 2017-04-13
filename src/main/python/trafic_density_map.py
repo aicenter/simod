@@ -192,12 +192,12 @@ def plot_main_map():
     # axis[1][1].set_xlabel("Rebalancing")
     # axis[1][2].set_xlabel("New congestion")
 
-    axis[0][0].set_xlabel("a)")
-    axis[0][1].set_xlabel("b)")
-    axis[0][2].set_xlabel("c)")
-    axis[1][0].set_xlabel("d)")
-    axis[1][1].set_xlabel("e)")
-    axis[1][2].set_xlabel("f)")
+    axis[0][0].set_xlabel("a) All")
+    axis[0][1].set_xlabel("b) Pickup")
+    axis[0][2].set_xlabel("c) Demand")
+    axis[1][0].set_xlabel("d) Drop off")
+    axis[1][1].set_xlabel("e) Rebalancing")
+    axis[1][2].set_xlabel("f) New congestion")
 
     print_info("plotting all load")
     plot_edges_optimized(pairs, axis[0][0], loads["ALL"])

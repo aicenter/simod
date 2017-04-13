@@ -88,6 +88,20 @@ class TrafficDensityHistogram:
 
         return hist_per_phase
 
+    def get_non_empty_edges_statistic(self, load):
+        edge_id_set = self.get_all_edge_ids_for_window(load, WINDOW_START, WINDOW_END)
+        length_sum = 0
+        lane_count_sum = 0
+        for edge_id in edge_id_set:
+            edge = edges[edge_id]
+            length_sum += edge["length"];
+            lane_count_sum += edge["laneCount"]
+
+        length_avg = length_sum / len(edge_id_set)
+        lane_count_avg = lane_count_sum / len(edge_id_set)
+
+        return length_avg, lane_count_avg
+
     def get_average_density_list(self, load):
         edge_id_set = self.get_all_edge_ids_for_window(load, WINDOW_START, WINDOW_END)
         average_density_list = np.zeros(len(edge_id_set))
@@ -217,7 +231,7 @@ plt.savefig(config.images.traffic_density_current, bbox_inches='tight', transpar
 # DETAILED HISTOGRAMS
 
 #  current histogram
-plt.axis([0.04, 0.16, 0, 400])
+plt.axis([0.04, 0.16, 0, 60])
 plt.savefig(config.images.traffic_density_current_detail, bbox_inches='tight', transparent=True)
 
 # future histogram
@@ -239,19 +253,29 @@ for type_name in loads:
             if index >= WINDOW_START and index <= WINDOW_END:
                 total_load_in_window += timestep[edge_name]
 
-del loads
-
 
 edge_count = len(edges)
+average_lenght_non_empty_edges, average_lane_count_non_empty_edges = histogram.get_non_empty_edges_statistic(loads["ALL"])
+average_density_in_time_window_non_empty_edges = np.average(average_density_list_total_future)
+average_density_in_time_window = np.sum(average_density_list_total_future) / len(edges)
+max_density_in_time_window = np.max(average_density_list_total_future)
 congested_edges_before = histogram.get_number_of_congested_edges(hist, CONGESTION_INDEX)
 congested_edges_now = histogram.get_number_of_congested_edges(hist_total, CONGESTION_INDEX)
 congestion_increase = (congested_edges_now - congested_edges_before) / congested_edges_before
 empty_edges_now = edge_count - len(average_density_list_total_current)
 empty_edges_future = edge_count - len(average_density_list_total_future)
 
+del loads
+
+print("Total edges: {0}".format(edge_count))
+print("Average length non-empty edges: {0}".format(average_lenght_non_empty_edges))
+print("Average lane count non-empty edges: {0}".format(average_lane_count_non_empty_edges))
 print("Total edges: {0}".format(edge_count))
 print("Total load on all edges: {0}".format(total_load))
 print("Total load on all edges in time window: {0}".format(total_load_in_window))
+print("Average density in time window: {0}".format(average_density_in_time_window))
+print("Average density in time window - non-empty edges: {0}".format(average_density_in_time_window_non_empty_edges))
+print("Max density in time window: {0}".format(max_density_in_time_window))
 print("Congested edges before: {0}".format(congested_edges_before))
 print("Empty edges before: {0} - {1} of total edges".format(empty_edges_now, to_percetnt(empty_edges_now / edge_count)))
 print("Congested edges now: {0}".format(congested_edges_now))

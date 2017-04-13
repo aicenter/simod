@@ -16,7 +16,11 @@ import java.io.File;
 public class AmodsimAgentPolisConfiguration extends AgentPolisConfiguration{
     
     public AmodsimAgentPolisConfiguration(Config config) {
-        super(false, "", config.srid, (long) config.agentpolis.simulationDurationInMillis, new File(config.mapFilePath),
+        this(config, config.agentpolis.simulationDurationInMillis);
+    }
+    
+    public AmodsimAgentPolisConfiguration(Config config, long simulationDurationMilis) {
+        super(false, "", config.srid, simulationDurationMilis, new File(config.mapFilePath),
                 false, false, null, config.agentpolis.showVisio, "", mpsToKmph(config.vehicleSpeedInMeters), "", null);
     }
 

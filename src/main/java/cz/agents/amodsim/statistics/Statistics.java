@@ -110,6 +110,9 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     
     
     
+    public int getNumberOfVehiclsLeftStationToServeDemand(){
+        return vehicleLeftStationToServeDemandTimes.size();
+    }
 
     @Override
     public void handleEvent(Event event) {
@@ -232,7 +235,7 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
             metersRebalancingSum += onDemandVehicle.getMetersRebalancing();
         }
         
-        numberOfVehicles = onDemandVehicleStorage.getEntityIds().size();
+        numberOfVehicles = onDemandVehicleStorage.getEntities().size();
         
         averageKmWithPassenger = (double) metersWithPassengerSum / numberOfVehicles / 1000;
         averageKmToStartLocation = (double) metersToStartLocationSum / numberOfVehicles / 1000;

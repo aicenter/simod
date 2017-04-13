@@ -49,14 +49,12 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     
     
     @Inject
-    public RideSharingOnDemandVehicle(DriveVehicleActivity driveVehicleActivity, Map<Long,Node> nodesMappedByNodeSourceIds, 
-            VehicleStorage vehicleStorage, EntityVelocityModel entityVelocityModel, TripsUtil tripsUtil, 
-            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, DriveActivityFactory driveActivityFactory, 
-            PositionUtil positionUtil, EventProcessor eventProcessor, TimeProvider timeProvider,
-            @Named("precomputedPaths") boolean precomputedPaths, 
-            @Assisted String vehicleId, @Assisted Node startPosition) {
-        super(driveVehicleActivity, nodesMappedByNodeSourceIds, vehicleStorage, entityVelocityModel,
-                tripsUtil, onDemandVehicleStationsCentral,
+    public RideSharingOnDemandVehicle(Map<Long,Node> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage, 
+            TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
+            DriveActivityFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor, 
+            TimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, @Assisted String vehicleId, 
+            @Assisted Node startPosition) {
+        super(nodesMappedByNodeSourceIds, vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
                 driveActivityFactory, positionUtil, eventProcessor, timeProvider, precomputedPaths, vehicleId,
                 startPosition);
         this.positionUtil = positionUtil;

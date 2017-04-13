@@ -36,6 +36,9 @@ public class Simulation10MinuteTest {
     
     private static final int TEN_MINUTES_IN_MILIS = 600000;
     
+    // we expect trips to be no longer then 40 minutes
+    private static final int TRIP_MAX_DURATION = 2400000;
+    
     private static final int START_TIME_MILIS = 25200000;
     
     @Test
@@ -49,7 +52,8 @@ public class Simulation10MinuteTest {
         Common.setTestResultsDir(config, "test");
         
         // Guice configuration
-        AmodsimAgentPolisConfiguration configuration = new AmodsimAgentPolisConfiguration(config);
+        AmodsimAgentPolisConfiguration configuration = new AmodsimAgentPolisConfiguration(config, 
+                config.agentpolis.simulationDurationInMillis + TRIP_MAX_DURATION);
         AgentPolisInitializer agentPolisInitializer = new AgentPolisInitializer(configuration, new MainModule(config));
         agentPolisInitializer.overrideModule(new TestModule());
         Injector injector = agentPolisInitializer.initialize();

@@ -13,7 +13,7 @@ CRITICAL_DENSITY = config.critical_density
 
 
 
-WINDOW_LENGTH = config.analysis.chosen_window_end - config.analysis.chosen_window_start
+WINDOW_LENGTH = config.analysis.chosen_window_end - config.analysis.chosen_window_start + 1
 WINDOW_START = config.analysis.chosen_window_start
 WINDOW_END = config.analysis.chosen_window_end
 

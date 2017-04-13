@@ -17,7 +17,6 @@ import cz.agents.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandlerAdapter;
 import cz.agents.alite.common.event.EventProcessor;
-import cz.agents.amodsim.OnDemandVehiclesSimulation;
 import cz.agents.amodsim.config.Config;
 import java.util.List;
 import java.util.Random;

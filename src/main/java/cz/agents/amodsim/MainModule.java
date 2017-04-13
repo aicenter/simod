@@ -54,7 +54,7 @@ public class MainModule extends StandardAgentPolisModule{
     public MainModule(Config config) {
         super();
         this.config = config;
-        Log.init("AgentPolis logger", Level.FINEST, "log.txt");
+        Log.init("AgentPolis logger", Level.FINE, "log.txt");
     }
 
     @Override

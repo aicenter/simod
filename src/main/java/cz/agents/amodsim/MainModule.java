@@ -15,7 +15,6 @@ import com.google.inject.name.Names;
 import cz.agents.amodsim.entity.DemandAgent;
 import cz.agents.amodsim.entity.DemandAgent.DemandAgentFactory;
 import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
-import cz.agents.amodsim.entity.vehicle.OnDemandVehicle.OnDemandVehicleFactory;
 import cz.agents.amodsim.entity.OnDemandVehicleStation;
 import cz.agents.amodsim.entity.OnDemandVehicleStation.OnDemandVehicleStationFactory;
 import cz.agents.amodsim.tripUtil.TripsUtil;
@@ -32,6 +31,7 @@ import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwor
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
 import cz.agents.agentpolis.simulator.visualization.visio.VisioInitializer;
 import cz.agents.amodsim.config.Config;
+import cz.agents.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.agents.amodsim.entity.vehicle.RideSharingOnDemandVehicle;
 import cz.agents.basestructures.Node;
 import cz.agents.geotools.Transformer;
@@ -79,11 +79,11 @@ public class MainModule extends StandardAgentPolisModule{
 
         if(config.agentpolis.ridesharing){
             install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, RideSharingOnDemandVehicle.class)
-                .build(OnDemandVehicleFactory.class));
+                .build(OnDemandVehicleFactorySpec.class));
         }
         else{
             install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, OnDemandVehicle.class)
-                .build(OnDemandVehicleFactory.class));
+                .build(OnDemandVehicleFactorySpec.class));
         }
         install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, OnDemandVehicleStation.class)
             .build(OnDemandVehicleStationFactory.class));

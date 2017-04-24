@@ -46,10 +46,6 @@ public class EventInitializer {
 
     private final DemandEventHandler demandEventHandler;
     
-    private final SimulationCreator simulationCreator;
-    
-    private final DemandAgentFactory demandAgentFactory;
-    
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
     private final Config config;
@@ -59,13 +55,11 @@ public class EventInitializer {
     
     
     @Inject
-    public EventInitializer(EventProcessor eventProcessor, SimulationCreator simulationCreator,
-            DemandAgentFactory demandAgentFactory, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral,
-            Config config, DemandEventHandler demandEventHandler) {
+    public EventInitializer(EventProcessor eventProcessor, 
+            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, Config config, 
+            DemandEventHandler demandEventHandler) {
         this.eventProcessor = eventProcessor;
-        this.simulationCreator = simulationCreator;
         this.demandEventHandler = demandEventHandler;
-        this.demandAgentFactory = demandAgentFactory;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.config = config;
         eventCount = 0;
@@ -108,16 +102,26 @@ public class EventInitializer {
         }
     }
     
-    public class DemandEventHandler extends EventHandlerAdapter{
+    
+    
+    
+    public static class DemandEventHandler extends EventHandlerAdapter{
 		
 		private final IdGenerator demandIdGenerator;
-
+ 
+        private final DemandAgentFactory demandAgentFactory;
+        
+        private final SimulationCreator simulationCreator;
+        
         
         
         
         @Inject
-        public DemandEventHandler(IdGenerator demandIdGenerator) {
+        public DemandEventHandler(IdGenerator demandIdGenerator, DemandAgentFactory demandAgentFactory,
+                SimulationCreator simulationCreator) {
             this.demandIdGenerator = demandIdGenerator;
+            this.demandAgentFactory = demandAgentFactory;
+            this.simulationCreator = simulationCreator;
         }
 
         

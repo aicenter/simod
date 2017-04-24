@@ -47,7 +47,6 @@ print_info("9) - preprocessing trips in agentsim")
 process_trips_in_agentsim(config)
 
 
-
 print_info("PREPARATIONS COMPLETED")
 
 

@@ -12,7 +12,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import cz.agents.amodsim.DemandData;
 import cz.agents.amodsim.DemandSimulationEntityType;
 import cz.agents.amodsim.storage.OnDemandvehicleStationStorage;
-import cz.agents.amodsim.entity.vehicle.OnDemandVehicle.OnDemandVehicleFactory;
 import cz.agents.amodsim.io.TimeTrip;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
 import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
@@ -29,6 +28,7 @@ import cz.agents.alite.common.event.EventHandler;
 import cz.agents.alite.common.event.EventProcessor;
 import cz.agents.amodsim.OnDemandVehicleStationsCentral;
 import cz.agents.amodsim.config.Config;
+import cz.agents.amodsim.entity.vehicle.OnDemandVehicleFactory;
 import cz.agents.basestructures.GPSLocation;
 import cz.agents.basestructures.Node;
 import cz.agents.geotools.Transformer;
@@ -71,13 +71,13 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     
     
     @Inject
-    public OnDemandVehicleStation(Config config, EventProcessor eventProcessor, OnDemandVehicleFactory onDemandVehicleFactory, 
-            NearestElementUtils nearestElementUtils, OnDemandvehicleStationStorage onDemandVehicleStationStorage,
-			OnDemandVehicleStorage onDemandVehicleStorage, @Assisted String id, AgentPositionModel agentPositionModel,
-			@Assisted Node node, @Assisted int initialVehicleCount, 
-            VehiclePositionModel vehiclePositionModel, VehiclePositionUtil vehiclePositionUtil, Transformer transformer,
-            PositionUtil positionUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral,
-            Map<Long,Node> nodesMappedByNodeSourceIds) {
+    public OnDemandVehicleStation(Config config, EventProcessor eventProcessor, 
+            OnDemandVehicleFactory onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
+            OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 
+            @Assisted String id, AgentPositionModel agentPositionModel, @Assisted Node node, 
+            @Assisted int initialVehicleCount, VehiclePositionModel vehiclePositionModel, 
+            VehiclePositionUtil vehiclePositionUtil, Transformer transformer, PositionUtil positionUtil, 
+            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, Map<Long,Node> nodesMappedByNodeSourceIds) {
         super(id);
         this.eventProcessor = eventProcessor;
         setPosition(node);

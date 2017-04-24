@@ -23,10 +23,10 @@ import cz.agents.amodsim.CsvWriter;
 import cz.agents.amodsim.config.Config;
 import cz.agents.amodsim.io.Common;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,6 +63,10 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     private LinkedList<Transit> allTransit;
     
     private final CsvWriter transitWriter;
+    
+    private final HashMap<OnDemandVehicleEvent,LinkedList<OnDemandVehicleEventContent>> onDemandVehicleEvents;
+    
+    private final LinkedList<Integer> tripDistances;
    
     
     private long tickCount;
@@ -96,11 +100,17 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
         vehicleLeftStationToServeDemandTimes = new LinkedList<>();
         demandServiceStatistics = new LinkedList<>();
         allTransit = new LinkedList<>();
+        onDemandVehicleEvents = new HashMap<>();
+        tripDistances = new LinkedList<>();
         transitWriter = new CsvWriter(
                     Common.getFileWriter(config.agentpolis.statistics.transitStatisticFilePath));
         for(OnDemandVehicleState onDemandVehicleState : OnDemandVehicleState.values()){
             allEdgesLoadHistoryPerState.put(onDemandVehicleState, new LinkedList<>());
         }
+        for(OnDemandVehicleEvent onDemandVehicleEvent : OnDemandVehicleEvent.values()){
+            onDemandVehicleEvents.put(onDemandVehicleEvent, new LinkedList<>());
+        }
+        
         tickCount = 0;
         averageEdgeLoad = new LinkedList<>();
         maxLoad = 0;
@@ -111,7 +121,7 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
     
     
     public int getNumberOfVehiclsLeftStationToServeDemand(){
-        return vehicleLeftStationToServeDemandTimes.size();
+        return onDemandVehicleEvents.get(OnDemandVehicleEvent.LEAVE_STATION).size();
     }
 
     @Override
@@ -121,18 +131,13 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
                 case TICK:
                     handleTick();
                     break;
-                case VEHICLE_LEFT_STATION_TO_SERVE_DEMAND:
-                    vehicleLeftStationToServeDemandTimes.add((Long) event.getContent());
-                    break;
-                case DEMAND_PICKED_UP:
-                    demandServiceStatistics.add((DemandServiceStatistic) event.getContent());
             }
         }
         else if(event.getType() instanceof OnDemandVehicleEvent){
-            switch((OnDemandVehicleEvent) event.getType()){
-                case LEAVE_STATION:
-                    vehicleLeftStationToServeDemandTimes.add((Long) event.getContent());
-                    break;
+            OnDemandVehicleEvent onDemandVehicleEvent = (OnDemandVehicleEvent) event.getType();
+            addOndDemandVehicleEvent(onDemandVehicleEvent, (OnDemandVehicleEventContent) event.getContent());
+            if(onDemandVehicleEvent == OnDemandVehicleEvent.PICKUP){
+                tripDistances.add(((PickupEventContent) event.getContent()).getDemandTripLength());
             }
         }
         else if(event.getType() instanceof DriveEvent){
@@ -181,9 +186,9 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
         countAveragesFromAgents();
         saveResult();
         saveAllEdgesLoadHistory();
-        saveDepartures();
-        saveServiceStatistics();
         saveTransit();
+        saveOnDemandVehicleEvents();
+        saveDistances();
         try {
             transitWriter.close();
         } catch (IOException ex) {
@@ -266,33 +271,6 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
             Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-    private void saveDepartures() {
-        try {
-            CsvWriter writer = new CsvWriter(
-                    new FileWriter(config.agentpolis.statistics.carLeftStationToServeDemandTimesFilePath));
-            for (long departureTime : vehicleLeftStationToServeDemandTimes) {
-                writer.writeLine(Long.toString(departureTime));
-            }
-            writer.close();
-        } catch (IOException ex) {
-            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    private void saveServiceStatistics() {
-        try {
-            CsvWriter writer = new CsvWriter(
-                    new FileWriter(config.agentpolis.statistics.demandServiceStatisticFilePath));
-            for (DemandServiceStatistic demandServiceStatistic : demandServiceStatistics) {
-                writer.writeLine(Long.toString(demandServiceStatistic.getDemandTime()),
-                        Long.toString(demandServiceStatistic.getPickupTime()));
-            }
-            writer.close();
-        } catch (IOException ex) {
-            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
     
     private void saveTransit() {
         try {
@@ -304,6 +282,61 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
             allTransit = new LinkedList<>();
         } catch (IOException ex) {
             Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void saveDistances() {
+        try {
+            CsvWriter writer = new CsvWriter(
+                    Common.getFileWriter(config.agentpolis.statistics.tripDistancesFilePath));
+            for (Integer distance : tripDistances) {
+                writer.writeLine(Integer.toString(distance));
+            }
+            writer.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void addOndDemandVehicleEvent(OnDemandVehicleEvent onDemandVehicleEvent,
+            OnDemandVehicleEventContent onDemandVehicleEventContent) {
+        onDemandVehicleEvents.get(onDemandVehicleEvent).add(onDemandVehicleEventContent);
+    }
+
+    private void saveOnDemandVehicleEvents() {
+        for(OnDemandVehicleEvent onDemandVehicleEvent : OnDemandVehicleEvent.values()){
+            List<OnDemandVehicleEventContent> events = onDemandVehicleEvents.get(onDemandVehicleEvent);
+            String filepath = null;
+            switch(onDemandVehicleEvent){
+                case LEAVE_STATION:
+                    filepath = config.agentpolis.statistics.onDemandVehicleStatistic.leaveStationFilePath;
+                    break;
+                case PICKUP:
+                    filepath = config.agentpolis.statistics.onDemandVehicleStatistic.pickupFilePath;
+                    break;
+                case DROP_OFF:
+                    filepath = config.agentpolis.statistics.onDemandVehicleStatistic.dropOffFilePath;
+                    break;
+                case REACH_NEAREST_STATION:
+                    filepath = config.agentpolis.statistics.onDemandVehicleStatistic.reachNearestStationFilePath;
+                    break;
+                case START_REBALANCING:
+                    filepath = config.agentpolis.statistics.onDemandVehicleStatistic.startRebalancingFilePath;
+                    break;
+                case FINISH_REBALANCING:
+                    filepath = config.agentpolis.statistics.onDemandVehicleStatistic.finishRebalancingFilePath;
+                    break;
+            }
+            
+            try {
+                CsvWriter writer = new CsvWriter(Common.getFileWriter(filepath));
+                for (OnDemandVehicleEventContent event : events) {
+                    writer.writeLine(Long.toString(event.getTime()), Long.toString(event.getId()));
+                }
+                writer.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
     

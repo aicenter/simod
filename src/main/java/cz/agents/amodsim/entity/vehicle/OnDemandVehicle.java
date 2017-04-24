@@ -32,11 +32,13 @@ import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandler;
 import cz.agents.alite.common.event.EventProcessor;
 import cz.agents.amodsim.DemandData;
+import cz.agents.amodsim.config.Config;
 import cz.agents.amodsim.entity.DemandAgent;
 import cz.agents.amodsim.entity.OnDemandVehicleState;
 import cz.agents.amodsim.entity.OnDemandVehicleStation;
 import cz.agents.amodsim.statistics.OnDemandVehicleEvent;
 import cz.agents.amodsim.statistics.OnDemandVehicleEventContent;
+import cz.agents.amodsim.statistics.PickupEventContent;
 import cz.agents.basestructures.Node;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -53,9 +55,6 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     private static final double LENGTH = 4;
     
     private static final int CAPACITY = 5;
-    
-    // todo - change to velocity from config
-    private static final int VELOCITY = 50;
     
     
     
@@ -82,6 +81,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     private final TimeProvider timeProvider;
     
     private final IdGenerator rebalancingIdGenerator;
+    
+    private final Config config;
     
     
     private List<Node> demandNodes;
@@ -164,14 +165,12 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     
     
     
-    
     @Inject
     public OnDemandVehicle(Map<Long,Node> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             DriveActivityFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
-            TimeProvider timeProvider, IdGenerator rebalancingIdGenerator, 
-            @Named("precomputedPaths") boolean precomputedPaths, @Assisted String vehicleId, 
-            @Assisted Node startPosition) {
+            TimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, 
+            IdGenerator rebalancingIdGenerator, Config config, @Assisted String vehicleId, @Assisted Node startPosition) {
         super(vehicleId + " - autonomus agent", DemandSimulationEntityType.ON_DEMAND_VEHICLE);
         this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
         this.tripsUtil = tripsUtil;
@@ -182,6 +181,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         this.eventProcessor = eventProcessor;
         this.timeProvider = timeProvider;
         this.rebalancingIdGenerator = rebalancingIdGenerator;
+        this.config = config;
         
         vehicle = new Vehicle(vehicleId + " - vehicle", DemandSimulationEntityType.VEHICLE, LENGTH, CAPACITY, EGraphType.HIGHWAY);
         
@@ -369,7 +369,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
     @Override
     public double getVelocity() {
-        return VELOCITY;
+        return config.vehicleSpeedInMeters;
     }
 
     @Override
@@ -397,8 +397,9 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         currentlyServedDemmand.demandAgent.tripStarted();
         cargo.add(currentlyServedDemmand.demandAgent);
         eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
-                new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-                        currentlyServedDemmand.demandAgent.getSimpleId()));
+                new PickupEventContent(timeProvider.getCurrentSimTime(), 
+                        currentlyServedDemmand.demandAgent.getSimpleId(), 
+                        positionUtil.getTripLengthInMeters(demandTrip)));
     }
     
     protected void dropOffDemand() {
@@ -407,12 +408,6 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
                 new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
                         currentlyServedDemmand.demandAgent.getSimpleId()));
-    }
-
-    
-    
-    public interface OnDemandVehicleFactory {
-        public OnDemandVehicle create(String id, Node startPosition);
     }
     
     // todo - repair path planner and remove this

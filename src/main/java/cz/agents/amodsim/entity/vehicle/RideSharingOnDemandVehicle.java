@@ -17,6 +17,7 @@ import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventProcessor;
 import cz.agents.amodsim.OnDemandVehicleStationsCentral;
+import cz.agents.amodsim.config.Config;
 import cz.agents.amodsim.entity.DemandAgent;
 import cz.agents.amodsim.entity.OnDemandVehicleState;
 import cz.agents.amodsim.tripUtil.TripsUtil;
@@ -51,12 +52,12 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     public RideSharingOnDemandVehicle(Map<Long,Node> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             DriveActivityFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor, 
-            TimeProvider timeProvider, IdGenerator rebalancingIdGenerator, 
-            @Named("precomputedPaths") boolean precomputedPaths, @Assisted String vehicleId, 
+            TimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, 
+            IdGenerator rebalancingIdGenerator, Config config, @Assisted String vehicleId, 
             @Assisted Node startPosition) {
         super(nodesMappedByNodeSourceIds, vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
-                driveActivityFactory, positionUtil, eventProcessor, timeProvider, rebalancingIdGenerator,
-                precomputedPaths, vehicleId, startPosition);
+                driveActivityFactory, positionUtil, eventProcessor, timeProvider, precomputedPaths, 
+                rebalancingIdGenerator, config, vehicleId, startPosition);
         this.positionUtil = positionUtil;
         startNodes = new LinkedList<>();
         targetNodes = new LinkedList<>();

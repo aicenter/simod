@@ -1,0 +1,84 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package cz.agents.amodsim.entity.vehicle;
+
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.name.Named;
+import cz.agents.agentpolis.siminfrastructure.time.TimeProvider;
+import cz.agents.agentpolis.simmodel.IdGenerator;
+import cz.agents.agentpolis.simmodel.activity.activityFactory.DriveActivityFactory;
+import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
+import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.agents.alite.common.event.EventProcessor;
+import cz.agents.amodsim.OnDemandVehicleStationsCentral;
+import cz.agents.amodsim.config.Config;
+import cz.agents.amodsim.tripUtil.TripsUtil;
+import cz.agents.basestructures.Node;
+import java.util.Map;
+
+/**
+ *
+ * @author fido
+ */
+@Singleton
+public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
+    
+    protected final Map<Long,Node> nodesMappedByNodeSourceIds;
+    
+    protected final TripsUtil tripsUtil;
+    
+    private final boolean precomputedPaths;
+    
+    protected final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
+    
+    protected final  DriveActivityFactory driveActivityFactory;
+    
+    private final PositionUtil positionUtil;
+    
+    private final EventProcessor eventProcessor;
+    
+    private final TimeProvider timeProvider;
+    
+    private final IdGenerator rebalancingIdGenerator;
+    
+    private final VehicleStorage vehicleStorage;
+    
+    private final Config config;
+
+    
+    
+    
+    @Inject
+    public OnDemandVehicleFactory(Map<Long,Node> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage, 
+            TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
+            DriveActivityFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
+            TimeProvider timeProvider, IdGenerator rebalancingIdGenerator, 
+            @Named("precomputedPaths") boolean precomputedPaths, Config config, @Assisted String vehicleId, 
+            @Assisted Node startPosition) {
+        this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
+        this.tripsUtil = tripsUtil;
+        this.precomputedPaths = precomputedPaths;
+        this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
+        this.driveActivityFactory = driveActivityFactory;
+        this.positionUtil = positionUtil;
+        this.eventProcessor = eventProcessor;
+        this.timeProvider = timeProvider;
+        this.rebalancingIdGenerator = rebalancingIdGenerator;
+        this.vehicleStorage = vehicleStorage;
+        this.config = config;
+    }
+    
+    
+    
+    @Override
+    public OnDemandVehicle create(String vehicleId, Node startPosition){
+        return new OnDemandVehicle(nodesMappedByNodeSourceIds, vehicleStorage, tripsUtil, 
+                onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, eventProcessor, timeProvider, 
+                precomputedPaths, rebalancingIdGenerator, config, vehicleId, startPosition);
+    }
+}

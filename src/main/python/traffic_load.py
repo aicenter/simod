@@ -126,14 +126,16 @@ def color_from_map(value):
 
 
 class VehiclePhase(Enum):
-    DRIVING_TO_TARGET_LOCATION = ("blue", 0)
-    DRIVING_TO_START_LOCATION = ("green", 1)
-    DRIVING_TO_STATION = ("black", 2)
-    REBALANCING = ("red", 3)
+    DRIVING_TO_TARGET_LOCATION = (0, "blue", "///", "demand_trips")
+    DRIVING_TO_START_LOCATION = (1, "green", "+++", "pickup_trips")
+    DRIVING_TO_STATION = (2, "black", "\\\\\\", "drop off trips")
+    REBALANCING = (3, "red", "***", "rebalancing trips")
 
-    def __init__(self, color, index):
+    def __init__(self, index, color, pattern, label):
         self.color = color
         self.index = index
+        self.pattern = pattern
+        self.label = label
 
 
 class TrafficDensityLevel(Enum):

@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.collections as collections
 import sys
+from matplotlib import rcParams
 
 from scripts.config_loader import cfg as config
 from scripts.printer import print_info, print_table
@@ -50,7 +51,7 @@ class TrafficDensityHistogram:
 
         return hist
 
-    def plot_phases_share_histogram(self, loads, axis, average_density_list_total, hist_step, bins, centers):
+    def plot_phases_share_histogram(self, loads, axis, average_density_list_total, hist_step, bins, centers, colors):
         average_density_by_phase = self.get_average_density_by_phase(loads)
         average_density_share_by_phase = average_density_by_phase / average_density_by_phase.sum(axis=0)
 
@@ -73,18 +74,9 @@ class TrafficDensityHistogram:
 
         bottom = np.zeros(len(hist_total))
         for phase in VehiclePhase:
-            axis.bar(centers, hist_per_phase[phase.index], 0.01, color=phase.color, bottom=bottom)
+            axis.bar(centers, hist_per_phase[phase.index], 0.01, hatch=phase.pattern, color=colors, bottom=bottom,
+                     edgecolor='lightgrey', label=phase.label, linewidth=0) #color=phase.color
             bottom += hist_per_phase[phase.index]
-
-        min_density = 0
-
-        # background
-        for traffic_level in traffic_load.TrafficDensityLevel:
-            max_density = traffic_level.get_max_density()
-            collection = collections.BrokenBarHCollection([(min_density, max_density - min_density)], (0,1000000),
-                                                          facecolor=traffic_level.color, alpha=0.75)
-            axis.add_collection(collection)
-            min_density = max_density
 
         return hist_per_phase
 
@@ -204,9 +196,14 @@ loads = traffic_load.load_all_edges_load_history()
 fig, axis = \
     plt.subplots(1, 1, sharex=True, sharey=True, subplot_kw={"adjustable": 'datalim'}, figsize=(6, 4))
 
-axis.set_xlabel("y")
-axis.set_ylabel("count")
+# fix for the cut off label when resizing the graph
+rcParams.update({'figure.autolayout': True})
 
+# axis.set_xlabel("y")
+axis.set_xlabel("traffic density")
+axis.set_ylabel("edge count")
+
+# grid
 np.vectorize(lambda x: x.grid(True))(axis)
 
 histogram = TrafficDensityHistogram()
@@ -221,17 +218,23 @@ colors = np.asarray(map(traffic_load.get_color_from_normalized_load, np.copy(bin
 
 # histogram.plot_phases_histogram(loads, axis[1])
 
+# critical density line
+axis.axvline(x=config.critical_density, linewidth=3, color='black', linestyle='--', label='critical density')
 
 # curent histogram
 average_density_list_total_current = histogram.get_average_density_list(loads[VehiclePhase.DRIVING_TO_TARGET_LOCATION.name]);
 hist = histogram.plot_state(axis, average_density_list_total_current, hist_step, bins, centers, colors)
+
+# legend
+axis.legend(prop={'size': 13})
+
 plt.savefig(config.images.traffic_density_current, bbox_inches='tight', transparent=True)
 
 
 # DETAILED HISTOGRAMS
 
-#  current histogram
-plt.axis([0.04, 0.16, 0, 60])
+#  current histogram - detailed
+plt.axis([0.04, 0.16, 0, 800])
 plt.savefig(config.images.traffic_density_current_detail, bbox_inches='tight', transparent=True)
 
 # future histogram
@@ -240,7 +243,13 @@ hist_total = histogram.plot_state(axis, average_density_list_total_future, hist_
 plt.savefig(config.images.traffic_density_future_detail, bbox_inches='tight', transparent=True)
 
 # stacked histogram
-hist_per_phase = histogram.plot_phases_share_histogram(loads, axis, average_density_list_total_future, hist_step, bins, centers)
+hist_per_phase = histogram.plot_phases_share_histogram(
+    loads, axis, average_density_list_total_future, hist_step, bins, centers, colors)
+
+# legend
+axis.legend(prop={'size': 13})
+np.vectorize(lambda x: x.set_facecolor('black'))(axis.get_legend().legendHandles[1:])
+
 plt.savefig(config.images.traffic_density_future_detail_stacked, bbox_inches='tight', transparent=True)
 
 total_load = 0

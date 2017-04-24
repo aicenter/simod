@@ -8,6 +8,7 @@ package cz.agents.amodsim.system;
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
+import cz.agents.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.agents.amodsim.statistics.EdgesLoadByState;
 
 /**
@@ -22,7 +23,7 @@ public class TestModule extends AbstractModule{
         bind(EdgesLoadByState.class).to(OnDemandVehicleLoad.class);
         
         install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, TestOnDemandVehicle.class)
-                .build(OnDemandVehicle.OnDemandVehicleFactory.class));
+                .build(OnDemandVehicleFactorySpec.class));
     }
     
     

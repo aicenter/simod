@@ -85,8 +85,8 @@ public class OnDemandVehicleLayer extends AbstractLayer{
         int y2 = (int) (agentPosition.getY() + radius);
         if (x2 > 0 && x1 < dim.width && y2 > 0 && y1 < dim.height) {
             canvas.fillOval(x1, y1, width, width);
-            if(agent.getCargo().size() > 1){
-                VisioUtils.printTextWithBackgroud(canvas, Integer.toString(agent.getCargo().size()), 
+            if(agent.getTransportedEntities().size() > 1){
+                VisioUtils.printTextWithBackgroud(canvas, Integer.toString(agent.getTransportedEntities().size()), 
                     new Point((int) (x1 - TEXT_MARGIN_BOTTOM), y1 - (y2 - y1) / 2), color, 
                     TEXT_BACKGROUND_COLOR);
             }

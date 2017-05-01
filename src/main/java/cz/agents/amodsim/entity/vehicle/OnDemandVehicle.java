@@ -373,7 +373,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     }
 
     @Override
-    public List<AgentPolisEntity> getCargo() {
+    public List<AgentPolisEntity> getTransportedEntities() {
         return cargo;
     }
 

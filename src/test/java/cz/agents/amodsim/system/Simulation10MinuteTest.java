@@ -6,12 +6,11 @@
 package cz.agents.amodsim.system;
 
 import com.google.inject.Injector;
-import com.google.inject.util.Modules;
 import cz.agents.agentpolis.AgentPolisInitializer;
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.agentpolis.utils.config.ConfigReaderException;
 import cz.agents.amodsim.AmodsimAgentPolisConfiguration;
-import cz.agents.amodsim.Configuration;
+import ninja.fido.config.Configuration;
 import cz.agents.amodsim.MainModule;
 import cz.agents.amodsim.MapInitializer;
 import cz.agents.amodsim.OnDemandVehiclesSimulation;
@@ -43,7 +42,7 @@ public class Simulation10MinuteTest {
     
     @Test
     public void run() throws ConfigReaderException {
-        Config config = new Configuration().load();
+        Config config = Configuration.load(new Config());
         
         //config overwrite
         config.agentpolis.simulationDurationInMillis = TEN_MINUTES_IN_MILIS;

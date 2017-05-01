@@ -5,6 +5,7 @@
  */
 package cz.agents.amodsim;
 
+import ninja.fido.config.Configuration;
 import com.google.inject.Injector;
 import cz.agents.agentpolis.AgentPolisInitializer;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
@@ -21,7 +22,7 @@ public class EdgesToJson {
     
     public static void main(String[] args) {
         
-        Config config = new Configuration().load();
+        Config config = Configuration.load(new Config());
         AmodsimAgentPolisConfiguration configuration = new AmodsimAgentPolisConfiguration(config);
         
         Injector injector = new AgentPolisInitializer(configuration, new MainModule(config)).initialize();

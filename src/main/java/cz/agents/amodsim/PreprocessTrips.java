@@ -5,9 +5,8 @@
  */
 package cz.agents.amodsim;
 
+import ninja.fido.config.Configuration;
 import cz.agents.amodsim.config.Config;
-import cz.agents.amodsim.configLoader.ConfigBuilder;
-import cz.agents.amodsim.configLoader.ConfigParser;
 import cz.agents.amodsim.io.TripTransform;
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +33,7 @@ public class PreprocessTrips {
 //		} catch (IOException ex) {
 //			Logger.getLogger(PrepareSCKData.class.getName()).log(Level.SEVERE, null, ex);
 //		}
-        Config config = new Configuration().load();
+        Config config = Configuration.load(new Config());
         
         try {
             tripTransform.tripsFromTxtToJson(new File(config.agentpolis.tripsPath), new File(config.mapFilePath), 

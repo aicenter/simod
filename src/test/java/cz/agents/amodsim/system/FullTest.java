@@ -9,7 +9,7 @@ import com.google.inject.Injector;
 import cz.agents.agentpolis.AgentPolisInitializer;
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.amodsim.AmodsimAgentPolisConfiguration;
-import cz.agents.amodsim.Configuration;
+import ninja.fido.config.Configuration;
 import cz.agents.amodsim.MainModule;
 import cz.agents.amodsim.MapInitializer;
 import cz.agents.amodsim.OnDemandVehiclesSimulation;
@@ -31,7 +31,7 @@ import java.util.logging.Logger;
  */
 public class FullTest {
     public static void runFullTest(int duration, int startTime, long timeForFinishingEvents){
-        Config config = new Configuration().load();
+        Config config = Configuration.load(new Config());
         
         //config overwrite
         config.agentpolis.simulationDurationInMillis = duration;

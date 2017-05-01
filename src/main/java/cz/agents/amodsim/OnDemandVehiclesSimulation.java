@@ -2,6 +2,7 @@
  */
 package cz.agents.amodsim;
 
+import ninja.fido.config.Configuration;
 import com.google.inject.Injector;
 import cz.agents.amodsim.init.EventInitializer;
 import cz.agents.amodsim.init.StatisticInitializer;
@@ -31,7 +32,7 @@ public class OnDemandVehiclesSimulation {
 
 
     public void run() throws ConfigReaderException {
-        Config config = new Configuration().load();
+        Config config = Configuration.load(new Config());
         AmodsimAgentPolisConfiguration configuration = new AmodsimAgentPolisConfiguration(config);
         
         Injector injector = new AgentPolisInitializer(configuration, new MainModule(config)).initialize();

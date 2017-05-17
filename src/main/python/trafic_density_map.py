@@ -39,7 +39,7 @@ def plot_edges_optimized(pairs, axis, loads=loads["ALL"], color_func=None):
         colorType = {}
         colorType["xPairs"] = []
         colorType["yPairs"] = []
-        colorType["width"] = 0.5 if level == TrafficDensityLevel.FREE else 3.0
+        colorType["width"] = 0.5 if level == TrafficDensityLevel.FREE else 2.0
         colorType["opacity"] = 1.0 if level == TrafficDensityLevel.FREE else 1.0
         colorTypes[level] = colorType
 

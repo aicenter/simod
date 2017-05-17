@@ -17,7 +17,7 @@ import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.common.event.EventProcessor;
 import cz.agents.amodsim.OnDemandVehicleStationsCentral;
 import cz.agents.amodsim.config.Config;
-import cz.agents.amodsim.tripUtil.TripsUtil;
+import cz.agents.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.agents.basestructures.Node;
 import java.util.Map;
 

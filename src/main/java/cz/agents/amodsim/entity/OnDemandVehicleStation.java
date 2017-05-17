@@ -78,9 +78,8 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             @Assisted int initialVehicleCount, VehiclePositionModel vehiclePositionModel, 
             VehiclePositionUtil vehiclePositionUtil, Transformer transformer, PositionUtil positionUtil, 
             OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, Map<Long,Node> nodesMappedByNodeSourceIds) {
-        super(id);
+        super(id, node);
         this.eventProcessor = eventProcessor;
-        setPosition(node);
         parkedVehicles = new LinkedList<>();
         for (int i = 0; i < initialVehicleCount; i++) {
 			String onDemandVehicelId = String.format("%s-%d", id, i);

@@ -5,6 +5,7 @@
  */
 package cz.agents.amodsim.tripUtil;
 
+import cz.agents.agentpolis.siminfrastructure.planner.TripsUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
@@ -15,8 +16,9 @@ import cz.agents.amodsim.statistics.Statistics;
 import cz.agents.agentpolis.siminfrastructure.planner.TripPlannerException;
 import cz.agents.agentpolis.siminfrastructure.planner.path.ShortestPathPlanners;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
-import cz.agents.agentpolis.simmodel.entity.vehicle.Vehicle;
+import cz.agents.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.NearestElementUtils;
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.agentpolis.simulator.creator.SimulationFinishedListener;
 import cz.agents.amodsim.config.Config;
@@ -48,9 +50,9 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
 
 
     @Inject
-    public TripsUtilCached(ShortestPathPlanners pathPlanners, SimulationCreator simulationCreator, 
-            Config configuration) throws IOException {
-        super(pathPlanners);
+    public TripsUtilCached(ShortestPathPlanners pathPlanners, NearestElementUtils nearestElementUtils, 
+            SimulationCreator simulationCreator, Config configuration) throws IOException {
+        super(pathPlanners, nearestElementUtils);
         
         mapper = new ObjectMapper();
         mapper.registerModule(new MyModule());
@@ -73,7 +75,7 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
 
 
     @Override
-    public VehicleTrip createTrip(int startNodeId, int targetNodeId, Vehicle vehicle) {
+    public VehicleTrip createTrip(int startNodeId, int targetNodeId, PhysicalVehicle vehicle) {
         if (startNodeId == targetNodeId) {
             try {
                 throw new Exception("Start node cannot be the same as end node");

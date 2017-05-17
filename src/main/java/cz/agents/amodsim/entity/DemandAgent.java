@@ -7,7 +7,6 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 import cz.agents.amodsim.DemandData;
-import cz.agents.amodsim.DemandSimulationEntityType;
 import cz.agents.amodsim.OnDemandVehicleStationsCentral;
 import cz.agents.amodsim.event.OnDemandVehicleStationsCentralEvent;
 import cz.agents.amodsim.io.TimeTrip;
@@ -15,10 +14,12 @@ import cz.agents.amodsim.storage.DemandStorage;
 import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
 import cz.agents.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.agents.agentpolis.simmodel.Agent;
-import cz.agents.agentpolis.simmodel.entity.vehicle.Vehicle;
+import cz.agents.agentpolis.simmodel.entity.EntityType;
+import cz.agents.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandler;
 import cz.agents.alite.common.event.EventProcessor;
+import cz.agents.amodsim.DemandSimulationEntityType;
 import cz.agents.amodsim.statistics.DemandServiceStatistic;
 import cz.agents.amodsim.statistics.StatisticEvent;
 import cz.agents.basestructures.Node;
@@ -51,7 +52,7 @@ public class DemandAgent extends Agent implements EventHandler {
     
     private DemandAgentState state;
     
-    private Vehicle vehicle;
+    private PhysicalVehicle vehicle;
     
     private OnDemandVehicle onDemandVehicle;
     
@@ -71,7 +72,7 @@ public class DemandAgent extends Agent implements EventHandler {
         return state;
     }
 
-    public Vehicle getVehicle() {
+    public PhysicalVehicle getVehicle() {
         return vehicle;
     }
 
@@ -90,7 +91,7 @@ public class DemandAgent extends Agent implements EventHandler {
             DemandStorage demandStorage, Map<Long,Node> nodesMappedByNodeSourceIds, TimeProvider timeProvider,
             @Named("precomputedPaths") boolean precomputedPaths, @Assisted String agentId, @Assisted int id,
             @Assisted TimeTrip<Long> osmNodeTrip) {
-		super(agentId, DemandSimulationEntityType.DEMAND);
+		super(agentId, nodesMappedByNodeSourceIds.get(osmNodeTrip.getLocations().get(0)));
         this.simpleId = id;
 		this.osmNodeTrip = osmNodeTrip;
 		this.precomputedPaths = precomputedPaths;
@@ -108,7 +109,6 @@ public class DemandAgent extends Agent implements EventHandler {
 	@Override
 	public void born() {
         demandStorage.addEntity(this);
-        setPosition(nodesMappedByNodeSourceIds.get(osmNodeTrip.getLocations().get(0)));
 		eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.DEMAND, onDemandVehicleStationsCentral, null, 
                 new DemandData(osmNodeTrip.getLocations(), this));
         demandTime = timeProvider.getCurrentSimTime();
@@ -155,6 +155,11 @@ public class DemandAgent extends Agent implements EventHandler {
 
     public void tripStarted() {
         state = DemandAgentState.RIDING;
+    }
+
+    @Override
+    public EntityType getType() {
+        return DemandSimulationEntityType.DEMAND;
     }
 
     

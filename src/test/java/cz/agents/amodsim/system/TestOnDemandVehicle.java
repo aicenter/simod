@@ -18,7 +18,7 @@ import cz.agents.amodsim.OnDemandVehicleStationsCentral;
 import cz.agents.amodsim.config.Config;
 import cz.agents.amodsim.entity.OnDemandVehicleState;
 import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
-import cz.agents.amodsim.tripUtil.TripsUtil;
+import cz.agents.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.agents.basestructures.Node;
 import java.util.Map;
 import org.junit.Assert;

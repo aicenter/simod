@@ -17,7 +17,7 @@ import cz.agents.amodsim.entity.DemandAgent.DemandAgentFactory;
 import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.agents.amodsim.entity.OnDemandVehicleStation;
 import cz.agents.amodsim.entity.OnDemandVehicleStation.OnDemandVehicleStationFactory;
-import cz.agents.amodsim.tripUtil.TripsUtil;
+import cz.agents.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.agents.amodsim.tripUtil.TripsUtilCached;
 import cz.agents.amodsim.visio.DemandLayer;
 import cz.agents.amodsim.visio.DemandLayerWithJitter;

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.agents.agentpolis.siminfrastructure.planner.path.ShortestPathPlanner;
 import cz.agents.amodsim.entity.DemandAgent;
 import cz.agents.amodsim.jackson.MyModule;
 import cz.agents.amodsim.statistics.Statistics;
@@ -47,6 +48,8 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
     private HashMap<StartTargetNodePair, SimpleJsonTrip> newTrips;
     
     private int cacheFileCounter;
+
+    private ShortestPathPlanner pathPlanner;
 
 
     @Inject

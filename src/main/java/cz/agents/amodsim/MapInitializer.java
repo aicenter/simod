@@ -9,6 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.GraphType;
+import cz.agents.agentpolis.simulator.visualization.visio.Bounds;
 import cz.agents.amodsim.graphbuilder.SimulationGraphBuilder;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
@@ -28,26 +29,26 @@ import java.util.Map;
 /**
  * @author david
  */
-public class MapInitializer{
+public class MapInitializer {
 
     private static final Logger LOGGER = Logger.getLogger(MapInitializer.class);
 
     private final int srid;
-    
+
     private final File mapFile;
-    
+
     private final SimulationGraphBuilder roadNetworkGraphBuilder;
 
     /**
      * Constructor
      *
-     * @param srid coordinate system
+     * @param srid                    coordinate system
      * @param mapFile
      * @param roadNetworkGraphBuilder
      */
     @Inject
-    public MapInitializer(@Named("mapSrid") int srid, @Named("osm File") File mapFile, 
-            SimulationGraphBuilder roadNetworkGraphBuilder) {
+    public MapInitializer(@Named("mapSrid") int srid, @Named("osm File") File mapFile,
+                          SimulationGraphBuilder roadNetworkGraphBuilder) {
         this.srid = srid;
         this.mapFile = mapFile;
         this.roadNetworkGraphBuilder = roadNetworkGraphBuilder;
@@ -56,6 +57,7 @@ public class MapInitializer{
 
     /**
      * init map
+     *
      * @return map data with simulation graph
      */
     public MapData getMap() {
@@ -71,6 +73,7 @@ public class MapInitializer{
         }
         Map<Integer, SimulationNode> nodes = createAllGraphNodes(graphs);
         Bounds bounds = computeBounds(nodes.values());
+
         LOGGER.info("Graphs imported, highway graph details: " + graphs.get(EGraphType.HIGHWAY));
         return new MapData(bounds, graphs, nodes);
     }
@@ -135,11 +138,18 @@ public class MapInitializer{
     }
 
     private Bounds computeBounds(Collection<SimulationNode> nodes) {
+
         double latMin = Double.POSITIVE_INFINITY;
+        int latMinProjected = 0;
+
         double latMax = Double.NEGATIVE_INFINITY;
+        int latMaxProjected = 0;
 
         double lonMin = Double.POSITIVE_INFINITY;
+        int lonMinProjected = 0;
+
         double lonMax = Double.NEGATIVE_INFINITY;
+        int lonMaxProjected = 0;
 
         Node latMinNode = null;
         Node latMaxNode = null;
@@ -148,7 +158,7 @@ public class MapInitializer{
 
         for (Node node : nodes) {
             double lat = node.getLatitude();
-            double lon = node.getLongitude();
+            int latProjected = node.getLatProjected();
 
             if (lat < latMin) {
                 latMin = lat;

@@ -50,6 +50,8 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
     
     private int cacheFileCounter;
 
+    private ShortestPathPlanner pathPlanner;
+
 
     @Inject
     public TripsUtilCached(ShortestPathPlanners pathPlanners, NearestElementUtils nearestElementUtils, 

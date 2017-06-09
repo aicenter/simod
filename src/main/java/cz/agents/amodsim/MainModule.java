@@ -18,6 +18,8 @@ import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.agents.amodsim.entity.OnDemandVehicleStation;
 import cz.agents.amodsim.entity.OnDemandVehicleStation.OnDemandVehicleStationFactory;
 import cz.agents.agentpolis.siminfrastructure.planner.TripsUtil;
+import cz.agents.agentpolis.simmodel.activity.activityFactory.CongestedDriveFactory;
+import cz.agents.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.agents.amodsim.tripUtil.TripsUtilCached;
 import cz.agents.amodsim.visio.DemandLayer;
 import cz.agents.amodsim.visio.DemandLayerWithJitter;
@@ -76,6 +78,8 @@ public class MainModule extends StandardAgentPolisModule{
         bind(EntityStorage.class).to(VehicleStorage.class);
         bind(TripsUtil.class).to(TripsUtilCached.class);
         bind(DemandLayer.class).to(DemandLayerWithJitter.class);
+        
+        bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
 
         if(config.agentpolis.ridesharing){
             install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, RideSharingOnDemandVehicle.class)
@@ -85,8 +89,8 @@ public class MainModule extends StandardAgentPolisModule{
             install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, OnDemandVehicle.class)
                 .build(OnDemandVehicleFactorySpec.class));
         }
-        install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, OnDemandVehicleStation.class)
-            .build(OnDemandVehicleStationFactory.class));
+//        install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, OnDemandVehicleStation.class)
+//            .build(OnDemandVehicleStationFactory.class));
         install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
             .build(DemandAgentFactory.class));
     }

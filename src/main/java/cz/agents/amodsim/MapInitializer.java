@@ -13,7 +13,9 @@ import cz.agents.amodsim.graphbuilder.SimulationGraphBuilder;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.agentpolis.simulator.creator.initializator.impl.MapData;
+import cz.agents.agentpolis.simulator.visualization.visio.Bounds;
 import cz.agents.basestructures.BoundingBox;
+import cz.agents.basestructures.GPSLocation;
 import cz.agents.basestructures.Graph;
 import cz.agents.basestructures.Node;
 import org.apache.log4j.Logger;
@@ -68,7 +70,7 @@ public class MapInitializer{
             serializeGraphs(graphs, mapFile.getAbsolutePath() + ".ser");
         }
         Map<Integer, SimulationNode> nodes = createAllGraphNodes(graphs);
-        BoundingBox bounds = computeBounds(nodes.values());
+        Bounds bounds = computeBounds(nodes.values());
         LOGGER.info("Graphs imported, highway graph details: " + graphs.get(EGraphType.HIGHWAY));
         return new MapData(bounds, graphs, nodes);
     }
@@ -132,23 +134,41 @@ public class MapInitializer{
 
     }
 
-    private BoundingBox computeBounds(Collection<SimulationNode> nodes) {
+    private Bounds computeBounds(Collection<SimulationNode> nodes) {
         double latMin = Double.POSITIVE_INFINITY;
         double latMax = Double.NEGATIVE_INFINITY;
 
         double lonMin = Double.POSITIVE_INFINITY;
         double lonMax = Double.NEGATIVE_INFINITY;
 
+        Node latMinNode = null;
+        Node latMaxNode = null;
+        Node lonMinNode = null;
+        Node lonMaxNode = null;
+
         for (Node node : nodes) {
             double lat = node.getLatitude();
             double lon = node.getLongitude();
 
-            if (lat < latMin) latMin = lat;
-            else if (lat > latMax) latMax = lat;
-            if (lon < lonMin) lonMin = lon;
-            else if (lon > lonMax) lonMax = lon;
+            if (lat < latMin) {
+                latMin = lat;
+                latMinNode = node;
+            } else if (lat > latMax) {
+                latMax = lat;
+                latMaxNode = node;
+            }
+            if (lon < lonMin) {
+                lonMin = lon;
+                lonMinNode = node;
+            } else if (lon > lonMax) {
+                lonMax = lon;
+                lonMaxNode = node;
+            }
+
         }
-        return new BoundingBox((int) (lonMin * 1E6), (int) (latMin * 1E6), (int) (lonMax * 1E6), (int) (latMax * 1E6));
+        GPSLocation minNode = new GPSLocation(latMinNode.getLatitude(), lonMinNode.getLongitude(), latMinNode.getLatProjected(), lonMinNode.getLonProjected());
+        GPSLocation maxNode = new GPSLocation(latMaxNode.getLatitude(), lonMaxNode.getLongitude(), latMaxNode.getLatProjected(), lonMaxNode.getLonProjected());
+        return new Bounds(minNode, maxNode);
     }
 
 }

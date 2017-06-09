@@ -20,7 +20,8 @@ import cz.agents.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.agents.agentpolis.simmodel.Activity;
 import cz.agents.agentpolis.simmodel.Agent;
 import cz.agents.agentpolis.simmodel.IdGenerator;
-import cz.agents.agentpolis.simmodel.activity.activityFactory.DriveActivityFactory;
+import cz.agents.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
+import cz.agents.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
 import cz.agents.agentpolis.simmodel.agent.Driver;
 import cz.agents.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.agents.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
@@ -76,7 +77,9 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     
     protected final List<AgentPolisEntity> cargo;
     
-    protected final  DriveActivityFactory driveActivityFactory;
+//    protected final  StandardDriveFactory driveActivityFactory;
+    
+    protected final PhysicalVehicleDriveFactory driveFactory;
     
     private final PositionUtil positionUtil;
     
@@ -165,7 +168,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     @Inject
     public OnDemandVehicle(Map<Long,Node> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
-            DriveActivityFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
+            PhysicalVehicleDriveFactory driveFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
             TimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, 
             IdGenerator rebalancingIdGenerator, Config config, @Assisted String vehicleId, @Assisted Node startPosition) {
         super(vehicleId + " - autonomus agent", startPosition);
@@ -173,7 +176,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         this.tripsUtil = tripsUtil;
         this.precomputedPaths = precomputedPaths;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
-        this.driveActivityFactory = driveActivityFactory;
+        this.driveFactory = driveFactory;
         this.positionUtil = positionUtil;
         this.eventProcessor = eventProcessor;
         this.timeProvider = timeProvider;
@@ -291,7 +294,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		state = OnDemandVehicleState.DRIVING_TO_START_LOCATION;
 				
 //		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
-        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+//        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+        driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
     }
 
     
@@ -305,7 +309,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         currentTrip = demandTrip;
 				
 //		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
-        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+//        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+        driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
         
     }
 
@@ -320,7 +325,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         currentTrip = tripToStation;  
 				
 //		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
-        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+//        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+        driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
     }
 
     protected void waitInStation() {
@@ -357,7 +363,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         this.targetStation = targetStation;
         
 //        driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
-        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+//        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+        driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
     }
 
     public PhysicalVehicle getVehicle() {

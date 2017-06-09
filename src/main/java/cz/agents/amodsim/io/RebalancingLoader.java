@@ -10,7 +10,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.agents.agentpolis.siminfrastructure.Log;
 import cz.agents.amodsim.entity.OnDemandVehicleStation;
-import cz.agents.amodsim.entity.OnDemandVehicleStation.OnDemandVehicleStationFactory;
+import cz.agents.amodsim.entity.OnDemandVehicleStationFactory;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.NearestElementUtils;
 import cz.agents.basestructures.GPSLocation;

@@ -11,13 +11,14 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 import cz.agents.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.agents.agentpolis.simmodel.IdGenerator;
-import cz.agents.agentpolis.simmodel.activity.activityFactory.DriveActivityFactory;
+import cz.agents.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
 import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.common.event.EventProcessor;
 import cz.agents.amodsim.OnDemandVehicleStationsCentral;
 import cz.agents.amodsim.config.Config;
 import cz.agents.agentpolis.siminfrastructure.planner.TripsUtil;
+import cz.agents.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.agents.basestructures.Node;
 import java.util.Map;
 
@@ -36,7 +37,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     
     protected final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
-    protected final  DriveActivityFactory driveActivityFactory;
+    protected final PhysicalVehicleDriveFactory driveActivityFactory;
     
     private final PositionUtil positionUtil;
     
@@ -56,10 +57,9 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     @Inject
     public OnDemandVehicleFactory(Map<Long,Node> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
-            DriveActivityFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
+            PhysicalVehicleDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
             TimeProvider timeProvider, IdGenerator rebalancingIdGenerator, 
-            @Named("precomputedPaths") boolean precomputedPaths, Config config, @Assisted String vehicleId, 
-            @Assisted Node startPosition) {
+            @Named("precomputedPaths") boolean precomputedPaths, Config config) {
         this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
         this.tripsUtil = tripsUtil;
         this.precomputedPaths = precomputedPaths;

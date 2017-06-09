@@ -10,10 +10,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.agents.agentpolis.siminfrastructure.Log;
 import cz.agents.amodsim.entity.DemandAgent;
 import cz.agents.amodsim.jackson.MyModule;
 import cz.agents.amodsim.statistics.Statistics;
 import cz.agents.agentpolis.siminfrastructure.planner.TripPlannerException;
+import cz.agents.agentpolis.siminfrastructure.planner.path.ShortestPathPlanner;
 import cz.agents.agentpolis.siminfrastructure.planner.path.ShortestPathPlanners;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
@@ -83,10 +85,8 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
                 Logger.getLogger(TripsUtil.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        if (pathPlanner == null) {
-            pathPlanner = pathPlanners.getPathPlanner(GRAPH_TYPES);
-        }
 
+        ShortestPathPlanner pathPlanner = pathPlanners.getPathPlanner(GRAPH_TYPES); 
 
         StartTargetNodePair tripStartTargetPair = new StartTargetNodePair(startNodeId, targetNodeId);
 
@@ -121,11 +121,13 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
                 new TypeReference<HashMap<StartTargetNodePair, SimpleJsonTrip>>() {
                 };
         
+        Log.log(this, Level.INFO, "Loading cache start");
         for (final File file : tripCacheFolder.listFiles()) {
             HashMap<StartTargetNodePair, SimpleJsonTrip> tripCachePart = mapper.readValue(file, typeRef);
             tripCache.putAll(tripCachePart);
             cacheFileCounter++;
         }
+        Log.log(this, Level.INFO, "Loading cache finished - {0} trips loaded", tripCache.size());
 
 //        System.out.println(mapper.getSerializationConfig().toString());
     }

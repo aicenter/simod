@@ -11,7 +11,7 @@ import com.google.inject.name.Named;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.agents.agentpolis.simmodel.IdGenerator;
-import cz.agents.agentpolis.simmodel.activity.activityFactory.DriveActivityFactory;
+import cz.agents.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
 import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.common.event.Event;
@@ -51,7 +51,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     @Inject
     public RideSharingOnDemandVehicle(Map<Long,Node> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
-            DriveActivityFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor, 
+            StandardDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor, 
             TimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, 
             IdGenerator rebalancingIdGenerator, Config config, @Assisted String vehicleId, 
             @Assisted Node startPosition) {
@@ -113,7 +113,8 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		}
 
 //		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
-        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+//        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+        driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
     }
 
     @Override
@@ -129,7 +130,8 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
         metersWithPassenger += positionUtil.getTripLengthInMeters(currentTrip);
 				
 //		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
-        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+//        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+        driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
     }
 
     @Override
@@ -151,7 +153,8 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		}
 
 //		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
-        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+//        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+        driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
     }
     
     

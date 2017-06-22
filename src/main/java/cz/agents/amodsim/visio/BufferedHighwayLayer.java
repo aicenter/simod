@@ -5,6 +5,7 @@
  */
 package cz.agents.amodsim.visio;
 
+import cz.agents.agentpolis.simulator.visualization.visio.HighwayLayer;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;

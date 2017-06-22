@@ -9,7 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
-import cz.agents.agentpolis.siminfrastructure.time.TimeProvider;
+import cz.agents.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.agents.agentpolis.simmodel.IdGenerator;
 import cz.agents.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
 import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
@@ -43,7 +43,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     
     private final EventProcessor eventProcessor;
     
-    private final TimeProvider timeProvider;
+    private final StandardTimeProvider timeProvider;
     
     private final IdGenerator rebalancingIdGenerator;
     
@@ -58,7 +58,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     public OnDemandVehicleFactory(Map<Long,Node> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             PhysicalVehicleDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
-            TimeProvider timeProvider, IdGenerator rebalancingIdGenerator, 
+            StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, 
             @Named("precomputedPaths") boolean precomputedPaths, Config config) {
         this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
         this.tripsUtil = tripsUtil;

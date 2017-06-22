@@ -24,42 +24,43 @@ import java.util.logging.Logger;
 /**
  * @author David Fiedler
  */
-public class OnDemandVehiclesSimulation {
+public class MapVisualizer {
 
     public static void main(String[] args) throws MalformedURLException, ConfigReaderException {
-        new OnDemandVehiclesSimulation().run();
+        new MapVisualizer().run();
     }
 
 
     public void run() throws ConfigReaderException {
         Config config = Configuration.load(new Config());
         
-        Injector injector = new AgentPolisInitializer(new MainModule(config)).initialize();
+        Injector injector = new AgentPolisInitializer(new MapVisualizerModule(config)).initialize();
 
         SimulationCreator creator = injector.getInstance(SimulationCreator.class);
 
         // prepare map, entity storages...
         creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
 
-        List<TimeTrip<Long>> osmNodesList;
-        try {
-            osmNodesList = TripTransform.jsonToTrips(new File(config.agentpolis.preprocessedTrips), Long.class);
-            RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
-            rebalancingLoader.load(new File(config.rebalancing.policyFilePath));
-
-            //  injector.getInstance(EntityInitializer.class).initialize(rebalancingLoader.getOnDemandVehicleStations());
-
-            injector.getInstance(EventInitializer.class).initialize(osmNodesList,
-                    rebalancingLoader.getRebalancingTrips(), config);
-
-            injector.getInstance(StatisticInitializer.class).initialize();
+//        List<TimeTrip<Long>> osmNodesList;
+//        try {
+//            osmNodesList = TripTransform.jsonToTrips(new File(config.agentpolis.preprocessedTrips), Long.class);
+//            RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
+//            rebalancingLoader.load(new File(config.rebalancing.policyFilePath));
+//
+//            //  injector.getInstance(EntityInitializer.class).initialize(rebalancingLoader.getOnDemandVehicleStations());
+//
+//            injector.getInstance(EventInitializer.class).initialize(osmNodesList,
+//                    rebalancingLoader.getRebalancingTrips(), config);
+//
+//            injector.getInstance(StatisticInitializer.class).initialize();
 
             // start it up
             creator.startSimulation();
         
-        } catch (IOException ex) {
-            Logger.getLogger(OnDemandVehiclesSimulation.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        } catch (IOException ex) {
+//            Logger.getLogger(MapVisualizer.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+       
 
     }
 }

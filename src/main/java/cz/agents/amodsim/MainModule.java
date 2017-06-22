@@ -56,7 +56,6 @@ public class MainModule extends StandardAgentPolisModule{
     public MainModule(Config config) {
         super();
         this.config = config;
-        Log.init("AgentPolis logger", Level.FINE, "log.txt");
     }
 
     @Override
@@ -76,7 +75,10 @@ public class MainModule extends StandardAgentPolisModule{
         
         bind(EntityPositionModel.class).to(VehiclePositionModel.class);
         bind(EntityStorage.class).to(VehicleStorage.class);
-        bind(TripsUtil.class).to(TripsUtilCached.class);
+        
+        if(config.agentpolis.useTripCache){
+            bind(TripsUtil.class).to(TripsUtilCached.class);
+        }
         bind(DemandLayer.class).to(DemandLayerWithJitter.class);
         
         bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);

@@ -8,7 +8,6 @@ package cz.agents.amodsim.system;
 import com.google.inject.Injector;
 import cz.agents.agentpolis.AgentPolisInitializer;
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
-import cz.agents.amodsim.AmodsimAgentPolisConfiguration;
 import ninja.fido.config.Configuration;
 import cz.agents.amodsim.MainModule;
 import cz.agents.amodsim.MapInitializer;
@@ -40,9 +39,7 @@ public class FullTest {
         Common.setTestResultsDir(config, "test");
         
         // Guice configuration
-        AmodsimAgentPolisConfiguration configuration = new AmodsimAgentPolisConfiguration(config, 
-                config.agentpolis.simulationDurationInMillis + timeForFinishingEvents);
-        AgentPolisInitializer agentPolisInitializer = new AgentPolisInitializer(configuration, new MainModule(config));
+        AgentPolisInitializer agentPolisInitializer = new AgentPolisInitializer(new MainModule(config));
         agentPolisInitializer.overrideModule(new TestModule());
         Injector injector = agentPolisInitializer.initialize();
 

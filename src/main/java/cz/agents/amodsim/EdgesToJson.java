@@ -23,9 +23,8 @@ public class EdgesToJson {
     public static void main(String[] args) {
         
         Config config = Configuration.load(new Config());
-        AmodsimAgentPolisConfiguration configuration = new AmodsimAgentPolisConfiguration(config);
         
-        Injector injector = new AgentPolisInitializer(configuration, new MainModule(config)).initialize();
+        Injector injector = new AgentPolisInitializer(new MainModule(config)).initialize();
         
         MapInitializer mapInitializer = injector.getInstance(MapInitializer.class);
 

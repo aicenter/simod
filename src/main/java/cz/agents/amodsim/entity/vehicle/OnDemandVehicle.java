@@ -16,7 +16,7 @@ import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.Trip;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.TripItem;
 import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
-import cz.agents.agentpolis.siminfrastructure.time.TimeProvider;
+import cz.agents.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.agents.agentpolis.simmodel.Activity;
 import cz.agents.agentpolis.simmodel.Agent;
 import cz.agents.agentpolis.simmodel.IdGenerator;
@@ -85,7 +85,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     
     private final EventProcessor eventProcessor;
     
-    private final TimeProvider timeProvider;
+    private final StandardTimeProvider timeProvider;
     
     private final IdGenerator rebalancingIdGenerator;
     
@@ -169,7 +169,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     public OnDemandVehicle(Map<Long,Node> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             PhysicalVehicleDriveFactory driveFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
-            TimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, 
+            StandardTimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, 
             IdGenerator rebalancingIdGenerator, Config config, @Assisted String vehicleId, @Assisted Node startPosition) {
         super(vehicleId + " - autonomus agent", startPosition);
         this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
@@ -184,7 +184,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         this.config = config;
         
         vehicle = new PhysicalVehicle(vehicleId + " - vehicle", DemandSimulationEntityType.VEHICLE, LENGTH, CAPACITY, 
-                EGraphType.HIGHWAY, startPosition);
+                EGraphType.HIGHWAY, startPosition, config.vehicleSpeedInMeters);
         
         vehicleStorage.addEntity(vehicle);
         state = OnDemandVehicleState.WAITING;
@@ -367,6 +367,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
     }
 
+    @Override
     public PhysicalVehicle getVehicle() {
         return vehicle;
     }

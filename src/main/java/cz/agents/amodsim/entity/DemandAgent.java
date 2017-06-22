@@ -12,7 +12,7 @@ import cz.agents.amodsim.event.OnDemandVehicleStationsCentralEvent;
 import cz.agents.amodsim.io.TimeTrip;
 import cz.agents.amodsim.storage.DemandStorage;
 import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
-import cz.agents.agentpolis.siminfrastructure.time.TimeProvider;
+import cz.agents.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.agents.agentpolis.simmodel.Agent;
 import cz.agents.agentpolis.simmodel.entity.EntityType;
 import cz.agents.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
@@ -47,7 +47,7 @@ public class DemandAgent extends Agent implements EventHandler {
     
     private final Map<Long,Node> nodesMappedByNodeSourceIds;
     
-    private final TimeProvider timeProvider;
+    private final StandardTimeProvider timeProvider;
     
     
     private DemandAgentState state;
@@ -88,7 +88,7 @@ public class DemandAgent extends Agent implements EventHandler {
     
     @Inject
 	public DemandAgent(OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
-            DemandStorage demandStorage, Map<Long,Node> nodesMappedByNodeSourceIds, TimeProvider timeProvider,
+            DemandStorage demandStorage, Map<Long,Node> nodesMappedByNodeSourceIds, StandardTimeProvider timeProvider,
             @Named("precomputedPaths") boolean precomputedPaths, @Assisted String agentId, @Assisted int id,
             @Assisted TimeTrip<Long> osmNodeTrip) {
 		super(agentId, nodesMappedByNodeSourceIds.get(osmNodeTrip.getLocations().get(0)));

@@ -13,7 +13,6 @@ import cz.agents.amodsim.statistics.EdgesLoadByState;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
 import cz.agents.basestructures.Node;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertSame;
 
 /**
  *

@@ -8,7 +8,7 @@ package cz.agents.amodsim.system;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
-import cz.agents.agentpolis.siminfrastructure.time.TimeProvider;
+import cz.agents.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.agents.agentpolis.simmodel.IdGenerator;
 import cz.agents.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
 import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
@@ -41,7 +41,7 @@ public class TestOnDemandVehicle extends OnDemandVehicle{
     public TestOnDemandVehicle(Map<Long, Node> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage,
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             StandardDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor, 
-            TimeProvider timeProvider, StatisticControl statisticControl,
+            StandardTimeProvider timeProvider, StatisticControl statisticControl,
             @Named("precomputedPaths") boolean precomputedPaths, IdGenerator rebalancingIdGenerator, Config config, 
             @Assisted String vehicleId, @Assisted Node startPosition) {
         super(nodesMappedByNodeSourceIds, vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,

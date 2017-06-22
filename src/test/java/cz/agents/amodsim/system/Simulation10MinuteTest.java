@@ -9,7 +9,6 @@ import com.google.inject.Injector;
 import cz.agents.agentpolis.AgentPolisInitializer;
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.agentpolis.utils.config.ConfigReaderException;
-import cz.agents.amodsim.AmodsimAgentPolisConfiguration;
 import ninja.fido.config.Configuration;
 import cz.agents.amodsim.MainModule;
 import cz.agents.amodsim.MapInitializer;
@@ -51,9 +50,7 @@ public class Simulation10MinuteTest {
         Common.setTestResultsDir(config, "test");
         
         // Guice configuration
-        AmodsimAgentPolisConfiguration configuration = new AmodsimAgentPolisConfiguration(config, 
-                config.agentpolis.simulationDurationInMillis + TRIP_MAX_DURATION);
-        AgentPolisInitializer agentPolisInitializer = new AgentPolisInitializer(configuration, new MainModule(config));
+        AgentPolisInitializer agentPolisInitializer = new AgentPolisInitializer(new MainModule(config));
         agentPolisInitializer.overrideModule(new TestModule());
         Injector injector = agentPolisInitializer.initialize();
 

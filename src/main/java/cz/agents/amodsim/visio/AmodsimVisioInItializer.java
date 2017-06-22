@@ -5,6 +5,8 @@
  */
 package cz.agents.amodsim.visio;
 
+import cz.agents.agentpolis.simulator.visualization.visio.NodeIdLayer;
+import cz.agents.agentpolis.simulator.visualization.visio.HighwayLayer;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.agents.agentpolis.simmodel.environment.model.AgentPositionModel;
@@ -30,7 +32,7 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
     
     private final TrafficDensityLayer trafficDensityLayer;
     
-    private final NodeIdLayer nodeIdLayer;
+    protected final NodeIdLayer nodeIdLayer;
     
     private final DemandLayer demandLayer;
     
@@ -38,9 +40,9 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 	
 	private final OnDemandVehiclePlanLayer onDemandVehiclePlanLayer;
     
-    private final HighwayLayer highwayLayer;
+    protected final HighwayLayer highwayLayer;
     
-    private final BufferedHighwayLayer bufferedHighwayLayer;
+    protected final BufferedHighwayLayer bufferedHighwayLayer;
 
     private final TrafficDensityByDirectionLayer trafficDensityByDirectionLayer;
 

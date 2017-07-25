@@ -30,15 +30,14 @@ public class RandomColorOnDemandVehicleLayer extends OnDemandVehicleLayer{
     
     
     
-    public RandomColorOnDemandVehicleLayer(PositionUtil postitionUtil, 
-            OnDemandVehicleStorage vehicleStorage) {
-        super(vehicleStorage, postitionUtil);
+    public RandomColorOnDemandVehicleLayer(OnDemandVehicleStorage vehicleStorage) {
+        super(vehicleStorage);
         this.random = new Random();
         agentColors = new HashMap<>();
     }
 
     @Override
-    protected Color getColor(OnDemandVehicle agent) {
+    protected Color getEntityDrawColor(OnDemandVehicle agent) {
         if(agentColors.containsKey(agent)){
             return agentColors.get(agent);
         }

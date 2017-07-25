@@ -20,6 +20,7 @@ import cz.agents.agentpolis.simmodel.entity.EntityType;
 import cz.agents.agentpolis.simmodel.environment.model.AgentPositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.VehiclePositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.NearestElementUtils;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
 import cz.agents.agentpolis.utils.nearestelement.NearestElementUtil;
@@ -63,7 +64,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
-    private final Map<Long,Node> nodesMappedByNodeSourceIds;
+    private final Map<Long,SimulationNode> nodesMappedByNodeSourceIds;
     
     private final Config config;
 
@@ -74,10 +75,10 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     public OnDemandVehicleStation(Config config, EventProcessor eventProcessor, 
             OnDemandVehicleFactory onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
             OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 
-            @Assisted String id, AgentPositionModel agentPositionModel, @Assisted Node node, 
+            @Assisted String id, AgentPositionModel agentPositionModel, @Assisted SimulationNode node, 
             @Assisted int initialVehicleCount, VehiclePositionModel vehiclePositionModel, 
             VehiclePositionUtil vehiclePositionUtil, Transformer transformer, PositionUtil positionUtil, 
-            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, Map<Long,Node> nodesMappedByNodeSourceIds) {
+            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, Map<Long,SimulationNode> nodesMappedByNodeSourceIds) {
         super(id, node);
         this.eventProcessor = eventProcessor;
         parkedVehicles = new LinkedList<>();

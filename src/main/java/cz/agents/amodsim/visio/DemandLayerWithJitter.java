@@ -35,8 +35,8 @@ public class DemandLayerWithJitter extends DemandLayer{
     
     
     @Inject
-    public DemandLayerWithJitter(PositionUtil postitionUtil, DemandStorage demandStorage) {
-        super(postitionUtil, demandStorage);
+    public DemandLayerWithJitter(DemandStorage demandStorage) {
+        super(demandStorage);
         waitingAgentCachedPosition = new HashMap<>();
         random = new Random();
     }

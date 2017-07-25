@@ -13,6 +13,7 @@ import cz.agents.amodsim.entity.OnDemandVehicleStation;
 import cz.agents.amodsim.event.OnDemandVehicleStationsCentralEvent;
 import cz.agents.amodsim.io.TimeTrip;
 import com.vividsolutions.jts.geom.Coordinate;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.agentpolis.utils.nearestelement.NearestElementUtil;
 import cz.agents.agentpolis.utils.nearestelement.NearestElementUtil.SerializableIntFunction;
 import cz.agents.alite.common.event.Event;
@@ -37,7 +38,7 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     
     private final Transformer transformer;
     
-    private final Map<Long,Node> nodesMappedByNodeSourceIds;
+    private final Map<Long,SimulationNode> nodesMappedByNodeSourceIds;
     
     private final EventProcessor eventProcessor;
     
@@ -77,7 +78,7 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     
     @Inject
     public OnDemandVehicleStationsCentral(OnDemandvehicleStationStorage onDemandvehicleStationStorage, 
-            Map<Long,Node> nodesMappedByNodeSourceIds, EventProcessor eventProcessor, @Named("mapSrid") int srid) {
+            Map<Long,SimulationNode> nodesMappedByNodeSourceIds, EventProcessor eventProcessor, @Named("mapSrid") int srid) {
         this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
         this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
         this.eventProcessor = eventProcessor;

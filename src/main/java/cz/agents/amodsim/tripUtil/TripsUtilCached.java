@@ -21,6 +21,7 @@ import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.NearestElementUtils;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
 import cz.agents.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.agentpolis.simulator.creator.SimulationFinishedListener;
 import cz.agents.amodsim.config.Config;
@@ -55,8 +56,8 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
 
     @Inject
     public TripsUtilCached(ShortestPathPlanners pathPlanners, NearestElementUtils nearestElementUtils, 
-            SimulationCreator simulationCreator, Config configuration) throws IOException {
-        super(pathPlanners, nearestElementUtils);
+            HighwayNetwork network, SimulationCreator simulationCreator, Config configuration) throws IOException {
+        super(pathPlanners, nearestElementUtils, network);
         
         mapper = new ObjectMapper();
         mapper.registerModule(new MyModule());

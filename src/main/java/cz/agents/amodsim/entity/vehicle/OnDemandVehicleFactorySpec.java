@@ -5,6 +5,7 @@
  */
 package cz.agents.amodsim.entity.vehicle;
 
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.basestructures.Node;
 
 /**
@@ -12,5 +13,5 @@ import cz.agents.basestructures.Node;
  * @author fido
  */
 public interface OnDemandVehicleFactorySpec {
-    public OnDemandVehicle create(String vehicleId, Node startPosition);
+    public OnDemandVehicle create(String vehicleId, SimulationNode startPosition);
 }

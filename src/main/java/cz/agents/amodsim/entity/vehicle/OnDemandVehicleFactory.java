@@ -19,6 +19,7 @@ import cz.agents.amodsim.OnDemandVehicleStationsCentral;
 import cz.agents.amodsim.config.Config;
 import cz.agents.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.agents.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.basestructures.Node;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ import java.util.Map;
 @Singleton
 public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     
-    protected final Map<Long,Node> nodesMappedByNodeSourceIds;
+    protected final Map<Long,SimulationNode> nodesMappedByNodeSourceIds;
     
     protected final TripsUtil tripsUtil;
     
@@ -55,7 +56,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     
     
     @Inject
-    public OnDemandVehicleFactory(Map<Long,Node> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage, 
+    public OnDemandVehicleFactory(Map<Long,SimulationNode> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             PhysicalVehicleDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
             StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, 
@@ -76,7 +77,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     
     
     @Override
-    public OnDemandVehicle create(String vehicleId, Node startPosition){
+    public OnDemandVehicle create(String vehicleId, SimulationNode startPosition){
         return new OnDemandVehicle(nodesMappedByNodeSourceIds, vehicleStorage, tripsUtil, 
                 onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, eventProcessor, timeProvider, 
                 precomputedPaths, rebalancingIdGenerator, config, vehicleId, startPosition);

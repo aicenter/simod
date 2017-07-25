@@ -135,6 +135,8 @@ public class EventInitializer {
             int id = demandIdGenerator.getId();
 			
 			DemandAgent demandAgent = demandAgentFactory.create("Demand " + Integer.toString(id), id, osmNodeTrip);
+            
+            demandAgent.born();
 			
 //			simulationCreator.addAgent(demandAgent);
 		}

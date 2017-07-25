@@ -13,6 +13,7 @@ import cz.agents.amodsim.entity.OnDemandVehicleStation;
 import cz.agents.amodsim.entity.OnDemandVehicleStationFactory;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.NearestElementUtils;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.basestructures.GPSLocation;
 import cz.agents.basestructures.Node;
 import java.io.File;
@@ -90,11 +91,11 @@ public class RebalancingLoader {
         
         for (int i = 0; i < stations.size(); i++) {
             ArrayList station = (ArrayList) stations.get(i);
-            Node[] positionsInGraph = nearestElementUtils.getNearestElements(new GPSLocation((double) station.get(0), 
+            SimulationNode[] positionsInGraph = nearestElementUtils.getNearestElements(new GPSLocation((double) station.get(0), 
                     (double) station.get(1), 0, 0), EGraphType.HIGHWAY, NUMBER_OF_LOCATIONS_TRIED_PER_STATION);
             
             int j = 0;
-            Node positionInGraph;
+            SimulationNode positionInGraph;
             do{
                 positionInGraph = positionsInGraph[j];
                 if(!usedPositions.contains(positionInGraph.getId())){

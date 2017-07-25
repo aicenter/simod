@@ -8,6 +8,7 @@ package cz.agents.amodsim.visio;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.agents.agentpolis.simulator.visualization.visio.entity.EntityLayer;
 import cz.agents.amodsim.entity.DemandAgent;
 import cz.agents.amodsim.entity.DemandAgentState;
 import cz.agents.amodsim.storage.DemandStorage;
@@ -23,50 +24,20 @@ import javax.vecmath.Point2d;
  * @author fido
  */
 @Singleton
-public class DemandLayer extends AbstractLayer{
+public class DemandLayer extends EntityLayer<DemandAgent>{
     
-    private static final Color STATIONS_COLOR = Color.RED;
+    private static final Color DEMAND_COLOR = Color.RED;
     
     private static final int SIZE = 3;
-    
-    
-    
-    
-    protected final PositionUtil positionUtil;
-    
-    private final DemandStorage demandStorage;
-    
 
+    
     
     
     @Inject
-    public DemandLayer(PositionUtil postitionUtil, DemandStorage demandStorage) {
-        this.positionUtil = postitionUtil;
-        this.demandStorage = demandStorage;
+    public DemandLayer(DemandStorage demandStorage) {
+        super(demandStorage);
     }
-    
-    @Override
-    public void paint(Graphics2D canvas) {
-        Dimension dim = Vis.getDrawingDimension();
 
-        DemandStorage.EntityIterator entityIterator = demandStorage.new EntityIterator();
-        DemandAgent demandAgent;
-        while((demandAgent = entityIterator.getNextEntity()) != null){
-            Point2d agentPosition;
-            if(demandAgent.getState() == DemandAgentState.RIDING){
-                agentPosition = getDrivingAgentPosition(demandAgent);
-            }
-            else{
-                agentPosition = getWaitingAgentPosition(demandAgent, dim);
-            }
-            
-            if(agentPosition == null){
-                continue;
-            }
-            
-			drawDemand(agentPosition, canvas, dim);
-        }
-    }
     
     protected Point2d getDrivingAgentPosition(DemandAgent demandAgent){
         return positionUtil.getCanvasPositionInterpolated(demandAgent.getOnDemandVehicle());
@@ -76,18 +47,25 @@ public class DemandLayer extends AbstractLayer{
         return positionUtil.getCanvasPosition(demandAgent.getPosition());
     }
 
-    private void drawDemand(Point2d demandPosition, Graphics2D canvas, Dimension dim) {
-        canvas.setColor(STATIONS_COLOR);
-        int radius = SIZE;
-		int width = radius * 2;
 
-        int x1 = (int) (demandPosition.getX() - radius);
-        int y1 = (int) (demandPosition.getY() - radius);
-        int x2 = (int) (demandPosition.getX() + radius);
-        int y2 = (int) (demandPosition.getY() + radius);
-        if (x2 > 0 && x1 < dim.width && y2 > 0 && y1 < dim.height) {
-            canvas.fillOval(x1, y1, width, width);
+    @Override
+    protected Point2d getEntityPosition(DemandAgent demandAgent) {
+        if(demandAgent.getState() == DemandAgentState.RIDING){
+            return getDrivingAgentPosition(demandAgent);
         }
+        else{
+            return getWaitingAgentPosition(demandAgent, dim);
+        }
+    }
+
+    @Override
+    protected Color getEntityDrawColor(DemandAgent demandAgent) {
+        return DEMAND_COLOR;
+    }
+
+    @Override
+    protected int getEntityDrawRadius() {
+        return SIZE;
     }
     
     

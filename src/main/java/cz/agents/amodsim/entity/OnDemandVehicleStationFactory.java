@@ -10,6 +10,7 @@ import com.google.inject.Singleton;
 import cz.agents.agentpolis.simmodel.environment.model.AgentPositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.VehiclePositionModel;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.NearestElementUtils;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
 import cz.agents.alite.common.event.EventProcessor;
@@ -54,7 +55,7 @@ public class OnDemandVehicleStationFactory {
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
-    private final Map<Long,Node> nodesMappedByNodeSourceIds;
+    private final Map<Long,SimulationNode> nodesMappedByNodeSourceIds;
 
     @Inject
     public OnDemandVehicleStationFactory(Config config, EventProcessor eventProcessor, OnDemandVehicleFactory 
@@ -63,7 +64,7 @@ public class OnDemandVehicleStationFactory {
                     AgentPositionModel agentPositionModel, VehiclePositionModel vehiclePositionModel, 
                     VehiclePositionUtil vehiclePositionUtil, Transformer transformer, PositionUtil positionUtil, 
                     OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
-                    Map<Long, Node> nodesMappedByNodeSourceIds) {
+                    Map<Long, SimulationNode> nodesMappedByNodeSourceIds) {
         this.config = config;
         this.eventProcessor = eventProcessor;
         this.onDemandVehicleFactory = onDemandVehicleFactory;
@@ -82,7 +83,7 @@ public class OnDemandVehicleStationFactory {
     
     
     
-    public OnDemandVehicleStation create(String id, Node node, int initialVehicleCount){
+    public OnDemandVehicleStation create(String id, SimulationNode node, int initialVehicleCount){
         return new OnDemandVehicleStation(config, eventProcessor, onDemandVehicleFactory, nearestElementUtils,
                 onDemandVehicleStationStorage, onDemandVehicleStorage, id, agentPositionModel, node, 
                 initialVehicleCount, vehiclePositionModel, vehiclePositionUtil, transformer, positionUtil, 

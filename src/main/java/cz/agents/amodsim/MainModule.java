@@ -5,7 +5,6 @@
  */
 package cz.agents.amodsim;
 
-import cz.agents.agentpolis.siminfrastructure.Log;
 import com.google.common.collect.Sets;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -15,11 +14,10 @@ import com.google.inject.name.Names;
 import cz.agents.amodsim.entity.DemandAgent;
 import cz.agents.amodsim.entity.DemandAgent.DemandAgentFactory;
 import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
-import cz.agents.amodsim.entity.OnDemandVehicleStation;
-import cz.agents.amodsim.entity.OnDemandVehicleStation.OnDemandVehicleStationFactory;
 import cz.agents.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.agents.agentpolis.simmodel.activity.activityFactory.CongestedDriveFactory;
 import cz.agents.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
+import cz.agents.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
 import cz.agents.amodsim.tripUtil.TripsUtilCached;
 import cz.agents.amodsim.visio.DemandLayer;
 import cz.agents.amodsim.visio.DemandLayerWithJitter;
@@ -36,7 +34,6 @@ import cz.agents.agentpolis.simulator.visualization.visio.VisioInitializer;
 import cz.agents.amodsim.config.Config;
 import cz.agents.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.agents.amodsim.entity.vehicle.RideSharingOnDemandVehicle;
-import cz.agents.basestructures.Node;
 import cz.agents.geotools.Transformer;
 import cz.agents.multimodalstructures.additional.ModeOfTransport;
 import java.io.File;
@@ -44,7 +41,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
 /**
  *
@@ -82,7 +78,8 @@ public class MainModule extends StandardAgentPolisModule{
         }
         bind(DemandLayer.class).to(DemandLayerWithJitter.class);
         
-        bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
+//        bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
+        bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 
         if(config.agentpolis.ridesharing){
             install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, RideSharingOnDemandVehicle.class)

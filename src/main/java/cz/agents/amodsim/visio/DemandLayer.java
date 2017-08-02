@@ -7,16 +7,12 @@ package cz.agents.amodsim.visio;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.agentpolis.simulator.visualization.visio.entity.EntityLayer;
 import cz.agents.amodsim.entity.DemandAgent;
 import cz.agents.amodsim.entity.DemandAgentState;
 import cz.agents.amodsim.storage.DemandStorage;
-import cz.agents.alite.vis.Vis;
-import cz.agents.alite.vis.layer.AbstractLayer;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
 import javax.vecmath.Point2d;
 
 /**
@@ -64,7 +60,7 @@ public class DemandLayer extends EntityLayer<DemandAgent>{
     }
 
     @Override
-    protected int getEntityDrawRadius() {
+    protected int getEntityDrawRadius(DemandAgent demandAgent) {
         return SIZE;
     }
     

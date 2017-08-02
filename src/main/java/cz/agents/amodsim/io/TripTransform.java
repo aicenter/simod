@@ -7,7 +7,6 @@ package cz.agents.amodsim.io;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.common.collect.Sets;
 import cz.agents.amodsim.OsmUtil;
 import cz.agents.amodsim.pathPlanner.PathPlanner;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -15,8 +14,6 @@ import cz.agents.agentpolis.utils.nearestelement.NearestElementUtil;
 import cz.agents.basestructures.GPSLocation;
 import cz.agents.basestructures.Graph;
 import cz.agents.geotools.Transformer;
-import cz.agents.gtdgraphimporter.GTDGraphBuilder;
-import cz.agents.multimodalstructures.additional.ModeOfTransport;
 import cz.agents.multimodalstructures.edges.RoadEdge;
 import cz.agents.multimodalstructures.nodes.RoadNode;
 import java.io.BufferedReader;

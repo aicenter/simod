@@ -22,8 +22,6 @@ import cz.agents.agentpolis.simmodel.Agent;
 import cz.agents.agentpolis.simmodel.IdGenerator;
 import cz.agents.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.agents.agentpolis.simmodel.agent.Driver;
-import cz.agents.agentpolis.simmodel.entity.AgentPolisEntity;
-import cz.agents.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
 import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
 import cz.agents.agentpolis.simmodel.environment.model.action.driving.DelayData;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
@@ -44,10 +42,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import cz.agents.agentpolis.simmodel.agent.TransportEntity;
 import cz.agents.agentpolis.simmodel.entity.EntityType;
 import cz.agents.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
-import cz.agents.agentpolis.simmodel.entity.vehicle.Vehicle;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 
 
@@ -448,6 +444,11 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     @Override
     public DelayData getDelayData() {
         return delayData;
+    }
+
+    @Override
+    public void endDriving() {
+        
     }
     
     

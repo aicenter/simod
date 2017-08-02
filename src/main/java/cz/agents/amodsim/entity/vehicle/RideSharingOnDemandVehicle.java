@@ -21,6 +21,7 @@ import cz.agents.amodsim.config.Config;
 import cz.agents.amodsim.entity.DemandAgent;
 import cz.agents.amodsim.entity.OnDemandVehicleState;
 import cz.agents.agentpolis.siminfrastructure.planner.TripsUtil;
+import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.basestructures.Node;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -49,12 +50,12 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     
     
     @Inject
-    public RideSharingOnDemandVehicle(Map<Long,Node> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage, 
+    public RideSharingOnDemandVehicle(Map<Long,SimulationNode> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             StandardDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor, 
             StandardTimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, 
             IdGenerator rebalancingIdGenerator, Config config, @Assisted String vehicleId, 
-            @Assisted Node startPosition) {
+            @Assisted SimulationNode startPosition) {
         super(nodesMappedByNodeSourceIds, vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
                 driveActivityFactory, positionUtil, eventProcessor, timeProvider, precomputedPaths, 
                 rebalancingIdGenerator, config, vehicleId, startPosition);
@@ -171,7 +172,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     public void finishedDriving() {
         switch(state){
             case DRIVING_TO_START_LOCATION:
-                cargo.add(currentlyServedDemmand.demandAgent);
+//                cargo.add(currentlyServedDemmand.demandAgent);
                 currentlyServedDemmand.getDemandAgent().tripStarted();
                 pickedDemands.add(currentlyServedDemmand);
                 boolean departure = demands.isEmpty();
@@ -190,7 +191,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
                 }
                 break;
             case DRIVING_TO_TARGET_LOCATION:
-                cargo.remove(currentlyServedDemmand.demandAgent);
+//                cargo.remove(currentlyServedDemmand.demandAgent);
                 currentlyServedDemmand.demandAgent.tripEnded();
                 chooseTarget();
                 if(currentlyServedDemmand == null){

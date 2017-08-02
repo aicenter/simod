@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.agents.amodsim;
+package cz.agents.amodsim.old;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -13,23 +13,16 @@ import cz.agents.amodsim.graphbuilder.SimulationGraphBuilder;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.agentpolis.simulator.creator.initializator.impl.MapData;
-import cz.agents.amodsim.graphbuilder.SimulationNodeFactory;
-import cz.agents.amodsim.graphbuilder.structurebuilders.SimulationEdgeFactory;
 import cz.agents.basestructures.BoundingBox;
 //import cz.agents.agentpolis.simulator.visualization.visio.Bounds;
 import cz.agents.basestructures.Graph;
 import cz.agents.basestructures.Node;
-import cz.agents.geotools.Transformer;
-import cz.agents.gtdgraphimporter.GraphCreator;
-import cz.agents.gtdgraphimporter.osm.OsmImporter;
-import cz.agents.multimodalstructures.additional.ModeOfTransport;
 import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author david
@@ -38,22 +31,25 @@ public class MapInitializer {
 
     private static final Logger LOGGER = Logger.getLogger(MapInitializer.class);
 
+    private final int srid;
+
     private final File mapFile;
 
     private final SimulationGraphBuilder roadNetworkGraphBuilder;
-    
-    private final Transformer projection;
-    
-    private final Set<ModeOfTransport> allowedOsmModes;
 
-
+    /**
+     * Constructor
+     *
+     * @param srid                    coordinate system
+     * @param mapFile
+     * @param roadNetworkGraphBuilder
+     */
     @Inject
-    public MapInitializer(Transformer projection, @Named("osm File") File mapFile, Set<ModeOfTransport> allowedOsmModes,
+    public MapInitializer(@Named("mapSrid") int srid, @Named("osm File") File mapFile,
                           SimulationGraphBuilder roadNetworkGraphBuilder) {
+        this.srid = srid;
         this.mapFile = mapFile;
         this.roadNetworkGraphBuilder = roadNetworkGraphBuilder;
-        this.projection = projection;
-        this.allowedOsmModes = allowedOsmModes;
     }
 
 
@@ -63,22 +59,16 @@ public class MapInitializer {
      * @return map data with simulation graph
      */
     public MapData getMap() {
-        Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs = new HashMap<>();
-        OsmImporter importer = new OsmImporter(mapFile, allowedOsmModes, projection);
-        
-        GraphCreator<SimulationNode,SimulationEdge> graphCreator = new GraphCreator(allowedOsmModes, projection, 
-                true, true, importer, new SimulationNodeFactory(), new SimulationEdgeFactory());
-        
-        graphs.put(EGraphType.HIGHWAY, graphCreator.getMap());
-//        try {
-//            graphs = deserializeGraphs(mapFile);
-////            throw new IOException(); // TODO: debug, remove it afterwards
-//        } catch (Exception ex) {
-//            LOGGER.warn("Cannot perform deserialization of the cached graphs:" + ex.getMessage());
-//            LOGGER.warn("Generating graphs from the OSM");
-//            graphs = generateGraphsFromOSM(mapFile);
-//            serializeGraphs(graphs, mapFile.getAbsolutePath() + ".ser");
-//        }
+        Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs;
+        try {
+            graphs = deserializeGraphs(mapFile);
+//            throw new IOException(); // TODO: debug, remove it afterwards
+        } catch (Exception ex) {
+            LOGGER.warn("Cannot perform deserialization of the cached graphs:" + ex.getMessage());
+            LOGGER.warn("Generating graphs from the OSM");
+            graphs = generateGraphsFromOSM(mapFile);
+            serializeGraphs(graphs, mapFile.getAbsolutePath() + ".ser");
+        }
         Map<Integer, SimulationNode> nodes = createAllGraphNodes(graphs);
         BoundingBox bounds = computeBounds(nodes.values());
 

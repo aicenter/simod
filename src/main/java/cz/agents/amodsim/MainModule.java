@@ -35,7 +35,7 @@ import cz.agents.amodsim.config.Config;
 import cz.agents.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.agents.amodsim.entity.vehicle.RideSharingOnDemandVehicle;
 import cz.agents.geotools.Transformer;
-import cz.agents.multimodalstructures.additional.ModeOfTransport;
+import cz.agents.gtdgraphimporter.TransportMode;
 import java.io.File;
 
 import java.util.HashMap;
@@ -66,7 +66,7 @@ public class MainModule extends StandardAgentPolisModule{
 
         bind(File.class).annotatedWith(Names.named("osm File")).toInstance(new File(config.mapFilePath));
         
-        bind(new TypeLiteral<Set<ModeOfTransport>>(){}).toInstance(Sets.immutableEnumSet(ModeOfTransport.CAR));
+        bind(new TypeLiteral<Set<TransportMode>>(){}).toInstance(Sets.immutableEnumSet(TransportMode.CAR));
         bind(Config.class).toInstance(config);
         bind(Transformer.class).toInstance(new Transformer(config.srid));
         

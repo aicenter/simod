@@ -20,8 +20,8 @@ import cz.agents.basestructures.Graph;
 import cz.agents.basestructures.Node;
 import cz.agents.geotools.Transformer;
 import cz.agents.gtdgraphimporter.GraphCreator;
+import cz.agents.gtdgraphimporter.TransportMode;
 import cz.agents.gtdgraphimporter.osm.OsmImporter;
-import cz.agents.multimodalstructures.additional.ModeOfTransport;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -41,11 +41,11 @@ public class MapInitializer {
     
     private final Transformer projection;
     
-    private final Set<ModeOfTransport> allowedOsmModes;
+    private final Set<TransportMode> allowedOsmModes;
 
 
     @Inject
-    public MapInitializer(Transformer projection, @Named("osm File") File mapFile, Set<ModeOfTransport> allowedOsmModes) {
+    public MapInitializer(Transformer projection, @Named("osm File") File mapFile, Set<TransportMode> allowedOsmModes) {
         this.mapFile = mapFile;
         this.projection = projection;
         this.allowedOsmModes = allowedOsmModes;

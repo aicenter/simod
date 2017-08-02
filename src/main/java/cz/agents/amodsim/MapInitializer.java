@@ -9,7 +9,6 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.GraphType;
-import cz.agents.amodsim.graphbuilder.SimulationGraphBuilder;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.agentpolis.simulator.creator.initializator.impl.MapData;
@@ -39,8 +38,6 @@ public class MapInitializer {
     private static final Logger LOGGER = Logger.getLogger(MapInitializer.class);
 
     private final File mapFile;
-
-    private final SimulationGraphBuilder roadNetworkGraphBuilder;
     
     private final Transformer projection;
     
@@ -48,10 +45,8 @@ public class MapInitializer {
 
 
     @Inject
-    public MapInitializer(Transformer projection, @Named("osm File") File mapFile, Set<ModeOfTransport> allowedOsmModes,
-                          SimulationGraphBuilder roadNetworkGraphBuilder) {
+    public MapInitializer(Transformer projection, @Named("osm File") File mapFile, Set<ModeOfTransport> allowedOsmModes) {
         this.mapFile = mapFile;
-        this.roadNetworkGraphBuilder = roadNetworkGraphBuilder;
         this.projection = projection;
         this.allowedOsmModes = allowedOsmModes;
     }
@@ -66,64 +61,16 @@ public class MapInitializer {
         Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs = new HashMap<>();
         OsmImporter importer = new OsmImporter(mapFile, allowedOsmModes, projection);
         
-        GraphCreator<SimulationNode,SimulationEdge> graphCreator = new GraphCreator(allowedOsmModes, projection, 
+        GraphCreator<SimulationNode,SimulationEdge> graphCreator = new GraphCreator(projection, 
                 true, true, importer, new SimulationNodeFactory(), new SimulationEdgeFactory());
         
         graphs.put(EGraphType.HIGHWAY, graphCreator.getMap());
-//        try {
-//            graphs = deserializeGraphs(mapFile);
-////            throw new IOException(); // TODO: debug, remove it afterwards
-//        } catch (Exception ex) {
-//            LOGGER.warn("Cannot perform deserialization of the cached graphs:" + ex.getMessage());
-//            LOGGER.warn("Generating graphs from the OSM");
-//            graphs = generateGraphsFromOSM(mapFile);
-//            serializeGraphs(graphs, mapFile.getAbsolutePath() + ".ser");
-//        }
+
         Map<Integer, SimulationNode> nodes = createAllGraphNodes(graphs);
         BoundingBox bounds = computeBounds(nodes.values());
 
         LOGGER.info("Graphs imported, highway graph details: " + graphs.get(EGraphType.HIGHWAY));
         return new MapData(bounds, graphs, nodes);
-    }
-
-    /**
-     * Graph build section
-     */
-    private Map<GraphType, Graph<SimulationNode, SimulationEdge>> generateGraphsFromOSM(File mapFile) {
-        Graph<SimulationNode, SimulationEdge> roadNetworkGraphFromOSM = roadNetworkGraphBuilder.build();
-        Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs = new HashMap<>();
-        graphs.put(EGraphType.HIGHWAY, roadNetworkGraphFromOSM);
-        //graphs.put(EGraphType.TRAMWAY, (new GraphBuilder()).createGraph());
-        //graphs.put(EGraphType.METROWAY, (new GraphBuilder()).createGraph());
-        //graphs.put(EGraphType.PEDESTRIAN, (new GraphBuilder()).createGraph());
-        //graphs.put(EGraphType.BIKEWAY, (new GraphBuilder()).createGraph());
-        //graphs.put(EGraphType.RAILWAY, (new GraphBuilder()).createGraph());
-        return graphs;
-    }
-
-
-    /**
-     * Serialization section
-     */
-    private Map<GraphType, Graph<SimulationNode, SimulationEdge>> deserializeGraphs(File osmFile)
-            throws IOException, ClassNotFoundException {
-        InputStream file = new FileInputStream(osmFile.getAbsolutePath() + ".ser");
-        InputStream buffer = new BufferedInputStream(file);
-        ObjectInput input = new ObjectInputStream(buffer);
-
-        return (Map<GraphType, Graph<SimulationNode, SimulationEdge>>) input.readObject();
-    }
-
-    private void serializeGraphs(Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs, String outputFilename) {
-        try (
-                OutputStream file = new FileOutputStream(outputFilename);
-                OutputStream buffer = new BufferedOutputStream(file);
-                ObjectOutput output = new ObjectOutputStream(buffer);
-        ) {
-            output.writeObject(graphs);
-        } catch (IOException ex) {
-            LOGGER.warn("Graphs serialization failed, " + ex.getMessage());
-        }
     }
 
     /**

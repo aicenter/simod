@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.agents.amodsim.graphbuilder.structurebuilders;
+package cz.agents.amodsim.graphbuilder;
 
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.gtdgraphimporter.structurebuilders.client.EdgeFactory;

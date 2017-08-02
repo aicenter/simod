@@ -13,7 +13,7 @@ import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwor
 import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.agents.agentpolis.simulator.creator.initializator.impl.MapData;
 import cz.agents.amodsim.graphbuilder.SimulationNodeFactory;
-import cz.agents.amodsim.graphbuilder.structurebuilders.SimulationEdgeFactory;
+import cz.agents.amodsim.graphbuilder.SimulationEdgeFactory;
 import cz.agents.basestructures.BoundingBox;
 //import cz.agents.agentpolis.simulator.visualization.visio.Bounds;
 import cz.agents.basestructures.Graph;

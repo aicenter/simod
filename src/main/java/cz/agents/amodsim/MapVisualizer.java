@@ -4,34 +4,23 @@ package cz.agents.amodsim;
 
 import ninja.fido.config.Configuration;
 import com.google.inject.Injector;
-import cz.agents.amodsim.init.EventInitializer;
-import cz.agents.amodsim.init.StatisticInitializer;
-import cz.agents.amodsim.io.RebalancingLoader;
-import cz.agents.amodsim.io.TimeTrip;
-import cz.agents.amodsim.io.TripTransform;
-import cz.agents.agentpolis.AgentPolisInitializer;
-import cz.agents.agentpolis.simulator.creator.SimulationCreator;
-import cz.agents.agentpolis.utils.config.ConfigReaderException;
+import cz.cvut.fel.aic.agentpolis.AgentPolisInitializer;
+import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.amodsim.config.Config;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author David Fiedler
  */
 public class MapVisualizer {
 
-    public static void main(String[] args) throws MalformedURLException, ConfigReaderException {
+    public static void main(String[] args) throws MalformedURLException {
         new MapVisualizer().run();
     }
 
 
-    public void run() throws ConfigReaderException {
+    public void run() {
         Config config = Configuration.load(new Config());
         
         Injector injector = new AgentPolisInitializer(new MapVisualizerModule(config)).initialize();

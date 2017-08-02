@@ -3,11 +3,7 @@ package cz.agents.amodsim.visio;
 
 import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
-import cz.agents.amodsim.visio.OnDemandVehicleLayer;
-import cz.agents.agentpolis.simmodel.entity.AgentPolisEntity;
-import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
-import cz.agents.agentpolis.simulator.visualization.visio.entity.AgentPositionUtil;
-import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Random;

@@ -3,16 +3,8 @@
 package cz.agents.amodsim;
 
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import cz.agents.amodsim.io.TimeTrip;
 import cz.agents.amodsim.io.TripTransform;
-import cz.agents.agentpolis.simmodel.environment.StandardAgentPolisModule;
-import cz.agents.agentpolis.simmodel.environment.model.delaymodel.impl.InfinityDelayingSegmentCapacityDeterminer;
-import cz.agents.agentpolis.simulator.creator.SimulationCreator;
-import cz.agents.agentpolis.utils.config.ConfigReader;
-import cz.agents.agentpolis.utils.config.ConfigReaderException;
-import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -34,19 +26,17 @@ public class PrecomputedDemandSimulation {
 	
 	private static final int START_TIME = 25200000; // 7h
 	
-	public static void main(String[] args) throws MalformedURLException, ConfigReaderException {
+	public static void main(String[] args) throws MalformedURLException{
         if (args.length >= 1) {
             EXPERIMENT_DIR = new File(args[0]);
         }
         new PrecomputedDemandSimulation().run();
     }
 	
-	public void run() throws ConfigReaderException{
+	public void run(){
 		try {
             List<TimeTrip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(EXPERIMENT_DIR, INPUT_FILE_PATH), Long.class);
 
-            ConfigReader scenario = ConfigReader.initConfigReader(new File(EXPERIMENT_DIR, "scenario.groovy").toURI().toURL());
-            MyParams parameters = new MyParams(EXPERIMENT_DIR, scenario);
 //			SimpleEnvinromentFactory envinromentFactory = new SimpleEnvinromentFactory(new InfinityDelayingSegmentCapacityDeterminer());
 
 			

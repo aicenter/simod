@@ -2,7 +2,7 @@
  */
 package cz.agents.amodsim.pathPlanner;
 
-import cz.agents.basestructures.Graph;
+import cz.cvut.fel.aic.geographtools.Graph;
 import cz.agents.multimodalstructures.edges.RoadEdge;
 import cz.agents.multimodalstructures.nodes.RoadNode;
 import cz.agents.planningalgorithms.singlecriteria.algorithms.DijkstraSimpleGraphSingleGoal;

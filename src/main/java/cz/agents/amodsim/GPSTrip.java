@@ -5,7 +5,7 @@
  */
 package cz.agents.amodsim;
 
-import cz.agents.basestructures.GPSLocation;
+import cz.cvut.fel.aic.geographtools.GPSLocation;
 import java.util.ArrayList;
 
 /**

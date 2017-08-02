@@ -5,9 +5,9 @@
  */
 package cz.agents.amodsim.graphbuilder;
 
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
-import cz.agents.gtdgraphimporter.structurebuilders.client.EdgeFactory;
-import cz.agents.gtdgraphimporter.structurebuilders.internal.InternalEdge;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
+import cz.cvut.fel.aic.gtdgraphimporter.structurebuilders.client.EdgeFactory;
+import cz.cvut.fel.aic.gtdgraphimporter.structurebuilders.internal.InternalEdge;
 
 /**
  *
@@ -19,7 +19,7 @@ public class SimulationEdgeFactory extends EdgeFactory<SimulationEdge>{
     public SimulationEdge createEdge(InternalEdge internalEdge) {
          return new SimulationEdge(internalEdge.fromId, internalEdge.toId, internalEdge.get("wayID"), 
                  internalEdge.get("uniqueWayID"), internalEdge.get("oppositeWayUniqueId"), internalEdge.getLength(), 
-                 internalEdge.get("modeOfTransports"), internalEdge.get("allowedMaxSpeedInMpS"),
+                 internalEdge.get("allowedMaxSpeedInMpS"),
                  internalEdge.get("lanesCount"));
     }
     

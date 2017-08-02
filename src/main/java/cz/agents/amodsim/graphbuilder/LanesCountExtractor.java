@@ -1,7 +1,7 @@
 package cz.agents.amodsim.graphbuilder;
 
 import com.google.common.primitives.Ints;
-import cz.agents.gtdgraphimporter.osm.WayTagExtractor;
+import cz.cvut.fel.aic.gtdgraphimporter.osm.WayTagExtractor;
 import org.apache.log4j.Logger;
 
 import java.util.Map;

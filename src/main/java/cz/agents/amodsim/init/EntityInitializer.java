@@ -9,7 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.agents.amodsim.storage.OnDemandvehicleStationStorage;
 import cz.agents.amodsim.entity.OnDemandVehicleStation;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.NearestElementUtils;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.NearestElementUtils;
 import java.util.List;
 
 /**

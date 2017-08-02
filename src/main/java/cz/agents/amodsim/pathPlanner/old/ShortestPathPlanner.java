@@ -10,10 +10,10 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.DirectedWeightedMultigraph;
 
 
-import cz.agents.agentpolis.siminfrastructure.planner.TripPlannerException;
-import cz.agents.basestructures.Graph;
-import cz.agents.basestructures.Edge;
-import cz.agents.basestructures.Node;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripPlannerException;
+import cz.cvut.fel.aic.geographtools.Graph;
+import cz.cvut.fel.aic.geographtools.Edge;
+import cz.cvut.fel.aic.geographtools.Node;
 import java.util.HashMap;
 import java.util.Map;
 

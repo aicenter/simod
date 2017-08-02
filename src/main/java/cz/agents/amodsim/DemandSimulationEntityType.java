@@ -5,7 +5,7 @@
  */
 package cz.agents.amodsim;
 
-import cz.agents.agentpolis.simmodel.entity.EntityType;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
 
 /**
  *

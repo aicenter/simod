@@ -2,9 +2,9 @@
  */
 package cz.agents.amodsim.pathPlanner;
 
-import cz.agents.basestructures.Edge;
-import cz.agents.basestructures.Graph;
-import cz.agents.basestructures.Node;
+import cz.cvut.fel.aic.geographtools.Edge;
+import cz.cvut.fel.aic.geographtools.Graph;
+import cz.cvut.fel.aic.geographtools.Node;
 import cz.agents.multimodalplanning.searchstructures.nodes.RoadSearchNode;
 import cz.agents.multimodalstructures.edges.RoadEdge;
 import cz.agents.multimodalstructures.edges.TimeDependentEdge;

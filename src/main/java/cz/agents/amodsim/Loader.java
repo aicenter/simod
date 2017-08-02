@@ -7,7 +7,7 @@ package cz.agents.amodsim;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.agents.amodsim.io.TimeTrip;
-import cz.agents.basestructures.GPSLocation;
+import cz.cvut.fel.aic.geographtools.GPSLocation;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;

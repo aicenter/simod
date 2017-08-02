@@ -13,19 +13,19 @@ import cz.agents.amodsim.entity.OnDemandVehicleStation;
 import cz.agents.amodsim.event.OnDemandVehicleStationsCentralEvent;
 import cz.agents.amodsim.io.TimeTrip;
 import com.vividsolutions.jts.geom.Coordinate;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
-import cz.agents.agentpolis.utils.nearestelement.NearestElementUtil;
-import cz.agents.agentpolis.utils.nearestelement.NearestElementUtil.SerializableIntFunction;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandlerAdapter;
 import cz.agents.alite.common.event.EventProcessor;
-import cz.agents.basestructures.GPSLocation;
-import cz.agents.basestructures.Node;
-import cz.agents.geotools.Transformer;
+import cz.cvut.fel.aic.geographtools.GPSLocation;
+import cz.cvut.fel.aic.geographtools.Node;
+import cz.cvut.fel.aic.geographtools.util.NearestElementUtil;
+import cz.cvut.fel.aic.geographtools.util.NearestElementUtil.SerializableIntFunction;
+import cz.cvut.fel.aic.geographtools.util.NearestElementUtilPair;
+import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.javatuples.Pair;
 
 /**
  *
@@ -145,7 +145,7 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     }
     
     private NearestElementUtil<OnDemandVehicleStation> getNearestElementUtilForStations() {
-        List<Pair<Coordinate,OnDemandVehicleStation>> pairs = new ArrayList<>();
+        List<NearestElementUtilPair<Coordinate,OnDemandVehicleStation>> pairs = new ArrayList<>();
         
         OnDemandvehicleStationStorage.EntityIterator iterator = onDemandvehicleStationStorage.new EntityIterator();
 		
@@ -153,8 +153,8 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
 		while ((station = iterator.getNextEntity()) != null) {
             GPSLocation location = station.getPosition();
             
-			pairs.add(new Pair<>(new Coordinate(
-                    location.getLongitude(), location.getLatitude(), location.getElevation()), station));
+			pairs.add(new NearestElementUtilPair<>(new Coordinate(
+                    location.getLongitude(), location.getLatitude(), location.elevation), station));
 		}
 		
 		return new NearestElementUtil<>(pairs, transformer, new OnDemandVehicleStationArrayConstructor());

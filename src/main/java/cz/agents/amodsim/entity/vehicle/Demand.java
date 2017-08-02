@@ -5,8 +5,8 @@
  */
 package cz.agents.amodsim.entity.vehicle;
 
-import cz.agents.agentpolis.siminfrastructure.planner.trip.TripItem;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.TripItem;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.agents.amodsim.entity.DemandAgent;
 
 /**

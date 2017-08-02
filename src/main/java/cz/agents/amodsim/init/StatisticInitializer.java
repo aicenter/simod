@@ -8,7 +8,7 @@ package cz.agents.amodsim.init;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.agents.amodsim.statistics.Statistics;
-import cz.agents.agentpolis.simulator.creator.SimulationCreator;
+import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.alite.common.event.EventProcessor;
 import cz.agents.amodsim.statistics.StatisticEvent;
 

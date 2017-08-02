@@ -1,7 +1,6 @@
 package cz.agents.amodsim;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import cz.agents.agentpolis.utils.spatialrefsys.WGS84Converter;
 import net.sf.javaml.core.kdtree.KDTree;
 
 import java.util.Map;

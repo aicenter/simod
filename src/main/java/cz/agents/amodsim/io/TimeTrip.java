@@ -3,7 +3,7 @@ package cz.agents.amodsim.io;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.Trip;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
 import java.util.LinkedList;
 
 /**

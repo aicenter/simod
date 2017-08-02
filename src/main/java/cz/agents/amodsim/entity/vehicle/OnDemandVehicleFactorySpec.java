@@ -5,8 +5,8 @@
  */
 package cz.agents.amodsim.entity.vehicle;
 
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
-import cz.agents.basestructures.Node;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.geographtools.Node;
 
 /**
  *

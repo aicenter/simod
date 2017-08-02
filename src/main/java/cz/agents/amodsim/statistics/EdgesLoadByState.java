@@ -8,9 +8,9 @@ package cz.agents.amodsim.statistics;
 import com.google.inject.Inject;
 import cz.agents.amodsim.entity.OnDemandVehicleState;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
-import cz.agents.agentpolis.siminfrastructure.CollectionUtil;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.load.AllEdgesLoad;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.CollectionUtil;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.load.AllEdgesLoad;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
 import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
 
 import java.util.HashMap;

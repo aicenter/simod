@@ -7,14 +7,14 @@ package cz.agents.amodsim.init;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.agents.agentpolis.simmodel.IdGenerator;
+import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.agents.amodsim.OnDemandVehicleStationsCentral;
 import cz.agents.amodsim.entity.DemandAgent;
 import cz.agents.amodsim.entity.DemandAgent.DemandAgentFactory;
 import cz.agents.amodsim.io.TimeTrip;
 import cz.agents.amodsim.entity.OnDemandVehicleStation;
 import cz.agents.amodsim.event.OnDemandVehicleStationsCentralEvent;
-import cz.agents.agentpolis.simulator.creator.SimulationCreator;
+import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandlerAdapter;
 import cz.agents.alite.common.event.EventProcessor;

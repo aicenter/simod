@@ -14,28 +14,26 @@ import com.google.inject.name.Names;
 import cz.agents.amodsim.entity.DemandAgent;
 import cz.agents.amodsim.entity.DemandAgent.DemandAgentFactory;
 import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
-import cz.agents.agentpolis.siminfrastructure.planner.TripsUtil;
-import cz.agents.agentpolis.simmodel.activity.activityFactory.CongestedDriveFactory;
-import cz.agents.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
-import cz.agents.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.CongestedDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
 import cz.agents.amodsim.tripUtil.TripsUtilCached;
 import cz.agents.amodsim.visio.DemandLayer;
 import cz.agents.amodsim.visio.DemandLayerWithJitter;
 import cz.agents.amodsim.visio.AmodsimVisioInItializer;
-import cz.agents.agentpolis.simmodel.environment.StandardAgentPolisModule;
-import cz.agents.agentpolis.simmodel.environment.model.EntityPositionModel;
-import cz.agents.agentpolis.simmodel.environment.model.EntityStorage;
-import cz.agents.agentpolis.simmodel.environment.model.VehiclePositionModel;
-import cz.agents.agentpolis.simmodel.environment.model.VehicleStorage;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.AllNetworkNodes;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
-import cz.agents.agentpolis.simulator.visualization.visio.VisioInitializer;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.EntityStorage;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.VehicleStorage;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.AllNetworkNodes;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer;
 import cz.agents.amodsim.config.Config;
 import cz.agents.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.agents.amodsim.entity.vehicle.RideSharingOnDemandVehicle;
-import cz.agents.geotools.Transformer;
-import cz.agents.gtdgraphimporter.TransportMode;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.StandardAgentPolisModule;
+import cz.cvut.fel.aic.geographtools.util.Transformer;
+import cz.cvut.fel.aic.geographtools.TransportMode;
 import java.io.File;
 
 import java.util.HashMap;
@@ -69,8 +67,7 @@ public class MainModule extends StandardAgentPolisModule{
         bind(new TypeLiteral<Set<TransportMode>>(){}).toInstance(Sets.immutableEnumSet(TransportMode.CAR));
         bind(Config.class).toInstance(config);
         bind(Transformer.class).toInstance(new Transformer(config.srid));
-        
-        bind(EntityPositionModel.class).to(VehiclePositionModel.class);
+
         bind(EntityStorage.class).to(VehicleStorage.class);
         
         if(config.agentpolis.useTripCache){

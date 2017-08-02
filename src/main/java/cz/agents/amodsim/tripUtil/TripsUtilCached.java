@@ -5,25 +5,25 @@
  */
 package cz.agents.amodsim.tripUtil;
 
-import cz.agents.agentpolis.siminfrastructure.planner.TripsUtil;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.agents.agentpolis.siminfrastructure.Log;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.Log;
 import cz.agents.amodsim.entity.DemandAgent;
 import cz.agents.amodsim.jackson.MyModule;
 import cz.agents.amodsim.statistics.Statistics;
-import cz.agents.agentpolis.siminfrastructure.planner.TripPlannerException;
-import cz.agents.agentpolis.siminfrastructure.planner.path.ShortestPathPlanner;
-import cz.agents.agentpolis.siminfrastructure.planner.path.ShortestPathPlanners;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
-import cz.agents.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.NearestElementUtils;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
-import cz.agents.agentpolis.simulator.creator.SimulationCreator;
-import cz.agents.agentpolis.simulator.creator.SimulationFinishedListener;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripPlannerException;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.path.ShortestPathPlanner;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.path.ShortestPathPlanners;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.NearestElementUtils;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
+import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
+import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationFinishedListener;
 import cz.agents.amodsim.config.Config;
 
 import java.io.File;

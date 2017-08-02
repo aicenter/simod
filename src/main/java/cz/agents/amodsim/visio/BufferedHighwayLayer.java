@@ -5,12 +5,12 @@
  */
 package cz.agents.amodsim.visio;
 
-import cz.agents.agentpolis.simulator.visualization.visio.HighwayLayer;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.HighwayLayer;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
-import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.vis.Vis;
 
 import javax.vecmath.Point2d;

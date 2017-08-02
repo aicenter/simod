@@ -7,11 +7,11 @@ package cz.agents.amodsim;
 
 import ninja.fido.config.Configuration;
 import com.google.inject.Injector;
-import cz.agents.agentpolis.AgentPolisInitializer;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.agentpolis.AgentPolisInitializer;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
 import cz.agents.amodsim.config.Config;
-import cz.agents.basestructures.Graph;
+import cz.cvut.fel.aic.geographtools.Graph;
 import java.io.File;
 
 /**

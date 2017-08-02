@@ -35,12 +35,12 @@ public class PreprocessTrips {
 //		}
         Config config = Configuration.load(new Config());
         
-        try {
-            tripTransform.tripsFromTxtToJson(new File(config.agentpolis.tripsPath), new File(config.mapFilePath), 
-                    config.srid, new File(config.agentpolis.preprocessedTrips));
-        } catch (IOException ex) {
-            Logger.getLogger(PreprocessTrips.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        try {
+//            tripTransform.tripsFromTxtToJson(new File(config.agentpolis.tripsPath), new File(config.mapFilePath), 
+//                    config.srid, new File(config.agentpolis.preprocessedTrips));
+//        } catch (IOException ex) {
+//            Logger.getLogger(PreprocessTrips.class.getName()).log(Level.SEVERE, null, ex);
+//        }
         
         System.exit(0);
 	}

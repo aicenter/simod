@@ -5,17 +5,17 @@
  */
 package cz.agents.amodsim.statistics;
 
-import cz.agents.agentpolis.simmodel.eventType.Transit;
+import cz.cvut.fel.aic.agentpolis.simmodel.eventType.Transit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import cz.agents.agentpolis.simmodel.eventType.DriveEvent;
+import cz.cvut.fel.aic.agentpolis.simmodel.eventType.DriveEvent;
 import cz.agents.amodsim.OnDemandVehicleStationsCentral;
 import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.agents.amodsim.entity.OnDemandVehicleState;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
-import cz.agents.agentpolis.simulator.creator.SimulationFinishedListener;
+import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationFinishedListener;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandlerAdapter;
 import cz.agents.alite.common.event.EventProcessor;

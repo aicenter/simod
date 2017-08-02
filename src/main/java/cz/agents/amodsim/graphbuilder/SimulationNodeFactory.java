@@ -5,9 +5,9 @@
  */
 package cz.agents.amodsim.graphbuilder;
 
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
-import cz.agents.gtdgraphimporter.structurebuilders.client.NodeFactory;
-import cz.agents.gtdgraphimporter.structurebuilders.internal.InternalNode;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.gtdgraphimporter.structurebuilders.client.NodeFactory;
+import cz.cvut.fel.aic.gtdgraphimporter.structurebuilders.internal.InternalNode;
 
 /**
  *
@@ -19,7 +19,7 @@ public class SimulationNodeFactory extends NodeFactory<SimulationNode>{
     public SimulationNode createNode(InternalNode internalNode) {
         
         return new SimulationNode(internalNode.id, internalNode.sourceId, internalNode.latE6, internalNode.lonE6, 
-                internalNode.latProjected, internalNode.lonProjected, internalNode.elevation, false, false);
+                internalNode.latProjected, internalNode.lonProjected, internalNode.elevation);
     }
     
 }

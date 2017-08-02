@@ -14,25 +14,23 @@ import cz.agents.amodsim.DemandSimulationEntityType;
 import cz.agents.amodsim.storage.OnDemandvehicleStationStorage;
 import cz.agents.amodsim.io.TimeTrip;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
-import cz.agents.agentpolis.siminfrastructure.description.DescriptionImpl;
-import cz.agents.agentpolis.simmodel.entity.AgentPolisEntity;
-import cz.agents.agentpolis.simmodel.entity.EntityType;
-import cz.agents.agentpolis.simmodel.environment.model.AgentPositionModel;
-import cz.agents.agentpolis.simmodel.environment.model.VehiclePositionModel;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.NearestElementUtils;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
-import cz.agents.agentpolis.simulator.visualization.visio.PositionUtil;
-import cz.agents.agentpolis.simulator.visualization.visio.entity.VehiclePositionUtil;
-import cz.agents.agentpolis.utils.nearestelement.NearestElementUtil;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.description.DescriptionImpl;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.NearestElementUtils;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandler;
 import cz.agents.alite.common.event.EventProcessor;
 import cz.agents.amodsim.OnDemandVehicleStationsCentral;
 import cz.agents.amodsim.config.Config;
 import cz.agents.amodsim.entity.vehicle.OnDemandVehicleFactory;
-import cz.agents.basestructures.GPSLocation;
-import cz.agents.basestructures.Node;
-import cz.agents.geotools.Transformer;
+import cz.cvut.fel.aic.geographtools.GPSLocation;
+import cz.cvut.fel.aic.geographtools.Node;
+import cz.cvut.fel.aic.geographtools.util.NearestElementUtil;
+import cz.cvut.fel.aic.geographtools.util.NearestElementUtilPair;
+import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -40,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.javatuples.Pair;
 
 /**
  *
@@ -51,12 +48,8 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     private final LinkedList<OnDemandVehicle> parkedVehicles;
     
     private final EventProcessor eventProcessor;
-    
-    private final VehiclePositionModel vehiclePositionModel;
 
     private final LinkedList<DepartureCard> departureCards;
-    
-    private final VehiclePositionUtil vehiclePositionUtil;
     
     private final Transformer transformer;
     
@@ -75,9 +68,8 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     public OnDemandVehicleStation(Config config, EventProcessor eventProcessor, 
             OnDemandVehicleFactory onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
             OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 
-            @Assisted String id, AgentPositionModel agentPositionModel, @Assisted SimulationNode node, 
-            @Assisted int initialVehicleCount, VehiclePositionModel vehiclePositionModel, 
-            VehiclePositionUtil vehiclePositionUtil, Transformer transformer, PositionUtil positionUtil, 
+            @Assisted String id, @Assisted SimulationNode node, 
+            @Assisted int initialVehicleCount, Transformer transformer, PositionUtil positionUtil, 
             OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, Map<Long,SimulationNode> nodesMappedByNodeSourceIds) {
         super(id, node);
         this.eventProcessor = eventProcessor;
@@ -87,12 +79,9 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, getPosition());
             parkedVehicles.add(newVehicle);
 			onDemandVehicleStorage.addEntity(newVehicle);
-			agentPositionModel.setNewEntityPosition(newVehicle.getId(), getPosition().getId());
         }
         onDemandVehicleStationStorage.addEntity(this);
-        this.vehiclePositionModel = vehiclePositionModel;
         this.departureCards = new LinkedList<>();
-        this.vehiclePositionUtil = vehiclePositionUtil;
         this.transformer = transformer;
         this.positionUtil = positionUtil;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
@@ -237,14 +226,14 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     
     private NearestElementUtil<OnDemandVehicle> getNearestElementUtilForVehiclesBeforeDeparture(
             OnDemandVehicleStation targetStation) {
-        List<Pair<Coordinate,OnDemandVehicle>> pairs = new ArrayList<>();
+        List<NearestElementUtilPair<Coordinate,OnDemandVehicle>> pairs = new ArrayList<>();
         
 		for(DepartureCard departureCard : departureCards) {
             if(departureCard.getTargetStation() == targetStation){
                 GPSLocation location = departureCard.getDemandVehicle().getPosition();
 
-                pairs.add(new Pair<>(
-                    new Coordinate(location.getLongitude(), location.getLatitude(), location.getElevation()),
+                pairs.add(new NearestElementUtilPair<>(
+                    new Coordinate(location.getLongitude(), location.getLatitude(), location.elevation),
                         departureCard.getDemandVehicle()));
             }
 		}

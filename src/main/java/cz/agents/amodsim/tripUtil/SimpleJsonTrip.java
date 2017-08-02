@@ -7,8 +7,8 @@ package cz.agents.amodsim.tripUtil;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.Trip;
-import cz.agents.agentpolis.siminfrastructure.planner.trip.TripItem;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.TripItem;
 import java.util.LinkedList;
 
 /**

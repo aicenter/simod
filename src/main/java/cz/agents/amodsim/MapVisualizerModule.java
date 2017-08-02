@@ -5,7 +5,7 @@
  */
 package cz.agents.amodsim;
 
-import cz.agents.agentpolis.simulator.visualization.visio.VisioInitializer;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer;
 import cz.agents.amodsim.config.Config;
 
 /**

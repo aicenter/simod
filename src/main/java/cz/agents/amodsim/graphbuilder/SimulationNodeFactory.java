@@ -19,7 +19,7 @@ public class SimulationNodeFactory extends NodeFactory<SimulationNode>{
     public SimulationNode createNode(InternalNode internalNode) {
         
         return new SimulationNode(internalNode.id, internalNode.sourceId, internalNode.latE6, internalNode.lonE6, 
-                internalNode.latProjected, internalNode.lonProjected, internalNode.elevation);
+                internalNode.getLatitudeProjected1E6(), internalNode.getLongitudeProjected1E6(), internalNode.elevation);
     }
     
 }

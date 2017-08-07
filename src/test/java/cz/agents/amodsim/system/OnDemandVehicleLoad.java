@@ -6,12 +6,12 @@
 package cz.agents.amodsim.system;
 
 import com.google.inject.Inject;
-import cz.agents.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.HighwayNetwork;
 import cz.agents.amodsim.entity.OnDemandVehicleState;
 import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.agents.amodsim.statistics.EdgesLoadByState;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
-import cz.agents.basestructures.Node;
+import cz.cvut.fel.aic.geographtools.Node;
 import static org.junit.Assert.assertSame;
 
 /**

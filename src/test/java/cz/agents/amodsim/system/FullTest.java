@@ -6,8 +6,8 @@
 package cz.agents.amodsim.system;
 
 import com.google.inject.Injector;
-import cz.agents.agentpolis.AgentPolisInitializer;
-import cz.agents.agentpolis.simulator.creator.SimulationCreator;
+import cz.cvut.fel.aic.agentpolis.AgentPolisInitializer;
+import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import ninja.fido.config.Configuration;
 import cz.agents.amodsim.MainModule;
 import cz.agents.amodsim.MapInitializer;

@@ -7,8 +7,8 @@ package cz.agents.amodsim.system;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.agents.agentpolis.simulator.creator.SimulationCreator;
-import cz.agents.agentpolis.simulator.creator.SimulationFinishedListener;
+import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
+import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationFinishedListener;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandler;
 import cz.agents.alite.common.event.EventProcessor;

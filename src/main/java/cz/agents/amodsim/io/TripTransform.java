@@ -8,7 +8,7 @@ package cz.agents.amodsim.io;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import cz.agents.amodsim.OsmUtil;
-import cz.agents.amodsim.pathPlanner.PathPlanner;
+//import cz.agents.amodsim.pathPlanner.PathPlanner;
 import com.vividsolutions.jts.geom.Coordinate;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
@@ -33,7 +33,7 @@ import java.util.logging.Logger;
  */
 public class TripTransform {
 	
-	private PathPlanner pathPlanner;
+//	private PathPlanner pathPlanner;
     
     private int zeroLenghtTripsCount = 0;
     

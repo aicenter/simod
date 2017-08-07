@@ -18,6 +18,9 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.Projection;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.SimulationControlLayer;
 import cz.agents.alite.simulation.Simulation;
 import cz.agents.alite.vis.VisManager;
+import cz.agents.alite.vis.layer.VisLayer;
+import cz.agents.alite.vis.layer.common.ColorLayer;
+import java.awt.Color;
 
 /**
  *
@@ -44,6 +47,7 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 
     private final TrafficDensityByDirectionLayer trafficDensityByDirectionLayer;
 
+    private final VisLayer backgroundLayer;
     
     
     
@@ -70,6 +74,7 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
         this.highwayLayer = highwayLayer;
         this.bufferedHighwayLayer = bufferedHighwayLayer;
         this.trafficDensityByDirectionLayer = trafficDensityByDirectionLayer;
+        this.backgroundLayer = ColorLayer.create(Color.white);
     }
 
     @Override
@@ -93,6 +98,8 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 
     @Override
     protected void initGraphLayers(Projection projection) {
+        VisManager.registerLayer(backgroundLayer);
+//        VisManager.registerLayer(highwayLayer);
         VisManager.registerLayer(bufferedHighwayLayer);
     }
     

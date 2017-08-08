@@ -18,7 +18,6 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transport
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.TramwayNetwork;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.HighwayLayer;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.Projection;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.SimulationControlLayer;
 import cz.agents.alite.vis.VisManager;
 import cz.agents.alite.vis.layer.common.ColorLayer;
@@ -49,15 +48,15 @@ public class MapVisualizerVisioInItializer extends AmodsimVisioInItializer{
             NodeIdLayer nodeIdLayer, OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, 
             DemandLayer demandLayer, OnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer, 
             BufferedHighwayLayer bufferedHighwayLayer, SimulationControlLayer simulationControlLayer, 
-            TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, Projection projection) {
+            TrafficDensityByDirectionLayer trafficDensityByDirectionLayer) {
         super(pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, 
                 railwayNetwork, agentStorage, vehicleStorage, allNetworkNodes, simulationCreator, onDemandVehicleLayer, trafficDensityLayer, nodeIdLayer, 
                 onDemandVehicleStationsLayer, demandLayer, onDemandVehiclePlanLayer, highwayLayer, 
-                bufferedHighwayLayer, simulationControlLayer, trafficDensityByDirectionLayer, projection);
+                bufferedHighwayLayer, simulationControlLayer, trafficDensityByDirectionLayer);
     }
 
     @Override
-    protected void initGraphLayers(Projection projection) {
+    protected void initGraphLayers() {
         VisManager.registerLayer(ColorLayer.create(Color.white));
         VisManager.registerLayer(highwayLayer);
 //        VisManager.registerLayer();
@@ -66,7 +65,7 @@ public class MapVisualizerVisioInItializer extends AmodsimVisioInItializer{
     
     @Override
     protected void initLayersAfterEntityLayers() {
-        VisManager.registerLayer(nodeIdLayer);
+//        VisManager.registerLayer(nodeIdLayer);
     }
     
     

@@ -14,7 +14,6 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.VehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.networks.*;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.DefaultVisioInitializer;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.Projection;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.SimulationControlLayer;
 import cz.agents.alite.simulation.Simulation;
 import cz.agents.alite.vis.VisManager;
@@ -61,8 +60,7 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
                                    OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, DemandLayer demandLayer,
                                    OnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer,
                                    BufferedHighwayLayer bufferedHighwayLayer, SimulationControlLayer simulationControlLayer,
-                                   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer,
-                                   Projection projection) {
+                                   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer) {
         super(pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork, 
                 simulationControlLayer);
         this.onDemandVehicleLayer = onDemandVehicleLayer;
@@ -78,7 +76,7 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
     }
 
     @Override
-    protected void initEntityLayers(Simulation simulation, Projection projection) {
+    protected void initEntityLayers(Simulation simulation) {
         VisManager.registerLayer(onDemandVehicleStationsLayer);
         VisManager.registerLayer(onDemandVehicleLayer);
         VisManager.registerLayer(demandLayer);
@@ -97,7 +95,7 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
     }
 
     @Override
-    protected void initGraphLayers(Projection projection) {
+    protected void initGraphLayers() {
         VisManager.registerLayer(backgroundLayer);
 //        VisManager.registerLayer(highwayLayer);
         VisManager.registerLayer(bufferedHighwayLayer);

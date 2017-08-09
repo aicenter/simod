@@ -12,7 +12,6 @@ import cz.agents.amodsim.DemandSimulationEntityType;
 import cz.agents.amodsim.OnDemandVehicleStationsCentral;
 import cz.agents.amodsim.PlanningAgent;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.description.DescriptionImpl;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.TripItem;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
@@ -186,11 +185,6 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         metersToStartLocation = 0;
         metersToStation = 0;
         metersRebalancing = 0;
-    }
-
-    @Override
-    public DescriptionImpl getDescription() {
-        return null;
     }
 
     @Override

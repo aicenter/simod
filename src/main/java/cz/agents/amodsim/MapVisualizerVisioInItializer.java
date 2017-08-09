@@ -30,6 +30,7 @@ import cz.agents.amodsim.visio.OnDemandVehiclePlanLayer;
 import cz.agents.amodsim.visio.OnDemandVehicleStationsLayer;
 import cz.agents.amodsim.visio.TrafficDensityByDirectionLayer;
 import cz.agents.amodsim.visio.TrafficDensityLayer;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.GridLayer;
 import java.awt.Color;
 
 /**
@@ -48,16 +49,17 @@ public class MapVisualizerVisioInItializer extends AmodsimVisioInItializer{
             NodeIdLayer nodeIdLayer, OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, 
             DemandLayer demandLayer, OnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer, 
             BufferedHighwayLayer bufferedHighwayLayer, SimulationControlLayer simulationControlLayer, 
-            TrafficDensityByDirectionLayer trafficDensityByDirectionLayer) {
+            TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer) {
         super(pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, 
                 railwayNetwork, agentStorage, vehicleStorage, allNetworkNodes, simulationCreator, onDemandVehicleLayer, trafficDensityLayer, nodeIdLayer, 
                 onDemandVehicleStationsLayer, demandLayer, onDemandVehiclePlanLayer, highwayLayer, 
-                bufferedHighwayLayer, simulationControlLayer, trafficDensityByDirectionLayer);
+                bufferedHighwayLayer, simulationControlLayer, trafficDensityByDirectionLayer, gridLayer);
     }
 
     @Override
     protected void initGraphLayers() {
         VisManager.registerLayer(ColorLayer.create(Color.white));
+        VisManager.registerLayer(gridLayer);
         VisManager.registerLayer(highwayLayer);
 //        VisManager.registerLayer();
 //        VisManager.registerLayer(bufferedHighwayLayer);

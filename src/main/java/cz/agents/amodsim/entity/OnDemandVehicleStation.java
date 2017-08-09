@@ -14,7 +14,6 @@ import cz.agents.amodsim.DemandSimulationEntityType;
 import cz.agents.amodsim.storage.OnDemandvehicleStationStorage;
 import cz.agents.amodsim.io.TimeTrip;
 import cz.agents.amodsim.storage.OnDemandVehicleStorage;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.description.DescriptionImpl;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.NearestElementUtils;
@@ -95,11 +94,6 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     @Override
     public EntityType getType() {
         return DemandSimulationEntityType.ON_DEMAND_VEHICLE_STATION;
-    }
-
-    @Override
-    public DescriptionImpl getDescription() {
-        return null;
     }
     
 //    public void setNearestNode(final Node node){

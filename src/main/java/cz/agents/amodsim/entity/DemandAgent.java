@@ -11,7 +11,6 @@ import cz.agents.amodsim.OnDemandVehicleStationsCentral;
 import cz.agents.amodsim.event.OnDemandVehicleStationsCentralEvent;
 import cz.agents.amodsim.io.TimeTrip;
 import cz.agents.amodsim.storage.DemandStorage;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.description.DescriptionImpl;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.Agent;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.TransportEntity;
@@ -25,7 +24,6 @@ import cz.agents.alite.common.event.EventProcessor;
 import cz.agents.amodsim.DemandSimulationEntityType;
 import cz.agents.amodsim.statistics.DemandServiceStatistic;
 import cz.agents.amodsim.statistics.StatisticEvent;
-import cz.cvut.fel.aic.geographtools.Node;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -123,13 +121,6 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     public void die() {
         demandStorage.removeEntity(this);
     }
-    
-    
-
-	@Override
-	public DescriptionImpl getDescription() {
-		return null;
-	}
 
     @Override
     public EventProcessor getEventProcessor() {

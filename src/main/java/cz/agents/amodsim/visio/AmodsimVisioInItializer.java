@@ -19,6 +19,8 @@ import cz.agents.alite.simulation.Simulation;
 import cz.agents.alite.vis.VisManager;
 import cz.agents.alite.vis.layer.VisLayer;
 import cz.agents.alite.vis.layer.common.ColorLayer;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.GridLayer;
+import cz.cvut.fel.aic.geographtools.GraphSpec2D;
 import java.awt.Color;
 
 /**
@@ -60,9 +62,9 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
                                    OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, DemandLayer demandLayer,
                                    OnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer,
                                    BufferedHighwayLayer bufferedHighwayLayer, SimulationControlLayer simulationControlLayer,
-                                   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer) {
+                                   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer) {
         super(pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork, 
-                simulationControlLayer);
+                simulationControlLayer, gridLayer);
         this.onDemandVehicleLayer = onDemandVehicleLayer;
         this.trafficDensityLayer = trafficDensityLayer;
         this.nodeIdLayer = nodeIdLayer;

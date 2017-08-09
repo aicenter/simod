@@ -12,8 +12,8 @@ import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationFinishedListener;
 import cz.agents.alite.common.event.Event;
 import cz.agents.alite.common.event.EventHandler;
 import cz.agents.alite.common.event.EventProcessor;
-import cz.agents.amodsim.OnDemandVehicleStationsCentral;
-import cz.agents.amodsim.statistics.Statistics;
+import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
+import cz.cvut.fel.aic.amodsim.statistics.Statistics;
 import org.junit.Assert;
 
 /**

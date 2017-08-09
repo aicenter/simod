@@ -14,10 +14,10 @@ import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriv
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.VehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.agents.alite.common.event.EventProcessor;
-import cz.agents.amodsim.OnDemandVehicleStationsCentral;
-import cz.agents.amodsim.config.Config;
-import cz.agents.amodsim.entity.OnDemandVehicleState;
-import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
+import cz.cvut.fel.aic.amodsim.config.Config;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
+import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import java.util.Map;

@@ -5,7 +5,7 @@
  */
 package cz.agents.amodsim.system;
 
-import cz.agents.amodsim.config.Config;
+import cz.cvut.fel.aic.amodsim.config.Config;
 import java.io.File;
 
 /**

@@ -7,10 +7,10 @@ package cz.agents.amodsim.system;
 
 import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
-import cz.agents.amodsim.entity.OnDemandVehicleState;
-import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
-import cz.agents.amodsim.statistics.EdgesLoadByState;
-import cz.agents.amodsim.storage.OnDemandVehicleStorage;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
+import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.amodsim.statistics.EdgesLoadByState;
+import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Node;
 import static org.junit.Assert.assertSame;
 

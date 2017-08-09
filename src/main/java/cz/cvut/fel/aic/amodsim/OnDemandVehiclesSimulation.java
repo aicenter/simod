@@ -1,47 +1,39 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
  */
-package cz.agents.amodsim.system;
+package cz.cvut.fel.aic.amodsim;
 
-import com.google.inject.Injector;
-import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
-import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import ninja.fido.config.Configuration;
-import cz.cvut.fel.aic.amodsim.MainModule;
-import cz.cvut.fel.aic.amodsim.MapInitializer;
-import cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation;
-import cz.cvut.fel.aic.amodsim.config.Config;
+import com.google.inject.Injector;
 import cz.cvut.fel.aic.amodsim.init.EventInitializer;
 import cz.cvut.fel.aic.amodsim.init.StatisticInitializer;
 import cz.cvut.fel.aic.amodsim.io.RebalancingLoader;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
+import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
+import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
+import cz.cvut.fel.aic.amodsim.config.Config;
+
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author fido
+ * @author David Fiedler
  */
-public class FullTest {
-    public static void runFullTest(int duration, int startTime, long timeForFinishingEvents){
+public class OnDemandVehiclesSimulation {
+
+    public static void main(String[] args) throws MalformedURLException{
+        new OnDemandVehiclesSimulation().run();
+    }
+
+
+    public void run() {
         Config config = Configuration.load(new Config());
         
-        //config overwrite
-        config.agentpolis.simulationDurationInMillis = duration;
-        config.agentpolis.startTime = startTime;
-//        config.agentpolis.showVisio = true;
-        Common.setTestResultsDir(config, "test");
-        
-        // Guice configuration
-        AgentPolisInitializer agentPolisInitializer = new AgentPolisInitializer(new MainModule(config));
-        agentPolisInitializer.overrideModule(new TestModule());
-        Injector injector = agentPolisInitializer.initialize();
+        Injector injector = new AgentPolisInitializer(new MainModule(config)).initialize();
 
         SimulationCreator creator = injector.getInstance(SimulationCreator.class);
 
@@ -67,5 +59,6 @@ public class FullTest {
         } catch (IOException ex) {
             Logger.getLogger(OnDemandVehiclesSimulation.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 }

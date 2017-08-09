@@ -7,9 +7,9 @@ package cz.agents.amodsim.system;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
-import cz.agents.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
-import cz.agents.amodsim.statistics.EdgesLoadByState;
+import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
+import cz.cvut.fel.aic.amodsim.statistics.EdgesLoadByState;
 
 /**
  *

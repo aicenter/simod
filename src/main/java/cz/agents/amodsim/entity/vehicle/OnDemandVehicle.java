@@ -10,7 +10,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 import cz.agents.amodsim.DemandSimulationEntityType;
 import cz.agents.amodsim.OnDemandVehicleStationsCentral;
-import cz.agents.amodsim.PlanningAgent;
+import cz.agents.amodsim.entity.PlanningAgent;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.TripItem;

@@ -1,4 +1,4 @@
-package cz.agents.amodsim;
+package cz.agents.amodsim.entity;
 
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 

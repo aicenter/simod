@@ -5,7 +5,7 @@
  */
 package cz.agents.amodsim.graphbuilder;
 
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.gtdgraphimporter.structurebuilders.client.EdgeFactory;
 import cz.cvut.fel.aic.gtdgraphimporter.structurebuilders.internal.InternalEdge;
 

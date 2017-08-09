@@ -7,11 +7,11 @@ package cz.agents.amodsim;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.EGraphType;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.GraphType;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationEdge;
-import cz.cvut.fel.aic.agentpolis.simulator.creator.initializator.impl.MapData;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.GraphType;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
+import cz.cvut.fel.aic.agentpolis.simulator.MapData;
 import cz.agents.amodsim.graphbuilder.SimulationNodeFactory;
 import cz.agents.amodsim.graphbuilder.SimulationEdgeFactory;
 import cz.cvut.fel.aic.geographtools.Graph;

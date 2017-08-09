@@ -4,7 +4,7 @@ package cz.agents.amodsim;
 
 import ninja.fido.config.Configuration;
 import com.google.inject.Injector;
-import cz.cvut.fel.aic.agentpolis.AgentPolisInitializer;
+import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.amodsim.config.Config;
 

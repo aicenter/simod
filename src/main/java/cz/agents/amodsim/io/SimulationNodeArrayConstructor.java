@@ -1,6 +1,6 @@
 package cz.agents.amodsim.io;
 
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.citymodel.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.geographtools.util.NearestElementUtil;
 
 /**

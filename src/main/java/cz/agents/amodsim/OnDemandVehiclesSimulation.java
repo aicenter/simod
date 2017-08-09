@@ -9,7 +9,7 @@ import cz.agents.amodsim.init.StatisticInitializer;
 import cz.agents.amodsim.io.RebalancingLoader;
 import cz.agents.amodsim.io.TimeTrip;
 import cz.agents.amodsim.io.TripTransform;
-import cz.cvut.fel.aic.agentpolis.AgentPolisInitializer;
+import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.agents.amodsim.config.Config;
 

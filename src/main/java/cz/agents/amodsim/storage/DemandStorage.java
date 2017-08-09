@@ -7,7 +7,7 @@ package cz.agents.amodsim.storage;
 
 import com.google.inject.Singleton;
 import cz.agents.amodsim.entity.DemandAgent;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.EntityStorage;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage;
 import java.util.HashMap;
 
 /**

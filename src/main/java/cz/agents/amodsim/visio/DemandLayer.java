@@ -7,7 +7,7 @@ package cz.agents.amodsim.visio;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.entity.EntityLayer;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.EntityLayer;
 import cz.agents.amodsim.entity.DemandAgent;
 import cz.agents.amodsim.entity.DemandAgentState;
 import cz.agents.amodsim.storage.DemandStorage;

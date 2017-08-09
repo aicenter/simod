@@ -6,7 +6,7 @@
 package cz.agents.amodsim;
 
 import cz.agents.amodsim.entity.vehicle.OnDemandVehicle;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.model.NearestEntityComparator;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.NearestEntityComparator;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import javax.vecmath.Point2d;
 

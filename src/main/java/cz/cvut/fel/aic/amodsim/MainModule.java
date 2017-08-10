@@ -46,11 +46,11 @@ import java.util.Set;
  */
 public class MainModule extends StandardAgentPolisModule{
     
-    private final Config config;
+    private final Config amodsimConfig;
     
-    public MainModule(Config config) {
+    public MainModule(Config amodsimConfig) {
         super();
-        this.config = config;
+        this.amodsimConfig = amodsimConfig;
     }
 
     @Override
@@ -62,15 +62,15 @@ public class MainModule extends StandardAgentPolisModule{
     protected void configureNext() {
         bindConstant().annotatedWith(Names.named("precomputedPaths")).to(false);
 
-        bind(File.class).annotatedWith(Names.named("osm File")).toInstance(new File(config.mapFilePath));
+        bind(File.class).annotatedWith(Names.named("osm File")).toInstance(new File(amodsimConfig.mapFilePath));
         
         bind(new TypeLiteral<Set<TransportMode>>(){}).toInstance(Sets.immutableEnumSet(TransportMode.CAR));
-        bind(Config.class).toInstance(config);
-        bind(Transformer.class).toInstance(new Transformer(config.srid));
+        bind(Config.class).toInstance(amodsimConfig);
+        bind(Transformer.class).toInstance(new Transformer(amodsimConfig.srid));
 
         bind(EntityStorage.class).to(VehicleStorage.class);
         
-        if(config.agentpolis.useTripCache){
+        if(amodsimConfig.agentpolis.useTripCache){
             bind(TripsUtil.class).to(TripsUtilCached.class);
         }
         bind(DemandLayer.class).to(DemandLayerWithJitter.class);
@@ -78,7 +78,7 @@ public class MainModule extends StandardAgentPolisModule{
 //        bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
         bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 
-        if(config.agentpolis.ridesharing){
+        if(amodsimConfig.agentpolis.ridesharing){
             install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, RideSharingOnDemandVehicle.class)
                 .build(OnDemandVehicleFactorySpec.class));
         }

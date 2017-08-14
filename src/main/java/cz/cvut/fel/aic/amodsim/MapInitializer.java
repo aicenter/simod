@@ -16,9 +16,9 @@ import cz.cvut.fel.aic.amodsim.graphbuilder.SimulationNodeFactory;
 import cz.cvut.fel.aic.amodsim.graphbuilder.SimulationEdgeFactory;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
-import cz.cvut.fel.aic.gtdgraphimporter.GraphCreator;
+import cz.cvut.fel.aic.graphimporter.GraphCreator;
 import cz.cvut.fel.aic.geographtools.TransportMode;
-import cz.cvut.fel.aic.gtdgraphimporter.osm.OsmImporter;
+import cz.cvut.fel.aic.graphimporter.osm.OsmImporter;
 import org.apache.log4j.Logger;
 
 import java.io.*;

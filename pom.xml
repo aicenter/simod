@@ -52,7 +52,6 @@
         <dependency>
             <groupId>cz.cvut.fel.aic</groupId>
             <artifactId>graph-importer</artifactId>
-            <version>1.7-SNAPSHOT</version>
         </dependency>
         
         <!--other-->

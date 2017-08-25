@@ -10,7 +10,7 @@ import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
-import cz.agents.alite.common.event.EventProcessor;
+import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
 import cz.cvut.fel.aic.amodsim.config.Config;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactory;

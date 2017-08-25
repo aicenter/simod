@@ -13,7 +13,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.VehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
-import cz.agents.alite.common.event.EventProcessor;
+import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
 import cz.cvut.fel.aic.amodsim.config.Config;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;

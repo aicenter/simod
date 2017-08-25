@@ -19,8 +19,8 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.HighwayLayer;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.SimulationControlLayer;
-import cz.agents.alite.vis.VisManager;
-import cz.agents.alite.vis.layer.common.ColorLayer;
+import cz.cvut.fel.aic.alite.vis.VisManager;
+import cz.cvut.fel.aic.alite.vis.layer.common.ColorLayer;
 import cz.cvut.fel.aic.amodsim.visio.AmodsimVisioInItializer;
 import cz.cvut.fel.aic.amodsim.visio.BufferedHighwayLayer;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayer;

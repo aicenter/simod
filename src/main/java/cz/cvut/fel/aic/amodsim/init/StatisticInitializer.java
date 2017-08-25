@@ -9,7 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.amodsim.statistics.Statistics;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
-import cz.agents.alite.common.event.EventProcessor;
+import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.statistics.StatisticEvent;
 
 /**

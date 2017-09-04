@@ -24,7 +24,7 @@ public class DemandLayer extends EntityLayer<DemandAgent>{
     
     private static final Color DEMAND_COLOR = Color.RED;
     
-    private static final int SIZE = 3;
+    private static final int SIZE = 1;
 
     
     
@@ -36,7 +36,7 @@ public class DemandLayer extends EntityLayer<DemandAgent>{
 
     
     protected Point2d getDrivingAgentPosition(DemandAgent demandAgent){
-        return positionUtil.getCanvasPositionInterpolated(demandAgent.getOnDemandVehicle());
+        return positionUtil.getCanvasPositionInterpolatedForVehicle(demandAgent.getOnDemandVehicle().getVehicle());
     }
     
     protected Point2d getWaitingAgentPosition(DemandAgent demandAgent, Dimension drawingDimension){
@@ -46,7 +46,7 @@ public class DemandLayer extends EntityLayer<DemandAgent>{
 
     @Override
     protected Point2d getEntityPosition(DemandAgent demandAgent) {
-        if(demandAgent.getState() == DemandAgentState.RIDING){
+        if(demandAgent.getState() == DemandAgentState.DRIVING){
             return getDrivingAgentPosition(demandAgent);
         }
         else{

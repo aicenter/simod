@@ -3,27 +3,20 @@
 package cz.cvut.fel.aic.amodsim.visio;
 
 import com.google.inject.Inject;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage.EntityIterator;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioUtils;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.EntityLayer;
-import cz.cvut.fel.aic.alite.vis.Vis;
-import cz.cvut.fel.aic.alite.vis.layer.AbstractLayer;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VehicleLayer;
+import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.util.ArrayList;
 import javax.vecmath.Point2d;
 
 /**
  *
  * @author F-I-D-O
  */
-public class OnDemandVehicleLayer extends EntityLayer<OnDemandVehicle>{
+public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>{
 	
 	private static final int DEMAND_REPRESENTATION_RADIUS = 5;
     
@@ -44,8 +37,8 @@ public class OnDemandVehicleLayer extends EntityLayer<OnDemandVehicle>{
 	
 	
 	@Inject
-	public OnDemandVehicleLayer(OnDemandVehicleStorage onDemandVehicleStorage) {
-        super(onDemandVehicleStorage);
+	public OnDemandVehicleLayer(PhysicalTransportVehicleStorage physicalTransportVehicleStorage) {
+        super(physicalTransportVehicleStorage);
 	}
 
 
@@ -54,39 +47,39 @@ public class OnDemandVehicleLayer extends EntityLayer<OnDemandVehicle>{
         String description = "Layer shows on-demand vehicles";
         return buildLayersDescription(description);
     }
-	
-	
-
 
     @Override
-    protected Point2d getEntityPosition(OnDemandVehicle onDemandVehicle) {
-        return positionUtil.getCanvasPositionInterpolated(onDemandVehicle);
-    }
-
-    @Override
-    protected Color getEntityDrawColor(OnDemandVehicle onDemandVehicle) {
-        switch(onDemandVehicle.getState()){
-           case REBALANCING:
-               return REBALANCING_COLOR;
-           default:
-               return NORMAL_COLOR;
-       }
-    }
-
-    @Override
-    protected int getEntityDrawRadius(OnDemandVehicle onDemandVehicle) {
-    //        return DEMAND_REPRESENTATION_RADIUS;
-        return (int) onDemandVehicle.getVehicle().getLength();
-    }
-
-    @Override
-    protected boolean skipDrawing(OnDemandVehicle onDemandVehicle) {
+    protected boolean skipDrawing(PhysicalTransportVehicle vehicle) {
+        OnDemandVehicle onDemandVehicle = (OnDemandVehicle) vehicle.getDriver();
+        
         if(onDemandVehicle.getState() == OnDemandVehicleState.WAITING){
             return true;
         }
         else{
             return false;
         }
+    }
+
+    @Override
+    protected float getVehicleWidth(PhysicalTransportVehicle vehicle) {
+        return 3;
+    }
+
+    @Override
+    protected float getVehicleLength(PhysicalTransportVehicle vehicle) {
+        return (float) vehicle.getLength();
+    }
+
+    @Override
+    protected Color getEntityDrawColor(PhysicalTransportVehicle vehicle) {
+        OnDemandVehicle onDemandVehicle = (OnDemandVehicle) vehicle.getDriver();
+        
+        switch(onDemandVehicle.getState()){
+           case REBALANCING:
+               return REBALANCING_COLOR;
+           default:
+               return NORMAL_COLOR;
+       }
     }
     
     

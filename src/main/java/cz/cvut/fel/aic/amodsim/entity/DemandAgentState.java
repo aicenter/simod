@@ -11,5 +11,5 @@ package cz.cvut.fel.aic.amodsim.entity;
  */
 public enum DemandAgentState {
     WAITING,
-    RIDING
+    DRIVING
 }

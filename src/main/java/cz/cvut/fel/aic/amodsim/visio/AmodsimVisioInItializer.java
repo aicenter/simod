@@ -26,6 +26,7 @@ import cz.cvut.fel.aic.alite.vis.VisManager;
 import cz.cvut.fel.aic.alite.vis.layer.VisLayer;
 import cz.cvut.fel.aic.alite.vis.layer.common.ColorLayer;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.GridLayer;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.MapTilesLayer;
 import cz.cvut.fel.aic.geographtools.GraphSpec2D;
 import java.awt.Color;
 
@@ -56,6 +57,8 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 
     private final VisLayer backgroundLayer;
     
+    private final MapTilesLayer mapTilesLayer;
+    
     
     
     @Inject
@@ -68,7 +71,7 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
                                    OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, DemandLayer demandLayer,
                                    OnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer,
                                    BufferedHighwayLayer bufferedHighwayLayer, SimulationControlLayer simulationControlLayer,
-                                   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer) {
+                                   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer, MapTilesLayer mapTilesLayer) {
         super(pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork, 
                 simulationControlLayer, gridLayer);
         this.onDemandVehicleLayer = onDemandVehicleLayer;
@@ -80,6 +83,7 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
         this.highwayLayer = highwayLayer;
         this.bufferedHighwayLayer = bufferedHighwayLayer;
         this.trafficDensityByDirectionLayer = trafficDensityByDirectionLayer;
+        this.mapTilesLayer = mapTilesLayer;
         this.backgroundLayer = ColorLayer.create(Color.white);
     }
 
@@ -105,8 +109,9 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
     @Override
     protected void initGraphLayers() {
         VisManager.registerLayer(backgroundLayer);
+        VisManager.registerLayer(mapTilesLayer);
 //        VisManager.registerLayer(highwayLayer);
-        VisManager.registerLayer(bufferedHighwayLayer);
+//        VisManager.registerLayer(bufferedHighwayLayer);
     }
     
     

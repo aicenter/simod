@@ -22,6 +22,7 @@ import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Node;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -50,7 +51,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     
     
     @Inject
-    public RideSharingOnDemandVehicle(Map<Long,SimulationNode> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage, 
+    public RideSharingOnDemandVehicle(Map<Long,SimulationNode> nodesMappedByNodeSourceIds, PhysicalTransportVehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             StandardDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor, 
             StandardTimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, 

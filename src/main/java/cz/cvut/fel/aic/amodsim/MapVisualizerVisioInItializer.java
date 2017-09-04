@@ -31,6 +31,7 @@ import cz.cvut.fel.aic.amodsim.visio.OnDemandVehicleStationsLayer;
 import cz.cvut.fel.aic.amodsim.visio.TrafficDensityByDirectionLayer;
 import cz.cvut.fel.aic.amodsim.visio.TrafficDensityLayer;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.GridLayer;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.MapTilesLayer;
 import java.awt.Color;
 
 /**
@@ -49,11 +50,11 @@ public class MapVisualizerVisioInItializer extends AmodsimVisioInItializer{
             NodeIdLayer nodeIdLayer, OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, 
             DemandLayer demandLayer, OnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer, 
             BufferedHighwayLayer bufferedHighwayLayer, SimulationControlLayer simulationControlLayer, 
-            TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer) {
+            TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer, MapTilesLayer mapTilesLayer) {
         super(pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, 
                 railwayNetwork, agentStorage, vehicleStorage, allNetworkNodes, simulationCreator, onDemandVehicleLayer, trafficDensityLayer, nodeIdLayer, 
                 onDemandVehicleStationsLayer, demandLayer, onDemandVehiclePlanLayer, highwayLayer, 
-                bufferedHighwayLayer, simulationControlLayer, trafficDensityByDirectionLayer, gridLayer);
+                bufferedHighwayLayer, simulationControlLayer, trafficDensityByDirectionLayer, gridLayer, mapTilesLayer);
     }
 
     @Override

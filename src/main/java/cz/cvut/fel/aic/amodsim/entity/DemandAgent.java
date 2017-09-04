@@ -60,6 +60,8 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     private Long demandTime;
     
     private TransportEntity transportEntity;
+    
+    private SimulationNode lastFromPosition;
 
     
     
@@ -150,7 +152,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     }
 
     public void tripStarted() {
-        state = DemandAgentState.RIDING;
+        state = DemandAgentState.DRIVING;
     }
 
     @Override
@@ -166,6 +168,11 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     @Override
     public <T extends TransportEntity> void setTransportingEntity(T transportingEntity) {
         this.transportEntity = transportingEntity;
+    }
+
+    @Override
+    public void setLastFromPosition(SimulationNode lastFromPosition) {
+        this.lastFromPosition = lastFromPosition;
     }
 
     

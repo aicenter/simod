@@ -44,6 +44,7 @@ import java.util.Map;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 
 
 /**
@@ -156,7 +157,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     
     
     @Inject
-    public OnDemandVehicle(Map<Long,SimulationNode> nodesMappedByNodeSourceIds, VehicleStorage vehicleStorage, 
+    public OnDemandVehicle(Map<Long,SimulationNode> nodesMappedByNodeSourceIds, PhysicalTransportVehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             PhysicalVehicleDriveFactory driveFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
             StandardTimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, 
@@ -179,6 +180,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
                 config.vehicleSpeedInMeters);
         
         vehicleStorage.addEntity(vehicle);
+        vehicle.setDriver(this);
         state = OnDemandVehicleState.WAITING;
         
         metersWithPassenger = 0;
@@ -427,7 +429,6 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     @Override
     public void startDriving(PhysicalTransportVehicle vehicle){
         this.vehicle = vehicle;
-        vehicle.setDriver(this);
     }
 
     @Override

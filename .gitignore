@@ -1,4 +1,7 @@
+# Private config file
+/src/main/resources/cz/cvut/fel/aic/amodsim/config/local-config-location.txt
 
+# IDE
 *.log
 *.ser
 *.iml
@@ -6,6 +9,7 @@
 
 data
 
+# AIC
 nbactions.xml
 nb-configuration.xml
 /target/
@@ -17,5 +21,7 @@ nb-configuration.xml
 /src/main/python/.idea/
 /src/main/java/cz/agents/amodsim/config/
 /src/main/java/cz/agents/amodsim/LocalConfig.java
+log.txt.lck
 
 maptiles/
+

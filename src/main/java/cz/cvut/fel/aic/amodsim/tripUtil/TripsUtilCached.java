@@ -36,7 +36,7 @@ import java.util.logging.Logger;
  * @author fido
  */
 @Singleton
-public class TripsUtilCached extends TripsUtil implements SimulationFinishedListener {
+public class TripsUtilCached extends TripsUtil {
     
     private static final int OUTPUT_BATCH_SIZE = 10000;
 
@@ -74,8 +74,7 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
         }
         
         newTrips = new HashMap<>();
-        
-        simulationCreator.addSimulationFinishedListener(this);
+
     }
 
 
@@ -114,11 +113,6 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
         return finalTrip;
     }
 
-    @Override
-    public void simulationFinished() {
-        saveNewTrips();
-    }
-
     private void loadTripCache() throws IOException {
         TypeReference<HashMap<StartTargetNodePair, SimpleJsonTrip>> typeRef =
                 new TypeReference<HashMap<StartTargetNodePair, SimpleJsonTrip>>() {
@@ -143,7 +137,7 @@ public class TripsUtilCached extends TripsUtil implements SimulationFinishedList
         return new File(filename);
     }
 
-    private void saveNewTrips() {
+    public void saveNewTrips() {
         File outputFile = new File(tripCacheFolder + File.separator + cacheFileCounter + ".json");
         cacheFileCounter++;
         try {

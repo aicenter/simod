@@ -9,19 +9,19 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.GraphType;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.MapData;
-import cz.cvut.fel.aic.amodsim.graphbuilder.SimulationNodeFactory;
 import cz.cvut.fel.aic.amodsim.graphbuilder.SimulationEdgeFactory;
+import cz.cvut.fel.aic.amodsim.graphbuilder.SimulationNodeFactory;
 import cz.cvut.fel.aic.geographtools.Graph;
+import cz.cvut.fel.aic.geographtools.TransportMode;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import cz.cvut.fel.aic.graphimporter.GraphCreator;
-import cz.cvut.fel.aic.geographtools.TransportMode;
 import cz.cvut.fel.aic.graphimporter.osm.OsmImporter;
 import org.apache.log4j.Logger;
 
-import java.io.*;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -34,9 +34,9 @@ public class MapInitializer {
     private static final Logger LOGGER = Logger.getLogger(MapInitializer.class);
 
     private final File mapFile;
-    
+
     private final Transformer projection;
-    
+
     private final Set<TransportMode> allowedOsmModes;
 
 
@@ -56,10 +56,10 @@ public class MapInitializer {
     public MapData getMap() {
         Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs = new HashMap<>();
         OsmImporter importer = new OsmImporter(mapFile, allowedOsmModes, projection);
-        
-        GraphCreator<SimulationNode,SimulationEdge> graphCreator = new GraphCreator(projection, 
+
+        GraphCreator<SimulationNode, SimulationEdge> graphCreator = new GraphCreator(projection,
                 true, true, importer, new SimulationNodeFactory(), new SimulationEdgeFactory());
-        
+
         graphs.put(EGraphType.HIGHWAY, graphCreator.getMap());
 
         Map<Integer, SimulationNode> nodes = createAllGraphNodes(graphs);

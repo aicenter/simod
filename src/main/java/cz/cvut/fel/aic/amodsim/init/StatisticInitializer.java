@@ -7,41 +7,29 @@ package cz.cvut.fel.aic.amodsim.init;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.cvut.fel.aic.amodsim.statistics.Statistics;
-import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.statistics.StatisticEvent;
+import cz.cvut.fel.aic.amodsim.statistics.Statistics;
 
 /**
- *
  * @author fido
  */
 @Singleton
 public class StatisticInitializer {
-    
+
     private final Statistics statistics;
-    
-    private final SimulationCreator simulationCreator;
-    
+
     private final EventProcessor eventProcessor;
 
-    
-    
+
     @Inject
-    public StatisticInitializer(Statistics statistics, SimulationCreator simulationCreator,
-            EventProcessor eventProcessor) {
+    public StatisticInitializer(Statistics statistics, EventProcessor eventProcessor) {
         this.statistics = statistics;
-        this.simulationCreator = simulationCreator;
         this.eventProcessor = eventProcessor;
     }
-    
-    
-    
-    
-    
-    
-    public void initialize(){
-        simulationCreator.addSimulationFinishedListener(statistics);
+
+
+    public void initialize() {
         eventProcessor.addEvent(StatisticEvent.TICK, statistics, null, null);
     }
 }

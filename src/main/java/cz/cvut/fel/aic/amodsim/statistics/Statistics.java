@@ -36,7 +36,7 @@ import java.util.logging.Logger;
  * @author fido
  */
 @Singleton
-public class Statistics extends EventHandlerAdapter implements SimulationFinishedListener {
+public class Statistics extends EventHandlerAdapter {
     
     private static final int TRANSIT_OUTPUT_BATCH_SIZE = 1000000;
     
@@ -181,7 +181,7 @@ public class Statistics extends EventHandlerAdapter implements SimulationFinishe
         }
     }
 
-    @Override
+
     public void simulationFinished() {
         countAveragesFromAgents();
         saveResult();

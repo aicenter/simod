@@ -2,16 +2,18 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
-import ninja.fido.config.Configuration;
 import com.google.inject.Injector;
+import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
+import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
+import cz.cvut.fel.aic.amodsim.config.Config;
 import cz.cvut.fel.aic.amodsim.init.EventInitializer;
 import cz.cvut.fel.aic.amodsim.init.StatisticInitializer;
 import cz.cvut.fel.aic.amodsim.io.RebalancingLoader;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
-import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
-import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
-import cz.cvut.fel.aic.amodsim.config.Config;
+import cz.cvut.fel.aic.amodsim.statistics.Statistics;
+import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
+import ninja.fido.config.Configuration;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,14 +27,14 @@ import java.util.logging.Logger;
  */
 public class OnDemandVehiclesSimulation {
 
-    public static void main(String[] args) throws MalformedURLException{
+    public static void main(String[] args) throws MalformedURLException {
         new OnDemandVehiclesSimulation().run();
     }
 
 
     public void run() {
         Config config = Configuration.load(new Config());
-        
+
         Injector injector = new AgentPolisInitializer(new MainModule(config)).initialize();
 
         SimulationCreator creator = injector.getInstance(SimulationCreator.class);
@@ -55,7 +57,12 @@ public class OnDemandVehiclesSimulation {
 
             // start it up
             creator.startSimulation();
-        
+
+            if (config.agentpolis.useTripCache) {
+                injector.getInstance(TripsUtilCached.class).saveNewTrips();
+            }
+            injector.getInstance(Statistics.class).simulationFinished();
+
         } catch (IOException ex) {
             Logger.getLogger(OnDemandVehiclesSimulation.class.getName()).log(Level.SEVERE, null, ex);
         }

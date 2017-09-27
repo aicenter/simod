@@ -66,7 +66,6 @@ public class MainModule extends StandardAgentPolisModule{
         
         bind(new TypeLiteral<Set<TransportMode>>(){}).toInstance(Sets.immutableEnumSet(TransportMode.CAR));
         bind(Config.class).toInstance(amodsimConfig);
-        bind(Transformer.class).toInstance(new Transformer(amodsimConfig.srid));
 
         bind(EntityStorage.class).to(VehicleStorage.class);
         

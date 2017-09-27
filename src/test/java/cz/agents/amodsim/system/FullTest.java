@@ -63,7 +63,10 @@ public class FullTest {
 
             // start it up
             creator.startSimulation();
-        
+
+            injector.getInstance(StatisticControl.class).simulationFinished();
+
+
         } catch (IOException ex) {
             Logger.getLogger(OnDemandVehiclesSimulation.class.getName()).log(Level.SEVERE, null, ex);
         }

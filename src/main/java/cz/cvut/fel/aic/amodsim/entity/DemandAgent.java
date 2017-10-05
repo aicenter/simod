@@ -36,7 +36,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     
     private final int simpleId;
 	
-	private final TimeTrip<Long> osmNodeTrip;
+	private final TimeTrip<SimulationNode> trip;
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
 	
@@ -95,10 +95,10 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	public DemandAgent(OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
             DemandStorage demandStorage, Map<Long,SimulationNode> nodesMappedByNodeSourceIds, StandardTimeProvider timeProvider,
             @Named("precomputedPaths") boolean precomputedPaths, @Assisted String agentId, @Assisted int id,
-            @Assisted TimeTrip<Long> osmNodeTrip) {
-		super(agentId, nodesMappedByNodeSourceIds.get(osmNodeTrip.getLocations().get(0)));
+            @Assisted TimeTrip<SimulationNode> trip) {
+		super(agentId, trip.getLocations().get(0));
         this.simpleId = id;
-		this.osmNodeTrip = osmNodeTrip;
+		this.trip = trip;
 		this.precomputedPaths = precomputedPaths;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.eventProcessor = eventProcessor;
@@ -115,7 +115,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	public void born() {
         demandStorage.addEntity(this);
 		eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.DEMAND, onDemandVehicleStationsCentral, null, 
-                new DemandData(osmNodeTrip.getLocations(), this));
+                new DemandData(trip.getLocations(), this));
         demandTime = timeProvider.getCurrentSimTime();
 	}
 
@@ -139,7 +139,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 
 
     public void tripEnded() {
-        if(!getPosition().equals(nodesMappedByNodeSourceIds.get(osmNodeTrip.getLocations().getLast()))){
+        if(!getPosition().equals(trip.getLocations().getLast())){
             try {
                 throw new Exception("Demand not served properly");
             } catch (Exception ex) {
@@ -179,7 +179,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     
     
     public interface DemandAgentFactory {
-        public DemandAgent create(String agentId, int id, TimeTrip<Long> osmNodeTrip);
+        public DemandAgent create(String agentId, int id, TimeTrip<SimulationNode> osmNodeTrip);
     }
 	
 }

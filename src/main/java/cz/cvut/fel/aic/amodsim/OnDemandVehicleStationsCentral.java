@@ -38,8 +38,6 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     
     private final Transformer transformer;
     
-    private final Map<Long,SimulationNode> nodesMappedByNodeSourceIds;
-    
     private final EventProcessor eventProcessor;
     
     
@@ -77,10 +75,9 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     
     
     @Inject
-    public OnDemandVehicleStationsCentral(OnDemandvehicleStationStorage onDemandvehicleStationStorage, 
-            Map<Long,SimulationNode> nodesMappedByNodeSourceIds, EventProcessor eventProcessor, @Named("mapSrid") int srid) {
+    public OnDemandVehicleStationsCentral(OnDemandvehicleStationStorage onDemandvehicleStationStorage,
+            EventProcessor eventProcessor, @Named("mapSrid") int srid) {
         this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
-        this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
         this.eventProcessor = eventProcessor;
         transformer = new Transformer(srid);
         numberOfDemandsNotServedFromNearestStation = 0;
@@ -163,8 +160,8 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     private void serveDemand(Event event) {
         demandsCount++;
         DemandData demandData = (DemandData) event.getContent();
-        List<Long> locations = demandData.locations;
-        Node startNode = nodesMappedByNodeSourceIds.get(locations.get(0));
+        List<SimulationNode> locations = demandData.locations;
+        Node startNode = locations.get(0);
         OnDemandVehicleStation nearestStation = getNearestReadyStation(startNode); 
         if(nearestStation != null){
 //            eventProcessor.addEvent(OnDemandVehicleStationEvent.TRIP, nearestStation, null, demandData);

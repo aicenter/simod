@@ -56,8 +56,6 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
-    private final Map<Long,SimulationNode> nodesMappedByNodeSourceIds;
-    
     private final Config config;
 
     
@@ -69,7 +67,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 
             @Assisted String id, @Assisted SimulationNode node, 
             @Assisted int initialVehicleCount, Transformer transformer, PositionUtil positionUtil, 
-            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, Map<Long,SimulationNode> nodesMappedByNodeSourceIds) {
+            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral) {
         super(id, node);
         this.eventProcessor = eventProcessor;
         parkedVehicles = new LinkedList<>();
@@ -84,7 +82,6 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         this.transformer = transformer;
         this.positionUtil = positionUtil;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
-        this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
         this.config = config;
     }
     
@@ -133,8 +130,8 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     
 
     public void handleTripRequest(DemandData demandData) {
-        Node startLocation = nodesMappedByNodeSourceIds.get(demandData.locations.get(0));
-        Node targetLocation = nodesMappedByNodeSourceIds.get(demandData.locations.get(demandData.locations.size() - 1));
+        Node startLocation = demandData.locations.get(0);
+        Node targetLocation = demandData.locations.get(demandData.locations.size() - 1);
         
         // hack for demands that starts and ends in the same position
         if(startLocation.equals(targetLocation)){

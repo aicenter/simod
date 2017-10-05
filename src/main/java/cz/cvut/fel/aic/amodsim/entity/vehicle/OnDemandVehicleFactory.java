@@ -10,7 +10,6 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.VehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
@@ -27,8 +26,6 @@ import java.util.Map;
  */
 @Singleton
 public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
-    
-    protected final Map<Long,SimulationNode> nodesMappedByNodeSourceIds;
     
     protected final TripsUtil tripsUtil;
     
@@ -54,12 +51,11 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     
     
     @Inject
-    public OnDemandVehicleFactory(Map<Long,SimulationNode> nodesMappedByNodeSourceIds, PhysicalTransportVehicleStorage vehicleStorage, 
+    public OnDemandVehicleFactory(PhysicalTransportVehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             PhysicalVehicleDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
             StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, 
             @Named("precomputedPaths") boolean precomputedPaths, Config config) {
-        this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
         this.tripsUtil = tripsUtil;
         this.precomputedPaths = precomputedPaths;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
@@ -76,7 +72,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     
     @Override
     public OnDemandVehicle create(String vehicleId, SimulationNode startPosition){
-        return new OnDemandVehicle(nodesMappedByNodeSourceIds, vehicleStorage, tripsUtil, 
+        return new OnDemandVehicle(vehicleStorage, tripsUtil, 
                 onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, eventProcessor, timeProvider, 
                 precomputedPaths, rebalancingIdGenerator, config, vehicleId, startPosition);
     }

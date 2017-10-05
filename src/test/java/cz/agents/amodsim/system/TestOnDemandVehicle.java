@@ -38,13 +38,13 @@ public class TestOnDemandVehicle extends OnDemandVehicle{
     private int droppOffCount;
     
     @Inject
-    public TestOnDemandVehicle(Map<Long, SimulationNode> nodesMappedByNodeSourceIds, PhysicalTransportVehicleStorage vehicleStorage,
+    public TestOnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage,
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             StandardDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor, 
             StandardTimeProvider timeProvider, StatisticControl statisticControl,
             @Named("precomputedPaths") boolean precomputedPaths, IdGenerator rebalancingIdGenerator, Config config, 
             @Assisted String vehicleId, @Assisted SimulationNode startPosition) {
-        super(nodesMappedByNodeSourceIds, vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
+        super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
                 driveActivityFactory, positionUtil, eventProcessor, timeProvider, 
                 precomputedPaths, rebalancingIdGenerator, config, vehicleId, startPosition);
         this.statisticControl = statisticControl;

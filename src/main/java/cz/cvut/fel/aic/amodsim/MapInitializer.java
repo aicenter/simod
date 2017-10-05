@@ -18,6 +18,7 @@ import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.TransportMode;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import cz.cvut.fel.aic.graphimporter.GraphCreator;
+import cz.cvut.fel.aic.graphimporter.geojson.GeoJSONReader;
 import cz.cvut.fel.aic.graphimporter.osm.OsmImporter;
 import org.apache.log4j.Logger;
 
@@ -55,7 +56,10 @@ public class MapInitializer {
      */
     public MapData getMap() {
         Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs = new HashMap<>();
-        OsmImporter importer = new OsmImporter(mapFile, allowedOsmModes, projection);
+//        OsmImporter importer = new OsmImporter(mapFile, allowedOsmModes, projection);
+        String nodeFile = "/home/fido/AIC data/Shared/amod-data/noc_vedcu/data/nodes.geojson";
+        String edgeFile = "/home/fido/AIC data/Shared/amod-data/noc_vedcu/data/edges.geojson";
+        GeoJSONReader importer = new GeoJSONReader(edgeFile, nodeFile, projection);
 
         GraphCreator<SimulationNode, SimulationEdge> graphCreator = new GraphCreator(projection,
                 true, true, importer, new SimulationNodeFactory(), new SimulationEdgeFactory());

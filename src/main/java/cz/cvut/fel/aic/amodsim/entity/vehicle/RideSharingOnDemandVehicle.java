@@ -12,7 +12,6 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.VehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
@@ -51,13 +50,13 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     
     
     @Inject
-    public RideSharingOnDemandVehicle(Map<Long,SimulationNode> nodesMappedByNodeSourceIds, PhysicalTransportVehicleStorage vehicleStorage, 
+    public RideSharingOnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             StandardDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor, 
             StandardTimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, 
             IdGenerator rebalancingIdGenerator, Config config, @Assisted String vehicleId, 
             @Assisted SimulationNode startPosition) {
-        super(nodesMappedByNodeSourceIds, vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
+        super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
                 driveActivityFactory, positionUtil, eventProcessor, timeProvider, precomputedPaths, 
                 rebalancingIdGenerator, config, vehicleId, startPosition);
         this.positionUtil = positionUtil;
@@ -76,10 +75,10 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     @Override
     public void handleEvent(Event event) {
         cz.cvut.fel.aic.amodsim.DemandData demandData = (cz.cvut.fel.aic.amodsim.DemandData) event.getContent();
-        List<Long> locations = demandData.locations;
+        List<SimulationNode> locations = demandData.locations;
         
-        Node startNode = nodesMappedByNodeSourceIds.get(locations.get(0));
-        Node targetNode = nodesMappedByNodeSourceIds.get(locations.get(locations.size() - 1));
+        Node startNode = locations.get(0);
+        Node targetNode = locations.get(locations.size() - 1);
 
         startNodes.add(startNode);
         targetNodes.add(targetNode);

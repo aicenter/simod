@@ -42,15 +42,17 @@ public class OnDemandVehiclesSimulation {
         // prepare map, entity storages...
         creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
 
-        List<TimeTrip<Long>> osmNodesList;
+//        List<TimeTrip<Long>> osmNodesList;
         try {
-            osmNodesList = TripTransform.jsonToTrips(new File(config.agentpolis.preprocessedTrips), Long.class);
+//            osmNodesList = TripTransform.jsonToTrips(new File(config.agentpolis.preprocessedTrips), Long.class);
+            TripTransform tripTransform = injector.getInstance(TripTransform.class);
             RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
             rebalancingLoader.load(new File(config.rebalancing.policyFilePath));
 
             //  injector.getInstance(EntityInitializer.class).initialize(rebalancingLoader.getOnDemandVehicleStations());
 
-            injector.getInstance(EventInitializer.class).initialize(osmNodesList,
+            injector.getInstance(EventInitializer.class).initialize(
+                    tripTransform.loadTripsFromTxt(new File(config.agentpolis.tripsPath)),
                     rebalancingLoader.getRebalancingTrips(), config);
 
             injector.getInstance(StatisticInitializer.class).initialize();

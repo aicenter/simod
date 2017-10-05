@@ -44,8 +44,6 @@ public class OnDemandVehicleStationFactory {
     private final PositionUtil positionUtil;
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
-    
-    private final Map<Long,SimulationNode> nodesMappedByNodeSourceIds;
 
     @Inject
     public OnDemandVehicleStationFactory(Config config, EventProcessor eventProcessor, OnDemandVehicleFactory 
@@ -63,7 +61,6 @@ public class OnDemandVehicleStationFactory {
         this.transformer = transformer;
         this.positionUtil = positionUtil;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
-        this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
     }
     
     
@@ -73,6 +70,6 @@ public class OnDemandVehicleStationFactory {
         return new OnDemandVehicleStation(config, eventProcessor, onDemandVehicleFactory, nearestElementUtils,
                 onDemandVehicleStationStorage, onDemandVehicleStorage, id, node, 
                 initialVehicleCount, transformer, positionUtil, 
-                onDemandVehicleStationsCentral, nodesMappedByNodeSourceIds);
+                onDemandVehicleStationsCentral);
     }
 }

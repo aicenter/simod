@@ -93,7 +93,8 @@ public class MainModule extends StandardAgentPolisModule{
     
     @Provides
 	@Singleton
-	Map<Long,SimulationNode> provideNodesMappedByNodeSourceIds(HighwayNetwork highwayNetwork, AllNetworkNodes allNetworkNodes) {
+	Map<Long,SimulationNode> provideNodesMappedByNodeSourceIds(
+            HighwayNetwork highwayNetwork, AllNetworkNodes allNetworkNodes) {
         Map<Long,Integer> nodeIdsMappedByNodeSourceIds = highwayNetwork.getNetwork().createSourceIdToNodeIdMap();
         Map<Long,SimulationNode> nodesMappedByNodeSourceIds = new HashMap<>();
         

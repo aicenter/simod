@@ -8,6 +8,7 @@ package cz.cvut.fel.aic.amodsim.init;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent.DemandAgentFactory;
@@ -66,12 +67,12 @@ public class EventInitializer {
     }
     
     
-    public void initialize(List<TimeTrip<Long>> osmNodeTrips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips, 
+    public void initialize(List<TimeTrip<SimulationNode>> trips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips, 
             Config config){
         Random random = new Random(RANDOM_SEED);
         
-        for (TimeTrip<Long> osmNodeTrip : osmNodeTrips) {
-            long startTime = osmNodeTrip.getStartTime() - config.agentpolis.startTime;
+        for (TimeTrip<SimulationNode> trip : trips) {
+            long startTime = trip.getStartTime() - config.agentpolis.startTime;
             if(startTime < 1 || startTime > config.agentpolis.simulationDurationInMillis){
                 continue;
             }
@@ -85,7 +86,7 @@ public class EventInitializer {
                 }
                 
                 startTime = startTime + i * TRIP_MULTIPLICATION_TIME_SHIFT;
-                eventProcessor.addEvent(null, demandEventHandler, null, osmNodeTrip, startTime);
+                eventProcessor.addEvent(null, demandEventHandler, null, trip, startTime);
                 eventCount++;
                 if(MAX_EVENTS != 0 && eventCount >= MAX_EVENTS){
                     return;
@@ -111,8 +112,6 @@ public class EventInitializer {
  
         private final DemandAgentFactory demandAgentFactory;
         
-        private final SimulationCreator simulationCreator;
-        
         
         
         
@@ -121,7 +120,6 @@ public class EventInitializer {
                 SimulationCreator simulationCreator) {
             this.demandIdGenerator = demandIdGenerator;
             this.demandAgentFactory = demandAgentFactory;
-            this.simulationCreator = simulationCreator;
         }
 
         
@@ -130,15 +128,13 @@ public class EventInitializer {
 
 		@Override
 		public void handleEvent(Event event) {
-			TimeTrip<Long> osmNodeTrip = (TimeTrip<Long>) event.getContent();
+			TimeTrip<SimulationNode> trip = (TimeTrip<SimulationNode>) event.getContent();
             
             int id = demandIdGenerator.getId();
 			
-			DemandAgent demandAgent = demandAgentFactory.create("Demand " + Integer.toString(id), id, osmNodeTrip);
+			DemandAgent demandAgent = demandAgentFactory.create("Demand " + Integer.toString(id), id, trip);
             
             demandAgent.born();
-			
-//			simulationCreator.addAgent(demandAgent);
 		}
 	}    
 }

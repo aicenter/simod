@@ -25,7 +25,7 @@ public class PreprocessTrips {
 //		loader.loadSCKData();
 //		List<TimeTrip<GPSLocation>> gpsTrips = loader.getTrips();
 
-        TripTransform tripTransform = new TripTransform();
+//        TripTransform tripTransform = new TripTransform();
     
 //		List<TimeTrip<Long>> osmNodeTrips = tripTransform.gpsTripsToOsmNodeTrips(gpsTrips, new File(OSM_FILE_PATH), SRID);
 //		try {

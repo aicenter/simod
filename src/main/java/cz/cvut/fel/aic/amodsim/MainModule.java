@@ -17,7 +17,6 @@ import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.CongestedDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
-import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
 import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayer;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayerWithJitter;
@@ -28,11 +27,10 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.AllNetworkNodes;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer;
-import cz.cvut.fel.aic.amodsim.config.Config;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
-import cz.cvut.fel.aic.geographtools.util.Transformer;
 import cz.cvut.fel.aic.geographtools.TransportMode;
 import java.io.File;
 
@@ -46,10 +44,10 @@ import java.util.Set;
  */
 public class MainModule extends StandardAgentPolisModule{
     
-    private final Config amodsimConfig;
+    private final AmodsimConfig amodsimConfig;
     
-    public MainModule(Config amodsimConfig) {
-        super();
+    public MainModule(AmodsimConfig amodsimConfig, File localConfigFile) {
+        super(amodsimConfig, localConfigFile, "agentpolis");
         this.amodsimConfig = amodsimConfig;
     }
 
@@ -65,11 +63,11 @@ public class MainModule extends StandardAgentPolisModule{
         bind(File.class).annotatedWith(Names.named("osm File")).toInstance(new File(amodsimConfig.mapFilePath));
         
         bind(new TypeLiteral<Set<TransportMode>>(){}).toInstance(Sets.immutableEnumSet(TransportMode.CAR));
-        bind(Config.class).toInstance(amodsimConfig);
+        bind(AmodsimConfig.class).toInstance(amodsimConfig);
 
         bind(EntityStorage.class).to(VehicleStorage.class);
         
-        if(amodsimConfig.agentpolis.useTripCache){
+        if(amodsimConfig.amodsim.useTripCache){
             bind(TripsUtil.class).to(TripsUtilCached.class);
         }
         bind(DemandLayer.class).to(DemandLayerWithJitter.class);
@@ -77,7 +75,7 @@ public class MainModule extends StandardAgentPolisModule{
         bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
 //        bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 
-        if(amodsimConfig.agentpolis.ridesharing){
+        if(amodsimConfig.amodsim.ridesharing){
             install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, RideSharingOnDemandVehicle.class)
                 .build(OnDemandVehicleFactorySpec.class));
         }

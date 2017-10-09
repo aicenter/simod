@@ -19,7 +19,7 @@ import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandlerAdapter;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
-import cz.cvut.fel.aic.amodsim.config.Config;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import java.util.List;
 import java.util.Random;
 
@@ -49,7 +49,7 @@ public class EventInitializer {
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
-    private final Config config;
+    private final AmodsimConfig config;
     
     
     private long eventCount;
@@ -57,7 +57,7 @@ public class EventInitializer {
     
     @Inject
     public EventInitializer(EventProcessor eventProcessor, 
-            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, Config config, 
+            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, AmodsimConfig config, 
             DemandEventHandler demandEventHandler) {
         this.eventProcessor = eventProcessor;
         this.demandEventHandler = demandEventHandler;
@@ -68,12 +68,12 @@ public class EventInitializer {
     
     
     public void initialize(List<TimeTrip<SimulationNode>> trips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips, 
-            Config config){
+            AmodsimConfig config){
         Random random = new Random(RANDOM_SEED);
         
         for (TimeTrip<SimulationNode> trip : trips) {
-            long startTime = trip.getStartTime() - config.agentpolis.startTime;
-            if(startTime < 1 || startTime > config.agentpolis.simulationDurationInMillis){
+            long startTime = trip.getStartTime() - config.amodsim.startTime;
+            if(startTime < 1 || startTime > config.amodsim.simulationDurationInMillis){
                 continue;
             }
             
@@ -94,8 +94,8 @@ public class EventInitializer {
             }
         }
         for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
-            long startTime = rebalancingTrip.getStartTime() - config.agentpolis.startTime;
-            if(startTime < 1 || startTime > config.agentpolis.simulationDurationInMillis){
+            long startTime = rebalancingTrip.getStartTime() - config.amodsim.startTime;
+            if(startTime < 1 || startTime > config.amodsim.simulationDurationInMillis){
                 continue;
             }
             eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 

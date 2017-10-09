@@ -5,7 +5,7 @@
  */
 package cz.agents.amodsim.system;
 
-import cz.cvut.fel.aic.amodsim.config.Config;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import java.io.File;
 
 /**
@@ -14,31 +14,31 @@ import java.io.File;
  */
 public class Common {
     
-    public static void setTestResultsDir(Config config, String testDirName){
-        config.agentpolis.statistics.resultFilePath = 
-                appendDir(config.agentpolis.statistics.resultFilePath, testDirName); 
-        config.agentpolis.statistics.allEdgesLoadHistoryFilePath = 
-                appendDir(config.agentpolis.statistics.allEdgesLoadHistoryFilePath, testDirName);
-        config.agentpolis.statistics.transitStatisticFilePath = 
-                appendDir(config.agentpolis.statistics.transitStatisticFilePath, testDirName);
-        config.agentpolis.statistics.tripDistancesFilePath = 
-                appendDir(config.agentpolis.statistics.tripDistancesFilePath, testDirName);
+    public static void setTestResultsDir(AmodsimConfig config, String testDirName){
+        config.amodsim.statistics.resultFilePath = 
+                appendDir(config.amodsim.statistics.resultFilePath, testDirName); 
+        config.amodsim.statistics.allEdgesLoadHistoryFilePath = 
+                appendDir(config.amodsim.statistics.allEdgesLoadHistoryFilePath, testDirName);
+        config.amodsim.statistics.transitStatisticFilePath = 
+                appendDir(config.amodsim.statistics.transitStatisticFilePath, testDirName);
+        config.amodsim.statistics.tripDistancesFilePath = 
+                appendDir(config.amodsim.statistics.tripDistancesFilePath, testDirName);
         
         // on demand vehicle statistics
-        config.agentpolis.statistics.onDemandVehicleStatistic.leaveStationFilePath = 
-                insertDir(config.agentpolis.statistics.onDemandVehicleStatistic.leaveStationFilePath, testDirName, 2);
-        config.agentpolis.statistics.onDemandVehicleStatistic.pickupFilePath = 
-                insertDir(config.agentpolis.statistics.onDemandVehicleStatistic.pickupFilePath, testDirName, 2);
-        config.agentpolis.statistics.onDemandVehicleStatistic.dropOffFilePath = 
-                insertDir(config.agentpolis.statistics.onDemandVehicleStatistic.dropOffFilePath, testDirName, 2);
-        config.agentpolis.statistics.onDemandVehicleStatistic.reachNearestStationFilePath = 
-                insertDir(config.agentpolis.statistics.onDemandVehicleStatistic.reachNearestStationFilePath,
+        config.amodsim.statistics.onDemandVehicleStatistic.leaveStationFilePath = 
+                insertDir(config.amodsim.statistics.onDemandVehicleStatistic.leaveStationFilePath, testDirName, 2);
+        config.amodsim.statistics.onDemandVehicleStatistic.pickupFilePath = 
+                insertDir(config.amodsim.statistics.onDemandVehicleStatistic.pickupFilePath, testDirName, 2);
+        config.amodsim.statistics.onDemandVehicleStatistic.dropOffFilePath = 
+                insertDir(config.amodsim.statistics.onDemandVehicleStatistic.dropOffFilePath, testDirName, 2);
+        config.amodsim.statistics.onDemandVehicleStatistic.reachNearestStationFilePath = 
+                insertDir(config.amodsim.statistics.onDemandVehicleStatistic.reachNearestStationFilePath,
                         testDirName, 2);
-        config.agentpolis.statistics.onDemandVehicleStatistic.startRebalancingFilePath = 
-                insertDir(config.agentpolis.statistics.onDemandVehicleStatistic.startRebalancingFilePath,
+        config.amodsim.statistics.onDemandVehicleStatistic.startRebalancingFilePath = 
+                insertDir(config.amodsim.statistics.onDemandVehicleStatistic.startRebalancingFilePath,
                         testDirName, 2);
-        config.agentpolis.statistics.onDemandVehicleStatistic.finishRebalancingFilePath = 
-                insertDir(config.agentpolis.statistics.onDemandVehicleStatistic.finishRebalancingFilePath,
+        config.amodsim.statistics.onDemandVehicleStatistic.finishRebalancingFilePath = 
+                insertDir(config.amodsim.statistics.onDemandVehicleStatistic.finishRebalancingFilePath,
                         testDirName, 2);
     }
 

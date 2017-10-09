@@ -2,7 +2,7 @@
 package cz.cvut.fel.aic.amodsim;
 
 import ninja.fido.config.Configuration;
-import cz.cvut.fel.aic.amodsim.config.Config;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.geographtools.Graph;
@@ -14,7 +14,7 @@ import java.io.File;
  */
 public class OsmStatistic {
     public static void main(String[] args) {
-        Config config = Configuration.load(new Config());
+//        AmodsimConfig config = Configuration.load(new AmodsimConfig());
         
 //        Graph<SimulationNode, SimulationEdge> highwayGraph = OsmUtil.getHigwayGraph(new File(config.mapFilePath), config.srid);
         

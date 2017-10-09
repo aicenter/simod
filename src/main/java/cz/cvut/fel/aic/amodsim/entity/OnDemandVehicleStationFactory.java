@@ -12,7 +12,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
-import cz.cvut.fel.aic.amodsim.config.Config;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactory;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
@@ -27,7 +27,7 @@ import java.util.Map;
 @Singleton
 public class OnDemandVehicleStationFactory {
     
-    private final Config config;
+    private final AmodsimConfig config;
     
     private final EventProcessor eventProcessor;
     
@@ -46,7 +46,7 @@ public class OnDemandVehicleStationFactory {
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
 
     @Inject
-    public OnDemandVehicleStationFactory(Config config, EventProcessor eventProcessor, OnDemandVehicleFactory 
+    public OnDemandVehicleStationFactory(AmodsimConfig config, EventProcessor eventProcessor, OnDemandVehicleFactory 
             onDemandVehicleFactory, NearestElementUtils nearestElementUtils, OnDemandvehicleStationStorage 
                     onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage,
                     Transformer transformer, PositionUtil positionUtil, 

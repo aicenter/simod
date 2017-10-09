@@ -1,2 +1,0 @@
-/home/fido/Workspaces/AIC/amod-to-agentpolis/src/main/local/local-config-david.cfg
-

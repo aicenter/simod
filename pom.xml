@@ -11,10 +11,7 @@
 		<artifactId>aicenter-parent</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
-    
-    <properties>
-		<config.path>./cz/cvut/fel/aic/amodsim/config/config.cfg</config.path>
-    </properties>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -33,12 +30,6 @@
                 </configuration>
             </plugin>
 		</plugins>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
 	</build>
     <dependencies>
         <!--aic-->

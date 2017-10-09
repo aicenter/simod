@@ -23,7 +23,7 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
-import cz.cvut.fel.aic.amodsim.config.Config;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactory;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Node;
@@ -56,13 +56,13 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
-    private final Config config;
+    private final AmodsimConfig config;
 
     
     
     
     @Inject
-    public OnDemandVehicleStation(Config config, EventProcessor eventProcessor, 
+    public OnDemandVehicleStation(AmodsimConfig config, EventProcessor eventProcessor, 
             OnDemandVehicleFactory onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
             OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 
             @Assisted String id, @Assisted SimulationNode node, 
@@ -143,7 +143,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             return;
         }
         
-        OnDemandVehicle vehicle = getVehicle(startLocation, targetLocation, config.agentpolis.ridesharing);
+        OnDemandVehicle vehicle = getVehicle(startLocation, targetLocation, config.amodsim.ridesharing);
         
         if(vehicle != null){
             vehicle.setDepartureStation(this);

@@ -12,7 +12,7 @@ import ninja.fido.config.Configuration;
 import cz.cvut.fel.aic.amodsim.MainModule;
 import cz.cvut.fel.aic.amodsim.MapInitializer;
 import cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation;
-import cz.cvut.fel.aic.amodsim.config.Config;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.init.EventInitializer;
 import cz.cvut.fel.aic.amodsim.init.StatisticInitializer;
 import cz.cvut.fel.aic.amodsim.io.RebalancingLoader;
@@ -30,12 +30,12 @@ import java.util.logging.Logger;
  */
 public class FullTest {
     public static void runFullTest(int duration, int startTime, long timeForFinishingEvents){
-        Config config = Configuration.load(new Config());
+        AmodsimConfig config = Configuration.load(new AmodsimConfig());
         
         //config overwrite
-        config.agentpolis.simulationDurationInMillis = duration;
-        config.agentpolis.startTime = startTime;
-//        config.agentpolis.showVisio = true;
+        config.amodsim.simulationDurationInMillis = duration;
+        config.amodsim.startTime = startTime;
+//        config.amodsim.showVisio = true;
         Common.setTestResultsDir(config, "test");
         
         // Guice configuration
@@ -50,7 +50,7 @@ public class FullTest {
 
         List<TimeTrip<Long>> osmNodesList;
         try {
-            osmNodesList = TripTransform.jsonToTrips(new File(config.agentpolis.preprocessedTrips), Long.class);
+            osmNodesList = TripTransform.jsonToTrips(new File(config.amodsim.preprocessedTrips), Long.class);
             RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
             rebalancingLoader.load(new File(config.rebalancing.policyFilePath));
 

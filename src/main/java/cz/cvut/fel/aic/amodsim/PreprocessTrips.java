@@ -6,7 +6,7 @@
 package cz.cvut.fel.aic.amodsim;
 
 import ninja.fido.config.Configuration;
-import cz.cvut.fel.aic.amodsim.config.Config;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import java.io.File;
 import java.io.IOException;
@@ -33,11 +33,11 @@ public class PreprocessTrips {
 //		} catch (IOException ex) {
 //			Logger.getLogger(PrepareSCKData.class.getName()).log(Level.SEVERE, null, ex);
 //		}
-        Config config = Configuration.load(new Config());
+//        AmodsimConfig config = Configuration.load(new AmodsimConfig());
         
 //        try {
-//            tripTransform.tripsFromTxtToJson(new File(config.agentpolis.tripsPath), new File(config.mapFilePath), 
-//                    config.srid, new File(config.agentpolis.preprocessedTrips));
+//            tripTransform.tripsFromTxtToJson(new File(config.amodsim.tripsPath), new File(config.mapFilePath), 
+//                    config.srid, new File(config.amodsim.preprocessedTrips));
 //        } catch (IOException ex) {
 //            Logger.getLogger(PreprocessTrips.class.getName()).log(Level.SEVERE, null, ex);
 //        }

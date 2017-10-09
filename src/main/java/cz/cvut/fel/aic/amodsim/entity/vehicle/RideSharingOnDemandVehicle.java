@@ -16,7 +16,7 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
-import cz.cvut.fel.aic.amodsim.config.Config;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
@@ -54,7 +54,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             StandardDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor, 
             StandardTimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, 
-            IdGenerator rebalancingIdGenerator, Config config, @Assisted String vehicleId, 
+            IdGenerator rebalancingIdGenerator, AmodsimConfig config, @Assisted String vehicleId, 
             @Assisted SimulationNode startPosition) {
         super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
                 driveActivityFactory, positionUtil, eventProcessor, timeProvider, precomputedPaths, 

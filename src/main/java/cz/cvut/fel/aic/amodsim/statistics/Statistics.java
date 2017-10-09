@@ -20,7 +20,7 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandlerAdapter;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.CsvWriter;
-import cz.cvut.fel.aic.amodsim.config.Config;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.io.Common;
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class Statistics extends EventHandlerAdapter {
     
     private final HashMap<OnDemandVehicleState, LinkedList<HashMap<Integer,Integer>>> allEdgesLoadHistoryPerState;
     
-    private final Config config;
+    private final AmodsimConfig config;
     
     private final LinkedList<Long> vehicleLeftStationToServeDemandTimes;
     
@@ -89,7 +89,7 @@ public class Statistics extends EventHandlerAdapter {
     @Inject
     public Statistics(EventProcessor eventProcessor, Provider<EdgesLoadByState> allEdgesLoadProvider, 
             OnDemandVehicleStorage onDemandVehicleStorage, 
-            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, Config config) throws IOException {
+            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, AmodsimConfig config) throws IOException {
         this.eventProcessor = eventProcessor;
         this.allEdgesLoadProvider = allEdgesLoadProvider;
         this.onDemandVehicleStorage = onDemandVehicleStorage;
@@ -103,7 +103,7 @@ public class Statistics extends EventHandlerAdapter {
         onDemandVehicleEvents = new HashMap<>();
         tripDistances = new LinkedList<>();
         transitWriter = new CsvWriter(
-                    Common.getFileWriter(config.agentpolis.statistics.transitStatisticFilePath));
+                    Common.getFileWriter(config.amodsim.statistics.transitStatisticFilePath));
         for(OnDemandVehicleState onDemandVehicleState : OnDemandVehicleState.values()){
             allEdgesLoadHistoryPerState.put(onDemandVehicleState, new LinkedList<>());
         }
@@ -154,7 +154,7 @@ public class Statistics extends EventHandlerAdapter {
         tickCount++;
         measure();
         eventProcessor.addEvent(StatisticEvent.TICK, this, null, null,
-                config.agentpolis.statistics.statisticIntervalMilis);
+                config.amodsim.statistics.statisticIntervalMilis);
     }
 
     private void measure() {
@@ -175,7 +175,7 @@ public class Statistics extends EventHandlerAdapter {
         ObjectMapper mapper = new ObjectMapper();
 		
         try {
-            mapper.writeValue(new File(config.agentpolis.statistics.resultFilePath), result);
+            mapper.writeValue(new File(config.amodsim.statistics.resultFilePath), result);
         } catch (IOException ex) {
             Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -200,8 +200,8 @@ public class Statistics extends EventHandlerAdapter {
     private void countEdgeLoadForInterval() {
         EdgesLoadByState allEdgesLoad = allEdgesLoadProvider.get();
         
-        if(tickCount % (config.agentpolis.statistics.allEdgesLoadIntervalMilis 
-				/ config.agentpolis.statistics.statisticIntervalMilis) == 0){
+        if(tickCount % (config.amodsim.statistics.allEdgesLoadIntervalMilis 
+				/ config.amodsim.statistics.statisticIntervalMilis) == 0){
             allEdgesLoadHistory.add(allEdgesLoad.getLoadPerEdge());
             for (Map.Entry<OnDemandVehicleState,HashMap<Integer, Integer>> stateEntry 
                     : allEdgesLoad.getEdgeLoadsPerState().entrySet()) {
@@ -266,7 +266,7 @@ public class Statistics extends EventHandlerAdapter {
         }
 		
         try {
-            mapper.writeValue(new File(config.agentpolis.statistics.allEdgesLoadHistoryFilePath), outputMap);
+            mapper.writeValue(new File(config.amodsim.statistics.allEdgesLoadHistoryFilePath), outputMap);
         } catch (IOException ex) {
             Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -288,7 +288,7 @@ public class Statistics extends EventHandlerAdapter {
     private void saveDistances() {
         try {
             CsvWriter writer = new CsvWriter(
-                    Common.getFileWriter(config.agentpolis.statistics.tripDistancesFilePath));
+                    Common.getFileWriter(config.amodsim.statistics.tripDistancesFilePath));
             for (Integer distance : tripDistances) {
                 writer.writeLine(Integer.toString(distance));
             }
@@ -309,22 +309,22 @@ public class Statistics extends EventHandlerAdapter {
             String filepath = null;
             switch(onDemandVehicleEvent){
                 case LEAVE_STATION:
-                    filepath = config.agentpolis.statistics.onDemandVehicleStatistic.leaveStationFilePath;
+                    filepath = config.amodsim.statistics.onDemandVehicleStatistic.leaveStationFilePath;
                     break;
                 case PICKUP:
-                    filepath = config.agentpolis.statistics.onDemandVehicleStatistic.pickupFilePath;
+                    filepath = config.amodsim.statistics.onDemandVehicleStatistic.pickupFilePath;
                     break;
                 case DROP_OFF:
-                    filepath = config.agentpolis.statistics.onDemandVehicleStatistic.dropOffFilePath;
+                    filepath = config.amodsim.statistics.onDemandVehicleStatistic.dropOffFilePath;
                     break;
                 case REACH_NEAREST_STATION:
-                    filepath = config.agentpolis.statistics.onDemandVehicleStatistic.reachNearestStationFilePath;
+                    filepath = config.amodsim.statistics.onDemandVehicleStatistic.reachNearestStationFilePath;
                     break;
                 case START_REBALANCING:
-                    filepath = config.agentpolis.statistics.onDemandVehicleStatistic.startRebalancingFilePath;
+                    filepath = config.amodsim.statistics.onDemandVehicleStatistic.startRebalancingFilePath;
                     break;
                 case FINISH_REBALANCING:
-                    filepath = config.agentpolis.statistics.onDemandVehicleStatistic.finishRebalancingFilePath;
+                    filepath = config.amodsim.statistics.onDemandVehicleStatistic.finishRebalancingFilePath;
                     break;
             }
             

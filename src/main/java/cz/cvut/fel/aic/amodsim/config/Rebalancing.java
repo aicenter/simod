@@ -4,7 +4,7 @@ import java.lang.Boolean;
 import java.lang.Double;
 import java.lang.Integer;
 import java.lang.String;
-import java.util.HashMap;
+import java.util.Map;
 
 public class Rebalancing {
   public Integer maxWaitInQueue;
@@ -27,7 +27,7 @@ public class Rebalancing {
 
   public String type;
 
-  public Rebalancing(HashMap rebalancing) {
+  public Rebalancing(Map rebalancing) {
     this.maxWaitInQueue = (Integer) rebalancing.get("max_wait_in_queue");
     this.loadShapes = (Boolean) rebalancing.get("load_shapes");
     this.filePath = (String) rebalancing.get("file_path");

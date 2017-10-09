@@ -1,7 +1,7 @@
 package cz.cvut.fel.aic.amodsim.config;
 
 import java.lang.String;
-import java.util.HashMap;
+import java.util.Map;
 
 public class OnDemandVehicleStatistic {
   public String leaveStationFilePath;
@@ -18,7 +18,7 @@ public class OnDemandVehicleStatistic {
 
   public String startRebalancingFilePath;
 
-  public OnDemandVehicleStatistic(HashMap onDemandVehicleStatistic) {
+  public OnDemandVehicleStatistic(Map onDemandVehicleStatistic) {
     this.leaveStationFilePath = (String) onDemandVehicleStatistic.get("leave_station_file_path");
     this.reachNearestStationFilePath = (String) onDemandVehicleStatistic.get("reach_nearest_station_file_path");
     this.pickupFilePath = (String) onDemandVehicleStatistic.get("pickup_file_path");

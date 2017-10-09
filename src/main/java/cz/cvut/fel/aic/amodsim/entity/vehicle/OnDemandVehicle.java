@@ -27,7 +27,7 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.DemandData;
-import cz.cvut.fel.aic.amodsim.config.Config;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
@@ -78,7 +78,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     
     private final IdGenerator rebalancingIdGenerator;
     
-    private final Config config;
+    private final AmodsimConfig config;
     
     
     private List<Node> demandNodes;
@@ -157,7 +157,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             PhysicalVehicleDriveFactory driveFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
             StandardTimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, 
-            IdGenerator rebalancingIdGenerator, Config config, @Assisted String vehicleId,
+            IdGenerator rebalancingIdGenerator, AmodsimConfig config, @Assisted String vehicleId,
             @Assisted SimulationNode startPosition) {
         super(vehicleId + " - autonomus agent", startPosition);
         this.tripsUtil = tripsUtil;

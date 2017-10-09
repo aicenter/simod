@@ -1,7 +1,7 @@
 package cz.cvut.fel.aic.amodsim.config;
 
 import java.lang.String;
-import java.util.HashMap;
+import java.util.Map;
 
 public class Images {
   public String mainMap;
@@ -18,7 +18,7 @@ public class Images {
 
   public String trafficDensityCurrentDetail;
 
-  public Images(HashMap images) {
+  public Images(Map images) {
     this.mainMap = (String) images.get("main_map");
     this.imagesDir = (String) images.get("images_dir");
     this.tripStartHistogram = (String) images.get("trip_start_histogram");

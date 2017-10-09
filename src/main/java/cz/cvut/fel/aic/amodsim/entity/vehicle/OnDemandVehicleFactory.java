@@ -13,7 +13,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
-import cz.cvut.fel.aic.amodsim.config.Config;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
@@ -45,7 +45,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     
     private final PhysicalTransportVehicleStorage vehicleStorage;
     
-    private final Config config;
+    private final AmodsimConfig config;
 
     
     
@@ -55,7 +55,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             PhysicalVehicleDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
             StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, 
-            @Named("precomputedPaths") boolean precomputedPaths, Config config) {
+            @Named("precomputedPaths") boolean precomputedPaths, AmodsimConfig config) {
         this.tripsUtil = tripsUtil;
         this.precomputedPaths = precomputedPaths;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;

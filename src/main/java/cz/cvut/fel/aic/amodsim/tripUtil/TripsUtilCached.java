@@ -24,7 +24,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestE
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationFinishedListener;
-import cz.cvut.fel.aic.amodsim.config.Config;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +56,7 @@ public class TripsUtilCached extends TripsUtil {
 
     @Inject
     public TripsUtilCached(ShortestPathPlanners pathPlanners, NearestElementUtils nearestElementUtils, 
-            HighwayNetwork network, SimulationCreator simulationCreator, Config configuration) throws IOException {
+            HighwayNetwork network, SimulationCreator simulationCreator, AmodsimConfig configuration) throws IOException {
         super(pathPlanners, nearestElementUtils, network);
         
         mapper = new ObjectMapper();
@@ -129,9 +129,9 @@ public class TripsUtilCached extends TripsUtil {
 //        System.out.println(mapper.getSerializationConfig().toString());
     }
 
-    private File getCacheFolder(Config config) {
-        String filename = config.agentpolis.tripCacheFile;
-        if(config.agentpolis.simplifyGraph){
+    private File getCacheFolder(AmodsimConfig config) {
+        String filename = config.amodsim.tripCacheFile;
+        if(config.amodsim.simplifyGraph){
             filename += "-simplified";
         }
         return new File(filename);

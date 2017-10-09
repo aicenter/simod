@@ -10,7 +10,7 @@ import com.google.inject.Injector;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.amodsim.config.Config;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.geographtools.Graph;
 import java.io.File;
 
@@ -22,9 +22,11 @@ public class EdgesToJson {
     
     public static void main(String[] args) {
         
-        Config config = Configuration.load(new Config());
+        AmodsimConfig config = new AmodsimConfig();
         
-        Injector injector = new AgentPolisInitializer(new MainModule(config)).initialize();
+        File localConfigFile = args.length > 0 ? new File(args[1]) : null;
+        
+        Injector injector = new AgentPolisInitializer(new MainModule(config, localConfigFile)).initialize();
         
         MapInitializer mapInitializer = injector.getInstance(MapInitializer.class);
 
@@ -33,8 +35,8 @@ public class EdgesToJson {
 // TODO - modify OsmUtilTo Support new MapInitializer
         Graph<SimulationNode, SimulationEdge> roadGraph 
                 = OsmUtil.getSimulationGraph(mapInitializer);
-        String modifier = config.agentpolis.simplifyGraph ? "-simplified" : "";
-        OsmUtil.edgesToJson(roadGraph, new File(config.agentpolis.edgesFilePath + modifier + ".json"));
-        OsmUtil.edgePairsToJson(roadGraph, new File(config.agentpolis.edgePairsFilePath + modifier + ".json"));
+        String modifier = config.amodsim.simplifyGraph ? "-simplified" : "";
+        OsmUtil.edgesToJson(roadGraph, new File(config.amodsim.edgesFilePath + modifier + ".json"));
+        OsmUtil.edgePairsToJson(roadGraph, new File(config.amodsim.edgePairsFilePath + modifier + ".json"));
     }
 }

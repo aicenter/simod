@@ -1,7 +1,7 @@
 package cz.cvut.fel.aic.amodsim.config;
 
 import java.lang.String;
-import java.util.HashMap;
+import java.util.Map;
 
 public class Shapefiles {
   public String border;
@@ -16,7 +16,7 @@ public class Shapefiles {
 
   public String dir;
 
-  public Shapefiles(HashMap shapefiles) {
+  public Shapefiles(Map shapefiles) {
     this.border = (String) shapefiles.get("border");
     this.rivers = (String) shapefiles.get("rivers");
     this.towns = (String) shapefiles.get("towns");

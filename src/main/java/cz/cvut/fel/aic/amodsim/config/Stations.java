@@ -2,7 +2,7 @@ package cz.cvut.fel.aic.amodsim.config;
 
 import java.lang.Integer;
 import java.lang.String;
-import java.util.HashMap;
+import java.util.Map;
 
 public class Stations {
   public String demandFilePath;
@@ -25,7 +25,7 @@ public class Stations {
 
   public String smoothedDemandFilePath;
 
-  public Stations(HashMap stations) {
+  public Stations(Map stations) {
     this.demandFilePath = (String) stations.get("demand_file_path");
     this.distanceMatrixPath = (String) stations.get("distance_matrix_path");
     this.regions = (Integer) stations.get("regions");

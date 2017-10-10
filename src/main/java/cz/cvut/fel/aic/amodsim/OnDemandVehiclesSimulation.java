@@ -58,7 +58,7 @@ public class OnDemandVehiclesSimulation {
 
             injector.getInstance(EventInitializer.class).initialize(
                     tripTransform.loadTripsFromTxt(new File(config.amodsim.tripsPath)),
-                    rebalancingLoader.getRebalancingTrips(), config);
+                    rebalancingLoader.getRebalancingTrips());
 
             injector.getInstance(StatisticInitializer.class).initialize();
 

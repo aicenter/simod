@@ -7,6 +7,7 @@ package cz.cvut.fel.aic.amodsim.init;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
@@ -49,7 +50,9 @@ public class EventInitializer {
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
-    private final AmodsimConfig config;
+    private final AmodsimConfig amodsimConfig;
+    
+    private final AgentpolisConfig agentpolisConfig;
     
     
     private long eventCount;
@@ -58,29 +61,29 @@ public class EventInitializer {
     @Inject
     public EventInitializer(EventProcessor eventProcessor, 
             OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, AmodsimConfig config, 
-            DemandEventHandler demandEventHandler) {
+            DemandEventHandler demandEventHandler, AgentpolisConfig agentpolisConfig) {
         this.eventProcessor = eventProcessor;
         this.demandEventHandler = demandEventHandler;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
-        this.config = config;
+        this.amodsimConfig = config;
+        this.agentpolisConfig = agentpolisConfig;
         eventCount = 0;
     }
     
     
-    public void initialize(List<TimeTrip<SimulationNode>> trips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips, 
-            AmodsimConfig config){
+    public void initialize(List<TimeTrip<SimulationNode>> trips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips){
         Random random = new Random(RANDOM_SEED);
         
         for (TimeTrip<SimulationNode> trip : trips) {
-            long startTime = trip.getStartTime() - config.amodsim.startTime;
-            if(startTime < 1 || startTime > config.amodsim.simulationDurationInMillis){
+            long startTime = trip.getStartTime() - amodsimConfig.amodsim.startTime;
+            if(startTime < 1 || startTime > agentpolisConfig.simulationDurationInMillis){
                 continue;
             }
             
-            for(int i = 0; i < config.tripsMultiplier; i++){
-                if(i + 1 >= config.tripsMultiplier){
+            for(int i = 0; i < amodsimConfig.tripsMultiplier; i++){
+                if(i + 1 >= amodsimConfig.tripsMultiplier){
                     double randomNum = random.nextDouble();
-                    if(randomNum > config.tripsMultiplier - i){
+                    if(randomNum > amodsimConfig.tripsMultiplier - i){
                         break;
                     }
                 }
@@ -94,8 +97,8 @@ public class EventInitializer {
             }
         }
         for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
-            long startTime = rebalancingTrip.getStartTime() - config.amodsim.startTime;
-            if(startTime < 1 || startTime > config.amodsim.simulationDurationInMillis){
+            long startTime = rebalancingTrip.getStartTime() - amodsimConfig.amodsim.startTime;
+            if(startTime < 1 || startTime > agentpolisConfig.simulationDurationInMillis){
                 continue;
             }
             eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 

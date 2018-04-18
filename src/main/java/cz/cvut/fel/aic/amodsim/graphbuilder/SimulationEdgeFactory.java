@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * @author fido
  */
-public class SimulationEdgeFactory extends EdgeFactory<SimulationEdge> {
+public class SimulationEdgeFactory implements EdgeFactory<SimulationEdge> {
 
     @Override
     public SimulationEdge createEdge(InternalEdge internalEdge) {

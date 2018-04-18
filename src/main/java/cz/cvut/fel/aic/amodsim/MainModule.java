@@ -17,6 +17,7 @@ import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.CongestedDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
 import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayer;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayerWithJitter;
@@ -72,8 +73,8 @@ public class MainModule extends StandardAgentPolisModule{
         }
         bind(DemandLayer.class).to(DemandLayerWithJitter.class);
         
-        bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
-//        bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
+//        bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
+        bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 
         if(amodsimConfig.amodsim.ridesharing){
             install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, RideSharingOnDemandVehicle.class)

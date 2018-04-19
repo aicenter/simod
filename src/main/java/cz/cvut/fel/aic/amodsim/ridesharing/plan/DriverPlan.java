@@ -1,5 +1,6 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.plan;
 
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import java.util.Iterator;
 import java.util.List;
 
@@ -10,17 +11,22 @@ import java.util.List;
 public class DriverPlan implements Iterable<DriverPlanTask>{
 	private final List<DriverPlanTask> plan;
 	
-	private final double plannedTraveltime;
+	private double plannedTraveltime;
 
 	public double getPlannedTraveltime() {
 		return plannedTraveltime;
 	}
+
+	public void setPlannedTraveltime(double plannedTraveltime) {
+		this.plannedTraveltime = plannedTraveltime;
+	}
+	
+	
 	
 	
 
-	public DriverPlan(List<DriverPlanTask> plan, int plannedTraveltime) {
+	public DriverPlan(List<DriverPlanTask> plan) {
 		this.plan = plan;
-		this.plannedTraveltime = plannedTraveltime;
 	}
 
 	@Override
@@ -32,5 +38,16 @@ public class DriverPlan implements Iterable<DriverPlanTask>{
 		return plan.size();
 	}
 	
+	public void updateCurrentPosition(SimulationNode position){
+		plan.set(0, new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, position));
+	}
+	
+	public DriverPlanTask getCurrentTask(){
+		return plan.get(1);
+	}
+	
+	public void taskCompleted(){
+		plan.remove(1);
+	}
 	
 }

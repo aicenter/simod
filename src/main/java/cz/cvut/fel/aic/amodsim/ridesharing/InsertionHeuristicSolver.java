@@ -3,11 +3,9 @@ package cz.cvut.fel.aic.amodsim.ridesharing;
 import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
-import cz.cvut.fel.aic.amodsim.OnDemandRequest;
 import cz.cvut.fel.aic.amodsim.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
-import cz.cvut.fel.aic.amodsim.entity.vehicle.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTask;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTaskType;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
@@ -41,22 +39,23 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new HashMap<>();
 		
 		double minCost = Double.MAX_VALUE;
+		DriverPlan bestPlan = null;
+		RideSharingOnDemandVehicle servingVehicle = null;
 		OnDemandRequest request = requests.get(0);
 		
 		for(OnDemandVehicle tVvehicle: vehicleStorage){
 			RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
 			if(canServeRequest(vehicle, request, travelTimeProvider)){
-				DriverPlan newPlan = getOptimalPlan(vehicle, request);
-				6. if [ , ] != [ , ] and < * then
-				7. [ , ] = [ , ]
-				8. =
-				9. end if
-				10. end if
-				11. end for
-				12. Insert( , , )
-				13. Update( )
+				DriverPlan newPlan = getOptimalPlan(vehicle, request, travelTimeProvider);
+				if(newPlan.getPlannedTraveltime() < minCost){
+					minCost = newPlan.getPlannedTraveltime();
+					bestPlan = newPlan;
+					servingVehicle = vehicle;
+				}
 			}
 		}
+		
+		planMap.put(servingVehicle, bestPlan);
 		
 		
 		return planMap;
@@ -79,7 +78,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		
 		// real feasibilitz check 
 		// TODO compute from interpolated position
-		return travelTimeProvider.getTravelTime(vehicle.getPosition(), request.getPosition()) < maxDistance;
+		return travelTimeProvider.getTravelTime(vehicle, vehicle.getPosition(), request.getPosition()) < maxDistance;
 		
 		
 		
@@ -88,6 +87,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 	private DriverPlan getOptimalPlan(RideSharingOnDemandVehicle vehicle, OnDemandRequest request, 
 			TravelTimeProvider travelTimeProvider) {
 		double minCostIncrement = Double.MAX_VALUE;
+		DriverPlan bestPlan = null;
 		DriverPlan currentPlan = vehicle.getCurrentPlan();
 		
 		for(int pickupOptionIndex = 1; pickupOptionIndex <= currentPlan.getLength() + 2; pickupOptionIndex++){
@@ -95,36 +95,32 @@ public class InsertionHeuristicSolver extends DARPSolver{
 				DriverPlan potentialPlan = insertIntoPlan(currentPlan, pickupOptionIndex, dropoffOptionIndex, request,
 						travelTimeProvider);
 				if(planFeasible(potentialPlan, vehicle)){
-					
+					computePlanCost(vehicle, currentPlan, potentialPlan, request, travelTimeProvider);
+					double costIncrement = potentialPlan.getPlannedTraveltime() - currentPlan.getPlannedTraveltime();
+					if(costIncrement < minCostIncrement){
+						minCostIncrement = costIncrement;
+						bestPlan = potentialPlan;
+					}
 				}
 			}
 		}
-
-		6. if FeasibleTour( , , ) then
-		7. = Objective( , , ) - Objective( )
-		8. if < * then
-		9. * =
-		10. [ , ] = [ , ]
-		11. end if
-		12. end if
-		13. end for
-		14. end for
-		15. Return [ , ], *
+		return bestPlan;
 	}
 
 	private DriverPlan insertIntoPlan(DriverPlan currentPlan, int pickupOptionIndex, int dropoffOptionIndex, 
 			OnDemandRequest request, TravelTimeProvider travelTimeProvider) {
 		List<DriverPlanTask> newPlan = new LinkedList<>();
-		double newTravelTime = currentPlan.getPlannedTraveltime();
 		
 		Iterator<DriverPlanTask> oldPlanIterator = currentPlan.iterator();
 		
-		for(int newPlanIndex = 1; newPlanIndex <= currentPlan.getLength() + 3; newPlanIndex++){
+		for(int newPlanIndex = 0; newPlanIndex <= currentPlan.getLength() + 3; newPlanIndex++){
 			if(newPlanIndex == pickupOptionIndex){
-				newPlan.add(new DriverPlanTask(DriverPlanTaskType.PICKUP, request.getDemandAgent()));
+				newPlan.add(new DriverPlanTask(DriverPlanTaskType.PICKUP, request.getDemandAgent(), 
+						request.getDemandAgent().getPosition()));
 			}
 			else if(newPlanIndex == dropoffOptionIndex){
-				newPlan.add(new DriverPlanTask(DriverPlanTaskType.DROPOFF, request.getDemandAgent()));
+				newPlan.add(new DriverPlanTask(DriverPlanTaskType.DROPOFF, request.getDemandAgent(), 
+						request.getTargetLocation()));
 			}
 			else{
 				newPlan.add(oldPlanIterator.next());
@@ -150,6 +146,45 @@ public class InsertionHeuristicSolver extends DARPSolver{
 			}
 		}
 		return true;
+	}
+
+	private void computePlanCost(RideSharingOnDemandVehicle vehicle, DriverPlan currentPlan, DriverPlan potentialPlan, 
+			OnDemandRequest request, TravelTimeProvider travelTimeProvider) {
+		double costAddition = 0;
+		Iterator<DriverPlanTask> planIterator = potentialPlan.iterator();
+		
+		DriverPlanTask previousTask = null;
+		while (planIterator.hasNext()) {
+			DriverPlanTask task = planIterator.next();
+			if(task.getDemandAgent() == request.getDemandAgent()){
+				DriverPlanTask nextTask = planIterator.next();
+				costAddition += travelTimeProvider.getTravelTime(vehicle, previousTask.getLocation(), task.getLocation());
+				costAddition += travelTimeProvider.getTravelTime(vehicle, task.getLocation(), nextTask.getLocation());
+				// drop off next to pickup
+				if(task.getTaskType() == DriverPlanTaskType.PICKUP
+						&& nextTask.getDemandAgent() == request.getDemandAgent()){
+					DriverPlanTask nextNextTask = planIterator.next();
+					costAddition += 
+							travelTimeProvider.getTravelTime(vehicle, nextTask.getLocation(), nextNextTask.getLocation());
+					costAddition -= 
+							travelTimeProvider.getTravelTime(vehicle, previousTask.getLocation(), nextNextTask.getLocation());
+					break;
+				}
+				else{
+					costAddition -=
+							travelTimeProvider.getTravelTime(vehicle, previousTask.getLocation(), nextTask.getLocation());
+					if(task.getTaskType() == DriverPlanTaskType.DROPOFF){
+						break;
+					}
+					previousTask = nextTask;
+				}
+			}
+			else{
+				previousTask = task;
+			}
+		}
+		
+		potentialPlan.setPlannedTraveltime(currentPlan.getPlannedTraveltime() + costAddition);
 	}
 	
 }

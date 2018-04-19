@@ -17,6 +17,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandlerAdapter;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Node;
 import cz.cvut.fel.aic.geographtools.util.NearestElementUtil;
@@ -39,6 +40,8 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     private final Transformer transformer;
     
     private final EventProcessor eventProcessor;
+	
+	private final AmodsimConfig config;
     
     
     private NearestElementUtil<OnDemandVehicleStation> nearestElementUtil;
@@ -76,9 +79,10 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     
     @Inject
     public OnDemandVehicleStationsCentral(OnDemandvehicleStationStorage onDemandvehicleStationStorage,
-            EventProcessor eventProcessor, @Named("mapSrid") int srid) {
+            EventProcessor eventProcessor, AmodsimConfig config, @Named("mapSrid") int srid) {
         this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
         this.eventProcessor = eventProcessor;
+		this.config = config;
         transformer = new Transformer(srid);
         numberOfDemandsNotServedFromNearestStation = 0;
         numberOfDemandsDropped = 0;
@@ -96,7 +100,7 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
         
         switch(eventType){
             case DEMAND:
-                serveDemand(event);
+                processDemand(event);
                 break;
             case REBALANCING:
                 serveRebalancing(event);
@@ -157,19 +161,13 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
 		return new NearestElementUtil<>(pairs, transformer, new OnDemandVehicleStationArrayConstructor());
     }
 
-    private void serveDemand(Event event) {
+    private void processDemand(Event event) {
         demandsCount++;
         DemandData demandData = (DemandData) event.getContent();
         List<SimulationNode> locations = demandData.locations;
         Node startNode = locations.get(0);
-        OnDemandVehicleStation nearestStation = getNearestReadyStation(startNode); 
-        if(nearestStation != null){
-//            eventProcessor.addEvent(OnDemandVehicleStationEvent.TRIP, nearestStation, null, demandData);
-            nearestStation.handleTripRequest(demandData);
-        }
-        else{
-            numberOfDemandsDropped++;
-        }
+		
+		serveDemand(startNode, demandData);
     }
 
     private void serveRebalancing(Event event) {
@@ -184,6 +182,16 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     private int getNumberOfstations() {
         return onDemandvehicleStationStorage.getEntityIds().size();
     }
+
+	protected void serveDemand(Node startNode, DemandData demandData) {
+		OnDemandVehicleStation nearestStation = getNearestReadyStation(startNode); 
+		if(nearestStation != null){
+			nearestStation.handleTripRequest(demandData);
+		}
+		else{
+			numberOfDemandsDropped++;
+		}
+	}
     
     
     

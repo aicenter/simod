@@ -72,9 +72,9 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     
     private final PositionUtil positionUtil;
     
-    private final EventProcessor eventProcessor;
+    protected final EventProcessor eventProcessor;
     
-    private final StandardTimeProvider timeProvider;
+    protected final StandardTimeProvider timeProvider;
     
     private final IdGenerator rebalancingIdGenerator;
     
@@ -91,7 +91,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     
     protected VehicleTrip currentTrip;
     
-    private VehicleTrip demandTrip;
+    protected VehicleTrip demandTrip;
 	
 	protected VehicleTrip tripToStation;
 	
@@ -109,7 +109,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     
     private DelayData delayData;
     
-    protected DemandData currentlyServedDemmand;
+    private DemandData currentlyServedDemmand;
     
     private int currentRebalancingId;
     
@@ -375,7 +375,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
                         currentlyServedDemmand.demandAgent.getSimpleId()));
     }
 
-    private void pickupDemand() {
+    protected void pickupDemand() {
         currentlyServedDemmand.demandAgent.tripStarted();
         vehicle.pickUp(currentlyServedDemmand.demandAgent);
         eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 

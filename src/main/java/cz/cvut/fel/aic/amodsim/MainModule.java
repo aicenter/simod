@@ -30,7 +30,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
-import cz.cvut.fel.aic.amodsim.entity.vehicle.RideSharingOnDemandVehicle;
+import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
 import cz.cvut.fel.aic.geographtools.TransportMode;
 import java.io.File;

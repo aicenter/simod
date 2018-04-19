@@ -21,6 +21,7 @@ import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Node;
 import java.util.HashMap;
@@ -47,6 +48,16 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     private final PositionUtil positionUtil;
     
     private Demand currentlyServedDemmand;
+	
+	private DriverPlan currentPlan;
+
+	
+	
+	public DriverPlan getCurrentPlan() {
+		return currentPlan;
+	}
+	
+	
     
     
     @Inject
@@ -71,6 +82,10 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     public boolean hasFreeCapacity(){
         return targetNodes.size() < vehicle.getCapacity();
     }
+	
+	public int getOnBoardCount(){
+		return vehicle.getTransportedEntities().size();
+	}
 
     @Override
     public void handleEvent(Event event) {

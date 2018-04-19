@@ -61,7 +61,7 @@ public class MainModule extends StandardAgentPolisModule{
     protected void configureNext() {
         bindConstant().annotatedWith(Names.named("precomputedPaths")).to(false);
 
-        bind(File.class).annotatedWith(Names.named("osm File")).toInstance(new File(amodsimConfig.mapFilePath));
+//        bind(File.class).annotatedWith(Names.named("osm File")).toInstance(new File(amodsimConfig.mapFilePath));
         
         bind(new TypeLiteral<Set<TransportMode>>(){}).toInstance(Sets.immutableEnumSet(TransportMode.CAR));
         bind(AmodsimConfig.class).toInstance(amodsimConfig);

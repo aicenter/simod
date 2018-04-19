@@ -24,7 +24,7 @@ public class Amodsim {
 
   public Boolean simplifyGraph;
 
-  public Boolean ridesharing;
+  public Ridesharing ridesharing;
 
   public Statistics statistics;
 
@@ -38,7 +38,7 @@ public class Amodsim {
     this.tripCacheFile = (String) amodsim.get("trip_cache_file");
     this.preprocessorPath = (String) amodsim.get("preprocessor_path");
     this.simplifyGraph = (Boolean) amodsim.get("simplify_graph");
-    this.ridesharing = (Boolean) amodsim.get("ridesharing");
+    this.ridesharing = new Ridesharing((Map) amodsim.get("ridesharing"));
     this.statistics = new Statistics((Map) amodsim.get("statistics"));
   }
 }

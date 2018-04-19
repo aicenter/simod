@@ -12,6 +12,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.GraphTyp
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.MapData;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.graphbuilder.SimulationEdgeFactory;
 import cz.cvut.fel.aic.amodsim.graphbuilder.SimulationNodeFactory;
 import cz.cvut.fel.aic.geographtools.Graph;
@@ -34,18 +35,18 @@ public class MapInitializer {
 
     private static final Logger LOGGER = Logger.getLogger(MapInitializer.class);
 
-    private final File mapFile;
-
     private final Transformer projection;
 
     private final Set<TransportMode> allowedOsmModes;
+	
+	private final AmodsimConfig amodsimConfig;
 
 
     @Inject
-    public MapInitializer(Transformer projection, @Named("osm File") File mapFile, Set<TransportMode> allowedOsmModes) {
-        this.mapFile = mapFile;
+    public MapInitializer(Transformer projection, Set<TransportMode> allowedOsmModes, AmodsimConfig amodsimConfig) {
         this.projection = projection;
         this.allowedOsmModes = allowedOsmModes;
+		this.amodsimConfig = amodsimConfig;
     }
 
 
@@ -57,9 +58,8 @@ public class MapInitializer {
     public MapData getMap() {
         Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs = new HashMap<>();
 //        OsmImporter importer = new OsmImporter(mapFile, allowedOsmModes, projection);
-        String nodeFile = "C:\\AIC data\\Shared\\amod-data\\noc_vedcu/data/nodes.geojson";
-        String edgeFile = "C:\\AIC data\\Shared\\amod-data\\noc_vedcu/data/edges.geojson";
-        GeoJSONReader importer = new GeoJSONReader(edgeFile, nodeFile, projection);
+        GeoJSONReader importer = new GeoJSONReader(amodsimConfig.mapEdgesFilepath, amodsimConfig.mapNodesFilepath,
+				projection);
 
         GraphCreator<SimulationNode, SimulationEdge> graphCreator = new GraphCreator(
                 true, true, importer, new SimulationNodeFactory(), new SimulationEdgeFactory());

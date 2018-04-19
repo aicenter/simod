@@ -65,14 +65,14 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
         Dimension dim = Vis.getDrawingDimension();
         Rectangle2D drawingRectangle = new Rectangle(dim);
         for (E entity : drawedEntities) {
-            if (entity.getCurrentPlan() != null) {
+            if (entity.getCurrentTripPlan() != null) {
                 drawTrip(canvas, dim, drawingRectangle, entity);
             }
         }
     }
 
     protected void drawTrip(Graphics2D canvas, Dimension dim, Rectangle2D drawingRectangle, E entity) {
-        VehicleTrip trip = entity.getCurrentPlan();
+        VehicleTrip trip = entity.getCurrentTripPlan();
         LinkedList<TripItem> locations = trip.getLocations();
         Iterator<TripItem> iterator = locations.iterator();
         int startLocationNodeId = iterator.next().tripPositionByNodeId;

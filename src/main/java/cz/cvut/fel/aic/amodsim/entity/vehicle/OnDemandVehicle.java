@@ -313,7 +313,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     }
 
 	@Override
-	public VehicleTrip getCurrentPlan() {
+	public VehicleTrip getCurrentTripPlan() {
 		return completeTrip;
 	}
 	

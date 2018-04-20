@@ -19,6 +19,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.Activity;
 import cz.cvut.fel.aic.agentpolis.simmodel.Agent;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.PhysicalVehicleDrive;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.Driver;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
@@ -112,6 +113,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     private DemandData currentlyServedDemmand;
     
     private int currentRebalancingId;
+	
+	protected OnDemandVehicleStation parkedIn;
     
     
     
@@ -148,6 +151,11 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         this.departureStation = departureStation;
     }
 
+	public void setParkedIn(OnDemandVehicleStation parkedIn) {
+		this.parkedIn = parkedIn;
+	}
+
+	
     
     
     
@@ -206,7 +214,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         driveToDemandStartLocation();
     }
     
-    public void finishedDriving() {
+    public void finishedDriving(boolean wasStopped) {
         switch(state){
             case DRIVING_TO_START_LOCATION:
                 driveToTargetLocation();
@@ -406,7 +414,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     @Override
     protected void onActivityFinish(Activity activity) {
         super.onActivityFinish(activity);
-        finishedDriving();
+		PhysicalVehicleDrive drive = (PhysicalVehicleDrive) activity;
+        finishedDriving(drive.isStoped());
     }
 
     @Override

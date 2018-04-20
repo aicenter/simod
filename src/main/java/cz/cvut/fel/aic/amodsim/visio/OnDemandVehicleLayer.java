@@ -6,11 +6,9 @@ import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
-import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VehicleLayer;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 import java.awt.Color;
-import javax.vecmath.Point2d;
 
 /**
  *
@@ -18,27 +16,22 @@ import javax.vecmath.Point2d;
  */
 public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>{
 	
-	private static final int DEMAND_REPRESENTATION_RADIUS = 5;
+	private static final int STATIC_WIDTH = 7;
+	
+	private static final int STATIC_LENGTH = 10;
     
 //    private static final Color NORMAL_COLOR = new Color(5, 89, 12);
     
     private static final Color REBALANCING_COLOR = new Color(20, 252, 80);
     
     private static final Color NORMAL_COLOR = Color.BLUE;
-    
-    private static final Double TEXT_MARGIN_BOTTOM = 5.0;
-    
-    private static final Color TEXT_BACKGROUND_COLOR = Color.WHITE;
-    
-	
-	
 
 
 	
 	
 	@Inject
 	public OnDemandVehicleLayer(PhysicalTransportVehicleStorage physicalTransportVehicleStorage) {
-        super(physicalTransportVehicleStorage);
+        super(physicalTransportVehicleStorage, true, false);
 	}
 
 
@@ -81,6 +74,18 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
                return NORMAL_COLOR;
        }
     }
+
+	@Override
+	protected float getVehicleStaticWidth(PhysicalTransportVehicle vehicle) {
+		return STATIC_WIDTH;
+	}
+
+	@Override
+	protected float getVehicleStaticLength(PhysicalTransportVehicle vehicle) {
+		return STATIC_LENGTH;
+	}
+
+	
     
     
 }

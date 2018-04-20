@@ -16,6 +16,7 @@ import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.PhysicalVehicleDrive;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
@@ -94,7 +95,9 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		if(currentDriveActivity != null){
 			currentDriveActivity.end();
 		}
-		driveToNextTask();
+		else{
+			driveToNextTask();
+		}
 	}
 
     @Override
@@ -143,21 +146,26 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     }
 
     @Override
-    public void finishedDriving() {
-        switch(state){
-            case DRIVING_TO_START_LOCATION:
-				pickupAndContinue();
-				break;
-            case DRIVING_TO_TARGET_LOCATION:
-				dropOffAndContinue();
-				break;
-            case DRIVING_TO_STATION:
-				waitInStation();
-				break;
-            case REBALANCING:
-                waitInStation();
-                break;
-        }
+    public void finishedDriving(boolean wasStopped) {
+		if(wasStopped){
+			driveToNextTask();
+		}
+		else{
+			switch(state){
+				case DRIVING_TO_START_LOCATION:
+					pickupAndContinue();
+					break;
+				case DRIVING_TO_TARGET_LOCATION:
+					dropOffAndContinue();
+					break;
+				case DRIVING_TO_STATION:
+					waitInStation();
+					break;
+				case REBALANCING:
+					waitInStation();
+					break;
+			}
+		}
     }
 
 	private void driveToNextTask() {
@@ -167,8 +175,9 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			}
 		}
 		else{
-			currentTask = currentPlan.getCurrentTask();
+			currentTask = currentPlan.getNextTask();
 			if(state == OnDemandVehicleState.WAITING){
+				parkedIn.releaseVehicle(this);
 				leavingStationEvent();
 			}
 			if(currentTask.getTaskType() == DriverPlanTaskType.PICKUP){
@@ -192,7 +201,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 //                        currentTask.demandAgent.getSimpleId(), 
 //                        positionUtil.getTripLengthInMeters(demandTrip)));
 
-		
+		driveToNextTask();
 	}
 
 	private void dropOffAndContinue() {
@@ -212,6 +221,11 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		eventProcessor.addEvent(OnDemandVehicleEvent.LEAVE_STATION, null, null, 
                 new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
                         currentTask.demandAgent.getSimpleId()));
+	}
+	
+	@Override
+	public VehicleTrip getCurrentTripPlan() {
+		return currentTrip;
 	}
 
 }

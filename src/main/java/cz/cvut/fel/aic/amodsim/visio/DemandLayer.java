@@ -26,17 +26,17 @@ public class DemandLayer extends EntityLayer<DemandAgent>{
     
     private static final int SIZE = 1;
 
-    
+    private static final int TRANSFORMABLE_SIZE = 4;
     
     
     @Inject
     public DemandLayer(DemandStorage demandStorage) {
-        super(demandStorage);
+        super(demandStorage, true, false);
     }
 
     
     protected Point2d getDrivingAgentPosition(DemandAgent demandAgent){
-        return positionUtil.getCanvasPositionInterpolatedForVehicle(demandAgent.getOnDemandVehicle().getVehicle());
+        return positionUtil.getCanvasPositionInterpolatedForVehicle(demandAgent.getTransportingEntity());
     }
     
     protected Point2d getWaitingAgentPosition(DemandAgent demandAgent, Dimension drawingDimension){
@@ -60,9 +60,14 @@ public class DemandLayer extends EntityLayer<DemandAgent>{
     }
 
     @Override
-    protected int getEntityDrawRadius(DemandAgent demandAgent) {
+    protected int getEntityTransformableRadius(DemandAgent demandAgent) {
         return SIZE;
     }
+
+	@Override
+	protected double getEntityStaticRadius(DemandAgent entity) {
+		return TRANSFORMABLE_SIZE;
+	}
     
     
 }

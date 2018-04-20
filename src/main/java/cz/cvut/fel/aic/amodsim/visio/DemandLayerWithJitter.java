@@ -9,7 +9,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.storage.DemandStorage;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Random;

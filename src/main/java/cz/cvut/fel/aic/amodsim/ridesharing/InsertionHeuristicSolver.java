@@ -5,6 +5,7 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
 import cz.cvut.fel.aic.amodsim.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTask;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTaskType;
@@ -75,6 +76,12 @@ public class InsertionHeuristicSolver extends DARPSolver{
 	
 	private boolean canServeRequest(RideSharingOnDemandVehicle vehicle, OnDemandRequest request, 
 			TravelTimeProvider travelTimeProvider){
+		
+		// do not mess with rebalancing
+		if(vehicle.getState() == OnDemandVehicleState.REBALANCING){
+			return false;
+		}
+		
 		if(!vehicle.hasFreeCapacity()){
 			return false;
 		}

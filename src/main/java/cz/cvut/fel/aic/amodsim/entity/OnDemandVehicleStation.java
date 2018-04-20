@@ -74,6 +74,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 			String onDemandVehicelId = String.format("%s-%d", id, i);
 			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, getPosition());
             parkedVehicles.add(newVehicle);
+			newVehicle.setParkedIn(this);
 			onDemandVehicleStorage.addEntity(newVehicle);
         }
         onDemandVehicleStationStorage.addEntity(this);
@@ -121,7 +122,13 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             }
         }
         parkedVehicles.add(onDemandVehicle);
+		onDemandVehicle.setParkedIn(this);
     }
+	
+	public void releaseVehicle(OnDemandVehicle vehicle){
+		parkedVehicles.remove(vehicle);
+		vehicle.setParkedIn(null);
+	}
     
     public int getParkedVehiclesCount(){
         return parkedVehicles.size();

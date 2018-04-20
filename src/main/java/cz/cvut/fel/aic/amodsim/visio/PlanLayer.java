@@ -120,7 +120,6 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
     @Override
     public void mouseClicked(MouseEvent mouseEvent) {
         if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
-            ;
             Point2d click = new Point2d(mouseEvent.getX(), mouseEvent.getY());
 
             if (entityStorage.isEmpty() == false) {
@@ -156,7 +155,7 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
 
 
     private void switchDrawPlan(E agent) {
-        if (drawedEntities.contains(agent)) {
+   		if (drawedEntities.contains(agent)) {
             drawedEntities.remove(agent);
         } else {
             drawedEntities.add(agent);

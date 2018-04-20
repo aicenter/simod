@@ -81,6 +81,10 @@ public class OnDemandVehicleStationsLayer extends AbstractLayer{
             VisioUtils.printTextWithBackgroud(canvas, Integer.toString(station.getParkedVehiclesCount()), 
                     new Point((int) (x1 - TEXT_MARGIN_BOTTOM), y1 - (y2 - y1) / 2), STATIONS_COLOR, 
                     TEXT_BACKGROUND_COLOR);
+			
+			VisioUtils.printTextWithBackgroud(canvas, station.getId(), 
+                    new Point((int) (x1 + TEXT_MARGIN_BOTTOM), y1 - (y2 - y1) / 2), Color.BLACK, 
+                    TEXT_BACKGROUND_COLOR);
         }
 
     }

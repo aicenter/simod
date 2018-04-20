@@ -42,8 +42,8 @@ public class DriverPlan implements Iterable<DriverPlanTask>{
 		plan.set(0, new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, position));
 	}
 	
-	public DriverPlanTask getCurrentTask(){
-		return plan.get(1);
+	public DriverPlanTask getNextTask(){
+		return plan.remove(1);
 	}
 	
 	public void taskCompleted(){

@@ -13,7 +13,7 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactory;
+import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
@@ -31,7 +31,7 @@ public class OnDemandVehicleStationFactory {
     
     private final EventProcessor eventProcessor;
     
-    private final OnDemandVehicleFactory onDemandVehicleFactory;
+    private final OnDemandVehicleFactorySpec onDemandVehicleFactory;
     
     private final NearestElementUtils nearestElementUtils;
     
@@ -46,7 +46,7 @@ public class OnDemandVehicleStationFactory {
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
 
     @Inject
-    public OnDemandVehicleStationFactory(AmodsimConfig config, EventProcessor eventProcessor, OnDemandVehicleFactory 
+    public OnDemandVehicleStationFactory(AmodsimConfig config, EventProcessor eventProcessor, OnDemandVehicleFactorySpec 
             onDemandVehicleFactory, NearestElementUtils nearestElementUtils, OnDemandvehicleStationStorage 
                     onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage,
                     Transformer transformer, PositionUtil positionUtil, 

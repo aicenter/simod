@@ -35,6 +35,11 @@ public class TravelTimeProvider {
 	
 	
 	public double getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB){
+		
+		if(positionA == positionB){
+			return 0;
+		}
+		
 		Trip<SimulationNode> trip = tripsUtil.createTrip(positionA.id, positionB.id);
 		long totalDuration = 0;
 		

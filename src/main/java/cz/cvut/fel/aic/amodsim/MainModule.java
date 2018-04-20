@@ -13,7 +13,6 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent.DemandAgentFactory;
-import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.CongestedDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
@@ -30,8 +29,12 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
-import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
+import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactory;
+import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
+import cz.cvut.fel.aic.amodsim.ridesharing.InsertionHeuristicSolver;
+import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingStationsCentral;
+import cz.cvut.fel.aic.amodsim.ridesharing.plan.RidesharingOnDemandVehicleFactory;
 import cz.cvut.fel.aic.geographtools.TransportMode;
 import java.io.File;
 
@@ -76,16 +79,14 @@ public class MainModule extends StandardAgentPolisModule{
 //        bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
         bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 
-        if(amodsimConfig.amodsim.ridesharing){
-            install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, RideSharingOnDemandVehicle.class)
-                .build(OnDemandVehicleFactorySpec.class));
+        if(amodsimConfig.amodsim.ridesharing.on){
+			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
+			bind(OnDemandVehicleStationsCentral.class).to(RidesharingStationsCentral.class);
+			bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
         }
         else{
-            install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, OnDemandVehicle.class)
-                .build(OnDemandVehicleFactorySpec.class));
+           bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
         }
-//        install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, OnDemandVehicleStation.class)
-//            .build(OnDemandVehicleStationFactory.class));
         install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
             .build(DemandAgentFactory.class));
     }

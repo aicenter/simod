@@ -6,7 +6,6 @@
 package cz.cvut.fel.aic.amodsim.entity;
 
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
-import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.vividsolutions.jts.geom.Coordinate;
 import cz.cvut.fel.aic.amodsim.DemandData;
@@ -24,7 +23,7 @@ import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactory;
+import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Node;
 import cz.cvut.fel.aic.geographtools.util.NearestElementUtil;
@@ -34,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,9 +59,9 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     
     
     
-    @Inject
+
     public OnDemandVehicleStation(AmodsimConfig config, EventProcessor eventProcessor, 
-            OnDemandVehicleFactory onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
+            OnDemandVehicleFactorySpec onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
             OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 
             @Assisted String id, @Assisted SimulationNode node, 
             @Assisted int initialVehicleCount, Transformer transformer, PositionUtil positionUtil, 
@@ -71,6 +69,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         super(id, node);
         this.eventProcessor = eventProcessor;
         parkedVehicles = new LinkedList<>();
+		initialVehicleCount = 10;
         for (int i = 0; i < initialVehicleCount; i++) {
 			String onDemandVehicelId = String.format("%s-%d", id, i);
 			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, getPosition());
@@ -143,7 +142,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             return;
         }
         
-        OnDemandVehicle vehicle = getVehicle(startLocation, targetLocation, config.amodsim.ridesharing);
+        OnDemandVehicle vehicle = getVehicle();
         
         if(vehicle != null){
             vehicle.setDepartureStation(this);
@@ -160,17 +159,8 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     }
 
     public boolean rebalance(TimeTrip<OnDemandVehicleStation> rebalancingTrip) {
-        OnDemandVehicle vehicle = getVehicle(this.getPosition(), 
-                rebalancingTrip.getLocations().getLast().getPosition(), false);
+        OnDemandVehicle vehicle = getVehicle();
         if(vehicle != null){
-//            if(rebalancingTrip.getLocations().getLast() == this){
-//                System.out.println("com.mycompany.testsim.entity.OnDemandVehicleStation.rebalance()");
-//            }
-//            if(rebalancingTrip.getLocations().getLast().getPositionInGraph().getId()
-//                    == vehiclePositionModel.getEntityPositionByNodeId(vehicle.getVehicleId())){
-//                System.out.println("com.mycompany.testsim.entity.OnDemandVehicleStation.rebalance()");
-//            }
-//            if(this.getPositionInGraph() = vehicle)
             vehicle.startRebalancing(rebalancingTrip.getLocations().getLast());
             return true;
         }
@@ -183,34 +173,10 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         return parkedVehicles.isEmpty();
     }
 
-    private OnDemandVehicle getVehicle(Node startLocation, Node targetLocation, boolean useRideSharing) {
+    private OnDemandVehicle getVehicle() {
         OnDemandVehicle nearestVehicle;
-        
-        OnDemandVehicleStation targetStation 
-                    = onDemandVehicleStationsCentral.getNearestStation(targetLocation);
-           
-        if(useRideSharing){
-            NearestElementUtil<OnDemandVehicle> nearestElementUtil 
-                    = getNearestElementUtilForVehiclesBeforeDeparture(targetStation);
-        
-            // ridesharing posibility test
-            if(nearestElementUtil != null){
-                nearestVehicle = nearestElementUtil.getNearestElement(startLocation);
-
-                // currently cartesian distance check only!
-                if(positionUtil.getPosition(nearestVehicle.getPosition()).distance(positionUtil.getPosition(startLocation))
-                    < positionUtil.getPosition(getPosition()).distance(positionUtil.getPosition(startLocation))){
-                    // ridesharing successfully locked
-                    return nearestVehicle;
-                }
-            }
-        }
 
         nearestVehicle = parkedVehicles.poll();
-        
-        if(useRideSharing && nearestVehicle != null){
-            departureCards.add(new DepartureCard(nearestVehicle, targetStation));
-        }
         
         return nearestVehicle;
     }

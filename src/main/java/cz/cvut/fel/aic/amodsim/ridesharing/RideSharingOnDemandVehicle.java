@@ -10,7 +10,6 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
-import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
@@ -18,9 +17,9 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.PhysicalVehicleDrive;
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.alite.common.event.Event;
-import cz.cvut.fel.aic.amodsim.entity.vehicle.Demand;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTask;
@@ -39,11 +38,7 @@ import java.util.LinkedList;
 public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     
     private final LinkedList<Node> targetNodes;
-    
-    private final LinkedList<Demand> demands;
-    
-    private final LinkedList<Demand> pickedDemands;
-    
+
     private final PositionUtil positionUtil;
 	
 	private DriverPlan currentPlan;
@@ -65,7 +60,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     @Inject
     public RideSharingOnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
-            StandardDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor, 
+            PhysicalVehicleDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor, 
             StandardTimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, 
             IdGenerator rebalancingIdGenerator, AmodsimConfig config, @Assisted String vehicleId, 
             @Assisted SimulationNode startPosition) {
@@ -74,9 +69,11 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
                 rebalancingIdGenerator, config, vehicleId, startPosition);
         this.positionUtil = positionUtil;
         targetNodes = new LinkedList<>();
-        demands = new LinkedList<>();
-        pickedDemands = new LinkedList<>();
-		currentPlan = new DriverPlan(new LinkedList<>());
+		
+//		empty plan
+		LinkedList<DriverPlanTask> plan = new LinkedList<>();
+		plan.add(new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, getPosition()));
+		currentPlan = new DriverPlan(plan);
     }
 
 	@Override
@@ -130,6 +127,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
     @Override
     protected void driveToNearestStation() {
+		state = OnDemandVehicleState.DRIVING_TO_STATION;
         targetStation = onDemandVehicleStationsCentral.getNearestStation(getPosition());
 		
 		if(getPosition().equals(targetStation.getPosition())){
@@ -149,10 +147,13 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
         switch(state){
             case DRIVING_TO_START_LOCATION:
 				pickupAndContinue();
+				break;
             case DRIVING_TO_TARGET_LOCATION:
 				dropOffAndContinue();
+				break;
             case DRIVING_TO_STATION:
 				waitInStation();
+				break;
             case REBALANCING:
                 waitInStation();
                 break;
@@ -166,10 +167,10 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			}
 		}
 		else{
+			currentTask = currentPlan.getCurrentTask();
 			if(state == OnDemandVehicleState.WAITING){
 				leavingStationEvent();
 			}
-			currentTask = currentPlan.getCurrentTask();
 			if(currentTask.getTaskType() == DriverPlanTaskType.PICKUP){
 				driveToDemandStartLocation();
 			}
@@ -183,13 +184,13 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		currentTask.demandAgent.tripStarted();
         vehicle.pickUp(currentTask.demandAgent);
 		
-		// statistics
-		demandTrip = tripsUtil.createTrip(currentTask.getDemandAgent().getPosition().id,
-				currentTask.getLocation().id, vehicle);
-        eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
-                new PickupEventContent(timeProvider.getCurrentSimTime(), 
-                        currentTask.demandAgent.getSimpleId(), 
-                        positionUtil.getTripLengthInMeters(demandTrip)));
+		// statistics TODO demand tirp?
+//		demandTrip = tripsUtil.createTrip(currentTask.getDemandAgent().getPosition().id,
+//				currentTask.getLocation().id, vehicle);
+//        eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
+//                new PickupEventContent(timeProvider.getCurrentSimTime(), 
+//                        currentTask.demandAgent.getSimpleId(), 
+//                        positionUtil.getTripLengthInMeters(demandTrip)));
 
 		
 	}
@@ -205,9 +206,12 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
 		driveToNextTask();
 	}
-    
-    
-    
-    
-    
+
+	@Override
+	protected void leavingStationEvent() {
+		eventProcessor.addEvent(OnDemandVehicleEvent.LEAVE_STATION, null, null, 
+                new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
+                        currentTask.demandAgent.getSimpleId()));
+	}
+
 }

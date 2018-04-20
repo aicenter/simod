@@ -26,7 +26,6 @@ import cz.cvut.fel.aic.geographtools.util.NearestElementUtilPair;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  *

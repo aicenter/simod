@@ -18,7 +18,6 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
-import java.util.Map;
 
 /**
  *
@@ -29,23 +28,23 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     
     protected final TripsUtil tripsUtil;
     
-    private final boolean precomputedPaths;
+    protected final boolean precomputedPaths;
     
     protected final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
     protected final PhysicalVehicleDriveFactory driveActivityFactory;
     
-    private final PositionUtil positionUtil;
+    protected final PositionUtil positionUtil;
     
-    private final EventProcessor eventProcessor;
+    protected final EventProcessor eventProcessor;
     
-    private final StandardTimeProvider timeProvider;
+    protected final StandardTimeProvider timeProvider;
     
-    private final IdGenerator rebalancingIdGenerator;
+    protected final IdGenerator rebalancingIdGenerator;
     
-    private final PhysicalTransportVehicleStorage vehicleStorage;
+    protected final PhysicalTransportVehicleStorage vehicleStorage;
     
-    private final AmodsimConfig config;
+    protected final AmodsimConfig config;
 
     
     

@@ -3,7 +3,6 @@ package cz.cvut.fel.aic.amodsim.ridesharing;
 import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
-import cz.cvut.fel.aic.amodsim.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
@@ -53,8 +52,8 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		
 		for(OnDemandVehicle tVvehicle: vehicleStorage){
 			RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
-			if(canServeRequest(vehicle, request, travelTimeProvider)){
-				DriverPlan newPlan = getOptimalPlan(vehicle, request, travelTimeProvider);
+			if(canServeRequest(vehicle, request)){
+				DriverPlan newPlan = getOptimalPlan(vehicle, request);
 				if(newPlan.getPlannedTraveltime() < minCost){
 					minCost = newPlan.getPlannedTraveltime();
 					bestPlan = newPlan;
@@ -74,8 +73,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		return planMap;
 	}
 	
-	private boolean canServeRequest(RideSharingOnDemandVehicle vehicle, OnDemandRequest request, 
-			TravelTimeProvider travelTimeProvider){
+	private boolean canServeRequest(RideSharingOnDemandVehicle vehicle, OnDemandRequest request){
 		
 		// do not mess with rebalancing
 		if(vehicle.getState() == OnDemandVehicleState.REBALANCING){
@@ -91,7 +89,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 			return true;
 		}
 		
-		// cartesian distance check
+		// euclidean distance check
 		double distance = positionUtil.getPosition(vehicle.getPosition())
 				.distance(positionUtil.getPosition(request.getPosition()));
 		if(distance > maxDistance){
@@ -104,8 +102,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 				< maxWaitTime;
 	}
 
-	private DriverPlan getOptimalPlan(RideSharingOnDemandVehicle vehicle, OnDemandRequest request, 
-			TravelTimeProvider travelTimeProvider) {
+	private DriverPlan getOptimalPlan(RideSharingOnDemandVehicle vehicle, OnDemandRequest request) {
 		double minCostIncrement = Double.MAX_VALUE;
 		DriverPlan bestPlan = null;
 		DriverPlan currentPlan = vehicle.getCurrentPlan();
@@ -113,10 +110,9 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		for(int pickupOptionIndex = 1; pickupOptionIndex <= currentPlan.getLength(); pickupOptionIndex++){
 			for(int dropoffOptionIndex = pickupOptionIndex + 1; dropoffOptionIndex <= currentPlan.getLength() + 1; 
 					dropoffOptionIndex++){
-				DriverPlan potentialPlan = insertIntoPlan(currentPlan, pickupOptionIndex, dropoffOptionIndex, request,
-						travelTimeProvider);
+				DriverPlan potentialPlan = insertIntoPlan(currentPlan, pickupOptionIndex, dropoffOptionIndex, request);
 				if(planFeasible(potentialPlan, vehicle)){
-					computePlanCost(vehicle, currentPlan, potentialPlan, request, travelTimeProvider);
+					computePlanCost(vehicle, currentPlan, potentialPlan, request);
 					double costIncrement = potentialPlan.getPlannedTraveltime() - currentPlan.getPlannedTraveltime();
 					if(costIncrement < minCostIncrement){
 						minCostIncrement = costIncrement;
@@ -129,7 +125,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 	}
 
 	private DriverPlan insertIntoPlan(DriverPlan currentPlan, int pickupOptionIndex, int dropoffOptionIndex, 
-			OnDemandRequest request, TravelTimeProvider travelTimeProvider) {
+			OnDemandRequest request) {
 		List<DriverPlanTask> newPlan = new LinkedList<>();
 		
 		Iterator<DriverPlanTask> oldPlanIterator = currentPlan.iterator();
@@ -170,7 +166,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 	}
 
 	private void computePlanCost(RideSharingOnDemandVehicle vehicle, DriverPlan currentPlan, DriverPlan potentialPlan, 
-			OnDemandRequest request, TravelTimeProvider travelTimeProvider) {
+			OnDemandRequest request) {
 		double costAddition = 0;
 		Iterator<DriverPlanTask> planIterator = potentialPlan.iterator();
 		

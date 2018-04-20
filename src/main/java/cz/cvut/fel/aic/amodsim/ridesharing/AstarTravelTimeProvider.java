@@ -1,4 +1,4 @@
-package cz.cvut.fel.aic.amodsim;
+package cz.cvut.fel.aic.amodsim.ridesharing;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -18,7 +18,7 @@ import java.util.Iterator;
  * @author F.I.D.O.
  */
 @Singleton
-public class TravelTimeProvider {
+public class AstarTravelTimeProvider implements TravelTimeProvider{
 	
 	
 	private final TripsUtil tripsUtil;
@@ -28,12 +28,13 @@ public class TravelTimeProvider {
 
 	
 	@Inject
-	public TravelTimeProvider(TripsUtil tripsUtil, TransportNetworks transportNetworks) {
+	public AstarTravelTimeProvider(TripsUtil tripsUtil, TransportNetworks transportNetworks) {
 		this.tripsUtil = tripsUtil;
 		this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
 	}
 	
 	
+	@Override
 	public double getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB){
 		
 		if(positionA == positionB){

@@ -6,7 +6,6 @@
 package cz.cvut.fel.aic.amodsim;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.GraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
@@ -20,10 +19,8 @@ import cz.cvut.fel.aic.geographtools.TransportMode;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import cz.cvut.fel.aic.graphimporter.GraphCreator;
 import cz.cvut.fel.aic.graphimporter.geojson.GeoJSONReader;
-import cz.cvut.fel.aic.graphimporter.osm.OsmImporter;
 import org.apache.log4j.Logger;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

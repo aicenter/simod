@@ -24,9 +24,9 @@ public class MapVisualizer {
     public void run(String[] args) {
         AmodsimConfig config = new AmodsimConfig();
         
-        File localConfigFile = args.length > 0 ? new File(args[1]) : null;
+        File localConfigFile = args.length > 0 ? new File(args[0]) : null;
         
-        Injector injector = new AgentPolisInitializer(new MainModule(config, localConfigFile)).initialize();
+        Injector injector = new AgentPolisInitializer(new MapVisualiserModule(config, localConfigFile)).initialize();
 
         SimulationCreator creator = injector.getInstance(SimulationCreator.class);
 

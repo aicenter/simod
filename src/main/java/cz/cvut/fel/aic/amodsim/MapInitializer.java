@@ -6,6 +6,7 @@
 package cz.cvut.fel.aic.amodsim;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.GraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
@@ -28,6 +29,7 @@ import java.util.Set;
 /**
  * @author david
  */
+@Singleton
 public class MapInitializer {
 
     private static final Logger LOGGER = Logger.getLogger(MapInitializer.class);

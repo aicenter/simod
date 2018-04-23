@@ -159,10 +159,10 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 					dropOffAndContinue();
 					break;
 				case DRIVING_TO_STATION:
-					waitInStation();
+					finishDrivingToStation(currentTask.demandAgent);
 					break;
 				case REBALANCING:
-					waitInStation();
+					finishRebalancing();
 					break;
 			}
 		}
@@ -196,10 +196,10 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		// statistics TODO demand tirp?
 //		demandTrip = tripsUtil.createTrip(currentTask.getDemandAgent().getPosition().id,
 //				currentTask.getLocation().id, vehicle);
-//        eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
-//                new PickupEventContent(timeProvider.getCurrentSimTime(), 
-//                        currentTask.demandAgent.getSimpleId(), 
-//                        positionUtil.getTripLengthInMeters(demandTrip)));
+		// demand trip length 0 - need to find out where the statistic is used, does it make sense with rebalancing?
+        eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
+                new PickupEventContent(timeProvider.getCurrentSimTime(), 
+                        currentTask.demandAgent.getSimpleId(),0));
 
 		driveToNextTask();
 	}

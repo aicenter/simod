@@ -168,7 +168,7 @@ public class CHGraph {
             reorderImmediateNeighbors(node);
             
             //System.out.println("Contracted " + n);
-            if (contractionOrder.size() % 10000 == 0) {
+            if (contractionOrder.size() % 100 == 0) {
                 long now = System.currentTimeMillis();
                 long runTimeSoFar = now-startTime;
                 //long orderingTimeThisRun = millisSpentOnContractionOrdering-recentOrderingMillis;

@@ -17,8 +17,11 @@ import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationFinishedListener;
 import cz.cvut.fel.aic.alite.common.event.Event;
-import cz.cvut.fel.aic.alite.common.event.EventHandlerAdapter;
+import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
+import cz.cvut.fel.aic.alite.common.event.EventType;
+import cz.cvut.fel.aic.alite.common.event.typed.AliteEntity;
+import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.amodsim.CsvWriter;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.io.Common;
@@ -36,7 +39,7 @@ import java.util.logging.Logger;
  * @author fido
  */
 @Singleton
-public class Statistics extends EventHandlerAdapter {
+public class Statistics extends AliteEntity implements EventHandler{
     
     private static final int TRANSIT_OUTPUT_BATCH_SIZE = 1000000;
     
@@ -87,7 +90,7 @@ public class Statistics extends EventHandlerAdapter {
     
     
     @Inject
-    public Statistics(EventProcessor eventProcessor, Provider<EdgesLoadByState> allEdgesLoadProvider, 
+    public Statistics(TypedSimulation eventProcessor, Provider<EdgesLoadByState> allEdgesLoadProvider, 
             OnDemandVehicleStorage onDemandVehicleStorage, 
             OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, AmodsimConfig config) throws IOException {
         this.eventProcessor = eventProcessor;
@@ -116,6 +119,7 @@ public class Statistics extends EventHandlerAdapter {
         maxLoad = 0;
         
         eventProcessor.addEventHandler(this);
+		init(eventProcessor);
     }
     
     
@@ -195,6 +199,21 @@ public class Statistics extends EventHandlerAdapter {
             Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+	@Override
+	protected List<EventType> getEventTypesToHandle() {
+		List<EventType> typesToHandle = new LinkedList<>();
+		typesToHandle.add(OnDemandVehicleEvent.PICKUP);
+		typesToHandle.add(OnDemandVehicleEvent.DROP_OFF);
+		typesToHandle.add(OnDemandVehicleEvent.START_REBALANCING);
+		typesToHandle.add(OnDemandVehicleEvent.FINISH_REBALANCING);
+		typesToHandle.add(OnDemandVehicleEvent.LEAVE_STATION);
+		typesToHandle.add(OnDemandVehicleEvent.REACH_NEAREST_STATION);
+		typesToHandle.add(DriveEvent.VEHICLE_ENTERED_EDGE);
+		return typesToHandle;
+	}
+	
+	
 
     @Inject
     private void countEdgeLoadForInterval() {
@@ -339,6 +358,5 @@ public class Statistics extends EventHandlerAdapter {
             }
         }
     }
-    
-    
+
 }

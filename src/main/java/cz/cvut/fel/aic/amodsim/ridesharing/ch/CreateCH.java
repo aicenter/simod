@@ -1,11 +1,14 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.ch;
 
 import com.google.inject.Injector;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.EdgeShape;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.agentpolis.simulator.MapData;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.amodsim.MainModule;
+import cz.cvut.fel.aic.amodsim.MapInitializer;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.geographtools.Edge;
 import cz.cvut.fel.aic.geographtools.Graph;
@@ -29,7 +32,7 @@ public class CreateCH {
 
         
 		
-		Graph<? extends Node, ? extends Edge> graph = getGraph(injector);
+		Graph<SimulationNode,SimulationEdge> graph = getGraph(injector);
 		
 		// CH
 		CHGraph cHGraph = new CHGraph(graph);
@@ -40,7 +43,7 @@ public class CreateCH {
 		bf.write(cHGraph.getChNodes(), "contracted-nodes.dat", "contracted-ways.dat");
 	}
 	
-	public static Graph<SimulationNode,SimulationEdge> getGraph(Injector injector) {
+	public static Graph<SimulationNode,SimulationEdge> getTestGraph(Injector injector) {
 		GraphBuilder<SimulationNode, SimulationEdge> graphBuilder = new GraphBuilder<>();
 
         SimulationNode node0 = new SimulationNode(0, 0, 0, 0, 0, 0, 0);
@@ -72,9 +75,9 @@ public class CreateCH {
 		return graph;
 	}
 
-//	private static Graph<? extends Node, ? extends Edge> getGraph(Injector injector) {
-//		// prepare map, entity storages...
-//        MapData mapData = injector.getInstance(MapInitializer.class).getMap();
-//		return mapData.graphByType.get(EGraphType.HIGHWAY);
-//	}
+	public static Graph<SimulationNode,SimulationEdge> getGraph(Injector injector) {
+		// prepare map, entity storages...
+        MapData mapData = injector.getInstance(MapInitializer.class).getMap();
+		return mapData.graphByType.get(EGraphType.HIGHWAY);
+	}
 }

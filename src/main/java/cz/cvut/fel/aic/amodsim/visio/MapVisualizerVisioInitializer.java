@@ -53,7 +53,7 @@ public class MapVisualizerVisioInitializer  extends DefaultVisioInitializer{
     
     @Override
     protected void initLayersAfterEntityLayers() {
-//        VisManager.registerLayer(nodeIdLayer);
+        VisManager.registerLayer(nodeIdLayer);
     }
 	
 }

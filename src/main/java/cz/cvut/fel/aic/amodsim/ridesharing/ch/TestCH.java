@@ -12,15 +12,14 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.agentpolis.simulator.MapData;
-import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.amodsim.MainModule;
 import cz.cvut.fel.aic.amodsim.MapInitializer;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.geographtools.Graph;
-import cz.cvut.fel.aic.geographtools.Node;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,12 +60,12 @@ public class TestCH {
 		SimulationNode toNode = graph.getNode(toId);
 		Trip<SimulationNode> chTrip = cHGraph.query(fromNode, toNode);
 		
-		System.out.println("Trip equals: " + trip.equals(chTrip));
+		System.out.println("Trip equals: " + Arrays.equals(trip.getLoacationIds(), chTrip.getLoacationIds()));
 		System.out.println("Astar trip: ");
-		System.out.println(trip.toString());
+		System.out.println(trip.locationIdsToString());
 		
 		System.out.println("CH trip: ");
-		System.out.println(chTrip.toString());
+		System.out.println(chTrip.locationIdsToString());
 	}
 
 	private static void initAPGraphs(Injector injector) {

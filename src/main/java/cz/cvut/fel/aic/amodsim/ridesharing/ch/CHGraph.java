@@ -1,9 +1,9 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.ch;
 
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.ridesharing.ch.Dijkstra.Direction;
-import cz.cvut.fel.aic.geographtools.Edge;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.Node;
 import java.util.ArrayList;
@@ -71,7 +71,7 @@ public class CHGraph {
 		}
 	}
 	
-	public CHGraph(Graph<? extends Node, ? extends Edge> sourceGraph) {
+	public CHGraph(Graph<SimulationNode,SimulationEdge> sourceGraph) {
 		idsTochNodes = new HashMap<>();
 		chNodes = new LinkedList<>();
 		chEdges = new LinkedList<>();
@@ -88,11 +88,11 @@ public class CHGraph {
 			chNodes.add(chNode);
 		}
 		
-		for(Edge edge: sourceGraph.getAllEdges()){
+		for(SimulationEdge edge: sourceGraph.getAllEdges()){
 			CHNode fromNode = idsTochNodes.get(edge.fromId);
 			CHNode toNode = idsTochNodes.get(edge.toId);
 			
-			CHEdge chEdge = new WraperEdge(edge, fromNode, toNode);
+			CHEdge chEdge = new WraperEdge(edge, fromNode, toNode, (int) (edge.length / edge.allowedMaxSpeedInMpS));
 			chEdges.add(chEdge);
 
 			fromNode.addOutEdge(chEdge);

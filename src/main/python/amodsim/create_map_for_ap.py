@@ -1,5 +1,5 @@
 
-from amod.init import config, roadmaptools_config
+from amodsim.init import config, roadmaptools_config
 
 import roadmaptools.inout
 import roadmaptools.osmfilter

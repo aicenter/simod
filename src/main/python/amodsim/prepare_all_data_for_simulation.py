@@ -5,7 +5,7 @@ from mx.Tools.Tools import projection
 from scripts.config_loader import cfg as config
 from scripts.printer import print_info
 from scripts.prague.prepare_trips import get_trips
-from amod.common import TransposedUTM
+from amodsim.common import TransposedUTM
 from scripts.prague.generate_stations import generate_stations
 from scripts.distance_matrix import compute_distance_matrix
 from scripts.prague.process_distance_matrix import process_distance_matrix

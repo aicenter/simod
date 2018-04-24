@@ -3,8 +3,8 @@ from __future__ import print_function, division
 import numpy as np
 import os
 
-from amod.common import tutm2latlon
-from amod.common import load_trips
+from amodsim.common import tutm2latlon
+from amodsim.common import load_trips
 
 
 def export_data_for_amodsim(config, projection):
@@ -24,7 +24,7 @@ def export_data_for_amodsim(config, projection):
 
 
 if __name__ == "__main__":
-    from amod.common import TransposedUTM
+    from amodsim.common import TransposedUTM
     from scripts.config_loader import cfg as config
 
     projection = TransposedUTM(config["tutm_projection_centre"]["latitude"],

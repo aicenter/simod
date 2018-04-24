@@ -1,14 +1,13 @@
-from __future__ import print_function, division
+from amodsim.init import config, roadmaptools_config
 
 import json
 import numpy as np
 
-from scripts.config_loader import cfg as config
-from utils import col_to_percent, to_percetnt
+from amodsim.utils import col_to_percent, to_percetnt
 from scripts.printer import print_table
 
 
-json_file = open(config.agentpolis.statistics.result_file_path, 'r')
+json_file = open(config.amodsim.statistics.result_file_path, 'r')
 result = json.loads(json_file.read())
 
 avg_km_total = result["averageKmWithPassenger"] + result["averageKmToStartLocation"] + result["averageKmToStation"] \

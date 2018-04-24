@@ -109,8 +109,8 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
     @Override
     protected void initGraphLayers() {
         VisManager.registerLayer(backgroundLayer);
-        VisManager.registerLayer(mapTilesLayer);
-//        VisManager.registerLayer(highwayLayer);
+//        VisManager.registerLayer(mapTilesLayer);
+        VisManager.registerLayer(highwayLayer);
 //        VisManager.registerLayer(bufferedHighwayLayer);
     }
     

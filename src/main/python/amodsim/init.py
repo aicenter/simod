@@ -2,7 +2,7 @@ import os
 import sys
 import roadmaptools.init
 
-from amod.config.amod_config import AmodConfig
+from amodsim.config.amod_config import AmodConfig
 
 
 config = AmodConfig()

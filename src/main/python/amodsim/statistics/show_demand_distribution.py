@@ -2,12 +2,12 @@ from __future__ import print_function, division
 
 # import sys
 
-# sys.path.insert(0,'../../../../amod/python/')
+# sys.path.insert(0,'../../../../amodsim/python/')
 
 
 
-from amod.common import *
-from amod.shapes import load_shapes, plot_borders, plot_motorways, plot_roads, plot_trips
+from amodsim.common import *
+from amodsim.shapes import load_shapes, plot_borders, plot_motorways, plot_roads, plot_trips
 
 PRAGUE_DATA = '../../../data/prague/'
 SCK_SCALING_FACTOR = 2

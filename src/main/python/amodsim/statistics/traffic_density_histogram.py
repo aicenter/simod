@@ -1,4 +1,4 @@
-from __future__ import print_function, division
+from amodsim.init import config, roadmaptools_config
 
 import json
 import matplotlib.pyplot as plt
@@ -7,11 +7,10 @@ import matplotlib.collections as collections
 import sys
 from matplotlib import rcParams
 
-from scripts.config_loader import cfg as config
 from scripts.printer import print_info, print_table
-from traffic_load import WINDOW_START, WINDOW_END, WINDOW_LENGTH, VehiclePhase
-from utils import to_percetnt, col_to_percent
-import traffic_load
+from amodsim.traffic_load import WINDOW_START, WINDOW_END, WINDOW_LENGTH, VehiclePhase
+from amodsim.utils import to_percetnt, col_to_percent
+import amodsim.traffic_load as traffic_load
 
 
 HISTOGRAM_SAMPLES = 16
@@ -211,10 +210,10 @@ histogram = TrafficDensityHistogram()
 # for the sum of right outliers
 hist_step = HIGH_THRESHOLD / HISTOGRAM_SAMPLES
 bins = np.arange(0, HIGH_THRESHOLD + hist_step, hist_step)
-centers = bins[0:HISTOGRAM_SAMPLES]
+centers = [x + (hist_step / 2) for x in bins[0:HISTOGRAM_SAMPLES]]
 # colors = np.vectorize(traffic_load.get_color_from_normalized_load, [np.float, np.str])(np.copy(bins))
 # colors = np.frompyfunc(traffic_load.get_color_from_normalized_load, 1, 1)(np.copy(bins))
-colors = np.asarray(map(traffic_load.get_color_from_normalized_load, np.copy(bins)))
+colors = np.asarray(list(map(traffic_load.get_color_from_normalized_load, np.copy(bins))))
 
 # histogram.plot_phases_histogram(loads, axis[1])
 

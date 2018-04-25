@@ -19,12 +19,15 @@ departures_in_window = np.where((departures >= milis_start) & (departures <=mili
 
 trips_in_window = np.where((trips[:,0] >= milis_start) & (trips[:,0] <=milis_end))
 
-trip_count = len(trips_in_window) * config.trips_multiplier
+# trip_count = len(trips_in_window) * config.trips_multiplier
+trip_count = len(trips_in_window)
+
 departure_count = len(departures_in_window)
 
 utilization_in_window = trip_count / departure_count
 
-utilization = len(trips) * config.trips_multiplier / len(departures)
+# utilization = len(trips) * config.trips_multiplier / len(departures)
+utilization = len(trips) / len(departures)
 
 print("Average utilization in window: {0}".format(utilization_in_window))
 

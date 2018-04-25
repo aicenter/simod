@@ -35,11 +35,11 @@ def load_all_edges_load_history(filepath = config.amodsim.statistics.all_edges_l
 
 	# loads = load_json_file(filepath)
 
-	for type_name in loads:
-		type = loads[type_name]
-		for timestep in type:
-			for edge_name in timestep:
-				timestep[edge_name] *= config.trips_multiplier
+	# for type_name in loads:
+	# 	type = loads[type_name]
+	# 	for timestep in type:
+	# 		for edge_name in timestep:
+	# 			timestep[edge_name] *= config.trips_multiplier
 	return loads
 
 

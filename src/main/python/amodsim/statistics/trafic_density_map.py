@@ -30,7 +30,7 @@ CRITICAL_DENSITY = config.critical_density
 
 def plot_edges_optimized(pairs, axis, loads=loads["ALL"], color_func=None):
 	if color_func == None:
-		color_func = get_level;
+		color_func = get_level
 
 	for level in TrafficDensityLevel:
 		colorType = {}
@@ -42,7 +42,7 @@ def plot_edges_optimized(pairs, axis, loads=loads["ALL"], color_func=None):
 
 
 	for pair in itertools.islice(pairs, 0, 100000000):
-		edge1 = pair["edge1"];
+		edge1 = pair["edge1"]
 		id1 = str(edge1["id"])
 		color1 = color_func(loads, id=id1, length=edge1["length"], lane_count=edge1["laneCount"])
 

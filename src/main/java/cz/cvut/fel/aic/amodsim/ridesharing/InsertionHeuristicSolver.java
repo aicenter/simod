@@ -21,12 +21,16 @@ import java.util.Map;
  * @author F.I.D.O.
  */
 public class InsertionHeuristicSolver extends DARPSolver{
+	
+//	private static 
 
 	private final PositionUtil positionUtil;
 	
 	private final AmodsimConfig config;
 	
 	private final double maxDistance;
+	
+	private final double maxDistanceSquared;
 	
 	private final int maxWaitTime;
 	
@@ -39,6 +43,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		this.config = config;
 		maxDistance = config.amodsim.ridesharing.maxWaitTime 
 				* config.amodsim.ridesharing.maxSpeedEstimation / 3600 * 1000;
+		maxDistanceSquared = maxDistance * maxDistance;
 		maxWaitTime = config.amodsim.ridesharing.maxWaitTime  * 1000;
 	}
 
@@ -91,10 +96,16 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		}
 		
 		// euclidean distance check
-		double distance = GPSLocationTools.computeDistanceAsDouble(vehicle.getPosition(), request.getPosition());
-		if(distance > maxDistance){
+		double dist_x = vehicle.getPosition().getLatitudeProjected() - request.getPosition().getLatitudeProjected();
+		double dist_y = vehicle.getPosition().getLongitudeProjected() - request.getPosition().getLongitudeProjected();
+		double distanceSquared = dist_x * dist_x + dist_y * dist_y;
+		if(distanceSquared > maxDistanceSquared){
 			return false;
 		}
+//		double distance = GPSLocationTools.computeDistanceAsDouble(vehicle.getPosition(), request.getPosition());
+//		if(distance > maxDistance){
+//			return false;
+//		}
 		
 		// real feasibility check 
 		// TODO compute from interpolated position

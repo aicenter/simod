@@ -62,7 +62,7 @@ def plot_edges_optimized(pairs, axis, loads=loads["ALL"], color_func=None):
 			add_line(line1[0], line1[1], color1)
 			add_line(line2[0], line2[1], color2)
 
-	for level in TrafficDensityLevel:
+	for level in reversed(TrafficDensityLevel):
 		colorType = colorTypes[level]
 		xList, yList = lines_to_list(colorType["xPairs"], colorType["yPairs"])
 		axis.plot(xList, yList, linewidth=colorType["width"], color=level.color, alpha=colorType["opacity"])

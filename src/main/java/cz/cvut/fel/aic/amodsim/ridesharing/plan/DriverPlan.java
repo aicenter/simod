@@ -43,7 +43,7 @@ public class DriverPlan implements Iterable<DriverPlanTask>{
 	}
 	
 	public DriverPlanTask getNextTask(){
-		return plan.remove(1);
+		return plan.get(1);
 	}
 	
 	public void taskCompleted(){

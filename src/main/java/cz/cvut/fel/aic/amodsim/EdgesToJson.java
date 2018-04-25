@@ -24,7 +24,7 @@ public class EdgesToJson {
         
         AmodsimConfig config = new AmodsimConfig();
         
-        File localConfigFile = args.length > 0 ? new File(args[1]) : null;
+        File localConfigFile = args.length > 0 ? new File(args[0]) : null;
         
         Injector injector = new AgentPolisInitializer(new MainModule(config, localConfigFile)).initialize();
         

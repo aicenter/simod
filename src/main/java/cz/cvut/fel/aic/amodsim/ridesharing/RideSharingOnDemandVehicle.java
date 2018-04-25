@@ -200,7 +200,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
         eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
                 new PickupEventContent(timeProvider.getCurrentSimTime(), 
                         currentTask.demandAgent.getSimpleId(),0));
-
+		currentPlan.taskCompleted();
 		driveToNextTask();
 	}
 
@@ -212,7 +212,8 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
         eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
                 new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
                         currentTask.demandAgent.getSimpleId()));
-
+		
+		currentPlan.taskCompleted();
 		driveToNextTask();
 	}
 

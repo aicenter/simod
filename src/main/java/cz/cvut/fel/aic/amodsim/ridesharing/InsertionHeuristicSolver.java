@@ -9,6 +9,7 @@ import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTask;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTaskType;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
+import cz.cvut.fel.aic.geographtools.util.GPSLocationTools;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -90,8 +91,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		}
 		
 		// euclidean distance check
-		double distance = positionUtil.getPosition(vehicle.getPosition())
-				.distance(positionUtil.getPosition(request.getPosition()));
+		double distance = GPSLocationTools.computeDistanceAsDouble(vehicle.getPosition(), request.getPosition());
 		if(distance > maxDistance){
 			return false;
 		}

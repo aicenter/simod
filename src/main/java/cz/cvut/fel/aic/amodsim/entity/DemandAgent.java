@@ -22,6 +22,7 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.DemandSimulationEntityType;
+import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.statistics.DemandServiceStatistic;
 import cz.cvut.fel.aic.amodsim.statistics.StatisticEvent;
 import java.util.Map;
@@ -57,11 +58,17 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     
     private OnDemandVehicle onDemandVehicle;
     
-    private Long demandTime;
+    private long demandTime;
     
     private TransportEntity transportEntity;
     
     private SimulationNode lastFromPosition;
+	
+	private long scheduledPickupDelay;
+	
+	private long realPickupTime = 0;
+	
+	private long minDemandServiceDuration;
 
     
     
@@ -70,9 +77,22 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
         return simpleId;
     }
 
-    
-    
-    
+	public void setScheduledPickupDelay(long scheduledPickupDelay) {
+		this.scheduledPickupDelay = scheduledPickupDelay;
+	}
+
+	public long getScheduledPickupDelay() {
+		return scheduledPickupDelay;
+	}
+
+	public long getRealPickupTime() {
+		return realPickupTime;
+	}
+
+	public long getDemandTime() {
+		return demandTime;
+	}
+
     public DemandAgentState getState() {
         return state;
     }
@@ -84,16 +104,22 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     public OnDemandVehicle getOnDemandVehicle() {
         return onDemandVehicle;
     }
-    
-    
 
+	public void setMinDemandServiceDuration(long minDemandServiceDuration) {
+		this.minDemandServiceDuration = minDemandServiceDuration;
+	}
+
+	public long getMinDemandServiceDuration() {
+		return minDemandServiceDuration;
+	}
 
     
     
     
     @Inject
 	public DemandAgent(OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
-            DemandStorage demandStorage, Map<Long,SimulationNode> nodesMappedByNodeSourceIds, StandardTimeProvider timeProvider,
+            DemandStorage demandStorage, Map<Long,SimulationNode> nodesMappedByNodeSourceIds, 
+			StandardTimeProvider timeProvider, 
             @Named("precomputedPaths") boolean precomputedPaths, @Assisted String agentId, @Assisted int id,
             @Assisted TimeTrip<SimulationNode> trip) {
 		super(agentId, trip.getLocations().get(0));
@@ -153,6 +179,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 
     public void tripStarted() {
         state = DemandAgentState.DRIVING;
+		realPickupTime = timeProvider.getCurrentSimTime();
     }
 
     @Override

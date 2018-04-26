@@ -29,7 +29,6 @@ import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.statistics.PickupEventContent;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
-import cz.cvut.fel.aic.geographtools.Node;
 import java.util.LinkedList;
 
 /**
@@ -37,8 +36,6 @@ import java.util.LinkedList;
  * @author fido
  */
 public class RideSharingOnDemandVehicle extends OnDemandVehicle{
-    
-    private final LinkedList<Node> targetNodes;
 
     private final PositionUtil positionUtil;
 	
@@ -69,25 +66,24 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
                 driveActivityFactory, positionUtil, eventProcessor, timeProvider, precomputedPaths, 
                 rebalancingIdGenerator, config, vehicleId, startPosition);
         this.positionUtil = positionUtil;
-        targetNodes = new LinkedList<>();
 		
 //		empty plan
 		LinkedList<DriverPlanTask> plan = new LinkedList<>();
 		plan.add(new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, getPosition()));
-		currentPlan = new DriverPlan(plan);
+		currentPlan = new DriverPlan(plan, 0);
     }
 
 	@Override
 	public void handleEvent(Event event) {
 		
 	}
-        
-    public boolean hasFreeCapacity(){
-        return targetNodes.size() < vehicle.getCapacity();
-    }
 	
 	public int getOnBoardCount(){
 		return vehicle.getTransportedEntities().size();
+	}
+	
+	public int getFreeCapacity(){
+		return vehicle.getCapacity() - vehicle.getTransportedEntities().size();
 	}
 	
 	public void replan(DriverPlan plan){
@@ -227,6 +223,10 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	@Override
 	public VehicleTrip getCurrentTripPlan() {
 		return currentTrip;
+	}
+
+	boolean hasFreeCapacity() {
+		return getFreeCapacity() > 0;
 	}
 
 }

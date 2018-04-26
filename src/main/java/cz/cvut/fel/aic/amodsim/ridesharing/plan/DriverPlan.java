@@ -1,32 +1,43 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.plan;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
  * @author F.I.D.O.
  */
 public class DriverPlan implements Iterable<DriverPlanTask>{
-	private final List<DriverPlanTask> plan;
+	public final List<DriverPlanTask> plan;
 	
 	private double plannedTraveltime;
-
-	public double getPlannedTraveltime() {
-		return plannedTraveltime;
-	}
-
-	public void setPlannedTraveltime(double plannedTraveltime) {
-		this.plannedTraveltime = plannedTraveltime;
-	}
 	
+	private Set<DemandAgent> demands;
+	
+	public final long totalTime;
 	
 	
 	
 
-	public DriverPlan(List<DriverPlanTask> plan) {
+//	public double getPlannedTraveltime() {
+//		return plannedTraveltime;
+//	}
+//
+//	public void setPlannedTraveltime(double plannedTraveltime) {
+//		this.plannedTraveltime = plannedTraveltime;
+//	}
+	
+	
+	
+	
+
+	public DriverPlan(List<DriverPlanTask> plan, long totalTime) {
 		this.plan = plan;
+		this.totalTime = totalTime;
 	}
 
 	@Override
@@ -50,4 +61,15 @@ public class DriverPlan implements Iterable<DriverPlanTask>{
 		plan.remove(1);
 	}
 	
+	public Set<DemandAgent> getDemands(){
+		if(demands == null){
+			demands = new HashSet<>();
+			for(DriverPlanTask task: plan){
+				if(task.demandAgent != null){
+					demands.add(task.demandAgent);
+				}
+			}
+		}
+		return demands;
+	}
 }

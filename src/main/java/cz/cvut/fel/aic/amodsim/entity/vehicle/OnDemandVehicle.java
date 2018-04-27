@@ -55,9 +55,6 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     
     private static final double LENGTH = 4;
     
-    private static final int CAPACITY = 5;
-    
-    
     
     
     

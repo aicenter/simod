@@ -55,9 +55,6 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     
     private static final double LENGTH = 4;
     
-    private static final int CAPACITY = 5;
-    
-    
     
     
     
@@ -179,7 +176,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         this.config = config;
         
         vehicle = new PhysicalTransportVehicle(vehicleId + " - vehicle", 
-                DemandSimulationEntityType.VEHICLE, LENGTH, CAPACITY, EGraphType.HIGHWAY, startPosition, 
+                DemandSimulationEntityType.VEHICLE, LENGTH, config.amodsim.ridesharing.vehicleCapacity, 
+				EGraphType.HIGHWAY, startPosition, 
                 config.vehicleSpeedInMeters);
         
         vehicleStorage.addEntity(vehicle);

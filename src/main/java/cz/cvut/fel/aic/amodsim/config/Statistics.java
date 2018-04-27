@@ -7,6 +7,8 @@ import java.util.Map;
 public class Statistics {
   public String resultFilePath;
 
+  public String occupanciesFilePath;
+
   public Integer statisticIntervalMilis;
 
   public String transitStatisticFilePath;
@@ -21,6 +23,7 @@ public class Statistics {
 
   public Statistics(Map statistics) {
     this.resultFilePath = (String) statistics.get("result_file_path");
+    this.occupanciesFilePath = (String) statistics.get("occupancies_file_path");
     this.statisticIntervalMilis = (Integer) statistics.get("statistic_interval_milis");
     this.transitStatisticFilePath = (String) statistics.get("transit_statistic_file_path");
     this.allEdgesLoadHistoryFilePath = (String) statistics.get("all_edges_load_history_file_path");

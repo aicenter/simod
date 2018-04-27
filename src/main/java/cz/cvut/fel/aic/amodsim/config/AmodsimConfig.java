@@ -21,6 +21,8 @@ public class AmodsimConfig implements GeneratedConfig {
 
   public Analysis analysis;
 
+  public String mapDir;
+
   public String pythonExperimentDir;
 
   public Integer srid;
@@ -62,6 +64,7 @@ public class AmodsimConfig implements GeneratedConfig {
     this.shapefiles = new Shapefiles((Map) amodsimConfig.get("shapefiles"));
     this.stations = new Stations((Map) amodsimConfig.get("stations"));
     this.analysis = new Analysis((Map) amodsimConfig.get("analysis"));
+    this.mapDir = (String) amodsimConfig.get("map_dir");
     this.pythonExperimentDir = (String) amodsimConfig.get("python_experiment_dir");
     this.srid = (Integer) amodsimConfig.get("srid");
     this.amodsimExperimentDir = (String) amodsimConfig.get("amodsim_experiment_dir");

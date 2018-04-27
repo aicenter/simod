@@ -70,6 +70,8 @@ public class Statistics extends AliteEntity implements EventHandler{
     private final HashMap<OnDemandVehicleEvent,LinkedList<OnDemandVehicleEventContent>> onDemandVehicleEvents;
     
     private final LinkedList<Integer> tripDistances;
+	
+	private final List<Map<String,Integer>> vehicleOccupancy;
    
     
     private long tickCount;
@@ -105,6 +107,7 @@ public class Statistics extends AliteEntity implements EventHandler{
         allTransit = new LinkedList<>();
         onDemandVehicleEvents = new HashMap<>();
         tripDistances = new LinkedList<>();
+		vehicleOccupancy = new LinkedList<>();
         transitWriter = new CsvWriter(
                     Common.getFileWriter(config.amodsim.statistics.transitStatisticFilePath));
         for(OnDemandVehicleState onDemandVehicleState : OnDemandVehicleState.values()){
@@ -163,6 +166,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 
     private void measure() {
         countEdgeLoadForInterval();
+		countVehicleOccupancyForInterval();
     }
     
     
@@ -193,6 +197,7 @@ public class Statistics extends AliteEntity implements EventHandler{
         saveTransit();
         saveOnDemandVehicleEvents();
         saveDistances();
+		saveOccupancies();
         try {
             transitWriter.close();
         } catch (IOException ex) {
@@ -316,6 +321,23 @@ public class Statistics extends AliteEntity implements EventHandler{
             Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+	
+	private void saveOccupancies() {
+        try {
+            CsvWriter writer = new CsvWriter(
+                    Common.getFileWriter(config.amodsim.statistics.occupanciesFilePath));
+			int period = 0;
+            for (Map<String,Integer> occupanciesInPeriod: vehicleOccupancy) {
+				for(Map.Entry<String,Integer> entry: occupanciesInPeriod.entrySet()){
+					writer.writeLine(Integer.toString(period), entry.getKey(), Integer.toString(entry.getValue()));
+				}
+				period++;
+            }
+            writer.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     private void addOndDemandVehicleEvent(OnDemandVehicleEvent onDemandVehicleEvent,
             OnDemandVehicleEventContent onDemandVehicleEventContent) {
@@ -358,5 +380,16 @@ public class Statistics extends AliteEntity implements EventHandler{
             }
         }
     }
+
+	private void countVehicleOccupancyForInterval() {
+		Map<String,Integer> occupancies = new HashMap<>();
+		for(OnDemandVehicle onDemandVehicle: onDemandVehicleStorage){
+			if(onDemandVehicle.getState() != OnDemandVehicleState.WAITING 
+					&& onDemandVehicle.getState() != OnDemandVehicleState.REBALANCING){
+				occupancies.put(onDemandVehicle.getId(), onDemandVehicle.getVehicle().getTransportedEntities().size());
+			}
+		}
+		vehicleOccupancy.add(occupancies);
+	}
 
 }

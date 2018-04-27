@@ -2,10 +2,10 @@ import os
 import sys
 import roadmaptools.init
 
-from amodsim.config.amod_config import AmodConfig
+from amodsim.config.amodsim_config import AmodsimConfig
 
 
-config = AmodConfig()
+config = AmodsimConfig()
 
 local_config = sys.argv[1] if len(sys.argv) > 1 else None
 

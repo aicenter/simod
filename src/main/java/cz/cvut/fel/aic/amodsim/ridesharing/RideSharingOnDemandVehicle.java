@@ -43,7 +43,6 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	
 	private DriverPlanTask currentTask;
 	
-	private PhysicalVehicleDrive<RideSharingOnDemandVehicle> currentDriveActivity;
 
 	
 	
@@ -88,8 +87,8 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	
 	public void replan(DriverPlan plan){
 		currentPlan = plan;
-		if(currentDriveActivity != null){
-			currentDriveActivity.end();
+		if(state != OnDemandVehicleState.WAITING){
+			((PhysicalVehicleDrive) getCurrentTopLevelActivity()).end();
 		}
 		else{
 			driveToNextTask();
@@ -104,9 +103,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		}
 		else{
 			currentTrip = tripsUtil.createTrip(getPosition().id, currentTask.getLocation().id, vehicle);
-            metersToStartLocation += positionUtil.getTripLengthInMeters(currentTrip);
-			currentDriveActivity = driveFactory.create(this, vehicle, vehicleTripToTrip(currentTrip));
-			currentDriveActivity.run();
+			driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
 		}
     }
 
@@ -118,9 +115,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		}
 		else{
 			currentTrip = tripsUtil.createTrip(getPosition().id, currentTask.getLocation().id, vehicle);
-			metersWithPassenger += positionUtil.getTripLengthInMeters(currentTrip);
-			currentDriveActivity = driveFactory.create(this, vehicle, vehicleTripToTrip(currentTrip));
-			currentDriveActivity.run();
+			driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
 		}
     }
 
@@ -135,14 +130,14 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		else{
 			currentTrip = tripsUtil.createTrip(getPosition().id, 
 					targetStation.getPosition().getId(), vehicle);
-            metersToStation += positionUtil.getTripLengthInMeters(currentTrip);
-			currentDriveActivity = driveFactory.create(this, vehicle, vehicleTripToTrip(currentTrip));
-			currentDriveActivity.run();
+			driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
 		}
     }
 
     @Override
     public void finishedDriving(boolean wasStopped) {
+		logTraveledDistance(wasStopped);
+		
 		if(wasStopped){
 			driveToNextTask();
 		}
@@ -227,6 +222,26 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
 	boolean hasFreeCapacity() {
 		return getFreeCapacity() > 0;
+	}
+
+	private void logTraveledDistance(boolean wasStopped) {
+		int length = wasStopped ? positionUtil.getTripLengthInMeters(currentTrip, getPosition())
+				: positionUtil.getTripLengthInMeters(currentTrip);
+		
+		if(getOnBoardCount() > 0){
+			metersWithPassenger += length;
+		}
+		else{
+			switch(state){
+				case DRIVING_TO_START_LOCATION:
+					metersToStartLocation += length;
+					break;
+				case DRIVING_TO_STATION:
+					metersToStation += length;
+					break;
+			}
+		}
+		
 	}
 
 }

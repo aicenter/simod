@@ -47,10 +47,16 @@ public class RidesharingStationsCentral extends OnDemandVehicleStationsCentral{
 		List<OnDemandRequest> requests = new LinkedList<>();
 		requests.add(new OnDemandRequest(demandData.demandAgent, demandData.locations.get(1)));
 		Map<RideSharingOnDemandVehicle,DriverPlan> newPlans = solver.solve(requests);
-		for(Entry<RideSharingOnDemandVehicle,DriverPlan> entry: newPlans.entrySet()){
-			RideSharingOnDemandVehicle vehicle = entry.getKey();
-			DriverPlan plan = entry.getValue();
-			vehicle.replan(plan);
+		
+		if(newPlans.isEmpty()){
+			numberOfDemandsDropped++;
+		}
+		else{
+			for(Entry<RideSharingOnDemandVehicle,DriverPlan> entry: newPlans.entrySet()){
+				RideSharingOnDemandVehicle vehicle = entry.getKey();
+				DriverPlan plan = entry.getValue();
+				vehicle.replan(plan);
+			}
 		}
 	}
 	

@@ -232,6 +232,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		Set<DemandAgent> unfinishedDemands = new HashSet<>(currentPlan.getDemands());
 		unfinishedDemands.add(request.getDemandAgent());
 		long totalTravelTime = 0;
+		int freeCapacity = vehicle.getFreeCapacity();
 		
 		for(int newPlanIndex = 0; newPlanIndex <= currentPlan.getLength() + 1; newPlanIndex++){
 			DemandAgent finishedDemand = null;
@@ -254,6 +255,18 @@ public class InsertionHeuristicSolver extends DARPSolver{
 				}
 			}
 			
+			// chceck capacity
+			if(newTask.getTaskType() == DriverPlanTaskType.DROPOFF){
+				freeCapacity++;
+			}
+			else if(newTask.getTaskType() == DriverPlanTaskType.PICKUP){
+				if(freeCapacity == 0){
+					return null;
+				}
+				freeCapacity--;
+			}
+			
+			
 			// check max time for all demands
 			if(previousTask != null){
 				totalTravelTime += travelTimeProvider.getTravelTime(vehicle, previousTask.getLocation(), 
@@ -272,9 +285,11 @@ public class InsertionHeuristicSolver extends DARPSolver{
 				}
 			}
 			
+			// do not check time for finished demands
 			if(finishedDemand != null){
 				unfinishedDemands.remove(finishedDemand);
 			}
+			
 			newPlan.add(newTask);
 			previousTask = newTask;
 		}

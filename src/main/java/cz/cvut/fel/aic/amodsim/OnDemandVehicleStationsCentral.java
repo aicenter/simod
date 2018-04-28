@@ -47,7 +47,7 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     
     private int numberOfDemandsNotServedFromNearestStation;
     
-    private int numberOfDemandsDropped;
+    protected int numberOfDemandsDropped;
     
     private int demandsCount;
     

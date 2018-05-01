@@ -15,7 +15,6 @@ import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
-import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationFinishedListener;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
@@ -138,6 +137,9 @@ public class Statistics extends AliteEntity implements EventHandler{
                 case TICK:
                     handleTick();
                     break;
+				case DEMAND_DROPPED_OFF:
+					handleDemandDropoff((DemandServiceStatistic) event.getContent());
+					break;
             }
         }
         else if(event.getType() instanceof OnDemandVehicleEvent){
@@ -198,6 +200,7 @@ public class Statistics extends AliteEntity implements EventHandler{
         saveOnDemandVehicleEvents();
         saveDistances();
 		saveOccupancies();
+		saveServiceStatistics();
         try {
             transitWriter.close();
         } catch (IOException ex) {
@@ -215,6 +218,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 		typesToHandle.add(OnDemandVehicleEvent.LEAVE_STATION);
 		typesToHandle.add(OnDemandVehicleEvent.REACH_NEAREST_STATION);
 		typesToHandle.add(DriveEvent.VEHICLE_ENTERED_EDGE);
+		typesToHandle.add(StatisticEvent.DEMAND_DROPPED_OFF);
 		return typesToHandle;
 	}
 	
@@ -338,6 +342,23 @@ public class Statistics extends AliteEntity implements EventHandler{
             Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+	
+	private void saveServiceStatistics() {
+        try {
+            CsvWriter writer = new CsvWriter(
+                    Common.getFileWriter(config.amodsim.statistics.serviceFilePath));
+            for (DemandServiceStatistic demandServiceStatistic: demandServiceStatistics) {
+				writer.writeLine(Long.toString(demandServiceStatistic.getDemandTime()), 
+						demandServiceStatistic.getDemandId(), demandServiceStatistic.getVehicleId(), 
+						Long.toString(demandServiceStatistic.getPickupTime()), 
+						Long.toString(demandServiceStatistic.getDropoffTime()), 
+						Long.toString(demandServiceStatistic.getMinPossibleServiceDelay()));
+            }
+            writer.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     private void addOndDemandVehicleEvent(OnDemandVehicleEvent onDemandVehicleEvent,
             OnDemandVehicleEventContent onDemandVehicleEventContent) {
@@ -390,6 +411,10 @@ public class Statistics extends AliteEntity implements EventHandler{
 			}
 		}
 		vehicleOccupancy.add(occupancies);
+	}
+
+	private void handleDemandDropoff(DemandServiceStatistic demandServiceStatistic) {
+		demandServiceStatistics.add(demandServiceStatistic);
 	}
 
 }

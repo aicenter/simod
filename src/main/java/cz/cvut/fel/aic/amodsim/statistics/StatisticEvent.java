@@ -14,5 +14,5 @@ import cz.cvut.fel.aic.alite.common.event.EventType;
 public enum StatisticEvent implements EventType{
     TICK,
     VEHICLE_LEFT_STATION_TO_SERVE_DEMAND,
-    DEMAND_PICKED_UP
+    DEMAND_DROPPED_OFF
 }

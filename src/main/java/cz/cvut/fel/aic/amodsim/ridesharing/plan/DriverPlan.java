@@ -58,7 +58,10 @@ public class DriverPlan implements Iterable<DriverPlanTask>{
 	}
 	
 	public void taskCompleted(){
-		plan.remove(1);
+		DriverPlanTask removedTask = plan.remove(1);
+		if(removedTask.getTaskType() == DriverPlanTaskType.DROPOFF && demands != null){
+			demands.remove(removedTask.demandAgent);
+		}
 	}
 	
 	public Set<DemandAgent> getDemands(){

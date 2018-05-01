@@ -19,16 +19,17 @@ SHIFT_DISTANCE = 30
 
 # edges = traffic_load.load_edges()
 
-edgePairs = traffic_load.load_edge_pairs()
+if __name__ == "__main__":
+	edgePairs = traffic_load.load_edge_pairs()
+	loads = traffic_load.load_all_edges_load_history()
 
-loads = traffic_load.load_all_edges_load_history()
 
 colorTypes = {}
 
 CRITICAL_DENSITY = config.critical_density
 
 
-def plot_edges_optimized(pairs, axis, loads=loads["ALL"], color_func=None):
+def plot_edges_optimized(pairs, axis, loads, color_func=None):
 	if color_func == None:
 		color_func = get_level
 
@@ -39,7 +40,6 @@ def plot_edges_optimized(pairs, axis, loads=loads["ALL"], color_func=None):
 		colorType["width"] = 0.5 if level == TrafficDensityLevel.FREE else 2.0
 		colorType["opacity"] = 1.0 if level == TrafficDensityLevel.FREE else 1.0
 		colorTypes[level] = colorType
-
 
 	for pair in itertools.islice(pairs, 0, 100000000):
 		edge1 = pair["edge1"]
@@ -161,10 +161,6 @@ def location_quals(loc1, loc2):
 
 
 def set_axis_params(axis):
-	# axis.fmt_xdata = ticker.ScalarFormatter(useMathText=True)
-	# axis.fmt_ydata = ticker.ScalarFormatter(useMathText=True)
-	# axis.fmt_xdata = dates.DateFormatter('%Y-%m-%d')
-	# axis.yaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
 	axis.set_xticklabels([])
 	axis.set_yticklabels([])
 	axis.tick_params(
@@ -172,7 +168,6 @@ def set_axis_params(axis):
 		bottom=False,  # ticks along the bottom edge are off
 		top=False,  # ticks along the top edge are off
 		labelbottom=False, right=False, left=False, labelleft=False, labelright=False, labeltop=False)
-	# axis.axis("off")
 
 
 def plot_main_map():
@@ -213,7 +208,7 @@ def plot_main_map():
 	plot_edges_optimized(pairs, axis[1][1], loads["REBALANCING"])
 
 	print_info("plotting new congestion")
-	plot_edges_optimized(pairs, axis[1][2], color_func=new_congestion_level)
+	plot_edges_optimized(pairs, axis[1][2], loads["ALL"], color_func=new_congestion_level)
 
 	# zoom
 	plt.axis([14308000, 14578000, 49970000, 50186000])
@@ -249,9 +244,11 @@ def plot_map_in_detail():
 
 	plt.show()
 
-pairs = edgePairs
+
+if __name__ == "__main__":
+	pairs = edgePairs
 
 
-# plot_map_in_detail()
+	# plot_map_in_detail()
 
-plot_main_map()
+	plot_main_map()

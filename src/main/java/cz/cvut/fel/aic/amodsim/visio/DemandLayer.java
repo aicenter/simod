@@ -30,6 +30,8 @@ import javax.vecmath.Point2d;
 public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
     
     private static final Color DEMAND_COLOR = Color.RED;
+	
+	private static final Color DROPPED_COLOR = Color.MAGENTA;
     
     private static final int SIZE = 1;
 
@@ -83,6 +85,10 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
 
     @Override
     protected Color getEntityDrawColor(DemandAgent demandAgent) {
+		if(demandAgent.isDropped()){
+			return DROPPED_COLOR;
+		}
+		
         return DEMAND_COLOR;
     }
 

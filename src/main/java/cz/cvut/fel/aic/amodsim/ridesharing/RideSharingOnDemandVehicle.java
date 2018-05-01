@@ -125,7 +125,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
         targetStation = onDemandVehicleStationsCentral.getNearestStation(getPosition());
 		
 		if(getPosition().equals(targetStation.getPosition())){
-			waitInStation();
+			finishDrivingToStation(currentTask.demandAgent);
 		}
 		else{
 			currentTrip = tripsUtil.createTrip(getPosition().id, 
@@ -181,7 +181,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	}
 
 	private void pickupAndContinue() {
-		currentTask.demandAgent.tripStarted();
+		currentTask.demandAgent.tripStarted(this);
         vehicle.pickUp(currentTask.demandAgent);
 		
 		// statistics TODO demand tirp?

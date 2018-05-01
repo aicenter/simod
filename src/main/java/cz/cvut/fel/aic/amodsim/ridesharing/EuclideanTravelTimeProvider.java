@@ -11,6 +11,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.MoveUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 
 /**
  *
@@ -20,11 +21,17 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 public class EuclideanTravelTimeProvider implements TravelTimeProvider{
 	
 	private final PositionUtil positionUtil;
+	
+	private final AmodsimConfig config;
 
+	private final double travelSpeedEstimatePerSecond;
+	
 	
 	@Inject
-	public EuclideanTravelTimeProvider(PositionUtil positionUtil) {
+	public EuclideanTravelTimeProvider(PositionUtil positionUtil, AmodsimConfig config) {
 		this.positionUtil = positionUtil;
+		this.config = config;
+		travelSpeedEstimatePerSecond = config.amodsim.ridesharing.maxSpeedEstimation / 3.6;
 	}
 	
 	
@@ -32,7 +39,7 @@ public class EuclideanTravelTimeProvider implements TravelTimeProvider{
 	@Override
 	public double getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
 		double distance = positionUtil.getPosition(positionA).distance(positionUtil.getPosition(positionB));
-		long traveltime = MoveUtil.computeDuration(entity.getVelocity(), distance);
+		long traveltime = MoveUtil.computeDuration(travelSpeedEstimatePerSecond, distance);
 		return traveltime;
 	}
 	

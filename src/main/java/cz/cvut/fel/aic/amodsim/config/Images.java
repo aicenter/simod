@@ -4,11 +4,23 @@ import java.lang.String;
 import java.util.Map;
 
 public class Images {
+  public String trafficDensityMapComparison;
+
+  public String occupancyHistogramWindow;
+
+  public String imagesExperimentDir;
+
+  public String tripStartHistogram;
+
+  public String occupancyHistogram;
+
+  public String trafficDensityHistogramComparison;
+
   public String mainMap;
 
   public String imagesDir;
 
-  public String tripStartHistogram;
+  public String comparisonDir;
 
   public String trafficDensityCurrent;
 
@@ -19,9 +31,15 @@ public class Images {
   public String trafficDensityCurrentDetail;
 
   public Images(Map images) {
+    this.trafficDensityMapComparison = (String) images.get("traffic_density_map_comparison");
+    this.occupancyHistogramWindow = (String) images.get("occupancy_histogram_window");
+    this.imagesExperimentDir = (String) images.get("images_experiment_dir");
+    this.tripStartHistogram = (String) images.get("trip_start_histogram");
+    this.occupancyHistogram = (String) images.get("occupancy_histogram");
+    this.trafficDensityHistogramComparison = (String) images.get("traffic_density_histogram_comparison");
     this.mainMap = (String) images.get("main_map");
     this.imagesDir = (String) images.get("images_dir");
-    this.tripStartHistogram = (String) images.get("trip_start_histogram");
+    this.comparisonDir = (String) images.get("comparison_dir");
     this.trafficDensityCurrent = (String) images.get("traffic_density_current");
     this.trafficDensityFutureDetail = (String) images.get("traffic_density_future_detail");
     this.trafficDensityFutureDetailStacked = (String) images.get("traffic_density_future_detail_stacked");

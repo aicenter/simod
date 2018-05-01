@@ -21,7 +21,8 @@ CONGESTION_INDEX = int(traffic_load.CRITICAL_DENSITY / (HIGH_THRESHOLD / HISTOGR
 
 class TrafficDensityHistogram:
 
-    def __init__(self):
+    def __init__(self, edges):
+        self.edges = edges
         pass
         # self.edge_ids_for_window = self.get_all_edge_ids_for_window()
 
@@ -103,7 +104,7 @@ class TrafficDensityHistogram:
         for edge_id in edge_id_set:
             w = WINDOW_START
             sum = 0
-            edge = edges[edge_id]
+            edge = self.edges[edge_id]
             while w <= WINDOW_END:
                 if edge_id in load[w]:
                     sum += traffic_load.get_normalized_load(load[w][edge_id], edge["length"], edge["laneCount"])
@@ -189,123 +190,124 @@ class TrafficDensityHistogram:
         return np.sum(hist[congestion_index:])
 
 
-edges = traffic_load.load_edges_mapped_by_id()
-loads = traffic_load.load_all_edges_load_history()
+if __name__ == "__main__":
+    edges = traffic_load.load_edges_mapped_by_id()
+    loads = traffic_load.load_all_edges_load_history()
 
-fig, axis = \
-    plt.subplots(1, 1, sharex=True, sharey=True, subplot_kw={"adjustable": 'datalim'}, figsize=(6, 4))
+    fig, axis = \
+        plt.subplots(1, 1, sharex=True, sharey=True, subplot_kw={"adjustable": 'datalim'}, figsize=(6, 4))
 
-# fix for the cut off label when resizing the graph
-rcParams.update({'figure.autolayout': True})
+    # fix for the cut off label when resizing the graph
+    rcParams.update({'figure.autolayout': True})
 
-# axis.set_xlabel("y")
-axis.set_xlabel("traffic density")
-axis.set_ylabel("edge count")
+    # axis.set_xlabel("y")
+    axis.set_xlabel("traffic density")
+    axis.set_ylabel("edge count")
 
-# grid
-np.vectorize(lambda x: x.grid(True))(axis)
+    # grid
+    np.vectorize(lambda x: x.grid(True))(axis)
 
-histogram = TrafficDensityHistogram()
+    histogram = TrafficDensityHistogram(edges)
 
-# for the sum of right outliers
-hist_step = HIGH_THRESHOLD / HISTOGRAM_SAMPLES
-bins = np.arange(0, HIGH_THRESHOLD + hist_step, hist_step)
-centers = [x + (hist_step / 2) for x in bins[0:HISTOGRAM_SAMPLES]]
-# colors = np.vectorize(traffic_load.get_color_from_normalized_load, [np.float, np.str])(np.copy(bins))
-# colors = np.frompyfunc(traffic_load.get_color_from_normalized_load, 1, 1)(np.copy(bins))
-colors = np.asarray(list(map(traffic_load.get_color_from_normalized_load, np.copy(bins))))
+    # for the sum of right outliers
+    hist_step = HIGH_THRESHOLD / HISTOGRAM_SAMPLES
+    bins = np.arange(0, HIGH_THRESHOLD + hist_step, hist_step)
+    centers = [x + (hist_step / 2) for x in bins[0:HISTOGRAM_SAMPLES]]
+    # colors = np.vectorize(traffic_load.get_color_from_normalized_load, [np.float, np.str])(np.copy(bins))
+    # colors = np.frompyfunc(traffic_load.get_color_from_normalized_load, 1, 1)(np.copy(bins))
+    colors = np.asarray(list(map(traffic_load.get_color_from_normalized_load, np.copy(bins))))
 
-# histogram.plot_phases_histogram(loads, axis[1])
+    # histogram.plot_phases_histogram(loads, axis[1])
 
-# critical density line
-axis.axvline(x=config.critical_density, linewidth=3, color='black', linestyle='--', label='critical density')
+    # critical density line
+    axis.axvline(x=config.critical_density, linewidth=3, color='black', linestyle='--', label='critical density')
 
-# curent histogram
-average_density_list_total_current = histogram.get_average_density_list(loads[VehiclePhase.DRIVING_TO_TARGET_LOCATION.name]);
-hist = histogram.plot_state(axis, average_density_list_total_current, hist_step, bins, centers, colors)
+    # curent histogram
+    average_density_list_total_current = histogram.get_average_density_list(loads[VehiclePhase.DRIVING_TO_TARGET_LOCATION.name]);
+    hist = histogram.plot_state(axis, average_density_list_total_current, hist_step, bins, centers, colors)
 
-# legend
-axis.legend(prop={'size': 13})
+    # legend
+    axis.legend(prop={'size': 13})
 
-plt.savefig(config.images.traffic_density_current, bbox_inches='tight', transparent=True)
-
-
-# DETAILED HISTOGRAMS
-
-#  current histogram - detailed
-plt.axis([0.04, 0.16, 0, 100])
-plt.savefig(config.images.traffic_density_current_detail, bbox_inches='tight', transparent=True)
-
-# future histogram
-average_density_list_total_future = histogram.get_average_density_list(loads["ALL"]);
-hist_total = histogram.plot_state(axis, average_density_list_total_future, hist_step, bins, centers, colors)
-plt.savefig(config.images.traffic_density_future_detail, bbox_inches='tight', transparent=True)
-
-# stacked histogram
-hist_per_phase = histogram.plot_phases_share_histogram(
-    loads, axis, average_density_list_total_future, hist_step, bins, centers, colors)
-
-# legend
-axis.legend(prop={'size': 13})
-np.vectorize(lambda x: x.set_facecolor('black'))(axis.get_legend().legendHandles[1:])
-
-plt.savefig(config.images.traffic_density_future_detail_stacked, bbox_inches='tight', transparent=True)
-
-total_load = 0
-total_load_in_window = 0
-for type_name in loads:
-    type = loads[type_name]
-    for index, timestep in enumerate(type):
-        for edge_name in timestep:
-            total_load += timestep[edge_name]
-            if index >= WINDOW_START and index <= WINDOW_END:
-                total_load_in_window += timestep[edge_name]
+    plt.savefig(config.images.traffic_density_current, bbox_inches='tight', transparent=True)
 
 
-edge_count = len(edges)
-average_lenght_non_empty_edges, average_lane_count_non_empty_edges = histogram.get_non_empty_edges_statistic(loads["ALL"])
-average_density_in_time_window_non_empty_edges = np.average(average_density_list_total_future)
-average_density_in_time_window = np.sum(average_density_list_total_future) / len(edges)
-max_density_in_time_window = np.max(average_density_list_total_future)
-congested_edges_before = histogram.get_number_of_congested_edges(hist, CONGESTION_INDEX)
-congested_edges_now = histogram.get_number_of_congested_edges(hist_total, CONGESTION_INDEX)
-congestion_increase = (congested_edges_now - congested_edges_before) / congested_edges_before
-empty_edges_now = edge_count - len(average_density_list_total_current)
-empty_edges_future = edge_count - len(average_density_list_total_future)
+    # DETAILED HISTOGRAMS
 
-del loads
+    #  current histogram - detailed
+    plt.axis([0.04, 0.16, 0, 100])
+    plt.savefig(config.images.traffic_density_current_detail, bbox_inches='tight', transparent=True)
 
-print("Total edges: {0}".format(edge_count))
-print("Average length non-empty edges: {0}".format(average_lenght_non_empty_edges))
-print("Average lane count non-empty edges: {0}".format(average_lane_count_non_empty_edges))
-print("Total edges: {0}".format(edge_count))
-print("Total load on all edges: {0}".format(total_load))
-print("Total load on all edges in time window: {0}".format(total_load_in_window))
-print("Average density in time window: {0}".format(average_density_in_time_window))
-print("Average density in time window - non-empty edges: {0}".format(average_density_in_time_window_non_empty_edges))
-print("Max density in time window: {0}".format(max_density_in_time_window))
-print("Congested edges before: {0}".format(congested_edges_before))
-print("Empty edges before: {0} - {1} of total edges".format(empty_edges_now, to_percetnt(empty_edges_now / edge_count)))
-print("Congested edges now: {0}".format(congested_edges_now))
-print("Empty edges now: {0} - {1} of total edges".format(empty_edges_future, to_percetnt(empty_edges_future / edge_count)))
-print("Congestion increase: {0}".format(to_percetnt(congestion_increase)))
-print("Share per trip type:")
+    # future histogram
+    average_density_list_total_future = histogram.get_average_density_list(loads["ALL"]);
+    hist_total = histogram.plot_state(axis, average_density_list_total_future, hist_step, bins, centers, colors)
+    plt.savefig(config.images.traffic_density_future_detail, bbox_inches='tight', transparent=True)
 
-output_table = np.empty((len(VehiclePhase), 3), dtype=object)
+    # stacked histogram
+    hist_per_phase = histogram.plot_phases_share_histogram(
+        loads, axis, average_density_list_total_future, hist_step, bins, centers, colors)
 
-for phase in VehiclePhase:
-    sum_congested = histogram.get_number_of_congested_edges(hist_per_phase[phase.index], CONGESTION_INDEX)
-    share_congested = sum_congested / congested_edges_now
-    output_table[phase.index][0] = phase.name
-    output_table[phase.index][1] = sum_congested
-    output_table[phase.index][2] = share_congested
+    # legend
+    axis.legend(prop={'size': 13})
+    np.vectorize(lambda x: x.set_facecolor('black'))(axis.get_legend().legendHandles[1:])
 
-output_table[:,2] = col_to_percent(output_table[:,2])
-print_table(output_table)
+    plt.savefig(config.images.traffic_density_future_detail_stacked, bbox_inches='tight', transparent=True)
 
-del edges
+    total_load = 0
+    total_load_in_window = 0
+    for type_name in loads:
+        type = loads[type_name]
+        for index, timestep in enumerate(type):
+            for edge_name in timestep:
+                total_load += timestep[edge_name]
+                if index >= WINDOW_START and index <= WINDOW_END:
+                    total_load_in_window += timestep[edge_name]
 
-plt.show()
+
+    edge_count = len(edges)
+    average_lenght_non_empty_edges, average_lane_count_non_empty_edges = histogram.get_non_empty_edges_statistic(loads["ALL"])
+    average_density_in_time_window_non_empty_edges = np.average(average_density_list_total_future)
+    average_density_in_time_window = np.sum(average_density_list_total_future) / len(edges)
+    max_density_in_time_window = np.max(average_density_list_total_future)
+    congested_edges_before = histogram.get_number_of_congested_edges(hist, CONGESTION_INDEX)
+    congested_edges_now = histogram.get_number_of_congested_edges(hist_total, CONGESTION_INDEX)
+    congestion_increase = (congested_edges_now - congested_edges_before) / congested_edges_before
+    empty_edges_now = edge_count - len(average_density_list_total_current)
+    empty_edges_future = edge_count - len(average_density_list_total_future)
+
+    del loads
+
+    print("Total edges: {0}".format(edge_count))
+    print("Average length non-empty edges: {0}".format(average_lenght_non_empty_edges))
+    print("Average lane count non-empty edges: {0}".format(average_lane_count_non_empty_edges))
+    print("Total edges: {0}".format(edge_count))
+    print("Total load on all edges: {0}".format(total_load))
+    print("Total load on all edges in time window: {0}".format(total_load_in_window))
+    print("Average density in time window: {0}".format(average_density_in_time_window))
+    print("Average density in time window - non-empty edges: {0}".format(average_density_in_time_window_non_empty_edges))
+    print("Max density in time window: {0}".format(max_density_in_time_window))
+    print("Congested edges before: {0}".format(congested_edges_before))
+    print("Empty edges before: {0} - {1} of total edges".format(empty_edges_now, to_percetnt(empty_edges_now / edge_count)))
+    print("Congested edges now: {0}".format(congested_edges_now))
+    print("Empty edges now: {0} - {1} of total edges".format(empty_edges_future, to_percetnt(empty_edges_future / edge_count)))
+    print("Congestion increase: {0}".format(to_percetnt(congestion_increase)))
+    print("Share per trip type:")
+
+    output_table = np.empty((len(VehiclePhase), 3), dtype=object)
+
+    for phase in VehiclePhase:
+        sum_congested = histogram.get_number_of_congested_edges(hist_per_phase[phase.index], CONGESTION_INDEX)
+        share_congested = sum_congested / congested_edges_now
+        output_table[phase.index][0] = phase.name
+        output_table[phase.index][1] = sum_congested
+        output_table[phase.index][2] = share_congested
+
+    output_table[:,2] = col_to_percent(output_table[:,2])
+    print_table(output_table)
+
+    del edges
+
+    plt.show()
 
 
 

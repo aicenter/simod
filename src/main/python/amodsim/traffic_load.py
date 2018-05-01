@@ -27,13 +27,9 @@ color_map = cm.get_cmap('gist_heat')
 
 
 def load_all_edges_load_history(filepath = config.amodsim.statistics.all_edges_load_history_file_path):
-	print_info("loading edge load history from: " + filepath)
+	print_info("Loading edge load history from: " + filepath)
 
-	# json_file = open(filepath, 'r')
-	# loads = json.loads(json_file.read())
 	loads = json.load(open(filepath, 'r'))
-
-	# loads = load_json_file(filepath)
 
 	# for type_name in loads:
 	# 	type = loads[type_name]

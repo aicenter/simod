@@ -17,9 +17,15 @@ public class Statistics {
 
   public OnDemandVehicleStatistic onDemandVehicleStatistic;
 
+  public String resultFileName;
+
   public Integer allEdgesLoadIntervalMilis;
 
+  public String allEdgesLoadHistoryFileName;
+
   public String tripDistancesFilePath;
+
+  public String serviceFilePath;
 
   public Statistics(Map statistics) {
     this.resultFilePath = (String) statistics.get("result_file_path");
@@ -28,7 +34,10 @@ public class Statistics {
     this.transitStatisticFilePath = (String) statistics.get("transit_statistic_file_path");
     this.allEdgesLoadHistoryFilePath = (String) statistics.get("all_edges_load_history_file_path");
     this.onDemandVehicleStatistic = new OnDemandVehicleStatistic((Map) statistics.get("on_demand_vehicle_statistic"));
+    this.resultFileName = (String) statistics.get("result_file_name");
     this.allEdgesLoadIntervalMilis = (Integer) statistics.get("all_edges_load_interval_milis");
+    this.allEdgesLoadHistoryFileName = (String) statistics.get("all_edges_load_history_file_name");
     this.tripDistancesFilePath = (String) statistics.get("trip_distances_file_path");
+    this.serviceFilePath = (String) statistics.get("service_file_path");
   }
 }

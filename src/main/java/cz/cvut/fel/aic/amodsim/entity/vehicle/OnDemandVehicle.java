@@ -376,7 +376,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     }
 
     protected void pickupDemand() {
-        currentlyServedDemmand.demandAgent.tripStarted();
+        currentlyServedDemmand.demandAgent.tripStarted(this);
         vehicle.pickUp(currentlyServedDemmand.demandAgent);
         eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
                 new PickupEventContent(timeProvider.getCurrentSimTime(), 

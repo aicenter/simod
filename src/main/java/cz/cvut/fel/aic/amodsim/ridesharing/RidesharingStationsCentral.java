@@ -50,6 +50,7 @@ public class RidesharingStationsCentral extends OnDemandVehicleStationsCentral{
 		
 		if(newPlans.isEmpty()){
 			numberOfDemandsDropped++;
+			demandData.demandAgent.setDropped(true);
 		}
 		else{
 			for(Entry<RideSharingOnDemandVehicle,DriverPlan> entry: newPlans.entrySet()){

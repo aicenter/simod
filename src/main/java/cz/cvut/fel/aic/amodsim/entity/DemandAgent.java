@@ -6,6 +6,8 @@ import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
 import cz.cvut.fel.aic.amodsim.DemandData;
 import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleStationsCentralEvent;
@@ -22,9 +24,10 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.DemandSimulationEntityType;
-import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.statistics.DemandServiceStatistic;
 import cz.cvut.fel.aic.amodsim.statistics.StatisticEvent;
+import cz.cvut.fel.aic.amodsim.statistics.Statistics;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,11 +53,15 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     private final Map<Long,SimulationNode> nodesMappedByNodeSourceIds;
     
     private final StandardTimeProvider timeProvider;
+	
+	private final Statistics statistics;
+	
+	private final TripsUtil tripsUtil;
     
     
     private DemandAgentState state;
     
-    private PhysicalVehicle vehicle;
+    private OnDemandVehicle vehicle;
     
     private OnDemandVehicle onDemandVehicle;
     
@@ -69,6 +76,11 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	private long realPickupTime = 0;
 	
 	private long minDemandServiceDuration;
+	
+	// only to save compuatational time it|s 
+//	private long currentServiceDuration;
+	
+	private boolean dropped;
 
     
     
@@ -97,7 +109,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
         return state;
     }
 
-    public PhysicalVehicle getVehicle() {
+    public OnDemandVehicle getVehicle() {
         return vehicle;
     }
 
@@ -105,13 +117,19 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
         return onDemandVehicle;
     }
 
-	public void setMinDemandServiceDuration(long minDemandServiceDuration) {
-		this.minDemandServiceDuration = minDemandServiceDuration;
-	}
-
 	public long getMinDemandServiceDuration() {
 		return minDemandServiceDuration;
 	}
+
+	public void setDropped(boolean dropped) {
+		this.dropped = dropped;
+	}
+
+	public boolean isDropped() {
+		return dropped;
+	}
+	
+	
 
     
     
@@ -119,7 +137,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     @Inject
 	public DemandAgent(OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
             DemandStorage demandStorage, Map<Long,SimulationNode> nodesMappedByNodeSourceIds, 
-			StandardTimeProvider timeProvider, 
+			StandardTimeProvider timeProvider, Statistics statistics, TripsUtil tripsUtil,
             @Named("precomputedPaths") boolean precomputedPaths, @Assisted String agentId, @Assisted int id,
             @Assisted TimeTrip<SimulationNode> trip) {
 		super(agentId, trip.getLocations().get(0));
@@ -131,7 +149,10 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
         this.demandStorage = demandStorage;
         this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
         this.timeProvider = timeProvider;
+		this.statistics = statistics;
+		this.tripsUtil = tripsUtil;
         state = DemandAgentState.WAITING;
+		dropped = false;
 	}
 
     
@@ -143,6 +164,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.DEMAND, onDemandVehicleStationsCentral, null, 
                 new DemandData(trip.getLocations(), this));
         demandTime = timeProvider.getCurrentSimTime();
+		computeMinServiceDuration();
 	}
 
     @Override
@@ -172,14 +194,18 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
                 Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        eventProcessor.addEvent(StatisticEvent.DEMAND_PICKED_UP, null, null, 
-                new DemandServiceStatistic(demandTime, timeProvider.getCurrentSimTime()));
+        eventProcessor.addEvent(StatisticEvent.DEMAND_DROPPED_OFF, null, null, 
+                new DemandServiceStatistic(demandTime, realPickupTime, timeProvider.getCurrentSimTime(), 
+						minDemandServiceDuration,
+						getId(), vehicle.getId()));
+		
         die();
     }
 
-    public void tripStarted() {
+    public void tripStarted(OnDemandVehicle vehicle) {
         state = DemandAgentState.DRIVING;
 		realPickupTime = timeProvider.getCurrentSimTime();
+		this.vehicle = vehicle;
     }
 
     @Override
@@ -201,6 +227,11 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     public void setLastFromPosition(SimulationNode lastFromPosition) {
         this.lastFromPosition = lastFromPosition;
     }
+
+	private void computeMinServiceDuration() {
+		Trip<SimulationNode> minTrip = tripsUtil.createTrip(getPosition().id, trip.getLocations().getLast().id);
+		minDemandServiceDuration = (long) (tripsUtil.getTripDurationInSeconds(minTrip) * 1000);
+	}
 
     
     

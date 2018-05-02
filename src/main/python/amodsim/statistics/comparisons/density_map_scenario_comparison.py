@@ -36,6 +36,8 @@ trafic_density_map.plot_edges_optimized(edgePairs, axis[2], loads_capacity_5["AL
 # zoom
 plt.axis([14308000, 14578000, 49970000, 50186000])
 
+# plt.colorbar()
+
 plt.savefig(config.images.traffic_density_map_comparison, bbox_inches='tight', transparent=True)
 
 plt.show()

@@ -33,7 +33,7 @@ def load_data_from_experiment(experiment_folder: str, max_delay: int):
 	# in window
 	tick_start = config.analysis.chosen_window_start * 10
 	occupancy_data_window = occupancy_data[occupancy_data.tick > tick_start]
-	avg_occupancy_demands_window = occupancy_data_window["occupancy"].mean() / occupancy_data_window.shape[0]
+	avg_occupancy_demands_window = occupancy_data_window["occupancy"].mean()
 
 	avg_km_driven = results["averageKmWithPassenger"] + results["averageKmToStartLocation"]\
 					+ results["averageKmToStation"]
@@ -44,7 +44,9 @@ def load_data_from_experiment(experiment_folder: str, max_delay: int):
 	delays = service_data["dropoff_time"] - service_data["demand_time"]
 	min_delays = service_data["min_possible_delay"]
 	prolongations = delays - min_delays
-	avg_prolongation = Series.mean(prolongations)
+	avg_prolongation = round(Series.mean(prolongations) / 60000)
+
+
 
 	return DataFrame([[max_delay, avg_occupancy_demands_window, avg_km_driven, avg_prolongation]], columns=result_cols)
 
@@ -52,7 +54,10 @@ def load_data_from_experiment(experiment_folder: str, max_delay: int):
 expe_folder = config.amodsim_data_dir + "experiment/"
 
 experiments = [
-	[expe_folder + 'ridesharing_itsc_2018-ridesharing_on-90min-wait_time_10_min/', 10]
+	[expe_folder + 'ridesharing_itsc_2018-ridesharing_on-90min-wait_time_7_min/', 7],
+	[expe_folder + 'ridesharing_itsc_2018-ridesharing_on-90min-wait_time_10_min/', 10],
+	[expe_folder + 'ridesharing_itsc_2018-ridesharing_on-90min-wait_time_12_min/', 12],
+	[expe_folder + 'ridesharing_itsc_2018-ridesharing_on-90min-wait_time_15_min/', 15]
 ]
 
 all_data = DataFrame(columns=result_cols)
@@ -63,11 +68,33 @@ for exp in experiments:
 
 # occupancy graph
 fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))
-axes.plot(all_data[ExperimentStats.MAX_DELAY.name], all_data[ExperimentStats.AVG_OCCUPANCY.name])
+# plt.setp(axes, xticks=[int(period) for period in all_data[ExperimentStats.MAX_DELAY.name]])
+plt.setp(axes, xticks=range(7, 16))
+
+axes.set_xlabel("Max delay time [min]")
+axes.set_ylabel("Avg. occupancy")
+# axes.tick_params(axis='x')
+# axes.set_xticks(all_data[ExperimentStats.MAX_DELAY.name])
+
+axes.plot(all_data[ExperimentStats.MAX_DELAY.name], all_data[ExperimentStats.AVG_OCCUPANCY.name], marker='o')
 plt.savefig(config.images.occupancy_comparison, bbox_inches='tight', transparent=True)
 
 # km graph
+fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))
+
+axes.set_xlabel("Max delay time [min]")
+axes.set_ylabel("Avg. distance traveled [km]")
+
+axes.plot(all_data[ExperimentStats.MAX_DELAY.name], all_data[ExperimentStats.AVG_KM.name])
+plt.savefig(config.images.distance_comparison, bbox_inches='tight', transparent=True)
 
 # service graph
+fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))
+
+axes.set_xlabel("Max delay time [min]")
+axes.set_ylabel("Avg. delay time [min]")
+
+axes.plot(all_data[ExperimentStats.MAX_DELAY.name], all_data[ExperimentStats.AVG_SERVICE_DELAY.name])
+plt.savefig(config.images.service_comparison, bbox_inches='tight', transparent=True)
 
 plt.show()

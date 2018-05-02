@@ -24,8 +24,14 @@ def compute_stats(result: List, histogram: TrafficDensityHistogram, load) -> Lis
 	# congested count
 	congested_count_in_time_window = np.where(average_density_list_total_future > config.critical_density)[0].size
 
+	# km total
+	km_total = int(round(avg_km_total * result["numberOfVehicles"]))
+
+	# half congested edges
+	half_congested_count_in_time_window = np.where(average_density_list_total_future > (config.critical_density / 2))[0].size
+
 	return [avg_km_total, average_density_in_time_window_non_empty_edges, congested_count_in_time_window, \
-		   dropped_demand_count]
+		   dropped_demand_count, km_total, half_congested_count_in_time_window]
 
 
 results_ridesharing_off = roadmaptools.inout.load_json(config.analysis.results_ridesharing_off_filepath)
@@ -45,13 +51,16 @@ ridesharing_data = compute_stats(results_ridesharing_on, histogram, loads_capaci
 
 # correct present data
 present_data[0] = results_ridesharing_off["averageKmWithPassenger"]
+present_data[4] = int(round(results_ridesharing_off["averageKmWithPassenger"] * results_ridesharing_off["numberOfVehicles"]))
 # present_data[3] = 0
 
 output_table = np.array([["X", "PRESENT", "MOD", "RIDESHARING"],
 				["avg. km per vehicle", present_data[0], mod_data[0], ridesharing_data[0]],
 				["avg. density", present_data[1], mod_data[1], ridesharing_data[1]],
 				["cong. segments count", present_data[2], mod_data[2], ridesharing_data[2]],
-				["dropped demand count", present_data[3], mod_data[3], ridesharing_data[3]]])
+				["dropped demand count", present_data[3], mod_data[3], ridesharing_data[3]],
+				["km total", present_data[4], mod_data[4], ridesharing_data[4]],
+				["half congested edges", present_data[5], mod_data[5], ridesharing_data[5]]])
 
 print("COMPARISON:")
 print()
@@ -65,18 +74,24 @@ print("Stats & Present & MoD & MoD with ridesharing")
 print(r"\tabularnewline")
 print("\hline")
 print("\hline")
-print("Km/vehicle & {} & {} & {}".format(round(present_data[0], 1), round(mod_data[0], 1), round(ridesharing_data[0], 1)))
+print("Km traveled & {} & {} & {}".format(round(present_data[4], 1), round(mod_data[4], 1), round(ridesharing_data[4], 1)))
 print(r"\tabularnewline")
 print("\hline")
-print("Density & {} & {} & {}".format(round(present_data[1], 4),round(mod_data[1], 4), round(ridesharing_data[1], 4)))
+print("Avg. km/vehicle & {} & {} & {}".format(round(present_data[0], 1), round(mod_data[0], 1), round(ridesharing_data[0], 1)))
+print(r"\tabularnewline")
+print("\hline")
+print("Avg. density & {} & {} & {}".format(round(present_data[1], 4),round(mod_data[1], 4), round(ridesharing_data[1], 4)))
 print(r"\tabularnewline")
 print("\hline")
 print("Congested segments & {} & {} & {}".format(present_data[2], mod_data[2], ridesharing_data[2]))
 print(r"\tabularnewline")
 print("\hline")
-print("Dropped demands & {} & {} & {}".format(present_data[3], mod_data[3], ridesharing_data[3]))
+print("Heavily loaded segments & {} & {} & {}".format(round(present_data[5], 1), round(mod_data[5], 1), round(ridesharing_data[5], 1)))
 print(r"\tabularnewline")
 print("\hline")
+# print("Dropped demands & {} & {} & {}".format(present_data[3], mod_data[3], ridesharing_data[3]))
+# print(r"\tabularnewline")
+# print("\hline")
 print("\end{tabular}")
 
 

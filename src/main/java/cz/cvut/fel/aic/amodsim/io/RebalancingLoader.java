@@ -132,6 +132,7 @@ public class RebalancingLoader {
                         int intervalBetweenCars = REBALANCING_INTERVAL / rebalancingTripsCount;
                         long finalStartTime = startTime;
                         
+						rebalancingTripsCount = (int) ((double) rebalancingTripsCount / 4);
                         for (int l = 0; l < rebalancingTripsCount; l++) {
                             rebalancingTrips.add(new TimeTrip<>(onDemandVehicleStations.get(j), 
                                     onDemandVehicleStations.get(k), finalStartTime));

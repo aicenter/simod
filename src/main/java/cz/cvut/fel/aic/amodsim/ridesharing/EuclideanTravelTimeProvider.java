@@ -26,6 +26,14 @@ public class EuclideanTravelTimeProvider implements TravelTimeProvider{
 
 	private final double travelSpeedEstimatePerSecond;
 	
+	private long callCount = 0;
+
+	public long getCallCount() {
+		return callCount;
+	}
+	
+	
+	
 	
 	@Inject
 	public EuclideanTravelTimeProvider(PositionUtil positionUtil, AmodsimConfig config) {
@@ -38,6 +46,7 @@ public class EuclideanTravelTimeProvider implements TravelTimeProvider{
 
 	@Override
 	public double getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
+		callCount++;
 		double distance = positionUtil.getPosition(positionA).distance(positionUtil.getPosition(positionB));
 		long traveltime = MoveUtil.computeDuration(travelSpeedEstimatePerSecond, distance);
 		return traveltime;

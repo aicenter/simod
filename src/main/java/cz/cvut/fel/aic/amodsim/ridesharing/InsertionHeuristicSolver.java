@@ -140,6 +140,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 			sb.append("Iteration time: ").append(iterationTime).append(readableTime(iterationTime)).append("\n");
 			sb.append("Can serve call count: ").append(canServeRequestCallCount).append("\n");
 			sb.append("Vehicle planning call count: ").append(vehiclePlanningAllCallCount).append("\n");
+			sb.append("Traveltime call count: ").append(((EuclideanTravelTimeProvider) travelTimeProvider).getCallCount()).append("\n");
 			System.out.println(sb.toString());
 		}
 		return planMap;

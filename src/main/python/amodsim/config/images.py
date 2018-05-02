@@ -17,6 +17,7 @@ class Images:
         self.comparison_dir = properties.get("comparison_dir")
         self.traffic_density_map_comparison = properties.get("traffic_density_map_comparison")
         self.traffic_density_histogram_comparison = properties.get("traffic_density_histogram_comparison")
+        self.traffic_density_histogram_comparison_alt = properties.get("traffic_density_histogram_comparison_alt")
         self.wait_time_comparison_dir = properties.get("wait_time_comparison_dir")
         self.occupancy_comparison = properties.get("occupancy_comparison")
         self.distance_comparison = properties.get("distance_comparison")

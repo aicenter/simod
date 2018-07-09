@@ -28,6 +28,8 @@ def configure_axis(axes: Axes, first_line=True):
 		# limits
 		axes.set_xlim(0.04, 0.16)
 		axes.set_ylim(0, 300)
+	else:
+		axes.set_ylim(0, 12000)
 
 
 edges = traffic_load.load_edges_mapped_by_id()

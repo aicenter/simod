@@ -57,8 +57,10 @@ public class MapInitializer {
     public MapData getMap() {
         Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs = new HashMap<>();
 //        OsmImporter importer = new OsmImporter(mapFile, allowedOsmModes, projection);
-        String nodeFile = "C:\\AIC data\\Shared\\amod-data\\noc_vedcu/data/nodes.geojson";
-        String edgeFile = "C:\\AIC data\\Shared\\amod-data\\noc_vedcu/data/edges.geojson";
+        /*String nodeFile = "C:\\AIC data\\Shared\\amod-data\\noc_vedcu/data/nodes.geojson";
+        String edgeFile = "C:\\AIC data\\Shared\\amod-data\\noc_vedcu/data/edges.geojson";*/
+        String nodeFile = "C:\\Users\\User\\Desktop\\owncloud\\all/nodes.geojson";
+        String edgeFile = "C:\\Users\\User\\Desktop\\owncloud\\all/edges.geojson";
         GeoJSONReader importer = new GeoJSONReader(edgeFile, nodeFile, projection);
 
         GraphCreator<SimulationNode, SimulationEdge> graphCreator = new GraphCreator(

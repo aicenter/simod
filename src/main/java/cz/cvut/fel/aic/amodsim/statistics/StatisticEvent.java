@@ -5,13 +5,12 @@
  */
 package cz.cvut.fel.aic.amodsim.statistics;
 
-import cz.cvut.fel.aic.alite.common.event.EventType;
 
 /**
  *
  * @author fido
  */
-public enum StatisticEvent implements EventType{
+public enum StatisticEvent {
     TICK,
     VEHICLE_LEFT_STATION_TO_SERVE_DEMAND,
     DEMAND_DROPPED_OFF

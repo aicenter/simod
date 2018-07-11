@@ -5,13 +5,12 @@
  */
 package cz.cvut.fel.aic.amodsim.statistics;
 
-import cz.cvut.fel.aic.alite.common.event.EventType;
 
 /**
  *
  * @author fido
  */
-public enum OnDemandVehicleEvent implements EventType{
+public enum OnDemandVehicleEvent{
     LEAVE_STATION,
     PICKUP,
     DROP_OFF,

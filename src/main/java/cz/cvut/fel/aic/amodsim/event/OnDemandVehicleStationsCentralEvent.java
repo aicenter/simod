@@ -5,13 +5,11 @@
  */
 package cz.cvut.fel.aic.amodsim.event;
 
-import cz.cvut.fel.aic.alite.common.event.EventType;
-
 /**
  *
  * @author fido
  */
-public enum OnDemandVehicleStationsCentralEvent implements EventType{
+public enum OnDemandVehicleStationsCentralEvent{
     DEMAND,
     REBALANCING
 }

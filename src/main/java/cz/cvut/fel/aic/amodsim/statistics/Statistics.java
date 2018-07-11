@@ -18,7 +18,6 @@ import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
-import cz.cvut.fel.aic.alite.common.event.EventType;
 import cz.cvut.fel.aic.alite.common.event.typed.AliteEntity;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.amodsim.CsvWriter;
@@ -209,8 +208,8 @@ public class Statistics extends AliteEntity implements EventHandler{
     }
 
 	@Override
-	protected List<EventType> getEventTypesToHandle() {
-		List<EventType> typesToHandle = new LinkedList<>();
+	protected List<Enum> getEventTypesToHandle() {
+		List<Enum> typesToHandle = new LinkedList<>();
 		typesToHandle.add(OnDemandVehicleEvent.PICKUP);
 		typesToHandle.add(OnDemandVehicleEvent.DROP_OFF);
 		typesToHandle.add(OnDemandVehicleEvent.START_REBALANCING);

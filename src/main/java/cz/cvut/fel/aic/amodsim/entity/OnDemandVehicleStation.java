@@ -35,8 +35,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -44,6 +43,8 @@ import java.util.logging.Logger;
  */
 public class OnDemandVehicleStation extends AgentPolisEntity implements EventHandler{
 
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OnDemandVehicleStation.class);
+    
     private final LinkedList<OnDemandVehicle> parkedVehicles;
     
     private final EventProcessor eventProcessor;
@@ -118,7 +119,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             try {
                 throw new Exception("Vehicle cannot be parked in station, beacause it's not present in the station!");
             } catch (Exception ex) {
-                Logger.getLogger(OnDemandVehicleStation.class.getName()).log(Level.SEVERE, null, ex);
+                LOGGER.error(null, ex);
             }
         }
         parkedVehicles.add(onDemandVehicle);
@@ -138,7 +139,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             try {
                 throw new Exception("Start and target location cannot be the same!");
             } catch (Exception ex) {
-                Logger.getLogger(OnDemandVehicleStation.class.getName()).log(Level.SEVERE, null, ex);
+                LOGGER.error(null, ex);
             }
             return;
         }
@@ -154,7 +155,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             try {
                 throw new Exception("Request cannot be handeled - station has not any vehicles available!");
             } catch (Exception ex) {
-                Logger.getLogger(OnDemandVehicleStation.class.getName()).log(Level.SEVERE, null, ex);
+                LOGGER.error(null, ex);
             }
         }
     }

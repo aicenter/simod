@@ -21,14 +21,16 @@ import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author fido
  */
 public class FullTest {
+    
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(FullTest.class);
+    
     public static void runFullTest(int duration, int startTime, long timeForFinishingEvents){
         AmodsimConfig config = Configuration.load(new AmodsimConfig());
         
@@ -68,7 +70,7 @@ public class FullTest {
 
 
         } catch (IOException ex) {
-            Logger.getLogger(OnDemandVehiclesSimulation.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(null, ex);
         }
     }
 }

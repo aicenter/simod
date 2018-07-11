@@ -28,8 +28,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -39,6 +38,8 @@ import java.util.logging.Logger;
 public class Statistics extends EventHandlerAdapter {
     
     private static final int TRANSIT_OUTPUT_BATCH_SIZE = 1000000;
+    
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Statistics.class);
     
     private final EventProcessor eventProcessor;
     
@@ -177,7 +178,7 @@ public class Statistics extends EventHandlerAdapter {
         try {
             mapper.writeValue(new File(config.amodsim.statistics.resultFilePath), result);
         } catch (IOException ex) {
-            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(null, ex);
         }
     }
 
@@ -192,7 +193,7 @@ public class Statistics extends EventHandlerAdapter {
         try {
             transitWriter.close();
         } catch (IOException ex) {
-            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(null, ex);
         }
     }
 
@@ -268,7 +269,7 @@ public class Statistics extends EventHandlerAdapter {
         try {
             mapper.writeValue(new File(config.amodsim.statistics.allEdgesLoadHistoryFilePath), outputMap);
         } catch (IOException ex) {
-            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(null, ex);
         }
     }
     
@@ -281,7 +282,7 @@ public class Statistics extends EventHandlerAdapter {
             transitWriter.flush();
             allTransit = new LinkedList<>();
         } catch (IOException ex) {
-            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(null, ex);
         }
     }
     
@@ -294,7 +295,7 @@ public class Statistics extends EventHandlerAdapter {
             }
             writer.close();
         } catch (IOException ex) {
-            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(null, ex);
         }
     }
 
@@ -335,7 +336,7 @@ public class Statistics extends EventHandlerAdapter {
                 }
                 writer.close();
             } catch (IOException ex) {
-                Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+                LOGGER.error(null, ex);
             }
         }
     }

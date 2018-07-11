@@ -21,15 +21,16 @@ import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author fido
  */
 public class Simulation10MinuteTest {
+    
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Simulation10MinuteTest.class);
     
     private static final int TEN_MINUTES_IN_MILIS = 600000;
     
@@ -77,7 +78,7 @@ public class Simulation10MinuteTest {
             injector.getInstance(StatisticControl.class).simulationFinished();
         
         } catch (IOException ex) {
-            Logger.getLogger(OnDemandVehiclesSimulation.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(null, ex);
         }
     }
 }

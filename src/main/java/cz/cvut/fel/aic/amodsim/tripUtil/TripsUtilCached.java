@@ -31,12 +31,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author fido
  */
 @Singleton
 public class TripsUtilCached extends TripsUtil {
+        
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TripsUtilCached.class);
     
     private static final int OUTPUT_BATCH_SIZE = 10000;
 
@@ -84,7 +87,7 @@ public class TripsUtilCached extends TripsUtil {
             try {
                 throw new Exception("Start node cannot be the same as end node");
             } catch (Exception ex) {
-                Logger.getLogger(TripsUtil.class.getName()).log(Level.SEVERE, null, ex);
+                LOGGER.error(null, ex);
             }
         }
 
@@ -106,7 +109,7 @@ public class TripsUtilCached extends TripsUtil {
                     saveNewTrips();
                 }
             } catch (TripPlannerException ex) {
-                Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
+                LOGGER.error(null, ex);
             }
         }
 
@@ -144,7 +147,7 @@ public class TripsUtilCached extends TripsUtil {
             mapper.writeValue(outputFile, newTrips);
             newTrips = new HashMap<>();
         } catch (IOException ex) {
-            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(null, ex);
         }
     }
 

@@ -10,8 +10,7 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -19,6 +18,8 @@ import java.util.logging.Logger;
  */
 public class PreprocessTrips {
 	
+        private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PreprocessTrips.class);
+    
 	public static void main(String[] args) {
         
             //		Loader loader = new Loader();
@@ -31,7 +32,7 @@ public class PreprocessTrips {
 //		try {
 //			TripTransform.tripsToJson(osmNodeTrips, new File(OUTPUT_FILE_PATH));
 //		} catch (IOException ex) {
-//			Logger.getLogger(PrepareSCKData.class.getName()).log(Level.SEVERE, null, ex);
+//                      LOGGER.error(null, ex);
 //		}
 //        AmodsimConfig config = Configuration.load(new AmodsimConfig());
         
@@ -39,7 +40,7 @@ public class PreprocessTrips {
 //            tripTransform.tripsFromTxtToJson(new File(config.amodsim.tripsPath), new File(config.mapFilePath), 
 //                    config.srid, new File(config.amodsim.preprocessedTrips));
 //        } catch (IOException ex) {
-//            Logger.getLogger(PreprocessTrips.class.getName()).log(Level.SEVERE, null, ex);
+//            LOGGER.error(null, ex);
 //        }
         
         System.exit(0);

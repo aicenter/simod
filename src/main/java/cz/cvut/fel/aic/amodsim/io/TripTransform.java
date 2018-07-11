@@ -29,8 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -38,7 +37,9 @@ import java.util.logging.Logger;
  */
 @Singleton
 public class TripTransform {
-	
+    
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TripTransform.class);
+    
 //	private PathPlanner pathPlanner;
     
     private int zeroLenghtTripsCount = 0;
@@ -48,6 +49,7 @@ public class TripTransform {
     private final Graph<SimulationNode,SimulationEdge> highwayGraph;
     
     private final NearestElementUtils nearestElementUtils;
+    
 
     @Inject
     public TripTransform(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils) {
@@ -127,7 +129,7 @@ public class TripTransform {
                }
             }
         } catch (IOException ex) {
-            Logger.getLogger(TripTransform.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(null, ex);
         }
 		
 		List<TimeTrip<SimulationNode>> trips = new ArrayList<>();
@@ -178,7 +180,7 @@ public class TripTransform {
 //               }
 //            }
 //        } catch (IOException ex) {
-//            Logger.getLogger(TripTransform.class.getName()).log(Level.SEVERE, null, ex);
+//            LOGGER.error(null, ex);
 //        }
 //
 //        tripsToJson(gpsTripsToOsmNodeTrips(gpsTrips, osmFile, srid, false), outputFile); 

@@ -5,25 +5,6 @@
  */
 package cz.agents.amodsim.system;
 
-import com.google.inject.Injector;
-import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
-import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
-import ninja.fido.config.Configuration;
-import cz.cvut.fel.aic.amodsim.MainModule;
-import cz.cvut.fel.aic.amodsim.MapInitializer;
-import cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation;
-import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.init.EventInitializer;
-import cz.cvut.fel.aic.amodsim.init.StatisticInitializer;
-import cz.cvut.fel.aic.amodsim.io.RebalancingLoader;
-import cz.cvut.fel.aic.amodsim.io.TimeTrip;
-import cz.cvut.fel.aic.amodsim.io.TripTransform;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  *
  * @author fido

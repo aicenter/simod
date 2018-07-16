@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  */
 public class FullTest {
     public static void runFullTest(int duration, int startTime, long timeForFinishingEvents){
-        AmodsimConfig config = Configuration.load(new AmodsimConfig());
+      /*  AmodsimConfig config = Configuration.load(new AmodsimConfig());
         
         //config overwrite
         config.amodsim.simulationDurationInMillis = duration;
@@ -69,6 +69,6 @@ public class FullTest {
 
         } catch (IOException ex) {
             Logger.getLogger(OnDemandVehiclesSimulation.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }*/
     }
 }

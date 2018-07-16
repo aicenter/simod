@@ -12,8 +12,8 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.GraphTyp
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.MapData;
-import cz.cvut.fel.aic.amodsim.graphbuilder.SimulationEdgeFactory;
-import cz.cvut.fel.aic.amodsim.graphbuilder.SimulationNodeFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.mapInitialization.SimulationEdgeFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.mapInitialization.SimulationNodeFactory;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.TransportMode;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
@@ -57,8 +57,8 @@ public class MapInitializer {
     public MapData getMap() {
         Map<GraphType, Graph<SimulationNode, SimulationEdge>> graphs = new HashMap<>();
 //        OsmImporter importer = new OsmImporter(mapFile, allowedOsmModes, projection);
-        String nodeFile = "C:\\AIC data\\Shared\\amod-data\\noc_vedcu/data/nodes.geojson";
-        String edgeFile = "C:\\AIC data\\Shared\\amod-data\\noc_vedcu/data/edges.geojson";
+        String nodeFile = "data/nodes.geojson";
+        String edgeFile = "data/edges.geojson";
         GeoJSONReader importer = new GeoJSONReader(edgeFile, nodeFile, projection);
 
         GraphCreator<SimulationNode, SimulationEdge> graphCreator = new GraphCreator(

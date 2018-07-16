@@ -60,8 +60,13 @@ public class DemandLayer extends EntityLayer<DemandAgent>{
     }
 
     @Override
-    protected int getEntityDrawRadius(DemandAgent demandAgent) {
+    protected int getEntityTransformableRadius(DemandAgent demandAgent) {
         return SIZE;
+    }
+
+    @Override
+    protected double getEntityStaticRadius(DemandAgent demandAgent) {
+        return (double) SIZE;
     }
     
     

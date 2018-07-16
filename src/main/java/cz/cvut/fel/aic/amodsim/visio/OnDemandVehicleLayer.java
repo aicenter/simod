@@ -71,6 +71,16 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
     }
 
     @Override
+    protected float getVehicleStaticWidth(PhysicalTransportVehicle vehicle) {
+        return 3;
+    }
+
+    @Override
+    protected float getVehicleStaticLength(PhysicalTransportVehicle vehicle) {
+        return (float) vehicle.getLength();
+    }
+
+    @Override
     protected Color getEntityDrawColor(PhysicalTransportVehicle vehicle) {
         OnDemandVehicle onDemandVehicle = (OnDemandVehicle) vehicle.getDriver();
         

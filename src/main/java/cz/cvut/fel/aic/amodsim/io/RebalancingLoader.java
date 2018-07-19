@@ -8,7 +8,6 @@ package cz.cvut.fel.aic.amodsim.io;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.Log;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStationFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
@@ -22,7 +21,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -39,7 +38,7 @@ public class RebalancingLoader {
     
     private static final int REBALANCING_INTERVAL = 600000;
     
-    
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RebalancingLoader.class);
     
     
     private final List<OnDemandVehicleStation> onDemandVehicleStations;
@@ -88,7 +87,6 @@ public class RebalancingLoader {
         ArrayList initialVehicleCount = (ArrayList) data.get("initial_vehicles");
         
         HashSet<Integer> usedPositions = new HashSet<>();
-        
         for (int i = 0; i < stations.size(); i++) {
             ArrayList station = (ArrayList) stations.get(i);
             SimulationNode[] positionsInGraph = nearestElementUtils.getNearestElements(new GPSLocation((double) station.get(0), 
@@ -110,7 +108,6 @@ public class RebalancingLoader {
                     (int) initialVehicleCount.get(i)));
         }
         
-        
         // rebalancing
         ArrayList rebalancingTimes = (ArrayList) data.get("rebalancing");
         
@@ -124,8 +121,8 @@ public class RebalancingLoader {
                     if(rebalancingTripsCount > 0){
                         // hack for the rebalancing with identical from to
                         if(j == k){
-                            Log.log(this, Level.WARNING, "Cannot rebalance to the same station (station number: {0}" + 
-                                    "interval: {1}", k, i);
+                            LOGGER.warn("Cannot rebalance to the same station (station number: {}" + 
+                                    "interval: {}", k, i);
                             continue;
                         }
                         

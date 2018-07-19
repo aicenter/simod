@@ -16,8 +16,6 @@ import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -39,11 +37,8 @@ public class OnDemandVehiclesSimulation {
         if(args.length > 0){
             localConfigFile = new File(args[0]);
         }
-
         Injector injector = new AgentPolisInitializer(new MainModule(config, localConfigFile)).initialize();
-
         SimulationCreator creator = injector.getInstance(SimulationCreator.class);
-
         // prepare map, entity storages...
         creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
 

@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import me.tongfei.progressbar.ProgressBar;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -131,15 +132,15 @@ public class TripTransform {
         } catch (IOException ex) {
             LOGGER.error(null, ex);
         }
-		
-		List<TimeTrip<SimulationNode>> trips = new ArrayList<>();
-		
-		for (TimeTrip<GPSLocation> trip : gpsTrips) {
-			processGpsTrip(trip, trips);
-		}
         
-        System.out.println("Number of trips with same source and destination: " + sameStartAndTargetInDataCount);
-        System.out.println(zeroLenghtTripsCount + " trips with zero lenght discarded");
+        List<TimeTrip<SimulationNode>> trips = new ArrayList<>();
+
+        for (TimeTrip<GPSLocation> trip : ProgressBar.wrap(gpsTrips, "Process GPS trip: ")) {
+                processGpsTrip(trip, trips);
+        }
+        
+        LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);
+        LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
 		
 		return trips; 
     }

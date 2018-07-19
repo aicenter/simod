@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.Log;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.jackson.MyModule;
 import cz.cvut.fel.aic.amodsim.statistics.Statistics;
@@ -29,8 +28,6 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -121,13 +118,13 @@ public class TripsUtilCached extends TripsUtil {
                 new TypeReference<HashMap<StartTargetNodePair, SimpleJsonTrip>>() {
                 };
         
-        Log.log(this, Level.INFO, "Loading cache start");
+        LOGGER.info("Loading cache start");
         for (final File file : tripCacheFolder.listFiles()) {
             HashMap<StartTargetNodePair, SimpleJsonTrip> tripCachePart = mapper.readValue(file, typeRef);
             tripCache.putAll(tripCachePart);
             cacheFileCounter++;
         }
-        Log.log(this, Level.INFO, "Loading cache finished - {0} trips loaded", tripCache.size());
+        LOGGER.info("Loading cache finished - {} trips loaded", tripCache.size());
 
 //        System.out.println(mapper.getSerializationConfig().toString());
     }

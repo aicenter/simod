@@ -25,14 +25,14 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
     private static final Color REBALANCING_COLOR = new Color(20, 252, 80);
     
     private static final Color NORMAL_COLOR = Color.BLUE;
+
+    private static final Color HIGHLIGHTED_COLOR = Color.MAGENTA;
     
     private static final Double TEXT_MARGIN_BOTTOM = 5.0;
     
     private static final Color TEXT_BACKGROUND_COLOR = Color.WHITE;
-    
-	
-	
 
+    private static String highlightedVehicleID;
 
 	
 	
@@ -83,7 +83,10 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
     @Override
     protected Color getEntityDrawColor(PhysicalTransportVehicle vehicle) {
         OnDemandVehicle onDemandVehicle = (OnDemandVehicle) vehicle.getDriver();
-        
+        if (onDemandVehicle.getVehicleId().equals(this.highlightedVehicleID)) {
+            return HIGHLIGHTED_COLOR;
+        }
+
         switch(onDemandVehicle.getState()){
            case REBALANCING:
                return REBALANCING_COLOR;
@@ -92,5 +95,7 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
        }
     }
     
-    
+    public void setHighlightedID(String id) {
+        this.highlightedVehicleID = id + " - vehicle";
+    }
 }

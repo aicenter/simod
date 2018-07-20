@@ -151,7 +151,7 @@ public class VehicleHighlightingLayer extends AbstractLayer {
                     if (input.length() > 0 ) {
                         input = input.substring(0, input.length()-1);
                     }
-                } else if (pressedKey != KeyEvent.VK_ALT && pressedKey != KeyEvent.VK_SHIFT) {
+                } else if (pressedKey != KeyEvent.VK_ALT && pressedKey != KeyEvent.VK_SHIFT && pressedKey != KeyEvent.VK_ENTER ) {
                     input += e.getKeyChar();
                 }
 

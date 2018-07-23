@@ -25,6 +25,8 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationFinishedListener;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
+import cz.cvut.fel.aic.graphimporter.util.MD5ChecksumGenerator;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,13 +58,13 @@ public class TripsUtilCached extends TripsUtil {
 
     @Inject
     public TripsUtilCached(ShortestPathPlanners pathPlanners, NearestElementUtils nearestElementUtils, 
-            HighwayNetwork network, SimulationCreator simulationCreator, AmodsimConfig configuration) throws IOException {
+            HighwayNetwork network, SimulationCreator simulationCreator, AmodsimConfig amodConfig, AgentpolisConfig agentpolisConfig) throws IOException {
         super(pathPlanners, nearestElementUtils, network);
         
         mapper = new ObjectMapper();
         mapper.registerModule(new MyModule());
 
-        tripCacheFolder = getCacheFolder(configuration);
+        tripCacheFolder = getCacheFolder(amodConfig, agentpolisConfig);
         
         tripCache = new HashMap<>();
         if(tripCacheFolder.exists()){
@@ -129,9 +131,12 @@ public class TripsUtilCached extends TripsUtil {
 //        System.out.println(mapper.getSerializationConfig().toString());
     }
 
-    private File getCacheFolder(AmodsimConfig config) {
-        String filename = config.amodsim.tripCacheFile;
-        if(config.amodsim.simplifyGraph){
+    private File getCacheFolder(AmodsimConfig amodConfig, AgentpolisConfig agentpolisConfig) {
+        String filename = amodConfig.amodsim.tripCacheFile;
+        String edgesFilename = agentpolisConfig.pathToEdges;
+        String checksum = MD5ChecksumGenerator.getGraphChecksum(new File(edgesFilename));
+        filename += checksum;
+        if(amodConfig.amodsim.simplifyGraph){
             filename += "-simplified";
         }
         return new File(filename);

@@ -7,6 +7,7 @@ package cz.cvut.fel.aic.amodsim.visio;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.EntityLayer;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgentState;
@@ -30,8 +31,8 @@ public class DemandLayer extends EntityLayer<DemandAgent>{
     
     
     @Inject
-    public DemandLayer(DemandStorage demandStorage) {
-        super(demandStorage);
+    public DemandLayer(DemandStorage demandStorage, AgentpolisConfig agentpolisConfig) {
+        super(demandStorage, agentpolisConfig);
     }
 
     

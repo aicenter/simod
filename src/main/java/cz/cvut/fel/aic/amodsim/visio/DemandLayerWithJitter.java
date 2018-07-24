@@ -7,6 +7,7 @@ package cz.cvut.fel.aic.amodsim.visio;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.storage.DemandStorage;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
@@ -35,8 +36,8 @@ public class DemandLayerWithJitter extends DemandLayer{
     
     
     @Inject
-    public DemandLayerWithJitter(DemandStorage demandStorage) {
-        super(demandStorage);
+    public DemandLayerWithJitter(DemandStorage demandStorage, AgentpolisConfig agentpolisConfig) {
+        super(demandStorage, agentpolisConfig);
         waitingAgentCachedPosition = new HashMap<>();
         random = new Random();
     }

@@ -31,8 +31,6 @@ public class AmodsimConfig implements GeneratedConfig {
 
   public String amodsimDataDir;
 
-  public String mapNodesFilepath;
-
   public Double tripsMultiplier;
 
   public Double criticalDensity;
@@ -42,8 +40,6 @@ public class AmodsimConfig implements GeneratedConfig {
   public String tripsFilePath;
 
   public Integer tripsLimit;
-
-  public String mapEdgesFilepath;
 
   public Db db;
 
@@ -69,13 +65,11 @@ public class AmodsimConfig implements GeneratedConfig {
     this.srid = (Integer) amodsimConfig.get("srid");
     this.amodsimExperimentDir = (String) amodsimConfig.get("amodsim_experiment_dir");
     this.amodsimDataDir = (String) amodsimConfig.get("amodsim_data_dir");
-    this.mapNodesFilepath = (String) amodsimConfig.get("map_nodes_filepath");
     this.tripsMultiplier = (Double) amodsimConfig.get("trips_multiplier");
     this.criticalDensity = (Double) amodsimConfig.get("critical_density");
     this.pythonDataDir = (String) amodsimConfig.get("python_data_dir");
     this.tripsFilePath = (String) amodsimConfig.get("trips_file_path");
     this.tripsLimit = (Integer) amodsimConfig.get("trips_limit");
-    this.mapEdgesFilepath = (String) amodsimConfig.get("map_edges_filepath");
     this.db = new Db((Map) amodsimConfig.get("db"));
     this.tutmProjectionCentre = new TutmProjectionCentre((Map) amodsimConfig.get("tutm_projection_centre"));
     this.amodsim = new Amodsim((Map) amodsimConfig.get("amodsim"));

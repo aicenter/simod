@@ -97,10 +97,10 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
         return SIZE;
     }
 
-	@Override
-	protected double getEntityStaticRadius(DemandAgent entity) {
-		return TRANSFORMABLE_SIZE;
-	}
+    @Override
+    protected double getEntityStaticRadius(DemandAgent demandAgent) {
+        return (double) SIZE;
+    }
 
 	@Override
 	protected void processClick(DemandAgent nearestEntity) {

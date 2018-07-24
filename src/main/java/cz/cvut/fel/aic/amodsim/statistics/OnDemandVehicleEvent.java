@@ -5,7 +5,6 @@
  */
 package cz.cvut.fel.aic.amodsim.statistics;
 
-
 /**
  *
  * @author fido

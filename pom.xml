@@ -14,6 +14,15 @@
 
 	<build>
 		<plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+
 			<plugin>
 				<groupId>ninja.fido.config</groupId>
 				<artifactId>config-maven-plugin</artifactId>
@@ -36,7 +45,7 @@
         <dependency>
             <groupId>cz.cvut.fel.aic</groupId>
             <artifactId>agentpolis</artifactId>
-			<version>5.1-SNAPSHOT</version>
+            <version>5.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>cz.cvut.fel.aic</groupId>
@@ -46,12 +55,12 @@
         <dependency>
             <groupId>cz.cvut.fel.aic</groupId>
             <artifactId>alite</artifactId>
-			<version>1.3-SNAPSHOT</version>
+            <version>1.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>cz.cvut.fel.aic</groupId>
             <artifactId>geographtools</artifactId>
-			<version>1.1-SNAPSHOT</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
         
         <!--other-->
@@ -115,6 +124,15 @@
             <id>ossrhs</id>
             <name>Maven central snapshot repository</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <releases />
+            <id>atg-repo</id>
+            <name>atg-repo</name>
+            <url>http://jones.felk.cvut.cz/artifactory/repo</url>
         </repository>
     </repositories>
     <pluginRepositories>

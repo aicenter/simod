@@ -5,6 +5,8 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.EntityLayer;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.NearestEntityComparator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
@@ -20,7 +22,7 @@ public class NearestVehicleComparator implements Comparator<OnDemandVehicle> {
 	private final PositionUtil positionUtil;
 	
 	private final Point2d from;
-	
+
     public NearestVehicleComparator(PositionUtil positionUtil, Point2d from) {
         this.positionUtil = positionUtil;
 		this.from = from;

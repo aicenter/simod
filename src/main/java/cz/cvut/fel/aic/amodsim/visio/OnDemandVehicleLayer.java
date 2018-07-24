@@ -26,6 +26,10 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
     
     private static final Color NORMAL_COLOR = Color.BLUE;
 
+    private static final Color HIGHLIGHTED_COLOR = Color.MAGENTA;
+    
+
+    private static String highlightedVehicleID;
 
 	
 	
@@ -64,9 +68,22 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
     }
 
     @Override
+    protected float getVehicleStaticWidth(PhysicalTransportVehicle vehicle) {
+        return 3;
+    }
+
+    @Override
+    protected float getVehicleStaticLength(PhysicalTransportVehicle vehicle) {
+        return (float) vehicle.getLength();
+    }
+
+    @Override
     protected Color getEntityDrawColor(PhysicalTransportVehicle vehicle) {
         OnDemandVehicle onDemandVehicle = (OnDemandVehicle) vehicle.getDriver();
-        
+        if (onDemandVehicle.getVehicleId().equals(this.highlightedVehicleID)) {
+            return HIGHLIGHTED_COLOR;
+        }
+
         switch(onDemandVehicle.getState()){
            case REBALANCING:
                return REBALANCING_COLOR;
@@ -75,17 +92,9 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
        }
     }
 
-	@Override
-	protected float getVehicleStaticWidth(PhysicalTransportVehicle vehicle) {
-		return STATIC_WIDTH;
-	}
-
-	@Override
-	protected float getVehicleStaticLength(PhysicalTransportVehicle vehicle) {
-		return STATIC_LENGTH;
-	}
-
 	
     
-    
+    public void setHighlightedID(String id) {
+        this.highlightedVehicleID = id + " - vehicle";
+    }
 }

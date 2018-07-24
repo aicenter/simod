@@ -2,6 +2,7 @@ package cz.cvut.fel.aic.amodsim.visio;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.BikewayNetwork;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.MetrowayNetwork;
@@ -33,9 +34,9 @@ public class MapVisualizerVisioInitializer  extends DefaultVisioInitializer{
 	public MapVisualizerVisioInitializer(PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork, 
 			HighwayNetwork highwayNetwork, TramwayNetwork tramwayNetwork, MetrowayNetwork metrowayNetwork, 
 			RailwayNetwork railwayNetwork, SimulationControlLayer simulationControlLayer, GridLayer gridLayer,
-			HighwayLayer highwayLayer, NodeIdLayer nodeIdLayer) {
+			HighwayLayer highwayLayer, NodeIdLayer nodeIdLayer, AgentpolisConfig config) {
 		super(pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork, 
-				simulationControlLayer, gridLayer);
+				simulationControlLayer, gridLayer, config);
 		this.highwayLayer = highwayLayer;
 		this.nodeIdLayer = nodeIdLayer;
 	}

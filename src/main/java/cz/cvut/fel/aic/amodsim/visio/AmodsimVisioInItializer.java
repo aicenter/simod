@@ -16,6 +16,7 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.NodeIdLayer;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.HighwayLayer;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.AgentStorage;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.VehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
@@ -71,9 +72,9 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
                                    OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, DemandLayer demandLayer,
                                    OnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer,
                                    BufferedHighwayLayer bufferedHighwayLayer, SimulationControlLayer simulationControlLayer,
-                                   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer, MapTilesLayer mapTilesLayer) {
+                                   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer, MapTilesLayer mapTilesLayer, AgentpolisConfig config) {
         super(pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork, 
-                simulationControlLayer, gridLayer);
+                simulationControlLayer, gridLayer, config);
         this.onDemandVehicleLayer = onDemandVehicleLayer;
         this.trafficDensityLayer = trafficDensityLayer;
         this.nodeIdLayer = nodeIdLayer;
@@ -108,9 +109,9 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 
     @Override
     protected void initGraphLayers() {
-        VisManager.registerLayer(backgroundLayer);
-//        VisManager.registerLayer(mapTilesLayer);
-        VisManager.registerLayer(highwayLayer);
+//        VisManager.registerLayer(backgroundLayer);
+        VisManager.registerLayer(mapTilesLayer);
+//        VisManager.registerLayer(highwayLayer);
 //        VisManager.registerLayer(bufferedHighwayLayer);
     }
     

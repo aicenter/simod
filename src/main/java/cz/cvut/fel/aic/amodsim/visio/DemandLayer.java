@@ -52,7 +52,7 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
     
     @Inject
     public DemandLayer(DemandStorage demandStorage) {
-        super(demandStorage, true, false);
+        super(demandStorage, true, true);
 		demandsWithPrintedInfo = new HashSet<>();
     }
 	

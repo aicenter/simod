@@ -35,7 +35,7 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
 	
 	@Inject
 	public OnDemandVehicleLayer(PhysicalTransportVehicleStorage physicalTransportVehicleStorage) {
-        super(physicalTransportVehicleStorage, true, false);
+        super(physicalTransportVehicleStorage, true, true);
 	}
 
 

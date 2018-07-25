@@ -27,6 +27,7 @@ import cz.cvut.fel.aic.alite.vis.VisManager;
 import cz.cvut.fel.aic.alite.vis.layer.VisLayer;
 import cz.cvut.fel.aic.alite.vis.layer.common.ColorLayer;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.GridLayer;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.LayerManagementLayer;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.MapTilesLayer;
 import cz.cvut.fel.aic.geographtools.GraphSpec2D;
 import java.awt.Color;
@@ -59,6 +60,10 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
     private final VisLayer backgroundLayer;
     
     private final MapTilesLayer mapTilesLayer;
+	
+	private final LayerManagementLayer layerManagementLayer;
+			
+	private final VehicleHighlightingLayer vehicleHighlightingLayer;
     
     
     
@@ -72,7 +77,9 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
                                    OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, DemandLayer demandLayer,
                                    OnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer,
                                    BufferedHighwayLayer bufferedHighwayLayer, SimulationControlLayer simulationControlLayer,
-                                   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer, MapTilesLayer mapTilesLayer, AgentpolisConfig config) {
+                                   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer, 
+								   MapTilesLayer mapTilesLayer, AgentpolisConfig config, LayerManagementLayer layerManagementLayer,
+								   VehicleHighlightingLayer vehicleHighlightingLayer) {
         super(pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork, 
                 simulationControlLayer, gridLayer, config);
         this.onDemandVehicleLayer = onDemandVehicleLayer;
@@ -86,13 +93,15 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
         this.trafficDensityByDirectionLayer = trafficDensityByDirectionLayer;
         this.mapTilesLayer = mapTilesLayer;
         this.backgroundLayer = ColorLayer.create(Color.white);
+		this.layerManagementLayer = layerManagementLayer;
+		this.vehicleHighlightingLayer = vehicleHighlightingLayer;
     }
 
     @Override
     protected void initEntityLayers(Simulation simulation) {
-        VisManager.registerLayer(onDemandVehicleStationsLayer);
-        VisManager.registerLayer(onDemandVehicleLayer);
-        VisManager.registerLayer(demandLayer);
+        VisManager.registerLayer(layerManagementLayer.createManageableLayer("Stations", onDemandVehicleStationsLayer));
+        VisManager.registerLayer(layerManagementLayer.createManageableLayer("Vehicles", onDemandVehicleLayer));
+        VisManager.registerLayer(layerManagementLayer.createManageableLayer("Passangers", demandLayer));
 		VisManager.registerLayer(onDemandVehiclePlanLayer);
     }
 
@@ -105,12 +114,15 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
     @Override
     protected void initLayersAfterEntityLayers() {
 //        VisManager.registerLayer(nodeIdLayer);
+		VisManager.registerLayer(layerManagementLayer);
+		VisManager.registerLayer(vehicleHighlightingLayer);
+		vehicleHighlightingLayer.setVehicleLayer(onDemandVehicleLayer);
     }
 
     @Override
     protected void initGraphLayers() {
 //        VisManager.registerLayer(backgroundLayer);
-        VisManager.registerLayer(mapTilesLayer);
+        VisManager.registerLayer(layerManagementLayer.createManageableLayer("Map Tiles", mapTilesLayer));
 //        VisManager.registerLayer(highwayLayer);
 //        VisManager.registerLayer(bufferedHighwayLayer);
     }

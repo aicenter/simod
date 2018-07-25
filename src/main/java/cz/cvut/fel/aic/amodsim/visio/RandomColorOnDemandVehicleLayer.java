@@ -1,6 +1,7 @@
 package cz.cvut.fel.aic.amodsim.visio;
 
 
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
@@ -28,8 +29,8 @@ public class RandomColorOnDemandVehicleLayer extends OnDemandVehicleLayer{
     
     
     
-    public RandomColorOnDemandVehicleLayer(PhysicalTransportVehicleStorage physicalTransportVehicleStorage) {
-        super(physicalTransportVehicleStorage);
+    public RandomColorOnDemandVehicleLayer(PhysicalTransportVehicleStorage physicalTransportVehicleStorage, AgentpolisConfig agentpolisConfig) {
+        super(physicalTransportVehicleStorage, agentpolisConfig);
         this.random = new Random();
         agentColors = new HashMap<>();
     }

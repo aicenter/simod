@@ -8,6 +8,7 @@ package cz.cvut.fel.aic.amodsim.visio;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.ClickableEntityLayer;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioUtils;
 import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
@@ -51,8 +52,8 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
     
     
     @Inject
-    public DemandLayer(DemandStorage demandStorage) {
-        super(demandStorage, true, true);
+    public DemandLayer(DemandStorage demandStorage, AgentpolisConfig agentpolisConfig) {
+        super(demandStorage, agentpolisConfig);
 		demandsWithPrintedInfo = new HashSet<>();
     }
 	

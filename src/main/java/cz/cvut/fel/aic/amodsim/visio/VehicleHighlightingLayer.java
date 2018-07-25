@@ -148,8 +148,10 @@ public class VehicleHighlightingLayer extends AbstractLayer {
             public void keyPressed(KeyEvent e) {
                 int pressedKey = e.getKeyCode();
                 if (pressedKey == KeyEvent.VK_BACK_SPACE) {
-                    input = input.substring(0, input.length()-1);
-                } else if (pressedKey != KeyEvent.VK_ALT && pressedKey != KeyEvent.VK_SHIFT) {
+                    if (input.length() > 0 ) {
+                        input = input.substring(0, input.length()-1);
+                    }
+                } else if (pressedKey != KeyEvent.VK_ALT && pressedKey != KeyEvent.VK_SHIFT && pressedKey != KeyEvent.VK_ENTER ) {
                     input += e.getKeyChar();
                 }
 

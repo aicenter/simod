@@ -3,7 +3,6 @@
 package cz.cvut.fel.aic.amodsim;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.mapInitialization.MapInitializer;
-import ninja.fido.config.Configuration;
 import com.google.inject.Injector;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
@@ -11,12 +10,15 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import java.io.File;
 
 import java.net.MalformedURLException;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author David Fiedler
  */
 public class MapVisualizer {
 
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(MapVisualizer.class);
+    
     public static void main(String[] args) throws MalformedURLException {
         new MapVisualizer().run(args);
     }
@@ -51,7 +53,7 @@ public class MapVisualizer {
             creator.startSimulation();
         
 //        } catch (IOException ex) {
-//            Logger.getLogger(MapVisualizer.class.getName()).log(Level.SEVERE, null, ex);
+//            LOGGER.error(null, ex);
 //        }
        
 

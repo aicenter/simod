@@ -29,14 +29,15 @@ import cz.cvut.fel.aic.amodsim.statistics.DemandServiceStatistic;
 import cz.cvut.fel.aic.amodsim.statistics.StatisticEvent;
 import cz.cvut.fel.aic.amodsim.statistics.Statistics;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author F-I-D-O
  */
 public class DemandAgent extends Agent implements EventHandler, TransportableEntity {
+    
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandAgent.class);
     
     private final int simpleId;
 	
@@ -191,7 +192,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
             try {
                 throw new Exception("Demand not served properly");
             } catch (Exception ex) {
-                Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
+                LOGGER.error(null, ex);
             }
         }
         eventProcessor.addEvent(StatisticEvent.DEMAND_DROPPED_OFF, null, null, 

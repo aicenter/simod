@@ -8,19 +8,16 @@ package cz.cvut.fel.aic.amodsim;
 import cz.cvut.fel.aic.agentpolis.simmodel.mapInitialization.MapInitializer;
 import cz.cvut.fel.aic.amodsim.io.ExportEdge;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Sets;
 import cz.cvut.fel.aic.amodsim.io.ExportEdgePair;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.geographtools.Graph;
-import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -37,6 +34,8 @@ public class OsmUtil {
 //        return highwayGraph;
 //    }
 
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OsmUtil.class);
+    
     public static void edgesToJson(Graph<SimulationNode, SimulationEdge> higwayGraph, File outputFile){
         ObjectMapper mapper = new ObjectMapper();
 
@@ -52,7 +51,7 @@ public class OsmUtil {
         try {
             mapper.writeValue(outputFile, edges);
         } catch (IOException ex) {
-            Logger.getLogger(OsmUtil.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(null, ex);
         }
     }
 
@@ -109,7 +108,7 @@ public class OsmUtil {
         try {
             mapper.writeValue(outputFile, edgePairs);
         } catch (IOException ex) {
-            Logger.getLogger(OsmUtil.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(null, ex);
         }
     }
 }

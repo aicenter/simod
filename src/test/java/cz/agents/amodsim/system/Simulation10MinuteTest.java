@@ -6,12 +6,15 @@
 package cz.agents.amodsim.system;
 
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author fido
  */
 public class Simulation10MinuteTest {
+    
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Simulation10MinuteTest.class);
     
     private static final int TEN_MINUTES_IN_MILIS = 600000;
     
@@ -59,7 +62,7 @@ public class Simulation10MinuteTest {
             injector.getInstance(StatisticControl.class).simulationFinished();
         
         } catch (IOException ex) {
-            Logger.getLogger(OnDemandVehiclesSimulation.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(null, ex);
         }*/
     }
 }

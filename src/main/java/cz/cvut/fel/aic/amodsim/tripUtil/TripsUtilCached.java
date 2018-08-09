@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.Log;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.jackson.MyModule;
 import cz.cvut.fel.aic.amodsim.statistics.Statistics;
@@ -30,14 +29,15 @@ import cz.cvut.fel.aic.graphimporter.util.MD5ChecksumGenerator;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author fido
  */
 @Singleton
 public class TripsUtilCached extends TripsUtil {
+        
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TripsUtilCached.class);
     
     private static final int OUTPUT_BATCH_SIZE = 10000;
 
@@ -85,7 +85,7 @@ public class TripsUtilCached extends TripsUtil {
             try {
                 throw new Exception("Start node cannot be the same as end node");
             } catch (Exception ex) {
-                Logger.getLogger(TripsUtil.class.getName()).log(Level.SEVERE, null, ex);
+                LOGGER.error(null, ex);
             }
         }
 
@@ -107,7 +107,7 @@ public class TripsUtilCached extends TripsUtil {
                     saveNewTrips();
                 }
             } catch (TripPlannerException ex) {
-                Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
+                LOGGER.error(null, ex);
             }
         }
 
@@ -119,13 +119,13 @@ public class TripsUtilCached extends TripsUtil {
                 new TypeReference<HashMap<StartTargetNodePair, SimpleJsonTrip>>() {
                 };
         
-        Log.log(this, Level.INFO, "Loading cache start");
+        LOGGER.info("Loading cache start");
         for (final File file : tripCacheFolder.listFiles()) {
             HashMap<StartTargetNodePair, SimpleJsonTrip> tripCachePart = mapper.readValue(file, typeRef);
             tripCache.putAll(tripCachePart);
             cacheFileCounter++;
         }
-        Log.log(this, Level.INFO, "Loading cache finished - {0} trips loaded", tripCache.size());
+        LOGGER.info("Loading cache finished - {} trips loaded", tripCache.size());
 
 //        System.out.println(mapper.getSerializationConfig().toString());
     }
@@ -148,7 +148,7 @@ public class TripsUtilCached extends TripsUtil {
             mapper.writeValue(outputFile, newTrips);
             newTrips = new HashMap<>();
         } catch (IOException ex) {
-            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(null, ex);
         }
     }
 

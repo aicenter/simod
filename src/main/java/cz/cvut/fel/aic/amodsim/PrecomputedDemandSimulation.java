@@ -9,8 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -18,6 +17,8 @@ import java.util.logging.Logger;
  */
 public class PrecomputedDemandSimulation {
 
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PrecomputedDemandSimulation.class);
+    
     private static File EXPERIMENT_DIR = new File("data/Prague");
 
     private static final String INPUT_FILE_PATH = "trips.json";
@@ -67,7 +68,7 @@ public class PrecomputedDemandSimulation {
 			System.exit(0);
 			
 		} catch (IOException ex) {
-			Logger.getLogger(PrecomputedDemandSimulation.class.getName()).log(Level.SEVERE, null, ex);
+                        LOGGER.error(null, ex);
 		}
 	}
 	

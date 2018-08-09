@@ -16,8 +16,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -25,6 +24,8 @@ import java.util.logging.Logger;
  */
 public class Loader {
 	
+        private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Loader.class);
+    
 //	private Connection connection;
 	
 	private ArrayList<TimeTrip<GPSLocation>> trips;
@@ -86,7 +87,7 @@ public class Loader {
 				locations.add(new GPSLocation(location.get(1), location.get(0), 0, 0));
 			}
 		} catch (IOException ex) {
-			Logger.getLogger(Loader.class.getName()).log(Level.SEVERE, null, ex);
+                        LOGGER.error(null, ex);
 		}
 
 		return locations;

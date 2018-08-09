@@ -78,8 +78,8 @@ public class MainModule extends StandardAgentPolisModule{
         }
         bind(DemandLayer.class).to(DemandLayerWithJitter.class);
         
-//        bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
-        bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
+        bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
+//        bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 
         if(amodsimConfig.amodsim.ridesharing.on){
 			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);

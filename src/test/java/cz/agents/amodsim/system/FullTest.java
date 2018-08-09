@@ -5,11 +5,15 @@
  */
 package cz.agents.amodsim.system;
 
+import org.slf4j.LoggerFactory;
 /**
  *
  * @author fido
  */
 public class FullTest {
+    
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(FullTest.class);
+    
     public static void runFullTest(int duration, int startTime, long timeForFinishingEvents){
       /*  AmodsimConfig config = Configuration.load(new AmodsimConfig());
         
@@ -49,7 +53,7 @@ public class FullTest {
 
 
         } catch (IOException ex) {
-            Logger.getLogger(OnDemandVehiclesSimulation.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(null, ex);
         }*/
     }
 }

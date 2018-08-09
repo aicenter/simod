@@ -29,8 +29,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import me.tongfei.progressbar.ProgressBar;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -38,7 +38,9 @@ import java.util.logging.Logger;
  */
 @Singleton
 public class TripTransform {
-	
+    
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TripTransform.class);
+    
 //	private PathPlanner pathPlanner;
     
     private int zeroLenghtTripsCount = 0;
@@ -48,6 +50,7 @@ public class TripTransform {
     private final Graph<SimulationNode,SimulationEdge> highwayGraph;
     
     private final NearestElementUtils nearestElementUtils;
+    
 
     @Inject
     public TripTransform(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils) {
@@ -127,17 +130,17 @@ public class TripTransform {
                }
             }
         } catch (IOException ex) {
-            Logger.getLogger(TripTransform.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(null, ex);
         }
-		
-		List<TimeTrip<SimulationNode>> trips = new ArrayList<>();
-		
-		for (TimeTrip<GPSLocation> trip : gpsTrips) {
-			processGpsTrip(trip, trips);
-		}
         
-        System.out.println("Number of trips with same source and destination: " + sameStartAndTargetInDataCount);
-        System.out.println(zeroLenghtTripsCount + " trips with zero lenght discarded");
+        List<TimeTrip<SimulationNode>> trips = new ArrayList<>();
+
+        for (TimeTrip<GPSLocation> trip : ProgressBar.wrap(gpsTrips, "Process GPS trip: ")) {
+                processGpsTrip(trip, trips);
+        }
+        
+        LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);
+        LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
 		
 		return trips; 
     }
@@ -178,7 +181,7 @@ public class TripTransform {
 //               }
 //            }
 //        } catch (IOException ex) {
-//            Logger.getLogger(TripTransform.class.getName()).log(Level.SEVERE, null, ex);
+//            LOGGER.error(null, ex);
 //        }
 //
 //        tripsToJson(gpsTripsToOsmNodeTrips(gpsTrips, osmFile, srid, false), outputFile); 

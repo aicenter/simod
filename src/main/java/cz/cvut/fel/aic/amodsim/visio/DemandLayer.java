@@ -84,7 +84,17 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
         }
     }
 
-    @Override
+	@Override
+	protected Point2d getEntityPositionInTime(DemandAgent entity, long time) {
+		if(entity.getState() == DemandAgentState.DRIVING){
+			return getDrivingAgentPosition(entity);
+		}
+		else{
+			return getWaitingAgentPosition(entity, dim);
+		}
+	}
+
+	@Override
     protected Color getEntityDrawColor(DemandAgent demandAgent) {
 		if(demandAgent.isDropped()){
 			return DROPPED_COLOR;

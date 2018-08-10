@@ -12,24 +12,18 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.AllNetworkNodes;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.PedestrianNetwork;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.NodeIdLayer;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.HighwayLayer;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.AgentStorage;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.VehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.DefaultVisioInitializer;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.SimulationControlLayer;
 import cz.cvut.fel.aic.alite.simulation.Simulation;
 import cz.cvut.fel.aic.alite.vis.VisManager;
 import cz.cvut.fel.aic.alite.vis.layer.VisLayer;
 import cz.cvut.fel.aic.alite.vis.layer.common.ColorLayer;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.GridLayer;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.LayerManagementLayer;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.MapTilesLayer;
-import cz.cvut.fel.aic.geographtools.GraphSpec2D;
+
 import java.awt.Color;
 
 /**
@@ -64,11 +58,14 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 	private final LayerManagementLayer layerManagementLayer;
 			
 	private final VehicleHighlightingLayer vehicleHighlightingLayer;
-    
+
+	private final ScreenRecordingLayer screenRecordingLayer;
+
+	private final ScreenCaputreLayer screenCaputreLayer;
     
     
     @Inject
-    public AmodsimVisioInItializer(PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork,
+    public AmodsimVisioInItializer(Simulation simulation, PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork,
                                    HighwayNetwork highwayNetwork, TramwayNetwork tramwayNetwork, MetrowayNetwork metrowayNetwork,
                                    RailwayNetwork railwayNetwork, AgentStorage agentStorage,
                                    VehicleStorage vehicleStorage, AllNetworkNodes allNetworkNodes,
@@ -77,10 +74,10 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
                                    OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, DemandLayer demandLayer,
                                    OnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer,
                                    BufferedHighwayLayer bufferedHighwayLayer, SimulationControlLayer simulationControlLayer,
-                                   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer, 
-								   MapTilesLayer mapTilesLayer, AgentpolisConfig config, LayerManagementLayer layerManagementLayer,
-								   VehicleHighlightingLayer vehicleHighlightingLayer) {
-        super(pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork, 
+                                   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer,
+                                   MapTilesLayer mapTilesLayer, AgentpolisConfig config, LayerManagementLayer layerManagementLayer,
+                                   VehicleHighlightingLayer vehicleHighlightingLayer, ScreenRecordingLayer screenRecordingLayer, ScreenCaputreLayer screenCaputreLayer) {
+        super(simulation, pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork,
                 simulationControlLayer, gridLayer, config);
         this.onDemandVehicleLayer = onDemandVehicleLayer;
         this.trafficDensityLayer = trafficDensityLayer;
@@ -95,6 +92,8 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
         this.backgroundLayer = ColorLayer.create(Color.white);
 		this.layerManagementLayer = layerManagementLayer;
 		this.vehicleHighlightingLayer = vehicleHighlightingLayer;
+		this.screenRecordingLayer = screenRecordingLayer;
+		this.screenCaputreLayer = screenCaputreLayer;
     }
 
     @Override
@@ -116,6 +115,8 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 //        VisManager.registerLayer(nodeIdLayer);
 		VisManager.registerLayer(layerManagementLayer);
 		VisManager.registerLayer(vehicleHighlightingLayer);
+		VisManager.registerLayer(screenRecordingLayer);
+		VisManager.registerLayer(screenCaputreLayer);
 		vehicleHighlightingLayer.setVehicleLayer(onDemandVehicleLayer);
     }
 

@@ -31,11 +31,11 @@ public class MapVisualizerVisioInitializer  extends DefaultVisioInitializer{
     private final NodeIdLayer nodeIdLayer;
 	
 	@Inject
-	public MapVisualizerVisioInitializer(PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork, 
+	public MapVisualizerVisioInitializer(Simulation simulation, PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork,
 			HighwayNetwork highwayNetwork, TramwayNetwork tramwayNetwork, MetrowayNetwork metrowayNetwork, 
 			RailwayNetwork railwayNetwork, SimulationControlLayer simulationControlLayer, GridLayer gridLayer,
 			HighwayLayer highwayLayer, NodeIdLayer nodeIdLayer, AgentpolisConfig config) {
-		super(pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork, 
+		super(simulation, pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork,
 				simulationControlLayer, gridLayer, config);
 		this.highwayLayer = highwayLayer;
 		this.nodeIdLayer = nodeIdLayer;

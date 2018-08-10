@@ -68,6 +68,10 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
     protected Point2d getDrivingAgentPosition(DemandAgent demandAgent){
         return positionUtil.getCanvasPositionInterpolatedForVehicle(demandAgent.getTransportingEntity());
     }
+
+    protected Point2d getDrivingAgentPositionInTime(DemandAgent demandAgent, long time){
+        return positionUtil.getCanvasPositionInterpolatedForVehicleInTime(demandAgent.getTransportingEntity(), time);
+    }
     
     protected Point2d getWaitingAgentPosition(DemandAgent demandAgent, Dimension drawingDimension){
         return positionUtil.getCanvasPosition(demandAgent.getPosition());
@@ -78,6 +82,16 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
     protected Point2d getEntityPosition(DemandAgent demandAgent) {
         if(demandAgent.getState() == DemandAgentState.DRIVING){
             return getDrivingAgentPosition(demandAgent);
+        }
+        else{
+            return getWaitingAgentPosition(demandAgent, dim);
+        }
+    }
+
+    @Override
+    protected Point2d getEntityPositionInTime(DemandAgent demandAgent, long time) {
+        if(demandAgent.getState() == DemandAgentState.DRIVING){
+            return getDrivingAgentPositionInTime(demandAgent, time);
         }
         else{
             return getWaitingAgentPosition(demandAgent, dim);

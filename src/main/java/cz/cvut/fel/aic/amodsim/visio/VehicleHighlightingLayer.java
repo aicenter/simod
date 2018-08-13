@@ -2,9 +2,7 @@ package cz.cvut.fel.aic.amodsim.visio;
 
 import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.alite.vis.layer.AbstractLayer;
-import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 
-import javax.swing.*;
 import javax.vecmath.Point2d;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -13,23 +11,27 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 public class VehicleHighlightingLayer extends AbstractLayer {
-    private Color backgroundColor;
-    private Color textColor;
-    private Color acceptingTextColor;
+
+    private static final int UI_WIDTH = 300;
+    private static final int UI_HEIGHT = 100;
+
     private int uixposition;
     private int uiyposition;
-    private OnDemandVehicleLayer vehicleLayer;
-    private String status;
-    private MouseListener mouseListener;
-    private KeyListener keyListener;
-    private String input;
     private boolean acceptingInput;
+
     private Vis vis;
+    private Color textColor;
+    private Color backgroundColor;
+    private Color acceptingTextColor;
+    private String input;
+    private String status;
+    private KeyListener keyListener;
+    private MouseListener mouseListener;
+    private OnDemandVehicleLayer vehicleLayer;
 
 
     public VehicleHighlightingLayer() {
         setDefaultColors();
-        setDefaultUIposition();
         vehicleLayer = null;
         status = "No vehicle highlighted.";
         input = "";
@@ -42,6 +44,10 @@ public class VehicleHighlightingLayer extends AbstractLayer {
 
     @Override
     public void paint(Graphics2D canvas) {
+        Dimension dimension = Vis.getDrawingDimension();
+        uixposition = dimension.width - UI_WIDTH - 30;
+        uiyposition = dimension.height - UI_HEIGHT - 400;
+
         canvas.setColor(backgroundColor);
         canvas.fillRect(uixposition, uiyposition, 300, 100);
 
@@ -164,11 +170,5 @@ public class VehicleHighlightingLayer extends AbstractLayer {
         textColor = new Color(255, 255, 255, 255);
         acceptingTextColor = new Color(173, 173, 173, 170);
     }
-
-    private void setDefaultUIposition() {
-        uixposition = 1580;
-        uiyposition = 500;
-    }
-
 
 }

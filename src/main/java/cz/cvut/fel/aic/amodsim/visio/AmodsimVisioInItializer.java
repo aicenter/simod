@@ -62,7 +62,9 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 	private final ScreenRecordingLayer screenRecordingLayer;
 
 	private final ScreenCaputreLayer screenCaputreLayer;
-    
+
+	private final SimpleBackgroundLayer simpleBackgroundLayer;
+
     
     @Inject
     public AmodsimVisioInItializer(Simulation simulation, PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork,
@@ -76,7 +78,8 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
                                    BufferedHighwayLayer bufferedHighwayLayer, SimulationControlLayer simulationControlLayer,
                                    TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer,
                                    MapTilesLayer mapTilesLayer, AgentpolisConfig config, LayerManagementLayer layerManagementLayer,
-                                   VehicleHighlightingLayer vehicleHighlightingLayer, ScreenRecordingLayer screenRecordingLayer, ScreenCaputreLayer screenCaputreLayer) {
+                                   VehicleHighlightingLayer vehicleHighlightingLayer, ScreenRecordingLayer screenRecordingLayer,
+                                   ScreenCaputreLayer screenCaputreLayer, SimpleBackgroundLayer simpleBackgroundLayer) {
         super(simulation, pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork,
                 simulationControlLayer, gridLayer, config);
         this.onDemandVehicleLayer = onDemandVehicleLayer;
@@ -94,6 +97,7 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 		this.vehicleHighlightingLayer = vehicleHighlightingLayer;
 		this.screenRecordingLayer = screenRecordingLayer;
 		this.screenCaputreLayer = screenCaputreLayer;
+		this.simpleBackgroundLayer = simpleBackgroundLayer;
     }
 
     @Override
@@ -112,17 +116,18 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 
     @Override
     protected void initLayersAfterEntityLayers() {
-//        VisManager.registerLayer(nodeIdLayer);
 		VisManager.registerLayer(layerManagementLayer);
 		VisManager.registerLayer(vehicleHighlightingLayer);
 		VisManager.registerLayer(screenRecordingLayer);
 		VisManager.registerLayer(screenCaputreLayer);
 		vehicleHighlightingLayer.setVehicleLayer(onDemandVehicleLayer);
+        VisManager.registerLayer(nodeIdLayer);
     }
 
     @Override
     protected void initGraphLayers() {
 //        VisManager.registerLayer(backgroundLayer);
+        VisManager.registerLayer(simpleBackgroundLayer);
         VisManager.registerLayer(layerManagementLayer.createManageableLayer("Map Tiles", mapTilesLayer));
 //        VisManager.registerLayer(highwayLayer);
 //        VisManager.registerLayer(bufferedHighwayLayer);

@@ -12,7 +12,7 @@ public class WraperEdge extends CHEdge{
 	public final Edge edge;
 
 	WraperEdge(long edgeId, CHNode fromNode, CHNode toNode, int cost) {
-		this(new Edge(fromNode.node.id, toNode.node.id, 0), fromNode, toNode, cost);
+		this(new Edge(fromNode.node, toNode.node, 0), fromNode, toNode, cost);
 	}
 	
 	public WraperEdge(Edge edge, CHNode fromNode, CHNode toNode, int cost) {

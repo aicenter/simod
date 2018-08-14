@@ -11,6 +11,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.TransportNetworks;
 import cz.cvut.fel.aic.geographtools.Graph;
+import cz.cvut.fel.aic.geographtools.Node;
 import java.util.Iterator;
 
 /**
@@ -45,15 +46,15 @@ public class AstarTravelTimeProvider implements TravelTimeProvider{
 		long totalDuration = 0;
 		
 		Iterator<SimulationNode> nodeIterator = trip.getLocations().iterator();
-		int fromNodeId = nodeIterator.next().id;
+		Node fromNode = nodeIterator.next();
 		while (nodeIterator.hasNext()) {
-			int toNodeId = nodeIterator.next().id;
+			Node toNode = nodeIterator.next();
 			
-			SimulationEdge edge = graph.getEdge(fromNodeId, toNodeId);
+			SimulationEdge edge = graph.getEdge(fromNode, toNode);
 			
 			totalDuration += MoveUtil.computeDuration(entity, edge);
 			
-			fromNodeId = toNodeId;
+			fromNode = toNode;
 		}
 		return totalDuration;
 	}

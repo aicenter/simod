@@ -75,8 +75,8 @@ public class TrafficDensityLayer extends AbstractLayer{
         
         for (SimulationEdge edge : graph.getAllEdges()) {
             canvas.setColor(getColorForEdge(allEdgesLoad, edge));
-            Point2d from = positionUtil.getCanvasPosition(graph.getNode(edge.fromId));
-            Point2d to = positionUtil.getCanvasPosition(graph.getNode(edge.toId));
+            Point2d from = positionUtil.getCanvasPosition(edge.getFromNode());
+            Point2d to = positionUtil.getCanvasPosition(edge.getToNode());
             Line2D line2d = new Line2D.Double(from.x, from.y, to.x, to.y);
             if (line2d.intersects(drawingRectangle)) {
                 canvas.draw(line2d);

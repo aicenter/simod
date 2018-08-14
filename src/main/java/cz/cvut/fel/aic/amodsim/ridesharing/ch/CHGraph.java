@@ -89,8 +89,8 @@ public class CHGraph {
 		}
 		
 		for(SimulationEdge edge: sourceGraph.getAllEdges()){
-			CHNode fromNode = idsTochNodes.get(edge.fromId);
-			CHNode toNode = idsTochNodes.get(edge.toId);
+			CHNode fromNode = idsTochNodes.get(edge.fromNode.getId());
+			CHNode toNode = idsTochNodes.get(edge.toNode.getId());
 			
 			CHEdge chEdge = new WraperEdge(edge, fromNode, toNode, (int) (edge.length / edge.allowedMaxSpeedInMpS));
 			chEdges.add(chEdge);

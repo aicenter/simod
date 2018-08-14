@@ -63,8 +63,8 @@ public class BufferedHighwayLayer extends HighwayLayer{
             newCanvas.setStroke(new BasicStroke(8));
 
             for (SimulationEdge edge : graph.getAllEdges()) {
-                Point2d from = getPositionOnImage(edge.fromId);
-                Point2d to = getPositionOnImage(edge.toId);
+                Point2d from = getPositionOnImage(edge.fromNode);
+                Point2d to = getPositionOnImage(edge.toNode);
                 Line2D line2d = new Line2D.Double(from.x, from.y, to.x, to.y);
                 newCanvas.draw(line2d);
             }
@@ -97,8 +97,7 @@ public class BufferedHighwayLayer extends HighwayLayer{
 //                Vis.transW(imageWidth * scale), Vis.transH(imageHeight * scale), null);
     }
     
-    private Point2d getPositionOnImage(int nodeId){
-        GPSLocation location = graph.getNode(nodeId);
+    private Point2d getPositionOnImage(GPSLocation location){
         double x = (location.getLongitudeProjected() - mapSpecification.minLon) / scale;
         double y = (mapSpecification.maxLat - location.getLatitudeProjected()) / scale;
         

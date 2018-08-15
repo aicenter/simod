@@ -133,12 +133,12 @@ public class TrafficDensityByDirectionLayer extends AbstractLayer {
         Rectangle2D drawingRectangle = new Rectangle(dimension);
 
         for (SimulationEdge edge : graph.getAllEdges()) {
-            Point2d from = positionUtil.getCanvasPosition(graph.getNode(edge.fromId));
-            Point2d to = positionUtil.getCanvasPosition(graph.getNode(edge.toId));
+            Point2d from = positionUtil.getCanvasPosition(edge.getFromNode());
+            Point2d to = positionUtil.getCanvasPosition(edge.getToNode());
             Line2D line2d = new Line2D.Double(from.x, from.y, to.x, to.y);
 
             if (line2d.intersects(drawingRectangle)) {
-                edgeMapping.put(new Edge(edge.fromId, edge.toId, edge.length), edge);
+                edgeMapping.put(new Edge(edge.getFromNode(), edge.getToNode(), edge.length), edge);
             }
         }
     }
@@ -151,7 +151,7 @@ public class TrafficDensityByDirectionLayer extends AbstractLayer {
         twoWayEdges = new HashMap<>();
 
         for (Edge edge : edgeMapping.keySet()) {
-            Edge edgeOpposite = new Edge(edge.toId, edge.fromId, edge.length);
+            Edge edgeOpposite = new Edge(edge.getToNode(), edge.getFromNode(), edge.length);
             if (twoWayEdges.containsKey(edgeOpposite)) {
                 twoWayEdges.put(edge, edgeOpposite);
             } else {
@@ -171,8 +171,8 @@ public class TrafficDensityByDirectionLayer extends AbstractLayer {
             if (edge2 != null && (!edgePosition.containsKey(edge) || !edgePosition.containsKey(edge2))) {
                 calculateTwoWayEdgesPosition(edge, edge2);
             } else if (edge2 == null) {
-                Point2d from = positionUtil.getCanvasPosition(graph.getNode(edge.fromId));
-                Point2d to = positionUtil.getCanvasPosition(graph.getNode(edge.toId));
+                Point2d from = positionUtil.getCanvasPosition(edge.getFromNode());
+                Point2d to = positionUtil.getCanvasPosition(edge.getToNode());
 
                 //Debug - do not show one-way edges
                 //Line2D line2d = new Line2D.Double(0, 0, 0, 0);
@@ -193,8 +193,8 @@ public class TrafficDensityByDirectionLayer extends AbstractLayer {
         double move = 0.5 * EDGE_WIDTH + 1;
 
         // get canvas positions
-        Point2d A = positionUtil.getCanvasPosition(graph.getNode(edge1.fromId));
-        Point2d B = positionUtil.getCanvasPosition(graph.getNode(edge1.toId));
+        Point2d A = positionUtil.getCanvasPosition(edge1.getFromNode());
+        Point2d B = positionUtil.getCanvasPosition(edge1.getToNode());
 
         // calculate move of one of the edge
         double vectorX = B.y - A.y;

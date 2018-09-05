@@ -83,7 +83,7 @@ public class TripsUtilCached extends TripsUtil {
     public VehicleTrip createTrip(int startNodeId, int targetNodeId, PhysicalVehicle vehicle) {
         if (startNodeId == targetNodeId) {
             try {
-                throw new Exception("Start node cannot be the same as end node");
+                throw new Exception(String.format("Start node cannot be the same as end node: %d, %d", startNodeId, targetNodeId));
             } catch (Exception ex) {
                 LOGGER.error(null, ex);
             }

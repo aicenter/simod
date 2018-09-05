@@ -54,63 +54,32 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         Driver<PhysicalTransportVehicle>{
     
     private static final double LENGTH = 4;
-    
-    
-    
-    
     protected PhysicalTransportVehicle vehicle;
-    
     protected final TripsUtil tripsUtil;
-    
     private final boolean precomputedPaths;
-    
     protected final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
-    
     protected final PhysicalVehicleDriveFactory driveFactory;
-    
     private final PositionUtil positionUtil;
-    
     protected final EventProcessor eventProcessor;
-    
     protected final StandardTimeProvider timeProvider;
-    
     private final IdGenerator rebalancingIdGenerator;
-    
     private final AmodsimConfig config;
-    
-    
     private List<Node> demandNodes;
-    
     protected OnDemandVehicleState state;
-    
     protected OnDemandVehicleStation departureStation;
-    
     protected OnDemandVehicleStation targetStation;
-    
     protected VehicleTrip currentTrip;
-    
     protected VehicleTrip demandTrip;
-	
 	protected VehicleTrip tripToStation;
-	
 	private VehicleTrip completeTrip;
-    
     protected int metersWithPassenger;
-    
     protected int metersToStartLocation;
-    
     protected int metersToStation;
-    
     private int metersRebalancing;
-    
     private SimulationNode targetNode;
-    
     private DelayData delayData;
-    
     private DemandData currentlyServedDemmand;
-    
     private int currentRebalancingId;
-	
 	protected OnDemandVehicleStation parkedIn;
     
     
@@ -152,11 +121,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		this.parkedIn = parkedIn;
 	}
 
-	
-    
-    
-    
-    
+	   
     @Inject
     public OnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 

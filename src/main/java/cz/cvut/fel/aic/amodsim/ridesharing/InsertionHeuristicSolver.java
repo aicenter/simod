@@ -27,6 +27,7 @@ import java.util.Set;
  */
 public class InsertionHeuristicSolver extends DARPSolver{
 	
+    
 	private static final int INFO_PERIOD = 1000;
 	
 //	private static 
@@ -43,8 +44,6 @@ public class InsertionHeuristicSolver extends DARPSolver{
 	
 	private final TimeProvider timeProvider;
 	
-	
-	
 	private long callCount = 0;
 	
 	private long totalTime = 0;
@@ -55,117 +54,115 @@ public class InsertionHeuristicSolver extends DARPSolver{
 	
 	private long vehiclePlanningAllCallCount = 0;
 	
-	
-	
+
 	
 	
 	@Inject
 	public InsertionHeuristicSolver(TravelTimeProvider travelTimeProvider, TravelCostProvider travelCostProvider, 
 			OnDemandVehicleStorage vehicleStorage, PositionUtil positionUtil,
 			AmodsimConfig config, TimeProvider timeProvider) {
-		super(vehicleStorage, travelTimeProvider, travelCostProvider);
-		this.positionUtil = positionUtil;
-		this.config = config;
-		this.timeProvider = timeProvider;
-		maxDistance = (double) config.amodsim.ridesharing.maxWaitTime 
-				* config.amodsim.ridesharing.maxSpeedEstimation / 3600 * 1000;
-		maxDistanceSquared = maxDistance * maxDistance;
-		maxDelayTime = config.amodsim.ridesharing.maxWaitTime  * 1000;
+            super(vehicleStorage, travelTimeProvider, travelCostProvider);
+            this.positionUtil = positionUtil;
+            this.config = config;
+            this.timeProvider = timeProvider;
+//		maxDistance = (double) config.amodsim.ridesharing.maxWaitTime 
+//				* config.amodsim.ridesharing.maxSpeedEstimation / 3600 * 1000;
+            maxDistance = 25000;
+            maxDistanceSquared = maxDistance * maxDistance;
+            maxDelayTime = config.amodsim.ridesharing.maxWaitTime  * 1000;
 	}
 
 	@Override
 	public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<OnDemandRequest> requests) {
-		callCount++;
-		long startTime = System.nanoTime();
+            callCount++;
+            long startTime = System.nanoTime();
 		
-		Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new HashMap<>();
+            Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new HashMap<>();
 		
-		double minCostIncrement = Double.MAX_VALUE;
-		DriverPlan bestPlan = null;
-		RideSharingOnDemandVehicle servingVehicle = null;
-		OnDemandRequest request = requests.get(0);
+            double minCostIncrement = Double.MAX_VALUE;
+            DriverPlan bestPlan = null;
+            RideSharingOnDemandVehicle servingVehicle = null;
+            OnDemandRequest request = requests.get(0);
 		
-		long iterationStartTime = System.nanoTime();
+            long iterationStartTime = System.nanoTime();
 		
-		for(AgentPolisEntity tVvehicle: vehicleStorage.getEntitiesForIteration()){
+            for(AgentPolisEntity tVvehicle: vehicleStorage.getEntitiesForIteration()){
 			
-			RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
-			if(canServeRequest(vehicle, request)){
-				vehiclePlanningAllCallCount++;
-				
-				PlanData newPlanData = getOptimalPlan(vehicle, request);
-				if(newPlanData != null && newPlanData.increment < minCostIncrement){
-					minCostIncrement = newPlanData.increment;
-					bestPlan = newPlanData.plan;
-					servingVehicle = vehicle;
-				}
-			}
+		RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
+		if(canServeRequest(vehicle, request)){
+                    vehiclePlanningAllCallCount++;
+                    PlanData newPlanData = getOptimalPlan(vehicle, request);
+                    if(newPlanData != null && newPlanData.increment < minCostIncrement){
+			minCostIncrement = newPlanData.increment;
+			bestPlan = newPlanData.plan;
+			servingVehicle = vehicle;
+                    }
 		}
+            }
 		
-		iterationTime += System.nanoTime() - iterationStartTime;
-		
-		if(bestPlan != null){
-			planMap.put(servingVehicle, bestPlan);
+            iterationTime += System.nanoTime() - iterationStartTime;
+            if(bestPlan != null){
+            	planMap.put(servingVehicle, bestPlan);
 			
-			// compute scheduled pickup delay
-			DriverPlanTask previousTask = null;
-			long currentDelay = 0;
-			for(DriverPlanTask task: bestPlan){
-				if(previousTask !=  null){
-					currentDelay += travelTimeProvider.getTravelTime(servingVehicle, previousTask.getLocation(), 
-							task.getLocation());
-				}
+		// compute scheduled pickup delay
+		DriverPlanTask previousTask = null;
+		long currentDelay = 0;
+		for(DriverPlanTask task: bestPlan){
+                    if(previousTask !=  null){
+			currentDelay += travelTimeProvider.getTravelTime(servingVehicle, previousTask.getLocation(), 
+			task.getLocation());
+                    }
 				
-				if(task.demandAgent == request.getDemandAgent()){
-					request.getDemandAgent().setScheduledPickupDelay(currentDelay);
-					break;
-				}
+                    if(task.demandAgent == request.getDemandAgent()){
+			request.getDemandAgent().setScheduledPickupDelay(currentDelay);
+			break;
+                    }
 				
-				previousTask = task;
-			}
+                    previousTask = task;
 		}
-		else{
-			debugFail(request);
+            }
+            else{
+		debugFail(request);
 		}
 		
-		totalTime += System.nanoTime() - startTime;
-		if(callCount % InsertionHeuristicSolver.INFO_PERIOD == 0){
-			StringBuilder sb = new StringBuilder();
-			sb.append("Insetrion Heuristic Stats: \n");
-			sb.append("Real time: ").append(System.nanoTime()).append(readableTime(System.nanoTime())).append("\n");
-			sb.append("Simulation time: ").append(timeProvider.getCurrentSimTime())
+            totalTime += System.nanoTime() - startTime;
+            if(callCount % InsertionHeuristicSolver.INFO_PERIOD == 0){
+		StringBuilder sb = new StringBuilder();
+		sb.append("Insetrion Heuristic Stats: \n");
+		sb.append("Real time: ").append(System.nanoTime()).append(readableTime(System.nanoTime())).append("\n");
+		sb.append("Simulation time: ").append(timeProvider.getCurrentSimTime())
 					.append(readableTime(timeProvider.getCurrentSimTime() * 1000000)).append("\n");
-			sb.append("Call count: ").append(callCount).append("\n");
-			sb.append("Total time: ").append(totalTime).append(readableTime(totalTime)).append("\n");
-			sb.append("Iteration time: ").append(iterationTime).append(readableTime(iterationTime)).append("\n");
-			sb.append("Can serve call count: ").append(canServeRequestCallCount).append("\n");
-			sb.append("Vehicle planning call count: ").append(vehiclePlanningAllCallCount).append("\n");
-			sb.append("Traveltime call count: ").append(((EuclideanTravelTimeProvider) travelTimeProvider).getCallCount()).append("\n");
-			System.out.println(sb.toString());
-		}
-		return planMap;
+		sb.append("Call count: ").append(callCount).append("\n");
+		sb.append("Total time: ").append(totalTime).append(readableTime(totalTime)).append("\n");
+		sb.append("Iteration time: ").append(iterationTime).append(readableTime(iterationTime)).append("\n");
+		sb.append("Can serve call count: ").append(canServeRequestCallCount).append("\n");
+		sb.append("Vehicle planning call count: ").append(vehiclePlanningAllCallCount).append("\n");
+		sb.append("Traveltime call count: ").append(((EuclideanTravelTimeProvider) travelTimeProvider).getCallCount()).append("\n");
+		System.out.println(sb.toString());
+            }
+            return planMap;
 	}
 	
 	private boolean canServeRequest(RideSharingOnDemandVehicle vehicle, OnDemandRequest request){
-		canServeRequestCallCount++;
+            canServeRequestCallCount++;
 		
-		// do not mess with rebalancing
-		if(vehicle.getState() == OnDemandVehicleState.REBALANCING){
-			return false;
-		}
+            // do not mess with rebalancing
+            if(vehicle.getState() == OnDemandVehicleState.REBALANCING){
+		return false;
+            }
 		
-		// node identity
-		if(vehicle.getPosition() == request.getPosition()){
-			return true;
-		}
+            // node identity
+            if(vehicle.getPosition() == request.getPosition()){
+		return true;
+            }
 		
-		// euclidean distance check
-		double dist_x = vehicle.getPosition().getLatitudeProjected() - request.getPosition().getLatitudeProjected();
-		double dist_y = vehicle.getPosition().getLongitudeProjected() - request.getPosition().getLongitudeProjected();
-		double distanceSquared = dist_x * dist_x + dist_y * dist_y;
-		if(distanceSquared > maxDistanceSquared){
-			return false;
-		}
+            // euclidean distance check
+            double dist_x = vehicle.getPosition().getLatitudeProjected() - request.getPosition().getLatitudeProjected();
+            double dist_y = vehicle.getPosition().getLongitudeProjected() - request.getPosition().getLongitudeProjected();
+            double distanceSquared = dist_x * dist_x + dist_y * dist_y;
+            if(distanceSquared > maxDistanceSquared){
+            return false;
+	}
 //		double distance = GPSLocationTools.computeDistanceAsDouble(vehicle.getPosition(), request.getPosition());
 //		if(distance > maxDistance){
 //			return false;
@@ -420,7 +417,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		
 		final double increment;
 
-		public PlanData(DriverPlan plan, double increment) {
+	public PlanData(DriverPlan plan, double increment) {
 			this.plan = plan;
 			this.increment = increment;
 		}

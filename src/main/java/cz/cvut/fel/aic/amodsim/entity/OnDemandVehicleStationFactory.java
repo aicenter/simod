@@ -18,6 +18,7 @@ import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.util.Map;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -26,6 +27,7 @@ import java.util.Map;
 
 @Singleton
 public class OnDemandVehicleStationFactory {
+     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OnDemandVehicleStationFactory.class);
     
     private final AmodsimConfig config;
     
@@ -48,10 +50,10 @@ public class OnDemandVehicleStationFactory {
     @Inject
     public OnDemandVehicleStationFactory(AmodsimConfig config, EventProcessor eventProcessor, OnDemandVehicleFactorySpec 
             onDemandVehicleFactory, NearestElementUtils nearestElementUtils, OnDemandvehicleStationStorage 
-                    onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage,
-                    Transformer transformer, PositionUtil positionUtil, 
-                    OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
-                    Map<Long, SimulationNode> nodesMappedByNodeSourceIds) {
+            onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage,
+            Transformer transformer, PositionUtil positionUtil, 
+            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
+            Map<Long, SimulationNode> nodesMappedByNodeSourceIds) {
         this.config = config;
         this.eventProcessor = eventProcessor;
         this.onDemandVehicleFactory = onDemandVehicleFactory;
@@ -63,13 +65,14 @@ public class OnDemandVehicleStationFactory {
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
     }
     
-    
-    
+   
     
     public OnDemandVehicleStation create(String id, SimulationNode node, int initialVehicleCount){
-        return new OnDemandVehicleStation(config, eventProcessor, onDemandVehicleFactory, nearestElementUtils,
-                onDemandVehicleStationStorage, onDemandVehicleStorage, id, node, 
-                initialVehicleCount, transformer, positionUtil, 
-                onDemandVehicleStationsCentral);
+        LOGGER.info(String.format("id %s, node %d at (%d %d), vehicles %d", id, node.id, node.latE6, node.lonE6, initialVehicleCount));
+        return new OnDemandVehicleStation(config, eventProcessor,
+            onDemandVehicleFactory, nearestElementUtils,
+            onDemandVehicleStationStorage, onDemandVehicleStorage, 
+            id, node,  initialVehicleCount, transformer, 
+            positionUtil, onDemandVehicleStationsCentral);
     }
 }

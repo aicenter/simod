@@ -44,21 +44,13 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OnDemandVehicleStation.class);
     
     private final LinkedList<OnDemandVehicle> parkedVehicles;
-    
     private final EventProcessor eventProcessor;
-
     private final LinkedList<DepartureCard> departureCards;
-    
     private final Transformer transformer;
-    
     private final PositionUtil positionUtil;
-    
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
-    
     private final AmodsimConfig config;
-
-    
-    
+ 
     
 
     public OnDemandVehicleStation(AmodsimConfig config, EventProcessor eventProcessor, 
@@ -68,15 +60,18 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             @Assisted int initialVehicleCount, Transformer transformer, PositionUtil positionUtil, 
             OnDemandVehicleStationsCentral onDemandVehicleStationsCentral) {
         super(id, node);
+
+
         this.eventProcessor = eventProcessor;
         parkedVehicles = new LinkedList<>();
-//		initialVehicleCount = 10;
+        LOGGER.info("Initial count = %d", initialVehicleCount);
+		//initialVehicleCount = 10;
         for (int i = 0; i < initialVehicleCount; i++) {
-			String onDemandVehicelId = String.format("%s-%d", id, i);
-			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, getPosition());
+            String onDemandVehicelId = String.format("%s-%d", id, i);
+            OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, getPosition());
             parkedVehicles.add(newVehicle);
-			newVehicle.setParkedIn(this);
-			onDemandVehicleStorage.addEntity(newVehicle);
+            newVehicle.setParkedIn(this);
+            onDemandVehicleStorage.addEntity(newVehicle);
         }
         onDemandVehicleStationStorage.addEntity(this);
         this.departureCards = new LinkedList<>();
@@ -86,8 +81,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         this.config = config;
     }
     
-    
-    
+       
 
     @Override
     public EntityType getType() {
@@ -123,16 +117,16 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             }
         }
         parkedVehicles.add(onDemandVehicle);
-		onDemandVehicle.setParkedIn(this);
+	onDemandVehicle.setParkedIn(this);
     }
 	
-	public void releaseVehicle(OnDemandVehicle vehicle){
-		parkedVehicles.remove(vehicle);
-		vehicle.setParkedIn(null);
-		if(getParkedVehiclesCount() == 0){
-			System.out.println("Station is empty!" + getId());
-		}
-	}
+    public void releaseVehicle(OnDemandVehicle vehicle){
+        parkedVehicles.remove(vehicle);
+        vehicle.setParkedIn(null);
+        if(getParkedVehiclesCount() == 0){
+            System.out.println("Station is empty!" + getId());
+        }
+    }
     
     public int getParkedVehiclesCount(){
         return parkedVehicles.size();
@@ -173,7 +167,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         OnDemandVehicle vehicle = getVehicle();
         if(vehicle != null){
             vehicle.startRebalancing(rebalancingTrip.getLocations().getLast());
-            return true;
+            return false;
         }
         else{
             return false;
@@ -186,25 +180,27 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 
     private OnDemandVehicle getVehicle() {
         OnDemandVehicle nearestVehicle;
-
         nearestVehicle = parkedVehicles.poll();
-        
         return nearestVehicle;
     }
     
     private NearestElementUtil<OnDemandVehicle> getNearestElementUtilForVehiclesBeforeDeparture(
             OnDemandVehicleStation targetStation) {
+        
+        
         List<NearestElementUtilPair<Coordinate,OnDemandVehicle>> pairs = new ArrayList<>();
         
-		for(DepartureCard departureCard : departureCards) {
+	for (DepartureCard departureCard : departureCards) {
             if(departureCard.getTargetStation() == targetStation){
                 GPSLocation location = departureCard.getDemandVehicle().getPosition();
 
                 pairs.add(new NearestElementUtilPair<>(
-                    new Coordinate(location.getLongitude(), location.getLatitude(), location.elevation),
+                    new Coordinate(location.getLongitude(), 
+                        location.getLatitude(),
+                        location.elevation),
                         departureCard.getDemandVehicle()));
             }
-		}
+	}
         if(pairs.size() > 0){
             return new NearestElementUtil<>(pairs, transformer, new OnDemandVehicleStation.OnDemandVehicleArrayConstructor());
         }
@@ -228,7 +224,8 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     
     
     public interface OnDemandVehicleStationFactory {
-        public OnDemandVehicleStation create(String id, Node node, int initialVehicleCount);
+        public OnDemandVehicleStation create(String id,
+            Node node, int initialVehicleCount);
     }
     
     
@@ -251,7 +248,6 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             this.demandVehicle = demandVehicle;
             this.targetStation = targetStation;
         }
-
     }
     
     private static class OnDemandVehicleArrayConstructor 
@@ -261,6 +257,5 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         public OnDemandVehicle[] apply(int value) {
             return new OnDemandVehicle[value];
         }
-
     }
 }

@@ -26,7 +26,6 @@ import java.util.Map.Entry;
  */
 @Singleton
 public class RidesharingStationsCentral extends OnDemandVehicleStationsCentral{
-	
 	private final DARPSolver solver;
 	
 	

@@ -141,16 +141,15 @@ public class TripTransform {
         
         LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);
         LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
-		
-		return trips; 
+        return trips; 
     }
     
     private void processGpsTrip(TimeTrip<GPSLocation> gpsTrip, List<TimeTrip<SimulationNode>>trips) {
-		List<GPSLocation> locations = gpsTrip.getLocations();
-		SimulationNode startNode = nearestElementUtils.getNearestElement(locations.get(0), EGraphType.HIGHWAY);
+	List<GPSLocation> locations = gpsTrip.getLocations();
+	SimulationNode startNode = nearestElementUtils.getNearestElement(locations.get(0), EGraphType.HIGHWAY);
         SimulationNode targetNode = nearestElementUtils.getNearestElement(locations.get(locations.size() - 1), EGraphType.HIGHWAY);
 	
-		if(startNode != targetNode){
+	if(startNode != targetNode){
             LinkedList<SimulationNode> nodesList = new LinkedList<>();
             nodesList.add(startNode);
             nodesList.add(targetNode);

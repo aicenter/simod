@@ -19,7 +19,6 @@ import java.util.List;
 @Singleton
 public class EntityInitializer {
     private final OnDemandvehicleStationStorage onDemandVehicleStationStorage;
-    
     private final NearestElementUtils nearestElementUtils;
 
     

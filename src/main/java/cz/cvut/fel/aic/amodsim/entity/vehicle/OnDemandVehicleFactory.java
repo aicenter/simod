@@ -18,6 +18,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -25,28 +26,21 @@ import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
  */
 @Singleton
 public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OnDemandVehicleFactory.class);
     
     protected final TripsUtil tripsUtil;
-    
     protected final boolean precomputedPaths;
-    
     protected final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
-    
     protected final PhysicalVehicleDriveFactory driveActivityFactory;
-    
     protected final PositionUtil positionUtil;
-    
     protected final EventProcessor eventProcessor;
-    
     protected final StandardTimeProvider timeProvider;
-    
     protected final IdGenerator rebalancingIdGenerator;
-    
     protected final PhysicalTransportVehicleStorage vehicleStorage;
-    
     protected final AmodsimConfig config;
-
     
+    private int vehicleCounter;
+ 
     
     
     @Inject
@@ -65,14 +59,18 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
         this.rebalancingIdGenerator = rebalancingIdGenerator;
         this.vehicleStorage = vehicleStorage;
         this.config = config;
+        this.vehicleCounter = 0;
     }
     
     
     
     @Override
     public OnDemandVehicle create(String vehicleId, SimulationNode startPosition){
+        
+        LOGGER.info("%d vehicle (id = %s)", ++this.vehicleCounter, vehicleId);
         return new OnDemandVehicle(vehicleStorage, tripsUtil, 
                 onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, eventProcessor, timeProvider, 
                 precomputedPaths, rebalancingIdGenerator, config, vehicleId, startPosition);
+                
     }
 }

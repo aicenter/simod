@@ -44,6 +44,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.InsertionSolver;
+
 /**
  *
  * @author fido
@@ -77,17 +79,18 @@ public class MainModule extends StandardAgentPolisModule{
             bind(TripsUtil.class).to(TripsUtilCached.class);
         }
         bind(DemandLayer.class).to(DemandLayerWithJitter.class);
+
         
-        bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
-//        bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
+//      bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
+        bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 
         if(amodsimConfig.amodsim.ridesharing.on){
-			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
-			bind(OnDemandVehicleStationsCentral.class).to(RidesharingStationsCentral.class);
-			bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
-			bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
-        }
-        else{
+            bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
+            bind(OnDemandVehicleStationsCentral.class).to(RidesharingStationsCentral.class);
+           // bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
+            bind(DARPSolver.class).to(InsertionSolver.class);
+            bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
+        } else{
            bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
         }
         install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
@@ -98,16 +101,15 @@ public class MainModule extends StandardAgentPolisModule{
 	@Singleton
 	Map<Long,SimulationNode> provideNodesMappedByNodeSourceIds(
             HighwayNetwork highwayNetwork, AllNetworkNodes allNetworkNodes) {
-        Map<Long,Integer> nodeIdsMappedByNodeSourceIds = highwayNetwork.getNetwork().createSourceIdToNodeIdMap();
-        Map<Long,SimulationNode> nodesMappedByNodeSourceIds = new HashMap<>();
+            Map<Long,Integer> nodeIdsMappedByNodeSourceIds = highwayNetwork.getNetwork().createSourceIdToNodeIdMap();
+            Map<Long,SimulationNode> nodesMappedByNodeSourceIds = new HashMap<>();
         
-        for (Map.Entry<Long, Integer> entry : nodeIdsMappedByNodeSourceIds.entrySet()) {
-            Long key = entry.getKey();
-            Integer value = entry.getValue();
-            nodesMappedByNodeSourceIds.put(key, allNetworkNodes.getNode(value));
-        }
-        
-		return nodesMappedByNodeSourceIds;
+            for (Map.Entry<Long, Integer> entry : nodeIdsMappedByNodeSourceIds.entrySet()) {
+                Long key = entry.getKey();
+                Integer value = entry.getValue();
+                nodesMappedByNodeSourceIds.put(key, allNetworkNodes.getNode(value));
+            }
+            return nodesMappedByNodeSourceIds;
 	}
     
     

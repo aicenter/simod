@@ -40,8 +40,7 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     
     private final EventProcessor eventProcessor;
 	
-	private final AmodsimConfig config;
-    
+    private final AmodsimConfig config;
     
     private NearestElementUtil<OnDemandVehicleStation> nearestElementUtil;
     
@@ -72,16 +71,15 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
         return rebalancingDropped;
     }
     
-    
-    
+ 
     
     
     @Inject
     public OnDemandVehicleStationsCentral(OnDemandvehicleStationStorage onDemandvehicleStationStorage,
-            EventProcessor eventProcessor, AmodsimConfig config, @Named("mapSrid") int srid) {
+        EventProcessor eventProcessor, AmodsimConfig config, @Named("mapSrid") int srid) {
         this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
         this.eventProcessor = eventProcessor;
-		this.config = config;
+	this.config = config;
         transformer = new Transformer(srid);
         numberOfDemandsNotServedFromNearestStation = 0;
         numberOfDemandsDropped = 0;
@@ -183,27 +181,25 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     }
 
 	protected void serveDemand(Node startNode, DemandData demandData) {
-		OnDemandVehicleStation nearestStation = getNearestReadyStation(startNode); 
-		if(nearestStation != null){
-			nearestStation.handleTripRequest(demandData);
-		}
-		else{
-			numberOfDemandsDropped++;
-		}
+            OnDemandVehicleStation nearestStation = getNearestReadyStation(startNode); 
+            if(nearestStation != null){
+		nearestStation.handleTripRequest(demandData);
+            }
+            else{
+		numberOfDemandsDropped++;
+            }
 	}
     
     
     
     
-    
     private static class OnDemandVehicleStationArrayConstructor 
-            implements SerializableIntFunction<OnDemandVehicleStation[]>{
+        implements SerializableIntFunction<OnDemandVehicleStation[]>{
 
         @Override
         public OnDemandVehicleStation[] apply(int value) {
             return new OnDemandVehicleStation[value];
         }
-
     }
     
     

@@ -20,156 +20,129 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.LoggerFactory;
+
 
 /**
  *
  * @author F.I.D.O.
  */
-public class InsertionHeuristicSolver extends DARPSolver{
-	
-	private static final int INFO_PERIOD = 1000;
-	
-//	private static 
-
-	private final PositionUtil positionUtil;
-	
-	private final AmodsimConfig config;
-	
+public class InsertionSolver extends DARPSolver{
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(InsertionSolver.class);
+	private static final int INFO_PERIOD = 10000;
+    private final PositionUtil positionUtil;
+    private final AmodsimConfig config;
 	private final double maxDistance;
-	
 	private final double maxDistanceSquared;
-	
 	private final int maxDelayTime;
-	
 	private final TimeProvider timeProvider;
-	
-	
-	
 	private long callCount = 0;
-	
 	private long totalTime = 0;
-	
 	private long iterationTime = 0;
-	
 	private long canServeRequestCallCount = 0;
-	
 	private long vehiclePlanningAllCallCount = 0;
 	
 	
-	
-	
-	
 	@Inject
-	public InsertionHeuristicSolver(TravelTimeProvider travelTimeProvider, TravelCostProvider travelCostProvider, 
+	public InsertionSolver(TravelTimeProvider travelTimeProvider, TravelCostProvider travelCostProvider, 
 			OnDemandVehicleStorage vehicleStorage, PositionUtil positionUtil,
 			AmodsimConfig config, TimeProvider timeProvider) {
-		super(vehicleStorage, travelTimeProvider, travelCostProvider);
-		this.positionUtil = positionUtil;
-		this.config = config;
-		this.timeProvider = timeProvider;
-		maxDistance = (double) config.amodsim.ridesharing.maxWaitTime 
+        super(vehicleStorage, travelTimeProvider, travelCostProvider);
+        this.positionUtil = positionUtil;
+        this.config = config;
+        this.timeProvider = timeProvider;
+    	maxDistance = (double) config.amodsim.ridesharing.maxWaitTime 
 				* config.amodsim.ridesharing.maxSpeedEstimation / 3600 * 1000;
-		maxDistanceSquared = maxDistance * maxDistance;
-		maxDelayTime = config.amodsim.ridesharing.maxWaitTime  * 1000;
+  //        maxDistance = 25000;
+        maxDistanceSquared = maxDistance * maxDistance;
+        maxDelayTime = config.amodsim.ridesharing.maxWaitTime  * 1000;
 	}
 
 	@Override
 	public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<OnDemandRequest> requests) {
-		callCount++;
-		long startTime = System.nanoTime();
+        callCount++;
+        long startTime = System.nanoTime();
 		
-		Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new HashMap<>();
-		
+        Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new HashMap<>();
 		double minCostIncrement = Double.MAX_VALUE;
-		DriverPlan bestPlan = null;
-		RideSharingOnDemandVehicle servingVehicle = null;
-		OnDemandRequest request = requests.get(0);
+        DriverPlan bestPlan = null;
+        RideSharingOnDemandVehicle servingVehicle = null;
+        OnDemandRequest request = requests.get(0);
 		
-		long iterationStartTime = System.nanoTime();
+        long iterationStartTime = System.nanoTime();
+	    for(AgentPolisEntity tVehicle: vehicleStorage.getEntitiesForIteration()){
+			RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVehicle;
+            if(canServeRequest(vehicle, request)){
+                vehiclePlanningAllCallCount++;
+                PlanData newPlanData = getOptimalPlan(vehicle, request);
+                if(newPlanData != null && newPlanData.increment < minCostIncrement){
+                    minCostIncrement = newPlanData.increment;
+                    bestPlan = newPlanData.plan;
+                    servingVehicle = vehicle;
+                }
+            }
+        }
 		
-		for(AgentPolisEntity tVvehicle: vehicleStorage.getEntitiesForIteration()){
-			
-			RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
-			if(canServeRequest(vehicle, request)){
-				vehiclePlanningAllCallCount++;
-				
-				PlanData newPlanData = getOptimalPlan(vehicle, request);
-				if(newPlanData != null && newPlanData.increment < minCostIncrement){
-					minCostIncrement = newPlanData.increment;
-					bestPlan = newPlanData.plan;
-					servingVehicle = vehicle;
-				}
-			}
-		}
-		
-		iterationTime += System.nanoTime() - iterationStartTime;
-		
-		if(bestPlan != null){
-			planMap.put(servingVehicle, bestPlan);
-			
+        iterationTime += System.nanoTime() - iterationStartTime;
+        if(bestPlan != null){
+            planMap.put(servingVehicle, bestPlan);
 			// compute scheduled pickup delay
-			DriverPlanTask previousTask = null;
-			long currentDelay = 0;
-			for(DriverPlanTask task: bestPlan){
-				if(previousTask !=  null){
-					currentDelay += travelTimeProvider.getTravelTime(servingVehicle, previousTask.getLocation(), 
-							task.getLocation());
-				}
-				
+            DriverPlanTask previousTask = null;
+            long currentDelay = 0;
+            for(DriverPlanTask task: bestPlan){
+                if(previousTask !=  null){
+                    currentDelay += travelTimeProvider.getTravelTime(servingVehicle, previousTask.getLocation(), 
+                    task.getLocation());
+                }
 				if(task.demandAgent == request.getDemandAgent()){
-					request.getDemandAgent().setScheduledPickupDelay(currentDelay);
-					break;
-				}
-				
+                    request.getDemandAgent().setScheduledPickupDelay(currentDelay);
+                    break;
+                }
 				previousTask = task;
-			}
+            }
+        }else{
+            debugFail(request);
 		}
-		else{
-			debugFail(request);
-		}
-		
 		totalTime += System.nanoTime() - startTime;
-		if(callCount % InsertionHeuristicSolver.INFO_PERIOD == 0){
-			StringBuilder sb = new StringBuilder();
-			sb.append("Insetrion Heuristic Stats: \n");
-			sb.append("Real time: ").append(System.nanoTime()).append(readableTime(System.nanoTime())).append("\n");
-			sb.append("Simulation time: ").append(timeProvider.getCurrentSimTime())
+        if(callCount % InsertionSolver.INFO_PERIOD == 0){
+            StringBuilder sb = new StringBuilder();
+            sb.append("Insetrion Heuristic Stats: \n");
+            sb.append("Real time: ").append(System.nanoTime()).append(readableTime(System.nanoTime())).append("\n");
+            sb.append("Simulation time: ").append(timeProvider.getCurrentSimTime())
 					.append(readableTime(timeProvider.getCurrentSimTime() * 1000000)).append("\n");
-			sb.append("Call count: ").append(callCount).append("\n");
-			sb.append("Total time: ").append(totalTime).append(readableTime(totalTime)).append("\n");
-			sb.append("Iteration time: ").append(iterationTime).append(readableTime(iterationTime)).append("\n");
-			sb.append("Can serve call count: ").append(canServeRequestCallCount).append("\n");
-			sb.append("Vehicle planning call count: ").append(vehiclePlanningAllCallCount).append("\n");
-			sb.append("Traveltime call count: ").append(((EuclideanTravelTimeProvider) travelTimeProvider).getCallCount()).append("\n");
-			System.out.println(sb.toString());
-		}
-		return planMap;
+            sb.append("Call count: ").append(callCount).append("\n");
+            sb.append("Total time: ").append(totalTime).append(readableTime(totalTime)).append("\n");
+            sb.append("Iteration time: ").append(iterationTime).append(readableTime(iterationTime)).append("\n");
+            sb.append("Can serve call count: ").append(canServeRequestCallCount).append("\n");
+            sb.append("Vehicle planning call count: ").append(vehiclePlanningAllCallCount).append("\n");
+            sb.append("Traveltime call count: ").append(((EuclideanTravelTimeProvider) travelTimeProvider).getCallCount()).append("\n");
+            System.out.println(sb.toString());
+        }
+        return planMap;
 	}
 	
 	private boolean canServeRequest(RideSharingOnDemandVehicle vehicle, OnDemandRequest request){
-		canServeRequestCallCount++;
+        canServeRequestCallCount++;
 		
-		// do not mess with rebalancing
-		if(vehicle.getState() == OnDemandVehicleState.REBALANCING){
-			return false;
-		}
-		
+        // do not mess with rebalancing
+        if(vehicle.getState() == OnDemandVehicleState.REBALANCING){
+            return false;
+        }
 		// node identity
-		if(vehicle.getPosition() == request.getPosition()){
-			return true;
-		}
+        //TODO 50 meters pickup range
+        //getPosition returns Simulation Node, just check euclidean dist as below
+        // if it's less than 50 return true
+        if(vehicle.getPosition() == request.getPosition()){
+            return true;
+        }
 		
-		// euclidean distance check
-		double dist_x = vehicle.getPosition().getLatitudeProjected() - request.getPosition().getLatitudeProjected();
-		double dist_y = vehicle.getPosition().getLongitudeProjected() - request.getPosition().getLongitudeProjected();
-		double distanceSquared = dist_x * dist_x + dist_y * dist_y;
-		if(distanceSquared > maxDistanceSquared){
-			return false;
-		}
-//		double distance = GPSLocationTools.computeDistanceAsDouble(vehicle.getPosition(), request.getPosition());
-//		if(distance > maxDistance){
-//			return false;
-//		}
+        //Time-window check
+        double dist_x = vehicle.getPosition().getLatitudeProjected() - request.getPosition().getLatitudeProjected();
+        double dist_y = vehicle.getPosition().getLongitudeProjected() - request.getPosition().getLongitudeProjected();
+        double distanceSquared = dist_x * dist_x + dist_y * dist_y;
+        if(distanceSquared > maxDistanceSquared){
+            return false;
+        }
 		
 		// real feasibility check 
 		// TODO compute from interpolated position
@@ -190,8 +163,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		int freeCapacity = vehicle.getFreeCapacity();
 		
 		for(int pickupOptionIndex = 1; pickupOptionIndex <= currentPlan.getLength(); pickupOptionIndex++){
-			
-			// continue if the vehicle is full
+            // continue if the vehicle is full
 			if(freeCapacity == 0){
 				continue;
 			}
@@ -214,8 +186,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 			if(pickupOptionIndex < currentPlan.getLength()){
 				if(currentPlan.plan.get(pickupOptionIndex).getTaskType() == DriverPlanTaskType.PICKUP){
 					freeCapacity--;
-				}
-				else{
+				}else{
 					freeCapacity++;
 				}
 			}
@@ -243,13 +214,11 @@ public class InsertionHeuristicSolver extends DARPSolver{
 			if(newPlanIndex == pickupOptionIndex){
 				newTask = new DriverPlanTask(DriverPlanTaskType.PICKUP, request.getDemandAgent(), 
 						request.getDemandAgent().getPosition());
-			}
-			else if(newPlanIndex == dropoffOptionIndex){
+			}else if(newPlanIndex == dropoffOptionIndex){
 				newTask = new DriverPlanTask(DriverPlanTaskType.DROPOFF, request.getDemandAgent(), 
 						request.getTargetLocation());
 				finishedDemand = request.getDemandAgent();
-			}
-			else{
+			}else{
 				newTask = oldPlanIterator.next();
 				if(newTask.getTaskType() == DriverPlanTaskType.DROPOFF){
 					finishedDemand = newTask.getDemandAgent();
@@ -259,8 +228,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 			/* chceck capacity */
 			if(newTask.getTaskType() == DriverPlanTaskType.DROPOFF){
 				freeCapacity++;
-			}
-			else if(newTask.getTaskType() == DriverPlanTaskType.PICKUP){
+			}else if(newTask.getTaskType() == DriverPlanTaskType.PICKUP){
 				if(freeCapacity == 0){
 					return null;
 				}
@@ -295,7 +263,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		return new DriverPlan(newPlan, planTravelTime);
 	}
 
-	// TODO passanger time constraints
+	// TODO passenger time constraints
 	private boolean planFeasible(DriverPlan potentialPlan, RideSharingOnDemandVehicle vehicle) {
 		int occupancy = vehicle.getOnBoardCount();
 		int capacity = vehicle.getVehicle().getCapacity();
@@ -326,7 +294,6 @@ public class InsertionHeuristicSolver extends DARPSolver{
 						travelTimeProvider.getTravelTime(vehicle, previousTask.getLocation(), task.getLocation());
 				if(planIterator.hasNext()){
 					DriverPlanTask nextTask = planIterator.next();
-				
 					costAddition += travelTimeProvider.getTravelTime(vehicle, task.getLocation(), nextTask.getLocation());
 					// drop off next to pickup
 					if(task.getTaskType() == DriverPlanTaskType.PICKUP
@@ -339,8 +306,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 									travelTimeProvider.getTravelTime(vehicle, previousTask.getLocation(), nextNextTask.getLocation());
 							break;
 						}
-					}
-					else{
+					}else{
 						costAddition -=
 								travelTimeProvider.getTravelTime(vehicle, previousTask.getLocation(), nextTask.getLocation());
 						if(task.getTaskType() == DriverPlanTaskType.DROPOFF){
@@ -349,8 +315,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 						previousTask = nextTask;
 					}
 				}
-			}
-			else{
+			}else{
 				previousTask = task;
 			}
 		}
@@ -361,31 +326,26 @@ public class InsertionHeuristicSolver extends DARPSolver{
 	private void debugFail(OnDemandRequest request) {
 		boolean freeVehicle = false;
 		double bestCartesianDistance = Double.MAX_VALUE;
-		double bestTravelTimne = Double.MAX_VALUE;
+		double bestTravelTime = Double.MAX_VALUE;
 		
 		for(OnDemandVehicle tVvehicle: vehicleStorage){
 			RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
 			if(vehicle.hasFreeCapacity()){
 				freeVehicle = true;
-				
 				// cartesian distance check
 				double distance = positionUtil.getPosition(vehicle.getPosition())
 						.distance(positionUtil.getPosition(request.getPosition()));
-
-				if(distance < bestCartesianDistance){
+    			if(distance < bestCartesianDistance){
 					bestCartesianDistance = distance;
 				}
-				
-				
 				if(distance < maxDistance){
-						// real feasibility check 
+					// real feasibility check 
 					// TODO compute from interpolated position
 					double travelTime = 
 							travelTimeProvider.getTravelTime(vehicle, vehicle.getPosition(), request.getPosition());
 
-
-					if(travelTime < bestTravelTimne){
-						bestTravelTimne = travelTime;
+					if(travelTime < bestTravelTime){
+						bestTravelTime = travelTime;
 					}
 				}
 			}
@@ -397,8 +357,8 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		else if(bestCartesianDistance > maxDistance){
 			System.out.println("Request " + requestId + ": Cannot serve request - Too big distance: " + bestCartesianDistance + "m (max distance: " + maxDistance + ")");
 		}
-		else if(bestTravelTimne > maxDelayTime){
-			System.out.println("Request " + requestId + ": Cannot serve request - Too big traveltime to startLoaction: " + bestTravelTimne);
+		else if(bestTravelTime > maxDelayTime){
+			System.out.println("Request " + requestId + ": Cannot serve request - Too big traveltime to startLoaction: " + bestTravelTime);
 		}
 		else{
 			System.out.println("Request " + requestId + ": Cannot serve request - Some other problem - all nearby vehicle plans infeasible?");
@@ -417,14 +377,12 @@ public class InsertionHeuristicSolver extends DARPSolver{
 	
 	private class PlanData{
 		final DriverPlan plan;
-		
 		final double increment;
 
-		public PlanData(DriverPlan plan, double increment) {
+	public PlanData(DriverPlan plan, double increment) {
 			this.plan = plan;
 			this.increment = increment;
 		}
-		
 		
 	}
 	

@@ -14,12 +14,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class StartTargetNodePair {
     private final int startNodeId;
-    
     private final int targetNodeId;
 
-    
-    
-    
+        
     public int getStartNodeId() {
         return startNodeId;
     }
@@ -27,8 +24,6 @@ public class StartTargetNodePair {
     public int getTargetNodeId() {
         return targetNodeId;
     }
-    
-    
     
     
     public StartTargetNodePair(int startNodeId, int targetNodeId) {
@@ -69,8 +64,5 @@ public class StartTargetNodePair {
     public String toString() {
         return startNodeId + "-" + targetNodeId;
     }
-    
-    
-    
     
 }

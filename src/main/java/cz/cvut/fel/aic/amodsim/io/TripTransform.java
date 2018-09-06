@@ -41,14 +41,13 @@ public class TripTransform {
     
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TripTransform.class);
     
-//	private PathPlanner pathPlanner;
-    
     private int zeroLenghtTripsCount = 0;
-    
     private int sameStartAndTargetInDataCount = 0;
-    
+    private int tooLongTripsCount = 0;
+    //move to config
+    //
+    private final double maxTripLength = 25;
     private final Graph<SimulationNode,SimulationEdge> highwayGraph;
-    
     private final NearestElementUtils nearestElementUtils;
     
 
@@ -57,45 +56,8 @@ public class TripTransform {
         this.highwayGraph = highwayNetwork.getNetwork();
         this.nearestElementUtils = nearestElementUtils;
     }
-    
-    
-    
-    
-    
-	
-//	public List<TimeTrip<Long>> gpsTripsToOsmNodeTrips(List<TimeTrip<GPSLocation>> gpsTrips, 
-//			File osmFile, int srid){
-//		return gpsTripsToOsmNodeTrips(gpsTrips, osmFile, srid, true);
-//	}
-	
-//	public List<TimeTrip<Long>> gpsTripsToOsmNodeTrips(List<TimeTrip<GPSLocation>> gpsTrips, 
-//			File osmFile, int srid, boolean completedTrips){
-//        Graph<SimulationNode, SimulationEdge> highwayGraph = OsmUtil.getHigwayGraph(osmFile,srid);
-//
-//		List<NearestElementUtilPair<Coordinate, SimulationNode>> pairs = new ArrayList<>();
-//		
-//		for (SimulationNode roadNode : highwayGraph.getAllNodes()) {
-//			pairs.add(new NearestElementUtilPair<>(new Coordinate(roadNode.getLongitude(), roadNode.getLatitude()), roadNode));
-//		}
-//		
-//		NearestElementUtil<SimulationNode> nearestElementUtil = new NearestElementUtil<>(pairs, new Transformer(4326), 
-//				new SimulationNodeArrayConstructor());
-//		ArrayList<TimeTrip<Long>> osmNodeTrips = new ArrayList<>();
-//		
-//		if(completedTrips){
-//			pathPlanner = new PathPlanner(highwayGraph);
-//		}
-//		
-//		for (TimeTrip<GPSLocation> trip : gpsTrips) {
-//			processGpsTrip(trip, nearestElementUtil, osmNodeTrips, completedTrips);
-//		}
-//        
-//        System.out.println("Number of trips with same source and destination: " + sameStartAndTargetInDataCount);
-//        System.out.println(zeroLenghtTripsCount + " trips with zero lenght discarded");
-//		
-//		return osmNodeTrips;
-//	}
-	
+       
+
 	public static <T> void tripsToJson(List<TimeTrip<T>> trips, File outputFile) throws IOException{
 		ObjectMapper mapper = new ObjectMapper();
 		
@@ -123,12 +85,19 @@ public class TripTransform {
                
                if(startLocation.equals(targetLocation)){
                    sameStartAndTargetInDataCount++;
-               }
-               else{
-                    gpsTrips.add(new TimeTrip<>(startLocation, targetLocation, 
-                       Long.parseLong(parts[0].split("\\.")[0])));
-               }
+               }else {
+                   double dist = approximateDistance(startLocation, targetLocation);
+                   //System.out.println("Distance = " + dist);
+                   if( dist >= maxTripLength){
+                        tooLongTripsCount++;
+                        LOGGER.info("Too long: {}", approximateDistance(startLocation, targetLocation));
+                    }else{
+                        gpsTrips.add(new TimeTrip<>(startLocation, targetLocation, 
+                        Long.parseLong(parts[0].split("\\.")[0])));
+                   }
+                }
             }
+            
         } catch (IOException ex) {
             LOGGER.error(null, ex);
         }
@@ -141,7 +110,20 @@ public class TripTransform {
         
         LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);
         LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
+        LOGGER.info("{} too long trips discarded", tooLongTripsCount);
         return trips; 
+    }
+    
+    private double approximateDistance(GPSLocation start, GPSLocation target ){
+        double lat1 = target.getLatitude();
+        double lat0 = start.getLatitude();
+        double lon1 = target.getLongitude();
+        double lon0 = start.getLongitude();
+        final double degreeLength = 111;
+        final double cosLatitude = Math.cos(59);
+        double x = lat1 - lat0;
+        double y = (lon1 - lon0)*cosLatitude;
+        return degreeLength * Math.sqrt(x*x + y*y);
     }
     
     private void processGpsTrip(TimeTrip<GPSLocation> gpsTrip, List<TimeTrip<SimulationNode>>trips) {
@@ -159,6 +141,8 @@ public class TripTransform {
             zeroLenghtTripsCount++;
         }
     }
+    
+    
     
 //    public void tripsFromTxtToJson(File inputFile, File osmFile, int srid, File outputFile) throws IOException{
 //        List<TimeTrip<GPSLocation>> gpsTrips = new LinkedList<>();
@@ -217,5 +201,40 @@ public class TripTransform {
 //            zeroLenghtTripsCount++;
 //        }
 //    }
+    
+//	public List<TimeTrip<Long>> gpsTripsToOsmNodeTrips(List<TimeTrip<GPSLocation>> gpsTrips, 
+//			File osmFile, int srid){
+//		return gpsTripsToOsmNodeTrips(gpsTrips, osmFile, srid, true);
+//	}
+	
+//	public List<TimeTrip<Long>> gpsTripsToOsmNodeTrips(List<TimeTrip<GPSLocation>> gpsTrips, 
+//			File osmFile, int srid, boolean completedTrips){
+//        Graph<SimulationNode, SimulationEdge> highwayGraph = OsmUtil.getHigwayGraph(osmFile,srid);
+//
+//		List<NearestElementUtilPair<Coordinate, SimulationNode>> pairs = new ArrayList<>();
+//		
+//		for (SimulationNode roadNode : highwayGraph.getAllNodes()) {
+//			pairs.add(new NearestElementUtilPair<>(new Coordinate(roadNode.getLongitude(), roadNode.getLatitude()), roadNode));
+//		}
+//		
+//		NearestElementUtil<SimulationNode> nearestElementUtil = new NearestElementUtil<>(pairs, new Transformer(4326), 
+//				new SimulationNodeArrayConstructor());
+//		ArrayList<TimeTrip<Long>> osmNodeTrips = new ArrayList<>();
+//		
+//		if(completedTrips){
+//			pathPlanner = new PathPlanner(highwayGraph);
+//		}
+//		
+//		for (TimeTrip<GPSLocation> trip : gpsTrips) {
+//			processGpsTrip(trip, nearestElementUtil, osmNodeTrips, completedTrips);
+//		}
+//        
+//        System.out.println("Number of trips with same source and destination: " + sameStartAndTargetInDataCount);
+//        System.out.println(zeroLenghtTripsCount + " trips with zero lenght discarded");
+//		
+//		return osmNodeTrips;
+//	}
+	
+    
 	
 }

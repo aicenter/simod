@@ -15,7 +15,6 @@ import java.util.List;
  */
 public class DemandData {
     public List<SimulationNode> locations;
-    
     public DemandAgent demandAgent;
 
     public DemandData(List<SimulationNode> locList, DemandAgent demandAgent) {

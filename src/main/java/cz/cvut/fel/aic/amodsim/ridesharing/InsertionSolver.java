@@ -136,7 +136,7 @@ public class InsertionSolver extends DARPSolver{
             return true;
         }
 		
-        //Time-window check
+        //max_waiting_time
         double dist_x = vehicle.getPosition().getLatitudeProjected() - request.getPosition().getLatitudeProjected();
         double dist_y = vehicle.getPosition().getLongitudeProjected() - request.getPosition().getLongitudeProjected();
         double distanceSquared = dist_x * dist_x + dist_y * dist_y;

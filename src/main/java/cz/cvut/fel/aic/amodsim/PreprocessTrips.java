@@ -18,7 +18,8 @@ import org.slf4j.LoggerFactory;
  */
 public class PreprocessTrips {
 	
-        private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PreprocessTrips.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PreprocessTrips.class);
+    
     
 	public static void main(String[] args) {
         

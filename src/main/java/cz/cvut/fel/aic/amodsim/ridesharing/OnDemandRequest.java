@@ -9,7 +9,6 @@ import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
  */
 public class OnDemandRequest {
 	private final DemandAgent demandAgent;
-	
 	private final SimulationNode targetLocation;
 
 	public DemandAgent getDemandAgent() {
@@ -20,9 +19,6 @@ public class OnDemandRequest {
 		return targetLocation;
 	}
 	
-	
-	
-
 	public OnDemandRequest(DemandAgent demandAgent, SimulationNode targetLocation) {
 		this.demandAgent = demandAgent;
 		this.targetLocation = targetLocation;

@@ -41,6 +41,8 @@ public class InsertionSolver extends DARPSolver{
 	private long iterationTime = 0;
 	private long canServeRequestCallCount = 0;
 	private long vehiclePlanningAllCallCount = 0;
+    
+    private int tooLongTripsCount = 0;
 	
 	
 	@Inject
@@ -146,10 +148,22 @@ public class InsertionSolver extends DARPSolver{
 		
 		// real feasibility check 
 		// TODO compute from interpolated position
-		boolean canServe = travelTimeProvider.getTravelTime(vehicle, vehicle.getPosition(), request.getPosition()) 
-				< maxDelayTime;
-		
-		return canServe;
+		//boolean canServe = travelTimeProvider.getTravelTime(vehicle, vehicle.getPosition(), request.getPosition()) 
+		//		< maxDelayTime;
+        if(travelTimeProvider.getTravelTime(vehicle, vehicle.getPosition(), request.getPosition()) > maxDelayTime){
+            return false;
+        }
+        // max_ride_time filter
+        double travelTime = travelTimeProvider.getTravelTime(vehicle, request.getPosition(), request.getTargetLocation());
+        if(travelTime >= 1800000){
+            LOGGER.info("Calculated travel time: {}", travelTime);
+            tooLongTripsCount++;
+            return false;
+        }
+        
+               
+		return true;
+		//return canServe;
 	}
 
 	private PlanData getOptimalPlan(RideSharingOnDemandVehicle vehicle, OnDemandRequest request) {

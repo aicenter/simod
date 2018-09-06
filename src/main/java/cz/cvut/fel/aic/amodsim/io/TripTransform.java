@@ -44,9 +44,12 @@ public class TripTransform {
     private int zeroLenghtTripsCount = 0;
     private int sameStartAndTargetInDataCount = 0;
     private int tooLongTripsCount = 0;
+    private int tooShortTripsCount = 0;
     //move to config
     //
     private final double maxTripLength = 25;
+    private final double minTripLength = 0.05;
+    
     private final Graph<SimulationNode,SimulationEdge> highwayGraph;
     private final NearestElementUtils nearestElementUtils;
     
@@ -73,6 +76,8 @@ public class TripTransform {
 	}
     
     public List<TimeTrip<SimulationNode>> loadTripsFromTxt(File inputFile){
+//        double maxTripLen = 0;
+//        double minTripLen = 25;
         List<TimeTrip<GPSLocation>> gpsTrips = new LinkedList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
             String line;
@@ -88,10 +93,14 @@ public class TripTransform {
                }else {
                    double dist = approximateDistance(startLocation, targetLocation);
                    //System.out.println("Distance = " + dist);
-                   if( dist >= maxTripLength){
+                    //maxTripLen = dist > maxTripLen ? dist : maxTripLen;
+                   // minTripLen = dist < minTripLen ? dist : minTripLen;
+                    if( dist >= maxTripLength){
                         tooLongTripsCount++;
-                        LOGGER.info("Too long: {}", approximateDistance(startLocation, targetLocation));
-                    }else{
+                        //LOGGER.info("Too long: {}", approximateDistance(startLocation, targetLocation));
+                    }else if(dist < minTripLength){
+                            tooShortTripsCount++;
+                    }else {
                         gpsTrips.add(new TimeTrip<>(startLocation, targetLocation, 
                         Long.parseLong(parts[0].split("\\.")[0])));
                    }
@@ -111,6 +120,9 @@ public class TripTransform {
         LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);
         LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
         LOGGER.info("{} too long trips discarded", tooLongTripsCount);
+        LOGGER.info("{} too short trips ", tooShortTripsCount);
+//        LOGGER.info("{} longest trip", maxTripLen);
+//        LOGGER.info("{} shortest trip", minTripLen);
         return trips; 
     }
     

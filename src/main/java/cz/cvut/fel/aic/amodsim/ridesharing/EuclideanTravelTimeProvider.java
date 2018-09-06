@@ -19,22 +19,16 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
  */
 @Singleton
 public class EuclideanTravelTimeProvider implements TravelTimeProvider{
-	
 	private final PositionUtil positionUtil;
-	
 	private final AmodsimConfig config;
-
-	private final double travelSpeedEstimatePerSecond;
-	
+    private final double travelSpeedEstimatePerSecond;
 	private long callCount = 0;
 
 	public long getCallCount() {
 		return callCount;
 	}
 	
-	
-	
-	
+
 	@Inject
 	public EuclideanTravelTimeProvider(PositionUtil positionUtil, AmodsimConfig config) {
 		this.positionUtil = positionUtil;

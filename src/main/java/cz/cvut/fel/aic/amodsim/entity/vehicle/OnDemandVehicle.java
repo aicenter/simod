@@ -78,7 +78,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     private int metersRebalancing;
     private SimulationNode targetNode;
     private DelayData delayData;
-    private DemandData currentlyServedDemmand;
+    private DemandData currentlyServedDemand;
     private int currentRebalancingId;
 	protected OnDemandVehicleStation parkedIn;
     
@@ -166,8 +166,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
     @Override
     public void handleEvent(Event event) {
-        currentlyServedDemmand = (DemandData) event.getContent();
-        List<SimulationNode> locations = currentlyServedDemmand.locations;
+        currentlyServedDemand = (DemandData) event.getContent();
+        List<SimulationNode> locations = currentlyServedDemand.locations;
         
         demandNodes = new ArrayList<>();
         demandNodes.add(locations.get(0));
@@ -187,7 +187,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
                 driveToNearestStation();
                 break;
             case DRIVING_TO_STATION:
-                finishDrivingToStation(currentlyServedDemmand.demandAgent);
+                finishDrivingToStation(currentlyServedDemand.demandAgent);
                 break;
             case REBALANCING:
 				finishRebalancing();
@@ -337,24 +337,24 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     protected void leavingStationEvent() {
         eventProcessor.addEvent(OnDemandVehicleEvent.LEAVE_STATION, null, null, 
                 new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-                        currentlyServedDemmand.demandAgent.getSimpleId()));
+                        currentlyServedDemand.demandAgent.getSimpleId()));
     }
 
     protected void pickupDemand() {
-        currentlyServedDemmand.demandAgent.tripStarted(this);
-        vehicle.pickUp(currentlyServedDemmand.demandAgent);
+        currentlyServedDemand.demandAgent.tripStarted(this);
+        vehicle.pickUp(currentlyServedDemand.demandAgent);
         eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
                 new PickupEventContent(timeProvider.getCurrentSimTime(), 
-                        currentlyServedDemmand.demandAgent.getSimpleId(), 
+                        currentlyServedDemand.demandAgent.getSimpleId(), 
                         positionUtil.getTripLengthInMeters(demandTrip)));
     }
     
     protected void dropOffDemand() {
-        currentlyServedDemmand.demandAgent.tripEnded();
-        vehicle.dropOff(currentlyServedDemmand.demandAgent);
+        currentlyServedDemand.demandAgent.tripEnded();
+        vehicle.dropOff(currentlyServedDemand.demandAgent);
         eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
                 new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-                        currentlyServedDemmand.demandAgent.getSimpleId()));
+                        currentlyServedDemand.demandAgent.getSimpleId()));
     }
     
     // todo - repair path planner and remove this

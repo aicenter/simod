@@ -45,8 +45,8 @@ public class TripTransform {
     private int sameStartAndTargetInDataCount = 0;
     private int tooLongTripsCount = 0;
     private int tooShortTripsCount = 0;
+    
     //move to config
-    //
     private final double maxTripLength = 25;
     private final double minTripLength = 0.05;
     
@@ -63,7 +63,6 @@ public class TripTransform {
 
 	public static <T> void tripsToJson(List<TimeTrip<T>> trips, File outputFile) throws IOException{
 		ObjectMapper mapper = new ObjectMapper();
-		
 		mapper.writeValue(outputFile, trips);
 	}
 	
@@ -99,8 +98,8 @@ public class TripTransform {
                         tooLongTripsCount++;
                         //LOGGER.info("Too long: {}", approximateDistance(startLocation, targetLocation));
                     }else if(dist < minTripLength){
-                            tooShortTripsCount++;
-                    }else {
+                        tooShortTripsCount++;
+                    }else{
                         gpsTrips.add(new TimeTrip<>(startLocation, targetLocation, 
                         Long.parseLong(parts[0].split("\\.")[0])));
                    }
@@ -120,27 +119,29 @@ public class TripTransform {
         LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);
         LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
         LOGGER.info("{} too long trips discarded", tooLongTripsCount);
-        LOGGER.info("{} too short trips ", tooShortTripsCount);
+        LOGGER.info("{} too short trips discarded ", tooShortTripsCount);
 //        LOGGER.info("{} longest trip", maxTripLen);
 //        LOGGER.info("{} shortest trip", minTripLen);
         return trips; 
     }
     
     private double approximateDistance(GPSLocation start, GPSLocation target ){
+        final double degreeLength = 111;
+        final double cosLatitude = Math.cos(59);
+        
         double lat1 = target.getLatitude();
         double lat0 = start.getLatitude();
         double lon1 = target.getLongitude();
         double lon0 = start.getLongitude();
-        final double degreeLength = 111;
-        final double cosLatitude = Math.cos(59);
+
         double x = lat1 - lat0;
         double y = (lon1 - lon0)*cosLatitude;
         return degreeLength * Math.sqrt(x*x + y*y);
     }
     
     private void processGpsTrip(TimeTrip<GPSLocation> gpsTrip, List<TimeTrip<SimulationNode>>trips) {
-	List<GPSLocation> locations = gpsTrip.getLocations();
-	SimulationNode startNode = nearestElementUtils.getNearestElement(locations.get(0), EGraphType.HIGHWAY);
+        List<GPSLocation> locations = gpsTrip.getLocations();
+        SimulationNode startNode = nearestElementUtils.getNearestElement(locations.get(0), EGraphType.HIGHWAY);
         SimulationNode targetNode = nearestElementUtils.getNearestElement(locations.get(locations.size() - 1), EGraphType.HIGHWAY);
 	
 	if(startNode != targetNode){

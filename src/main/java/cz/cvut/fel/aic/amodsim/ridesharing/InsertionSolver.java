@@ -41,8 +41,15 @@ public class InsertionSolver extends DARPSolver{
 	private long iterationTime = 0;
 	private long canServeRequestCallCount = 0;
 	private long vehiclePlanningAllCallCount = 0;
+    private final long maxRideTime = 1800000; // 30 min in ms??
     
-    private int tooLongTripsCount = 0;
+            
+        //counters
+        int noFreeVehicleCount = 0;
+        int tooBigDistanceCount = 0;
+        int tooLongToStartCount = 0;
+        int tooLongTripsCount = 0;
+        int someOtherProblemCount = 0;
 	
 	
 	@Inject
@@ -55,7 +62,6 @@ public class InsertionSolver extends DARPSolver{
         this.timeProvider = timeProvider;
     	maxDistance = (double) config.amodsim.ridesharing.maxWaitTime 
 				* config.amodsim.ridesharing.maxSpeedEstimation / 3600 * 1000;
-  //        maxDistance = 25000;
         maxDistanceSquared = maxDistance * maxDistance;
         maxDelayTime = config.amodsim.ridesharing.maxWaitTime  * 1000;
 	}
@@ -119,6 +125,7 @@ public class InsertionSolver extends DARPSolver{
             sb.append("Vehicle planning call count: ").append(vehiclePlanningAllCallCount).append("\n");
             sb.append("Traveltime call count: ").append(((EuclideanTravelTimeProvider) travelTimeProvider).getCallCount()).append("\n");
             System.out.println(sb.toString());
+            
         }
         return planMap;
 	}
@@ -155,9 +162,9 @@ public class InsertionSolver extends DARPSolver{
         }
         // max_ride_time filter
         double travelTime = travelTimeProvider.getTravelTime(vehicle, request.getPosition(), request.getTargetLocation());
-        if(travelTime >= 1800000){
-            LOGGER.info("Calculated travel time: {}", travelTime);
-            tooLongTripsCount++;
+        if(travelTime >= maxRideTime){
+            //LOGGER.info("Calculated travel time: {}", travelTime);
+            //tooLongTripsCount++;
             return false;
         }
         
@@ -248,8 +255,7 @@ public class InsertionSolver extends DARPSolver{
 				}
 				freeCapacity--;
 			}
-			
-			
+					
 			/* check max time for all demands */
 			if(previousTask != null){
 				planTravelTime += travelTimeProvider.getTravelTime(vehicle, previousTask.getLocation(), 
@@ -341,41 +347,62 @@ public class InsertionSolver extends DARPSolver{
 		boolean freeVehicle = false;
 		double bestCartesianDistance = Double.MAX_VALUE;
 		double bestTravelTime = Double.MAX_VALUE;
+        double bestRideTime = Double.MAX_VALUE;
+
 		
-		for(OnDemandVehicle tVvehicle: vehicleStorage){
-			RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
+		for(OnDemandVehicle tVehicle: vehicleStorage){
+			RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVehicle;
 			if(vehicle.hasFreeCapacity()){
 				freeVehicle = true;
 				// cartesian distance check
 				double distance = positionUtil.getPosition(vehicle.getPosition())
 						.distance(positionUtil.getPosition(request.getPosition()));
-    			if(distance < bestCartesianDistance){
-					bestCartesianDistance = distance;
-				}
+    			bestCartesianDistance = distance < bestCartesianDistance ? distance : bestCartesianDistance;
+				
 				if(distance < maxDistance){
 					// real feasibility check 
 					// TODO compute from interpolated position
 					double travelTime = 
 							travelTimeProvider.getTravelTime(vehicle, vehicle.getPosition(), request.getPosition());
 
-					if(travelTime < bestTravelTime){
-						bestTravelTime = travelTime;
-					}
+					bestTravelTime = travelTime < bestTravelTime ? travelTime : bestTravelTime;
+							
+					double rideTime = 
+							travelTimeProvider.getTravelTime(vehicle,  request.getPosition(), request.getTargetLocation());
+
+					bestRideTime = rideTime < bestRideTime ? rideTime : bestRideTime;
+						
 				}
-			}
-		}	
+            }
+        }//for
+			      
+        
 		String requestId = request.getDemandAgent().getId();
 		if(!freeVehicle){
-			System.out.println("Request " + requestId + ": Cannot serve request - No free vehicle");
+             noFreeVehicleCount++;
+			System.out.println("Request " + requestId + ": Cannot serve request - No free vehicle ("
+                +noFreeVehicleCount+").");
 		}
 		else if(bestCartesianDistance > maxDistance){
-			System.out.println("Request " + requestId + ": Cannot serve request - Too big distance: " + bestCartesianDistance + "m (max distance: " + maxDistance + ")");
+            tooBigDistanceCount++;
+			System.out.println("Request " + requestId + ": Cannot serve request - Too big distance: " 
+                + bestCartesianDistance + "m (max distance: " + maxDistance + ") (" + tooBigDistanceCount+").");
 		}
 		else if(bestTravelTime > maxDelayTime){
-			System.out.println("Request " + requestId + ": Cannot serve request - Too big traveltime to startLoaction: " + bestTravelTime);
+            tooLongToStartCount++;
+			System.out.println("Request " + requestId 
+                + ": Cannot serve request - Too big traveltime to start loaction: " 
+                + bestTravelTime+"("+tooLongToStartCount+").");
+		}
+        else if(bestRideTime > maxRideTime){
+            tooLongTripsCount++;
+			System.out.println("Request " + requestId + ": Cannot serve request ("+tooLongTripsCount+") - it's too long: " + bestRideTime);
 		}
 		else{
-			System.out.println("Request " + requestId + ": Cannot serve request - Some other problem - all nearby vehicle plans infeasible?");
+            someOtherProblemCount++;
+			System.out.println("Request " + requestId +
+                ": Cannot serve request - Some other problem - all nearby vehicle plans infeasible?"+
+                "("+someOtherProblemCount+").");
 		}
 	}
 

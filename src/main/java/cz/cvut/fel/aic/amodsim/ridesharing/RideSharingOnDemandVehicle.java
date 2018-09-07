@@ -30,6 +30,7 @@ import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.statistics.PickupEventContent;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 import java.util.LinkedList;
+import java.util.Set;
 
 /**
  *
@@ -42,10 +43,8 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	private DriverPlan currentPlan;
 	
 	private DriverPlanTask currentTask;
-	
 
-	
-	
+
 	public DriverPlan getCurrentPlan() {
 		currentPlan.updateCurrentPosition(getPosition());
 		return currentPlan;

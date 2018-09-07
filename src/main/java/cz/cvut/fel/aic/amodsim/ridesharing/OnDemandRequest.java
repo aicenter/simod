@@ -1,5 +1,7 @@
 package cz.cvut.fel.aic.amodsim.ridesharing;
 
+import com.google.inject.Inject;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 
@@ -19,8 +21,6 @@ public class OnDemandRequest {
 	public SimulationNode getTargetLocation() {
 		return targetLocation;
 	}
-	
-	
 	
 
 	public OnDemandRequest(DemandAgent demandAgent, SimulationNode targetLocation) {

@@ -122,6 +122,16 @@
             <artifactId>guice-assistedinject</artifactId>
             <version>4.1.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.quantego</groupId>
+            <artifactId>clp-java</artifactId>
+            <version>1.16.10</version>
+        </dependency>
+        <dependency>
+            <groupId>com.joptimizer</groupId>
+            <artifactId>joptimizer</artifactId>
+            <version>4.0.0</version>
+        </dependency>
     </dependencies>
     
     <repositories>

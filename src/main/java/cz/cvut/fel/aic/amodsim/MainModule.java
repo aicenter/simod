@@ -17,6 +17,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.CongestedDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayer;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayerWithJitter;
@@ -38,6 +39,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingStationsCentral;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.RidesharingOnDemandVehicleFactory;
 import cz.cvut.fel.aic.geographtools.TransportMode;
+
 import java.io.File;
 
 import java.util.HashMap;
@@ -84,7 +86,7 @@ public class MainModule extends StandardAgentPolisModule{
         if(amodsimConfig.amodsim.ridesharing.on){
 			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 			bind(OnDemandVehicleStationsCentral.class).to(RidesharingStationsCentral.class);
-			bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
+			bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
 			bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
         }
         else{

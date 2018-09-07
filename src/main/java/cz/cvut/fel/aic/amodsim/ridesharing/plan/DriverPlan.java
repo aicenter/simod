@@ -2,6 +2,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.plan;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -16,12 +17,9 @@ public class DriverPlan implements Iterable<DriverPlanTask>{
 	
 	private double plannedTraveltime;
 	
-	private Set<DemandAgent> demands;
-	
+	protected Set<DemandAgent> demands;
+
 	public final long totalTime;
-	
-	
-	
 
 //	public double getPlannedTraveltime() {
 //		return plannedTraveltime;
@@ -30,10 +28,6 @@ public class DriverPlan implements Iterable<DriverPlanTask>{
 //	public void setPlannedTraveltime(double plannedTraveltime) {
 //		this.plannedTraveltime = plannedTraveltime;
 //	}
-	
-	
-	
-	
 
 	public DriverPlan(List<DriverPlanTask> plan, long totalTime) {
 		this.plan = plan;

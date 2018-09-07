@@ -41,15 +41,18 @@ public class InsertionSolver extends DARPSolver{
 	private long iterationTime = 0;
 	private long canServeRequestCallCount = 0;
 	private long vehiclePlanningAllCallCount = 0;
-    private final long maxRideTime = 1800000; // 30 min in ms??
     
+
+    private final long maxRideTime;
+    private final long minDistance;
             
         //counters
-        int noFreeVehicleCount = 0;
-        int tooBigDistanceCount = 0;
-        int tooLongToStartCount = 0;
-        int tooLongTripsCount = 0;
-        int someOtherProblemCount = 0;
+    int noFreeVehicleCount = 0;
+    int tooBigDistanceCount = 0;
+    int tooLongToStartCount = 0;
+    int tooLongTripsCount = 0;
+    int someOtherProblemCount = 0;
+    int lessThanPickupRadius = 0;
 	
 	
 	@Inject
@@ -64,6 +67,10 @@ public class InsertionSolver extends DARPSolver{
 				* config.amodsim.ridesharing.maxSpeedEstimation / 3600 * 1000;
         maxDistanceSquared = maxDistance * maxDistance;
         maxDelayTime = config.amodsim.ridesharing.maxWaitTime  * 1000;
+        
+        //move to config
+        maxRideTime = 1800000; // 30 min in ms??
+        minDistance = 50; 
 	}
 
 	@Override
@@ -138,17 +145,21 @@ public class InsertionSolver extends DARPSolver{
             return false;
         }
 		// node identity
-        //TODO 50 meters pickup range
-        //getPosition returns Simulation Node, just check euclidean dist as below
-        // if it's less than 50 return true
-        if(vehicle.getPosition() == request.getPosition()){
-            return true;
-        }
+//        if(vehicle.getPosition() == request.getPosition()){
+//            return true;
+//        }
+       
 		
         //max_waiting_time
         double dist_x = vehicle.getPosition().getLatitudeProjected() - request.getPosition().getLatitudeProjected();
         double dist_y = vehicle.getPosition().getLongitudeProjected() - request.getPosition().getLongitudeProjected();
         double distanceSquared = dist_x * dist_x + dist_y * dist_y;
+        if(distanceSquared <= minDistance*minDistance){
+            lessThanPickupRadius++;
+            System.out.println("Inside pick up radius: "+ Math.sqrt(distanceSquared) +
+                "("+lessThanPickupRadius+").");
+            return true;
+        }
         if(distanceSquared > maxDistanceSquared){
             return false;
         }
@@ -391,7 +402,7 @@ public class InsertionSolver extends DARPSolver{
 		else if(bestTravelTime > maxDelayTime){
             tooLongToStartCount++;
 			System.out.println("Request " + requestId 
-                + ": Cannot serve request - Too big traveltime to start loaction: " 
+                + ": Cannot serve request - Too big traveltime to start location: " 
                 + bestTravelTime+"("+tooLongToStartCount+").");
 		}
         else if(bestRideTime > maxRideTime){

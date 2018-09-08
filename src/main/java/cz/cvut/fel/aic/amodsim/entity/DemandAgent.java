@@ -24,6 +24,7 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.DemandSimulationEntityType;
+import cz.cvut.fel.aic.amodsim.io.TimeValueTrip;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.statistics.DemandServiceStatistic;
 import cz.cvut.fel.aic.amodsim.statistics.StatisticEvent;
@@ -140,6 +141,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     }
     
     public long getCurrentServiceDuration(){
+        //if(state == DemandAgentState.DRIVING)
         return timeProvider.getCurrentSimTime() - realPickupTime;
     }
 	 
@@ -219,9 +221,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		minDemandServiceDuration = (long) (tripsUtil.getTripDurationInSeconds(minTrip) * 1000);
 	}
 
-    
-    
-    
+       
     public interface DemandAgentFactory {
         public DemandAgent create(String agentId, int id, TimeTrip<SimulationNode> osmNodeTrip);
     }

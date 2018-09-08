@@ -14,11 +14,8 @@ import java.util.LinkedList;
 public class TimeTrip<L> extends Trip<L>{
 		
 	private final long startTime;
-	
 	private final long endTime;
 
-	
-	
 	
 	public long getStartTime() {
 		return startTime;
@@ -58,8 +55,4 @@ public class TimeTrip<L> extends Trip<L>{
     public boolean isEmpty() {
         return super.isEmpty(); 
     }
-    
-    
-    
-    
-}
+ }

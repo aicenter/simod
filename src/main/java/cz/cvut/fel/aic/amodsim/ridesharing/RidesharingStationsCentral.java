@@ -36,8 +36,6 @@ public class RidesharingStationsCentral extends OnDemandVehicleStationsCentral{
 		super(onDemandvehicleStationStorage, eventProcessor, config, srid);
 		this.solver = solver;
 	}
-
-	
 	
 	
 	@Override

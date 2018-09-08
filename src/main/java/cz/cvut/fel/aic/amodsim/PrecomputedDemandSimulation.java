@@ -2,7 +2,7 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
-
+import cz.cvut.fel.aic.amodsim.io.TimeValueTrip;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import java.io.File;
@@ -20,12 +20,9 @@ public class PrecomputedDemandSimulation {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PrecomputedDemandSimulation.class);
     
     private static File EXPERIMENT_DIR = new File("data/Prague");
-
     private static final String INPUT_FILE_PATH = "trips.json";
-
 	private static final int SRID = 2065;
-	
-	private static final int START_TIME = 25200000; // 7h
+	private static final int START_TIME = 0; // 7h
 	
 	public static void main(String[] args) throws MalformedURLException{
         if (args.length >= 1) {
@@ -36,7 +33,8 @@ public class PrecomputedDemandSimulation {
 	
 	public void run(){
 		try {
-            List<TimeTrip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(EXPERIMENT_DIR, INPUT_FILE_PATH), Long.class);
+            
+            List<TimeValueTrip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(EXPERIMENT_DIR, INPUT_FILE_PATH), Long.class);
 
 //			SimpleEnvinromentFactory envinromentFactory = new SimpleEnvinromentFactory(new InfinityDelayingSegmentCapacityDeterminer());
 

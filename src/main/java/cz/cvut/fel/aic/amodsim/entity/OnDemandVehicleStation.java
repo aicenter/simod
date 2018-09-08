@@ -64,7 +64,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 
         this.eventProcessor = eventProcessor;
         parkedVehicles = new LinkedList<>();
-        LOGGER.info("Initial count = %d", initialVehicleCount);
+        //LOGGER.info("Initial count = %d", initialVehicleCount);
 		//initialVehicleCount = 10;
         for (int i = 0; i < initialVehicleCount; i++) {
             String onDemandVehicelId = String.format("%s-%d", id, i);

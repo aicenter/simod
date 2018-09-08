@@ -45,6 +45,7 @@ public class TripTransform {
     private int sameStartAndTargetInDataCount = 0;
     private int tooLongTripsCount = 0;
     private int tooShortTripsCount = 0;
+    private double totalValue = 0;
     
     //move to config
     private final double maxTripLength = 25;
@@ -61,58 +62,65 @@ public class TripTransform {
     }
        
 
-	public static <T> void tripsToJson(List<TimeTrip<T>> trips, File outputFile) throws IOException{
+	public static <T> void tripsToJson(List<TimeValueTrip<T>> trips, File outputFile) throws IOException{
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.writeValue(outputFile, trips);
 	}
 	
-	public static <T> List<TimeTrip<T>> jsonToTrips(File inputFile, Class<T> locationType) throws IOException{
+	public static <T> List<TimeValueTrip<T>> jsonToTrips(File inputFile, Class<T> locationType) throws IOException{
 		ObjectMapper mapper = new ObjectMapper();
 		TypeFactory typeFactory = mapper.getTypeFactory();
 		
 		return mapper.readValue(inputFile, typeFactory.constructCollectionType(
-				List.class, typeFactory.constructParametricType(TimeTrip.class, locationType)));
+				List.class, typeFactory.constructParametricType(TimeValueTrip.class, locationType)));
 	}
     
-    public List<TimeTrip<SimulationNode>> loadTripsFromTxt(File inputFile){
+    public List<TimeValueTrip<SimulationNode>> loadTripsFromTxt(File inputFile){
+
 //        double maxTripLen = 0;
 //        double minTripLen = 25;
-        List<TimeTrip<GPSLocation>> gpsTrips = new LinkedList<>();
+        List<TimeValueTrip<GPSLocation>> gpsTrips = new LinkedList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
             String line;
             while ((line = br.readLine()) != null) {
-               String[] parts = line.split(" ");
-               GPSLocation startLocation
+                String[] parts = line.split(" ");
+                GPSLocation startLocation
                        = new GPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, 0);
-               GPSLocation targetLocation
+                GPSLocation targetLocation
                        = new GPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, 0);
-               
-               if(startLocation.equals(targetLocation)){
+              
+                if(startLocation.equals(targetLocation)){
                    sameStartAndTargetInDataCount++;
-               }else {
-                   double dist = approximateDistance(startLocation, targetLocation);
-                   //System.out.println("Distance = " + dist);
-                   //maxTripLen = dist > maxTripLen ? dist : maxTripLen;
-                   // minTripLen = dist < minTripLen ? dist : minTripLen;
+                }else{
+                    double dist = approximateDistance(startLocation, targetLocation);
+                    //System.out.println("Distance = " + dist);
+                    //maxTripLen = dist > maxTripLen ? dist : maxTripLen;
+                    // minTripLen = dist < minTripLen ? dist : minTripLen;
                     if( dist >= maxTripLength){
                         tooLongTripsCount++;
                         //LOGGER.info("Too long: {}", approximateDistance(startLocation, targetLocation));
                     }else if(dist < minTripLength){
                         tooShortTripsCount++;
                     }else{
-                        gpsTrips.add(new TimeTrip<>(startLocation, targetLocation, 
-                        Long.parseLong(parts[0].split("\\.")[0])));
-                   }
+                        if(parts.length == 6){
+                            gpsTrips.add(new TimeValueTrip<>(startLocation, targetLocation, 
+                            Long.parseLong(parts[0].split("\\.")[0]), Double.parseDouble(parts[5])));
+                        }else{
+                            gpsTrips.add(new TimeValueTrip<>(startLocation, targetLocation, 
+                            Long.parseLong(parts[0].split("\\.")[0]), 0));
+                        }
+                        
+                    }
                 }
             }
             
-        } catch (IOException ex) {
+        }catch (IOException ex) {
             LOGGER.error(null, ex);
         }
         
-        List<TimeTrip<SimulationNode>> trips = new ArrayList<>();
+        List<TimeValueTrip<SimulationNode>> trips = new ArrayList<>();
 
-        for (TimeTrip<GPSLocation> trip : ProgressBar.wrap(gpsTrips, "Process GPS trip: ")) {
+        for (TimeValueTrip<GPSLocation> trip : ProgressBar.wrap(gpsTrips, "Process GPS trip: ")) {
                 processGpsTrip(trip, trips);
         }
         
@@ -120,6 +128,8 @@ public class TripTransform {
         LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
         LOGGER.info("{} too long trips discarded", tooLongTripsCount);
         LOGGER.info("{} too short trips discarded ", tooShortTripsCount);
+        LOGGER.info("Total value of accepted trips {} ", totalValue);
+        
 //        LOGGER.info("{} longest trip", maxTripLen);
 //        LOGGER.info("{} shortest trip", minTripLen);
         return trips; 
@@ -139,115 +149,24 @@ public class TripTransform {
         return degreeLength * Math.sqrt(x*x + y*y);
     }
     
-    private void processGpsTrip(TimeTrip<GPSLocation> gpsTrip, List<TimeTrip<SimulationNode>>trips) {
+    private void processGpsTrip(TimeValueTrip<GPSLocation> gpsTrip, List<TimeValueTrip<SimulationNode>>trips) {
         List<GPSLocation> locations = gpsTrip.getLocations();
         SimulationNode startNode = nearestElementUtils.getNearestElement(locations.get(0), EGraphType.HIGHWAY);
         SimulationNode targetNode = nearestElementUtils.getNearestElement(locations.get(locations.size() - 1), EGraphType.HIGHWAY);
+        double rideValue = gpsTrip.getRideValue();
 	
 	if(startNode != targetNode){
             LinkedList<SimulationNode> nodesList = new LinkedList<>();
             nodesList.add(startNode);
             nodesList.add(targetNode);
-            trips.add(new TimeTrip<>(nodesList, gpsTrip.getStartTime(), gpsTrip.getEndTime()));
+            trips.add(new TimeValueTrip<>(nodesList, gpsTrip.getStartTime(), gpsTrip.getEndTime(), rideValue ));
+            totalValue += rideValue;
         }   
         else{
             zeroLenghtTripsCount++;
         }
     }
-    
-    
-    
-//    public void tripsFromTxtToJson(File inputFile, File osmFile, int srid, File outputFile) throws IOException{
-//        List<TimeTrip<GPSLocation>> gpsTrips = new LinkedList<>();
-//        try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
-//            String line;
-//            while ((line = br.readLine()) != null) {
-//               String[] parts = line.split(" ");
-//               GPSLocation startLocation
-//                       = new GPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, 0);
-//               GPSLocation targetLocation
-//                       = new GPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, 0);
-//               
-//               if(startLocation.equals(targetLocation)){
-//                   sameStartAndTargetInDataCount++;
-//               }
-//               else{
-//                    gpsTrips.add(new TimeTrip<>(startLocation, targetLocation, 
-//                       Long.parseLong(parts[0].split("\\.")[0])));
-//               }
-//            }
-//        } catch (IOException ex) {
-//            LOGGER.error(null, ex);
-//        }
-//
-//        tripsToJson(gpsTripsToOsmNodeTrips(gpsTrips, osmFile, srid, false), outputFile); 
-//    }
-
-//	private void processGpsTrip(TimeTrip<GPSLocation> trip, NearestElementUtil<RoadNode> nearestElementUtil, 
-//			ArrayList<TimeTrip<Long>> osmNodeTrips, boolean completedTrips) {
-//		LinkedList<Long> osmNodesList = new LinkedList<>();
-//		
-//		List<GPSLocation> locations = trip.getLocations();
-//		long lastNodeId = nearestElementUtil.getNearestElement(locations.get(0)).getSourceId();
-//		osmNodesList.add(lastNodeId);
-//		
-//		for (int i = 1; i < locations.size(); i++) {
-//			RoadNode targetNode = nearestElementUtil.getNearestElement(locations.get(i));
-//
-//			long nodeId = targetNode.getSourceId();
-//			if(nodeId != lastNodeId){
-//				if(completedTrips){
-//					List<Long> path = pathPlanner.findPath(lastNodeId, nodeId);
-//					path.remove(0);
-//					osmNodesList.addAll(path);
-//				}
-//				else{
-//					osmNodesList.add(nodeId);
-//				}
-//				lastNodeId = nodeId;
-//			}
-//		}
-//		if(osmNodesList.size() > 1){
-//            osmNodeTrips.add(new TimeTrip<>(osmNodesList, trip.getStartTime(), trip.getEndTime()));
-//        }   
-//        else{
-//            zeroLenghtTripsCount++;
-//        }
-//    }
-    
-//	public List<TimeTrip<Long>> gpsTripsToOsmNodeTrips(List<TimeTrip<GPSLocation>> gpsTrips, 
-//			File osmFile, int srid){
-//		return gpsTripsToOsmNodeTrips(gpsTrips, osmFile, srid, true);
-//	}
-	
-//	public List<TimeTrip<Long>> gpsTripsToOsmNodeTrips(List<TimeTrip<GPSLocation>> gpsTrips, 
-//			File osmFile, int srid, boolean completedTrips){
-//        Graph<SimulationNode, SimulationEdge> highwayGraph = OsmUtil.getHigwayGraph(osmFile,srid);
-//
-//		List<NearestElementUtilPair<Coordinate, SimulationNode>> pairs = new ArrayList<>();
-//		
-//		for (SimulationNode roadNode : highwayGraph.getAllNodes()) {
-//			pairs.add(new NearestElementUtilPair<>(new Coordinate(roadNode.getLongitude(), roadNode.getLatitude()), roadNode));
-//		}
-//		
-//		NearestElementUtil<SimulationNode> nearestElementUtil = new NearestElementUtil<>(pairs, new Transformer(4326), 
-//				new SimulationNodeArrayConstructor());
-//		ArrayList<TimeTrip<Long>> osmNodeTrips = new ArrayList<>();
-//		
-//		if(completedTrips){
-//			pathPlanner = new PathPlanner(highwayGraph);
-//		}
-//		
-//		for (TimeTrip<GPSLocation> trip : gpsTrips) {
-//			processGpsTrip(trip, nearestElementUtil, osmNodeTrips, completedTrips);
-//		}
-//        
-//        System.out.println("Number of trips with same source and destination: " + sameStartAndTargetInDataCount);
-//        System.out.println(zeroLenghtTripsCount + " trips with zero lenght discarded");
-//		
-//		return osmNodeTrips;
-//	}
-	
-    
-	
 }
+ 
+    
+  

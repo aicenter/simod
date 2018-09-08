@@ -92,7 +92,7 @@ public class TripTransform {
                }else {
                    double dist = approximateDistance(startLocation, targetLocation);
                    //System.out.println("Distance = " + dist);
-                    //maxTripLen = dist > maxTripLen ? dist : maxTripLen;
+                   //maxTripLen = dist > maxTripLen ? dist : maxTripLen;
                    // minTripLen = dist < minTripLen ? dist : minTripLen;
                     if( dist >= maxTripLength){
                         tooLongTripsCount++;

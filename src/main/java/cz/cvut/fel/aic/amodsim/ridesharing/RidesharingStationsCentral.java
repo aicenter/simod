@@ -30,7 +30,6 @@ public class RidesharingStationsCentral extends OnDemandVehicleStationsCentral{
 	
 	
 	
-	
 	@Inject
 	public RidesharingStationsCentral(OnDemandvehicleStationStorage onDemandvehicleStationStorage, 
 			EventProcessor eventProcessor, AmodsimConfig config, DARPSolver solver, @Named("mapSrid") int srid) {

@@ -11,6 +11,11 @@ public class OnDemandRequest {
 	private final DemandAgent demandAgent;
 	private final SimulationNode targetLocation;
 
+	public OnDemandRequest(DemandAgent demandAgent, SimulationNode targetLocation) {
+		this.demandAgent = demandAgent;
+		this.targetLocation = targetLocation;
+    }
+    
 	public DemandAgent getDemandAgent() {
 		return demandAgent;
 	}
@@ -18,13 +23,13 @@ public class OnDemandRequest {
 	public SimulationNode getTargetLocation() {
 		return targetLocation;
 	}
-	
-	public OnDemandRequest(DemandAgent demandAgent, SimulationNode targetLocation) {
-		this.demandAgent = demandAgent;
-		this.targetLocation = targetLocation;
-	}
-	
+
 	public final SimulationNode getPosition(){
 		return demandAgent.getPosition();
 	}
+    
+    public double getRideValue() {
+        return demandAgent.getRideValue();
+    }
+    
 }

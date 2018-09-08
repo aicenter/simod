@@ -40,51 +40,53 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandAgent.class);
     
     private final int simpleId;
-	
 	private final TimeTrip<SimulationNode> trip;
-    
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
-	
 	private final boolean precomputedPaths;
-    
     private final EventProcessor eventProcessor;
-    
     private final DemandStorage demandStorage;
-    
     private final Map<Long,SimulationNode> nodesMappedByNodeSourceIds;
-    
     private final StandardTimeProvider timeProvider;
-	
 	private final Statistics statistics;
-	
 	private final TripsUtil tripsUtil;
-    
-    
     private DemandAgentState state;
-    
     private OnDemandVehicle vehicle;
-    
     private OnDemandVehicle onDemandVehicle;
-    
     private long demandTime;
-    
     private TransportEntity transportEntity;
-    
     private SimulationNode lastFromPosition;
-	
 	private long scheduledPickupDelay;
-	
 	private long realPickupTime = 0;
-	
 	private long minDemandServiceDuration;
 	
-	// only to save compuatational time it|s 
-//	private long currentServiceDuration;
-	
 	private boolean dropped;
+    
+    //private long currentServiceDuration;
+    private double rideValue;
 
     
-    
+    @Inject
+	public DemandAgent(OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
+            DemandStorage demandStorage, Map<Long,SimulationNode> nodesMappedByNodeSourceIds, 
+			StandardTimeProvider timeProvider, Statistics statistics, TripsUtil tripsUtil,
+            @Named("precomputedPaths") boolean precomputedPaths, @Assisted String agentId, @Assisted int id,
+            @Assisted TimeTrip<SimulationNode> trip) {
+		super(agentId, trip.getLocations().get(0));
+        this.simpleId = id;
+		this.trip = trip;
+		this.precomputedPaths = precomputedPaths;
+        this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
+        this.eventProcessor = eventProcessor;
+        this.demandStorage = demandStorage;
+        this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
+        this.timeProvider = timeProvider;
+		this.statistics = statistics;
+		this.tripsUtil = tripsUtil;
+        state = DemandAgentState.WAITING;
+		dropped = false;
+        rideValue = 0;
+	}
+
     
     public int getSimpleId() {
         return simpleId;
@@ -129,36 +131,19 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	public boolean isDropped() {
 		return dropped;
 	}
-	
-	
-
     
+    public double getRideValue(){
+        return rideValue;
+    }
+    public void setRideValue(double rideValue){
+        this.rideValue = rideValue;
+    }
     
+    public long getCurrentServiceDuration(){
+        return timeProvider.getCurrentSimTime() - realPickupTime;
+    }
+	 
     
-    @Inject
-	public DemandAgent(OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
-            DemandStorage demandStorage, Map<Long,SimulationNode> nodesMappedByNodeSourceIds, 
-			StandardTimeProvider timeProvider, Statistics statistics, TripsUtil tripsUtil,
-            @Named("precomputedPaths") boolean precomputedPaths, @Assisted String agentId, @Assisted int id,
-            @Assisted TimeTrip<SimulationNode> trip) {
-		super(agentId, trip.getLocations().get(0));
-        this.simpleId = id;
-		this.trip = trip;
-		this.precomputedPaths = precomputedPaths;
-        this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
-        this.eventProcessor = eventProcessor;
-        this.demandStorage = demandStorage;
-        this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
-        this.timeProvider = timeProvider;
-		this.statistics = statistics;
-		this.tripsUtil = tripsUtil;
-        state = DemandAgentState.WAITING;
-		dropped = false;
-	}
-
-    
-    
-
 	@Override
 	public void born() {
         demandStorage.addEntity(this);

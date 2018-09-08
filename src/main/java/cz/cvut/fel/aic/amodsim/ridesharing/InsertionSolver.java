@@ -150,14 +150,15 @@ public class InsertionSolver extends DARPSolver{
 //        }
        
 		
-        //max_waiting_time
+
         double dist_x = vehicle.getPosition().getLatitudeProjected() - request.getPosition().getLatitudeProjected();
         double dist_y = vehicle.getPosition().getLongitudeProjected() - request.getPosition().getLongitudeProjected();
         double distanceSquared = dist_x * dist_x + dist_y * dist_y;
+        //pick_up radius
         if(distanceSquared <= minDistance*minDistance){
-            lessThanPickupRadius++;
-            System.out.println("Inside pick up radius: "+ Math.sqrt(distanceSquared) +
-                "("+lessThanPickupRadius+").");
+        //    lessThanPickupRadius++;
+        //    System.out.println("Vehicle " +vehicle.getId()+" is inside pick up radius: "+ Math.sqrt(distanceSquared) +
+        //        "("+lessThanPickupRadius+").");
             return true;
         }
         if(distanceSquared > maxDistanceSquared){
@@ -168,14 +169,13 @@ public class InsertionSolver extends DARPSolver{
 		// TODO compute from interpolated position
 		//boolean canServe = travelTimeProvider.getTravelTime(vehicle, vehicle.getPosition(), request.getPosition()) 
 		//		< maxDelayTime;
+        //max_waiting_time
         if(travelTimeProvider.getTravelTime(vehicle, vehicle.getPosition(), request.getPosition()) > maxDelayTime){
             return false;
         }
-        // max_ride_time filter
+        // max_ride_time 
         double travelTime = travelTimeProvider.getTravelTime(vehicle, request.getPosition(), request.getTargetLocation());
         if(travelTime >= maxRideTime){
-            //LOGGER.info("Calculated travel time: {}", travelTime);
-            //tooLongTripsCount++;
             return false;
         }
         

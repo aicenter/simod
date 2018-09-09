@@ -46,6 +46,7 @@ public class TripTransform {
     private int tooLongTripsCount = 0;
     private int tooShortTripsCount = 0;
     private double totalValue = 0;
+    private int totalTrips = 0;
     
     //move to config
     private final double maxTripLength = 25;
@@ -53,6 +54,31 @@ public class TripTransform {
     
     private final Graph<SimulationNode,SimulationEdge> highwayGraph;
     private final NearestElementUtils nearestElementUtils;
+
+    public int getZeroLenghtTripsCount() {
+        return zeroLenghtTripsCount;
+    }
+
+    public int getTooLongTripsCount() {
+        return tooLongTripsCount;
+    }
+
+    public int getTooShortTripsCount() {
+        return tooShortTripsCount;
+    }
+
+    public double getTotalValue() {
+        return totalValue;
+    }
+
+    public int getTotalTrips() {
+        return totalTrips;
+    }
+
+    public int getSameStartAndTargetInDataCount() {
+        return sameStartAndTargetInDataCount;
+    }
+    
     
 
     @Inject
@@ -77,12 +103,11 @@ public class TripTransform {
     
     public List<TimeValueTrip<SimulationNode>> loadTripsFromTxt(File inputFile){
 
-//        double maxTripLen = 0;
-//        double minTripLen = 25;
         List<TimeValueTrip<GPSLocation>> gpsTrips = new LinkedList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
             String line;
             while ((line = br.readLine()) != null) {
+                tooLongTripsCount++;
                 String[] parts = line.split(" ");
                 GPSLocation startLocation
                        = new GPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, 0);
@@ -93,9 +118,6 @@ public class TripTransform {
                    sameStartAndTargetInDataCount++;
                 }else{
                     double dist = approximateDistance(startLocation, targetLocation);
-                    //System.out.println("Distance = " + dist);
-                    //maxTripLen = dist > maxTripLen ? dist : maxTripLen;
-                    // minTripLen = dist < minTripLen ? dist : minTripLen;
                     if( dist >= maxTripLength){
                         tooLongTripsCount++;
                         //LOGGER.info("Too long: {}", approximateDistance(startLocation, targetLocation));

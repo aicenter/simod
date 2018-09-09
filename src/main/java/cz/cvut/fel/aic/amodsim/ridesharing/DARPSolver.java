@@ -12,9 +12,7 @@ import java.util.Map;
 public abstract class DARPSolver {
 	
 	protected final OnDemandVehicleStorage vehicleStorage;
-	
 	protected final TravelTimeProvider travelTimeProvider;
-	
 	protected final TravelCostProvider travelCostProvider;
 
 	
@@ -32,4 +30,5 @@ public abstract class DARPSolver {
 	
 	
 	public abstract Map<RideSharingOnDemandVehicle,DriverPlan> solve(List<OnDemandRequest> requests);
+    public abstract Map<RideSharingOnDemandVehicle,DriverPlan> solve();
 }

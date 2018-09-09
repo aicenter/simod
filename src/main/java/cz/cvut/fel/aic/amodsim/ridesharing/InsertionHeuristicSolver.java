@@ -411,6 +411,11 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		
 		return String.format(" (%02d:%02d:%02d:%d)", hour, minute, second, millis);
 	}
+
+    @Override
+    public Map<RideSharingOnDemandVehicle, DriverPlan> solve() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 	
 	private class PlanData{
 		final DriverPlan plan;

@@ -36,7 +36,6 @@ public class RidesharingStationsCentral extends OnDemandVehicleStationsCentral{
     
 	private final DARPSolver solver;
     private final TravelTimeProvider travelTimeProvider;
-    
     private final long  maxRideTime = 1800000; // 30 min in ms??
     
     
@@ -98,6 +97,7 @@ public class RidesharingStationsCentral extends OnDemandVehicleStationsCentral{
         //LOGGER.info("Demand is accepted, count {}",  acceptedDemandCount);
 		List<OnDemandRequest> requests = new LinkedList<>();
 		requests.add(new OnDemandRequest(demandData.demandAgent, demandData.locations.get(1)));
+        
 		Map<RideSharingOnDemandVehicle,DriverPlan> newPlans = solver.solve(requests);
 		
 		if(newPlans.isEmpty()){

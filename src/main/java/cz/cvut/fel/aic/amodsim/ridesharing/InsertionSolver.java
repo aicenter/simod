@@ -453,6 +453,11 @@ public class InsertionSolver extends DARPSolver{
         sb.append("Traveltime call count: ").append(((EuclideanTravelTimeProvider) travelTimeProvider).getCallCount()).append("\n");
         return sb.toString();
     }
+
+    @Override
+    public Map<RideSharingOnDemandVehicle, DriverPlan> solve() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 	
 	private class PlanData{
 		final DriverPlan plan;

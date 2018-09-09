@@ -45,7 +45,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cz.cvut.fel.aic.amodsim.ridesharing.InsertionSolver;
-import cz.cvut.fel.aic.amodsim.ridesharing.SolverMemory;
+import cz.cvut.fel.aic.amodsim.ridesharing.StaticSolver;
 
 /**
  *
@@ -90,7 +90,7 @@ public class MainModule extends StandardAgentPolisModule{
             bind(OnDemandVehicleStationsCentral.class).to(RidesharingStationsCentral.class);
            // bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
             //bind(DARPSolver.class).to(InsertionSolver.class);
-            bind(DARPSolver.class).to(SolverMemory.class);
+            bind(DARPSolver.class).to(StaticSolver.class);
             bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
         } else{
            bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);

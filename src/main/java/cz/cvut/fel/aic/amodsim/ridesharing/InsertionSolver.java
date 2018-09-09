@@ -3,6 +3,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing;
 import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
@@ -43,21 +44,20 @@ public class InsertionSolver extends DARPSolver{
 	private long canServeRequestCallCount = 0;
 	private long vehiclePlanningAllCallCount = 0;
     
-
-    private final long maxRideTime;
-    private final long minDistance;
+    private final long minDistanceSquared;
     private final long maxRouteTime;
             
         //counters
     int noFreeVehicleCount = 0;
     int tooBigDistanceCount = 0;
     int tooLongToStartCount = 0;
-    int tooLongTripsCount = 0;
     int someOtherProblemCount = 0;
     int lessThanPickupRadius = 0;
     
-    double valueEarned = 0;
-    double valueFailed = 0;
+    double totalDistance = 0;
+    int numberOfRequests = 0;
+    double avgDistance = 0;
+
 	
 	
 	@Inject
@@ -74,10 +74,15 @@ public class InsertionSolver extends DARPSolver{
         maxDelayTime = config.amodsim.ridesharing.maxWaitTime  * 1000;
         
         //move to config
-        maxRideTime = 1800000; // 30 min in ms??
-        minDistance = 50*50; 
+        minDistanceSquared = 50*50; 
         maxRouteTime = 14400000;
 	}
+    
+    private double getDistanceSquared(SimulationNode node1, SimulationNode node2){
+        double dist_x = node2.getLatitudeProjected() - node1.getLatitudeProjected();
+        double dist_y = node2.getLongitudeProjected() - node1.getLongitudeProjected();
+        return dist_x * dist_x + dist_y * dist_y;
+    }
 
 	@Override
 	public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<OnDemandRequest> requests) {
@@ -89,6 +94,12 @@ public class InsertionSolver extends DARPSolver{
         DriverPlan bestPlan = null;
         RideSharingOnDemandVehicle servingVehicle = null;
         OnDemandRequest request = requests.get(0);
+        numberOfRequests++;
+        double dist_x = request.getPosition().getLatitudeProjected() - request.getTargetLocation().getLatitudeProjected();
+        double dist_y = request.getPosition().getLongitudeProjected() - request.getTargetLocation().getLongitudeProjected();
+        double distance = Math.sqrt(dist_x * dist_x + dist_y * dist_y);
+        totalDistance += Math.sqrt(getDistanceSquared(request.getPosition(), request.getTargetLocation()));
+        avgDistance = distance/numberOfRequests;
 		
         long iterationStartTime = System.nanoTime();
 	    for(AgentPolisEntity tVehicle: vehicleStorage.getEntitiesForIteration()){
@@ -122,9 +133,8 @@ public class InsertionSolver extends DARPSolver{
                 }
 				previousTask = task;
             }
-            valueEarned += request.getRideValue();
+
         }else{
-            valueFailed += request.getRideValue();
             debugFail(request);
 		}
 		totalTime += System.nanoTime() - startTime;
@@ -148,15 +158,10 @@ public class InsertionSolver extends DARPSolver{
         if(vehicle.getPosition() == request.getPosition()){
             return true;
         }
-       
-	    double dist_x = vehicle.getPosition().getLatitudeProjected() - request.getPosition().getLatitudeProjected();
-        double dist_y = vehicle.getPosition().getLongitudeProjected() - request.getPosition().getLongitudeProjected();
-        double distanceSquared = dist_x * dist_x + dist_y * dist_y;
+
+        double distanceSquared = getDistanceSquared(vehicle.getPosition(), request.getPosition());
         //pick_up radius
-        if(distanceSquared <= minDistance){
-        //    lessThanPickupRadius++;
-        //    System.out.println("Vehicle " +vehicle.getId()+" is inside pick up radius: "+ Math.sqrt(distanceSquared) +
-        //        "("+lessThanPickupRadius+").");
+        if(distanceSquared <= minDistanceSquared){
             return true;
         }
         if(distanceSquared > maxDistanceSquared){
@@ -377,9 +382,7 @@ public class InsertionSolver extends DARPSolver{
 		boolean freeVehicle = false;
 		double bestCartesianDistance = Double.MAX_VALUE;
 		double bestTravelTime = Double.MAX_VALUE;
-        double bestRideTime = Double.MAX_VALUE;
-
-		
+	
 		for(OnDemandVehicle tVehicle: vehicleStorage){
 			RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVehicle;
 			if(vehicle.hasFreeCapacity()){
@@ -396,13 +399,7 @@ public class InsertionSolver extends DARPSolver{
 							travelTimeProvider.getTravelTime(vehicle, vehicle.getPosition(), request.getPosition());
 
 					bestTravelTime = travelTime < bestTravelTime ? travelTime : bestTravelTime;
-							
-					double rideTime = 
-							travelTimeProvider.getTravelTime(vehicle,  request.getPosition(), request.getTargetLocation());
-
-					bestRideTime = rideTime < bestRideTime ? rideTime : bestRideTime;
-						
-				}
+    			}
             }
         }//for
 			      
@@ -423,10 +420,6 @@ public class InsertionSolver extends DARPSolver{
 			System.out.println("Request " + requestId 
                 + ": Cannot serve request - Too big traveltime to start location: " 
                 + bestTravelTime+"("+tooLongToStartCount+").");
-		}
-        else if(bestRideTime > maxRideTime){
-            tooLongTripsCount++;
-			System.out.println("Request " + requestId + ": Cannot serve request ("+tooLongTripsCount+") - it's too long: " + bestRideTime);
 		}
 		else{
             someOtherProblemCount++;
@@ -458,7 +451,6 @@ public class InsertionSolver extends DARPSolver{
         sb.append("Can serve call count: ").append(canServeRequestCallCount).append("\n");
         sb.append("Vehicle planning call count: ").append(vehiclePlanningAllCallCount).append("\n");
         sb.append("Traveltime call count: ").append(((EuclideanTravelTimeProvider) travelTimeProvider).getCallCount()).append("\n");
-        sb.append("Earned so far: ").append(valueEarned).append(" of  ").append(valueEarned+valueFailed);
         return sb.toString();
     }
 	

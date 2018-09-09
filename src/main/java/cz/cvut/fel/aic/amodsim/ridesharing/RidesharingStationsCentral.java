@@ -33,67 +33,20 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class RidesharingStationsCentral extends OnDemandVehicleStationsCentral{
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RidesharingStationsCentral.class);
-    
-	private final DARPSolver solver;
-    private final TravelTimeProvider travelTimeProvider;
-    private final long  maxRideTime = 1800000; // 30 min in ms??
-    
-    
-    int tooLongTripsCount = 0;
-    int demandCount = 0;
-    int acceptedDemandCount = 0;
-    double totalValue = 0;
-    double droppedValue = 0;
-    
-	
+    private final DARPSolver solver;
+
 	
 	@Inject
 	public RidesharingStationsCentral(OnDemandvehicleStationStorage onDemandvehicleStationStorage, 
-			EventProcessor eventProcessor, AmodsimConfig config, TravelTimeProvider travelTimeProvider, DARPSolver solver, @Named("mapSrid") int srid) {
+			EventProcessor eventProcessor, AmodsimConfig config, DARPSolver solver, @Named("mapSrid") int srid) {
 		super(onDemandvehicleStationStorage, eventProcessor, config, srid);
 		this.solver = solver;
-        this.travelTimeProvider = travelTimeProvider;
 	}
 	
-	@Override
-    public void handleEvent(Event event) {
-        OnDemandVehicleStationsCentralEvent eventType = (OnDemandVehicleStationsCentralEvent) event.getType();
-        
-        switch(eventType){
-            case DEMAND:
-                processDemand(event);
-                break;
-            case REBALANCING:
-                super.serveRebalancing(event);
-                break;
-        }
-        
-    }
-    
-    private void processDemand(Event event) {
-        demandCount++;
-        if(demandCount%10000 == 0){
-            System.out.println(getStatistics());
-        }
-        DemandData demandData = (DemandData) event.getContent();
-        List<SimulationNode> locations = demandData.locations;
-        Node startNode = locations.get(0);
-        Node endNode = locations.get(locations.size() -1 );
-        double travelTime = travelTimeProvider.getTravelTime((SimulationNode) startNode, (SimulationNode) endNode);
-	    if(travelTime >= maxRideTime){
-            tooLongTripsCount++;
-            //LOGGER.info("Demand is too long, count {}", tooLongTripsCount);
-        }else{
-            serveDemand(startNode, demandData);
-        }
-    
-    } 
+ 
     
 	@Override
 	protected void serveDemand(Node startNode, DemandData demandData) {
-        acceptedDemandCount++;
-        double rideValue = demandData.demandAgent.getRideValue();
-        totalValue += rideValue;
         //LOGGER.info("Demand is accepted, count {}",  acceptedDemandCount);
 		List<OnDemandRequest> requests = new LinkedList<>();
 		requests.add(new OnDemandRequest(demandData.demandAgent, demandData.locations.get(1)));
@@ -102,7 +55,6 @@ public class RidesharingStationsCentral extends OnDemandVehicleStationsCentral{
 		
 		if(newPlans.isEmpty()){
 			numberOfDemandsDropped++;
-            droppedValue += rideValue;
             //LOGGER.info("Demand is dropped, count {}", numberOfDemandsDropped);
 			demandData.demandAgent.setDropped(true);
 		}
@@ -115,24 +67,5 @@ public class RidesharingStationsCentral extends OnDemandVehicleStationsCentral{
 		}
 	}
     
-    public String getStatistics(){
-        StringBuilder sb = new StringBuilder("RideSharingCentral stats: \n");
-        sb.append("Total demands received: ").append(demandCount).append("\n");
-        sb.append("Accepted demands: ").append(acceptedDemandCount).append(" , ").
-            append(100*acceptedDemandCount/demandCount).append("% of received \n");
-        sb.append("Total demands dropped: ").append(numberOfDemandsDropped).append(" , ").
-            append(100*numberOfDemandsDropped/acceptedDemandCount).append("% of accepted \n");
-        sb.append("Total value of received demands: ").append(totalValue).append("\n");
-        sb.append("Total value of dropped demands: ").append(droppedValue).append(" ,").
-            append(100*droppedValue/totalValue).append("% of accepted \n");
-        sb.append("Total value earnde: ").append(totalValue - droppedValue).append(" ,").
-            append(100*(totalValue - droppedValue)/totalValue).append("% of accepted \n");
-        return sb.toString();
-    }
-    
-
-
-	
-	
-	
+ 
 }

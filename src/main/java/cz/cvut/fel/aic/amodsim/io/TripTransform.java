@@ -78,6 +78,10 @@ public class TripTransform {
     public int getSameStartAndTargetInDataCount() {
         return sameStartAndTargetInDataCount;
     }
+
+    public Graph<SimulationNode, SimulationEdge> getHighwayGraph() {
+        return highwayGraph;
+    }
     
     
 
@@ -107,7 +111,7 @@ public class TripTransform {
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
             String line;
             while ((line = br.readLine()) != null) {
-                tooLongTripsCount++;
+                totalTrips++;
                 String[] parts = line.split(" ");
                 GPSLocation startLocation
                        = new GPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, 0);

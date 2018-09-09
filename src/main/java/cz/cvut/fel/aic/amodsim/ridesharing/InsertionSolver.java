@@ -53,10 +53,6 @@ public class InsertionSolver extends DARPSolver{
     int tooLongToStartCount = 0;
     int someOtherProblemCount = 0;
     int lessThanPickupRadius = 0;
-    
-    double totalDistance = 0;
-    int numberOfRequests = 0;
-    double avgDistance = 0;
 
 	
 	
@@ -94,12 +90,6 @@ public class InsertionSolver extends DARPSolver{
         DriverPlan bestPlan = null;
         RideSharingOnDemandVehicle servingVehicle = null;
         OnDemandRequest request = requests.get(0);
-        numberOfRequests++;
-        double dist_x = request.getPosition().getLatitudeProjected() - request.getTargetLocation().getLatitudeProjected();
-        double dist_y = request.getPosition().getLongitudeProjected() - request.getTargetLocation().getLongitudeProjected();
-        double distance = Math.sqrt(dist_x * dist_x + dist_y * dist_y);
-        totalDistance += Math.sqrt(getDistanceSquared(request.getPosition(), request.getTargetLocation()));
-        avgDistance = distance/numberOfRequests;
 		
         long iterationStartTime = System.nanoTime();
 	    for(AgentPolisEntity tVehicle: vehicleStorage.getEntitiesForIteration()){

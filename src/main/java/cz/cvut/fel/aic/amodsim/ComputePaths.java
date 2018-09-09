@@ -27,6 +27,7 @@ public class ComputePaths {
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ComputePaths.class);
     
+    
     public static void main(String[] args) throws MalformedURLException {
         new ComputePaths().run(args);
     }

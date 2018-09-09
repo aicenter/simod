@@ -9,25 +9,19 @@ import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
  */
 public class DriverPlanTask {
 	private final DriverPlanTaskType taskType;
-	
 	public final DemandAgent demandAgent;
-	
 	private final SimulationNode location;
-
-	public DriverPlanTaskType getTaskType() {
+    public DriverPlanTaskType getTaskType() {
 		return taskType;
 	}
 
 	public DemandAgent getDemandAgent() {
 		return demandAgent;
 	}
-
 	public SimulationNode getLocation() {
 		return location;
 	}
 	
-	
-
 	public DriverPlanTask(DriverPlanTaskType taskType, DemandAgent demandAgent, SimulationNode location) {
 		this.taskType = taskType;
 		this.demandAgent = demandAgent;

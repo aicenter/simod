@@ -37,9 +37,16 @@ public class EuclideanTravelTimeProvider implements TravelTimeProvider{
 	}
 	
 	
-
 	@Override
 	public double getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
+		callCount++;
+		double distance = positionUtil.getPosition(positionA).distance(positionUtil.getPosition(positionB));
+		long traveltime = MoveUtil.computeDuration(travelSpeedEstimatePerSecond, distance);
+		return traveltime;
+	}
+    
+    @Override
+	public double getTravelTime(SimulationNode positionA, SimulationNode positionB) {
 		callCount++;
 		double distance = positionUtil.getPosition(positionA).distance(positionUtil.getPosition(positionB));
 		long traveltime = MoveUtil.computeDuration(travelSpeedEstimatePerSecond, distance);

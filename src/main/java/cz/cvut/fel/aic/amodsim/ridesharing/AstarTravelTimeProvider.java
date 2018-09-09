@@ -20,11 +20,7 @@ import java.util.Iterator;
  */
 @Singleton
 public class AstarTravelTimeProvider implements TravelTimeProvider{
-	
-	
 	private final TripsUtil tripsUtil;
-	
-	
 	private final Graph<SimulationNode, SimulationEdge> graph;
 
 	
@@ -49,13 +45,15 @@ public class AstarTravelTimeProvider implements TravelTimeProvider{
 		Node fromNode = nodeIterator.next();
 		while (nodeIterator.hasNext()) {
 			Node toNode = nodeIterator.next();
-			
 			SimulationEdge edge = graph.getEdge(fromNode, toNode);
-			
 			totalDuration += MoveUtil.computeDuration(entity, edge);
-			
 			fromNode = toNode;
 		}
 		return totalDuration;
 	}
+
+    @Override
+    public double getTravelTime(SimulationNode positionA, SimulationNode positionB) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

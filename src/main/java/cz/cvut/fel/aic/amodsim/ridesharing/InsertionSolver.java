@@ -13,6 +13,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTask;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTaskType;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.util.GPSLocationTools;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,6 +46,7 @@ public class InsertionSolver extends DARPSolver{
 
     private final long maxRideTime;
     private final long minDistance;
+    private final long maxRouteTime;
             
         //counters
     int noFreeVehicleCount = 0;
@@ -53,6 +55,9 @@ public class InsertionSolver extends DARPSolver{
     int tooLongTripsCount = 0;
     int someOtherProblemCount = 0;
     int lessThanPickupRadius = 0;
+    
+    double valueEarned = 0;
+    double valueFailed = 0;
 	
 	
 	@Inject
@@ -70,7 +75,8 @@ public class InsertionSolver extends DARPSolver{
         
         //move to config
         maxRideTime = 1800000; // 30 min in ms??
-        minDistance = 50; 
+        minDistance = 50*50; 
+        maxRouteTime = 14400000;
 	}
 
 	@Override
@@ -111,29 +117,22 @@ public class InsertionSolver extends DARPSolver{
                 }
 				if(task.demandAgent == request.getDemandAgent()){
                     request.getDemandAgent().setScheduledPickupDelay(currentDelay);
+                    
                     break;
                 }
 				previousTask = task;
             }
+            valueEarned += request.getRideValue();
         }else{
+            valueFailed += request.getRideValue();
             debugFail(request);
 		}
 		totalTime += System.nanoTime() - startTime;
         if(callCount % InsertionSolver.INFO_PERIOD == 0){
-            StringBuilder sb = new StringBuilder();
-            sb.append("Insetrion Heuristic Stats: \n");
-            sb.append("Real time: ").append(System.nanoTime()).append(readableTime(System.nanoTime())).append("\n");
-            sb.append("Simulation time: ").append(timeProvider.getCurrentSimTime())
-					.append(readableTime(timeProvider.getCurrentSimTime() * 1000000)).append("\n");
-            sb.append("Call count: ").append(callCount).append("\n");
-            sb.append("Total time: ").append(totalTime).append(readableTime(totalTime)).append("\n");
-            sb.append("Iteration time: ").append(iterationTime).append(readableTime(iterationTime)).append("\n");
-            sb.append("Can serve call count: ").append(canServeRequestCallCount).append("\n");
-            sb.append("Vehicle planning call count: ").append(vehiclePlanningAllCallCount).append("\n");
-            sb.append("Traveltime call count: ").append(((EuclideanTravelTimeProvider) travelTimeProvider).getCallCount()).append("\n");
-            System.out.println(sb.toString());
+            System.out.println(getCurrentStatisics());
             
         }
+        
         return planMap;
 	}
 	
@@ -144,18 +143,22 @@ public class InsertionSolver extends DARPSolver{
         if(vehicle.getState() == OnDemandVehicleState.REBALANCING){
             return false;
         }
-		// node identity
-//        if(vehicle.getPosition() == request.getPosition()){
-//            return true;
-//        }
+        
+        // max_ride_time 
+        double travelTime = travelTimeProvider.getTravelTime(request.getPosition(), request.getTargetLocation());
+        if(travelTime >= maxRideTime){
+            return false;
+        }
+		//node identity
+        if(vehicle.getPosition() == request.getPosition()){
+            return true;
+        }
        
-		
-
-        double dist_x = vehicle.getPosition().getLatitudeProjected() - request.getPosition().getLatitudeProjected();
+	    double dist_x = vehicle.getPosition().getLatitudeProjected() - request.getPosition().getLatitudeProjected();
         double dist_y = vehicle.getPosition().getLongitudeProjected() - request.getPosition().getLongitudeProjected();
         double distanceSquared = dist_x * dist_x + dist_y * dist_y;
         //pick_up radius
-        if(distanceSquared <= minDistance*minDistance){
+        if(distanceSquared <= minDistance){
         //    lessThanPickupRadius++;
         //    System.out.println("Vehicle " +vehicle.getId()+" is inside pick up radius: "+ Math.sqrt(distanceSquared) +
         //        "("+lessThanPickupRadius+").");
@@ -167,17 +170,13 @@ public class InsertionSolver extends DARPSolver{
 		
 		// real feasibility check 
 		// TODO compute from interpolated position
+        
+        //max_waiting_time
+        if(travelTimeProvider.getTravelTime(vehicle.getPosition(), request.getPosition()) > maxDelayTime){
+            return false;
+        }
 		//boolean canServe = travelTimeProvider.getTravelTime(vehicle, vehicle.getPosition(), request.getPosition()) 
 		//		< maxDelayTime;
-        //max_waiting_time
-        if(travelTimeProvider.getTravelTime(vehicle, vehicle.getPosition(), request.getPosition()) > maxDelayTime){
-            return false;
-        }
-        // max_ride_time 
-        double travelTime = travelTimeProvider.getTravelTime(vehicle, request.getPosition(), request.getTargetLocation());
-        if(travelTime >= maxRideTime){
-            return false;
-        }
         
                
 		return true;
@@ -272,7 +271,6 @@ public class InsertionSolver extends DARPSolver{
 				planTravelTime += travelTimeProvider.getTravelTime(vehicle, previousTask.getLocation(), 
 							newTask.getLocation());
 			}
-			
 			// min estimated simulation time to finish this task
 			long curentTaskTime = timeProvider.getCurrentSimTime() + planTravelTime;
 			for(DemandAgent demandAgent: unfinishedDemands){
@@ -298,7 +296,12 @@ public class InsertionSolver extends DARPSolver{
 	private boolean planFeasible(DriverPlan potentialPlan, RideSharingOnDemandVehicle vehicle) {
 		int occupancy = vehicle.getOnBoardCount();
 		int capacity = vehicle.getVehicle().getCapacity();
-		
+        long planTravelTime = potentialPlan.totalTime;
+		if(planTravelTime > maxRouteTime){
+            LOGGER.info("Route is too long");
+            return false;
+            }
+        
 		for(DriverPlanTask planTask: potentialPlan){
 			if(planTask.getTaskType() == DriverPlanTaskType.DROPOFF){
 				occupancy--;
@@ -309,6 +312,29 @@ public class InsertionSolver extends DARPSolver{
 				}
 			}
 		}
+        //potentialPlan.plan = list of tasks
+        //potentialPlan.getLength() = number of tasks in the plan
+        
+//        List<DemandAgent> pickUpTasks = new ArrayList<>();
+//        LOGGER.info("Checking max_ride_value for passengers");
+//        for(DriverPlanTask pickUpTask: potentialPlan){
+//			if(pickUpTask.getTaskType() == DriverPlanTaskType.PICKUP){
+//                
+//                DemandAgent currentClient = pickUpTask.getDemandAgent();
+//                for(DriverPlanTask dropOffTask: potentialPlan){
+//                    if(dropOffTask.getTaskType() == DriverPlanTaskType.DROPOFF){
+//                        if(dropOffTask.getDemandAgent() == currentClient){
+//                            continue;
+//                            //
+//                            
+//                        }
+//                    }
+//                }
+//			}
+//        }
+
+        
+        
 		return true;
 	}
 
@@ -350,8 +376,6 @@ public class InsertionSolver extends DARPSolver{
 				previousTask = task;
 			}
 		}
-		
-//		potentialPlan.setPlannedTraveltime(currentPlan.getPlannedTraveltime() + costAddition);
 	}
 
 	private void debugFail(OnDemandRequest request) {
@@ -426,6 +450,22 @@ public class InsertionSolver extends DARPSolver{
 		
 		return String.format(" (%02d:%02d:%02d:%d)", hour, minute, second, millis);
 	}
+    
+    public String getCurrentStatisics(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("Insetrion Heuristic Stats: \n");
+        sb.append("Real time: ").append(System.nanoTime()).append(readableTime(System.nanoTime())).append("\n");
+        sb.append("Simulation time: ").append(timeProvider.getCurrentSimTime())
+                 .append(readableTime(timeProvider.getCurrentSimTime() * 1000000)).append("\n");
+        sb.append("Call count: ").append(callCount).append("\n");
+        sb.append("Total time: ").append(totalTime).append(readableTime(totalTime)).append("\n");
+        sb.append("Iteration time: ").append(iterationTime).append(readableTime(iterationTime)).append("\n");
+        sb.append("Can serve call count: ").append(canServeRequestCallCount).append("\n");
+        sb.append("Vehicle planning call count: ").append(vehiclePlanningAllCallCount).append("\n");
+        sb.append("Traveltime call count: ").append(((EuclideanTravelTimeProvider) travelTimeProvider).getCallCount()).append("\n");
+        sb.append("Earned so far: ").append(valueEarned).append(" of  ").append(valueEarned+valueFailed);
+        return sb.toString();
+    }
 	
 	private class PlanData{
 		final DriverPlan plan;

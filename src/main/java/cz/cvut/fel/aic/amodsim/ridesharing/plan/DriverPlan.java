@@ -13,26 +13,11 @@ import java.util.Set;
  */
 public class DriverPlan implements Iterable<DriverPlanTask>{
 	public final List<DriverPlanTask> plan;
-	
 	private double plannedTraveltime;
-	
 	private Set<DemandAgent> demands;
-	
 	public final long totalTime;
-	
-	
-	
 
-//	public double getPlannedTraveltime() {
-//		return plannedTraveltime;
-//	}
-//
-//	public void setPlannedTraveltime(double plannedTraveltime) {
-//		this.plannedTraveltime = plannedTraveltime;
-//	}
-	
-	
-	
+
 	
 
 	public DriverPlan(List<DriverPlanTask> plan, long totalTime) {

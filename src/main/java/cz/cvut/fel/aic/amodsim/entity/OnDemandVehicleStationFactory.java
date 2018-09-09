@@ -68,7 +68,7 @@ public class OnDemandVehicleStationFactory {
    
     
     public OnDemandVehicleStation create(String id, SimulationNode node, int initialVehicleCount){
-        LOGGER.info(String.format("id %s, node %d at (%d %d), vehicles %d", id, node.id, node.latE6, node.lonE6, initialVehicleCount));
+       // LOGGER.info(String.format("id %s, node %d at (%d %d), vehicles %d", id, node.id, node.latE6, node.lonE6, initialVehicleCount));
         return new OnDemandVehicleStation(config, eventProcessor,
             onDemandVehicleFactory, nearestElementUtils,
             onDemandVehicleStationStorage, onDemandVehicleStorage, 

@@ -111,7 +111,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     public void parkVehicle(OnDemandVehicle onDemandVehicle){
         if(onDemandVehicle.getPosition() != getPosition()){
             try {
-                throw new Exception("Vehicle cannot be parked in station, beacause it's not present in the station!");
+                throw new Exception("Vehicle cannot be parked in station, because it's not present in the station!");
             } catch (Exception ex) {
                 LOGGER.error(null, ex);
             }
@@ -134,6 +134,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     
 
     public void handleTripRequest(DemandData demandData) {
+        LOGGER.info("Request received by station {}", super.getId());
         Node startLocation = demandData.locations.get(0);
         Node targetLocation = demandData.locations.get(demandData.locations.size() - 1);
         
@@ -150,6 +151,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         OnDemandVehicle vehicle = getVehicle();
         
         if(vehicle != null){
+            LOGGER.info("Trip is assigned to vehicle {}", vehicle.getId());
             vehicle.setDepartureStation(this);
             eventProcessor.addEvent(null, vehicle, null, demandData);
             eventProcessor.addEvent(null, demandData.demandAgent, null, vehicle);

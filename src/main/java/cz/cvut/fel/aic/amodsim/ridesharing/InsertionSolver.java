@@ -143,12 +143,7 @@ public class InsertionSolver extends DARPSolver{
         if(vehicle.getState() == OnDemandVehicleState.REBALANCING){
             return false;
         }
-        
-        // max_ride_time 
-        double travelTime = travelTimeProvider.getTravelTime(request.getPosition(), request.getTargetLocation());
-        if(travelTime >= maxRideTime){
-            return false;
-        }
+
 		//node identity
         if(vehicle.getPosition() == request.getPosition()){
             return true;

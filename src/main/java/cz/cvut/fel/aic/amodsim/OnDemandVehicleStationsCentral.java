@@ -79,7 +79,7 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
         EventProcessor eventProcessor, AmodsimConfig config, @Named("mapSrid") int srid) {
         this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
         this.eventProcessor = eventProcessor;
-	this.config = config;
+        this.config = config;
         transformer = new Transformer(srid);
         numberOfDemandsNotServedFromNearestStation = 0;
         numberOfDemandsDropped = 0;
@@ -87,10 +87,7 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
         rebalancingDropped = 0;
     }
 
-    
-    
-    
-    
+        
     @Override
     public void handleEvent(Event event) {
         OnDemandVehicleStationsCentralEvent eventType = (OnDemandVehicleStationsCentralEvent) event.getType();
@@ -103,8 +100,8 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
                 serveRebalancing(event);
                 break;
         }
-        
     }
+    
     
     public OnDemandVehicleStation getNearestReadyStation(GPSLocation position){
         if(nearestElementUtil == null){
@@ -142,7 +139,7 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
         return nearestStation;
     }
     
-    private NearestElementUtil<OnDemandVehicleStation> getNearestElementUtilForStations() {
+    protected NearestElementUtil<OnDemandVehicleStation> getNearestElementUtilForStations() {
         List<NearestElementUtilPair<Coordinate,OnDemandVehicleStation>> pairs = new ArrayList<>();
         
         OnDemandvehicleStationStorage.EntityIterator iterator = onDemandvehicleStationStorage.new EntityIterator();
@@ -167,7 +164,7 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
 		serveDemand(startNode, demandData);
     }
 
-    private void serveRebalancing(Event event) {
+    protected void serveRebalancing(Event event) {
         TimeTrip<OnDemandVehicleStation> rebalancingTrip = (TimeTrip<OnDemandVehicleStation>) event.getContent();
         OnDemandVehicleStation sourceStation = rebalancingTrip.getLocations().peek();
         boolean success = sourceStation.rebalance(rebalancingTrip);

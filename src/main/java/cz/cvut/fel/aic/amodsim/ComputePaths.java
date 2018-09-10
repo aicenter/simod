@@ -12,7 +12,7 @@ import cz.cvut.fel.aic.amodsim.init.StatisticInitializer;
 import cz.cvut.fel.aic.amodsim.io.RebalancingLoader;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
-import cz.cvut.fel.aic.amodsim.ridesharing.StaticSolver;
+import cz.cvut.fel.aic.amodsim.ridesharing.TabuSearchSolver;
 import cz.cvut.fel.aic.amodsim.statistics.Statistics;
 import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
 
@@ -57,7 +57,7 @@ public class ComputePaths {
             
             DARPSolver solver = injector.getInstance(DARPSolver.class);
             LOGGER.info("Solver class initialized");
-            ((StaticSolver) solver).setStations(rebalancingLoader.getOnDemandVehicleStations());
+            ((TabuSearchSolver) solver).setStations(rebalancingLoader.getOnDemandVehicleStations());
             solver.solve();
             //  injector.getInstance(EntityInitializer.class).initialize(rebalancingLoader.getOnDemandVehicleStations());
 

@@ -12,6 +12,7 @@ import cz.cvut.fel.aic.amodsim.init.StatisticInitializer;
 import cz.cvut.fel.aic.amodsim.io.RebalancingLoader;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
+import cz.cvut.fel.aic.amodsim.ridesharing.StaticSolver;
 import cz.cvut.fel.aic.amodsim.statistics.Statistics;
 import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
 
@@ -49,12 +50,15 @@ public class ComputePaths {
         try {
 //            osmNodesList = TripTransform.jsonToTrips(new File(config.amodsim.preprocessedTrips), Long.class);
             //TripTransform tripTransform = injector.getInstance(TripTransform.class);
+
+            RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
+            rebalancingLoader.load(new File(config.rebalancing.policyFilePath));
+            
+            
             DARPSolver solver = injector.getInstance(DARPSolver.class);
             LOGGER.info("Solver class initialized");
+            ((StaticSolver) solver).setStations(rebalancingLoader.getOnDemandVehicleStations());
             solver.solve();
-           // RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
-           // rebalancingLoader.load(new File(config.rebalancing.policyFilePath));
-
             //  injector.getInstance(EntityInitializer.class).initialize(rebalancingLoader.getOnDemandVehicleStations());
 
            // injector.getInstance(EventInitializer.class).initialize(

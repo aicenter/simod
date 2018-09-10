@@ -35,7 +35,6 @@ import java.util.List;
 public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     
     private final OnDemandvehicleStationStorage onDemandvehicleStationStorage;
-    
     private final Transformer transformer;
     
     private final EventProcessor eventProcessor;

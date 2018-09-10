@@ -41,7 +41,7 @@ public class RidesharingStationsCentral extends OnDemandVehicleStationsCentral{
 			EventProcessor eventProcessor, AmodsimConfig config, DARPSolver solver, @Named("mapSrid") int srid) {
 		super(onDemandvehicleStationStorage, eventProcessor, config, srid);
 		this.solver = solver;
-	}
+    }
 	
  
     

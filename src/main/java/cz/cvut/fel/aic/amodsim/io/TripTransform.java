@@ -43,8 +43,8 @@ public class TripTransform {
     
     private int zeroLenghtTripsCount = 0;
     private int sameStartAndTargetInDataCount = 0;
-    private int tooLongTripsCount = 0;
-    private int tooShortTripsCount = 0;
+ //   private int tooLongTripsCount = 0;
+ //   private int tooShortTripsCount = 0;
     private double totalValue = 0;
     private int totalTrips = 0;
     
@@ -59,13 +59,13 @@ public class TripTransform {
         return zeroLenghtTripsCount;
     }
 
-    public int getTooLongTripsCount() {
-        return tooLongTripsCount;
-    }
-
-    public int getTooShortTripsCount() {
-        return tooShortTripsCount;
-    }
+//    public int getTooLongTripsCount() {
+//        return tooLongTripsCount;
+//    }
+//
+//    public int getTooShortTripsCount() {
+//        return tooShortTripsCount;
+//    }
 
     public double getTotalValue() {
         return totalValue;
@@ -106,38 +106,39 @@ public class TripTransform {
 	}
     
     public List<TimeValueTrip<SimulationNode>> loadTripsFromTxt(File inputFile){
+        LOGGER.info(" called from {}", Thread.currentThread().getStackTrace()[1].getClassName());
 
         List<TimeValueTrip<GPSLocation>> gpsTrips = new LinkedList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
             String line;
             while ((line = br.readLine()) != null) {
-                totalTrips++;
                 String[] parts = line.split(" ");
                 GPSLocation startLocation
                        = new GPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, 0);
                 GPSLocation targetLocation
                        = new GPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, 0);
-              
+                
                 if(startLocation.equals(targetLocation)){
                    sameStartAndTargetInDataCount++;
                 }else{
-                    double dist = approximateDistance(startLocation, targetLocation);
-                    if( dist >= maxTripLength){
-                        tooLongTripsCount++;
-                        //LOGGER.info("Too long: {}", approximateDistance(startLocation, targetLocation));
-                    }else if(dist < minTripLength){
-                        tooShortTripsCount++;
-                    }else{
+//                    double dist = approximateDistance(startLocation, targetLocation);
+//                    if( dist >= maxTripLength){
+//                        tooLongTripsCount++;
+//                        //LOGGER.info("Too long: {}", approximateDistance(startLocation, targetLocation));
+//                    }else if(dist < minTripLength){
+//                        tooShortTripsCount++;
+//                    }else{
                         if(parts.length == 6){
-                            gpsTrips.add(new TimeValueTrip<>(startLocation, targetLocation, 
+                            gpsTrips.add(new TimeValueTrip<>(totalTrips, startLocation, targetLocation, 
                             Long.parseLong(parts[0].split("\\.")[0]), Double.parseDouble(parts[5])));
                         }else{
-                            gpsTrips.add(new TimeValueTrip<>(startLocation, targetLocation, 
+                            gpsTrips.add(new TimeValueTrip<>(totalTrips, startLocation, targetLocation, 
                             Long.parseLong(parts[0].split("\\.")[0]), 0));
                         }
                         
-                    }
+                  //  }
                 }
+                totalTrips++;
             }
             
         }catch (IOException ex) {
@@ -152,10 +153,10 @@ public class TripTransform {
         
         LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);
         LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
-        LOGGER.info("{} too long trips discarded", tooLongTripsCount);
-        LOGGER.info("{} too short trips discarded ", tooShortTripsCount);
-        LOGGER.info("Total value of accepted trips {} ", totalValue);
-        
+//        LOGGER.info("{} too long trips discarded", tooLongTripsCount);
+//        LOGGER.info("{} too short trips discarded ", tooShortTripsCount);
+//        LOGGER.info("Total value of accepted trips {} ", totalValue);
+//        
 //        LOGGER.info("{} longest trip", maxTripLen);
 //        LOGGER.info("{} shortest trip", minTripLen);
         return trips; 
@@ -181,16 +182,16 @@ public class TripTransform {
         SimulationNode targetNode = nearestElementUtils.getNearestElement(locations.get(locations.size() - 1), EGraphType.HIGHWAY);
         double rideValue = gpsTrip.getRideValue();
 	
-	if(startNode != targetNode){
+	//if(startNode != targetNode){
             LinkedList<SimulationNode> nodesList = new LinkedList<>();
             nodesList.add(startNode);
             nodesList.add(targetNode);
-            trips.add(new TimeValueTrip<>(nodesList, gpsTrip.getStartTime(), gpsTrip.getEndTime(), rideValue ));
+           // trips.add(new TimeValueTrip<>(gpsTrip.id, nodesList, gpsTrip.getStartTime(), gpsTrip.getEndTime(), rideValue ));
+           trips.add(new TimeValueTrip<>(gpsTrip.id, nodesList, gpsTrip.getStartTime(), rideValue ));
             totalValue += rideValue;
-        }   
-        else{
-            zeroLenghtTripsCount++;
-        }
+        //}else{
+        //    zeroLenghtTripsCount++;
+       // }
     }
 }
  

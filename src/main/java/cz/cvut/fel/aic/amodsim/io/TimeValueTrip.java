@@ -15,35 +15,45 @@ import java.util.LinkedList;
  * @param <L> location type
  */
 public class TimeValueTrip<L> extends TimeTrip<L>{
-    private final double rideValue;
+    public final int id;
+    private final double value;
+    private int[] path;
 
-	public TimeValueTrip(LinkedList<L> locations, long startTime, double rideValue){
-		this(locations, startTime, 0, rideValue);
+	public TimeValueTrip(int tripId, LinkedList<L> locations, long startTime, double rideValue){
+        super(locations, startTime);
+		id = tripId;
+        value = rideValue;
 	}
     
-    public TimeValueTrip(L startLocation, L endLocation, long startTime, double rideValue){
+    public TimeValueTrip(int tripId, L startLocation, L endLocation, long startTime, double rideValue){
         super(startLocation, endLocation, startTime);
-        this.rideValue = rideValue;
+        this.value = rideValue;
+        this.id = tripId;
 	}
     
-	@JsonCreator
-	public TimeValueTrip(@JsonProperty("locations") LinkedList<L> locations, @JsonProperty("startTime") long startTime, 
-			@JsonProperty("endTime") long endTime, @JsonProperty("rideValue") double rideValue){
-		super(locations, startTime, endTime);
-        this.rideValue = rideValue;
-	}
-    
+   
     public double getRideValue(){
-        return rideValue;
+        return value;
+    }
+    
+    public boolean hasPath(){
+        return path != null;
+    }
+    
+    public int[] getPath(){
+        if(hasPath()) return path;
+        return new int[0];
+    }
+    
+    public void setPath(int[] path){
+        this.path = path;
     }
 
     @Override
-    @JsonIgnore
     public L getAndRemoveFirstLocation() {
         return super.getAndRemoveFirstLocation();
     }
-
-    @JsonIgnore
+  
     @Override
     public boolean isEmpty() {
         return super.isEmpty(); 

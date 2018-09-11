@@ -45,7 +45,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cz.cvut.fel.aic.amodsim.ridesharing.InsertionSolver;
-import cz.cvut.fel.aic.amodsim.ridesharing.TabuSearchSolver;
+import cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.TabuSearchSolver;
 
 /**
  *

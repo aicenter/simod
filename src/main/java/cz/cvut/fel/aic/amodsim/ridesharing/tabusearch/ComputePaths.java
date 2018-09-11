@@ -1,18 +1,19 @@
 /*
  */
-package cz.cvut.fel.aic.amodsim;
+package cz.cvut.fel.aic.amodsim.ridesharing.tabusearch;
 
 import com.google.inject.Injector;
 import cz.cvut.fel.aic.agentpolis.simmodel.mapInitialization.MapInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
+import cz.cvut.fel.aic.amodsim.MainModule;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.init.EventInitializer;
 import cz.cvut.fel.aic.amodsim.init.StatisticInitializer;
 import cz.cvut.fel.aic.amodsim.io.RebalancingLoader;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
-import cz.cvut.fel.aic.amodsim.ridesharing.TabuSearchSolver;
+import cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.TabuSearchSolver;
 import cz.cvut.fel.aic.amodsim.statistics.Statistics;
 import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
 

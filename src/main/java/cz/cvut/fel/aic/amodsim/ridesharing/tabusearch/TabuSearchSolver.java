@@ -23,6 +23,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Graph;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -96,29 +97,8 @@ public class TabuSearchSolver extends DARPSolver{
         
         
     }
-    
-    private int getTripByTime(long startTime){
-        
-        int ind = Arrays.binarySearch(tripList.stream().map(trip->trip.getStartTime())
-            .mapToLong(Long::longValue).toArray(), startTime);
-        //return tripList.get(ind);
-        System.out.print("Index returned by bs = ");
-        System.out.println(ind);
-        return ind;
-    }
+
    
-    /**
-     * 
-     * @param startTime milliseconds
-     * @param timeWindow  milliseconds
-     * @return 
-     */
-//    private List<TimeValueTrip> getTripsInsideTW(long startTime, long timeWindow){
-//        
-//        int ind = Arrays.binarySearch(tripList.stream().map(trip->trip.getStartTime())
-//            .mapToLong(Long::longValue).toArray(), startTime);
-//    }
-//   
     
     @Override
     public Map<RideSharingOnDemandVehicle, DriverPlan> solve() {
@@ -128,18 +108,32 @@ public class TabuSearchSolver extends DARPSolver{
         //TabuSearchUtils.avgTimeBtwTrips(tripList, 60);
         StringBuilder sb = new StringBuilder("Binary search test: \n");
         
-        long[] times = {123000, 34587200};//, 705123200 ,100860000,172706500
-       
-        for(long t: times){
-            sb.append("searching for trip starting at ").append(t);
-            int ind = getTripByTime(t);
-            sb.append(" , index ").append(ind);
-
-                TimeValueTrip trip = tripList.get(-ind);
-                sb.append(" time of trip at -index ")
-                .append(trip.getStartTime()).append("\n");
+        List<TSTrip> tripList2 = TripList.buildList(tripList);
+        int count = 0;
+        for(int i = 0; i < tripList2.size(); i+=1013){
+            if(i % 1017 == 0){
+                sb.append("At index ").append(i);
+                TSTrip trip = tripList2.get(i);
+                long time = trip.time;
+                sb.append(" is trip ").append(trip.id).append(" starting at ").append(time).append("\n");
+                int ind = TripList.getTripByTime(tripList2, time);
+                TSTrip trip2 = tripList2.get(ind);
+                sb.append("Search returns index ").append(ind).append(". Trips are same: ")
+                    .append(trip==trip2).append("\n");
+                sb.append("Time ").append(trip2.start).append(" is same: ").append(time == trip2.time).append("\n");
+                if(count++ == 10){
+                    break;
+                }
             }
+        }
+        long time = 1234567;
+        sb.append("Time window from ").append(time).append(" to ").append(time+10*1000).append("\n");
+        List<TSTrip> result = TripList.getTripsInsideTW(tripList2, time, 10*1000);
         
+        for(TSTrip trip: result){
+            sb.append(trip.time).append("\n");               
+        }
+
         
         System.out.println(sb.toString());
 
@@ -177,5 +171,31 @@ public class TabuSearchSolver extends DARPSolver{
 //    }
 // 
 
+
+
+//    
+//    private int getTripByTime(long startTime){
+//        
+//        int ind = Arrays.binarySearch(tripList.stream().map(trip->trip.getStartTime())
+//            .mapToLong(Long::longValue).toArray(), startTime);
+//        //return tripList.get(ind);
+//        System.out.print("Index returned by bs = ");
+//        System.out.println(ind);
+//        return ind;
+//    }
+   
+//    /**
+//     * 
+//     * @param startTime milliseconds
+//     * @param timeWindow  milliseconds
+//     * @return 
+//     */
+//    private List<TimeValueTrip> getTripsInsideTW(long startTime, long timeWindow){
+//        
+//        int ind = Arrays.binarySearch(tripList.stream().map(trip->trip.getStartTime())
+//            .mapToLong(Long::longValue).toArray(), startTime);
+//        
+//        
+//    }
 
     

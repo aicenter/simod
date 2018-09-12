@@ -41,30 +41,8 @@ import org.slf4j.LoggerFactory;
  */
 public class TabuSearchUtils {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TabuSearchUtils.class);
-    private static  boolean verbose = false;
+    private static  boolean verbose = true;
            
-    /**
-     * Wrapping TripTransform.loadTripsFromTxt.
-     * Reads trip data to list, prints some stats.
-     * @param config
-     * @param tripTransform
-     * @return 
-     */
-    public static List<TimeValueTrip<SimulationNode>> loadTrips(AmodsimConfig config,
-        TripTransform tripTransform){
-
-        String tripsPath = config.amodsim.tripsPath;
-        List<TimeValueTrip<SimulationNode>> list = tripTransform.loadTripsFromTxt(new File(tripsPath));
-        StringBuilder sb = new StringBuilder();
-        sb.append("Total number of demands: ").append(tripTransform.getTotalTrips()).append("\n");
-        sb.append("Same start and target location: ").append(tripTransform.getSameStartAndTargetInDataCount()).append("\n");
-        sb.append("Zero length: ").append(tripTransform.getZeroLenghtTripsCount()).append("\n");
-        sb.append("Number of valid demands: ").append(list.size()).append("\n");
-        sb.append("Checksum:").append(tripTransform.getSameStartAndTargetInDataCount() +
-                                      tripTransform.getZeroLenghtTripsCount()+
-                                      list.size()).append(" == ").append(tripTransform.getTotalTrips()).append(" \n");
-        return list;       
-    }
     
      /**
      * Adds paths to TimeValueTrip instances.
@@ -219,12 +197,69 @@ public class TabuSearchUtils {
                 pw.print(" ");
                 pw.println(locationsToString(trip));
             }
-            
+                      
        }catch (IOException ex){
            LOGGER.error(null, ex);          
        }
     }
     
+    /**
+     * Returns list of shortest paths to the nodes, that can be reached in the given time.
+     * 
+     * @param start node
+     * @param graph
+     * @param maxTraveTime seconds
+     * @param tripsUtil
+     * @param outFileName
+     * @return total number of nodes in all found paths
+     */
+    public static int pathsNoLongerThan(SimulationNode start, Graph<SimulationNode, SimulationEdge> graph,
+        int maxTravelTime, TripsUtil tripsUtil, String outFileName){
+        int paths = 0;
+        Set<Integer> uniquNodes = new HashSet<>();
+        int nodes = 0;
+        int maxNumNodes = 0;
+        int minNumNodes = Integer.MAX_VALUE;
+        double maxDist = maxTravelTime * 13.888;
+        long startTime = System.currentTimeMillis();
+        for(SimulationNode node: graph.getAllNodes()){
+            if(start.id != node.id){
+                int[] path = tripsUtil.createTrip(start.id, node.id).getLoacationIds();
+                int dist = findExactLength(path, graph);
+                if(dist <= maxDist){
+                    paths++;
+                    nodes += path.length;
+                    uniquNodes.addAll(Arrays.stream(path).boxed().collect(Collectors.toSet()));
+                    maxNumNodes = maxNumNodes >= path.length ? maxNumNodes : path.length;
+                    minNumNodes = minNumNodes <= path.length ? minNumNodes : path.length;
+                }
+            }
+        }
+        
+        long endTime = System.currentTimeMillis();
+        StringBuilder sb = new StringBuilder();
+        sb.append("Shortest paths reachable in ").append(maxTravelTime).append(" s for node ")
+            .append(start.id).append(", ").append((endTime-startTime)/1000).append(" sec \n");
+        sb.append("Paths found: ").append(paths).append(", unique nodes: ")
+            .append(uniquNodes.size()).append("\n");
+        sb.append("Nodes per path: avg ").append(nodes/paths).append(" , min ")
+            .append(minNumNodes).append(", max ").append(maxNumNodes).append(" \n");
+     
+        System.out.println(sb.toString());
+        
+        return nodes;
+    }
+    
+    public static void pathsNoLongerThan(List<SimulationNode> nodes, Graph<SimulationNode, SimulationEdge> graph,
+            int maxTravelTime, TripsUtil tripsUtil, String outFileName){
+        
+         double sumNodes = 0;
+         for(SimulationNode start: nodes){
+             sumNodes += pathsNoLongerThan(start, graph, maxTravelTime, tripsUtil, outFileName);
+         }
+         StringBuilder sb = new StringBuilder();
+         sb.append("Average ").append(sumNodes/nodes.size()).append(" nodes per path \n");
+     }
 
     /**
      * Reads trips paths from .txt file, written by writePathsFromFile().
@@ -255,57 +290,6 @@ public class TabuSearchUtils {
 		return Arrays.stream(trip.getLoacationIds()).mapToObj(String::valueOf).collect(Collectors.joining(" "));
     }
     
-    /**
-     * Return sum of ride_values for all trips in the list.
-     * @param tripList
-     * @return 
-     */
-    public static double getTripListValue(List<TimeValueTrip<SimulationNode>> tripList){
-        double value = tripList.stream().map(trip->trip.getRideValue()).mapToDouble(Double::doubleValue).sum();
-        return value;
-    }
-    
-    /**
-     * Calculates how many orders arrive during given perion of time.
-     * @param tripList 
-     * @param period  seconds
-     * @return 
-     */
-    public static double avgTimeBtwTrips(List<TimeValueTrip<SimulationNode>> tripList,
-        int period){
-        double sumFrequency = 0;
-        long maxFrequency = 0;
-        long minFrequency = Integer.MAX_VALUE;
-        long periodMS = period * 1000;
-        
-        long prevTime = 0;
-        int frequency = 0;
-        int numOfPeriods = 1;
-        for(int i = 0; i < tripList.size(); i++){
-            TimeValueTrip trip = tripList.get(i);
-            long delta = trip.getStartTime() - prevTime;
-            if(delta < periodMS){
-                frequency++;
-            }else{
-                i--;
-                prevTime += periodMS;
-                maxFrequency = maxFrequency >= frequency ? maxFrequency : frequency;
-                minFrequency = minFrequency <= frequency ? minFrequency : frequency;
-                sumFrequency += frequency;
-                numOfPeriods ++;
-                frequency = 0;
-            }
-        }
-
-        StringBuilder sb = new StringBuilder("Times between trips: \n");
-        sb.append("Max density: ").append(maxFrequency).append(" orders per ").append(period).append(" sec \n");
-        sb.append("Min density: ").append(minFrequency).append(" orders per ").append(period).append(" sec \n");
-        sb.append("Average: ").append(sumFrequency/numOfPeriods).append(" trips per minute (")
-            .append(60*sumFrequency/numOfPeriods).append(" per hour)\n");
-        
-        System.out.println(sb.toString());
-        return sumFrequency/numOfPeriods;
-    }
     
     
     
@@ -331,31 +315,6 @@ public class TabuSearchUtils {
         
         System.out.println(sb.toString());
     }
-//    
-//    public static void pathsNoLongerThan(SimulationNode start, 
-//        Graph<SimulationNode, SimulationEdge> graph, int maxLength){
-//        
-//        Deque<SimulationNode> queue = new ArrayDeque<>();
-//        queue.push(start);
-//        
-//        List<List<Integer>> paths = new ArrayList<>();
-//        SimulationNode node;
-//        int totalDist = 0;
-//        List<Integer> path = new ArrayList<>();
-//        while((node = queue.pollFirst()) != null){
-//            path.add(node.id);
-//            for(SimulationEdge edge: graph.getOutEdges(node)){
-//                if((totalDist + edge.length) > maxLength){
-//                    paths.add(path);
-//                }else{
-//                    SimulationNode next = edge.toNode;
-//          
-//                
-//            }
-//        }
-//         
-//        
-//    }
     
     /**
      * Finds shortest paths from the given node to all other nodes in the graph.
@@ -364,7 +323,7 @@ public class TabuSearchUtils {
      * @param graph
      * @param tripsUtil
      * @param outFileName
-     * @return  time nedeed to find all paths
+     * @return  time needed to find all paths
      */
     public static double allPaths(SimulationNode start,Graph<SimulationNode, SimulationEdge> graph,
         TripsUtil tripsUtil, String outFileName){
@@ -474,158 +433,6 @@ public class TabuSearchUtils {
         sb.append("Average outcoming: ").append(sumOut/graph.numberOfNodes()).append(" edges \n");
         sb.append("In != out: ").append(inOut).append("\n");
         System.out.println(sb.toString());
-    }
-    //
-    public static Set[][] buildMatrix(double[] bbox, double step,  Graph<SimulationNode, SimulationEdge> graph ){
-        StringBuilder sb = new StringBuilder();
-        
-        int numRows = (int) ((bbox[1] - bbox[0])/step);
-        int numCols = (int) ((bbox[3] - bbox[2])/step);
-        sb.append("Matrix  ").append(numRows).append(" x ").append(numCols).append(" \n");
-        Set[][] nodeMatrix = new Set[numRows][numCols];
-        for(int r = 0; r < numRows; r++){
-            for(int c = 0; c < numCols; c++) {
-                nodeMatrix[r][c] = new HashSet<>();
-            }
-        }
-        
-        for(SimulationNode node: graph.getAllNodes()){
-            int[] ind = findCell(node,bbox[0],bbox[2], step);
-            int row = ind[0];
-            int col = ind[1];
-            try{
-                nodeMatrix[row][col].add(node);
-            }catch (ArrayIndexOutOfBoundsException ex){
-                LOGGER.error("Array index is out of bound, row {}, col {}", row, col);
-                row = row >= numRows ?  row : numRows - 1;                    
-                col = col >= numCols ?   col : numCols - 1;
-                nodeMatrix[row][col].add(node);
-            }
-        }//for
-        sb.append("Done.  \n");
-    
-         matrixRowDist(nodeMatrix);
-         matrixColumnDist(nodeMatrix);
-         matrixDensity(nodeMatrix);
-        
-        
-        System.out.println(sb.toString());
-        return nodeMatrix;
-    }
-      
-    private static int[] findCell(SimulationNode node, double minLat, double minLon, double step){
-        int rowInd = (int) ((node.getLatitude() - minLat)/step);
-        int colInd = (int) ((node.getLongitude() - minLon)/step);
-        int[] ind = {rowInd, colInd};   
-        return ind;
-    }
-    
-    private static void matrixRowDist(Set[][] nodeMatrix){
-        StringBuilder sb = new StringBuilder();
-        int numRows = nodeMatrix.length;
-        int numCols = nodeMatrix[0].length;
-        
-        sb.append("Row distance estimates: \n"); 
-        int count = 0;
-        double sumDeltaDist= 0;
-        double maxDelta = 0;
-        double minDelta = 100000;
-        for(int r = 0; r < numRows; r++){
-            SimulationNode node1 = null;
-            int node1Col=0;
-            for(int c = 0; c < numRows; c++){
-                Set nodes1 = nodeMatrix[r][c];
-                if(nodes1.isEmpty()){
-                }else{
-                    if(node1 == null){
-                        node1 = (SimulationNode) nodes1.iterator().next();
-                        node1Col = c;
-                    }else{
-                        SimulationNode node2 = (SimulationNode) nodes1.iterator().next();
-                        double dist = Math.sqrt(getDistanceSquared(node1, node2));
-                        int deltaCol = c - node1Col;
-                        double deltaDist = dist/deltaCol;
-//                        sb.append("Row difference = ").append(deltaRow).append(", distance = ").append(dist).
-//                            append("m, delta = ").append(deltaDist).append("m \n");
-                        count++;
-                        sumDeltaDist += deltaDist;
-                        maxDelta = maxDelta >= deltaDist ? maxDelta : deltaDist;
-                        minDelta = minDelta <= deltaDist ? minDelta : deltaDist;
-                        node1 = node2;
-                        node1Col = c;
-                    }
-                }
-            }//for
-        }
-        sb.append("Average distance delta along the row, per cell: ").append(sumDeltaDist/count).append("m \n");
-        sb.append("Delta ranging from ").append(minDelta).append(" to ").append(maxDelta).append(" \n");
-        System.out.println(sb.toString());
-}
-    
-    private static void matrixColumnDist(Set[][] nodeMatrix){
-        StringBuilder sb = new StringBuilder();
-        
-        int numRows = nodeMatrix.length;
-        int numCols = nodeMatrix[0].length;
-        
-        sb.append("Column distance estimates: \n"); 
-        int count = 0;
-        double sumDeltaDist= 0;
-        double maxDelta = 0;
-        double minDelta = 100000;
-        for(int c = 0; c < numCols; c++){
-            SimulationNode node1 = null;
-            int node1Row=0;
-            for(int r = 0; r < numRows; r++){
-                Set nodes1 = nodeMatrix[r][c];
-                if(nodes1.isEmpty()){
-                }else{
-                    if(node1 == null){
-                        node1 = (SimulationNode) nodes1.iterator().next();
-                        node1Row = r;
-                    }else{
-                        SimulationNode node2 = (SimulationNode) nodes1.iterator().next();
-                        double dist = Math.sqrt(getDistanceSquared(node1, node2));
-                        int deltaRow = r - node1Row;
-                        double deltaDist = dist/deltaRow;
-//                        sb.append("Row difference = ").append(deltaRow).append(", distance = ").append(dist).
-//                            append("m, delta = ").append(deltaDist).append("m \n");
-                        count++;
-                        sumDeltaDist += deltaDist;
-                        maxDelta = maxDelta >= deltaDist ? maxDelta : deltaDist;
-                        minDelta = minDelta <= deltaDist ? minDelta : deltaDist;
-                        node1 = node2;
-                        node1Row = r;
-                    }
-                }
-            }
-        }
-        sb.append("Average distance delta along the column,  per cell: ").append(sumDeltaDist/count).append("m \n");
-        sb.append("Delta ranging from ").append(minDelta).append(" to ").append(maxDelta).append(" \n");
-        System.out.println(sb.toString());
-}
-    
-    private static void matrixDensity(Set[][] nodeMatrix){
-        StringBuilder sb = new StringBuilder();
-        int numRows = nodeMatrix.length;
-        int numCols = nodeMatrix[0].length;
-        int maxDensity = 0;
-        int minDensity = Integer.MAX_VALUE;
-        int sumDensity = 0;
-        for(Set[] row : nodeMatrix){
-           // sb.append("\n* New row: \n");
-            for (Set nodes : row){
-              //  sb.append(nodes.size()).append(", ");
-                sumDensity += nodes.size();
-                minDensity = minDensity <= nodes.size() ? minDensity : nodes.size();
-                maxDensity = maxDensity >= nodes.size() ? maxDensity : nodes.size();
-            }
-        }
-    //    sb.append("\n");
-        sb.append("Density: min = ").append(minDensity).append(", max = ").append(maxDensity).append(", avg = ").
-            append(sumDensity/(numRows*numCols)).append("\n");
-        System.out.println(sb.toString());
-        
     }
  
 }

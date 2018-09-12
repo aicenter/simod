@@ -434,6 +434,7 @@ public class TabuSearchUtils {
         sb.append("In != out: ").append(inOut).append("\n");
         System.out.println(sb.toString());
     }
+    
  
 }
 

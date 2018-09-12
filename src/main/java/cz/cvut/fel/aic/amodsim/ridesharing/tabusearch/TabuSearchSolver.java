@@ -45,7 +45,7 @@ public class TabuSearchSolver extends DARPSolver{
     private final TravelTimeProvider travelTimeProvider;
     private final TravelCostProvider travelCostProvider;
     private final OnDemandVehicleStorage vehicleStorage;
-    
+    private final NearestElementUtils nearestElementUtils;
     private final Graph<SimulationNode,SimulationEdge> graph;
     private  List<OnDemandVehicleStation> stations;
     
@@ -81,6 +81,7 @@ public class TabuSearchSolver extends DARPSolver{
         this.travelCostProvider = travelCostProvider;
         this.vehicleStorage = vehicleStorage;
         this.tripsUtil = tripsUtil;
+        this.nearestElementUtils = nearestElementUtils;
         
         pathFile = config.amodsimDataDir+ "/trip_paths.txt";
         maxDistance = (double) config.amodsim.ridesharing.maxWaitTime 
@@ -88,7 +89,7 @@ public class TabuSearchSolver extends DARPSolver{
         maxDistanceSquared = maxDistance * maxDistance;
         graph = tripTransform.getHighwayGraph();
         
-        tripList = new TripList(config, nearestElementUtils);
+       
        
     }
     
@@ -97,7 +98,7 @@ public class TabuSearchSolver extends DARPSolver{
         this.stations = stations;
         sb.append("Depos loaded: ").append(this.stations.size()).append("\n");
         System.out.println(sb.toString());
-        tripList.addDepoNodesToList(stations);
+        
     }
     
     private void buildInitialSolution(){
@@ -115,22 +116,23 @@ public class TabuSearchSolver extends DARPSolver{
 //        TabuSearchUtils.pathsNoLongerThan(nodes, graph, 
 //            180, tripsUtil, pathFile);
 //      
-        
+        tripList = new TripList(config, nearestElementUtils, tripsUtil, graph, travelTimeProvider);
+        tripList.addDepoNodesToList(stations);
         StringBuilder sb = new StringBuilder();
 
-        double maxValue = tripList.getTripListValue();
-        
-        sb.append("Total value: ").append(maxValue).append("\n");
-        System.out.println(sb.toString());
-        
-        double tripsPerHour = tripList.avgTimeBtwTrips(3600);
-        
-        List<SearchNode> min10_11 = tripList.getTripsInsideTW(600000, 15);
-        for(SearchNode trip : min10_11){
-            sb.append(trip.id).append("  - ")
-                .append(tripList.times[trip.id]).append(" \n");
-        }
-        System.out.println(sb.toString());
+//        double maxValue = tripList.getTripListValue();
+//        
+//        sb.append("Total value: ").append(maxValue).append("\n");
+//        System.out.println(sb.toString());
+//        
+//        double tripsPerHour = tripList.avgTimeBtwTrips(3600);
+//        
+//        List<SearchNode> min10_11 = tripList.getTripsInsideTW(600000, 15);
+//        for(SearchNode trip : min10_11){
+//            sb.append(trip.id).append("  - ")
+//                .append(tripList.times[trip.id]).append(" \n");
+//        }
+//        System.out.println(sb.toString());
         Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new HashMap<>();
         return planMap;
     }

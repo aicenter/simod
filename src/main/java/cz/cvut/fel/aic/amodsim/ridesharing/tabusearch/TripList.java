@@ -25,10 +25,12 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import me.tongfei.progressbar.ProgressBar;
 import org.slf4j.LoggerFactory;
 
@@ -40,29 +42,24 @@ import org.slf4j.LoggerFactory;
 public class TripList{
     private boolean DBG = true;
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TripList.class);
-    
-    
+        
     private final AmodsimConfig config;
     private final NearestElementUtils nearestElementUtils;
     private final TripsUtil tripsUtil;
     private final Graph<SimulationNode,SimulationEdge> graph;
-    private final TravelTimeProvider travelTimeProvider;
-    //Set<Integer>[][] pMatrix;
-    //Set<Integer>[][] dMatrix;
-    //
     private final int numOfTrips;
     private final int numOfDepos;
     
-    double[] bbox = {59.3, 59.52, 24.5, 24.955};    
+   // double[] bbox = {59.3, 59.52, 24.5, 24.955};  
+    double[] bbox = {59, 60, 24, 25}; 
     int[] times;
     double[] values;
     SearchNode[] searchNodes;
-   
-    int furtherThanPath = 0;
-    int outOfBox = 0;
-    Map<Integer, double[]> badTrips;
-    Map<Integer, double[]> badPaths;
-    Map<Integer, double[]>byBox ;
+
+    Map<Integer, List<Integer>> filteredTrips;
+    double LAT = 59.41;
+    double LON =  24.725;
+    
     /**
      * Converts list of TimeValueTrip to TSTrip (class used for search).
      * 
@@ -79,75 +76,55 @@ public class TripList{
         this.nearestElementUtils = nearestElementUtils;
         this.tripsUtil = tripsUtil;
         this.graph = graph;
-        this.travelTimeProvider = travelTimeProvider;
         numOfDepos = config.stations.regions;
+        
+        filteredTrips = new HashMap<>();
+        for(int i = 0; i < 6; i++ ){
+            filteredTrips.put(i, new ArrayList<>());
+        }
         
         List<TimeValueTrip<GPSLocation>> sourceList = loadTrips();
         numOfTrips = sourceList.get(sourceList.size()-1).id + 1;
-        
-        badTrips = new HashMap<>();
-        badPaths = new HashMap<>();
-        byBox = new HashMap<>();
+
         
         LOGGER.info(" array length {}", numOfTrips);
         times = new int[numOfTrips];
         values = new double[numOfTrips];
         searchNodes = new SearchNode[numOfTrips*2+numOfDepos];
         
-        int zeroLenghtTripsCount = 0;
         for (TimeValueTrip<GPSLocation> trip : ProgressBar.wrap(sourceList, "Process GPS trip: ")) {
-                zeroLenghtTripsCount += gpsTripToSearchNode(trip);
+                gpsTripToSearchNode(trip);
         }
-        if(DBG){
-            LOGGER.info("Euclidean >= path {}", furtherThanPath); 
-            LOGGER.info("Out of boundaries {}", outOfBox);
-        }
-        LOGGER.info("Zero length trips discarded {}", zeroLenghtTripsCount);
-        LOGGER.info("Trips added");
+        LOGGER.info("Start point is out of city boundaries {}",
+            filteredTrips.get(0).size());
+        LOGGER.info("Trips shorter than 50m {}", 
+            filteredTrips.get(1).size());
+        LOGGER.info("Trips longer than 25km {}", 
+            filteredTrips.get(2).size());;
+        LOGGER.info("Start and target at the same node {}",
+            filteredTrips.get(3).size());
+        LOGGER.info("Haversine longer than shortest path {}",
+            filteredTrips.get(4).size());
+        LOGGER.info("Too far from center {}",
+            filteredTrips.get(5).size());
         LOGGER.info("TripList initialization finished");
-  
-        if(DBG){
-            LOGGER.info("Writing bad trips to file");
-            String tripFileName = config.amodsimDataDir + "/strange_trips.txt";
-            File file = new File(tripFileName);
+        LOGGER.info("Writing filtered trips to file");
+        String boxFileName = config.amodsimDataDir + "/filtered.txt";
+        File file = new File(boxFileName);
             try(PrintWriter pw = new PrintWriter(new FileOutputStream(file))){
-                for(Integer id : badTrips.keySet()){
-                    double[] coord = badTrips.get(id);
-                    pw.println(String.format("%d %f %f", id, coord[0], coord[1]));
-                }
-            }catch (IOException ex){
-               LOGGER.error(null, ex);          
-           }
-            String pathFileName = config.amodsimDataDir + "/strange_paths.txt";
-            file = new File(pathFileName);
-            try(PrintWriter pw = new PrintWriter(new FileOutputStream(file))){
-                for(Integer id : badPaths.keySet()){
-                    pw.print(id);
-                    pw.print(" ");
-                    double[] pathCoord = badPaths.get(id);
-                    for(int i = 0; i < pathCoord.length; i+=2){
-                        pw.print(String.format("%f %f ", pathCoord[i], pathCoord[i+1]));
+                for(Integer type : filteredTrips.keySet()){
+                    List<Integer> ids = filteredTrips.get(type);
+                    pw.println(String.format("%d %d", type, ids.size()));
+                    for(int i = 0; i < ids.size(); i++){
+                        pw.print(ids.get(i));
+                        pw.print(" ");
                     }
-                    pw.print("\n");
-                }
-            }catch (FileNotFoundException ex){
-               LOGGER.error(null, ex);          
-           }
-            String boxFileName = config.amodsimDataDir + "/out_of_box.txt";
-            file = new File(boxFileName);
-            try(PrintWriter pw = new PrintWriter(new FileOutputStream(file))){
-                for(Integer id : byBox.keySet()){
-                    double[] coord = byBox.get(id);
-                    pw.println(String.format("%d %f %f", id, coord[0], coord[1]));
+                    pw.println();
                 }
             }catch (IOException ex){
                LOGGER.error(null, ex);          
-           }
-        }
-        
-        
-        
-    }
+           } 
+   }
     
     protected void addDepoNodesToList(List<OnDemandVehicleStation> depos){
         if(numOfDepos != depos.size()){
@@ -175,68 +152,74 @@ public class TripList{
         return gpsTrips;
     }
     
-    private int gpsTripToSearchNode(TimeValueTrip<GPSLocation> trip) {
+    private void gpsTripToSearchNode(TimeValueTrip<GPSLocation> trip) {
         int zeroLenghtTripsCount = 0;
         List<GPSLocation> locations = trip.getLocations();
         StringBuilder sb = new StringBuilder();
         GPSLocation startLocation = locations.get(0);
         GPSLocation targetLocation = locations.get(locations.size() - 1);
-        double euclideanDist = DistUtils.getApproximateDist(startLocation, targetLocation);
-        //double haversineDist = DistUtils.getHaversineDist(startLocation, targetLocation);
         double lat1 = startLocation.getLatitude();
         double lon1 = startLocation.getLongitude();
         double lat2 = startLocation.getLatitude();
         double lon2 = startLocation.getLongitude();
-        //System.out.println(String.format(" (%f  %f) (%f  %f)", lat1, lon1, lat2, lon2));
         if(lat1 < bbox[0] || lat1 > bbox[1] || lon1 < bbox[2] || lon1 > bbox[3]){
-            double[] coord = {lat1, lon1};
-            byBox.put(trip.id, coord);
-           // System.out.println("Out of boundaries");
-            outOfBox++;
+            filteredTrips.get(0).add(trip.id);
+            return;
         }
-        if(lat2 < bbox[0] || lat2 > bbox[1] || lon2 < bbox[2] || lon2 > bbox[3]){
-            double[] coord = {lat2, lon2};
-            byBox.put(trip.id, coord);
-            //System.out.println("Out of boundaries");
-            outOfBox++;
+        double startFromCenter = DistUtils.getHaversineDist(LAT, LON, lat1, lon1);
+        double targetFromCenter = DistUtils.getHaversineDist(LAT, LON, lat2, lon2);
+        if(startFromCenter > 150000){
+            LOGGER.warn("Start too far from center {}", startFromCenter);
+            filteredTrips.get(5).add(trip.id);
+            return;
         }
-            
-        //double euclideanDist = getEuclideanDist(startLocation, targetLocation);
+        if( targetFromCenter > 150000){
+            LOGGER.warn("Targert too far from center {}", targetFromCenter);
+            filteredTrips.get(5).add(trip.id);
+            return;
+        }
+        
+        //double dist1 = DistUtils.getEquirectangularDist(startLocation, targetLocation);
+        double dist2 = DistUtils.getHaversineDist(startLocation, targetLocation);
+        //double dist3 = DistUtils.getSphericalCosineDist(startLocation, targetLocation);
+        if(dist2 < 50){
+            filteredTrips.get(1).add(trip.id);
+            LOGGER.warn("trip is shorter than 50m {}", dist2);
+            return;
+        }
+        if(dist2 > 25000){
+            filteredTrips.get(2).add(trip.id);
+            LOGGER.warn("trip is longer than 25km {}", dist2);
+            return;
+        }
+        
         SimulationNode startNode = nearestElementUtils.getNearestElement(locations.get(0), EGraphType.HIGHWAY);
-        SimulationNode targetNode = nearestElementUtils.getNearestElement(locations.get(locations.size() - 1), EGraphType.HIGHWAY);
+        SimulationNode targetNode = nearestElementUtils.getNearestElement(locations.get(locations.size() - 1),
+            EGraphType.HIGHWAY);
         
         int pathDist = 0;
-        if(startNode != targetNode){
+        if(startNode == targetNode){
+            filteredTrips.get(3).add(trip.id);
+            zeroLenghtTripsCount++;
+
+        }else {
             times[trip.id] = (int) trip.getStartTime();
             values[trip.id] = trip.getRideValue();
             searchNodes[trip.id] = new SearchNode(trip.id, startNode.id);
             int endId = trip.id + numOfTrips;
             searchNodes[endId] = new SearchNode(endId, targetNode.id);
             pathDist = getShortesPathDist(startNode, targetNode);
-        }else{
-            zeroLenghtTripsCount++;
-       }
-        if(DBG){
-            if(pathDist > 0){
-     //           double time = travelTimeProvider.getTravelTime(startNode, targetNode);
-     //           System.out.println(String.format(" ETTP = %.4f, approx = %.4f , path = %d, haversine = %.5f", 
-     //                time, euclideanDist, pathDist, haversineDist));
-                 if(euclideanDist >= pathDist){
-                     //System.out.println(String.format("Approx = %.4f , path = %d, haversine = %.5f", 
-                     //euclideanDist,  pathDist, haversineDist)); 
-                     furtherThanPath++;
-                     double[] coord = {startLocation.getLatitude(), startLocation.getLongitude(),
-                     targetLocation.getLatitude(), targetLocation.getLongitude()};
-                     badTrips.put(trip.id, coord);
-                     LinkedList<SimulationNode> path = tripsUtil.createTrip(startNode.id, targetNode.id).getLocations();
-                     double[] pathCoord = DistUtils.pathToCoordinates(path);
-                     badPaths.put(trip.id, pathCoord);
-
-                 }
+            if(dist2 > pathDist){
+                LOGGER.warn(String.format("HVS %.5f, path %d, diff %.5f", dist2, pathDist, dist2-pathDist));
+                filteredTrips.get(4).add(trip.id);
             }
+            
         }
+//        System.out.println(String.format("Equirectangular=%.7f, haversine=%.7f, "
+//            + "spherical cosine=%.7f, shortest path=%d",
+//            dist1, dist2, dist3, pathDist));
         
-        return zeroLenghtTripsCount;
+  //      return zeroLenghtTripsCount;
     }
     
    

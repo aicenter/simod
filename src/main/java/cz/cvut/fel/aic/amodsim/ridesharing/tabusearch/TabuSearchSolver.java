@@ -7,6 +7,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.tabusearch;
 
 import cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.TabuSearchUtils;
 import com.google.inject.Inject;
+import com.vividsolutions.jts.index.quadtree.Quadtree;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
@@ -22,8 +23,10 @@ import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
+import cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.quadtree.QuadTree;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Graph;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -63,7 +66,9 @@ public class TabuSearchSolver extends DARPSolver{
 //    private Map<Node, Set<Node>> map3min;
 //    private Set<Node>[][] nodeMatrix;
     
-    double[] bbox = {59.3, 59.52, 24.5, 24.955};
+    //double[] bbox = {59.3, 59.52, 24.5, 24.955};
+    double[] bbox = {59, 60, 24, 25}; 
+
     double step = 0.005;
     final private String pathFile;
     
@@ -107,7 +112,8 @@ public class TabuSearchSolver extends DARPSolver{
 
    @Override
     public Map<RideSharingOnDemandVehicle, DriverPlan> solve() {
-        //buildMatrix();
+//        SpaceMatrix sm = new SpaceMatrix(bbox, step);
+//        sm.add(graph.getAllNodes());
        
         //tripList = TabuSearchUtils.addPaths( tripsUtil, graph);
         //TabuSearchUtils.avgTimeBtwTrips(tripList, 60);
@@ -116,10 +122,36 @@ public class TabuSearchSolver extends DARPSolver{
 //        TabuSearchUtils.pathsNoLongerThan(nodes, graph, 
 //            180, tripsUtil, pathFile);
 //      
-        tripList = new TripList(config, nearestElementUtils, tripsUtil, graph, travelTimeProvider);
+        tripList = new TripList(config, nearestElementUtils, tripsUtil, graph);
         tripList.addDepoNodesToList(stations);
         StringBuilder sb = new StringBuilder();
-
+//        
+//        TabuSearchUtils.edgeStats(graph);
+//        TabuSearchUtils.nodeStats(graph);
+        
+//        int counter = 0;
+//        List<SimulationEdge> edges = new ArrayList<>();
+//        for(SimulationEdge edge: graph.getAllEdges()){
+////            System.out.println(String.format("{%f, %f, %f, %f, %d}", edge.fromNode.getLatitude(),edge.fromNode.getLongitude(),
+////                                                             edge.toNode.getLatitude(), edge.toNode.getLongitude(),
+////                                                             edge.length));
+//            edges.add(edge);
+//            if(counter++ > 100)             break;
+//        }
+//        System.out.println("Number of edges in the list "+graph.getAllEdges().size());
+//        long start = System.currentTimeMillis();
+//        QuadTree<SimulationEdge> tree = new QuadTree<>();
+//        for(SimulationEdge edge: graph.getAllEdges()) {
+//            tree.place((edge.fromNode.getLatE6()+edge.toNode.getLatE6())/2,
+//                        (edge.fromNode.getLonE6()+edge.toNode.getLonE6())/2, edge);
+//        }
+//        long end =  System.currentTimeMillis();
+//        System.out.println("Tree size = "+ tree.size());
+//        System.out.println("time " + (end-start)/1000 +" seconds ");
+     //  tree.print(System.out);
+     
+     
+ 
 //        double maxValue = tripList.getTripListValue();
 //        
 //        sb.append("Total value: ").append(maxValue).append("\n");
@@ -136,12 +168,10 @@ public class TabuSearchSolver extends DARPSolver{
         Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new HashMap<>();
         return planMap;
     }
-    
     @Override
     public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<OnDemandRequest> requests) {
         return solve();
     }
-  
 }
 
 

@@ -13,12 +13,12 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.io.TimeValueTrip;
-import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.quadtree.QuadTree;
+import cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.quadtree.QuadTree.CoordHolder;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.Node;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -31,6 +31,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import me.tongfei.progressbar.ProgressBar;
 import org.slf4j.LoggerFactory;
 
@@ -52,13 +54,24 @@ public class TripList{
     
    // double[] bbox = {59.3, 59.52, 24.5, 24.955};  
     double[] bbox = {59, 60, 24, 25}; 
+    double step = 0.05;
     int[] times;
     double[] values;
-    SearchNode[] searchNodes;
-
+    private Set<Integer>[][] nodeMatrix;
+    
+    //SearchNode[] searchNodes;
+    Map<Integer, SearchNode> searchNodes;
+    List<OnDemandVehicleStation> depos;
+    
     Map<Integer, List<Integer>> filteredTrips;
     double LAT = 59.41;
     double LON =  24.725;
+    
+    double targetToNode[] = {0, Double.MAX_VALUE, 0};
+    
+    
+    private QuadTree<SimulationEdge> quadTree;
+    int qtcounter = 0;
     
     /**
      * Converts list of TimeValueTrip to TSTrip (class used for search).
@@ -70,73 +83,96 @@ public class TripList{
      */
     
     public TripList(AmodsimConfig config, NearestElementUtils nearestElementUtils, TripsUtil tripsUtil,
-        Graph<SimulationNode,SimulationEdge> graph, TravelTimeProvider travelTimeProvider){
-        LOGGER.info("Trip list initialization started");
+        Graph<SimulationNode,SimulationEdge> graph){
         this.config = config;
         this.nearestElementUtils = nearestElementUtils;
         this.tripsUtil = tripsUtil;
         this.graph = graph;
+        
+        quadTree = new QuadTree<>();
+                graph.getAllEdges().forEach((edge) -> {
+            quadTree.place((edge.fromNode.getLatE6()+edge.toNode.getLatE6())/2,
+                            (edge.fromNode.getLonE6()+edge.toNode.getLonE6())/2, edge);
+        });
+        System.out.println(quadTree.size());
         numOfDepos = config.stations.regions;
         
-        filteredTrips = new HashMap<>();
-        for(int i = 0; i < 6; i++ ){
-            filteredTrips.put(i, new ArrayList<>());
+        if(DBG){
+            filteredTrips = new HashMap<>();
+            for(int i = 0; i < 8; i++ ){
+                filteredTrips.put(i, new ArrayList<>());
+            }
         }
         
+        searchNodes = new TreeMap<>();
+        depos = new ArrayList<>();
         List<TimeValueTrip<GPSLocation>> sourceList = loadTrips();
-        numOfTrips = sourceList.get(sourceList.size()-1).id + 1;
-
         
-        LOGGER.info(" array length {}", numOfTrips);
+        numOfTrips = sourceList.get(sourceList.size()-1).id + 1;
+        LOGGER.info("Number of trips loaded {}", numOfTrips);
         times = new int[numOfTrips];
         values = new double[numOfTrips];
-        searchNodes = new SearchNode[numOfTrips*2+numOfDepos];
+        //searchNodes = new SearchNode[numOfTrips*2+numOfDepos];
+        
+//        String log = config.amodsimDataDir + "/filter_startToNode.txt";
+//        File file = new File(log);
+//                try(PrintWriter pw = new PrintWriter(new FileOutputStream(file))){
+//                    for (TimeValueTrip<GPSLocation> trip : ProgressBar.wrap(sourceList, 
+//                        "Process GPS trip: ")) {
+//                         gpsTripToSearchNode(trip, pw);
+//                    }    
+//                }catch (IOException ex){
+//                    
+//                }
+        //make small sample of the list
+      //  sourceList.removeIf(trip -> trip.id % 10000 != 0);
         
         for (TimeValueTrip<GPSLocation> trip : ProgressBar.wrap(sourceList, "Process GPS trip: ")) {
                 gpsTripToSearchNode(trip);
         }
-        LOGGER.info("Start point is out of city boundaries {}",
-            filteredTrips.get(0).size());
-        LOGGER.info("Trips shorter than 50m {}", 
-            filteredTrips.get(1).size());
-        LOGGER.info("Trips longer than 25km {}", 
-            filteredTrips.get(2).size());;
-        LOGGER.info("Start and target at the same node {}",
-            filteredTrips.get(3).size());
-        LOGGER.info("Haversine longer than shortest path {}",
-            filteredTrips.get(4).size());
-        LOGGER.info("Too far from center {}",
-            filteredTrips.get(5).size());
-        LOGGER.info("TripList initialization finished");
-        LOGGER.info("Writing filtered trips to file");
-        String boxFileName = config.amodsimDataDir + "/filtered.txt";
-        File file = new File(boxFileName);
-            try(PrintWriter pw = new PrintWriter(new FileOutputStream(file))){
-                for(Integer type : filteredTrips.keySet()){
-                    List<Integer> ids = filteredTrips.get(type);
-                    pw.println(String.format("%d %d", type, ids.size()));
-                    for(int i = 0; i < ids.size(); i++){
-                        pw.print(ids.get(i));
-                        pw.print(" ");
-                    }
-                    pw.println();
-                }
-            }catch (IOException ex){
-               LOGGER.error(null, ex);          
-           } 
+        
+        LOGGER.info("Number of trips in the list {}", searchNodes.size());
+        if(DBG){
+            LOGGER.info("Start point is out of city boundaries {}",
+                filteredTrips.get(0).size());
+            LOGGER.info("Trips shorter than 50m {}", 
+                filteredTrips.get(1).size());
+            LOGGER.info("Trips longer than 25km {}", 
+                filteredTrips.get(2).size());
+            LOGGER.info("Start and target at the same node {}",
+                filteredTrips.get(3).size());
+            LOGGER.info("Haversine longer than shortest path {}",
+                filteredTrips.get(4).size());
+            LOGGER.info("Start too far from node {}",
+                filteredTrips.get(6).size());
+            LOGGER.info("Target too far from node {}",
+                filteredTrips.get(7).size());
+        }
+        System.out.print("QT counter " + qtcounter);
    }
+
+    public int getNumOfTrips() {
+        return numOfTrips;
+    }
+
+    public int getNumOfDepos() {
+        return numOfDepos;
+    }
     
     protected void addDepoNodesToList(List<OnDemandVehicleStation> depos){
         if(numOfDepos != depos.size()){
             LOGGER.error("Depo list length differs from numOfDepos");
             return;
         }
-        for(int i = 0; i < numOfDepos; i++){
-            OnDemandVehicleStation depo = depos.get(i);
-            int id = numOfTrips*2 + i;
-            searchNodes[id] = new SearchNode(id, depo.getPosition().id);
-        }
-        LOGGER.info("Depos added");
+        this.depos = depos;
+//        for(int i = 0; i < numOfDepos; i++){
+//            OnDemandVehicleStation depo = depos.get(i);
+//            stations.add(depo.getPosition().id);
+//            int id = numOfTrips*2 + i;
+//            searchNodes.put(id, new SearchNode(id, depo.getPosition().id));
+//            //searchNodes[id] = new SearchNode(id, depo.getPosition().id);
+//        }
+        LOGGER.info("{} depos added", this.depos.size());
     }
     
     /**
@@ -153,73 +189,125 @@ public class TripList{
     }
     
     private void gpsTripToSearchNode(TimeValueTrip<GPSLocation> trip) {
-        int zeroLenghtTripsCount = 0;
         List<GPSLocation> locations = trip.getLocations();
-        StringBuilder sb = new StringBuilder();
         GPSLocation startLocation = locations.get(0);
         GPSLocation targetLocation = locations.get(locations.size() - 1);
         double lat1 = startLocation.getLatitude();
         double lon1 = startLocation.getLongitude();
         double lat2 = startLocation.getLatitude();
         double lon2 = startLocation.getLongitude();
+        
+        //check if it's in the city or at least somewhere near
         if(lat1 < bbox[0] || lat1 > bbox[1] || lon1 < bbox[2] || lon1 > bbox[3]){
-            filteredTrips.get(0).add(trip.id);
-            return;
-        }
-        double startFromCenter = DistUtils.getHaversineDist(LAT, LON, lat1, lon1);
-        double targetFromCenter = DistUtils.getHaversineDist(LAT, LON, lat2, lon2);
-        if(startFromCenter > 150000){
-            LOGGER.warn("Start too far from center {}", startFromCenter);
-            filteredTrips.get(5).add(trip.id);
-            return;
-        }
-        if( targetFromCenter > 150000){
-            LOGGER.warn("Targert too far from center {}", targetFromCenter);
-            filteredTrips.get(5).add(trip.id);
-            return;
-        }
-        
-        //double dist1 = DistUtils.getEquirectangularDist(startLocation, targetLocation);
-        double dist2 = DistUtils.getHaversineDist(startLocation, targetLocation);
-        //double dist3 = DistUtils.getSphericalCosineDist(startLocation, targetLocation);
-        if(dist2 < 50){
-            filteredTrips.get(1).add(trip.id);
-            LOGGER.warn("trip is shorter than 50m {}", dist2);
-            return;
-        }
-        if(dist2 > 25000){
-            filteredTrips.get(2).add(trip.id);
-            LOGGER.warn("trip is longer than 25km {}", dist2);
-            return;
-        }
-        
-        SimulationNode startNode = nearestElementUtils.getNearestElement(locations.get(0), EGraphType.HIGHWAY);
-        SimulationNode targetNode = nearestElementUtils.getNearestElement(locations.get(locations.size() - 1),
-            EGraphType.HIGHWAY);
-        
-        int pathDist = 0;
-        if(startNode == targetNode){
-            filteredTrips.get(3).add(trip.id);
-            zeroLenghtTripsCount++;
-
-        }else {
-            times[trip.id] = (int) trip.getStartTime();
-            values[trip.id] = trip.getRideValue();
-            searchNodes[trip.id] = new SearchNode(trip.id, startNode.id);
-            int endId = trip.id + numOfTrips;
-            searchNodes[endId] = new SearchNode(endId, targetNode.id);
-            pathDist = getShortesPathDist(startNode, targetNode);
-            if(dist2 > pathDist){
-                LOGGER.warn(String.format("HVS %.5f, path %d, diff %.5f", dist2, pathDist, dist2-pathDist));
-                filteredTrips.get(4).add(trip.id);
+            if (DBG){
+                filteredTrips.get(0).add(trip.id);
             }
-            
+            return;
         }
-//        System.out.println(String.format("Equirectangular=%.7f, haversine=%.7f, "
-//            + "spherical cosine=%.7f, shortest path=%d",
-//            dist1, dist2, dist3, pathDist));
+        //debug, after filtering by boundig box, nothing is filtered here
+//        double startFromCenter = DistUtils.getHaversineDist(LAT, LON, lat1, lon1);
+//        double targetFromCenter = DistUtils.getHaversineDist(LAT, LON, lat2, lon2);
+//        if(startFromCenter > 150000){
+//            if (DBG){
+//              //  LOGGER.warn("Start too far from center {}", startFromCenter);
+//                filteredTrips.get(5).add(trip.id);
+//            }
+//            return;
+//        }
+//        if( targetFromCenter > 150000){
+//            if (DBG){
+//             //   LOGGER.warn("Targert too far from center {}", targetFromCenter);
+//                filteredTrips.get(5).add(trip.id);
+//             }
+//            return;
+//        }
         
-  //      return zeroLenghtTripsCount;
+        // haversine  and spherical gives the same result
+        //double dist1 = DistUtils.getEquirectangularDist(startLocation, targetLocation);
+        double dist0 = DistUtils.getEuclideanDist(startLocation, targetLocation);
+        //double dist2 = DistUtils.getHaversineDist(startLocation, targetLocation);
+        //System.out.println("Euclidean projected: "+dist0 + ", haversine "+dist2);
+        //double dist3 = DistUtils.getSphericalCosineDist(startLocation, targetLocation);
+        
+        // the length of the trip is less than pickup radius
+        if(dist0 < 50){
+            if (DBG){
+                filteredTrips.get(1).add(trip.id);
+               // LOGGER.warn("trip is shorter than 50m {}", dist2);
+             }
+            return;
+        }
+        // the trip is too long, limit is 5km longer for now cause of the possible difference
+        // in haversine and shortest path lengths
+        if(dist0 > 25000){
+            if (DBG){
+                filteredTrips.get(2).add(trip.id);
+              //  LOGGER.warn("trip is longer than 30km {}", dist2);
+            }
+            return;
+        }
+        
+ //         SimulationNode startNode = nearestElementUtils.getNearestElement(locations.get(0), EGraphType.HIGHWAY);
+            SimulationNode startNode = findNearestNode(startLocation);
+ 
+           double startToNodeDist = DistUtils.getEuclideanDist(lat1, lon1, 
+                                        startNode.getLatitude(), startNode.getLongitude());
+        
+        // If location is further than pickup radius from its nearest node:
+        // nearest node is further than pickup radius from the start location 
+        if(startToNodeDist > 50){
+//            System.out.println(startToNodeDist);
+//            String output = String.format("Start: %d %f %f %f %f %f\n", trip.id, 
+//                lat1, lon1, startNode.getLatitude(), startNode.getLongitude(), startToNodeDist);
+//            System.out.print(output);
+            filteredTrips.get(6).add(trip.id);
+            //pw.write(output);
+           
+                return;
+       }
+        
+//        SimulationNode targetNode = nearestElementUtils.getNearestElement(locations.get(1), EGraphType.HIGHWAY);
+        SimulationNode targetNode = findNearestNode(locations.get(1));
+
+        double targetToNodeDist = DistUtils.getEuclideanDist(lat2, lon2, 
+            targetNode.getLatitude(), targetNode.getLongitude());
+//        
+        // nearest node is further than pickup radius from the target location 
+        if(targetToNodeDist > 50){
+//            String output = String.format("Target: %d %f %f %f %f %f\n", trip.id, 
+//                lat1, lon1, targetNode.getLatitude(), targetNode.getLongitude(), targetToNodeDist);
+//            System.out.print(output);
+            filteredTrips.get(7).add(trip.id);
+           // pw.write(output);
+          //  return;
+        }
+        // Same start and target node, zero length trips
+        if(startNode == targetNode){
+             filteredTrips.get(3).add(trip.id);
+//            String output = String.format("Same start-target: %d %f %f %f %f (%d %f %f)\n",
+//                trip.id, lat1, lon1, lat2, lon2,
+//                startNode.id, startNode.getLatitude(), startNode.getLongitude());
+ //           System.out.print(output);
+          //  pw.write(output);
+            return;
+        }
+        //finally adding the node to the list
+        times[trip.id] = (int) trip.getStartTime();
+        values[trip.id] = trip.getRideValue();
+        searchNodes.put(trip.id, new SearchNode(trip.id, startNode.id));
+        
+        // debug, writing data for trips, for which distance returned by haversine
+        // is bigger than the length of the shortest path
+//        int pathDist = getShortesPathDist(startNode, targetNode);
+//        if(dist2 > pathDist){
+//         //   String output = String.format("Hvs > path: %d %f %f %f %f : %f %d %f\n", 
+//         //       trip.id, lat1, lon1, startNode.getLatitude(), startNode.getLongitude(),
+//         //       dist2, pathDist, dist2-pathDist);
+//         filteredTrips.get(4).add(trip.id);
+//          //  System.out.print(output);
+//          //  pw.write(output);
+//          }
+        
     }
     
    
@@ -273,13 +361,11 @@ public class TripList{
         }
         int endTime = startTime + timeWindow*1000;
         while(startTime <= endTime){
-            SearchNode trip = searchNodes[ind];
-            if(trip != null){
-                result.add(trip);
-                startTime = times[++ind];
-                if(ind == numOfTrips){
-                    break;
-                }
+            SearchNode trip = searchNodes.get(ind);
+            result.add(trip);
+            startTime = times[++ind];
+            if(ind == numOfTrips){
+                break;
             }
         }
         LOGGER.info("Done. Found {} trips", result.size());
@@ -293,10 +379,8 @@ public class TripList{
      */
     public double getTripListValue() {
         double value = 0;
-        for(int i = 0; i < numOfTrips; i++){
-            if(searchNodes[i] != null){
-                value += values[i];
-            }
+        for (Integer tripId : searchNodes.keySet()) {
+            value += values[tripId];
         }
         LOGGER.info("finished {}", value);
         return value;
@@ -316,15 +400,11 @@ public class TripList{
         long prevTime = 0;
         int frequency = 0;
         int numOfPeriods = 1;
-        for (int i = 0; i < numOfTrips; i++) {
-            if(searchNodes[i] == null){
-                continue;
-            }
-            long delta = times[i] - prevTime;
+        for(Integer tripId : searchNodes.keySet()){
+            long delta = times[tripId] - prevTime;
             if (delta < periodMS) {
                 frequency++;
             } else {
-                i--;
                 prevTime += periodMS;
                 maxFrequency = maxFrequency >= frequency ? maxFrequency : frequency;
                 minFrequency = minFrequency <= frequency ? minFrequency : frequency;
@@ -342,147 +422,110 @@ public class TripList{
         
         return sumFrequency / numOfPeriods;
     }
+
+    private SimulationNode findNearestNode(GPSLocation loc){
+        double deltaLat = 0.0005*1E6;
+        double deltaLon =  0.001*1E6;
+        int lat = loc.getLatE6();
+        int lon = loc.getLonE6();
+        List<QuadTree<SimulationEdge>.CoordHolder> neighbors = quadTree.findAll(lat-deltaLat, lon-deltaLon,
+                                                                                lat+deltaLat, lon+deltaLon);
+
+        while(neighbors.isEmpty()){
+            //System.out.println("empty neighborhood "+deltaLat+" "+deltaLon);
+            deltaLat *= 2;
+            deltaLon *= 2;
+            qtcounter++;
+            neighbors = quadTree.findAll(lat-deltaLat, lon-deltaLon,
+                                          lat+deltaLat, lon+deltaLon);
+        }
+        
+        SimulationNode closest = null;
+        double minDist = Double.MAX_VALUE;
+        for(QuadTree<SimulationEdge>.CoordHolder holder : neighbors){
+            //System.out.println("found an item: " + holder.o);
+            SimulationEdge edge = holder.o;
+            SimulationNode node = edge.fromNode;
+                 
+            double dist = DistUtils.getEuclideanDist(loc.getLatitude(), loc.getLongitude(),
+                                                     node.getLatitude(), node.getLongitude());
+            if(dist <=50 ){
+                return node;
+            }
+            if(dist < minDist){
+                minDist = dist;
+                closest = node;
+            }
+            node = edge.toNode;
+            dist = DistUtils.getEuclideanDist(loc.getLatitude(), loc.getLongitude(),
+                                                     node.getLatitude(), node.getLongitude());
+            if(dist <=50 ){
+                return node;
+            }
+            if(dist < minDist){
+                minDist = dist;
+                closest = node;
+            }
+        }
+        System.out.println("Nearest node at "+minDist+" m from the point");
+        return closest;
+    }
 }
 
-
-
-
-
-//
-//    public static Set[][] buildMatrix(double[] bbox, double step, Graph<SimulationNode, SimulationEdge> graph) {
-//        StringBuilder sb = new StringBuilder();
-//        int numRows = (int) ((bbox[1] - bbox[0]) / step);
-//        int numCols = (int) ((bbox[3] - bbox[2]) / step);
-//        sb.append("Matrix  ").append(numRows).append(" x ").append(numCols).append(" \n");
-//        Set[][] nodeMatrix = new Set[numRows][numCols];
-//        for (int r = 0; r < numRows; r++) {
-//            for (int c = 0; c < numCols; c++) {
-//                nodeMatrix[r][c] = new HashSet<>();
-//            }
-//        }
-//        for (SimulationNode node : graph.getAllNodes()) {
-//            int[] ind = findCell(node, bbox[0], bbox[2], step);
-//            int row = ind[0];
-//            int col = ind[1];
-//            try {
-//                nodeMatrix[row][col].add(node);
-//            } catch (ArrayIndexOutOfBoundsException ex) {
-//                TabuSearchUtils.LOGGER.error("Array index is out of bound, row {}, col {}", row, col);
-//                row = row >= numRows ? row : numRows - 1;
-//                col = col >= numCols ? col : numCols - 1;
-//                nodeMatrix[row][col].add(node);
-//            }
-//        } //for
-//        sb.append("Done.  \n");
-//        matrixRowDist(nodeMatrix);
-//        matrixColumnDist(nodeMatrix);
-//        matrixDensity(nodeMatrix);
-//        System.out.println(sb.toString());
-//        return nodeMatrix;
-//    }
-//    public void matrixDensity(Set[][] nodeMatrix) {
-//        StringBuilder sb = new StringBuilder();
-//        int numRows = nodeMatrix.length;
-//        int numCols = nodeMatrix[0].length;
-//        int maxDensity = 0;
-//        int minDensity = Integer.MAX_VALUE;
-//        int sumDensity = 0;
-//        for (Set[] row : nodeMatrix) {
-//            // sb.append("\n* New row: \n");
-//            for (Set nodes : row) {
-//                //  sb.append(nodes.size()).append(", ");
-//                sumDensity += nodes.size();
-//                minDensity = minDensity <= nodes.size() ? minDensity : nodes.size();
-//                maxDensity = maxDensity >= nodes.size() ? maxDensity : nodes.size();
-//            }
-//        }
-//        //    sb.append("\n");
-//        sb.append("Density: min = ").append(minDensity).append(", max = ").append(maxDensity).append(", avg = ").append(sumDensity / (numRows * numCols)).append("\n");
-//        System.out.println(sb.toString());
-//    }
-//    private static int[] findCell(SimulationNode node, double minLat, double minLon, double step) {
-//        int rowInd = (int) ((node.getLatitude() - minLat) / step);
-//        int colInd = (int) ((node.getLongitude() - minLon) / step);
-//        int[] ind = {rowInd, colInd};
-//        return ind;
-//    }
-//    private static void matrixRowDist(Set[][] nodeMatrix) {
-//        StringBuilder sb = new StringBuilder();
-//        int numRows = nodeMatrix.length;
-//        int numCols = nodeMatrix[0].length;
-//        sb.append("Row distance estimates: \n");
-//        int furtherThanPath = 0;
-//        double sumDeltaDist = 0;
-//        double maxDelta = 0;
-//        double minDelta = 100000;
-//        for (int r = 0; r < numRows; r++) {
-//            SimulationNode node1 = null;
-//            int node1Col = 0;
-//            for (int c = 0; c < numRows; c++) {
-//                Set nodes1 = nodeMatrix[r][c];
-//                if (nodes1.isEmpty()) {
-//                } else {
-//                    if (node1 == null) {
-//                        node1 = (SimulationNode) nodes1.iterator().next();
-//                        node1Col = c;
-//                    } else {
-//                        SimulationNode node2 = (SimulationNode) nodes1.iterator().next();
-//                        double dist = Math.sqrt(TabuSearchUtils.getDistanceSquared(node1, node2));
-//                        int deltaCol = c - node1Col;
-//                        double deltaDist = dist / deltaCol;
-//                        //                        sb.append("Row difference = ").append(deltaRow).append(", distance = ").append(dist).
-//                        //                            append("m, delta = ").append(deltaDist).append("m \n");
-//                        furtherThanPath++;
-//                        sumDeltaDist += deltaDist;
-//                        maxDelta = maxDelta >= deltaDist ? maxDelta : deltaDist;
-//                        minDelta = minDelta <= deltaDist ? minDelta : deltaDist;
-//                        node1 = node2;
-//                        node1Col = c;
-//                    }
-//                }
-//            } //for
-//        }
-//        sb.append("Average distance delta along the row, per cell: ").append(sumDeltaDist / furtherThanPath).append("m \n");
-//        sb.append("Delta ranging from ").append(minDelta).append(" to ").append(maxDelta).append(" \n");
-//        System.out.println(sb.toString());
-//    }
-//    private static void matrixColumnDist(Set[][] nodeMatrix) {
-//        StringBuilder sb = new StringBuilder();
-//        int numRows = nodeMatrix.length;
-//        int numCols = nodeMatrix[0].length;
-//        sb.append("Column distance estimates: \n");
-//        int furtherThanPath = 0;
-//        double sumDeltaDist = 0;
-//        double maxDelta = 0;
-//        double minDelta = 100000;
-//        for (int c = 0; c < numCols; c++) {
-//            SimulationNode node1 = null;
-//            int node1Row = 0;
-//            for (int r = 0; r < numRows; r++) {
-//                Set nodes1 = nodeMatrix[r][c];
-//                if (nodes1.isEmpty()) {
-//                } else {
-//                    if (node1 == null) {
-//                        node1 = (SimulationNode) nodes1.iterator().next();
-//                        node1Row = r;
-//                    } else {
-//                        SimulationNode node2 = (SimulationNode) nodes1.iterator().next();
-//                        double dist = Math.sqrt(TabuSearchUtils.getDistanceSquared(node1, node2));
-//                        int deltaRow = r - node1Row;
-//                        double deltaDist = dist / deltaRow;
-//                        //                        sb.append("Row difference = ").append(deltaRow).append(", distance = ").append(dist).
-//                        //                            append("m, delta = ").append(deltaDist).append("m \n");
-//                        furtherThanPath++;
-//                        sumDeltaDist += deltaDist;
-//                        maxDelta = maxDelta >= deltaDist ? maxDelta : deltaDist;
-//                        minDelta = minDelta <= deltaDist ? minDelta : deltaDist;
-//                        node1 = node2;
-//                        node1Row = r;
-//                    }
+       
+        
+//    private SimulationNode findNearestNode(GPSLocation loc, int tripId){
+//        int[] ind = findCell(loc);
+//        int row = ind[0];
+//        int col = ind[1];
+//        row = row >= nodeMatrix.length ? row : nodeMatrix.length - 1;
+//        col = col >= nodeMatrix[0].length ? col : nodeMatrix[0].length - 1;
+//        
+//        SimulationNode nearestNode = null;
+//        while(nearestNode == null){
+//            nearestNode = findInCell(loc, row, col);
+//            col++;
+//            if(col == nodeMatrix[0].length){
+//                col = 0;
+//                row++;
+//                if(row == nodeMatrix.length){
+//                    break;
 //                }
 //            }
 //        }
-//        sb.append("Average distance delta along the column,  per cell: ").append(sumDeltaDist / furtherThanPath).append("m \n");
-//        sb.append("Delta ranging from ").append(minDelta).append(" to ").append(maxDelta).append(" \n");
-//        System.out.println(sb.toString());
+//        // nearest node is further than pickup radius from the target location 
+//        if(nearestNode == null){
+//            LOGGER.warn("Nearest node not found {}", tripId);
+//            return nearestNode;
+//        }
+//        double minDist = DistUtils.getHaversineDist(loc.getLatitude(), loc.getLongitude(),
+//            nearestNode.getLatitude(), nearestNode.getLongitude());
+//        if(minDist > 50){
+//            String output = String.format("Target: %d %f %f %f %f %f\n", tripId, 
+//                loc.getLatitude(), loc.getLongitude(), nearestNode.getLatitude(),
+//                nearestNode.getLongitude(), minDist);
+//            System.out.print(output);
+//            filteredTrips.get(7).add(tripId);
+//        }
+//        return nearestNode;
 //    }
+    
+//    private SimulationNode findInCell(GPSLocation loc, int row, int col){
+//        
+//        Set<Integer> nearestNodes = nodeMatrix[row][col];
+//        double minDist = Integer.MAX_VALUE;
+//        SimulationNode nearestNode = null;
+//        for(int nodeId : nearestNodes){
+//            SimulationNode node = graph.getNode(nodeId);
+//            double dist = DistUtils.getHaversineDist(loc.getLatitude(), loc.getLongitude(),
+//                node.getLatitude(), node.getLongitude());
+//            if(dist < minDist){
+//                minDist = dist;
+//                nearestNode = node;
+//            }
+//        }
+//        return nearestNode;
+//    }
+    
+
+

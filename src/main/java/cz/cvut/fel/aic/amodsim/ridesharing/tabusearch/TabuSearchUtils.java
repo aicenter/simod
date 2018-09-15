@@ -400,6 +400,19 @@ public class TabuSearchUtils {
         System.out.println(sb.toString());
     }
     
+     public static void edgeDistanceComparison( Graph<SimulationNode, SimulationEdge> graph ){   
+            graph.getAllEdges().forEach((edge) -> {
+            double lat1 = edge.fromNode.getLatitude();
+            double lon1 = edge.fromNode.getLongitude();
+            double lat2 = edge.toNode.getLatitude();
+            double lon2 = edge.toNode.getLongitude();
+            
+            double dist0 = DistUtils.getEuclideanDist(lat1, lon1, lat2, lon2);
+            double dist2 = DistUtils.getHaversineDist(lat1, lon1, lat2, lon2);
+            System.out.println("Euclidean projected: "+dist0 + ", haversine "+dist2+", length "+edge.length);
+            });
+     }
+    
     public static void nodeStats(Graph<SimulationNode, SimulationEdge> graph ){
         StringBuilder sb = new StringBuilder();
         int maxIn = 0;

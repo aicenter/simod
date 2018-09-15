@@ -28,6 +28,10 @@ public class DistUtils {
     final static double N5 = 0.9996*6399593.625;
     final static double N6 = 0.0820944379*0.0820944379;
     
+    public static double[] degreeToUtm(double[] point)  {
+        return degreeToUtm(point[0], point[1]);
+    }
+    
     public static double[] degreeToUtm(double Lat,double Lon)  {
        
         double lon = Lon*RAD;
@@ -121,19 +125,26 @@ public class DistUtils {
         return FastMath.acos(a)*R;
         
     }
-         
+    /**
+     * Returns euclidean distance between 2 gps locations.
+     * @param start
+     * @param target
+     * @return 
+     */
     public static double getEuclideanDist(GPSLocation start, GPSLocation target){
-        return getEuclideanDist(start.getLatitude(), start.getLongitude(),
-                                target.getLatitude(), target.getLongitude());
+        return getDistProjected(degreeToUtm(start.getLatitude(), start.getLongitude()),
+                       degreeToUtm(target.getLatitude(), target.getLongitude()));
     }
     
     public static double getEuclideanDist(double lat1, double lon1, double lat2, double lon2){
-        double[] startProj = degreeToUtm(lat1, lon1);
-        double[] targetProj = degreeToUtm(lat2, lon2);
-        double x = targetProj[0] - startProj[0];
-        double y = targetProj[1] - startProj[1];
+        return getDistProjected(degreeToUtm(lat1, lon1), degreeToUtm(lat2, lon2));
+    }
+    
+    public static double getDistProjected(double[] startProjected, double[] targetProjected){
+        double x = targetProjected[0] - startProjected[0];
+        double y = targetProjected[1] - startProjected[1];
         return FastMath.sqrt(x*x + y*y);
-
+        
     }
     
     public static double getEquirectangularDist(GPSLocation start, GPSLocation target){
@@ -144,6 +155,7 @@ public class DistUtils {
         double y = (start.getLongitude() - target.getLongitude()) * cosLatitude;
         return Math.sqrt(x*x + y*y)*R;
     }
+    
    
     public static double[] pathToCoordinates(LinkedList<SimulationNode> path){
         List<Double> coordinates = new ArrayList<>();

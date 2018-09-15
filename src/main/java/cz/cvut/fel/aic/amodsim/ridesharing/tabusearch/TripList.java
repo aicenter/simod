@@ -71,7 +71,7 @@ public class TripList{
     double targetToNode[] = {0, Double.MAX_VALUE, 0};
     
     
-    private QuadTree<Segment> quadTree;
+    private QuadTree<SimulationEdge> quadTree;
     int qtcounter = 0;
     int[] nearestObjectType = {0,0};
     Map<Integer, SimulationEdge> edgeMap;
@@ -96,37 +96,11 @@ public class TripList{
         //TODO move it to quatree class
         quadTree = new QuadTree<>();
             graph.getAllEdges().forEach((edge) -> {
- //               edgeMap.put(edge.getUniqueId(), edge);
                 int fromLat = edge.fromNode.getLatE6();
                 int fromLon = edge.fromNode.getLonE6();
                 int toLat = edge.fromNode.getLatE6();
                 int toLon = edge.fromNode.getLonE6();
-                if(edge.length <= 100){
-                    quadTree.place((fromLat + toLat)/2,(fromLon + toLon)/2, 
-                                    new Segment(edge.getUniqueId(), 0,
-                                        DistUtils.degreeToUtm(fromLat/1E6, fromLon/1E6),
-                                        DistUtils.degreeToUtm(toLat/1E6, toLon/1E6)));
-                }else{
-                    int numSegments = edge.length/100 + 1;
-                    int deltaLat =  (toLat - fromLat)/numSegments;
-                    int deltaLon =  (toLon - fromLon)/numSegments;
-                    int startLat = fromLat;
-                    int startLon = fromLon;
-                    while(numSegments > 1){
-                        quadTree.place(startLat+deltaLat/2, startLon + deltaLon/2, 
-                                    new Segment(edge.getUniqueId(), numSegments,
-                                                DistUtils.degreeToUtm(fromLat/1E6, fromLon/1E6),
-                                                DistUtils.degreeToUtm((fromLat+deltaLat)/1E6, 
-                                                                       (fromLon+deltaLon)/1E6)));
-                        numSegments--;
-                        startLat += deltaLat;
-                        startLon += deltaLon;                       
-                    }
-                    quadTree.place((startLat+toLat)/2, (startLon + toLon)/2, 
-                                    new Segment(edge.getUniqueId(), -1,
-                                                DistUtils.degreeToUtm(fromLat/1E6, fromLon/1E6),
-                                                DistUtils.degreeToUtm(toLat/1E6, toLon/1E6)));
-                }
+                quadTree.place((fromLat + toLat)/2, (fromLon + toLon)/2, edge); 
             });
             
         System.out.println("Tree size: "+quadTree.size());
@@ -246,18 +220,23 @@ public class TripList{
             }
             return;
         }
+         SimulationNode startNode = getNearestNode(startLocation);
+         SimulationNode targetNode = getNearestNode(targetLocation);
+         if(startNode == null || targetNode == null){
+             return;
+         }
  
-        Segment startSegment = getNearestSegment(startLocation);
-        Segment targetSegment = getNearestSegment(targetLocation);
-        if(startSegment.id == targetSegment.id && startSegment.position == targetSegment.position){
-            filteredTrips.get(3).add(trip.id);
-            return;
-        }
+//        Segment startSegment = getNearestSegment(startLocation);
+//        Segment targetSegment = getNearestSegment(targetLocation);
+//        if(startSegment.id == targetSegment.id && startSegment.position == targetSegment.position){
+//            filteredTrips.get(3).add(trip.id);
+//            return;
+//        }
         //finally adding the node to the list
         times[trip.id] = (int) trip.getStartTime();
         values[trip.id] = trip.getRideValue();
         //SimulationNode node = edgeMap.get(startSegment.id).fromNode;
-        searchNodes.put(trip.id, new SearchNode(trip.id, startSegment.id));
+        searchNodes.put(trip.id, new SearchNode(trip.id, startNode.id));
     
     }
     
@@ -374,44 +353,43 @@ public class TripList{
         return sumFrequency / numOfPeriods;
     }
 
-    private Segment getNearestSegment(GPSLocation loc){
-        double deltaLat = 0.001*1E6;
-        double deltaLon =  0.001*1E6;
+    private SimulationNode getNearestNode(GPSLocation loc){
+        double deltaLat = 0.0001*1E6;
+        //double deltaLon =  0.001*1E6;
+        double maxDelta = 0.7;
         int lat = loc.latE6;
         int lon = loc.lonE6;
-        List<QuadTree<Segment>.CoordHolder> neighbors = quadTree.findAll(lat-deltaLat, lon-deltaLon,
-                                                                                lat+deltaLat, lon+deltaLon);
-
-        while(neighbors.isEmpty()){
-            //System.out.println("empty neighborhood "+deltaLat+" "+deltaLon);
-            deltaLat *= 2;
-            deltaLon *= 2;
-            qtcounter++;
-            neighbors = quadTree.findAll(lat-deltaLat, lon-deltaLon,
-                                          lat+deltaLat, lon+deltaLon);
-        }
+        List<QuadTree<SimulationEdge>.CoordHolder> neighbors = new ArrayList<>();
         
-        //Object closestOfAll = null;
-        Segment closestOfAll = null;
+        SimulationNode closestOfAll = null;
         double minDist = Double.MAX_VALUE;
-        for(QuadTree<Segment>.CoordHolder holder : neighbors){
-            //System.out.println("found an item: " + holder.o);
-            Segment segment = holder.o;
-            
-            // returns distance and coordinates of the nearest point
-            Object[] result = getNearestPointAndDistance(loc, segment);
-            
-            Double dist = (Double) result[1];
-            if(dist <=50 ){
-                return (Segment) result[0];
-            }
-            if(dist < minDist){
-                minDist = dist;
-                closestOfAll = (Segment) result[0];
-            }
-        }
         
-        System.out.println("Nearest node at "+minDist+" m from the point");
+        for(int i = 0; i<3; i++){
+            while(neighbors.isEmpty()){
+                    //System.out.println("empty neighborhood "+deltaLat+" "+deltaLon);
+                    deltaLat *= 2;
+                    //deltaLon *= 2;
+                    qtcounter++;
+                    neighbors = quadTree.findAll(lat-deltaLat, lon-deltaLat,
+                                                 lat+deltaLat, lon+deltaLat);
+            }
+            for(QuadTree<SimulationEdge>.CoordHolder holder : neighbors){
+                    //System.out.println("found an item: " + holder.o);
+                    SimulationEdge edge = holder.o;
+                    // returns distance and coordinates of the nearest point
+                    Object[] result = getNearestPointAndDistance(loc, edge);
+                    Double dist = (Double) result[1];
+                    if(dist <=50 ){
+                        return (SimulationNode) result[0];
+                    }
+                    if(dist < minDist){
+                        minDist = dist;
+                        closestOfAll = (SimulationNode) result[0];
+                    }
+                }//for
+            neighbors.clear();
+        }
+        //System.out.println("Nearest node at "+minDist+" m from the point");
         filteredTrips.get(6).add(loc.latE6);
         return closestOfAll;
     }
@@ -441,25 +419,16 @@ public class TripList{
     
     
     private Object[] getNearestPointAndDistance(GPSLocation loc, SimulationEdge edge){
-             //dist_Point_to_Segment(): get the distance of a point to a segment
-//     //Input:  a Point P and a Segment S (in any dimension)
-//     //Return: the shortest distance from P to S float
-//    public static double[] distPointToEdge(double[] point, double[] segP0, double[] segP1){
         double[] locProjected = DistUtils.degreeToUtm(loc.getLatitude(), loc.getLongitude());
         double[] fromProjected = DistUtils.degreeToUtm(edge.fromNode.getLatitude(), edge.fromNode.getLongitude());
         double[] toProjected = DistUtils.degreeToUtm(edge.toNode.getLatitude(), edge.toNode.getLongitude());
         double[] v = {toProjected[0] - fromProjected[0], toProjected[1] - fromProjected[1]};
         double[] w = {locProjected[0] - fromProjected[0], locProjected[1] - fromProjected[1]};
-//        double[] v = {edge.toNode.getLatitude() - edge.fromNode.getLatitude(),
-//                      edge.toNode.getLongitude()- edge.fromNode.getLongitude()};
-//        double[] w = {loc.getLatitude() - edge.fromNode.getLatitude(),
-//                      loc.getLongitude() - edge.fromNode.getLongitude()};
 
         double c1 = v[0]*w[0]+v[1]*w[1];
         if (c1 <= 0 ){
             double dist = DistUtils.getDistProjected(locProjected, fromProjected);
             return new Object[]{edge.fromNode, dist};
-
         }
         double c2 = v[0]*v[0]+v[1]*v[1];
         if ( c2 <= c1 ){
@@ -469,7 +438,7 @@ public class TripList{
         double b = c1 / c2;
         double[] Pb = {fromProjected[0] + b * v[0], fromProjected[1] + b * v[1]};
         double dist = DistUtils.getDistProjected(locProjected, Pb);
-        return new Object[]{edge, dist, Pb};
+        return new Object[]{edge.fromNode, dist, Pb};
        
     }
 }

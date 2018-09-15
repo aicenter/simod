@@ -1,8 +1,5 @@
 
-
-
 class Rebalancing:
-
     def __init__(self, properties: dict=None):
         self.timestep = properties.get("timestep")
         self.type = properties.get("type")
@@ -14,7 +11,6 @@ class Rebalancing:
         self.veh_coef = properties.get("veh_coef")
         self.load_shapes = properties.get("load_shapes")
         self.policy_file_path = properties.get("policy_file_path")
-
 
 
         pass

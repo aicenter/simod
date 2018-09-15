@@ -1,5 +1,5 @@
 
-from amodsim.init import config, roadmaptools_config
+from amodsim.init import config
 
 from tqdm import tqdm
 import numpy as np
@@ -44,7 +44,7 @@ bins = np.arange(-0.5, 6.5, 1)
 
 axis.hist(occupancy_col, bins, normed=True)
 
-plt.savefig(config.images.occupancy_histogram, bbox_inches='tight', transparent=True)
+# plt.savefig(config.images.occupancy_histogram, bbox_inches='tight', transparent=True)
 
 
 # in window
@@ -56,8 +56,13 @@ avg_occupancy_demands_window = np.sum(occupancy_in_window) / np.count_nonzero(oc
 print("Average occupancy in window: {}".format(np.mean(occupancy_in_window)))
 print("Average occupancy in window - demands: {}".format(avg_occupancy_demands_window))
 
-fig, axis = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))
+fig, axis = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(2, 1.5))
 plt.gca().yaxis.set_major_formatter(FuncFormatter(to_percent))
+
+plt.setp(axis, xticks=range(0, 6, 1))
+
+# axis.set_xlabel("Vehicle occupancy [persons]")
+# axis.set_ylabel("Share of vehicles")
 
 axis.hist(occupancy_in_window, bins, normed=True)
 

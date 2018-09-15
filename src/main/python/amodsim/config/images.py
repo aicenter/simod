@@ -1,8 +1,5 @@
 
-
-
 class Images:
-
     def __init__(self, properties: dict=None):
         self.images_dir = properties.get("images_dir")
         self.images_experiment_dir = properties.get("images_experiment_dir")
@@ -23,7 +20,6 @@ class Images:
         self.distance_comparison = properties.get("distance_comparison")
         self.service_comparison = properties.get("service_comparison")
         self.dropped_demands_comparison = properties.get("dropped_demands_comparison")
-
 
 
         pass

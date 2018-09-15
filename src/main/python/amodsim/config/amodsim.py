@@ -1,10 +1,7 @@
 
-
 from amodsim.config.ridesharing import Ridesharing
 from amodsim.config.statistics import Statistics
-
 class Amodsim:
-
     def __init__(self, properties: dict=None):
         self.preprocessor_path = properties.get("preprocessor_path")
         self.trips_path = properties.get("trips_path")
@@ -18,7 +15,6 @@ class Amodsim:
 
         self.ridesharing = Ridesharing(properties.get("ridesharing"))
         self.statistics = Statistics(properties.get("statistics"))
-
 
         pass
 

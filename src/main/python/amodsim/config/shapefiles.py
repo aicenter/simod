@@ -1,8 +1,5 @@
 
-
-
 class Shapefiles:
-
     def __init__(self, properties: dict=None):
         self.dir = properties.get("dir")
         self.border = properties.get("border")
@@ -10,7 +7,6 @@ class Shapefiles:
         self.rivers = properties.get("rivers")
         self.roads = properties.get("roads")
         self.towns = properties.get("towns")
-
 
 
         pass

@@ -11,7 +11,7 @@ from scripts.distance_matrix import compute_distance_matrix
 from scripts.prague.process_distance_matrix import process_distance_matrix
 from scripts.prague.smooth_demand import smooth_demand
 from scripts.prague.generate_data_for_agentpolis_experiment import generate_data_for_agentsim
-from export_trips_for_agentpolis import export_data_for_amodsim
+from amodsim.export_trips_for_agentpolis import export_data_for_amodsim
 from process_trips_for_amodsim import process_trips_in_agentsim
 
 print_info("PREPARATIONS STARTED")

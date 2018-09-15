@@ -1,8 +1,5 @@
 
-
-
 class Stations:
-
     def __init__(self, properties: dict=None):
         self.regions = properties.get("regions")
         self.timestamps = properties.get("timestamps")
@@ -14,7 +11,6 @@ class Stations:
         self.distance_matrix_output_path = properties.get("distance_matrix_output_path")
         self.distance_matrix_path = properties.get("distance_matrix_path")
         self.smoothed_demand_file_path = properties.get("smoothed_demand_file_path")
-
 
 
         pass

@@ -1,9 +1,6 @@
 
-
 from amodsim.config.on_demand_vehicle_statistic import OnDemandVehicleStatistic
-
 class Statistics:
-
     def __init__(self, properties: dict=None):
         self.statistic_interval_milis = properties.get("statistic_interval_milis")
         self.result_file_name = properties.get("result_file_name")
@@ -19,7 +16,6 @@ class Statistics:
         self.occupancies_file_path = properties.get("occupancies_file_path")
 
         self.on_demand_vehicle_statistic = OnDemandVehicleStatistic(properties.get("on_demand_vehicle_statistic"))
-
 
         pass
 

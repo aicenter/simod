@@ -1,4 +1,4 @@
-from amodsim.init import config, roadmaptools_config
+from amodsim.init import config
 
 import pandas
 import matplotlib.pyplot as plt
@@ -67,12 +67,13 @@ for exp in experiments:
 	all_data = all_data.append(exp_data)
 
 # occupancy graph
-fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))
+fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(2, 1.5))
 # plt.setp(axes, xticks=[int(period) for period in all_data[ExperimentStats.MAX_DELAY.name]])
-plt.setp(axes, xticks=range(7, 16))
+plt.setp(axes, xticks=range(7, 16, 2))
+plt.setp(axes, yticks=[x * 0.1 for x in range(24, 30, 1)])
 
-axes.set_xlabel("Max delay time [min]")
-axes.set_ylabel("Avg. occupancy")
+# axes.set_xlabel("Max delay time [min]")
+# axes.set_ylabel("Avg. occupancy")
 # axes.tick_params(axis='x')
 # axes.set_xticks(all_data[ExperimentStats.MAX_DELAY.name])
 
@@ -86,7 +87,7 @@ axes.set_xlabel("Max delay time [min]")
 axes.set_ylabel("Avg. distance traveled [km]")
 
 axes.plot(all_data[ExperimentStats.MAX_DELAY.name], all_data[ExperimentStats.AVG_KM.name])
-plt.savefig(config.images.distance_comparison, bbox_inches='tight', transparent=True)
+# plt.savefig(config.images.distance_comparison, bbox_inches='tight', transparent=True)
 
 # service graph
 fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))
@@ -95,6 +96,6 @@ axes.set_xlabel("Max delay time [min]")
 axes.set_ylabel("Avg. delay time [min]")
 
 axes.plot(all_data[ExperimentStats.MAX_DELAY.name], all_data[ExperimentStats.AVG_SERVICE_DELAY.name])
-plt.savefig(config.images.service_comparison, bbox_inches='tight', transparent=True)
+# plt.savefig(config.images.service_comparison, bbox_inches='tight', transparent=True)
 
 plt.show()

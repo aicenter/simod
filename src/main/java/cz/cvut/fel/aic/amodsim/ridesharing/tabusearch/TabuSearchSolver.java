@@ -124,7 +124,13 @@ public class TabuSearchSolver extends DARPSolver{
 //      
         tripList = new TripList(config, nearestElementUtils, tripsUtil, graph);
         tripList.addDepoNodesToList(stations);
+        System.out.println("Size of searchNodes map "+tripList.searchNodes.size());
         StringBuilder sb = new StringBuilder();
+        
+        
+        
+        
+        
 //        
 //        TabuSearchUtils.edgeStats(graph);
 //        TabuSearchUtils.nodeStats(graph);

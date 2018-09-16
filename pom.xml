@@ -127,6 +127,11 @@
             <artifactId>commons-math3</artifactId>
             <version>3.5</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.davidmoten</groupId>
+            <artifactId>rtree</artifactId>
+            <version>0.8-RC10</version>
+       </dependency>
     </dependencies>
     
     <repositories>

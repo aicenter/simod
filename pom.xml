@@ -130,8 +130,9 @@
         <dependency>
             <groupId>com.github.davidmoten</groupId>
             <artifactId>rtree</artifactId>
-            <version>0.8-RC10</version>
-       </dependency>
+            <version>0.8-RC2-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     
     <repositories>

@@ -36,10 +36,15 @@ import com.github.davidmoten.rtree.Entry;
 import com.github.davidmoten.rtree.RTree;
 import com.github.davidmoten.rtree.geometry.Circle;
 import static com.github.davidmoten.rtree.geometry.Geometries.*;
+import com.github.davidmoten.rtree.geometry.Geometry;
 import com.github.davidmoten.rtree.geometry.Line;
 import com.github.davidmoten.rtree.geometry.Rectangle;
 
 import static  cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.SearchNode.createNode;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.stream.Collectors;
 
 
 /**
@@ -72,15 +77,17 @@ public class TripList{
     Map<Integer, List<Integer>> filteredTrips;
     
     private QuadTree<SimulationEdge> quadTree;
-    private RTree<SimulationEdge, Line> rtree;
+    private RTree<SimulationEdge, Geometry> rtree;
     
-    private RTree<SimulationEdge, Line> buildRtree(){
-        RTree<SimulationEdge, Line> tree = RTree.star().create();
+    private RTree<SimulationEdge, Geometry> buildRtree(){
+        RTree<SimulationEdge, Geometry> tree = RTree.star().create();
         for(SimulationEdge edge:graph.getAllEdges()){
             double[] from = DistUtils.degreeToUtm(edge.fromNode.getLatitude(), edge.fromNode.getLongitude());
             double[] to = DistUtils.degreeToUtm(edge.toNode.getLatitude(), edge.toNode.getLongitude());
-            tree = tree.add(edge, line(from[0], from[1], to[0], to[1]));
-            tree = tree.add(edge, line(from[0], to[1], to[0], from[1]));
+            Rectangle bb = rectangle(Math.min(from[0],to[0]), Math.min(from[1],to[1]),
+                                    Math.max(from[0],to[0]), Math.max(from[1],to[1]));
+            //tree = tree.add(edge, line(from[0], from[1], to[0], to[1]));
+           tree = tree.add(edge, bb);
         }
         return tree;
     }
@@ -167,6 +174,19 @@ public class TripList{
                 filteredTrips.get(6).stream().distinct().count());
             LOGGER.info("Not found node closer than 50 by bf {}",
                 filteredTrips.get(8).size());
+            
+            String fileName = config.amodsimDataDir + "/filtered.txt";
+            try(PrintWriter pw = new PrintWriter(new FileOutputStream(fileName))){
+            List<Integer> filtered = filteredTrips.get(6).stream()
+                .distinct().collect(Collectors.toList());
+            System.out.println("Number of filtered ids to be written "+ filtered.size());
+                filtered.forEach((tripId) -> {
+                    pw.println(tripId);
+                });
+                      
+       }catch (IOException ex){
+           LOGGER.error(null, ex);          
+       }
         }
    }
 
@@ -253,7 +273,7 @@ public class TripList{
         times[trip.id] = (int) trip.getStartTime();
         values[trip.id] = trip.getRideValue();
         searchNodes.put(trip.id, createNode(trip.id, startNode));
-        //searchNodes.put(trip.id, createNode(trip.id, new Object[]{startNode}));
+       //searchNodes.put(trip.id, createNode(trip.id, new Object[]{startNode}));
     
     }
     
@@ -270,11 +290,11 @@ public class TripList{
         double minDist = Double.MAX_VALUE;
         double[] bestResult = null;
         
-        Iterator<Entry<SimulationEdge, Line>> results = rtree.search(circle).toBlocking().getIterator();
+        Iterator<Entry<SimulationEdge, Geometry>> results = rtree.search(bounds).toBlocking().getIterator();
         while(!results.hasNext()){
             radius *= 2;
-             circle = circle(point[0],point[1], radius);
-            results = rtree.search(circle).toBlocking().getIterator();
+            bounds = rectangle(point[0]-radius, point[1]-radius, point[0] + radius, point[1]+radius);
+            results = rtree.search(bounds).toBlocking().getIterator();
         }
         
         while(results.hasNext()){

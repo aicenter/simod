@@ -32,7 +32,6 @@ public class Solution {
         totalValue = 0;
         numOfCars = 0;
         routes = new LinkedList<>();
-        carMap = new HashMap<>();
     }
     
     public void addNewRoute(int carId, SearchNode startNode){

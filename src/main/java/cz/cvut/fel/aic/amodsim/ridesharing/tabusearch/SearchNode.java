@@ -7,7 +7,6 @@ package cz.cvut.fel.aic.amodsim.ridesharing.tabusearch;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.geographtools.GPSLocation;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -18,15 +17,12 @@ public class SearchNode {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(SearchNode.class);
     private static final int TW = 180*000; 
     
-    
     final int id;
-    
     int realTime;
     long[] tw;
     final double[] point;
     final SimulationNode[] nodes;
  
-
     
     private SearchNode(int id, SimulationNode obj, long startTime){
         this.id = id;

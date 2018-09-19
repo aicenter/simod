@@ -105,20 +105,20 @@ public class Solution {
         while(!queue.isEmpty()){
         //for(SearchNode p: queue){
             SearchNode p = queue.remove(0);
-            int[] depo = findNearestDepo(p);
-            if(depo[0] < 0){
-                failReasons[0]++;
-                System.out.println("Couldn't find depo for the trip");
-                continue;
-            }
+            if(carCounter < MAXCAR){
+                int[] depo = findNearestDepo(p);
+                if(depo[0] < 0){
+                    failReasons[0]++;
+                    System.out.println("Couldn't find depo for the trip");
+                    continue;
+                }
             SearchNode depoNode = createNode(depo[0] + N2M, new Object[]{depo[1]}, 0 );
             SearchNode d = tripList.searchNodes.get(p.id + N);
-            if(carCounter < MAXCAR){
-                Route route = new Route(carCounter,
-                    new SearchNode[]{p, d});
-                routes.add(route);
-                carCounter++;    
-            }
+            Route route = new Route(carCounter,
+                new SearchNode[]{p, d});
+            routes.add(route);
+            carCounter++;    
+                }
            
            }
         for(Route r: routes){

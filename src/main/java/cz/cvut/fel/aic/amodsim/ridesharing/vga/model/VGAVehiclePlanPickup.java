@@ -8,7 +8,7 @@ public class VGAVehiclePlanPickup extends VGAVehiclePlanAction {
 
     @Override
     public String toString() {
-        return "    Pick up  request id: " + request.getId() + System.getProperty("line.separator");
+        return "    Pick up  " + request.getDemandAgent().toString() + System.getProperty("line.separator");
     }
 
 }

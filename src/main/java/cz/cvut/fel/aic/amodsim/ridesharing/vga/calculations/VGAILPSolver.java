@@ -1,42 +1,35 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
-import com.joptimizer.exception.JOptimizerException;
-import com.joptimizer.optimizers.BIPLokbaTableMethod;
-import com.joptimizer.optimizers.BIPOptimizationRequest;
+import com.google.ortools.linearsolver.MPConstraint;
+import com.google.ortools.linearsolver.MPObjective;
+import com.google.ortools.linearsolver.MPSolver;
+import com.google.ortools.linearsolver.MPVariable;
 import com.quantego.clp.CLP;
 import com.quantego.clp.CLPVariable;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlan;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class VGAILPSolver {
 
+    //https://developers.google.com/optimization/install/java/
+    static {
+        System.loadLibrary("jniortools");
+    }
+
     private VGAILPSolver() {}
 
-    public static Set<VGAVehiclePlan> assignOptimallyFeasiblePlans(Map<AgentPolisEntity, Set<VGAVehiclePlan>> feasiblePlans, List<VGARequest> requests){
+    public static Map<VGAVehicle, VGAVehiclePlan> assignOptimallyFeasiblePlans(Map<VGAVehicle, Set<VGAVehiclePlan>> feasiblePlans, List<VGARequest> requests){
 
         //Calculating size of the model
 
-        Set<VGAVehiclePlan> optimalPlans = new LinkedHashSet<>();
+        Map<VGAVehicle, VGAVehiclePlan> optimalPlans = new LinkedHashMap<>();
         int size = 0, noOfVehicles = feasiblePlans.size() - 1;
 
-        for(Map.Entry<AgentPolisEntity, Set<VGAVehiclePlan>> entry : feasiblePlans.entrySet()){
+        for(Map.Entry<VGAVehicle, Set<VGAVehiclePlan>> entry : feasiblePlans.entrySet()){
             size += entry.getValue().size();
-        }
-
-        //Putting the feasible plans in an array (only for debugging purposes)
-
-        VGAVehiclePlan[] plans = new VGAVehiclePlan[size];
-
-        int i = 0;
-        for(Map.Entry<AgentPolisEntity, Set<VGAVehiclePlan>> entry : feasiblePlans.entrySet()) {
-            for(VGAVehiclePlan plan : entry.getValue()) {
-                plans[i++] = plan;
-            }
         }
 
         System.out.println("Total number of feasible groups is: " + size + "\n");
@@ -47,30 +40,25 @@ public class VGAILPSolver {
         double[] costs = new double[size];
         double avgCost = 0;
 
-        i = 0;
-        for(Map.Entry<AgentPolisEntity, Set<VGAVehiclePlan>> entry : feasiblePlans.entrySet()){
+        int i = 0;
+        for(Map.Entry<VGAVehicle, Set<VGAVehiclePlan>> entry : feasiblePlans.entrySet()){
             int j = 0;
             for(VGAVehiclePlan plan : entry.getValue()){
-                //TODO next line parsing may be a major flaw
-                int id = Integer.parseInt(entry.getKey().getId());
+                int id = entry.getKey().getId();
                 if(id < noOfVehicles) {
                     costs[i] = plan.calculateCost();
                     avgCost += costs[i];
 
                     if(id == noOfVehicles - 1 && j == entry.getValue().size() - 1){
-                        avgCost /= size - requests.size();
+                        avgCost /= size - noOfVehicles - requests.size();
                         avgCost = avgCost == 0 ? 1 : avgCost;
                     }
 
                 } else {
-                    if(j == 0) {
-                        costs[i] = 0;
-                    } else {
-                        if (VGAVehiclePlan.getCostType() == VGAVehiclePlan.CostType.STANDARD) {
-                            costs[i] = 100 * avgCost;
-                        } else if (VGAVehiclePlan.getCostType() == VGAVehiclePlan.CostType.SUM_OF_DROPOFF_TIMES) {
-                            costs[i] = 1000;
-                        }
+                    if (VGAVehiclePlan.getCostType() == VGAVehiclePlan.CostType.STANDARD) {
+                        costs[i] = 100 * avgCost;
+                    } else if (VGAVehiclePlan.getCostType() == VGAVehiclePlan.CostType.SUM_OF_DROPOFF_TIMES) {
+                        costs[i] = 1000;
                     }
                 }
                 i++;
@@ -78,48 +66,42 @@ public class VGAILPSolver {
             }
         }
 
-        //CLP Initializing variables and objective
+        //CLP and Google OR Tools initializing variables and the objective function
 
         CLP solver = new CLP();
         CLPVariable variables[] = new CLPVariable[size];
+
+        MPSolver solver1 = new MPSolver("solver", MPSolver.OptimizationProblemType.BOP_INTEGER_PROGRAMMING);
+        MPVariable[] mpVariables = new MPVariable[size];
+
         for (int j = 0; j < size; j++) {
             variables[j] = solver.addVariable().bounds(0, 1);
+            mpVariables[j] = solver1.makeBoolVar(Integer.toString(j));
         }
 
         solver.createExpression().add(costs, variables).asObjective();
 
-        //JOptimizer setting the objective and right hand side of the constraints
-
-        double constraints[][] = new double[(noOfVehicles + requests.size()) * 2][size];
-        double h[] = new double[(noOfVehicles + requests.size()) * 2];
-        for (int j = 0; j < 2 * (noOfVehicles + requests.size()); j+=2) {
-            h[j] = 1;
-            h[j + 1] = -1;
+        MPObjective objective = solver1.objective();
+        for (int j = 0; j < size; j++) {
+            objective.setCoefficient(mpVariables[j], costs[j]);
         }
 
-        BIPOptimizationRequest bipor = new BIPOptimizationRequest();
-        bipor.setC(costs);
-        bipor.setH(h);
+        //Creating and adding the constraints
 
-        //Creating the constraints
-
-        int j;
-        i = j = 0;
-        for (Map.Entry<AgentPolisEntity, Set<VGAVehiclePlan>> entry : feasiblePlans.entrySet()) {
+        i = 0;
+        for (Map.Entry<VGAVehicle, Set<VGAVehiclePlan>> entry : feasiblePlans.entrySet()) {
             double[] constraint = new double[size];
 
             for(VGAVehiclePlan ignored : entry.getValue()){
                 constraint[i++] = 1;
             }
 
-            //TODO next line parsing may be a major flaw
-            int id = Integer.parseInt(entry.getKey().getId());
+            int id = entry.getKey().getId();
             if(id != noOfVehicles) {
                 solver.createExpression().add(constraint, variables).eq(1);
-                constraints[j++] = constraint;
-                constraints[j++] = constraint.clone();
+                MPConstraint constraint1 = solver1.makeConstraint(1.0, 1.0);
                 for (int k = 0; k < size; k++) {
-                    constraints[j-1][k] *= -1;
+                    constraint1.setCoefficient(mpVariables[k], constraint[k]);
                 }
             }
         }
@@ -128,7 +110,7 @@ public class VGAILPSolver {
             i = 0;
             double[] constraint = new double[size];
 
-            for(Map.Entry<AgentPolisEntity, Set<VGAVehiclePlan>> entry : feasiblePlans.entrySet()){
+            for(Map.Entry<VGAVehicle, Set<VGAVehiclePlan>> entry : feasiblePlans.entrySet()){
                 for(VGAVehiclePlan plan : entry.getValue()){
                     if(plan.getRequests().contains(request)){
                         constraint[i] = 1;
@@ -137,74 +119,76 @@ public class VGAILPSolver {
                 }
             }
             solver.createExpression().add(constraint, variables).eq(1);
-            constraints[j++] = constraint;
-            constraints[j++] = constraint.clone();
+
+            MPConstraint constraint1 = solver1.makeConstraint(1.0, 1.0);
             for (int k = 0; k < size; k++) {
-                constraints[j - 1][k] *= -1;
+                constraint1.setCoefficient(mpVariables[k], constraint[k]);
             }
         }
 
         System.out.println("Solving ILP...");
 
-        bipor.setG(constraints);
+        //Solving with CLP first
 
-        //Solving
-
-        boolean warn = false;
+        boolean clpSolved = true;
         double results[] = new double[size];
+        double results1[] = new double[size];
 
         solver.minimize();
 
-        for (j = 0; j < size; j++) {
+        for (int j = 0; j < size; j++) {
             results[j] = variables[j].getSolution();
             if (results[j] != 0 && results[j] != 1) {
-                System.out.println("j: " + j + " value: " + results[j] + " ");
-                warn = true;
+                clpSolved = false;
             }
         }
 
-        if(warn){
-            Logger.getLogger(VGAILPSolver.class.getName()).log(Level.WARNING,
-                    "Some ILP variable results are not binary." + System.getProperty("line.separator") +
-                            "Retrying the calculation with another ILP solver. " + System.getProperty("line.separator") +
-                            "This will take a lot more time.");
+        //Solving with Google OR if needed
 
-            BIPLokbaTableMethod opt = new BIPLokbaTableMethod();
-            opt.setBIPOptimizationRequest(bipor);
-            try {
-                opt.optimize();
-            } catch (JOptimizerException e) {
-                e.printStackTrace();
+        if(clpSolved) {
+            System.out.println("CLP solved successfully.");
+        } else {
+            System.out.println("CLP was not able to produce a binary solution, Google OR tools, will find one.");
+            objective.setMinimization();
+
+            solver1.setTimeLimit(10000);
+            MPSolver.ResultStatus status = solver1.solve();
+            if(status == MPSolver.ResultStatus.OPTIMAL) {
+                System.out.println("Google optimization tools found an optimal solution.");
+            } else if (status == MPSolver.ResultStatus.FEASIBLE) {
+                System.out.println("Google optimization tools found a solution, but it was not able to prove in the given time limit, that it is optimal.");
+            } else if (status == MPSolver.ResultStatus.INFEASIBLE) {
+                System.out.println("Oops, the model is infeasible, it was probably created in a wrong way.");
             }
 
-            j = 0;
-            for (Integer integer : opt.getBIPOptimizationResponse().getSolution()) {
-                results[j++] = integer;
+            for (int j = 0; j < size; j++) {
+                results1[j] = mpVariables[j].solutionValue();
             }
-
         }
 
         //Printing the results
 
         System.out.println();
 
-        System.out.println("BILP solved, groups assigned.");
-        System.out.println(Arrays.toString(results) + "\n");
+        System.out.println("CLP results:       " + Arrays.toString(results) + System.getProperty("line.separator"));
+        if(!clpSolved) {
+            System.out.println("Google OR results: " + Arrays.toString(results1));
+        }
 
         System.out.println("The optimal vehicle plans are:");
 
         double totalDiscomfort = 0, totalTimeInOperation = 0;
 
         i = 0;
-        for(Map.Entry<AgentPolisEntity, Set<VGAVehiclePlan>> entry : feasiblePlans.entrySet()) {
+        for(Map.Entry<VGAVehicle, Set<VGAVehiclePlan>> entry : feasiblePlans.entrySet()) {
             for(VGAVehiclePlan plan : entry.getValue()) {
-                if(variables[i].getSolution() == 1) {
-                    optimalPlans.add(plan);
+                if((clpSolved ? results[i] : results1[i]) == 1) {
+                    optimalPlans.put(entry.getKey(), plan);
 
                     if (!plan.toString().equals("")) {
-                        int id = Integer.parseInt(entry.getKey().getId());
+                        int id = entry.getKey().getId();
                         if(id < noOfVehicles) {
-                            System.out.println("Vehicle id: " + id);
+                            System.out.println(entry.getKey().getRidesharingVehicle().toString());
                         }
                         System.out.print(plan.toString());
 
@@ -217,7 +201,7 @@ public class VGAILPSolver {
             }
         }
 
-        System.out.println(String.format("\nTotal discomfort: %.2fs", totalDiscomfort));
+        System.out.println(String.format(System.getProperty("line.separator") + "Total discomfort: %.2fs", totalDiscomfort));
         System.out.println(String.format("Total time in operation: %.2fs", totalTimeInOperation));
 
         return optimalPlans;

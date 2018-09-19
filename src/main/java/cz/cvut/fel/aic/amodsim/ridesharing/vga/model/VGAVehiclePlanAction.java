@@ -14,7 +14,12 @@ public class VGAVehiclePlanAction {
         this.request = request;
         this.position = position;
 
-        time = plan.getCurrentTime() + MathUtils.getTravelTimeProvider().getTravelTime(VehicleGroupAssignmentSolver.getVehicle(), plan.getCurrentPosition(), position);
+        if(!(this instanceof VGAVehiclePlanRequestDrop)) {
+            time = plan.getCurrentTime() + MathUtils.getTravelTimeProvider().getTravelTime(VehicleGroupAssignmentSolver.getVehicle(), plan.getCurrentPosition(), position) / 1000.0;
+            if(this instanceof VGAVehiclePlanDropoff && plan.getActions().size() == 0) {
+                time += request.getDemandAgent().getRealPickupTime() / 1000.0;
+            }
+        }
 
         if(this instanceof VGAVehiclePlanPickup){
             if(time < request.getOriginTime()){

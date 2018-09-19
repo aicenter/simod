@@ -50,7 +50,7 @@ public class VGAVehiclePlan {
             pickupTimes.put(action.getRequest(), action.getTime());
         } else if (action instanceof VGAVehiclePlanDropoff) {
             discomfort += getCurrentTime() - action.getRequest().getOriginTime() -
-                    MathUtils.getTravelTimeProvider().getTravelTime(vehicle, action.getRequest().getOriginSimulationNode(), action.getRequest().getDestinationSimulationNode());
+                    MathUtils.getTravelTimeProvider().getTravelTime(vehicle, action.getRequest().getOriginSimulationNode(), action.getRequest().getDestinationSimulationNode()) / 1000.0;
             activeRequests.remove(action.getRequest());
             pickupTimes.remove(action.getRequest());
         }
@@ -97,6 +97,8 @@ public class VGAVehiclePlan {
     }
 
     public DriverPlan toDriverPlan(){
+        if(vehicle == null) { return null; }
+
         List<DriverPlanTask> tasks = new ArrayList<>();
 
         tasks.add(new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, vehicle.getPosition()));
@@ -108,7 +110,17 @@ public class VGAVehiclePlan {
             }
         }
 
-        return new DriverPlan(tasks, (long) getCurrentTime());
+        return new DriverPlan(tasks, (long) (getCurrentTime() * 1000));
+    }
+
+    public void updateRequestsBasedOnCurrentSituation() {
+        VGAVehicle v = VGAVehicle.getVGAVehicleByRidesharingOnDemandVehicle(vehicle);
+        requests.addAll(v.getRequestsOnBoard());
+        for(VGARequest request : v.getRequestsOnBoard()) {
+            waitingRequests.remove(request);
+            activeRequests.add(request);
+            pickupTimes.put(request, request.getDemandAgent().getRealPickupTime() / 1000.0);
+        }
     }
 
     public RideSharingOnDemandVehicle getVehicle() { return vehicle; }

@@ -8,7 +8,7 @@ public class VGAVehiclePlanRequestDrop extends VGAVehiclePlanAction {
 
     @Override
     public String toString() {
-        return "Dropping request id: " + request.getId() + System.getProperty("line.separator");
+        return "Dropping " + request.getDemandAgent().toString() + System.getProperty("line.separator");
     }
 
 }

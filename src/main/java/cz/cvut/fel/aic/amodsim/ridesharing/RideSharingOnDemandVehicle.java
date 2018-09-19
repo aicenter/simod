@@ -30,7 +30,6 @@ import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.statistics.PickupEventContent;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 import java.util.LinkedList;
-import java.util.Set;
 
 /**
  *

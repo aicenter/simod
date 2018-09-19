@@ -25,8 +25,6 @@ public class AmodsimConfig implements GeneratedConfig {
 
   public String pythonExperimentDir;
 
-  public Integer srid;
-
   public String amodsimExperimentDir;
 
   public String amodsimDataDir;
@@ -42,8 +40,6 @@ public class AmodsimConfig implements GeneratedConfig {
   public Integer tripsLimit;
 
   public Db db;
-
-  public TutmProjectionCentre tutmProjectionCentre;
 
   public Amodsim amodsim;
 
@@ -62,7 +58,6 @@ public class AmodsimConfig implements GeneratedConfig {
     this.analysis = new Analysis((Map) amodsimConfig.get("analysis"));
     this.mapDir = (String) amodsimConfig.get("map_dir");
     this.pythonExperimentDir = (String) amodsimConfig.get("python_experiment_dir");
-    this.srid = (Integer) amodsimConfig.get("srid");
     this.amodsimExperimentDir = (String) amodsimConfig.get("amodsim_experiment_dir");
     this.amodsimDataDir = (String) amodsimConfig.get("amodsim_data_dir");
     this.tripsMultiplier = (Double) amodsimConfig.get("trips_multiplier");
@@ -71,7 +66,6 @@ public class AmodsimConfig implements GeneratedConfig {
     this.tripsFilePath = (String) amodsimConfig.get("trips_file_path");
     this.tripsLimit = (Integer) amodsimConfig.get("trips_limit");
     this.db = new Db((Map) amodsimConfig.get("db"));
-    this.tutmProjectionCentre = new TutmProjectionCentre((Map) amodsimConfig.get("tutm_projection_centre"));
     this.amodsim = new Amodsim((Map) amodsimConfig.get("amodsim"));
     this.rebalancing = new Rebalancing((Map) amodsimConfig.get("rebalancing"));
     return this;

@@ -26,7 +26,11 @@ import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.quadtree.QuadTree;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Graph;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -112,9 +116,19 @@ public class TabuSearchSolver extends DARPSolver{
 
    @Override
     public Map<RideSharingOnDemandVehicle, DriverPlan> solve() {
+        List<double[]> result = TabuSearchUtils.edgeDistanceComparison(graph);
+       try(PrintWriter pw = new PrintWriter(
+           new FileOutputStream(new File(config.amodsimDataDir + "/dist_praha.txt")))){
+            result.forEach((r) -> {
+                pw.println(Arrays.toString(r));
+            });
+                      
+       }catch (IOException ex){
+           LOGGER.error(null, ex);          
+       }
+ 
 //        SpaceMatrix sm = new SpaceMatrix(bbox, step);
 //        sm.add(graph.getAllNodes());
-       
         //tripList = TabuSearchUtils.addPaths( tripsUtil, graph);
         //TabuSearchUtils.avgTimeBtwTrips(tripList, 60);
 //        List<SimulationNode> nodes = stations.stream()
@@ -122,11 +136,12 @@ public class TabuSearchSolver extends DARPSolver{
 //        TabuSearchUtils.pathsNoLongerThan(nodes, graph, 
 //            180, tripsUtil, pathFile);
 //      
-        tripList = new TripList(config, nearestElementUtils, tripsUtil, graph);
-        tripList.addDepoNodesToList(stations);
-        System.out.println("Size of searchNodes map "+tripList.searchNodes.size());
-        StringBuilder sb = new StringBuilder();
-        
+//        tripList = new TripList(config, nearestElementUtils, tripsUtil, graph);
+//        tripList.addDepoNodesToList(stations);
+//        System.out.println("Size of searchNodes map " + tripList.searchNodes.size());
+//        System.out.println("total value of all trips " + tripList.getTripListValue());
+//        Solution sol = new Solution(tripList);
+//        sol.makeInitialSolution();
         
         
         

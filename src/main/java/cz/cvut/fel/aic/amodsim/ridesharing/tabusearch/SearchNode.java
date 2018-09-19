@@ -16,34 +16,40 @@ import org.slf4j.LoggerFactory;
  */
 public class SearchNode {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(SearchNode.class);
+    private static final int TW = 180*000; 
+    
     
     final int id;
-    int[] realTime;
-    final int[] pointE6;
+    
+    int realTime;
+    long[] tw;
+    final double[] point;
     final SimulationNode[] nodes;
  
+
     
-    private SearchNode(int id, SimulationNode obj){
+    private SearchNode(int id, SimulationNode obj, long startTime){
         this.id = id;
-        pointE6 = new int[]{obj.latE6, obj.lonE6};
+        point = new double[]{obj.getLatitude(), obj.getLongitude()};
         nodes = new SimulationNode[]{obj};
-        realTime = new int[2];
+        tw = new long[]{startTime, startTime + TW};
     }
     
-    private SearchNode(int id, SimulationEdge obj, int[]point){
+    private SearchNode(int id, SimulationEdge obj, long startTime, 
+        double[]point){
         this.id = id;
-        pointE6 = point;
+        this.point = point;
         nodes = new SimulationNode[]{obj.fromNode, obj.toNode};
-        realTime = new int[2];
+        tw = new long[]{startTime, startTime + TW};
     }
     
-    public static SearchNode createNode(int id, Object[] obj) {
+    public static SearchNode createNode(int id, Object[] obj, long startTime) {
         if(obj[0].getClass() == SimulationNode.class){
-            return new SearchNode(id, (SimulationNode) obj[0]);
+            return new SearchNode(id, (SimulationNode) obj[0], startTime);
 
         } else if (obj[0].getClass() == SimulationNode.class) {
-            GPSLocation loc = (GPSLocation) obj[1];
-            return new  SearchNode(id, (SimulationEdge) obj[0], new int[]{loc.latE6, loc.lonE6});
+            return new  SearchNode(id, (SimulationEdge) obj[0], startTime,
+                (double[]) obj[1]);
         }
         LOGGER.error("first element of array is neither a node, nor an edge.");
         return null;

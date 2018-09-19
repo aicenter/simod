@@ -400,18 +400,45 @@ public class TabuSearchUtils {
         System.out.println(sb.toString());
     }
     
-     public static void edgeDistanceComparison( Graph<SimulationNode, SimulationEdge> graph ){   
+     public  static List<double[]>  edgeDistanceComparison( Graph<SimulationNode, SimulationEdge> graph ){   
+            List<double[]> result = new ArrayList<>();
+            int[] count = new int[]{0,0,0,0,0};
             graph.getAllEdges().forEach((edge) -> {
             double lat1 = edge.fromNode.getLatitude();
             double lon1 = edge.fromNode.getLongitude();
+            double[] fromProj = DistUtils.degreeToUtm(lat1,lon1);
+            
             double lat2 = edge.toNode.getLatitude();
             double lon2 = edge.toNode.getLongitude();
+            double[] toProj = DistUtils.degreeToUtm(lat2,lon2);
+            double dist0 = DistUtils.getDistProjected(fromProj, toProj);
+            double dist2 = DistUtils.getDistProjected(
+                            new double[]{edge.fromNode.getLongitudeProjected(),edge.fromNode.getLatitudeProjected()}, 
+                            new double[]{edge.toNode.getLongitudeProjected(),edge.toNode.getLatitudeProjected() });
             
-            double dist0 = DistUtils.getEuclideanDist(lat1, lon1, lat2, lon2);
-            double dist2 = DistUtils.getHaversineDist(lat1, lon1, lat2, lon2);
-            System.out.println("Euclidean projected: "+dist0 + ", haversine "+dist2+", length "+edge.length);
-            });
-     }
+            result.add(new double[]{lat1, lon1, edge.fromNode.getLatitudeProjected(),
+                edge.fromNode.getLongitudeProjected(), fromProj[1], fromProj[0], lat2, lon2, 
+                edge.toNode.getLatitudeProjected(), edge.toNode.getLongitudeProjected(),
+                toProj[1], toProj[0], dist2, dist0, edge.length});
+            double diff =Math.abs(dist0 - edge.length);
+            if( diff > 5){
+                count[0]++;
+            }else if(diff > 4 ){
+                count[1]++;
+                System.out.println(dist0 +" != "+edge.length);
+            }else if(diff > 3){
+                count[2]++;
+            }else if(diff > 2){
+                count[3]++;
+            }else if(diff > 1){
+                count[4]++;
+            }
+            
+                
+     });
+            System.out.println(Arrays.toString(count));
+            return result;
+}
     
     public static void nodeStats(Graph<SimulationNode, SimulationEdge> graph ){
         StringBuilder sb = new StringBuilder();

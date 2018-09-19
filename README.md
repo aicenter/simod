@@ -1,0 +1,65 @@
+
+
+### Prerequisites
+Agentpolis.\
+```commandline
+cd your/project/folder
+git clone https://github.com/aicenter/agentpolis.git
+```
+or with SSH key:
+```commandline
+git@github.com:aicenter/agentpolis.git
+```
+
+### Installation
+
+
+```commandline
+cd your/project/folder
+git clone https://github.com/
+```
+
+### Data for simulation
+Create directory to keep data for simulation. For example, /path/to/folder/amod-data\
+and two subdirectories  /amod-data/maps and /amod-data/experiments\
+Parent directory should contain following files:\
+policy.json\
+trips.txt\
+To /maps goes files with road graph:\
+edges.json\
+nodes.json\
+Last subfolder is used by amodsim to save simulation results. 
+
+
+### Cofiguration
+Project uses two cofiguration files. Master config is in\
+/your/folder/src/main/resources/cz/cvut/fel/aic/amodsim/config/config.cfg
+
+Local configuration files are in\
+/your/folder/local_config_files
+
+Create new configuration file in local_config_files folder (like, my_config.cfg).
+Add paths to directory with data for simulation, and for saving the results:\
+amodsim_data_dir: 'path/to/folder/amod-data/'\
+trips_filename: 'trips'\
+trips_file_path: $amodsim_data_dir + $trips_filename\
+amodsim_experiment_dir: $amodsim_data_dir + 'experiments'  + '/'\
+rebalancing:\
+{\
+    policy_file_path: $amodsim_data_dir +'policy.json'\
+}
+
+In NetBeans open File/Project. First, open Cofigurations, add new configuration. The go to Run, choose configuration, you've just created, in Main class add\
+cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation\
+and in Arguments path to your local configuration file\
+/your/project/folder/local_config_files/my_config.cfg\
+Go back to Configurations, and check if your config is activated.
+
+
+
+
+
+
+
+
+

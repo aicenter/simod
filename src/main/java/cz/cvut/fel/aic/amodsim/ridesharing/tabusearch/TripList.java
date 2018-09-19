@@ -13,9 +13,6 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.io.TimeValueTrip;
-import cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.quadtree.QuadTree;
-import cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.quadtree.QuadTree.CoordHolder;
-import cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.quadtree.Segment;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.Node;

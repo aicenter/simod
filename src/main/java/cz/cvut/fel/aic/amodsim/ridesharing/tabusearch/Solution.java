@@ -41,7 +41,7 @@ public class Solution {
     
     private int carCounter;
    
-    private List<Route> routes;
+ //   private List<Route> routes;
     
     final int[] times;
     final double[] values;
@@ -65,7 +65,7 @@ public class Solution {
         this.id = counter++;
         carCounter = 0;
         
-        routes = new LinkedList<>();
+    //    routes = new LinkedList<>();
         rtree = buildRtree('n');
         depoRtree = buildRtree('d');
         
@@ -98,46 +98,46 @@ public class Solution {
         return tree;
     }
 
-    public void makeInitialSolution(){
-        List<SearchNode> queue = tripList.searchNodes.values().stream()
-            .filter(n->n.id<1000).collect(Collectors.toCollection(LinkedList::new));
-        
-        while(!queue.isEmpty()){
-        //for(SearchNode p: queue){
-            SearchNode p = queue.remove(0);
-            if(carCounter < MAXCAR){
-                int[] depo = findNearestDepo(p);
-                if(depo[0] < 0){
-                    failReasons[0]++;
-                    System.out.println("Couldn't find depo for the trip");
-                    continue;
-                }
-            SearchNode depoNode = createNode(depo[0] + N2M, new Object[]{depo[1]}, 0 );
-            SearchNode d = tripList.searchNodes.get(p.id + N);
-            Route route = new Route(carCounter,
-                new SearchNode[]{p, d});
-            routes.add(route);
-            carCounter++;    
-                }
-           
-           }
-        for(Route r: routes){
-               System.out.println(r);
-        }
-        //Stage 1. new car to each trip.
-        //get node from list, check if exists empty root, 
-        //TODO find nearest depo, reachable in 3 min
-        //create new route(=add new car), assign trip to that route
-        // add depo node, and first trip nodes,
-        //check feasibility(?), update route params
-        
-        // Stage 2.
-        // add new pickup node after last dropoff node for the car
-        // which is closest to the point
-        // check feasibility, update route
-        
-        
-    }
+//    public void makeInitialSolution(){
+//        List<SearchNode> queue = tripList.searchNodes.values().stream()
+//            .filter(n->n.id<1000).collect(Collectors.toCollection(LinkedList::new));
+//        
+//        while(!queue.isEmpty()){
+//        //for(SearchNode p: queue){
+//            SearchNode p = queue.remove(0);
+//            if(carCounter < MAXCAR){
+//                int[] depo = findNearestDepo(p);
+//                if(depo[0] < 0){
+//                    failReasons[0]++;
+//                    System.out.println("Couldn't find depo for the trip");
+//                    continue;
+//                }
+//            SearchNode depoNode = createNode(depo[0] + N2M, new Object[]{depo[1]}, 0 );
+//            SearchNode d = tripList.searchNodes.get(p.id + N);
+//            Route route = new Route(carCounter,
+//                new SearchNode[]{p, d});
+//            routes.add(route);
+//            carCounter++;    
+//                }
+//           
+//           }
+//        for(Route r: routes){
+//               System.out.println(r);
+//        }
+//        //Stage 1. new car to each trip.
+//        //get node from list, check if exists empty root, 
+//        //TODO find nearest depo, reachable in 3 min
+//        //create new route(=add new car), assign trip to that route
+//        // add depo node, and first trip nodes,
+//        //check feasibility(?), update route params
+//        
+//        // Stage 2.
+//        // add new pickup node after last dropoff node for the car
+//        // which is closest to the point
+//        // check feasibility, update route
+//        
+//        
+//    }
     
     private int[] findNearestDepo(SearchNode node){
         double radius = 2500;
@@ -173,16 +173,16 @@ public class Solution {
         return nearestDepo;
     }
     
-    public void addNewRoute(int carId, SearchNode[] nodes){
-        Route newRoute = new Route(carId, nodes);
-        routes.add(newRoute);
-//        if(carMap)
-//        carMap.put(carId, newRoute.id);
-    }
-    
-    public boolean isFeasible(){
-        return routes.stream().allMatch((route) -> (route.isFeasible()));
-    }
+//    public void addNewRoute(int carId, SearchNode[] nodes){
+//        Route newRoute = new Route(carId, nodes);
+//        routes.add(newRoute);
+////        if(carMap)
+////        carMap.put(carId, newRoute.id);
+//    }
+//    
+//    public boolean isFeasible(){
+//        return routes.stream().allMatch((route) -> (route.isFeasible()));
+//    }
     
 //    public double getTotalValue(){
 //        return routes.stream().map(route->route.getTotalValue())

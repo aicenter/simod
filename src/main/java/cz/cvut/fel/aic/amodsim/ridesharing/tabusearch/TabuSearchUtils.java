@@ -433,8 +433,6 @@ public class TabuSearchUtils {
             }else if(diff > 1){
                 count[4]++;
             }
-            
-                
      });
             System.out.println(Arrays.toString(count));
             return result;

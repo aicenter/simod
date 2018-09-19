@@ -23,7 +23,6 @@ import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
-import cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.quadtree.QuadTree;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Graph;
 import java.io.File;
@@ -118,7 +117,7 @@ public class TabuSearchSolver extends DARPSolver{
     public Map<RideSharingOnDemandVehicle, DriverPlan> solve() {
         List<double[]> result = TabuSearchUtils.edgeDistanceComparison(graph);
        try(PrintWriter pw = new PrintWriter(
-           new FileOutputStream(new File(config.amodsimDataDir + "/dist_praha.txt")))){
+           new FileOutputStream(new File(config.amodsimDataDir + "/dist_tallin32633.txt")))){
             result.forEach((r) -> {
                 pw.println(Arrays.toString(r));
             });

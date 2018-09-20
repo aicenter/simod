@@ -17,6 +17,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.CongestedDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
+import cz.cvut.fel.aic.amodsim.ridesharing.*;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayer;
@@ -32,11 +33,6 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactory;
-import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
-import cz.cvut.fel.aic.amodsim.ridesharing.EuclideanTravelTimeProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.InsertionHeuristicSolver;
-import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingStationsCentral;
-import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.RidesharingOnDemandVehicleFactory;
 import cz.cvut.fel.aic.geographtools.TransportMode;
 
@@ -88,6 +84,7 @@ public class MainModule extends StandardAgentPolisModule{
 			bind(OnDemandVehicleStationsCentral.class).to(RidesharingStationsCentral.class);
 			bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
 			bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
+//			bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
         }
         else{
            bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);

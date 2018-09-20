@@ -203,6 +203,8 @@ public class VGAILPSolver {
 
         System.out.println(String.format(System.getProperty("line.separator") + "Total discomfort: %.2fs", totalDiscomfort));
         System.out.println(String.format("Total time in operation: %.2fs", totalTimeInOperation));
+        System.out.println();
+        System.out.println();
 
         return optimalPlans;
     }

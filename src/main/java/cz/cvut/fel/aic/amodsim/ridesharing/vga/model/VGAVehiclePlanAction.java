@@ -10,19 +10,20 @@ public class VGAVehiclePlanAction {
     private SimulationNode position;
     VGARequest request;
 
-    VGAVehiclePlanAction(VGARequest request, SimulationNode position, VGAVehiclePlan plan){
+    VGAVehiclePlanAction(VGARequest request, SimulationNode position, VGAVehiclePlan plan) {
         this.request = request;
         this.position = position;
 
-        if(!(this instanceof VGAVehiclePlanRequestDrop)) {
-            time = plan.getCurrentTime() + MathUtils.getTravelTimeProvider().getTravelTime(VehicleGroupAssignmentSolver.getVehicle(), plan.getCurrentPosition(), position) / 1000.0;
-            if(this instanceof VGAVehiclePlanDropoff && plan.getActions().size() == 0) {
-                time += request.getDemandAgent().getRealPickupTime() / 1000.0;
+        if (!(this instanceof VGAVehiclePlanRequestDrop)) {
+            if (plan.getActions().size() == 0) {
+                time = VehicleGroupAssignmentSolver.getTimeProvider().getCurrentSimTime() / 1000.0;
             }
+
+            time += plan.getCurrentTime() + MathUtils.getTravelTimeProvider().getTravelTime(VehicleGroupAssignmentSolver.getVehicle(), plan.getCurrentPosition(), position) / 1000.0;
         }
 
-        if(this instanceof VGAVehiclePlanPickup){
-            if(time < request.getOriginTime()){
+        if (this instanceof VGAVehiclePlanPickup) {
+            if (time < request.getOriginTime()) {
                 time = request.getOriginTime();
             }
         }

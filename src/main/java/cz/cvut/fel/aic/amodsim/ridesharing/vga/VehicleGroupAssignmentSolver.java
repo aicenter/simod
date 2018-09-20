@@ -58,6 +58,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
     public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<OnDemandRequest> requests) {
 
         System.out.println("Current sim time is: " + timeProvider.getCurrentSimTime());
+        System.out.println("No of request being added: " + requests.get(0).getDemandAgent().getSimpleId());
+        System.out.println();
 
         Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new LinkedHashMap<>();
 

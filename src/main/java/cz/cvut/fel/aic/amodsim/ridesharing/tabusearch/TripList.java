@@ -117,7 +117,7 @@ public class TripList{
         System.out.println("Start location out of borders "+counters[0]);
         System.out.println("Too short or too long trip "+counters[1]);
         System.out.println("Same graph element for start and target "+counters[2]);
-        System.out.println("Radius of searched doubled, times "+counters[3]);
+        System.out.println("minDistans  < 50 outside while cycle "+counters[3]);
         System.out.println("Location too far from graph "+farTrips.size());
         System.out.println(Arrays.toString(radiusCounter));
        
@@ -168,7 +168,7 @@ public class TripList{
     
   
     private Object[] getNearestNodeRtree(double[] point, int tripId){
-        double radius = 50;
+        double radius = 25;
         Rectangle bounds = rectangle(point[0] - radius, point[1] - radius, 
                                      point[0] + radius, point[1] + radius);
         
@@ -176,31 +176,33 @@ public class TripList{
         double minDist = Double.MAX_VALUE;
         double[] bestResult = null;
         
+    while(radius <= 25600){    
+        
         Iterator<Entry<SimulationEdge, Geometry>> results = rtree.search(bounds).toBlocking().getIterator();
         while(!results.hasNext()){
-            counters[3]++;
+
             radius *= 2;
             bounds = rectangle(point[0] - radius, point[1] - radius,
                                point[0] + radius, point[1] + radius);
             results = rtree.search(bounds).toBlocking().getIterator();
         }
-        if(radius == 50) radiusCounter[0]++;
-        if(radius == 100) radiusCounter[1]++;
-        if(radius == 200) radiusCounter[2]++;
-        if(radius == 400) radiusCounter[3]++;
-        if(radius == 800) radiusCounter[4]++;
-        if(radius == 1600) radiusCounter[5]++;
-        if(radius == 3200) radiusCounter[6]++;
-        if(radius == 6400) radiusCounter[7]++;
-        if(radius == 12800) radiusCounter[8]++;
-        if(radius == 25600) radiusCounter[9]++;
-        if(radius == 51200) radiusCounter[10]++;
-        
+       
         while(results.hasNext()){
             SimulationEdge edge = results.next().value();
             double[] result =  getNearestPointAndDistance(point, edge);
             double dist = result[1];
             if(dist <= 50){
+                        if(radius == 50) radiusCounter[0]++;
+                        if(radius == 100) radiusCounter[1]++;
+                        if(radius == 200) radiusCounter[2]++;
+                        if(radius == 400) radiusCounter[3]++;
+                        if(radius == 800) radiusCounter[4]++;
+                        if(radius == 1600) radiusCounter[5]++;
+                        if(radius == 3200) radiusCounter[6]++;
+                        if(radius == 6400) radiusCounter[7]++;
+                        if(radius == 12800) radiusCounter[8]++;
+                        if(radius == 25600) radiusCounter[9]++;
+                        if(radius == 25) radiusCounter[10]++;
                 if(result[0] == 0)
                     return new Object[]{edge.fromNode};
                 if(result[0] == 1)
@@ -208,16 +210,20 @@ public class TripList{
                 if(result[0] == 2)
                     return new Object[]{edge, new double[]{result[2], result[3]}};
                 }
-            if(dist<minDist){
+            if(dist < minDist){
                 minDist = dist;
                 bestResult = result;
                 closestOfAll = edge;
             }
         }
+        radius *= 2;
+    }
         if(minDist > 50){
             farTrips.add(tripId);
             //System.out.println("Nearest node at "+minDist+" m from the point");
-        }
+        }else{
+                    counters[3]++;
+            }
         if(bestResult[0] == 0)
             return new Object[]{closestOfAll.fromNode};
         if(bestResult[0] == 1)

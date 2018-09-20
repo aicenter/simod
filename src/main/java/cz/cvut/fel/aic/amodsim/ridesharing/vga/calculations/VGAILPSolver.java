@@ -90,6 +90,7 @@ public class VGAILPSolver {
 
         i = 0;
         for (Map.Entry<VGAVehicle, Set<VGAVehiclePlan>> entry : feasiblePlans.entrySet()) {
+            if (entry.getValue().size() == 0) continue;
             double[] constraint = new double[size];
 
             for(VGAVehiclePlan ignored : entry.getValue()){

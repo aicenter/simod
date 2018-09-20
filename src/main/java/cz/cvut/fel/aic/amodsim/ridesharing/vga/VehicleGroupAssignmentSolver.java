@@ -33,6 +33,9 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
 
     private final AmodsimConfig config;
     private final PositionUtil positionUtil;
+
+    private List<VGARequest> allRequests = new ArrayList<>();
+
     private static TimeProvider timeProvider;
 
     private static VGAVehicle vehicle;
@@ -96,6 +99,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
             rqs.add(VGARequest.newInstance(request.getDemandAgent().getPosition(), request.getTargetLocation(), request.getDemandAgent()));
         }
 
+        allRequests.addAll(rqs);
+
         //A dropoff or a pickup might have happened in the meantime
 
         for (VGAVehicle v : vhs) {
@@ -120,6 +125,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
             for(VGARequest request : v.getRequestsOnBoard()) {
                 if(!transporting.contains(request.getDemandAgent())) {
                     v.removeRequestOnBoard(request);
+                    allRequests.remove(request);
                 }
             }
         }
@@ -138,7 +144,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
                 feasiblePlans.put(vehicle, VGAGroupGenerator.generateGroupsForVehicle(vehicle, rqsForVehicle, rsvhs.size()));
             } else {
                 vhs[rsvhs.size()] = VGAVehicle.newInstance(null);
-                feasiblePlans.put(vhs[rsvhs.size()], VGAGroupGenerator.generateDroppingVehiclePlans(vhs[rsvhs.size()], rqs));
+                feasiblePlans.put(vhs[rsvhs.size()], VGAGroupGenerator.generateDroppingVehiclePlans(vhs[rsvhs.size()], allRequests));
             }
             i++;
         }

@@ -43,8 +43,6 @@ public class AmodsimConfig implements GeneratedConfig {
 
   public Db db;
 
-  public TutmProjectionCentre tutmProjectionCentre;
-
   public Amodsim amodsim;
 
   public Rebalancing rebalancing;
@@ -71,7 +69,6 @@ public class AmodsimConfig implements GeneratedConfig {
     this.tripsFilePath = (String) amodsimConfig.get("trips_file_path");
     this.tripsLimit = (Integer) amodsimConfig.get("trips_limit");
     this.db = new Db((Map) amodsimConfig.get("db"));
-    this.tutmProjectionCentre = new TutmProjectionCentre((Map) amodsimConfig.get("tutm_projection_centre"));
     this.amodsim = new Amodsim((Map) amodsimConfig.get("amodsim"));
     this.rebalancing = new Rebalancing((Map) amodsimConfig.get("rebalancing"));
     return this;

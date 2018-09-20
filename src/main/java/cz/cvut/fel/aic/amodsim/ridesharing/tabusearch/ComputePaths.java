@@ -36,17 +36,21 @@ public class ComputePaths {
 
 
     public void run(String[] args) {
+        //LOGGER.info("ComputePaths.run");
         AmodsimConfig config = new AmodsimConfig();
-        
+       // LOGGER.info("AmodsimConfig ");
         File localConfigFile = null;
         if(args.length > 0){
             localConfigFile = new File(args[0]);
         }
+       // LOGGER.info("Local: "+localConfigFile);
         Injector injector = new AgentPolisInitializer(new MainModule(config, localConfigFile)).initialize();
+       // LOGGER.info("injector ");
         SimulationCreator creator = injector.getInstance(SimulationCreator.class);
+       // LOGGER.info("creator ");
         // prepare map, entity storages...
         creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
-
+      //  LOGGER.info("Prepare simulation ");
 //        List<TimeTrip<Long>> osmNodesList;
         try {
 //            osmNodesList = TripTransform.jsonToTrips(new File(config.amodsim.preprocessedTrips), Long.class);
@@ -54,10 +58,10 @@ public class ComputePaths {
 
             RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
             rebalancingLoader.load(new File(config.rebalancing.policyFilePath));
-            
+          //  LOGGER.info("Rebalancing ");
             
             DARPSolver solver = injector.getInstance(DARPSolver.class);
-            LOGGER.info("Solver class initialized");
+           // LOGGER.info("Solver class initialized"+solver.getClass());
             ((TabuSearchSolver) solver).setStations(rebalancingLoader.getOnDemandVehicleStations());
             solver.solve();
             //  injector.getInstance(EntityInitializer.class).initialize(rebalancingLoader.getOnDemandVehicleStations());

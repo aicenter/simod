@@ -115,16 +115,19 @@ public class TabuSearchSolver extends DARPSolver{
 
    @Override
     public Map<RideSharingOnDemandVehicle, DriverPlan> solve() {
-        List<double[]> result = TabuSearchUtils.edgeDistanceComparison(graph);
-       try(PrintWriter pw = new PrintWriter(
-           new FileOutputStream(new File(config.amodsimDataDir + "/dist_tallin32633.txt")))){
-            result.forEach((r) -> {
-                pw.println(Arrays.toString(r));
-            });
-                      
-       }catch (IOException ex){
-           LOGGER.error(null, ex);          
-       }
+        tripList = new TripList(config, nearestElementUtils, tripsUtil, graph);
+        
+        
+//        List<double[]> result = TabuSearchUtils.edgeDistanceComparison(graph);
+//       try(PrintWriter pw = new PrintWriter(
+//           new FileOutputStream(new File(config.amodsimDataDir + "/dist_tallin32633.txt")))){
+//            result.forEach((r) -> {
+//                pw.println(Arrays.toString(r));
+//            });
+//                      
+//       }catch (IOException ex){
+//           LOGGER.error(null, ex);          
+//       }
  
 //        SpaceMatrix sm = new SpaceMatrix(bbox, step);
 //        sm.add(graph.getAllNodes());

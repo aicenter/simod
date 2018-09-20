@@ -8,6 +8,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.tabusearch;
 import cz.cvut.fel.aic.amodsim.io.TimeValueTrip;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
+import cz.cvut.fel.aic.geographtools.util.GPSLocationTools;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -21,7 +22,8 @@ import org.slf4j.LoggerFactory;
  * @author olga
  */
 public class IO {
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TripTransform.class);
+    final static int SRID = 32633;
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(IO.class);
     
     
     public static List<TimeValueTrip<GPSLocation>> loadTripsFromTxt(File inputFile){
@@ -33,9 +35,9 @@ public class IO {
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(" ");
                 GPSLocation startLocation
-                       = new GPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, 0);
+                       = GPSLocationTools.createGPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, SRID);
                 GPSLocation targetLocation
-                       = new GPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, 0);
+                       = GPSLocationTools.createGPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, SRID);
                 
                 if(startLocation.equals(targetLocation)){
                    sameStartAndTargetInDataCount++;
@@ -51,10 +53,8 @@ public class IO {
         
         StringBuilder sb = new StringBuilder();
         sb.append("Total number of demands: ").append(tripCount).append("\n");
-        sb.append("Same start and target location: ").append(sameStartAndTargetInDataCount).append("\n");
         System.out.println(sb.toString());
         LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);
-      
         return gpsTrips; 
     }
         

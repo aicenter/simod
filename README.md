@@ -33,9 +33,9 @@ policy.json
 
 To /amod-data/maps go files with road graph:
 
-edges.json
+edges.geojson
 
-nodes.json
+nodes.geojson
 
 Last subfolder is used by amodsim to save simulation results. 
 

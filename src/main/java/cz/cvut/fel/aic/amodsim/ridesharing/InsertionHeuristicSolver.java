@@ -53,7 +53,8 @@ public class InsertionHeuristicSolver extends DARPSolver{
 	private long canServeRequestCallCount = 0;
 	
 	private long vehiclePlanningAllCallCount = 0;
-	
+	double[] bbox = {59, 60, 24, 25}; 
+    private int outOfBox = 0;
 
 	
 	
@@ -83,6 +84,16 @@ public class InsertionHeuristicSolver extends DARPSolver{
             DriverPlan bestPlan = null;
             RideSharingOnDemandVehicle servingVehicle = null;
             OnDemandRequest request = requests.get(0);
+            
+            // in dataset for tallin there are trips that starts far outside city boundaries
+            // we don't want to check the rest (it will just mess everything: asigned node in tallin graph will be
+            // far away from real location)
+            if(request.getPosition().getLatitude() < bbox[0] || request.getPosition().getLatitude() > bbox[1] 
+                 || request.getPosition().getLongitude() < bbox[2] || request.getPosition().getLongitude() > bbox[3]){
+                    outOfBox++;
+                    System.out.println("Start node is outside the city");
+                    return planMap;
+        }
 		
             long iterationStartTime = System.nanoTime();
 		
@@ -138,7 +149,8 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		sb.append("Can serve call count: ").append(canServeRequestCallCount).append("\n");
 		sb.append("Vehicle planning call count: ").append(vehiclePlanningAllCallCount).append("\n");
 		sb.append("Traveltime call count: ").append(((EuclideanTravelTimeProvider) travelTimeProvider).getCallCount()).append("\n");
-		System.out.println(sb.toString());
+		sb.append("Filtered by bounding box: ").append(outOfBox);
+        System.out.println(sb.toString());
             }
             return planMap;
 	}

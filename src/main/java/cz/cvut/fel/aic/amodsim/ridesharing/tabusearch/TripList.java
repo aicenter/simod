@@ -15,7 +15,9 @@ import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.io.TimeValueTrip;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
+import cz.cvut.fel.aic.geographtools.GraphBuilder;
 import cz.cvut.fel.aic.geographtools.Node;
+import cz.cvut.fel.aic.geographtools.util.GPSLocationTools;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -35,9 +37,10 @@ import com.github.davidmoten.rtree.geometry.Circle;
 import static com.github.davidmoten.rtree.geometry.Geometries.*;
 import com.github.davidmoten.rtree.geometry.Geometry;
 import com.github.davidmoten.rtree.geometry.Line;
+import com.github.davidmoten.rtree.geometry.Point;
 import com.github.davidmoten.rtree.geometry.Rectangle;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.EdgeShape;
 
-import static  cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.SearchNode.createNode;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -53,12 +56,13 @@ import java.util.stream.Collectors;
  */
 public class TripList{
     private boolean DBG = true;
+    private final static int SRID = 32633;
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TripList.class);
         
     private final AmodsimConfig config;
     private  NearestElementUtils nearestElementUtils;
     private final TripsUtil tripsUtil;
-    private final Graph<SimulationNode,SimulationEdge> graph;
+    final Graph<SimulationNode,SimulationEdge> graph;
     private final int numOfTrips;
     private final int numOfDepos;
     
@@ -69,15 +73,19 @@ public class TripList{
     Map<Integer, SearchNode> searchNodes;
     private RTree<SimulationEdge, Geometry> rtree;
     
-    Set<Integer> farTrips;
+    Set<Integer> foundByRtree;
+    Set<Integer> foundByBFOnly;
+    Set<Integer> notFoundByBF;
+    
     int[] counters = new int[]{0,0,0,0};
-    
-    int[] radiusCounter = new int[]{0,0,0,0,0,0,0,0,0,0,0};
-    
+        
     List<OnDemandVehicleStation> depos;
     Map<Integer, List<Integer>> filteredTrips;
     
-    
+    int dummyNodeId;
+    int dummyEdgeId;
+    GraphBuilder<SimulationNode, SimulationEdge> graphBuilder; 
+    Graph<SimulationNode, SimulationEdge> dummyGraph;
     /**
      * Converts list of TimeValueTrip to TSTrip (class used for search).
      * 
@@ -107,21 +115,56 @@ public class TripList{
         times = new int[numOfTrips];
         values = new double[numOfTrips];
       
-        farTrips = new HashSet<>();
+        foundByRtree = new HashSet<>();
+        foundByBFOnly = new HashSet<>();
+        notFoundByBF = new HashSet<>();
+        graphBuilder = new GraphBuilder<>();//graphBuilder.createGraph();
         //make small sample of the list
-        //  sourceList.removeIf(trip -> trip.id % 10000 != 0);
+        //  sourceList.removeIf(trip -> trip.i % 10000 != 0);
         for(TimeValueTrip<GPSLocation> trip : ProgressBar.wrap(sourceList, "Process GPS trip: ")) {
                 gpsTripToSearchNode(trip);
         }
+        //destroy rtree, we don't need it any longer;
         rtree = null;
-        System.out.println("Start location out of borders "+counters[0]);
-        System.out.println("Too short or too long trip "+counters[1]);
-        System.out.println("Same graph element for start and target "+counters[2]);
-        System.out.println("minDistans  < 50 outside while cycle "+counters[3]);
-        System.out.println("Location too far from graph "+farTrips.size());
-        System.out.println(Arrays.toString(radiusCounter));
-       
-   }
+        
+        // graph with dummy nodes, representing points on the  edge of the road graph,
+        // which are origin or target points for trips
+        // with dummy edges connecting them to the nodes of the graph incident to that edge;
+        dummyGraph = graphBuilder.createGraph();
+        dummyNodeId = -1;
+        dummyEdgeId = -1;
+        
+      //  System.out.println("Start location out of borders "+counters[0]);
+      //  System.out.println("Too short or too long trip "+counters[1]);
+    //    System.out.println("Same graph element for start and target "+counters[2]);
+        //System.out.println("minDistans  < 50 outside while cycle "+counters[3]);
+        System.out.println("Trips with edge of point found by rtree "+foundByRtree.size());
+        System.out.println("Trips with edge found by BF only "+foundByBFOnly.size());
+        System.out.println("Trips with edge not found at all "+notFoundByBF.size());
+        
+        System.out.println("Points assigned by rtree "+counters[0]);
+        System.out.println("Points assigned by BF "+counters[1]);
+        System.out.println("Ponts not assigned "+counters[2]);
+        
+    //    System.out.println(Arrays.toString(radiusCounter));
+        try(PrintWriter pw = new PrintWriter(
+            new FileOutputStream(new File(config.amodsimDataDir + "/notFoundByRtree_eesti.txt")))){
+                foundByBFOnly.forEach((t) -> {
+                    pw.println(t);
+                });
+                      
+        }catch (IOException ex){
+            LOGGER.error(null, ex);          
+        }
+        try(PrintWriter pw = new PrintWriter(
+            new FileOutputStream(new File(config.amodsimDataDir + "/notFoundByBF_eesti.txt")))){
+                notFoundByBF.forEach((t) -> {
+                    pw.println(t);
+                });
+        }catch (IOException ex){
+            LOGGER.error(null, ex);          
+        }
+    }
 
     
     private void gpsTripToSearchNode(TimeValueTrip<GPSLocation> trip) {
@@ -133,7 +176,7 @@ public class TripList{
         
         //check if it's in the city or at least somewhere near
         if(lat1 < bbox[0] || lat1 > bbox[1] || lon1 < bbox[2] || lon1 > bbox[3]){
-            counters[0]++;
+            //counters[0]++;
             return;
         }
         double[] fromProj = new double[]{startLocation.getLongitudeProjected(),
@@ -145,42 +188,32 @@ public class TripList{
         //System.out.println(Arrays.toString(toProj));
         // the length of the trip is less than pickup radius
         if(dist0 < 50 || dist0 > 26000){
-            counters[1]++;
+            //counters[1]++;
             return;
         }
-         Object[] startNode = getNearestNodeRtree(fromProj, trip.id);
-         Object[] targetNode = getNearestNodeRtree(toProj, trip.id);
-         if(startNode == targetNode){
-             counters[2]++;
-         }
-         if(startNode == null || targetNode == null){
-             
+        SimulationNode startNode = getNearestNodeRtree(fromProj, trip.id);
+        SimulationNode targetNode = getNearestNodeRtree(toProj, trip.id);
+        if(startNode == targetNode){
+             //counters[2]++;
              return;
          }
-        //finally adding the node to the list
+         if(startNode == null || targetNode == null){
+            return;
+         }
+        //finally adding the vi to the list
         times[trip.id] = (int) trip.getStartTime();
         values[trip.id] = trip.getRideValue();
-        searchNodes.put(trip.id, createNode(trip.id, startNode, 
-            trip.getStartTime()));
-        searchNodes.put(trip.id+numOfTrips, createNode(trip.id,targetNode,
-            trip.getStartTime()+1800000));
+        searchNodes.put(trip.id, new SearchNode(trip.id, startNode));
     }
     
   
-    private Object[] getNearestNodeRtree(double[] point, int tripId){
-        double radius = 25;
+    private SimulationNode getNearestNodeRtree(double[] point, int tripId){
+        double radius = 50;
         Rectangle bounds = rectangle(point[0] - radius, point[1] - radius, 
                                      point[0] + radius, point[1] + radius);
         
-        SimulationEdge closestOfAll = null;
-        double minDist = Double.MAX_VALUE;
-        double[] bestResult = null;
-        
-    while(radius <= 25600){    
-        
         Iterator<Entry<SimulationEdge, Geometry>> results = rtree.search(bounds).toBlocking().getIterator();
         while(!results.hasNext()){
-
             radius *= 2;
             bounds = rectangle(point[0] - radius, point[1] - radius,
                                point[0] + radius, point[1] + radius);
@@ -189,50 +222,37 @@ public class TripList{
        
         while(results.hasNext()){
             SimulationEdge edge = results.next().value();
-            double[] result =  getNearestPointAndDistance(point, edge);
-            double dist = result[1];
-            if(dist <= 50){
-                        if(radius == 50) radiusCounter[0]++;
-                        if(radius == 100) radiusCounter[1]++;
-                        if(radius == 200) radiusCounter[2]++;
-                        if(radius == 400) radiusCounter[3]++;
-                        if(radius == 800) radiusCounter[4]++;
-                        if(radius == 1600) radiusCounter[5]++;
-                        if(radius == 3200) radiusCounter[6]++;
-                        if(radius == 6400) radiusCounter[7]++;
-                        if(radius == 12800) radiusCounter[8]++;
-                        if(radius == 25600) radiusCounter[9]++;
-                        if(radius == 25) radiusCounter[10]++;
-                if(result[0] == 0)
-                    return new Object[]{edge.fromNode};
-                if(result[0] == 1)
-                    return new Object[]{edge.toNode};
-                if(result[0] == 2)
-                    return new Object[]{edge, new double[]{result[2], result[3]}};
-                }
-            if(dist < minDist){
-                minDist = dist;
-                bestResult = result;
-                closestOfAll = edge;
+            SimulationNode node =  getNearestNode(point, edge);
+            if(node != null){
+                counters[0]++;
+                foundByRtree.add(tripId);
+                return node;
             }
         }
-        radius *= 2;
-    }
-        if(minDist > 50){
-            farTrips.add(tripId);
-            //System.out.println("Nearest node at "+minDist+" m from the point");
+        SimulationNode node = bruteForceSearch(point);
+        if(node != null){
+            counters[1]++;
+            foundByBFOnly.add(tripId);
+            return node;
         }else{
-                    counters[3]++;
+            counters[2]++;
+            notFoundByBF.add(tripId);
+            return null;
+        }
+    }
+  
+    
+    private SimulationNode bruteForceSearch(double[] point){
+        for(SimulationEdge edge : graph.getAllEdges()){
+            SimulationNode node = getNearestNode(point, edge);
+            if(node != null){
+                return node;
             }
-        if(bestResult[0] == 0)
-            return new Object[]{closestOfAll.fromNode};
-        if(bestResult[0] == 1)
-            return new Object[]{closestOfAll.toNode};
-        else
-            return new Object[]{closestOfAll, new double[]{bestResult[2], bestResult[3]}};
+        }
+        return null;
     }
    
-    private double[] getNearestPointAndDistance(double[] locProjected, SimulationEdge edge){
+    private SimulationNode getNearestNode(double[] locProjected, SimulationEdge edge){
         double[] fromProjected = new double[]{edge.fromNode.getLongitudeProjected(),
                                               edge.fromNode.getLatitudeProjected()};
 
@@ -241,21 +261,65 @@ public class TripList{
         
         double[] v = {toProjected[0] - fromProjected[0], toProjected[1] - fromProjected[1]};
         double[] w = {locProjected[0] - fromProjected[0], locProjected[1] - fromProjected[1]};
-
+        
         double c1 = v[0]*w[0]+v[1]*w[1];
+        //fromNode is the nearest point
         if (c1 <= 0 ){
             double dist = DistUtils.getDistProjected(locProjected, fromProjected);
-            return new double[]{0 ,dist};
+            if(dist <= 50){
+                return edge.fromNode;
+            }else{
+                return null;
+            }
         }
         double c2 = v[0]*v[0]+v[1]*v[1];
+        // toNode is the nearest point
         if ( c2 <= c1 ){
             double dist = DistUtils.getDistProjected(locProjected, toProjected);
-             return new double[]{1 ,dist};
+            if(dist <= 50){
+                return  edge.toNode;
+            }else{
+                return null;
+            }
         }
+        //nearest point is somewhere on the edge
         double b = c1 / c2;
         double[] point = {fromProjected[0] + b * v[0], fromProjected[1] + b * v[1]};
+
         double dist = DistUtils.getDistProjected(locProjected, point);
-        return new double[]{1 ,dist, point[0], point[1]};
+        if(dist <= 50){
+            
+            // lengths of two segments, from the nodes to the point on the edge
+            int fromLength = (int) Math.round(DistUtils.getDistProjected(fromProjected, point));
+            int toLength = (int) Math.round(DistUtils.getDistProjected(toProjected, point));
+            
+            //bunch of objects for secondary graph
+            GPSLocation newLocation = GPSLocationTools.createGPSLocationFromProjected(
+                (int) Math.round(point[1] * 1E2),(int) Math.round(point[0] * 1E2), 0, SRID);
+        
+            SimulationNode dummyNode = new SimulationNode(dummyNodeId, 0,  newLocation); 
+            GPSLocation fromLocation = new GPSLocation(edge.fromNode.getLatitude(), edge.fromNode.getLongitude(),
+                                                        (int) Math.round(edge.fromNode.getLatitudeProjected() * 1E2),
+                                                        (int) Math.round(edge.fromNode.getLongitudeProjected() * 1E2), 0);
+            SimulationNode dummyFrom = new SimulationNode(-edge.fromNode.id, 0, fromLocation);
+            GPSLocation toLocation = new GPSLocation(edge.toNode.getLatitude(), edge.toNode.getLongitude(),
+                                                        (int) Math.round(edge.toNode.getLatitudeProjected() * 1E2),
+                                                        (int) Math.round(edge.toNode.getLongitudeProjected() * 1E2), 0);
+            SimulationNode dummyTo = new SimulationNode(-edge.toNode.id, 0, toLocation);
+            SimulationEdge dummyFromEdge = new SimulationEdge(dummyNode, dummyFrom, 0, 0, 0, fromLength, 50, 1, 
+                                                              new EdgeShape(Arrays.asList(dummyNode, dummyFrom)));
+            SimulationEdge dummyToEdge = new SimulationEdge(dummyNode, dummyTo, 0, 0, 0, toLength, 50, 1, 
+                                                              new EdgeShape(Arrays.asList(dummyNode, dummyTo)));
+            graphBuilder.addNode(dummyNode);
+            graphBuilder.addNode(dummyFrom);
+            graphBuilder.addNode(dummyTo);
+            graphBuilder.addEdge(dummyFromEdge);
+            graphBuilder.addEdge(dummyToEdge);
+            dummyNodeId--;
+            return  dummyNode;
+            }else{
+                return null;
+         }
     }
 
     private RTree<SimulationEdge, Geometry> buildRtree(){
@@ -290,6 +354,33 @@ public class TripList{
 //        System.out.println("Distance x = "+xdist+"m, y = "+ydist+"m");
         return tree;
     }
+    
+    public RTree<Integer, Geometry> buildRtree(char type){
+        RTree<Integer, Geometry> tree = RTree.star().create();
+        if(type == 'n'){
+            for(Integer tripId: searchNodes.keySet()){
+                SearchNode searchNode = searchNodes.get(tripId);
+                int simNodeId = searchNode.vi;
+                SimulationNode simNode;
+                if(simNodeId >= 0){
+                    simNode = graph.getNode(simNodeId);
+                }else{
+                    simNode = dummyGraph.getNode(simNodeId);
+                }
+                Point point = point(simNode.getLongitudeProjected(),simNode.getLatitudeProjected());
+                tree = tree.add(tripId, point);
+            }
+        } else if (type == 'd'){
+            int depoId = 0;
+            for(OnDemandVehicleStation depo: depos){
+                SimulationNode node = depo.getPosition();
+                Point p = point(node.getLongitudeProjected(), node.getLatitudeProjected());
+                tree = tree.add(depoId, p);
+                depoId++;
+            }
+        }
+        return tree;
+    }
        
     public int getNumOfTrips() {
         return numOfTrips;
@@ -304,7 +395,7 @@ public class TripList{
             LOGGER.error("Depo list length differs from numOfDepos");
             return;
         }
-        this.depos = depos;
+       this.depos = depos;
         LOGGER.info("{} depos added", this.depos.size());
     }
      
@@ -323,36 +414,6 @@ public class TripList{
         String tripsPath = config.amodsim.tripsPath;
         List<TimeValueTrip<GPSLocation>> gpsTrips = IO.loadTripsFromTxt(new File(tripsPath));
         return gpsTrips;
-    }
-    public Iterator<SimulationNode> getShortesPath(int startId, int targetId){
-        LinkedList<SimulationNode> path = tripsUtil.createTrip(startId, targetId).getLocations();
-        return  path.iterator();
-    }
-    
-    public int getShortesPathDist(int startId, int targetId){
-        int dist = 0;
-        Iterator<SimulationNode> nodeIterator = getShortesPath(startId, targetId);
-        Node fromNode = nodeIterator.next();
-        while (nodeIterator.hasNext()) {
-            Node toNode = nodeIterator.next();
-            dist += graph.getEdge(fromNode, toNode).length;
-            fromNode = toNode;
-        }
-        return dist;
-    }
-        
-    private int getShortesPathDist(SimulationNode start, SimulationNode target){
-        LinkedList<SimulationNode> path = tripsUtil.createTrip(start.id, target.id).getLocations();
-        int dist = 0;
-        Iterator<SimulationNode> nodeIterator = path.iterator();
-        Node fromNode = nodeIterator.next();
-        while (nodeIterator.hasNext()) {
-            Node toNode = nodeIterator.next();
-            SimulationEdge edge = graph.getEdge(fromNode, toNode);
-            dist += edge.length;
-            fromNode = toNode;
-        }
-        return dist;
     }
        
     /**

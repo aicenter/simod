@@ -77,8 +77,8 @@ public class VGAGroupGenerator {
 
         Set<VGAVehiclePlan> toRemove = new LinkedHashSet<>();
         for (VGAVehiclePlan plan : groups) {
-            if(!plan.getRequests().containsAll(VGAVehicle.getVGAVehicleByRidesharingOnDemandVehicle(plan.getVehicle()).getPromisedRequests()) ||
-                    !plan.getRequests().containsAll(VGAVehicle.getVGAVehicleByRidesharingOnDemandVehicle(plan.getVehicle()).getRequestsOnBoard())) {
+            if(!plan.getRequests().containsAll( VGAVehicle.getVGAVehicleByRidesharingOnDemandVehicle(plan.getVehicle()).getPromisedRequests() ) ||
+               !plan.getRequests().containsAll( VGAVehicle.getVGAVehicleByRidesharingOnDemandVehicle(plan.getVehicle()).getRequestsOnBoard() )) {
                 toRemove.add(plan);
             }
         }
@@ -145,9 +145,5 @@ public class VGAGroupGenerator {
 
         return bestPlan;
     }
-
-    /*private static boolean optimalVehiclePathSPPwRC() {
-        return false;
-    }*/
 
 }

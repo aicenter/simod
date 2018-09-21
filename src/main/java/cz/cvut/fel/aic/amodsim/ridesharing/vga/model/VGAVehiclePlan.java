@@ -50,13 +50,14 @@ public class VGAVehiclePlan {
             pickupTimes.put(action.getRequest(), action.getTime());
         } else if (action instanceof VGAVehiclePlanDropoff) {
             discomfort += getCurrentTime() - action.getRequest().getOriginTime() -
-                    MathUtils.getTravelTimeProvider().getTravelTime(vehicle, action.getRequest().getOriginSimulationNode(), action.getRequest().getDestinationSimulationNode()) / 1000.0;
+                    MathUtils.getTravelTimeProvider().getTravelTime(vehicle,
+                        action.getRequest().getOriginSimulationNode(), action.getRequest().getDestinationSimulationNode() ) / 1000.0;
             activeRequests.remove(action.getRequest());
             pickupTimes.remove(action.getRequest());
         }
     }
 
-    public SimulationNode getCurrentPosition(){
+    SimulationNode getCurrentPosition(){
         if(actions.size() == 0){
             return vehicle.getPosition();
         }
@@ -72,16 +73,6 @@ public class VGAVehiclePlan {
         }
 
         return actions.get(actions.size() - 1).getTime();
-    }
-
-    public double getDropoffTimeSum() {
-        double out = 0;
-        for(VGAVehiclePlanAction action : actions) {
-            if(action instanceof VGAVehiclePlanDropoff){
-                out += action.getTime();
-            }
-        }
-        return out;
     }
 
     public double calculateCost() {
@@ -123,15 +114,15 @@ public class VGAVehiclePlan {
         }
     }
 
-    public RideSharingOnDemandVehicle getVehicle() { return vehicle; }
-
-    public Set<VGARequest> getRequests() { return requests; }
-
-    public Set<VGARequest> getWaitingRequests() { return waitingRequests; }
-
-    public Set<VGARequest> getActiveRequests() { return activeRequests; }
-
-    public List<VGAVehiclePlanAction> getActions() { return actions; }
+    private double getDropoffTimeSum() {
+        double sum = 0;
+        for(VGAVehiclePlanAction action : actions) {
+            if(action instanceof VGAVehiclePlanDropoff){
+                sum += action.getTime();
+            }
+        }
+        return sum;
+    }
 
     @Override
     public String toString() {
@@ -155,6 +146,16 @@ public class VGAVehiclePlan {
     public int hashCode() {
         return toString().hashCode();
     }
+
+    public RideSharingOnDemandVehicle getVehicle() { return vehicle; }
+
+    public Set<VGARequest> getRequests() { return requests; }
+
+    public Set<VGARequest> getWaitingRequests() { return waitingRequests; }
+
+    public Set<VGARequest> getActiveRequests() { return activeRequests; }
+
+    public List<VGAVehiclePlanAction> getActions() { return actions; }
 
     public static VGAVehiclePlan.CostType getCostType() { return costType; }
 

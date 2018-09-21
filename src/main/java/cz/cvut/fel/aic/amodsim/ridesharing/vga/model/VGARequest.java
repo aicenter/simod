@@ -10,10 +10,8 @@ import java.util.Map;
 
 public class VGARequest {
 
-    private static long currentId = 0;
     private static Map<DemandAgent, VGARequest> requests = new LinkedHashMap<>();
 
-    private long id;
     private double originTime;
     private VGANode origin;
     private VGANode destination;
@@ -29,19 +27,16 @@ public class VGARequest {
         VGANode o = VGANode.newInstance(new TimeWindow(originTime, originTime + delta), origin);
         VGANode d = VGANode.newInstance(new TimeWindow(originTime + idealTime, originTime + idealTime + delta), destination);
 
-        return new VGARequest(currentId++, o, d, demandAgent);
+        return new VGARequest(o, d, demandAgent);
     }
 
-    private VGARequest(long id, VGANode origin, VGANode destination, DemandAgent demandAgent){
-        this.id = id;
+    private VGARequest(VGANode origin, VGANode destination, DemandAgent demandAgent){
         this.origin = origin;
         this.originTime = demandAgent.getDemandTime() / 1000.0;
         this.destination = destination;
         this.demandAgent = demandAgent;
         requests.put(demandAgent, this);
     }
-
-    public long getId() { return id; }
 
     public double getOriginTime() { return originTime; }
 
@@ -55,10 +50,6 @@ public class VGARequest {
 
     public SimulationNode getDestinationSimulationNode() { return destination.getSimulationNode(); }
 
-    public static void resetIds() {
-        currentId = 0;
-    }
-
     public static VGARequest getRequestByDemandAgentSimpleId (DemandAgent agent) { return requests.get(agent); }
 
     @Override
@@ -71,4 +62,5 @@ public class VGARequest {
     public int hashCode() {
         return demandAgent.hashCode();
     }
+
 }

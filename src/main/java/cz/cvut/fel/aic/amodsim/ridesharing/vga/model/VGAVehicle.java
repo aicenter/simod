@@ -7,24 +7,20 @@ import java.util.*;
 
 public class VGAVehicle {
 
-    private static int CURRENT_ID = 0;
     private static Map<OnDemandVehicle, VGAVehicle> agentpolisVehicleToVGA = new LinkedHashMap<>();
 
-    private int id;
     private RideSharingOnDemandVehicle v;
     private Set<VGARequest> promisedRequests;
     private Set<VGARequest> requestsOnBoard;
 
     private VGAVehicle(RideSharingOnDemandVehicle v) {
         this.v = v;
-        this.id = CURRENT_ID++;
         promisedRequests = new LinkedHashSet<>();
         requestsOnBoard = new LinkedHashSet<>();
         agentpolisVehicleToVGA.put(v, this);
     }
 
-    public static void resetIds() {
-        CURRENT_ID = 0;
+    public static void resetMapping() {
         agentpolisVehicleToVGA = new LinkedHashMap<>();
     }
 
@@ -35,8 +31,6 @@ public class VGAVehicle {
     public static VGAVehicle getVGAVehicleByRidesharingOnDemandVehicle( OnDemandVehicle v) {
         return agentpolisVehicleToVGA.get(v);
     }
-
-    public int getId() { return id; }
 
     public RideSharingOnDemandVehicle getRidesharingVehicle() { return v; }
 

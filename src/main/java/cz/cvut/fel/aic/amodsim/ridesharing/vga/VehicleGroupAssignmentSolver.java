@@ -3,24 +3,16 @@ package cz.cvut.fel.aic.amodsim.ridesharing.vga;
 import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
-import cz.cvut.fel.aic.alite.common.event.Event;
-import cz.cvut.fel.aic.alite.common.event.EventHandler;
-import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
-import cz.cvut.fel.aic.amodsim.entity.vehicle.Demand;
 import cz.cvut.fel.aic.amodsim.ridesharing.*;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.VGAGroupGenerator;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.VGAILPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
-import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEvent;
-import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEventContent;
-import cz.cvut.fel.aic.amodsim.statistics.PickupEventContent;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 
 import java.util.*;
@@ -60,8 +52,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
     @Override
     public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<OnDemandRequest> requests) {
 
-        System.out.println("Current sim time is: " + timeProvider.getCurrentSimTime());
-        System.out.println("No of request being added: " + requests.get(0).getDemandAgent().getSimpleId());
+        System.out.println("Current sim time is: " + timeProvider.getCurrentSimTime() / 1000.0);
+        System.out.println("No. of request being added: " + requests.get(0).getDemandAgent().getSimpleId());
         System.out.println();
 
         Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new LinkedHashMap<>();
@@ -69,41 +61,41 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
         //Filtering the vehicles, which are either on the same spot (in the station) or rebalancing
 
         AgentPolisEntity vehicles[] = vehicleStorage.getEntitiesForIteration();
-        List<RideSharingOnDemandVehicle> rsvhs = new ArrayList<>();
+        List<RideSharingOnDemandVehicle> rsodVehicles = new ArrayList<>();
         for (AgentPolisEntity e : vehicles) {
             boolean add = true;
-            for (RideSharingOnDemandVehicle v : rsvhs) {
+            for (RideSharingOnDemandVehicle v : rsodVehicles) {
                 if (e.getPosition() == v.getPosition()) {
                     add = false;
                     break;
                 }
             }
             if (add && ((RideSharingOnDemandVehicle) e).getState() != OnDemandVehicleState.REBALANCING) {
-                rsvhs.add((RideSharingOnDemandVehicle) e);
+                rsodVehicles.add((RideSharingOnDemandVehicle) e);
             }
         }
 
         //Converting vehicles
 
         int i = 0;
-        VGAVehicle vhs[] = new VGAVehicle[rsvhs.size() + 1];
-        for (RideSharingOnDemandVehicle v : rsvhs) {
-            vhs[i++] = VGAVehicle.newInstance(v);
+        VGAVehicle vgaVehicles[] = new VGAVehicle[rsodVehicles.size() + 1];
+        for (RideSharingOnDemandVehicle v : rsodVehicles) {
+            vgaVehicles[i++] = VGAVehicle.newInstance(v);
         }
-        vehicle = vhs[0] ;
+        vehicle = vgaVehicles[0] ;
 
         //Converting requests
 
-        List<VGARequest> rqs = new ArrayList<>();
+        List<VGARequest> vgaRequests = new ArrayList<>();
         for (OnDemandRequest request : requests) {
-            rqs.add(VGARequest.newInstance(request.getDemandAgent().getPosition(), request.getTargetLocation(), request.getDemandAgent()));
+            vgaRequests.add(VGARequest.newInstance(request.getDemandAgent().getPosition(), request.getTargetLocation(), request.getDemandAgent()));
         }
 
-        allRequests.addAll(rqs);
+        allRequests.addAll(vgaRequests);
 
-        //A dropoff or a pickup might have happened in the meantime
+        //A drop-off or a pickup might have happened in the meantime
 
-        for (VGAVehicle v : vhs) {
+        for (VGAVehicle v : vgaVehicles) {
             if(v == null) continue;
 
             VGAVehiclePlan plan = currentPlans.get(v.getRidesharingVehicle());
@@ -135,16 +127,16 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
         Map<VGAVehicle, Set<VGAVehiclePlan>> feasiblePlans = new LinkedHashMap<>();
 
         i = 0;
-        for (VGAVehicle vehicle : vhs) {
-             if (i != rsvhs.size()) {
-                List<VGARequest> rqsForVehicle = new ArrayList<>(rqs);
+        for (VGAVehicle vehicle : vgaVehicles) {
+             if (i != rsodVehicles.size()) {
+                List<VGARequest> rqsForVehicle = new ArrayList<>(vgaRequests);
                 rqsForVehicle.addAll(vehicle.getPromisedRequests());
                 rqsForVehicle.addAll(vehicle.getRequestsOnBoard());
 
-                feasiblePlans.put(vehicle, VGAGroupGenerator.generateGroupsForVehicle(vehicle, rqsForVehicle, rsvhs.size()));
+                feasiblePlans.put(vehicle, VGAGroupGenerator.generateGroupsForVehicle(vehicle, rqsForVehicle, rsodVehicles.size()));
             } else {
-                vhs[rsvhs.size()] = VGAVehicle.newInstance(null);
-                feasiblePlans.put(vhs[rsvhs.size()], VGAGroupGenerator.generateDroppingVehiclePlans(vhs[rsvhs.size()], allRequests));
+                vgaVehicles[rsodVehicles.size()] = VGAVehicle.newInstance(null);
+                feasiblePlans.put(vgaVehicles[rsodVehicles.size()], VGAGroupGenerator.generateDroppingVehiclePlans(vgaVehicles[rsodVehicles.size()], allRequests));
             }
             i++;
         }
@@ -153,11 +145,11 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
 
         //Using an ILP solver to optimally assign a group to each vehicle
 
-        Map<VGAVehicle, VGAVehiclePlan> optimalPlans = VGAILPSolver.assignOptimallyFeasiblePlans(feasiblePlans, rqs);
-        Set<VGAVehicle> toRemove = new LinkedHashSet<>();
+        Map<VGAVehicle, VGAVehiclePlan> optimalPlans = VGAILPSolver.assignOptimallyFeasiblePlans(feasiblePlans, vgaRequests);
 
         //Removing the unnecessary empty plans
 
+        Set<VGAVehicle> toRemove = new LinkedHashSet<>();
         for (Map.Entry<VGAVehicle, VGAVehiclePlan> entry : optimalPlans.entrySet()) {
             if(entry.getValue().getActions().size() == 0) {
                 toRemove.add(entry.getKey());
@@ -177,8 +169,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
             }
         }
 
-        VGAVehicle.resetIds();
-        VGARequest.resetIds();
+        VGAVehicle.resetMapping();
         return planMap;
     }
 

@@ -4,13 +4,13 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 
 public class VGANode {
 
-    protected static int currentId = 0;
+    private static int currentId = 0;
 
     private int id;
     private SimulationNode node;
     private TimeWindow window;
 
-    public VGANode(int id, TimeWindow window, SimulationNode node) {
+    private VGANode(int id, TimeWindow window, SimulationNode node) {
         this.id = id;
         this.node = node;
         this.window = window;

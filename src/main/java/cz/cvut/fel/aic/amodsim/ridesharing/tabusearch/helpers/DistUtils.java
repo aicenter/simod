@@ -144,9 +144,8 @@ public class DistUtils {
         double x = targetProjected[0] - startProjected[0];
         double y = targetProjected[1] - startProjected[1];
         return FastMath.sqrt(x*x + y*y);
-        
     }
-    
+     
     public static double getEquirectangularDist(GPSLocation start, GPSLocation target){
         double R = 6371000; 
         double avgLat = (start.getLatitude() + target.getLatitude())/2;

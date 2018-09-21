@@ -64,7 +64,7 @@ public class VGAILPSolver {
             }
         }
 
-        //CLP and Google OR Tools initializing variables and the objective function
+        //Initializing variables and the objective function
 
         MPSolver solver = new MPSolver("solver", MPSolver.OptimizationProblemType.BOP_INTEGER_PROGRAMMING);
         MPVariable[] mpVariables = new MPVariable[size];
@@ -99,6 +99,9 @@ public class VGAILPSolver {
         }
 
         //Each request needs to be assigned to exactly one vehicle
+        //Only one constraint for the one new request is generated,
+        // all of the ones before are already assigned to some vehicle,
+        //which means that they will not show up in other vehicles' plans.
 
         for (VGARequest request : requests) {
             i = 0;
@@ -117,6 +120,7 @@ public class VGAILPSolver {
             for (int k = 0; k < size; k++) {
                 constraint1.setCoefficient(mpVariables[k], constraint[k]);
             }
+            System.out.println();
         }
 
         System.out.println("Solving ILP...");
@@ -125,7 +129,6 @@ public class VGAILPSolver {
 
         //Solving with Google OR
 
-        System.out.println("CLP was not able to produce a binary solution, Google OR tools, will find one.");
         objective.setMinimization();
 
         solver.setTimeLimit(10000);

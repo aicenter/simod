@@ -23,23 +23,23 @@ public class VGAVehiclePlan {
     private List<VGAVehiclePlanAction> actions;
 
     public VGAVehiclePlan(RideSharingOnDemandVehicle v, Set<VGARequest> requests){
-        this.discomfort = 0;
         this.vehicle = v;
+        this.discomfort = 0;
+        this.actions = new ArrayList<>();
+        this.pickupTimes = new HashMap<>();
+        this.activeRequests = new LinkedHashSet<>();
         this.requests = new LinkedHashSet<>(requests);
         this.waitingRequests = new LinkedHashSet<>(requests);
-        actions = new ArrayList<>();
-        pickupTimes = new HashMap<>();
-        activeRequests = new LinkedHashSet<>();
     }
 
     public VGAVehiclePlan(VGAVehiclePlan vehiclePlan){
-        this.discomfort = vehiclePlan.discomfort;
         this.vehicle = vehiclePlan.vehicle;
+        this.discomfort = vehiclePlan.discomfort;
+        this.actions = new ArrayList<>(vehiclePlan.actions);
         this.requests = new LinkedHashSet<>(vehiclePlan.requests);
+        this.pickupTimes = new HashMap<>(vehiclePlan.pickupTimes);
+        this.activeRequests = new LinkedHashSet<>(vehiclePlan.activeRequests);
         this.waitingRequests = new LinkedHashSet<>(vehiclePlan.waitingRequests);
-        actions = new ArrayList<>(vehiclePlan.actions);
-        pickupTimes = new HashMap<>(vehiclePlan.pickupTimes);
-        activeRequests = new LinkedHashSet<>(vehiclePlan.activeRequests);
     }
 
     public void add(VGAVehiclePlanAction action) {

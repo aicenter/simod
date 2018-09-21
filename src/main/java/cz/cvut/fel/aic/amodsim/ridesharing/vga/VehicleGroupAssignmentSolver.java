@@ -26,7 +26,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
     private final AmodsimConfig config;
     private final PositionUtil positionUtil;
 
-    private List<VGARequest> allRequests = new ArrayList<>();
+    private Set<VGARequest> allRequests = new LinkedHashSet<>();
 
     private static TimeProvider timeProvider;
 

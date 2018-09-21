@@ -87,7 +87,7 @@ public class VGAGroupGenerator {
         return groups;
     }
 
-    public static Set<VGAVehiclePlan> generateDroppingVehiclePlans(VGAVehicle v, List<VGARequest> requests) {
+    public static Set<VGAVehiclePlan> generateDroppingVehiclePlans(VGAVehicle v, Set<VGARequest> requests) {
         Set<VGAVehiclePlan> droppingPlans = new LinkedHashSet<>();
 
         for(VGARequest r : requests) {

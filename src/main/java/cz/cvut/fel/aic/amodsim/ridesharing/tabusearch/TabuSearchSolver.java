@@ -109,13 +109,11 @@ public class TabuSearchSolver extends DARPSolver{
         
     }
     
-    private void buildInitialSolution(){
-     
-    }
-
+ 
    @Override
     public Map<RideSharingOnDemandVehicle, DriverPlan> solve() {
         tripList = new TripList(config, nearestElementUtils, tripsUtil, graph);
+        Solution sol = new Solution(tripList);
         
         
 //        List<double[]> result = TabuSearchUtils.edgeDistanceComparison(graph);

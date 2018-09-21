@@ -14,6 +14,7 @@ import com.github.davidmoten.rtree.geometry.Point;
 import com.github.davidmoten.rtree.geometry.Rectangle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
 import java.util.ArrayList;
@@ -37,46 +38,49 @@ public class Solution {
     final int N; //pickup  ids [0..N); N is total number of orders in source file before any filtering
     final int N2;//dropoff ids [N ..N2)
     final int N2M; //depot ids   [N2..N2M); M is number of depos
-      
-    
+       
     private int carCounter;
    
  //   private List<Route> routes;
     
     final int[] times;
     final double[] values;
-    TripList tripList;
    
-   int[] failReasons = new int[]{0,0,0,0,0};
+    int[] failReasons = new int[]{0,0,0,0,0};
     
     
     RTree<Integer, Geometry> rtree;
     RTree<Integer, Geometry> depoRtree;
     GraphUtils GU;
+    List<SimulationNode> depos;
     
     
     public Solution(TripList tripList) {
         N = tripList.getNumOfTrips();
         N2 = 2*N;
         N2M = N2 + tripList.getNumOfDepos();
-        this.tripList = tripList;
         times = tripList.times;
         values = tripList.values;
         this.id = counter++;
         carCounter = 0;
-        GU = new GraphUtils(tripList);
+        GU = new GraphUtils(tripList.buildTripGraph());
+        depos = new ArrayList<>();
+        tripList.depos.forEach((depo) -> {
+            depos.add(depo.getPosition());
+        });
         
     //    routes = new LinkedList<>();
         rtree = tripList.buildRtree('n');
         depoRtree = tripList.buildRtree('d');
         
         
-        System.out.println("Solution with parameters: \n");
-        System.out.println("Pickup nodes id range [0  "+N+")\n");
-        System.out.println("Dropoff nodes id range ["+N+" "+N2+")\n");
-        System.out.println("Pickup nodes id range ["+N2+" "+N2M+")\n");
+        System.out.println("Solution with parameters: ");
+        System.out.println("Pickup nodes id range [0  "+N+")");
+        System.out.println("Dropoff nodes id range ["+N+" "+N2+")");
+        System.out.println("Pickup nodes id range ["+N2+" "+N2M+")");
         System.out.println("Trips Rtree size: "+rtree.size());
         System.out.println("Depo Rtree size: "+rtree.size());
+        System.out.println("Graph with "+GU.numberOfNodes()+" and "+GU.numberOfEdges()+" edges");
     }
     
   
@@ -85,7 +89,7 @@ public class Solution {
     private int[] findNearestDepo(SearchNode node){
         double radius = 2500;
         
-        SimulationNode simNode = GU.getNodeById(node.vi);
+        SimulationNode simNode = GU.getNode(node.vi);
         double x = simNode.getLongitudeProjected();
         double y = simNode.getLatitudeProjected();
         Rectangle bounds = rectangle(x - radius, y - radius, x + radius, y + radius);
@@ -102,8 +106,8 @@ public class Solution {
         
         while(results.hasNext()){
             Integer depoId = results.next().value();
-            SimulationNode depoNode = tripList.depos.get(depoId).getPosition();
-//            int dist = tripList.getShortesPathDist(depoNode.id, node.nodes[0].id);
+            SimulationNode depoNode = depos.get(depoId);
+            int dist = GU.getShortestPathDist(depoNode.id, node.vi);
             if(dist <= radius){
                 return new int[]{depoId, depoNode.id};
             }

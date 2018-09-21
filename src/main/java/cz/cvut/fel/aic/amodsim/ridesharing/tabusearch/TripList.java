@@ -40,12 +40,15 @@ import com.github.davidmoten.rtree.geometry.Line;
 import com.github.davidmoten.rtree.geometry.Point;
 import com.github.davidmoten.rtree.geometry.Rectangle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.EdgeShape;
+import java.io.FileNotFoundException;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 
@@ -61,7 +64,7 @@ public class TripList{
         
     private final AmodsimConfig config;
     private  NearestElementUtils nearestElementUtils;
-    private final TripsUtil tripsUtil;
+    final TripsUtil tripsUtil;
     final Graph<SimulationNode,SimulationEdge> graph;
     private final int numOfTrips;
     private final int numOfDepos;
@@ -83,9 +86,9 @@ public class TripList{
     Map<Integer, List<Integer>> filteredTrips;
     
     int dummyNodeId;
-    int dummyEdgeId;
-    GraphBuilder<SimulationNode, SimulationEdge> graphBuilder; 
-    Graph<SimulationNode, SimulationEdge> dummyGraph;
+ 
+    List<SimulationNode> dummyNodes;
+    List<SimulationEdge> dummyEdges;
     /**
      * Converts list of TimeValueTrip to TSTrip (class used for search).
      * 
@@ -114,11 +117,15 @@ public class TripList{
         LOGGER.info("Number of trips loaded {}", numOfTrips);
         times = new int[numOfTrips];
         values = new double[numOfTrips];
-      
+        
+        dummyNodeId = graph.numberOfNodes();
+//        dummyEdgeId = -1;
+        
         foundByRtree = new HashSet<>();
         foundByBFOnly = new HashSet<>();
         notFoundByBF = new HashSet<>();
-        graphBuilder = new GraphBuilder<>();//graphBuilder.createGraph();
+        dummyEdges = new ArrayList<>();
+        dummyNodes = new ArrayList<>();
         //make small sample of the list
         //  sourceList.removeIf(trip -> trip.i % 10000 != 0);
         for(TimeValueTrip<GPSLocation> trip : ProgressBar.wrap(sourceList, "Process GPS trip: ")) {
@@ -126,14 +133,11 @@ public class TripList{
         }
         //destroy rtree, we don't need it any longer;
         rtree = null;
-        
+
         // graph with dummy nodes, representing points on the  edge of the road graph,
         // which are origin or target points for trips
         // with dummy edges connecting them to the nodes of the graph incident to that edge;
-        dummyGraph = graphBuilder.createGraph();
-        dummyNodeId = -1;
-        dummyEdgeId = -1;
-        
+                
       //  System.out.println("Start location out of borders "+counters[0]);
       //  System.out.println("Too short or too long trip "+counters[1]);
     //    System.out.println("Same graph element for start and target "+counters[2]);
@@ -145,25 +149,28 @@ public class TripList{
         System.out.println("Points assigned by rtree "+counters[0]);
         System.out.println("Points assigned by BF "+counters[1]);
         System.out.println("Ponts not assigned "+counters[2]);
-        
+        System.out.println("Number of additional nodes "+dummyNodes.size());
+        System.out.println("Number of additional edges "+dummyEdges.size());
+        System.out.println("Total graph: " + (graph.numberOfNodes() + dummyNodes.size()) 
+                            + " nodes and " + (graph.numberOfEdges() + dummyEdges.size()) + " edges");
     //    System.out.println(Arrays.toString(radiusCounter));
-        try(PrintWriter pw = new PrintWriter(
-            new FileOutputStream(new File(config.amodsimDataDir + "/notFoundByRtree_eesti.txt")))){
-                foundByBFOnly.forEach((t) -> {
-                    pw.println(t);
-                });
-                      
-        }catch (IOException ex){
-            LOGGER.error(null, ex);          
-        }
-        try(PrintWriter pw = new PrintWriter(
-            new FileOutputStream(new File(config.amodsimDataDir + "/notFoundByBF_eesti.txt")))){
-                notFoundByBF.forEach((t) -> {
-                    pw.println(t);
-                });
-        }catch (IOException ex){
-            LOGGER.error(null, ex);          
-        }
+//        try(PrintWriter pw = new PrintWriter(
+//            new FileOutputStream(new File(config.amodsimDataDir + "/notFoundByRtree_eesti.txt")))){
+//                foundByBFOnly.forEach((t) -> {
+//                    pw.println(t);
+//                });
+//                      
+//        }catch (IOException ex){
+//            LOGGER.error(null, ex);          
+//        }
+//        try(PrintWriter pw = new PrintWriter(
+//            new FileOutputStream(new File(config.amodsimDataDir + "/notFoundByBF_eesti.txt")))){
+//                notFoundByBF.forEach((t) -> {
+//                    pw.println(t);
+//                });
+//        }catch (IOException ex){
+//            LOGGER.error(null, ex);          
+//        }
     }
 
     
@@ -204,6 +211,7 @@ public class TripList{
         times[trip.id] = (int) trip.getStartTime();
         values[trip.id] = trip.getRideValue();
         searchNodes.put(trip.id, new SearchNode(trip.id, startNode));
+        searchNodes.put(trip.id+numOfTrips, new SearchNode(trip.id+numOfTrips, targetNode));
     }
     
   
@@ -229,16 +237,17 @@ public class TripList{
                 return node;
             }
         }
-        SimulationNode node = bruteForceSearch(point);
-        if(node != null){
-            counters[1]++;
-            foundByBFOnly.add(tripId);
-            return node;
-        }else{
-            counters[2]++;
-            notFoundByBF.add(tripId);
-            return null;
-        }
+//        SimulationNode node = bruteForceSearch(point);
+//        if(node != null){
+//            counters[1]++;
+//            foundByBFOnly.add(tripId);
+//            return node;
+//        }else{
+//            counters[2]++;
+//            notFoundByBF.add(tripId);
+//            return null;
+//        }
+    return null;
     }
   
     
@@ -293,29 +302,18 @@ public class TripList{
             int fromLength = (int) Math.round(DistUtils.getDistProjected(fromProjected, point));
             int toLength = (int) Math.round(DistUtils.getDistProjected(toProjected, point));
             
-            //bunch of objects for secondary graph
+            //dummy node and edges from that node to real nodes
             GPSLocation newLocation = GPSLocationTools.createGPSLocationFromProjected(
                 (int) Math.round(point[1] * 1E2),(int) Math.round(point[0] * 1E2), 0, SRID);
-        
-            SimulationNode dummyNode = new SimulationNode(dummyNodeId, 0,  newLocation); 
-            GPSLocation fromLocation = new GPSLocation(edge.fromNode.getLatitude(), edge.fromNode.getLongitude(),
-                                                        (int) Math.round(edge.fromNode.getLatitudeProjected() * 1E2),
-                                                        (int) Math.round(edge.fromNode.getLongitudeProjected() * 1E2), 0);
-            SimulationNode dummyFrom = new SimulationNode(-edge.fromNode.id, 0, fromLocation);
-            GPSLocation toLocation = new GPSLocation(edge.toNode.getLatitude(), edge.toNode.getLongitude(),
-                                                        (int) Math.round(edge.toNode.getLatitudeProjected() * 1E2),
-                                                        (int) Math.round(edge.toNode.getLongitudeProjected() * 1E2), 0);
-            SimulationNode dummyTo = new SimulationNode(-edge.toNode.id, 0, toLocation);
-            SimulationEdge dummyFromEdge = new SimulationEdge(dummyNode, dummyFrom, 0, 0, 0, fromLength, 50, 1, 
-                                                              new EdgeShape(Arrays.asList(dummyNode, dummyFrom)));
-            SimulationEdge dummyToEdge = new SimulationEdge(dummyNode, dummyTo, 0, 0, 0, toLength, 50, 1, 
-                                                              new EdgeShape(Arrays.asList(dummyNode, dummyTo)));
-            graphBuilder.addNode(dummyNode);
-            graphBuilder.addNode(dummyFrom);
-            graphBuilder.addNode(dummyTo);
-            graphBuilder.addEdge(dummyFromEdge);
-            graphBuilder.addEdge(dummyToEdge);
-            dummyNodeId--;
+            SimulationNode dummyNode = new SimulationNode(dummyNodeId++, 0,  newLocation); 
+            SimulationEdge dummyFromEdge = new SimulationEdge(dummyNode, edge.fromNode, 0, 0, 0, fromLength, 50, 1, 
+                                                              new EdgeShape(Arrays.asList(dummyNode, edge.fromNode)));
+            SimulationEdge dummyToEdge = new SimulationEdge(dummyNode, edge.toNode, 0, 0, 0, toLength, 50, 1, 
+                                                              new EdgeShape(Arrays.asList(dummyNode, edge.toNode)));
+            dummyNodes.add(dummyNode);
+            dummyEdges.add(dummyFromEdge);
+            dummyEdges.add(dummyToEdge);
+
             return  dummyNode;
             }else{
                 return null;
@@ -332,10 +330,6 @@ public class TripList{
             double fromX = edge.fromNode.getLongitudeProjected();
             double toY = edge.toNode.getLatitudeProjected();
             double toX = edge.toNode.getLongitudeProjected();
-           //double[] from = DistUtils.degreeToUtm(edge.fromNode.getLatitude(), edge.fromNode.getLongitude());
-            //double[] to = DistUtils.degreeToUtm(edge.toNode.getLatitude(), edge.toNode.getLongitude());
-            //Rectangle bb = rectangle(Math.min(from[0],to[0]), Math.min(from[1],to[1]),
-            //                        Math.max(from[0],to[0]), Math.max(from[1],to[1]));
             double minY = Math.min(fromY, toY);
             double maxY = Math.max(fromY, toY);
             double minX = Math.min(fromX, toX);
@@ -361,12 +355,7 @@ public class TripList{
             for(Integer tripId: searchNodes.keySet()){
                 SearchNode searchNode = searchNodes.get(tripId);
                 int simNodeId = searchNode.vi;
-                SimulationNode simNode;
-                if(simNodeId >= 0){
-                    simNode = graph.getNode(simNodeId);
-                }else{
-                    simNode = dummyGraph.getNode(simNodeId);
-                }
+                SimulationNode simNode = graph.getNode(simNodeId);
                 Point point = point(simNode.getLongitudeProjected(),simNode.getLatitudeProjected());
                 tree = tree.add(tripId, point);
             }
@@ -374,14 +363,34 @@ public class TripList{
             int depoId = 0;
             for(OnDemandVehicleStation depo: depos){
                 SimulationNode node = depo.getPosition();
-                Point p = point(node.getLongitudeProjected(), node.getLatitudeProjected());
-                tree = tree.add(depoId, p);
+                Point point = point(node.getLongitudeProjected(), node.getLatitudeProjected());
+                tree = tree.add(depoId, point);
                 depoId++;
             }
         }
         return tree;
     }
-       
+    
+    public Graph<SimulationNode, SimulationEdge> buildTripGraph(){
+        GraphBuilder<SimulationNode, SimulationEdge> graphBuilder = new GraphBuilder<>();
+        graphBuilder.addNodes(graph.getAllNodes());
+        graphBuilder.addNodes(dummyNodes);
+        graphBuilder.addEdges(graph.getAllEdges());
+        graphBuilder.addEdges(dummyEdges);
+        
+        String fn = config.amodsimDataDir + "/new_edges.txt";
+        try(PrintWriter pw = new PrintWriter(
+            new FileOutputStream(new File(fn)))){
+                dummyEdges.forEach((e) -> {
+                    pw.println(e.fromNode.getLatitude() +" "+ e.fromNode.getLongitude()
+                                +" "+e.toNode.getLatitude()+" "+e.toNode.getLongitude());
+                });
+        }catch (IOException ex){
+            LOGGER.error(null, ex);          
+        }
+        return graphBuilder.createGraph();
+    }
+    
     public int getNumOfTrips() {
         return numOfTrips;
     }
@@ -397,17 +406,6 @@ public class TripList{
         }
        this.depos = depos;
         LOGGER.info("{} depos added", this.depos.size());
-    }
-     
-    public   Map<Integer, double[][]> getDepoMap(){
-        Map<Integer, double[][]> depoMap = new HashMap<>();
-        int id = 0;
-        for(OnDemandVehicleStation d : depos){
-            double[] coord = new double[]{d.getPosition().getLatitude(),d.getPosition().getLongitude()};
-            double[] proj = DistUtils.degreeToUtm(coord);
-            depoMap.put(id, new double[][]{coord, proj});
-        }
-        return depoMap;
     }
     
     private List<TimeValueTrip<GPSLocation>> loadTrips() {

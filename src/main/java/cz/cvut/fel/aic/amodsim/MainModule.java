@@ -88,9 +88,9 @@ public class MainModule extends StandardAgentPolisModule{
         if(amodsimConfig.amodsim.ridesharing.on){
             bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
             bind(OnDemandVehicleStationsCentral.class).to(RidesharingStationsCentral.class);
-            bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
+            //bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
             //bind(DARPSolver.class).to(InsertionSolver.class);
-            //bind(DARPSolver.class).to(TabuSearchSolver.class);
+            bind(DARPSolver.class).to(TabuSearchSolver.class);
             bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
         } else{
            bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);

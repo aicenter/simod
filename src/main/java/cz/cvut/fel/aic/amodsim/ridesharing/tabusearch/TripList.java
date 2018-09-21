@@ -5,8 +5,9 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.tabusearch;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.helpers.IO;
+import cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.helpers.DistUtils;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
@@ -16,15 +17,12 @@ import cz.cvut.fel.aic.amodsim.io.TimeValueTrip;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.GraphBuilder;
-import cz.cvut.fel.aic.geographtools.Node;
 import cz.cvut.fel.aic.geographtools.util.GPSLocationTools;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -33,23 +31,13 @@ import org.slf4j.LoggerFactory;
 
 import com.github.davidmoten.rtree.Entry;
 import com.github.davidmoten.rtree.RTree;
-import com.github.davidmoten.rtree.geometry.Circle;
 import static com.github.davidmoten.rtree.geometry.Geometries.*;
 import com.github.davidmoten.rtree.geometry.Geometry;
-import com.github.davidmoten.rtree.geometry.Line;
-import com.github.davidmoten.rtree.geometry.Point;
 import com.github.davidmoten.rtree.geometry.Rectangle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.EdgeShape;
-import java.io.FileNotFoundException;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import static cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.helpers.TreeUtils.buildRtree;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 
 /**
@@ -105,7 +93,7 @@ public class TripList{
         this.tripsUtil = tripsUtil;
         this.nearestElementUtils = nearestElementUtils;
         this.graph = graph;
-        rtree = buildRtree();
+        rtree = buildRtree(this.graph.getAllEdges());
 
         
         numOfDepos = config.stations.regions;
@@ -320,57 +308,7 @@ public class TripList{
          }
     }
 
-    private RTree<SimulationEdge, Geometry> buildRtree(){
-        long start = System.currentTimeMillis();
-        double[] box = {Double.MAX_VALUE, 0, Double.MAX_VALUE, 0};
-        
-        RTree<SimulationEdge, Geometry> tree = RTree.star().create();
-        for(SimulationEdge edge:graph.getAllEdges()){
-            double fromY = edge.fromNode.getLatitudeProjected();
-            double fromX = edge.fromNode.getLongitudeProjected();
-            double toY = edge.toNode.getLatitudeProjected();
-            double toX = edge.toNode.getLongitudeProjected();
-            double minY = Math.min(fromY, toY);
-            double maxY = Math.max(fromY, toY);
-            double minX = Math.min(fromX, toX);
-            double maxX = Math.max(fromX, toX);
-            Rectangle bb = rectangle(minX, minY, maxX, maxY);
-            tree = tree.add(edge, bb);
-        }
-        long end = System.currentTimeMillis();
-        
-        System.out.println("Tree size: "+tree.size());
-        System.out.println("Rtree depth: "+ tree.calculateDepth());
-        System.out.println("Time: "+ (end - start) + " ms");
-//        System.out.println("Box: "+Arrays.toString(box));
-//        double xdist = (box[1] - box[0]);
-//        double ydist = box[3] - box[2];
-//        System.out.println("Distance x = "+xdist+"m, y = "+ydist+"m");
-        return tree;
-    }
-    
-    public RTree<Integer, Geometry> buildRtree(char type){
-        RTree<Integer, Geometry> tree = RTree.star().create();
-        if(type == 'n'){
-            for(Integer tripId: searchNodes.keySet()){
-                SearchNode searchNode = searchNodes.get(tripId);
-                int simNodeId = searchNode.vi;
-                SimulationNode simNode = graph.getNode(simNodeId);
-                Point point = point(simNode.getLongitudeProjected(),simNode.getLatitudeProjected());
-                tree = tree.add(tripId, point);
-            }
-        } else if (type == 'd'){
-            int depoId = 0;
-            for(OnDemandVehicleStation depo: depos){
-                SimulationNode node = depo.getPosition();
-                Point point = point(node.getLongitudeProjected(), node.getLatitudeProjected());
-                tree = tree.add(depoId, point);
-                depoId++;
-            }
-        }
-        return tree;
-    }
-    
+  
     public Graph<SimulationNode, SimulationEdge> buildTripGraph(){
         GraphBuilder<SimulationNode, SimulationEdge> graphBuilder = new GraphBuilder<>();
         graphBuilder.addNodes(graph.getAllNodes());
@@ -378,16 +316,8 @@ public class TripList{
         graphBuilder.addEdges(graph.getAllEdges());
         graphBuilder.addEdges(dummyEdges);
         
-        String fn = config.amodsimDataDir + "/new_edges.txt";
-        try(PrintWriter pw = new PrintWriter(
-            new FileOutputStream(new File(fn)))){
-                dummyEdges.forEach((e) -> {
-                    pw.println(e.fromNode.getLatitude() +" "+ e.fromNode.getLongitude()
-                                +" "+e.toNode.getLatitude()+" "+e.toNode.getLongitude());
-                });
-        }catch (IOException ex){
-            LOGGER.error(null, ex);          
-        }
+        //IO.writeEdgesToFile(dummyEdges, config.amodsimDataDir + "/new_edges.txt");
+
         return graphBuilder.createGraph();
     }
     

@@ -3,16 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.cvut.fel.aic.amodsim.ridesharing.tabusearch;
+package cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.helpers;
 
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.amodsim.io.TimeValueTrip;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.util.GPSLocationTools;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 import org.slf4j.LoggerFactory;
@@ -57,6 +60,18 @@ public class IO {
         LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);
         return gpsTrips; 
     }
-        
+    
+    
+ public static void writeEdgesToFile(List<SimulationEdge> edges, String fn){           
+        try(PrintWriter pw = new PrintWriter(
+            new FileOutputStream(new File(fn)))){
+                edges.forEach((e) -> {
+                    pw.println(e.fromNode.getLatitude() +" "+ e.fromNode.getLongitude()
+                                +" "+e.toNode.getLatitude()+" "+e.toNode.getLongitude());
+                });
+        }catch (IOException ex){
+            LOGGER.error(null, ex);          
+        }
+ }
 
 }

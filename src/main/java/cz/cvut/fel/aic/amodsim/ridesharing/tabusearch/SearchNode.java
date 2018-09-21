@@ -17,12 +17,12 @@ public class SearchNode {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(SearchNode.class);
     private static final int TW = 180*000; 
     
-    final int i;
-    long ti;
-    long[] tw;
-    final int vi;
-    int qi;
-    int Fi;
+    public final int i;
+    public long ti;
+    public long[] tw;
+    public final int vi;
+    public int qi;
+    public int Fi;
     
  
     

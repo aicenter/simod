@@ -5,25 +5,21 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.tabusearch;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.helpers.GraphUtils;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import static cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.helpers.TreeUtils.buildRtree;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import com.github.davidmoten.rtree.Entry;
 import com.github.davidmoten.rtree.RTree;
-import static com.github.davidmoten.rtree.geometry.Geometries.point;
 import static com.github.davidmoten.rtree.geometry.Geometries.rectangle;
 import com.github.davidmoten.rtree.geometry.Geometry;
-import com.github.davidmoten.rtree.geometry.Point;
 import com.github.davidmoten.rtree.geometry.Rectangle;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
-import cz.cvut.fel.aic.geographtools.GPSLocation;
-import cz.cvut.fel.aic.geographtools.Graph;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Arrays;
 
 /**
  *
@@ -52,7 +48,7 @@ public class Solution {
     RTree<Integer, Geometry> rtree;
     RTree<Integer, Geometry> depoRtree;
     GraphUtils GU;
-    List<SimulationNode> depos;
+    List<SearchNode> depos;
     
     
     public Solution(TripList tripList) {
@@ -65,21 +61,23 @@ public class Solution {
         carCounter = 0;
         GU = new GraphUtils(tripList.buildTripGraph());
         depos = new ArrayList<>();
-        tripList.depos.forEach((depo) -> {
-            depos.add(depo.getPosition());
-        });
-        
+        int depoId = 0;
+        for(OnDemandVehicleStation depo: tripList.depos) {
+                depos.add(new SearchNode(depoId + N2M, depo.getPosition()));
+                depoId++;
+        }
+        System.out.println(Arrays.toString(depos.toArray()));
     //    routes = new LinkedList<>();
-        rtree = tripList.buildRtree('n');
-        depoRtree = tripList.buildRtree('d');
+        rtree = buildRtree(GU, tripList.searchNodes.values());
+        System.out.println("Node  tree built: size "+rtree.size()+", depth "+rtree.calculateDepth());
+        depoRtree = buildRtree(GU, depos);
+        System.out.println("Depo  tree built: size "+depoRtree.size()+", depth "+depoRtree.calculateDepth());
         
         
         System.out.println("Solution with parameters: ");
         System.out.println("Pickup nodes id range [0  "+N+")");
         System.out.println("Dropoff nodes id range ["+N+" "+N2+")");
         System.out.println("Pickup nodes id range ["+N2+" "+N2M+")");
-        System.out.println("Trips Rtree size: "+rtree.size());
-        System.out.println("Depo Rtree size: "+rtree.size());
         System.out.println("Graph with "+GU.numberOfNodes()+" and "+GU.numberOfEdges()+" edges");
     }
     
@@ -106,15 +104,15 @@ public class Solution {
         
         while(results.hasNext()){
             Integer depoId = results.next().value();
-            SimulationNode depoNode = depos.get(depoId);
-            int dist = GU.getShortestPathDist(depoNode.id, node.vi);
+            SearchNode depoNode = depos.get(depoId);
+            int dist = GU.getShortestPathDist(depoNode.i, node.vi);
             if(dist <= radius){
-                return new int[]{depoId, depoNode.id};
+                return new int[]{depoId, depoNode.i};
             }
             if(dist < minDist){
                 minDist = dist;
                 nearestDepo[0] = depoId;
-                nearestDepo[1] = depoNode.id;
+                nearestDepo[1] = depoNode.i;
             }
         }
         return nearestDepo;

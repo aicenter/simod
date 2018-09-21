@@ -5,6 +5,7 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.tabusearch;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.tabusearch.helpers.DistUtils;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;

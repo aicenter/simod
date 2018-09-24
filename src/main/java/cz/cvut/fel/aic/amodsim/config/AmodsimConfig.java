@@ -15,6 +15,8 @@ public class AmodsimConfig implements GeneratedConfig {
 
   public Images images;
 
+  public Agentpolis agentpolis;
+
   public Shapefiles shapefiles;
 
   public Stations stations;
@@ -34,6 +36,8 @@ public class AmodsimConfig implements GeneratedConfig {
   public Double tripsMultiplier;
 
   public Double criticalDensity;
+
+  public Roadmaptools roadmaptools;
 
   public String pythonDataDir;
 
@@ -57,6 +61,7 @@ public class AmodsimConfig implements GeneratedConfig {
     this.experimentName = (String) amodsimConfig.get("experiment_name");
     this.tripsFilename = (String) amodsimConfig.get("trips_filename");
     this.images = new Images((Map) amodsimConfig.get("images"));
+    this.agentpolis = new Agentpolis((Map) amodsimConfig.get("agentpolis"));
     this.shapefiles = new Shapefiles((Map) amodsimConfig.get("shapefiles"));
     this.stations = new Stations((Map) amodsimConfig.get("stations"));
     this.analysis = new Analysis((Map) amodsimConfig.get("analysis"));
@@ -67,6 +72,7 @@ public class AmodsimConfig implements GeneratedConfig {
     this.amodsimDataDir = (String) amodsimConfig.get("amodsim_data_dir");
     this.tripsMultiplier = (Double) amodsimConfig.get("trips_multiplier");
     this.criticalDensity = (Double) amodsimConfig.get("critical_density");
+    this.roadmaptools = new Roadmaptools((Map) amodsimConfig.get("roadmaptools"));
     this.pythonDataDir = (String) amodsimConfig.get("python_data_dir");
     this.tripsFilePath = (String) amodsimConfig.get("trips_file_path");
     this.tripsLimit = (Integer) amodsimConfig.get("trips_limit");

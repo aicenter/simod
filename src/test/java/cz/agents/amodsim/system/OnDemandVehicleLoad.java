@@ -32,7 +32,7 @@ public class OnDemandVehicleLoad extends EdgesLoadByState{
             Node currentNode = onDemandVehicle.getPosition();
             Node targetNode = onDemandVehicle.getTargetNode();
             if(targetNode != null && !targetNode.equals(currentNode)){
-                int edgeId = network.getEdge(currentNode.id, targetNode.id).getUniqueId();
+                int edgeId = network.getEdge(currentNode, targetNode).getUniqueId();
                 countLoadForPosition(entityId, edgeId);
             }
             else{

@@ -92,7 +92,7 @@ public class MainModule extends StandardAgentPolisModule{
             bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
             //bind(DARPSolver.class).to(InsertionSolver.class);
             //bind(DARPSolver.class).to(TabuSearchSolver.class);
-            bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
+            bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
         } else{
            bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
         }

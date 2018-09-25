@@ -135,7 +135,7 @@ public class TripTransform {
         
         LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);
         LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
-        LOGGER.info("{} too long trips discarded", targetTooFarCount);
+        LOGGER.info("{} too long trips discarded", tooLongCount);
         LOGGER.info("{} trips with start node far away from graph discarded", startTooFarCount);
         LOGGER.info("{} trips with target node far away from graph  discarded", targetTooFarCount);
         return trips; 
@@ -147,6 +147,7 @@ public class TripTransform {
         GPSLocation startLocation = locations.get(0);
         GPSLocation targetLocation = locations.get(locations.size() - 1);
          //max ride length check
+         System.out.println( startLocation.getLongitudeProjected() + " "+ targetLocation.getLongitudeProjected());
         double x = startLocation.getLongitudeProjected() - targetLocation.getLongitudeProjected();
         double y = startLocation.getLatitudeProjected() - targetLocation.getLatitudeProjected();
         if((x*x + y*y) > 25000*25000){
@@ -154,6 +155,7 @@ public class TripTransform {
             return;
         }
         SimulationNode startNode = nearestElementUtils.getNearestElement(startLocation, EGraphType.HIGHWAY);
+        System.out.println( startNode.getLatitudeProjected() + " "+ startNode.getLongitudeProjected());
         x = startLocation.getLongitudeProjected() - startNode.getLongitudeProjected();
         y = startLocation.getLatitudeProjected() - startNode.getLatitudeProjected();
         if((x*x + y*y) > 50*50){
@@ -162,8 +164,8 @@ public class TripTransform {
         }
        
         SimulationNode targetNode = nearestElementUtils.getNearestElement(targetLocation, EGraphType.HIGHWAY);
-        x = startLocation.getLongitudeProjected() - startNode.getLongitudeProjected();
-        y = startLocation.getLatitudeProjected() - startNode.getLatitudeProjected();
+        x = targetLocation.getLongitudeProjected() - targetNode.getLongitudeProjected();
+        y = targetLocation.getLatitudeProjected() - targetNode.getLatitudeProjected();
         if((x*x + y*y) > 50*50){
             targetTooFarCount++;
             return;

@@ -59,7 +59,7 @@ public class Solution {
         values = tripList.values;
         this.id = counter++;
         carCounter = 0;
-        GU = new GraphUtils(tripList.buildTripGraph());
+        GU = new GraphUtils(tripList.buildTripGraph(), N);
         depos = new ArrayList<>();
         int depoId = 0;
         for(OnDemandVehicleStation depo: tripList.depos) {
@@ -105,7 +105,7 @@ public class Solution {
         while(results.hasNext()){
             Integer depoId = results.next().value();
             SearchNode depoNode = depos.get(depoId);
-            int dist = GU.getShortestPathDist(depoNode.i, node.vi);
+            double dist = GU.getSPDist(depoNode.i, node.vi);
             if(dist <= radius){
                 return new int[]{depoId, depoNode.i};
             }

@@ -28,7 +28,7 @@ import java.util.Set;
 public class InsertionHeuristicSolver extends DARPSolver{
 	
     
-	private static final int INFO_PERIOD = 1000;
+	private static final int INFO_PERIOD = 100000;
 	
 //	private static 
 
@@ -55,6 +55,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 	private long vehiclePlanningAllCallCount = 0;
 	double[] bbox = {59, 60, 24, 25}; 
     private int outOfBox = 0;
+    private int tooLong = 0;
 
 	
 	
@@ -62,54 +63,45 @@ public class InsertionHeuristicSolver extends DARPSolver{
 	public InsertionHeuristicSolver(TravelTimeProvider travelTimeProvider, TravelCostProvider travelCostProvider, 
 			OnDemandVehicleStorage vehicleStorage, PositionUtil positionUtil,
 			AmodsimConfig config, TimeProvider timeProvider) {
+        
             super(vehicleStorage, travelTimeProvider, travelCostProvider);
             this.positionUtil = positionUtil;
             this.config = config;
             this.timeProvider = timeProvider;
 //		maxDistance = (double) config.amodsim.ridesharing.maxWaitTime 
 //				* config.amodsim.ridesharing.maxSpeedEstimation / 3600 * 1000;
-            maxDistance = 25000;
+            maxDistance = 2500;
             maxDistanceSquared = maxDistance * maxDistance;
             maxDelayTime = config.amodsim.ridesharing.maxWaitTime  * 1000;
 	}
 
 	@Override
 	public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<OnDemandRequest> requests) {
-            callCount++;
-            long startTime = System.nanoTime();
+        callCount++;
+        long startTime = System.nanoTime();
 		
-            Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new HashMap<>();
+        Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new HashMap<>();
+
+        double minCostIncrement = Double.MAX_VALUE;
+        DriverPlan bestPlan = null;
+        RideSharingOnDemandVehicle servingVehicle = null;
+        OnDemandRequest request = requests.get(0);
+	
+        long iterationStartTime = System.nanoTime();
 		
-            double minCostIncrement = Double.MAX_VALUE;
-            DriverPlan bestPlan = null;
-            RideSharingOnDemandVehicle servingVehicle = null;
-            OnDemandRequest request = requests.get(0);
-            
-            // in dataset for tallin there are trips that starts far outside city boundaries
-            // we don't want to check the rest (it will just mess everything: asigned node in tallin graph will be
-            // far away from real location)
-            if(request.getPosition().getLatitude() < bbox[0] || request.getPosition().getLatitude() > bbox[1] 
-                 || request.getPosition().getLongitude() < bbox[2] || request.getPosition().getLongitude() > bbox[3]){
-                    outOfBox++;
-                    System.out.println("Start node is outside the city");
-                    return planMap;
-        }
-		
-            long iterationStartTime = System.nanoTime();
-		
-            for(AgentPolisEntity tVvehicle: vehicleStorage.getEntitiesForIteration()){
+        for(AgentPolisEntity tVvehicle: vehicleStorage.getEntitiesForIteration()){
 			
-		RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
-		if(canServeRequest(vehicle, request)){
-                    vehiclePlanningAllCallCount++;
-                    PlanData newPlanData = getOptimalPlan(vehicle, request);
-                    if(newPlanData != null && newPlanData.increment < minCostIncrement){
-			minCostIncrement = newPlanData.increment;
-			bestPlan = newPlanData.plan;
-			servingVehicle = vehicle;
-                    }
-		}
+            RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
+            if(canServeRequest(vehicle, request)){
+                vehiclePlanningAllCallCount++;
+                PlanData newPlanData = getOptimalPlan(vehicle, request);
+                if(newPlanData != null && newPlanData.increment < minCostIncrement){
+                    minCostIncrement = newPlanData.increment;
+                    bestPlan = newPlanData.plan;
+                    servingVehicle = vehicle;
+                }
             }
+        }
 		
             iterationTime += System.nanoTime() - iterationStartTime;
             if(bestPlan != null){
@@ -167,7 +159,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
             if(vehicle.getPosition() == request.getPosition()){
 		return true;
             }
-		
+
             // euclidean distance check
             double dist_x = vehicle.getPosition().getLatitudeProjected() - request.getPosition().getLatitudeProjected();
             double dist_y = vehicle.getPosition().getLongitudeProjected() - request.getPosition().getLongitudeProjected();
@@ -304,7 +296,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		return new DriverPlan(newPlan, planTravelTime);
 	}
 
-	// TODO passanger time constraints
+	// TODO passenger time constraints
 	private boolean planFeasible(DriverPlan potentialPlan, RideSharingOnDemandVehicle vehicle) {
 		int occupancy = vehicle.getOnBoardCount();
 		int capacity = vehicle.getVehicle().getCapacity();

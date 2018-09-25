@@ -22,6 +22,8 @@ import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.NearestElementUtil;
 import cz.cvut.fel.aic.geographtools.util.NearestElementUtilPair;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
+import cz.cvut.fel.aic.geographtools.util.GPSLocationTools;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -40,8 +42,11 @@ import org.slf4j.LoggerFactory;
 public class TripTransform {
     
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TripTransform.class);
-    
+    private static final int SRID = 32633;
     private int zeroLenghtTripsCount = 0;
+    private int startTooFarCount = 0;
+    private int targetTooFarCount = 0;
+    private int tooLongCount = 0;
     private int sameStartAndTargetInDataCount = 0;
     private double totalValue = 0;
     private int totalTrips = 0;
@@ -101,9 +106,11 @@ public class TripTransform {
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(" ");
                 GPSLocation startLocation
-                       = new GPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, 0);
+//                       = new GPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, 0);
+                    = GPSLocationTools.createGPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, SRID);
                 GPSLocation targetLocation
-                       = new GPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, 0);
+ //                      = new GPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, 0);
+                 = GPSLocationTools.createGPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, SRID);
                 
                 if(startLocation.equals(targetLocation)){
                    sameStartAndTargetInDataCount++;
@@ -128,27 +135,39 @@ public class TripTransform {
         
         LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);
         LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
+        LOGGER.info("{} too long trips discarded", targetTooFarCount);
+        LOGGER.info("{} trips with start node far away from graph discarded", startTooFarCount);
+        LOGGER.info("{} trips with target node far away from graph  discarded", targetTooFarCount);
         return trips; 
     }
     
-    private double approximateDistance(GPSLocation start, GPSLocation target ){
-        final double degreeLength = 111;
-        final double cosLatitude = Math.cos(59);
-        
-        double lat1 = target.getLatitude();
-        double lat0 = start.getLatitude();
-        double lon1 = target.getLongitude();
-        double lon0 = start.getLongitude();
-
-        double x = lat1 - lat0;
-        double y = (lon1 - lon0)*cosLatitude;
-        return degreeLength * Math.sqrt(x*x + y*y);
-    }
     
     private void processGpsTrip(TimeValueTrip<GPSLocation> gpsTrip, List<TimeValueTrip<SimulationNode>>trips) {
         List<GPSLocation> locations = gpsTrip.getLocations();
-        SimulationNode startNode = nearestElementUtils.getNearestElement(locations.get(0), EGraphType.HIGHWAY);
-        SimulationNode targetNode = nearestElementUtils.getNearestElement(locations.get(locations.size() - 1), EGraphType.HIGHWAY);
+        GPSLocation startLocation = locations.get(0);
+        GPSLocation targetLocation = locations.get(locations.size() - 1);
+         //max ride length check
+        double x = startLocation.getLongitudeProjected() - targetLocation.getLongitudeProjected();
+        double y = startLocation.getLatitudeProjected() - targetLocation.getLatitudeProjected();
+        if((x*x + y*y) > 25000*25000){
+            tooLongCount++;
+            return;
+        }
+        SimulationNode startNode = nearestElementUtils.getNearestElement(startLocation, EGraphType.HIGHWAY);
+        x = startLocation.getLongitudeProjected() - startNode.getLongitudeProjected();
+        y = startLocation.getLatitudeProjected() - startNode.getLatitudeProjected();
+        if((x*x + y*y) > 50*50){
+            startTooFarCount++;
+            return;
+        }
+       
+        SimulationNode targetNode = nearestElementUtils.getNearestElement(targetLocation, EGraphType.HIGHWAY);
+        x = startLocation.getLongitudeProjected() - startNode.getLongitudeProjected();
+        y = startLocation.getLatitudeProjected() - startNode.getLatitudeProjected();
+        if((x*x + y*y) > 50*50){
+            targetTooFarCount++;
+            return;
+        }
         double rideValue = gpsTrip.getRideValue();
 	
 	if(startNode != targetNode){

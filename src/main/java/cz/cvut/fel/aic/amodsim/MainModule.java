@@ -31,6 +31,7 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactory;
+import cz.cvut.fel.aic.amodsim.ridesharing.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.EuclideanTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.InsertionHeuristicSolver;
@@ -88,10 +89,10 @@ public class MainModule extends StandardAgentPolisModule{
         if(amodsimConfig.amodsim.ridesharing.on){
             bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
             bind(OnDemandVehicleStationsCentral.class).to(RidesharingStationsCentral.class);
-            //bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
+            bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
             //bind(DARPSolver.class).to(InsertionSolver.class);
-            bind(DARPSolver.class).to(TabuSearchSolver.class);
-            bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
+            //bind(DARPSolver.class).to(TabuSearchSolver.class);
+            bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
         } else{
            bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
         }

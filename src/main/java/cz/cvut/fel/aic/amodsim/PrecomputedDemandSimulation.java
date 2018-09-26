@@ -2,7 +2,7 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
-import cz.cvut.fel.aic.amodsim.io.TimeValueTrip;
+import cz.cvut.fel.aic.amodsim.io.TimeTripWithValue;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import java.io.File;
@@ -34,7 +34,7 @@ public class PrecomputedDemandSimulation {
 	public void run(){
 		try {
             
-            List<TimeValueTrip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(EXPERIMENT_DIR, INPUT_FILE_PATH), Long.class);
+            List<TimeTripWithValue<Long>> osmNodesList = TripTransform.jsonToTrips(new File(EXPERIMENT_DIR, INPUT_FILE_PATH), Long.class);
 
 //			SimpleEnvinromentFactory envinromentFactory = new SimpleEnvinromentFactory(new InfinityDelayingSegmentCapacityDeterminer());
 

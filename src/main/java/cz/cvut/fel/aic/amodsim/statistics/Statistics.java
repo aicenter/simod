@@ -347,9 +347,11 @@ public class Statistics extends AliteEntity implements EventHandler{
         try {
             CsvWriter writer = new CsvWriter(
                     Common.getFileWriter(config.amodsim.statistics.serviceFilePath));
+            writer.writeLine("demand time", "demand id", "trip id", "vehicle id", "pickup time", "dropoff time", "min possible delay"); 
             for (DemandServiceStatistic demandServiceStatistic: demandServiceStatistics) {
 				writer.writeLine(Long.toString(demandServiceStatistic.getDemandTime()), 
-						demandServiceStatistic.getDemandId(), demandServiceStatistic.getVehicleId(), 
+						demandServiceStatistic.getDemandId(), Integer.toString(demandServiceStatistic.getTripId()),
+                        demandServiceStatistic.getVehicleId(), 
 						Long.toString(demandServiceStatistic.getPickupTime()), 
 						Long.toString(demandServiceStatistic.getDropoffTime()), 
 						Long.toString(demandServiceStatistic.getMinPossibleServiceDelay()));

@@ -48,35 +48,15 @@ public class TripTransform {
     private int targetTooFarCount = 0;
     private int tooLongCount = 0;
     private int sameStartAndTargetInDataCount = 0;
-    private double totalValue = 0;
     private int totalTrips = 0;
     
-//    //move to config
-//    private final double maxTripLength = 25;
-//    private final double minTripLength = 0.05;
-    
+    //move to config
+    private int maxRide = 25000; //meters,  30 min @ 50 km/h
+    private int pickupRadius = 50; //meters
+        
     private final Graph<SimulationNode,SimulationEdge> highwayGraph;
     private final NearestElementUtils nearestElementUtils;
 
-    public int getZeroLenghtTripsCount() {
-        return zeroLenghtTripsCount;
-    }
-
-    public double getTotalValue() {
-        return totalValue;
-    }
-
-    public int getTotalTrips() {
-        return totalTrips;
-    }
-
-    public int getSameStartAndTargetInDataCount() {
-        return sameStartAndTargetInDataCount;
-    }
-
-    public Graph<SimulationNode, SimulationEdge> getHighwayGraph() {
-        return highwayGraph;
-    }
     
     @Inject
     public TripTransform(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils) {
@@ -85,41 +65,39 @@ public class TripTransform {
     }
        
 
-	public static <T> void tripsToJson(List<TimeValueTrip<T>> trips, File outputFile) throws IOException{
+	public static <T> void tripsToJson(List<TimeTripWithValue<T>> trips, File outputFile) throws IOException{
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.writeValue(outputFile, trips);
 	}
 	
-	public static <T> List<TimeValueTrip<T>> jsonToTrips(File inputFile, Class<T> locationType) throws IOException{
+	public static <T> List<TimeTripWithValue<T>> jsonToTrips(File inputFile, Class<T> locationType) throws IOException{
 		ObjectMapper mapper = new ObjectMapper();
 		TypeFactory typeFactory = mapper.getTypeFactory();
 		
 		return mapper.readValue(inputFile, typeFactory.constructCollectionType(
-				List.class, typeFactory.constructParametricType(TimeValueTrip.class, locationType)));
+				List.class, typeFactory.constructParametricType(TimeTripWithValue.class, locationType)));
 	}
     
-    public List<TimeValueTrip<SimulationNode>> loadTripsFromTxt(File inputFile){
+    public List<TimeTripWithValue<SimulationNode>> loadTripsFromTxt(File inputFile){
 
-        List<TimeValueTrip<GPSLocation>> gpsTrips = new LinkedList<>();
+        List<TimeTripWithValue<GPSLocation>> gpsTrips = new LinkedList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(" ");
                 GPSLocation startLocation
-//                       = new GPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, 0);
                     = GPSLocationTools.createGPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, SRID);
                 GPSLocation targetLocation
- //                      = new GPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, 0);
                  = GPSLocationTools.createGPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, SRID);
                 
                 if(startLocation.equals(targetLocation)){
                    sameStartAndTargetInDataCount++;
                 }else{
                     if(parts.length == 6){
-                        gpsTrips.add(new TimeValueTrip<>(totalTrips, startLocation, targetLocation, 
+                        gpsTrips.add(new TimeTripWithValue<>(totalTrips, startLocation, targetLocation, 
                         Long.parseLong(parts[0].split("\\.")[0]), Double.parseDouble(parts[5])));
                     }else{
-                        gpsTrips.add(new TimeValueTrip<>(totalTrips, startLocation, targetLocation, 
+                        gpsTrips.add(new TimeTripWithValue<>(totalTrips, startLocation, targetLocation, 
                         Long.parseLong(parts[0].split("\\.")[0]), 0));
                     }
                 }
@@ -128,8 +106,8 @@ public class TripTransform {
         }catch (IOException ex) {
             LOGGER.error(null, ex);
         }
-        List<TimeValueTrip<SimulationNode>> trips = new ArrayList<>();
-        for (TimeValueTrip<GPSLocation> trip : ProgressBar.wrap(gpsTrips, "Process GPS trip: ")) {
+        List<TimeTripWithValue<SimulationNode>> trips = new ArrayList<>();
+        for (TimeTripWithValue<GPSLocation> trip : ProgressBar.wrap(gpsTrips, "Process GPS trip: ")) {
                 processGpsTrip(trip, trips);
         }
         
@@ -138,16 +116,16 @@ public class TripTransform {
         LOGGER.info("{} too long trips discarded", tooLongCount);
         LOGGER.info("{} trips with start node far away from graph discarded", startTooFarCount);
         LOGGER.info("{} trips with target node far away from graph  discarded", targetTooFarCount);
+        LOGGER.info("{} trips remained", trips.size());
         return trips; 
     }
-    
-    
-    private void processGpsTrip(TimeValueTrip<GPSLocation> gpsTrip, List<TimeValueTrip<SimulationNode>>trips) {
+        
+    private void processGpsTrip(TimeTripWithValue<GPSLocation> gpsTrip, List<TimeTripWithValue<SimulationNode>>trips) {
         List<GPSLocation> locations = gpsTrip.getLocations();
         GPSLocation startLocation = locations.get(0);
         GPSLocation targetLocation = locations.get(locations.size() - 1);
-         //max ride length check
-         System.out.println( startLocation.getLongitudeProjected() + " "+ targetLocation.getLongitudeProjected());
+
+        // longer than 25 km
         double x = startLocation.getLongitudeProjected() - targetLocation.getLongitudeProjected();
         double y = startLocation.getLatitudeProjected() - targetLocation.getLatitudeProjected();
         if((x*x + y*y) > 25000*25000){
@@ -155,14 +133,13 @@ public class TripTransform {
             return;
         }
         SimulationNode startNode = nearestElementUtils.getNearestElement(startLocation, EGraphType.HIGHWAY);
-        System.out.println( startNode.getLatitudeProjected() + " "+ startNode.getLongitudeProjected());
         x = startLocation.getLongitudeProjected() - startNode.getLongitudeProjected();
         y = startLocation.getLatitudeProjected() - startNode.getLatitudeProjected();
+        // no node in 50 radius
         if((x*x + y*y) > 50*50){
             startTooFarCount++;
             return;
         }
-       
         SimulationNode targetNode = nearestElementUtils.getNearestElement(targetLocation, EGraphType.HIGHWAY);
         x = targetLocation.getLongitudeProjected() - targetNode.getLongitudeProjected();
         y = targetLocation.getLatitudeProjected() - targetNode.getLatitudeProjected();
@@ -172,13 +149,11 @@ public class TripTransform {
         }
         double rideValue = gpsTrip.getRideValue();
 	
-	if(startNode != targetNode){
+        if(startNode != targetNode){
             LinkedList<SimulationNode> nodesList = new LinkedList<>();
             nodesList.add(startNode);
             nodesList.add(targetNode);
-            //trips.add(new TimeValueTrip<>(gpsTrip.id, nodesList, gpsTrip.getStartTime(), gpsTrip.getEndTime(), rideValue ));
-            trips.add(new TimeValueTrip<>(gpsTrip.id, nodesList, gpsTrip.getStartTime(), rideValue ));
-            totalValue += rideValue;
+            trips.add(new TimeTripWithValue<>(gpsTrip.id, nodesList, gpsTrip.getStartTime(), rideValue ));
         }else{
             zeroLenghtTripsCount++;
        }

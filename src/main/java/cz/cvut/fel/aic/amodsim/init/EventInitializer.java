@@ -14,7 +14,7 @@ import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent.DemandAgentFactory;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
-import cz.cvut.fel.aic.amodsim.io.TimeValueTrip;
+import cz.cvut.fel.aic.amodsim.io.TimeTripWithValue;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
@@ -57,10 +57,10 @@ public class EventInitializer {
     }
     
     
-    public void initialize(List<TimeValueTrip<SimulationNode>> trips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips){
+    public void initialize(List<TimeTripWithValue<SimulationNode>> trips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips){
         Random random = new Random(RANDOM_SEED);
         
-        for (TimeValueTrip<SimulationNode> trip : trips) {
+        for (TimeTripWithValue<SimulationNode> trip : trips) {
             long startTime = trip.getStartTime() - amodsimConfig.amodsim.startTime;
             if(startTime < 1 || startTime > agentpolisConfig.simulationDurationInMillis){
                 continue;
@@ -109,7 +109,7 @@ public class EventInitializer {
 
 		@Override
 		public void handleEvent(Event event) {
-			TimeValueTrip<SimulationNode> trip = (TimeValueTrip<SimulationNode>) event.getContent();
+			TimeTripWithValue<SimulationNode> trip = (TimeTripWithValue<SimulationNode>) event.getContent();
             int id = demandIdGenerator.getId();
 			DemandAgent demandAgent = demandAgentFactory.create("Demand " + Integer.toString(id), id, trip);
             demandAgent.setRideValue(trip.getRideValue());

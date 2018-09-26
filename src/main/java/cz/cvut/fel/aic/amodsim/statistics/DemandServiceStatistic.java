@@ -21,6 +21,13 @@ public class DemandServiceStatistic {
 	private final String demandId;
 	
 	private final String vehicleId;
+    
+    private final int tripId;
+    
+    
+    public int getTripId(){
+        return tripId;
+    }
 
     public long getDemandTime() {
         return demandTime;
@@ -49,15 +56,15 @@ public class DemandServiceStatistic {
 	
 
     public DemandServiceStatistic(long demandTime, long pickupTime, long dropoffTime, long minPossibleServiceDelay,
-			String demandId, 
-			String vehicleId) {
+			String demandId, String vehicleId, int tripId) {
         this.demandTime = demandTime;
 		this.pickupTime = pickupTime;
         this.dropoffTime = dropoffTime;
 		this.minPossibleServiceDelay = minPossibleServiceDelay;
 		this.demandId = demandId;
 		this.vehicleId = vehicleId;
+        this.tripId = tripId;
     }
     
-    
+     
 }

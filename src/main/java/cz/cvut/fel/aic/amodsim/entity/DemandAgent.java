@@ -24,7 +24,7 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.DemandSimulationEntityType;
-import cz.cvut.fel.aic.amodsim.io.TimeValueTrip;
+import cz.cvut.fel.aic.amodsim.io.TimeTripWithValue;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.statistics.DemandServiceStatistic;
 import cz.cvut.fel.aic.amodsim.statistics.StatisticEvent;
@@ -41,7 +41,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandAgent.class);
     
     private final int simpleId;
-	private final TimeTrip<SimulationNode> trip;
+	private final TimeTripWithValue<SimulationNode> trip;
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
 	private final boolean precomputedPaths;
     private final EventProcessor eventProcessor;
@@ -71,7 +71,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
             DemandStorage demandStorage, Map<Long,SimulationNode> nodesMappedByNodeSourceIds, 
 			StandardTimeProvider timeProvider, Statistics statistics, TripsUtil tripsUtil,
             @Named("precomputedPaths") boolean precomputedPaths, @Assisted String agentId, @Assisted int id,
-            @Assisted TimeTrip<SimulationNode> trip) {
+            @Assisted TimeTripWithValue<SimulationNode> trip) {
 		super(agentId, trip.getLocations().get(0));
         this.simpleId = id;
 		this.trip = trip;
@@ -88,6 +88,11 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
         rideValue = 0;
 	}
 
+    public int getTripId(){
+        return trip.id;
+        
+    }
+    
     
     public int getSimpleId() {
         return simpleId;
@@ -185,7 +190,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
         eventProcessor.addEvent(StatisticEvent.DEMAND_DROPPED_OFF, null, null, 
                 new DemandServiceStatistic(demandTime, realPickupTime, timeProvider.getCurrentSimTime(), 
 						minDemandServiceDuration,
-						getId(), vehicle.getId()));
+						getId(), vehicle.getId(), trip.id));
 		
         die();
     }
@@ -223,7 +228,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 
        
     public interface DemandAgentFactory {
-        public DemandAgent create(String agentId, int id, TimeTrip<SimulationNode> osmNodeTrip);
+        public DemandAgent create(String agentId, int id, TimeTripWithValue<SimulationNode> osmNodeTrip);
     }
 	
 }

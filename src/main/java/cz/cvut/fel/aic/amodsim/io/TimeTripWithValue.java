@@ -14,18 +14,18 @@ import java.util.LinkedList;
  * @author olga
  * @param <L> location type
  */
-public class TimeValueTrip<L> extends TimeTrip<L>{
+public class TimeTripWithValue<L> extends TimeTrip<L>{
     public final int id;
     private final double value;
     private int[] path;
 
-	public TimeValueTrip(int tripId, LinkedList<L> locations, long startTime, double rideValue){
+	public TimeTripWithValue(int tripId, LinkedList<L> locations, long startTime, double rideValue){
         super(locations, startTime);
 		id = tripId;
         value = rideValue;
 	}
     
-    public TimeValueTrip(int tripId, L startLocation, L endLocation, long startTime, double rideValue){
+    public TimeTripWithValue(int tripId, L startLocation, L endLocation, long startTime, double rideValue){
         super(startLocation, endLocation, startTime);
         this.value = rideValue;
         this.id = tripId;

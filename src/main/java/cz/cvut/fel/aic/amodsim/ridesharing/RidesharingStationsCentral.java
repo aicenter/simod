@@ -47,7 +47,6 @@ public class RidesharingStationsCentral extends OnDemandVehicleStationsCentral{
     
 	@Override
 	protected void serveDemand(Node startNode, DemandData demandData) {
-        //LOGGER.info("Demand is accepted, count {}",  acceptedDemandCount);
 		List<OnDemandRequest> requests = new LinkedList<>();
 		requests.add(new OnDemandRequest(demandData.demandAgent, demandData.locations.get(1)));
         
@@ -55,7 +54,6 @@ public class RidesharingStationsCentral extends OnDemandVehicleStationsCentral{
 		
 		if(newPlans.isEmpty()){
 			numberOfDemandsDropped++;
-            //LOGGER.info("Demand is dropped, count {}", numberOfDemandsDropped);
 			demandData.demandAgent.setDropped(true);
 		}
 		else{

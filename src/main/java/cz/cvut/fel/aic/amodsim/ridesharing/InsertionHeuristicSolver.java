@@ -141,7 +141,6 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		sb.append("Can serve call count: ").append(canServeRequestCallCount).append("\n");
 		sb.append("Vehicle planning call count: ").append(vehiclePlanningAllCallCount).append("\n");
 		sb.append("Traveltime call count: ").append(((EuclideanTravelTimeProvider) travelTimeProvider).getCallCount()).append("\n");
-		sb.append("Filtered by bounding box: ").append(outOfBox);
         System.out.println(sb.toString());
             }
             return planMap;
@@ -227,7 +226,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 	private DriverPlan insertIntoPlan(DriverPlan currentPlan, int pickupOptionIndex, int dropoffOptionIndex, 
 			OnDemandRequest request, RideSharingOnDemandVehicle vehicle, long minTimeFromProvider) {
 		List<DriverPlanTask> newPlan = new LinkedList<>();
-		
+		//System.out.println("vehicle.getId() "+ vehicle.getId()+"; getVehicleId()"+vehicle.getVehicleId());
 		Iterator<DriverPlanTask> oldPlanIterator = currentPlan.iterator();
 		DriverPlanTask previousTask = null;
 
@@ -402,7 +401,8 @@ public class InsertionHeuristicSolver extends DARPSolver{
 			System.out.println("Request " + requestId + ": Cannot serve request - Too big traveltime to startLoaction: " + bestTravelTimne);
 		}
 		else{
-			System.out.println("Request " + requestId + ": Cannot serve request - Some other problem - all nearby vehicle plans infeasible?");
+			System.out.println("Request " + requestId + "; tripId "+request.getDemandAgent().getTripId() 
+                + ": Cannot serve request - Some other problem - all nearby vehicle plans infeasible?");
 		}
 	}
 

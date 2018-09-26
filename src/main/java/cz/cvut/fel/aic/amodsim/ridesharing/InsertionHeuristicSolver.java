@@ -392,16 +392,18 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		}	
 		String requestId = request.getDemandAgent().getId();
 		if(!freeVehicle){
-			System.out.println("Request " + requestId + ": Cannot serve request - No free vehicle");
+			System.out.println("Request " + request.getDemandAgent().getTripId() + ": Cannot serve request - No free vehicle");
 		}
 		else if(bestCartesianDistance > maxDistance){
-			System.out.println("Request " + requestId + ": Cannot serve request - Too big distance: " + bestCartesianDistance + "m (max distance: " + maxDistance + ")");
+			System.out.println("Request " + request.getDemandAgent().getTripId()  + ": Cannot serve request - Too big distance: "
+                + bestCartesianDistance + "m (max distance: " + maxDistance + ")");
 		}
 		else if(bestTravelTimne > maxDelayTime){
-			System.out.println("Request " + requestId + ": Cannot serve request - Too big traveltime to startLoaction: " + bestTravelTimne);
+			System.out.println("Request " + request.getDemandAgent().getTripId()  
+                + ": Cannot serve request - Too big traveltime to startLoaction: " + bestTravelTimne);
 		}
 		else{
-			System.out.println("Request " + requestId + "; tripId "+request.getDemandAgent().getTripId() 
+			System.out.println("Request " + request.getDemandAgent().getTripId() 
                 + ": Cannot serve request - Some other problem - all nearby vehicle plans infeasible?");
 		}
 	}

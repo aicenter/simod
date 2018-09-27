@@ -160,7 +160,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
     @Override
     public EventProcessor getEventProcessor() {
-        return null;
+        return eventProcessor;
     }
     
     public String getVehicleId(){

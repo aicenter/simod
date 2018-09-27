@@ -26,39 +26,20 @@ import java.util.Set;
  * @author F.I.D.O.
  */
 public class InsertionHeuristicSolver extends DARPSolver{
-	
-    
 	private static final int INFO_PERIOD = 100000;
-	
-//	private static 
-
 	private final PositionUtil positionUtil;
-	
 	private final AmodsimConfig config;
-	
 	private final double maxDistance;
-	
 	private final double maxDistanceSquared;
-	
 	private final int maxDelayTime;
-	
 	private final TimeProvider timeProvider;
-	
 	private long callCount = 0;
-	
 	private long totalTime = 0;
-	
 	private long iterationTime = 0;
-	
 	private long canServeRequestCallCount = 0;
-	
 	private long vehiclePlanningAllCallCount = 0;
-	double[] bbox = {59, 60, 24, 25}; 
-    private int outOfBox = 0;
-    private int tooLong = 0;
 
-	
-	
+		
 	@Inject
 	public InsertionHeuristicSolver(TravelTimeProvider travelTimeProvider, TravelCostProvider travelCostProvider, 
 			OnDemandVehicleStorage vehicleStorage, PositionUtil positionUtil,

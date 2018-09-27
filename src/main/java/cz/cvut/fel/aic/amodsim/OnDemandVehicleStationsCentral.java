@@ -36,23 +36,14 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     
     private final OnDemandvehicleStationStorage onDemandvehicleStationStorage;
     private final Transformer transformer;
-    
     private final EventProcessor eventProcessor;
-	
-    private final AmodsimConfig config;
-    
+	private final AmodsimConfig config;
     private NearestElementUtil<OnDemandVehicleStation> nearestElementUtil;
-    
     private int numberOfDemandsNotServedFromNearestStation;
-    
     protected int numberOfDemandsDropped;
-    
     private int demandsCount;
-    
     private int rebalancingDropped;
-
-    
-    
+      
     
     public int getNumberOfDemandsNotServedFromNearestStation() {
         return numberOfDemandsNotServedFromNearestStation;

@@ -11,5 +11,6 @@ package cz.cvut.fel.aic.amodsim.event;
  */
 public enum OnDemandVehicleStationsCentralEvent{
     DEMAND,
-    REBALANCING
+    REBALANCING,
+    CHARGING_COMPLETE;
 }

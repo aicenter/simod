@@ -233,9 +233,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     
     private class DepartureCard{
         private final OnDemandVehicle demandVehicle;
-        
         private final OnDemandVehicleStation targetStation;
-
         public OnDemandVehicle getDemandVehicle() {
             return demandVehicle;
         }

@@ -41,6 +41,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     private DriverPlan currentPlan;
     private DriverPlanTask currentTask;
     
+    double metersFromLastRecharge;
     
     public DriverPlan getCurrentPlan() {
         currentPlan.updateCurrentPosition(getPosition());
@@ -60,10 +61,11 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
                 rebalancingIdGenerator, config, vehicleId, startPosition);
         this.positionUtil = positionUtil;
 		
-//	empty plan
-	LinkedList<DriverPlanTask> plan = new LinkedList<>();
-	plan.add(new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, getPosition()));
-	currentPlan = new DriverPlan(plan, 0);
+        //	empty plan
+        LinkedList<DriverPlanTask> plan = new LinkedList<>();
+        plan.add(new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, getPosition()));
+        currentPlan = new DriverPlan(plan, 0);
+        metersFromLastRecharge = 0; 
     }
 
     @Override
@@ -80,11 +82,11 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	
     public void replan(DriverPlan plan){
         currentPlan = plan;
-	if(state != OnDemandVehicleState.WAITING){
+        if(state != OnDemandVehicleState.WAITING){
             ((PhysicalVehicleDrive) getCurrentTopLevelActivity()).end();
-	}else{
+        }else{
             driveToNextTask();
-	}
+        }
     }
 
     @Override
@@ -111,17 +113,28 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
     @Override
     protected void driveToNearestStation() {
-	state = OnDemandVehicleState.DRIVING_TO_STATION;
-        targetStation = onDemandVehicleStationsCentral.getNearestStation(getPosition());
-        
-	if(getPosition().equals(targetStation.getPosition())){
-            finishDrivingToStation(currentTask.demandAgent);
-	}else{
+        state = OnDemandVehicleState.DRIVING_TO_STATION;
+            targetStation = onDemandVehicleStationsCentral.getNearestStation(getPosition());
+
+        if(getPosition().equals(targetStation.getPosition())){
+                finishDrivingToStation(currentTask.demandAgent);
+        }else{
             currentTrip = tripsUtil.createTrip(getPosition().id, 
             targetStation.getPosition().getId(), vehicle);
             driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
-	}
+        }
     }
+    
+    protected void driveToNearestStationToCharge() {
+        state = OnDemandVehicleState.CHARGING;
+		if(tripToStation == null){
+			return;
+		}
+	    currentTrip = tripToStation;  
+        driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
+    }
+
+      
 
     @Override
     public void finishedDriving(boolean wasStopped) {
@@ -143,6 +156,11 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
                 case REBALANCING:
                     finishRebalancing();
                     break;
+                case CHARGING:
+                    System.out.println("Arrived to station for charging");
+                    // add new event, so that after 2 hours vehicle state is changed from 
+                    //charging to waiting.
+                    break;
             }
         }
     }
@@ -152,32 +170,28 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
             if(state != OnDemandVehicleState.WAITING){
                 driveToNearestStation();
             }
-	}else{
+        }else{
             currentTask = currentPlan.getNextTask();
             if(state == OnDemandVehicleState.WAITING){
             	parkedIn.releaseVehicle(this);
-		leavingStationEvent();
+                leavingStationEvent();
             }
             if(currentTask.getTaskType() == DriverPlanTaskType.PICKUP){
-		driveToDemandStartLocation();
+                driveToDemandStartLocation();
             }else{
-		driveToTargetLocation();
+                driveToTargetLocation();
             }
-	}
+        }
     }
 
     private void pickupAndContinue() {
-	currentTask.demandAgent.tripStarted(this);
+        currentTask.demandAgent.tripStarted(this);
         vehicle.pickUp(currentTask.demandAgent);
-		// statistics TODO demand tirp?
-//		demandTrip = tripsUtil.createTrip(currentTask.getDemandAgent().getPosition().id,
-//				currentTask.getLocation().id, vehicle);
-		// demand trip length 0 - need to find out where the statistic is used, does it make sense with rebalancing?
         eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
                 new PickupEventContent(timeProvider.getCurrentSimTime(), 
                 currentTask.demandAgent.getSimpleId(),0));
-	currentPlan.taskCompleted();
-	driveToNextTask();
+        currentPlan.taskCompleted();
+        driveToNextTask();
 	}
 
     private void dropOffAndContinue() {
@@ -202,28 +216,30 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	
     @Override
     public VehicleTrip getCurrentTripPlan() {
-	return currentTrip;
+        return currentTrip;
     }
 
     boolean hasFreeCapacity() {
-	return getFreeCapacity() > 0;
+        return getFreeCapacity() > 0;
     }
 
     private void logTraveledDistance(boolean wasStopped) {
-	int length = wasStopped ? positionUtil.getTripLengthInMeters(currentTrip, getPosition())
+        int length = wasStopped ? positionUtil.getTripLengthInMeters(currentTrip, getPosition())
 				: positionUtil.getTripLengthInMeters(currentTrip);
-		
-	if(getOnBoardCount() > 0){
+		//System.out.println("Log trave distance: length "+length);
+        metersFromLastRecharge += length;
+        
+        if(getOnBoardCount() > 0){
             metersWithPassenger += length;
-	}else{
+        }else{
             switch(state){
-                case DRIVING_TO_START_LOCATION:
-			metersToStartLocation += length;
-			break;
-		case DRIVING_TO_STATION:
-                    metersToStation += length;
-                    break;
+            case DRIVING_TO_START_LOCATION:
+                metersToStartLocation += length;
+                break;
+            case DRIVING_TO_STATION:
+                metersToStation += length;
+                break;
             }
-	}
-    }
+        }
+    }   
 }

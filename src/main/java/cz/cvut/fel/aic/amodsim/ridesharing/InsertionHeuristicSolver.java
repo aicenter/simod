@@ -134,6 +134,10 @@ public class InsertionHeuristicSolver extends DARPSolver{
             if(vehicle.getState() == OnDemandVehicleState.REBALANCING){
                 return false;
             }
+            if(vehicle.metersFromLastRecharge >= 175000){
+                //System.out.println("Vehicle needs to recharge");
+                vehicle.driveToNearestStationToCharge();
+            }
             if(vehicle.getState() == OnDemandVehicleState.CHARGING){
                 return false;
             }

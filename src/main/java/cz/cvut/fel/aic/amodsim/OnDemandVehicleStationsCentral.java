@@ -153,6 +153,16 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
 		
 		serveDemand(startNode, demandData);
     }
+    
+    protected void serveDemand(Node startNode, DemandData demandData) {
+        OnDemandVehicleStation nearestStation = getNearestReadyStation(startNode); 
+        if(nearestStation != null){
+            nearestStation.handleTripRequest(demandData);
+        }
+        else{
+            numberOfDemandsDropped++;
+        }
+    }
 
     protected void serveRebalancing(Event event) {
         TimeTrip<OnDemandVehicleStation> rebalancingTrip = (TimeTrip<OnDemandVehicleStation>) event.getContent();
@@ -166,19 +176,7 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     private int getNumberOfstations() {
         return onDemandvehicleStationStorage.getEntityIds().size();
     }
-
-	protected void serveDemand(Node startNode, DemandData demandData) {
-            OnDemandVehicleStation nearestStation = getNearestReadyStation(startNode); 
-            if(nearestStation != null){
-		nearestStation.handleTripRequest(demandData);
-            }
-            else{
-		numberOfDemandsDropped++;
-            }
-	}
-    
-    
-    
+   
     
     private static class OnDemandVehicleStationArrayConstructor 
         implements SerializableIntFunction<OnDemandVehicleStation[]>{

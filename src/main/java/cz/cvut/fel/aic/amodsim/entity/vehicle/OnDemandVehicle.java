@@ -50,8 +50,7 @@ import java.util.ArrayList;
  *
  * @author fido
  */
-public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgent,
-        Driver<PhysicalTransportVehicle>{
+public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgent,Driver<PhysicalTransportVehicle>{
     
     private static final double LENGTH = 4;
     protected PhysicalTransportVehicle vehicle;
@@ -81,6 +80,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     private DemandData currentlyServedDemand;
     private int currentRebalancingId;
 	protected OnDemandVehicleStation parkedIn;
+    
     
     
     

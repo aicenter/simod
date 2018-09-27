@@ -125,24 +125,24 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
     @Override
     public void finishedDriving(boolean wasStopped) {
-	logTraveledDistance(wasStopped);
+        logTraveledDistance(wasStopped);
 	
         if(wasStopped){
             driveToNextTask();
-	}else{
+        }else{
             switch(state){
                 case DRIVING_TO_START_LOCATION:
                     pickupAndContinue();
                     break;
-		case DRIVING_TO_TARGET_LOCATION:
+                case DRIVING_TO_TARGET_LOCATION:
                     dropOffAndContinue();
                     break;
-		case DRIVING_TO_STATION:
+                case DRIVING_TO_STATION:
                     finishDrivingToStation(currentTask.demandAgent);
-		    break;
-		case REBALANCING:
-		    finishRebalancing();
-		    break;
+                    break;
+                case REBALANCING:
+                    finishRebalancing();
+                    break;
             }
         }
     }

@@ -132,7 +132,10 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		
             // do not mess with rebalancing
             if(vehicle.getState() == OnDemandVehicleState.REBALANCING){
-		return false;
+                return false;
+            }
+            if(vehicle.getState() == OnDemandVehicleState.CHARGING){
+                return false;
             }
 		
             // node identity

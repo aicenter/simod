@@ -81,8 +81,11 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     private int currentRebalancingId;
 	protected OnDemandVehicleStation parkedIn;
     
+    double chargeLeft;
     
-    
+    public double getChargeLeft(){
+     return chargeLeft;
+    }
     
     public VehicleTrip getCurrentTrips() {
         return currentTrip;

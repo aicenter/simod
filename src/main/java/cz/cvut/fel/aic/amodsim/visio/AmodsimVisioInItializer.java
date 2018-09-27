@@ -104,9 +104,8 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
     protected void initEntityLayers(Simulation simulation) {
         VisManager.registerLayer(layerManagementLayer.createManageableLayer("Stations", onDemandVehicleStationsLayer));
         VisManager.registerLayer(layerManagementLayer.createManageableLayer("Vehicles", onDemandVehicleLayer));
-        VisManager.registerLayer(layerManagementLayer.createManageableLayer("Passengers", demandLayer));
-
-        VisManager.registerLayer(onDemandVehiclePlanLayer);
+        VisManager.registerLayer(layerManagementLayer.createManageableLayer("Passangers", demandLayer));
+		VisManager.registerLayer(onDemandVehiclePlanLayer);
     }
 
     @Override

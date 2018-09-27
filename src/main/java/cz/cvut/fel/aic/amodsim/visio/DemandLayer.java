@@ -34,7 +34,7 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
 
 	private static final Color DROPPED_COLOR = Color.MAGENTA;
 
-	private static final int SIZE = 2;
+	private static final int SIZE = 1;
 
 	private static final int TRANSFORMABLE_SIZE = 4;
 

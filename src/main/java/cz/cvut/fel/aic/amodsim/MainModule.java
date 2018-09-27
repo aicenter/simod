@@ -78,7 +78,7 @@ public class MainModule extends StandardAgentPolisModule{
         if(amodsimConfig.amodsim.useTripCache){
             bind(TripsUtil.class).to(TripsUtilCached.class);
         }
-//        bind(DemandLayer.class).to(DemandLayerWithJitter.class);
+        bind(DemandLayer.class).to(DemandLayerWithJitter.class);
 
         
 //      bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);

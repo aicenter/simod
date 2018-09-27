@@ -390,6 +390,8 @@ public class Statistics extends AliteEntity implements EventHandler{
                 case FINISH_REBALANCING:
                     filepath = config.amodsim.statistics.onDemandVehicleStatistic.finishRebalancingFilePath;
                     break;
+                default:
+                    continue;
             }
             
             try {

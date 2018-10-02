@@ -171,9 +171,6 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 
     private void charge() {
         //LOGGER.info(vehicle.getId()+": Arrived to station for charging after "+ metersFromLastRecharge/1000 +" km");
-        if(metersFromLastRecharge > maxDrivingRange){
-            LOGGER.error(vehicle.getId()+": max driving range exceeded " + metersFromLastRecharge);
-        }
         if(getOnBoardCount() > 0){
             LOGGER.error("Arrived to station with "+getOnBoardCount()+" passenger(s)");
         }
@@ -224,7 +221,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
             LOGGER.error(vehicle.getId() + ", wrong target location");
         }
         if(tripDuration > maxRideTime){
-            LOGGER.error(vehicle.getId() + " max ride time exceeded: " + tripDuration+"; count "+(++tooLongTripsCount));
+            LOGGER.error(vehicle.getId() + " max ride time exceeded: " + tripDuration);
         }
         vehicle.dropOff(currentTask.demandAgent);
 
@@ -254,6 +251,9 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
         int length = wasStopped ? positionUtil.getTripLengthInMeters(currentTrip, getPosition()) : positionUtil.getTripLengthInMeters(currentTrip);
         //System.out.println("Log trave distance: length "+length);
         metersFromLastRecharge += length;
+        if(metersFromLastRecharge > maxDrivingRange){
+            LOGGER.error(vehicle.getId()+": max driving range exceeded " + metersFromLastRecharge);
+        }
 
         if (getOnBoardCount() > 0) {
             metersWithPassenger += length;

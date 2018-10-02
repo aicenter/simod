@@ -11,6 +11,7 @@ public class DriverPlanTask {
 	private final DriverPlanTaskType taskType;
 	public final DemandAgent demandAgent;
 	private final SimulationNode location;
+    
     public DriverPlanTaskType getTaskType() {
 		return taskType;
 	}

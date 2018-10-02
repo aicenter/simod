@@ -85,7 +85,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		this.tripsUtil = tripsUtil;
         state = DemandAgentState.WAITING;
 		dropped = false;
-        rideValue = 0;
+        rideValue = trip.getRideValue();
 	}
 
     public int getTripId(){

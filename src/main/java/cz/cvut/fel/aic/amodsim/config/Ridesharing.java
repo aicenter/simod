@@ -5,6 +5,10 @@ import java.lang.Integer;
 import java.util.Map;
 
 public class Ridesharing {
+  public Integer chargingTime;
+
+  public Integer drivingRange;
+
   public Integer maxRideTime;
 
   public Integer maxSpeedEstimation;
@@ -18,6 +22,8 @@ public class Ridesharing {
   public Boolean on;
 
   public Ridesharing(Map ridesharing) {
+    this.chargingTime = (Integer) ridesharing.get("charging_time");
+    this.drivingRange = (Integer) ridesharing.get("driving_range");
     this.maxRideTime = (Integer) ridesharing.get("max_ride_time");
     this.maxSpeedEstimation = (Integer) ridesharing.get("max_speed_estimation");
     this.vehicleCapacity = (Integer) ridesharing.get("vehicle_capacity");

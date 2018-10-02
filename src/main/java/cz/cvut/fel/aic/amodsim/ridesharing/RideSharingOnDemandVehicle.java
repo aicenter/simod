@@ -22,7 +22,6 @@ import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
-import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTask;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTaskType;
@@ -40,14 +39,18 @@ import java.util.LinkedList;
 public class RideSharingOnDemandVehicle extends OnDemandVehicle {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RideSharingOnDemandVehicle.class);
 
+    private static int tooLongTripsCount = 0;
 
     private final PositionUtil positionUtil;
     private DriverPlan currentPlan;
     private DriverPlanTask currentTask;
 
     double metersFromLastRecharge;
-    private long chargingTimeInMs;
-
+    private final long chargingTime;
+    private final double maxDrivingRange;
+    private final double maxRideTime;
+        
+    
     public DriverPlan getCurrentPlan() {
         currentPlan.updateCurrentPosition(getPosition());
         return currentPlan;
@@ -60,18 +63,21 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
         super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, eventProcessor, timeProvider, precomputedPaths, rebalancingIdGenerator,
                 config, vehicleId, startPosition);
         this.positionUtil = positionUtil;
-        this.chargingTimeInMs = 2 * 60 * 60 * 1000;
-
+        this.chargingTime = config.amodsim.ridesharing.chargingTime * 60 * 1000;
+        this.maxDrivingRange = config.amodsim.ridesharing.drivingRange * 1000;
+        this.maxRideTime = config.amodsim.ridesharing.maxRideTime * 60 * 1000;
+        
         //	empty plan
         LinkedList<DriverPlanTask> plan = new LinkedList<>();
         plan.add(new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, getPosition()));
         currentPlan = new DriverPlan(plan, 0);
-        metersFromLastRecharge = 0;
+        
     }
 
     @Override public void handleEvent(Event event) {
         if (event.getType().equals(OnDemandVehicleEvent.CHARGING_COMPLETED)) {
-            LOGGER.info(vehicle.getId() + ": Charged");
+            //LOGGER.info(vehicle.getId() + ": Charged");
+            metersFromLastRecharge = 0;
             waitInStation();
         }
     }
@@ -164,8 +170,15 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
     }
 
     private void charge() {
-        LOGGER.info(vehicle.getId()+": Arrived to station for charging");
-        getEventProcessor().addEvent(OnDemandVehicleEvent.CHARGING_COMPLETED, this, null, null, chargingTimeInMs);
+        //LOGGER.info(vehicle.getId()+": Arrived to station for charging after "+ metersFromLastRecharge/1000 +" km");
+        if(metersFromLastRecharge > maxDrivingRange){
+            LOGGER.error(vehicle.getId()+": max driving range exceeded " + metersFromLastRecharge);
+        }
+        if(getOnBoardCount() > 0){
+            LOGGER.error("Arrived to station with "+getOnBoardCount()+" passenger(s)");
+        }
+        getEventProcessor().addEvent(OnDemandVehicleEvent.CHARGING_COMPLETED, this, null, null, chargingTime);
+        metersFromLastRecharge = 0;
         // add new event, so that after 2 hours vehicle state is changed from
         //charging to waiting.
     }
@@ -173,7 +186,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
     private void driveToNextTask() {
         if (currentPlan.getLength() == 1) {
             if (state != OnDemandVehicleState.WAITING) {
-                if (metersFromLastRecharge >= 150000) {
+                if (metersFromLastRecharge >= maxDrivingRange * 0.75) {
                     driveToNearestStationToCharge();
                 } else {
                     driveToNearestStation();
@@ -195,6 +208,9 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 
     private void pickupAndContinue() {
         currentTask.demandAgent.tripStarted(this);
+        if (getPosition().id != currentTask.getLocation().id) {
+            LOGGER.error(vehicle.getId() + ", wrong start location");
+        }
         vehicle.pickUp(currentTask.demandAgent);
         eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, new PickupEventContent(timeProvider.getCurrentSimTime(), currentTask.demandAgent.getSimpleId(), 0));
         currentPlan.taskCompleted();
@@ -202,12 +218,20 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
     }
 
     private void dropOffAndContinue() {
+        double tripDuration = currentTask.getDemandAgent().getCurrentServiceDuration();
         currentTask.demandAgent.tripEnded();
+        if (getPosition().id != currentTask.getLocation().id) {
+            LOGGER.error(vehicle.getId() + ", wrong target location");
+        }
+        if(tripDuration > maxRideTime){
+            LOGGER.error(vehicle.getId() + " max ride time exceeded: " + tripDuration+"; count "+(++tooLongTripsCount));
+        }
         vehicle.dropOff(currentTask.demandAgent);
 
         // statistics
         eventProcessor
-                .addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), currentTask.demandAgent.getSimpleId()));
+                .addEvent(OnDemandVehicleEvent.DROP_OFF, null, null,
+                    new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), currentTask.demandAgent.getSimpleId()));
 
         currentPlan.taskCompleted();
         driveToNextTask();

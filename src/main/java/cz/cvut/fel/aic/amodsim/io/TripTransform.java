@@ -17,6 +17,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestE
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.NearestElementUtil;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import jogamp.opengl.util.stereo.GenericStereoDevice;
 import me.tongfei.progressbar.ProgressBar;
 import org.slf4j.LoggerFactory;
 
@@ -51,18 +53,21 @@ public class TripTransform {
     private int totalTrips = 0;
     
     //move to config
-    private int maxRide = 25000; //meters,  30 min @ 50 km/h
-    private int pickupRadius = 50; //meters
+    private int maxRideDistance;
+    private int pickupRadius;
         
     private final Graph<SimulationNode,SimulationEdge> highwayGraph;
     private final NearestElementUtils nearestElementUtils;
 
     
     @Inject
-    public TripTransform(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils) {
+    public TripTransform(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils,
+        AmodsimConfig config) {
         this.highwayGraph = highwayNetwork.getNetwork();
         this.nearestElementUtils = nearestElementUtils;
-    }
+        pickupRadius = config.amodsim.ridesharing.pickupRadius;
+        maxRideDistance = config.amodsim.ridesharing.maxRideTime * 60 * config.amodsim.ridesharing.maxSpeedEstimation;
+    }   
        
 
 	public static <T> void tripsToJson(List<TimeTripWithValue<T>> trips, File outputFile) throws IOException{

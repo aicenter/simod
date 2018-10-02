@@ -39,9 +39,8 @@ public class InsertionHeuristicSolver extends DARPSolver {
         this.positionUtil = positionUtil;
         this.config = config;
         this.timeProvider = timeProvider;
-        //		maxDistance = (double) config.amodsim.ridesharing.maxWaitTime
-        //				* config.amodsim.ridesharing.maxSpeedEstimation / 3600 * 1000;
-        maxDistance = 2500;
+        maxDistance = (double ) config.amodsim.ridesharing.maxWaitTime 
+            * config.amodsim.ridesharing.maxSpeedEstimation / 3.6; 
         maxDistanceSquared = maxDistance * maxDistance;
         maxDelayTime = config.amodsim.ridesharing.maxWaitTime * 1000;
     }
@@ -125,9 +124,7 @@ public class InsertionHeuristicSolver extends DARPSolver {
         }
         if (vehicle.metersFromLastRecharge >= 150000) {
             return false;
-            //System.out.println("Vehicle needs to recharge");
         }
-
         // node identity
         if (vehicle.getPosition() == request.getPosition()) {
             return true;

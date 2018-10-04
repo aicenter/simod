@@ -189,8 +189,10 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
         }
         eventProcessor.addEvent(StatisticEvent.DEMAND_DROPPED_OFF, null, null, 
                 new DemandServiceStatistic(demandTime, realPickupTime, timeProvider.getCurrentSimTime(), 
-						minDemandServiceDuration,
-						getId(), vehicle.getId(), trip.id));
+						minDemandServiceDuration, getId(), vehicle.getId(), trip.id,
+                        trip.getLocations().get(0).getLatitude(),trip.getLocations().get(0).getLongitude(),
+                        trip.getLocations().get(trip.getLocations().size()-1).getLatitude(),
+                        trip.getLocations().get(trip.getLocations().size()-1).getLongitude()));
 		
         die();
     }

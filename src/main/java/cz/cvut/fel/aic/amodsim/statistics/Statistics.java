@@ -347,14 +347,26 @@ public class Statistics extends AliteEntity implements EventHandler{
         try {
             CsvWriter writer = new CsvWriter(
                     Common.getFileWriter(config.amodsim.statistics.serviceFilePath));
-            writer.writeLine("demand time", "demand id", "trip id", "vehicle id", "pickup time", "dropoff time", "min possible delay"); 
+            writer.writeLine("vehicle_id", "request_id", "request_time","pickup_time", "dropoff_time",
+                            "pickup_lat", "pickup_lon", "dropoff_lat", "dropoff_lon"); 
+            
+            Map<String, Integer> vehicleIds = new HashMap<>();
+            for(DemandServiceStatistic demandServiceStatistic: demandServiceStatistics) {
+                if(!vehicleIds.containsKey(demandServiceStatistic.getVehicleId())){
+                    vehicleIds.put(demandServiceStatistic.getVehicleId(), vehicleIds.size());
+                }
+            }
+            
             for (DemandServiceStatistic demandServiceStatistic: demandServiceStatistics) {
-				writer.writeLine(Long.toString(demandServiceStatistic.getDemandTime()), 
-						demandServiceStatistic.getDemandId(), Integer.toString(demandServiceStatistic.getTripId()),
-                        demandServiceStatistic.getVehicleId(), 
-						Long.toString(demandServiceStatistic.getPickupTime()), 
-						Long.toString(demandServiceStatistic.getDropoffTime()), 
-						Long.toString(demandServiceStatistic.getMinPossibleServiceDelay()));
+				writer.writeLine(Integer.toString(vehicleIds.get(demandServiceStatistic.getVehicleId())), 
+                                Integer.toString(demandServiceStatistic.getTripId()),
+                                Long.toString(demandServiceStatistic.getDemandTime()), 
+                                Long.toString(demandServiceStatistic.getPickupTime()), 
+                                Long.toString(demandServiceStatistic.getDropoffTime()), 
+                                Double.toString(demandServiceStatistic.getPickupLat()),
+                                Double.toString(demandServiceStatistic.getPickupLon()),
+                                Double.toString(demandServiceStatistic.getDropoffLat()),
+                                Double.toString(demandServiceStatistic.getDropoffLon()));
             }
             writer.close();
         } catch (IOException ex) {

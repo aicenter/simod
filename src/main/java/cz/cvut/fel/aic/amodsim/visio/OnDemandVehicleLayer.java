@@ -55,7 +55,7 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
     protected boolean skipDrawing(PhysicalTransportVehicle vehicle) {
         OnDemandVehicle onDemandVehicle = (OnDemandVehicle) vehicle.getDriver();
         
-        if(onDemandVehicle.getState() == OnDemandVehicleState.WAITING){
+        if(onDemandVehicle.getParkedIn() != null){
             return true;
         }
         else{

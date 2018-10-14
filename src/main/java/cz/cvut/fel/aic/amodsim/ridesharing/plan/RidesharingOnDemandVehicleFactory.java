@@ -28,17 +28,17 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 	public RidesharingOnDemandVehicleFactory(PhysicalTransportVehicleStorage vehicleStorage, TripsUtil tripsUtil, 
 			OnDemandVehicleStationsCentral onDemandVehicleStationsCentral,
 			PhysicalVehicleDriveFactory driveActivityFactory, PositionUtil positionUtil, 
-			EventProcessor eventProcessor, StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator,
-			@Named("precomputedPaths") boolean precomputedPaths, AmodsimConfig config) {
+			EventProcessor eventProcessor, StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, 
+			AmodsimConfig config) {
 		super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, 
-				eventProcessor, timeProvider, rebalancingIdGenerator, precomputedPaths, config);
+				eventProcessor, timeProvider, rebalancingIdGenerator, config);
 	}
 
 	@Override
 	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition) {
 		return new RideSharingOnDemandVehicle(vehicleStorage, tripsUtil, 
                 onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, eventProcessor, timeProvider, 
-                precomputedPaths, rebalancingIdGenerator, config, vehicleId, startPosition);
+                rebalancingIdGenerator, config, vehicleId, startPosition);
 	}
 	
 	

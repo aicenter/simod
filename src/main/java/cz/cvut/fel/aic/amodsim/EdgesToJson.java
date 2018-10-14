@@ -5,7 +5,7 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
-import cz.cvut.fel.aic.agentpolis.simmodel.mapInitialization.MapInitializer;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import ninja.fido.config.Configuration;
 import com.google.inject.Injector;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;

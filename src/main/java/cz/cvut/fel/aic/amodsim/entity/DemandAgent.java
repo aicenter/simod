@@ -44,14 +44,10 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	private final TimeTrip<SimulationNode> trip;
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
-	
-	private final boolean precomputedPaths;
     
     private final EventProcessor eventProcessor;
     
     private final DemandStorage demandStorage;
-    
-    private final Map<Long,SimulationNode> nodesMappedByNodeSourceIds;
     
     private final StandardTimeProvider timeProvider;
 	
@@ -137,18 +133,14 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     
     @Inject
 	public DemandAgent(OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
-            DemandStorage demandStorage, Map<Long,SimulationNode> nodesMappedByNodeSourceIds, 
-			StandardTimeProvider timeProvider, Statistics statistics, TripsUtil tripsUtil,
-            @Named("precomputedPaths") boolean precomputedPaths, @Assisted String agentId, @Assisted int id,
-            @Assisted TimeTrip<SimulationNode> trip) {
+            DemandStorage demandStorage, StandardTimeProvider timeProvider, Statistics statistics, TripsUtil tripsUtil,
+			@Assisted String agentId, @Assisted int id, @Assisted TimeTrip<SimulationNode> trip) {
 		super(agentId, trip.getLocations().get(0));
         this.simpleId = id;
 		this.trip = trip;
-		this.precomputedPaths = precomputedPaths;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.eventProcessor = eventProcessor;
         this.demandStorage = demandStorage;
-        this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
         this.timeProvider = timeProvider;
 		this.statistics = statistics;
 		this.tripsUtil = tripsUtil;

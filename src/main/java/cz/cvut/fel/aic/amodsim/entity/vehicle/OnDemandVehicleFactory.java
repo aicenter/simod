@@ -28,8 +28,6 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     
     protected final TripsUtil tripsUtil;
     
-    protected final boolean precomputedPaths;
-    
     protected final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
     protected final PhysicalVehicleDriveFactory driveActivityFactory;
@@ -53,10 +51,8 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     public OnDemandVehicleFactory(PhysicalTransportVehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             PhysicalVehicleDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
-            StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, 
-            @Named("precomputedPaths") boolean precomputedPaths, AmodsimConfig config) {
+            StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config) {
         this.tripsUtil = tripsUtil;
-        this.precomputedPaths = precomputedPaths;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.driveActivityFactory = driveActivityFactory;
         this.positionUtil = positionUtil;
@@ -73,6 +69,6 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     public OnDemandVehicle create(String vehicleId, SimulationNode startPosition){
         return new OnDemandVehicle(vehicleStorage, tripsUtil, 
                 onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, eventProcessor, timeProvider, 
-                precomputedPaths, rebalancingIdGenerator, config, vehicleId, startPosition);
+                rebalancingIdGenerator, config, vehicleId, startPosition);
     }
 }

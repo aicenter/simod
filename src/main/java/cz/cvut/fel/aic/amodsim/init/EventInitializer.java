@@ -76,6 +76,8 @@ public class EventInitializer {
         
         for (TimeTrip<SimulationNode> trip : trips) {
             long startTime = trip.getStartTime() - amodsimConfig.amodsim.startTime;
+			
+			// trip have to start at least 1ms after start of the simulation and no later then last ms of the simulation
             if(startTime < 1 || startTime > agentpolisConfig.simulationDurationInMillis){
                 continue;
             }

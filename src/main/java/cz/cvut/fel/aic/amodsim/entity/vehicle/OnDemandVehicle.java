@@ -62,8 +62,6 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     
     protected final TripsUtil tripsUtil;
     
-    private final boolean precomputedPaths;
-    
     protected final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
     protected final PhysicalVehicleDriveFactory driveFactory;
@@ -143,6 +141,11 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         return metersRebalancing;
     }
 
+	public OnDemandVehicleStation getParkedIn() {
+		return parkedIn;
+	}
+	
+
     // remove in future to be more agent-like
     public void setDepartureStation(OnDemandVehicleStation departureStation) {
         this.departureStation = departureStation;
@@ -161,12 +164,10 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     public OnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             PhysicalVehicleDriveFactory driveFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
-            StandardTimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, 
-            IdGenerator rebalancingIdGenerator, AmodsimConfig config, @Assisted String vehicleId,
-            @Assisted SimulationNode startPosition) {
+            StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, 
+			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
         super(vehicleId + " - autonomus agent", startPosition);
         this.tripsUtil = tripsUtil;
-        this.precomputedPaths = precomputedPaths;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.driveFactory = driveFactory;
         this.positionUtil = positionUtil;
@@ -240,12 +241,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
                 demandNodes.get(0).getId(), vehicle);
             metersToStartLocation += positionUtil.getTripLengthInMeters(currentTrip);
 		}
-        if(precomputedPaths){
-            demandTrip = tripsUtil.locationsToVehicleTrip(demandNodes, precomputedPaths, vehicle);
-        }
-        else{
-            demandTrip = tripsUtil.createTrip(demandNodes.get(0).getId(), demandNodes.get(1).getId(), vehicle);
-        }
+        demandTrip = tripsUtil.createTrip(demandNodes.get(0).getId(), demandNodes.get(1).getId(), vehicle);
         metersWithPassenger += positionUtil.getTripLengthInMeters(demandTrip);
 		
 		Node demandEndNode = demandNodes.get(demandNodes.size() - 1);

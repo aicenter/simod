@@ -56,12 +56,11 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     public RideSharingOnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
             PhysicalVehicleDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor, 
-            StandardTimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, 
-            IdGenerator rebalancingIdGenerator, AmodsimConfig config, @Assisted String vehicleId, 
-            @Assisted SimulationNode startPosition) {
+            StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, 
+			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
         super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
-                driveActivityFactory, positionUtil, eventProcessor, timeProvider, precomputedPaths, 
-                rebalancingIdGenerator, config, vehicleId, startPosition);
+                driveActivityFactory, positionUtil, eventProcessor, timeProvider, rebalancingIdGenerator, config, 
+				vehicleId, startPosition);
         this.positionUtil = positionUtil;
 		
 //		empty plan
@@ -167,6 +166,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			currentTask = currentPlan.getNextTask();
 			if(state == OnDemandVehicleState.WAITING){
 				parkedIn.releaseVehicle(this);
+				parkedIn = null;
 				leavingStationEvent();
 			}
 			if(currentTask.getTaskType() == DriverPlanTaskType.PICKUP){

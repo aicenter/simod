@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -360,9 +361,9 @@ public class Statistics extends AliteEntity implements EventHandler{
             for (DemandServiceStatistic demandServiceStatistic: demandServiceStatistics) {
 				writer.writeLine(Integer.toString(vehicleIds.get(demandServiceStatistic.getVehicleId())), 
                                 Integer.toString(demandServiceStatistic.getTripId()),
-                                Long.toString(demandServiceStatistic.getDemandTime()), 
-                                Long.toString(demandServiceStatistic.getPickupTime()), 
-                                Long.toString(demandServiceStatistic.getDropoffTime()), 
+                                DurationFormatUtils.formatDurationHMS(demandServiceStatistic.getDemandTime()), 
+                                DurationFormatUtils.formatDurationHMS(demandServiceStatistic.getPickupTime()), 
+                                DurationFormatUtils.formatDurationHMS(demandServiceStatistic.getDropoffTime()), 
                                 Double.toString(demandServiceStatistic.getPickupLat()),
                                 Double.toString(demandServiceStatistic.getPickupLon()),
                                 Double.toString(demandServiceStatistic.getDropoffLat()),

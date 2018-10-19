@@ -12,17 +12,21 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.Map
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.SimpleMapInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
+import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactory;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.amodsim.init.EventInitializer;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
+import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Graph;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import org.junit.Assert;
 
 /**
  *
@@ -42,9 +46,7 @@ public class VGASystemTestScenario {
 		AmodsimConfig config = new AmodsimConfig();
         
         File localConfigFile = null;
-//        if(args.length > 0){
-//            localConfigFile = new File(args[0]);
-//        }
+
         // Guice configuration
         AgentPolisInitializer agentPolisInitializer 
 				= new AgentPolisInitializer(new TestModule(config, localConfigFile));
@@ -56,8 +58,7 @@ public class VGASystemTestScenario {
 	
 	
 	public void run(Graph<SimulationNode, SimulationEdge> graph, List<TimeTrip<SimulationNode>> trips,
-			List<SimulationNode> vehicalInitPositions) throws Throwable{
-        
+			List<SimulationNode> vehicalInitPositions, List<VGAEventData> expectedEvents) throws Throwable{
 
         SimulationCreator creator = injector.getInstance(SimulationCreator.class);
 
@@ -77,8 +78,25 @@ public class VGASystemTestScenario {
 			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, vehiclePosition);
 			onDemandVehicleStorage.addEntity(newVehicle);
         }
+		
+		EventOrderStorage eventOrderStorage = injector.getInstance(EventOrderStorage.class);
         
         creator.startSimulation();
+		
+		
+		// TESTING EVENT ORDER
+		List<Event> realEvents = eventOrderStorage.getOnDemandVehicleEvents();
+		
+		Assert.assertEquals(realEvents.size(), expectedEvents.size());
+		Iterator<VGAEventData> expectedEventsIterator = expectedEvents.iterator();
+		for(Event event: realEvents){
+			VGAEventData expectedEvent = expectedEventsIterator.next();
+			OnDemandVehicleEventContent eventContent = (OnDemandVehicleEventContent) event.getContent();
+			
+			Assert.assertEquals(expectedEvent.onDemandVehicleId, eventContent.getOnDemandVehicleId());
+			Assert.assertEquals(expectedEvent.demandId, eventContent.getDemandId());
+			Assert.assertEquals(expectedEvent.eventType, event.getType());
+		}
     }
 	
 	

@@ -6,6 +6,7 @@
 package cz.agents.amodsim.ridesharing.vga;
 
 import com.google.inject.Injector;
+import cz.agents.amodsim.ridesharing.vga.common.VGAEventData;
 import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestScenario;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.Utils;
@@ -13,6 +14,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.SimpleMapInitializer;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
+import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.util.LinkedList;
@@ -32,16 +34,22 @@ public class Test1Vehicle1Demmand {
 		Injector injector = scenario.getInjector();
 		
 		// set roadgraph
-        Graph<SimulationNode, SimulationEdge> graph = Utils.getCompleteGraph(3, injector.getInstance(Transformer.class));
+        Graph<SimulationNode, SimulationEdge> graph 
+				= Utils.getGridGraph(3, injector.getInstance(Transformer.class), 1);
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(graph.getNode(0), graph.getNode(1), 1000));
+		trips.add(new TimeTrip<>(graph.getNode(1), graph.getNode(2), 1000));
 		
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
-		vehicalInitPositions.add(graph.getNode(2));
+		vehicalInitPositions.add(graph.getNode(0));
+		
+		// expected events
+		List<VGAEventData> expectedEvents = new LinkedList<>();
+		expectedEvents.add(new VGAEventData("0 - autonomus agent", 0, OnDemandVehicleEvent.PICKUP));
+		expectedEvents.add(new VGAEventData("0 - autonomus agent", 0, OnDemandVehicleEvent.DROP_OFF));
         
-        scenario.run(graph, trips, vehicalInitPositions);
+        scenario.run(graph, trips, vehicalInitPositions, expectedEvents);
     }
 	
 	public static void main(String[] args) {

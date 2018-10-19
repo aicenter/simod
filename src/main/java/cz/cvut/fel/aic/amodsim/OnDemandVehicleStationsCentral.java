@@ -71,6 +71,10 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     public int getNumberOfRebalancingDropped() {
         return rebalancingDropped;
     }
+	
+	public boolean stationsOn(){
+		return !onDemandvehicleStationStorage.isEmpty();
+	}
     
     
     

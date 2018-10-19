@@ -18,14 +18,10 @@
  */
 package cz.agents.amodsim.ridesharing.vga.common;
 
-import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
-import cz.cvut.fel.aic.agentpolis.mock.TestVisioInitializer;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer;
 import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
@@ -38,7 +34,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingStationsCentral;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.RidesharingOnDemandVehicleFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
-import cz.cvut.fel.aic.geographtools.Graph;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
 import java.io.File;
 
 /**
@@ -53,7 +49,8 @@ public class TestModule extends StandardAgentPolisModule{
         super(amodsimConfig, localConfigFile, "agentpolis"); 
 		this.amodsimConfig = amodsimConfig;
         agentpolisConfig.showVisio = VisualTests.SHOW_VISIO;
-		this.amodsimConfig.amodsim.startTime = 0;
+		amodsimConfig.amodsim.startTime = 0;
+		amodsimConfig.tripsMultiplier = 1.0;
     }
 
 	
@@ -70,6 +67,8 @@ public class TestModule extends StandardAgentPolisModule{
 		bind(OnDemandVehicleStationsCentral.class).to(RidesharingStationsCentral.class);
 		bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
 		bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
+		install(new FactoryModuleBuilder().implement(VGARequest.class, VGARequest.class)
+				.build(VGARequest.VGARequestFactory.class));
 	}
     
 

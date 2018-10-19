@@ -393,7 +393,7 @@ public class Statistics extends AliteEntity implements EventHandler{
             try {
                 CsvWriter writer = new CsvWriter(Common.getFileWriter(filepath));
                 for (OnDemandVehicleEventContent event : events) {
-                    writer.writeLine(Long.toString(event.getTime()), Long.toString(event.getId()));
+                    writer.writeLine(Long.toString(event.getTime()), Long.toString(event.getDemandId()));
                 }
                 writer.close();
             } catch (IOException ex) {

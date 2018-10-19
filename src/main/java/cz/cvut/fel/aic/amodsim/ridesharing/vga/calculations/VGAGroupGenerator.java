@@ -1,5 +1,8 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
@@ -9,11 +12,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
+
+
+@Singleton
 public class VGAGroupGenerator {
+	
+	private final double maximumRelativeDiscomfort;
 
-    private VGAGroupGenerator() {}
+	@Inject
+    private VGAGroupGenerator(AmodsimConfig amodsimConfig) {
+		maximumRelativeDiscomfort = amodsimConfig.amodsim.ridesharing.vga.maximumRelativeDiscomfort;
+	}
 
-    public static Set<VGAVehiclePlan> generateGroupsForVehicle(VGAVehicle veh, List<VGARequest> requests, int noOfVehicles) {
+    public Set<VGAVehiclePlan> generateGroupsForVehicle(VGAVehicle veh, List<VGARequest> requests, 
+			int noOfVehicles) {
         RideSharingOnDemandVehicle v = veh.getRidesharingVehicle();
         Set<VGARequest> feasibleRequests = new LinkedHashSet<>();
         Set<VGAVehiclePlan> groups = new LinkedHashSet<>();
@@ -23,6 +35,7 @@ public class VGAGroupGenerator {
 
         groups.add(new VGAVehiclePlan(v, new LinkedHashSet<>()));
 
+		// add groups of size 1
         for (VGARequest r : requests) {
 
             Set<VGARequest> g = new LinkedHashSet<>();
@@ -36,6 +49,7 @@ public class VGAGroupGenerator {
             }
         }
 
+		// generate other groups
         while (currentGroups.size() > 0) {
             currentCheckedGroups.clear();
             newCurrentGroups = new LinkedHashSet<>();
@@ -101,7 +115,7 @@ public class VGAGroupGenerator {
         return droppingPlans;
     }
 
-    private static VGAVehiclePlan optimalVehiclePlanPermutations(VGAVehiclePlan vp){
+    private VGAVehiclePlan optimalVehiclePlanPermutations(VGAVehiclePlan vp){
         Stack<VGAVehiclePlan> toCheck = new Stack<>();
         vp.updateRequestsBasedOnCurrentSituation();
         toCheck.push(vp);
@@ -119,7 +133,7 @@ public class VGAGroupGenerator {
 
                 if(r.getDestination().getWindow().isInWindow(simplerPlan.getCurrentTime())) {
                     double currentCost = simplerPlan.calculateCost();
-                    if ((simplerPlan.getCurrentTime() - r.getOriginTime()) <= MathUtils.DELTA_R_MAX *
+                    if ((simplerPlan.getCurrentTime() - r.getOriginTime()) <= maximumRelativeDiscomfort *
                             MathUtils.getTravelTimeProvider().getTravelTime(VehicleGroupAssignmentSolver.getVehicle(), r.getOriginSimulationNode(), r.getDestinationSimulationNode()) / 1000.0 + 0.001
                             && currentCost < upperBound) {
                         if (simplerPlan.getWaitingRequests().isEmpty() && simplerPlan.getActiveRequests().isEmpty()) {

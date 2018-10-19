@@ -27,6 +27,7 @@ import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.RidesharingOnDemandVehicleFactory;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
 import cz.cvut.fel.aic.geographtools.TransportMode;
 
 import java.io.File;
@@ -72,6 +73,8 @@ public class MainModule extends StandardAgentPolisModule{
 			bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
 			bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
 //			bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
+			install(new FactoryModuleBuilder().implement(VGARequest.class, VGARequest.class)
+				.build(VGARequest.VGARequestFactory.class));
         }
         else{
            bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);

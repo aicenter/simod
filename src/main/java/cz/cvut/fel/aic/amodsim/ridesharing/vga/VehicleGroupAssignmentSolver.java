@@ -26,7 +26,11 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
     private final AmodsimConfig config;
     private final PositionUtil positionUtil;
 
-    private Set<VGARequest> allRequests = new LinkedHashSet<>();
+    private final Set<VGARequest> allRequests = new LinkedHashSet<>();
+	
+	private final VGAGroupGenerator vGAGroupGenerator;
+	
+	private final VGARequest.VGARequestFactory vGARequestFactory;
 
     private static TimeProvider timeProvider;
 
@@ -35,11 +39,13 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
 
     @Inject
     public VehicleGroupAssignmentSolver(TravelTimeProvider travelTimeProvider, TravelCostProvider travelCostProvider,
-                                        OnDemandVehicleStorage vehicleStorage, PositionUtil positionUtil,
-                                        AmodsimConfig config, TimeProvider timeProvider) {
+			OnDemandVehicleStorage vehicleStorage, PositionUtil positionUtil, AmodsimConfig config, 
+			TimeProvider timeProvider, VGAGroupGenerator vGAGroupGenerator, VGARequest.VGARequestFactory vGARequestFactory) {
         super(vehicleStorage, travelTimeProvider, travelCostProvider);
         this.positionUtil = positionUtil;
         this.config = config;
+		this.vGAGroupGenerator = vGAGroupGenerator;
+		this.vGARequestFactory = vGARequestFactory;
         VehicleGroupAssignmentSolver.timeProvider = timeProvider;
         maxDistance = (double) config.amodsim.ridesharing.maxWaitTime
                 * config.amodsim.ridesharing.maxSpeedEstimation / 3600 * 1000;
@@ -59,7 +65,6 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
         Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new LinkedHashMap<>();
 
         //Filtering the vehicles, which are either on the same spot (in the station) or rebalancing
-
         AgentPolisEntity vehicles[] = vehicleStorage.getEntitiesForIteration();
         List<RideSharingOnDemandVehicle> rsodVehicles = new ArrayList<>();
         for (AgentPolisEntity e : vehicles) {
@@ -76,7 +81,6 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
         }
 
         //Converting vehicles
-
         int i = 0;
         VGAVehicle vgaVehicles[] = new VGAVehicle[rsodVehicles.size() + 1];
         for (RideSharingOnDemandVehicle v : rsodVehicles) {
@@ -85,16 +89,15 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
         vehicle = vgaVehicles[0] ;
 
         //Converting requests
-
         List<VGARequest> vgaRequests = new ArrayList<>();
         for (OnDemandRequest request : requests) {
-            vgaRequests.add(VGARequest.newInstance(request.getDemandAgent().getPosition(), request.getTargetLocation(), request.getDemandAgent()));
+            vgaRequests.add(vGARequestFactory.create(request.getDemandAgent().getPosition(), 
+					request.getTargetLocation(), request.getDemandAgent()));
         }
 
         allRequests.addAll(vgaRequests);
 
         //A drop-off or a pickup might have happened in the meantime
-
         for (VGAVehicle v : vgaVehicles) {
             if(v == null) continue;
 
@@ -123,7 +126,6 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
         }
 
         //Generating feasible plans for each vehicle
-
         Map<VGAVehicle, Set<VGAVehiclePlan>> feasiblePlans = new LinkedHashMap<>();
 
         i = 0;
@@ -133,7 +135,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver {
                 rqsForVehicle.addAll(vehicle.getPromisedRequests());
                 rqsForVehicle.addAll(vehicle.getRequestsOnBoard());
 
-                feasiblePlans.put(vehicle, VGAGroupGenerator.generateGroupsForVehicle(vehicle, rqsForVehicle, rsodVehicles.size()));
+                feasiblePlans.put(vehicle, vGAGroupGenerator.generateGroupsForVehicle(vehicle, rqsForVehicle, rsodVehicles.size()));
             } else {
                 vgaVehicles[rsodVehicles.size()] = VGAVehicle.newInstance(null);
                 feasiblePlans.put(vgaVehicles[rsodVehicles.size()], VGAGroupGenerator.generateDroppingVehiclePlans(vgaVehicles[rsodVehicles.size()], allRequests));

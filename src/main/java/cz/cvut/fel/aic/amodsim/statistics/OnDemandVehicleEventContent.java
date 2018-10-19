@@ -12,20 +12,27 @@ package cz.cvut.fel.aic.amodsim.statistics;
 public class OnDemandVehicleEventContent {
     private final long time;
     
-    private final int id;
+    private final int demandId;
+	
+	private final String onDemandVehicleId;
 
     public long getTime() {
         return time;
     }
 
-    public int getId() {
-        return id;
+    public int getDemandId() {
+        return demandId;
     }
 
-    public OnDemandVehicleEventContent(long time, int id) {
-        this.time = time;
-        this.id = id;
-    }
-    
-    
+	public String getOnDemandVehicleId() {
+		return onDemandVehicleId;
+	}
+	
+	
+
+	public OnDemandVehicleEventContent(long time, int demandId, String onDemandVehicleId) {
+		this.time = time;
+		this.demandId = demandId;
+		this.onDemandVehicleId = onDemandVehicleId;
+	}
 }

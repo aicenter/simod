@@ -68,7 +68,7 @@ public class VGAVehiclePlan {
     public double getDiscomfort() { return discomfort; }
 
     public double getCurrentTime() {
-        if(actions.size() == 0){
+        if(actions.isEmpty()){
             return 0;
         }
 

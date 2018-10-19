@@ -7,7 +7,6 @@ package cz.cvut.fel.aic.amodsim.entity.vehicle;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.name.Named;
 import cz.cvut.fel.aic.amodsim.DemandSimulationEntityType;
 import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
 import cz.cvut.fel.aic.amodsim.entity.PlanningAgent;
@@ -325,7 +324,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         currentRebalancingId = rebalancingIdGenerator.getId();
         eventProcessor.addEvent(OnDemandVehicleEvent.START_REBALANCING, null, null, 
                 new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-                       currentRebalancingId));
+                       currentRebalancingId, getId()));
         
         currentTrip = tripsUtil.createTrip(getPosition().id, 
                 targetStation.getPosition().getId(), vehicle);
@@ -368,7 +367,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     protected void leavingStationEvent() {
         eventProcessor.addEvent(OnDemandVehicleEvent.LEAVE_STATION, null, null, 
                 new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-                        currentlyServedDemmand.demandAgent.getSimpleId()));
+                        currentlyServedDemmand.demandAgent.getSimpleId(), getId()));
     }
 
     protected void pickupDemand() {
@@ -376,7 +375,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         vehicle.pickUp(currentlyServedDemmand.demandAgent);
         eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
                 new PickupEventContent(timeProvider.getCurrentSimTime(), 
-                        currentlyServedDemmand.demandAgent.getSimpleId(), 
+                        currentlyServedDemmand.demandAgent.getSimpleId(), getId(),
                         positionUtil.getTripLengthInMeters(demandTrip)));
     }
     
@@ -385,7 +384,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         vehicle.dropOff(currentlyServedDemmand.demandAgent);
         eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
                 new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-                        currentlyServedDemmand.demandAgent.getSimpleId()));
+                        currentlyServedDemmand.demandAgent.getSimpleId(), getId()));
     }
     
     // todo - repair path planner and remove this
@@ -435,14 +434,14 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	protected void finishRebalancing() {
 		eventProcessor.addEvent(OnDemandVehicleEvent.FINISH_REBALANCING, null, null, 
                     new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-                        currentRebalancingId));
+                        currentRebalancingId, getId()));
 		waitInStation();
 	}
 
 	protected void finishDrivingToStation(DemandAgent demandAgent) {
 		eventProcessor.addEvent(OnDemandVehicleEvent.REACH_NEAREST_STATION, null, null, 
                     new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-                        demandAgent.getSimpleId()));
+                        demandAgent.getSimpleId(), getId()));
 		waitInStation();
 	}
     

@@ -159,12 +159,14 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	private void driveToNextTask() {
 		if(currentPlan.getLength() == 1){
 			if(state != OnDemandVehicleState.WAITING){
-				driveToNearestStation();
+				if(onDemandVehicleStationsCentral.stationsOn()){
+					driveToNearestStation();
+				}
 			}
 		}
 		else{
 			currentTask = currentPlan.getNextTask();
-			if(state == OnDemandVehicleState.WAITING){
+			if(parkedIn != null){
 				parkedIn.releaseVehicle(this);
 				parkedIn = null;
 				leavingStationEvent();
@@ -188,7 +190,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		// demand trip length 0 - need to find out where the statistic is used, does it make sense with rebalancing?
         eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
                 new PickupEventContent(timeProvider.getCurrentSimTime(), 
-                        currentTask.demandAgent.getSimpleId(),0));
+                        currentTask.demandAgent.getSimpleId(), getId(), 0));
 		currentPlan.taskCompleted();
 		driveToNextTask();
 	}
@@ -200,7 +202,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		// statistics
         eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
                 new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-                        currentTask.demandAgent.getSimpleId()));
+                        currentTask.demandAgent.getSimpleId(), getId()));
 		
 		currentPlan.taskCompleted();
 		driveToNextTask();
@@ -210,7 +212,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	protected void leavingStationEvent() {
 		eventProcessor.addEvent(OnDemandVehicleEvent.LEAVE_STATION, null, null, 
                 new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-                        currentTask.demandAgent.getSimpleId()));
+                        currentTask.demandAgent.getSimpleId(), getId()));
 	}
 	
 	@Override

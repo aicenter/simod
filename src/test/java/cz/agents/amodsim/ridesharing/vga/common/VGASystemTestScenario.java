@@ -34,6 +34,8 @@ import org.junit.Assert;
  */
 public class VGASystemTestScenario {
 	
+	public final AmodsimConfig config;
+	
 	private final Injector injector;
 
 	public Injector getInjector() {
@@ -43,7 +45,7 @@ public class VGASystemTestScenario {
 	
 
 	public VGASystemTestScenario() {
-		AmodsimConfig config = new AmodsimConfig();
+		config = new AmodsimConfig();
         
         File localConfigFile = null;
 
@@ -77,6 +79,7 @@ public class VGASystemTestScenario {
 			String onDemandVehicelId = String.format("%s", counter);
 			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, vehiclePosition);
 			onDemandVehicleStorage.addEntity(newVehicle);
+			counter++;
         }
 		
 		EventOrderStorage eventOrderStorage = injector.getInstance(EventOrderStorage.class);

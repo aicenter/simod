@@ -14,4 +14,6 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
  */
 public interface TravelTimeProvider {
 	public double getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB);
+	
+	public double getExpectedTravelTime(SimulationNode positionA, SimulationNode positionB);
 }

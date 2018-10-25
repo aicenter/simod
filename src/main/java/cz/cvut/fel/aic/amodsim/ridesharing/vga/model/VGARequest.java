@@ -5,30 +5,43 @@ import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.VGAGroupGenerator;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class VGARequest {
+    private final double originTime;
+    private final VGANode origin;
+    private final VGANode destination;
+    private final DemandAgent demandAgent;
 
-    private static Map<DemandAgent, VGARequest> requests = new LinkedHashMap<>();
+	private boolean onboard;
+	
+	private double discomfort;
 
-    private double originTime;
-    private VGANode origin;
-    private VGANode destination;
-    private DemandAgent demandAgent;
+	public boolean isOnboard() {
+		return onboard;
+	}
 
+	public void setOnboard(boolean onboard) {
+		this.onboard = onboard;
+	}
+
+	public double getDiscomfort() {
+		return discomfort;
+	}
+
+	public void setDiscomfort(double discomfort) {
+		this.discomfort = discomfort;
+	}
+	
+	
 
 
 	@Inject
     private VGARequest(AmodsimConfig amodsimConfig, @Assisted("origin") SimulationNode origin, 
 			@Assisted("destination") SimulationNode destination, @Assisted DemandAgent demandAgent){
 		double originTime = demandAgent.getDemandTime() / 1000.0;
-        double idealTime = MathUtils.getTravelTimeProvider().getTravelTime(VehicleGroupAssignmentSolver.getVehicle(),
-                origin, destination) / 1000.0;
+        double idealTime = MathUtils.getTravelTimeProvider().getExpectedTravelTime(origin, destination) / 1000.0;
         double delta = (amodsimConfig.amodsim.ridesharing.vga.maximumRelativeDiscomfort - 1) * idealTime;
 
         VGANode o = VGANode.newInstance(new TimeWindow(originTime, originTime + delta), origin);
@@ -38,7 +51,8 @@ public class VGARequest {
         this.originTime = demandAgent.getDemandTime() / 1000.0;
         this.destination = d;
         this.demandAgent = demandAgent;
-        requests.put(demandAgent, this);
+		onboard = false;
+		discomfort = 0;
     }
 
     public double getOriginTime() { return originTime; }
@@ -53,8 +67,6 @@ public class VGARequest {
 
     public SimulationNode getDestinationSimulationNode() { return destination.getSimulationNode(); }
 
-    public static VGARequest getRequestByDemandAgentSimpleId (DemandAgent agent) { return requests.get(agent); }
-
     @Override
     public boolean equals(Object obj) {
         if(!(obj instanceof VGARequest)) return false;
@@ -65,6 +77,13 @@ public class VGARequest {
     public int hashCode() {
         return demandAgent.hashCode();
     }
+
+	@Override
+	public String toString() {
+		return String.format("%s - from: %s to: %s", demandAgent, origin, destination);
+	}
+	
+	
 	
 	public interface VGARequestFactory {
         public VGARequest create(@Assisted("origin") SimulationNode origin, 

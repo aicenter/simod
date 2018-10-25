@@ -19,7 +19,8 @@ public class VGAVehiclePlanAction {
                 time = VehicleGroupAssignmentSolver.getTimeProvider().getCurrentSimTime() / 1000.0;
             }
 
-            time += plan.getCurrentTime() + MathUtils.getTravelTimeProvider().getTravelTime(VehicleGroupAssignmentSolver.getVehicle(), plan.getCurrentPosition(), position) / 1000.0;
+            time += plan.getCurrentTime() + MathUtils.getTravelTimeProvider().getTravelTime(
+					plan.getVehicle(), plan.getCurrentPosition(), position) / 1000.0;
         }
 
         if (this instanceof VGAVehiclePlanPickup) {

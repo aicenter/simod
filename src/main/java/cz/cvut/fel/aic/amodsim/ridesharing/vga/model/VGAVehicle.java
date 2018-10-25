@@ -9,13 +9,11 @@ public class VGAVehicle {
 
     private static Map<OnDemandVehicle, VGAVehicle> agentpolisVehicleToVGA = new LinkedHashMap<>();
 
-    private RideSharingOnDemandVehicle v;
-    private Set<VGARequest> promisedRequests;
-    private Set<VGARequest> requestsOnBoard;
+    private final RideSharingOnDemandVehicle onDemandVehicle;
+    private final Set<VGARequest> requestsOnBoard;
 
     private VGAVehicle(RideSharingOnDemandVehicle v) {
-        this.v = v;
-        promisedRequests = new LinkedHashSet<>();
+        this.onDemandVehicle = v;
         requestsOnBoard = new LinkedHashSet<>();
         agentpolisVehicleToVGA.put(v, this);
     }
@@ -32,18 +30,25 @@ public class VGAVehicle {
         return agentpolisVehicleToVGA.get(v);
     }
 
-    public RideSharingOnDemandVehicle getRidesharingVehicle() { return v; }
+    public RideSharingOnDemandVehicle getRidesharingVehicle() { return onDemandVehicle; }
 
-    public Set<VGARequest> getPromisedRequests() { return promisedRequests; }
+    public Set<VGARequest> getRequestsOnBoard() { 
+		return requestsOnBoard; 
+	}
 
-    public Set<VGARequest> getRequestsOnBoard() { return requestsOnBoard; }
+    public void addRequestOnBoard(VGARequest request) { 
+		requestsOnBoard.add(request); 
+	}
 
-    public void addPromisedRequest(VGARequest request) { promisedRequests.add(request); }
+    public void removeRequestOnBoard(VGARequest request) { 
+		requestsOnBoard.remove(request); 
+	}
 
-    public void removePromisedRequest(VGARequest request) { promisedRequests.remove(request); }
-
-    public void addRequestOnBoard(VGARequest request) { requestsOnBoard.add(request); }
-
-    public void removeRequestOnBoard(VGARequest request) { requestsOnBoard.remove(request); }
+	@Override
+	public String toString() {
+		return String.format("VGA vehicle: %s", onDemandVehicle.getId());
+	}
+	
+	
 
 }

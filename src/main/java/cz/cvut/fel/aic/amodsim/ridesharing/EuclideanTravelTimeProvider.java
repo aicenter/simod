@@ -51,5 +51,10 @@ public class EuclideanTravelTimeProvider implements TravelTimeProvider{
 		long traveltime = MoveUtil.computeDuration(travelSpeedEstimatePerSecond, distance);
 		return traveltime;
 	}
+
+	@Override
+	public double getExpectedTravelTime(SimulationNode positionA, SimulationNode positionB) {
+		return getTravelTime(null, positionA, positionB);
+	}
 	
 }

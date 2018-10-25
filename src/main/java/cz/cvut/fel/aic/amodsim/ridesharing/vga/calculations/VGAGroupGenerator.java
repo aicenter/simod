@@ -3,7 +3,6 @@ package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
 
@@ -24,60 +23,85 @@ public class VGAGroupGenerator {
 		maximumRelativeDiscomfort = amodsimConfig.amodsim.ridesharing.vga.maximumRelativeDiscomfort;
 	}
 
-    public Set<VGAVehiclePlan> generateGroupsForVehicle(VGAVehicle veh, List<VGARequest> requests, 
+    public Set<VGAVehiclePlan> generateGroupsForVehicle(VGAVehicle vehicle, List<VGARequest> requests, 
 			int noOfVehicles) {
-        RideSharingOnDemandVehicle v = veh.getRidesharingVehicle();
+		// F_v^{k - 1} - groupes for request adding
+		Set<Set<VGARequest>> currentGroups = new LinkedHashSet<>();
+		
+		// F_v^{1}
         Set<VGARequest> feasibleRequests = new LinkedHashSet<>();
+		
+		// F_v all groups feasible for vehicle with optimal plan alreadz assigne to them - the output
         Set<VGAVehiclePlan> groups = new LinkedHashSet<>();
-        Set<Set<VGARequest>> currentGroups = new LinkedHashSet<>();
-        Set<Set<VGARequest>> currentCheckedGroups = new LinkedHashSet<>();
-        Set<Set<VGARequest>> newCurrentGroups;
 
-        groups.add(new VGAVehiclePlan(v, new LinkedHashSet<>()));
+		
+		if(vehicle.getRequestsOnBoard().isEmpty()){
+			// BASE PLAN - for each empty vehicle, an empty plan is valid
+			groups.add(new VGAVehiclePlan(vehicle.getRidesharingVehicle(), new LinkedHashSet<>()));
+		}
+		else{
+			// BASE PLAN - for nonempty vehicles, we add a base plan that serves all vehicles
+			Set<VGARequest> group = vehicle.getRequestsOnBoard();
+			VGAVehiclePlan plan = getOptimalPlan(vehicle, group);
+			groups.add(plan);
+			
+			// onboard request composes the single base group
+			currentGroups.add(group);
+		}
+		
+		for (VGARequest r : requests) {
+			Set<VGARequest> group = new LinkedHashSet<>();
+			group.add(r);
 
-		// add groups of size 1
-        for (VGARequest r : requests) {
-
-            Set<VGARequest> g = new LinkedHashSet<>();
-            g.add(r);
-
-            VGAVehiclePlan plan;
-            if((plan = optimalVehiclePlanPermutations(new VGAVehiclePlan(v, g))) != null) {
-                feasibleRequests.add(r);
-                currentGroups.add(g);
-                groups.add(plan);
-            }
-        }
-
+			VGAVehiclePlan plan;
+			if((plan = getOptimalPlan(vehicle, group)) != null) {
+				feasibleRequests.add(r);
+				//if the vehicle is empty, feasible requests are feasible plans and are used as base groups
+				if(vehicle.getRequestsOnBoard().isEmpty()){
+					currentGroups.add(group);
+					groups.add(plan);
+				}			
+			}
+		}
+		
+		
 		// generate other groups
-        while (currentGroups.size() > 0) {
-            currentCheckedGroups.clear();
-            newCurrentGroups = new LinkedHashSet<>();
+        while(!currentGroups.isEmpty()) {
 
-            for (Set<VGARequest> g : currentGroups) {
-                for (VGARequest r : feasibleRequests) {
+			// current groups for the next iteration
+            Set<Set<VGARequest>> newCurrentGroups = new LinkedHashSet<>();
+			
+			// set of groups that were already checked
+			Set<Set<VGARequest>> currentCheckedGroups = new LinkedHashSet<>();
 
-                    if (g.contains(r)) continue;
+            for (Set<VGARequest> group : currentGroups) {
+                for (VGARequest request : feasibleRequests) {
+                    if (group.contains(request)){
+						continue;
+					}
+					
+					// G'
+                    Set<VGARequest> newGroupToCheck = new LinkedHashSet<>(group);
+                    newGroupToCheck.add(request);
+					
+                    if (currentCheckedGroups.contains(newGroupToCheck)){
+						continue;
+					}
+                    currentCheckedGroups.add(newGroupToCheck);
 
-                    Set<VGARequest> toCheck = new LinkedHashSet<>(g);
-                    toCheck.add(r);
-                    if (currentCheckedGroups.contains(toCheck)) continue;
-                    currentCheckedGroups.add(toCheck);
-
-                    boolean add = true;
-
-                    for(VGARequest rq : toCheck) {
-                        Set<VGARequest> toCheckCase = new LinkedHashSet<>(toCheck);
-                        toCheckCase.remove(rq);
-                        if (!currentGroups.contains(toCheckCase)) {
-                            add = false;
-                            break;
-                        }
-                    }
+//                    boolean add = true;
+//                    for(VGARequest rq : newGroupToCheck) {
+//                        Set<VGARequest> toCheckCase = new LinkedHashSet<>(newGroupToCheck);
+//                        toCheckCase.remove(rq);
+//                        if (!currentGroups.contains(toCheckCase)) {
+//                            add = false;
+//                            break;
+//                        }
+//                    }
 
                     VGAVehiclePlan plan;
-                    if(add && (plan = optimalVehiclePlanPermutations(new VGAVehiclePlan(v, toCheck))) != null) {
-                        newCurrentGroups.add(toCheck);
+                    if((plan = getOptimalPlan(vehicle, newGroupToCheck)) != null) {
+                        newCurrentGroups.add(newGroupToCheck);
                         groups.add(plan);
                         if(groups.size() > 150000 / noOfVehicles){
                             return groups;
@@ -88,15 +112,6 @@ public class VGAGroupGenerator {
 
             currentGroups = newCurrentGroups;
         }
-
-        Set<VGAVehiclePlan> toRemove = new LinkedHashSet<>();
-        for (VGAVehiclePlan plan : groups) {
-            if(!plan.getRequests().containsAll( VGAVehicle.getVGAVehicleByRidesharingOnDemandVehicle(plan.getVehicle()).getPromisedRequests() ) ||
-               !plan.getRequests().containsAll( VGAVehicle.getVGAVehicleByRidesharingOnDemandVehicle(plan.getVehicle()).getRequestsOnBoard() )) {
-                toRemove.add(plan);
-            }
-        }
-        groups.removeAll(toRemove);
 
         return groups;
     }
@@ -115,18 +130,29 @@ public class VGAGroupGenerator {
         return droppingPlans;
     }
 
-    private VGAVehiclePlan optimalVehiclePlanPermutations(VGAVehiclePlan vp){
+    private VGAVehiclePlan getOptimalPlan(VGAVehicle vehicle, Set<VGARequest> group){
+//		// check if all onboard requests are in the group
+//		for(VGARequest onboardRequest: vehicle.getRequestsOnBoard()){
+//			if(!group.contains(onboardRequest)){
+//				return null;
+//			}
+//		}
+		
         Stack<VGAVehiclePlan> toCheck = new Stack<>();
-        vp.updateRequestsBasedOnCurrentSituation();
-        toCheck.push(vp);
+		VGAVehiclePlan emptyPlan = new VGAVehiclePlan(vehicle.getRidesharingVehicle(), group);
+        toCheck.push(emptyPlan);
 
         double upperBound = Double.POSITIVE_INFINITY;
         VGAVehiclePlan bestPlan = null;
 
+		/* In each iteration, we try to add all reamining actions to the plan, one by one. After addition, there 
+		are feasibility tests. If the tests are OK, the new plan is added to queue for check. */
         while(!toCheck.empty()){
+			
             VGAVehiclePlan plan = toCheck.pop();
-
-            for(VGARequest r : plan.getActiveRequests()){
+			
+			// dropoff actions
+            for(VGARequest r : plan.getOnboardRequests()){
 
                 VGAVehiclePlan simplerPlan = new VGAVehiclePlan(plan);
                 simplerPlan.add(new VGAVehiclePlanDropoff(r, simplerPlan));
@@ -134,9 +160,9 @@ public class VGAGroupGenerator {
                 if(r.getDestination().getWindow().isInWindow(simplerPlan.getCurrentTime())) {
                     double currentCost = simplerPlan.calculateCost();
                     if ((simplerPlan.getCurrentTime() - r.getOriginTime()) <= maximumRelativeDiscomfort *
-                            MathUtils.getTravelTimeProvider().getTravelTime(VehicleGroupAssignmentSolver.getVehicle(), r.getOriginSimulationNode(), r.getDestinationSimulationNode()) / 1000.0 + 0.001
+                            MathUtils.getTravelTimeProvider().getTravelTime(vehicle.getRidesharingVehicle(), r.getOriginSimulationNode(), r.getDestinationSimulationNode()) / 1000.0 + 0.001
                             && currentCost < upperBound) {
-                        if (simplerPlan.getWaitingRequests().isEmpty() && simplerPlan.getActiveRequests().isEmpty()) {
+                        if (simplerPlan.getWaitingRequests().isEmpty() && simplerPlan.getOnboardRequests().isEmpty()) {
                             upperBound = currentCost;
                             bestPlan = simplerPlan;
                         } else {
@@ -146,15 +172,20 @@ public class VGAGroupGenerator {
                 }
             }
 
-            for (VGARequest r : plan.getWaitingRequests()) {
+			// pickup actions
+			if(plan.vehicleHasFreeCapacity()){
+				for (VGARequest r : plan.getWaitingRequests()) {
 
-                VGAVehiclePlan simplerPlan = new VGAVehiclePlan(plan);
-                simplerPlan.add(new VGAVehiclePlanPickup(r, simplerPlan));
+					VGAVehiclePlan simplerPlan = new VGAVehiclePlan(plan);
 
-                if(r.getOrigin().getWindow().isInWindow(simplerPlan.getCurrentTime())) {
-                    toCheck.push(simplerPlan);
-                }
-            }
+					// pick up time == demand time
+					simplerPlan.add(new VGAVehiclePlanPickup(r, simplerPlan));
+
+					if(r.getOrigin().getWindow().isInWindow(simplerPlan.getCurrentTime())) {
+						toCheck.push(simplerPlan);
+					}
+				}
+			}
         }
 
         return bestPlan;

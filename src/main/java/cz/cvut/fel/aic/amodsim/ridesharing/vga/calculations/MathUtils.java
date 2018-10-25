@@ -8,8 +8,7 @@ import java.math.RoundingMode;
 public class MathUtils {
 
     private static TravelTimeProvider travelTimeProvider = null;
-
-    public static double DELTA_R_MAX = 1.6;
+	
     public static double MINIMIZE_DISCOMFORT = 1.0;
 
     public static double round(double value, int places) {

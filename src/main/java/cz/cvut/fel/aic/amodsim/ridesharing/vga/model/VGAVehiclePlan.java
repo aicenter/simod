@@ -9,27 +9,30 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
 
 import java.util.*;
 
+/**
+ * Vehicle plan with current plan state.
+ * @author David Prochazka
+ */
 public class VGAVehiclePlan {
 
     private static VGAVehiclePlan.CostType costType = VGAVehiclePlan.CostType.STANDARD;
 
     private double discomfort;
 
-    private RideSharingOnDemandVehicle vehicle;
-    private Set<VGARequest> requests;
-    private Set<VGARequest> waitingRequests;
-    private Set<VGARequest> activeRequests;
-    private Map<VGARequest, Double> pickupTimes;
-    private List<VGAVehiclePlanAction> actions;
+    private final RideSharingOnDemandVehicle vehicle;
+    private final Set<VGARequest> requests;
+    private final Set<VGARequest> waitingRequests;
+    private final Set<VGARequest> onboardRequests;
+    private final List<VGAVehiclePlanAction> actions;
 
-    public VGAVehiclePlan(RideSharingOnDemandVehicle v, Set<VGARequest> requests){
-        this.vehicle = v;
+    public VGAVehiclePlan(RideSharingOnDemandVehicle vehicle, Set<VGARequest> group){
+        this.vehicle = vehicle;
         this.discomfort = 0;
         this.actions = new ArrayList<>();
-        this.pickupTimes = new HashMap<>();
-        this.activeRequests = new LinkedHashSet<>();
-        this.requests = new LinkedHashSet<>(requests);
-        this.waitingRequests = new LinkedHashSet<>(requests);
+        this.requests = new LinkedHashSet<>(group);
+        this.waitingRequests = new LinkedHashSet<>();
+		this.onboardRequests = new LinkedHashSet<>();
+		updateAccordingToRequests();
     }
 
     public VGAVehiclePlan(VGAVehiclePlan vehiclePlan){
@@ -37,8 +40,7 @@ public class VGAVehiclePlan {
         this.discomfort = vehiclePlan.discomfort;
         this.actions = new ArrayList<>(vehiclePlan.actions);
         this.requests = new LinkedHashSet<>(vehiclePlan.requests);
-        this.pickupTimes = new HashMap<>(vehiclePlan.pickupTimes);
-        this.activeRequests = new LinkedHashSet<>(vehiclePlan.activeRequests);
+        this.onboardRequests = new LinkedHashSet<>(vehiclePlan.onboardRequests);
         this.waitingRequests = new LinkedHashSet<>(vehiclePlan.waitingRequests);
     }
 
@@ -46,14 +48,12 @@ public class VGAVehiclePlan {
         actions.add(action);
         if(action instanceof VGAVehiclePlanPickup){
             waitingRequests.remove(action.getRequest());
-            activeRequests.add(action.getRequest());
-            pickupTimes.put(action.getRequest(), action.getTime());
+            onboardRequests.add(action.getRequest());
         } else if (action instanceof VGAVehiclePlanDropoff) {
             discomfort += getCurrentTime() - action.getRequest().getOriginTime() -
                     MathUtils.getTravelTimeProvider().getTravelTime(vehicle,
                         action.getRequest().getOriginSimulationNode(), action.getRequest().getDestinationSimulationNode() ) / 1000.0;
-            activeRequests.remove(action.getRequest());
-            pickupTimes.remove(action.getRequest());
+            onboardRequests.remove(action.getRequest());
         }
     }
 
@@ -103,16 +103,10 @@ public class VGAVehiclePlan {
 
         return new DriverPlan(tasks, (long) (getCurrentTime() * 1000));
     }
-
-    public void updateRequestsBasedOnCurrentSituation() {
-        VGAVehicle v = VGAVehicle.getVGAVehicleByRidesharingOnDemandVehicle(vehicle);
-        requests.addAll(v.getRequestsOnBoard());
-        for(VGARequest request : v.getRequestsOnBoard()) {
-            waitingRequests.remove(request);
-            activeRequests.add(request);
-            pickupTimes.put(request, request.getDemandAgent().getRealPickupTime() / 1000.0);
-        }
-    }
+	
+	public boolean vehicleHasFreeCapacity(){
+		return onboardRequests.size() < vehicle.getCapacity();
+	}
 
     private double getDropoffTimeSum() {
         double sum = 0;
@@ -153,13 +147,26 @@ public class VGAVehiclePlan {
 
     public Set<VGARequest> getWaitingRequests() { return waitingRequests; }
 
-    public Set<VGARequest> getActiveRequests() { return activeRequests; }
+    public Set<VGARequest> getOnboardRequests() { return onboardRequests; }
 
     public List<VGAVehiclePlanAction> getActions() { return actions; }
 
     public static VGAVehiclePlan.CostType getCostType() { return costType; }
 
     public static void setCostType(VGAVehiclePlan.CostType costType) { VGAVehiclePlan.costType = costType; }
+
+	private void updateAccordingToRequests() {
+		for(VGARequest request: requests){
+			if(request.isOnboard()){
+				onboardRequests.add(request);
+				discomfort += request.getDiscomfort();
+				// mazbe check here if the request match the vehicle?
+			}
+			else{
+				waitingRequests.add(request);
+			}
+		}
+	}
 
     public enum CostType {
         STANDARD,

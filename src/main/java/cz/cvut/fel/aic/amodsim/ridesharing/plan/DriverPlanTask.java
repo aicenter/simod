@@ -33,6 +33,12 @@ public class DriverPlanTask {
 		this.demandAgent = demandAgent;
 		this.location = location;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("%s demand %s at %s", taskType, demandAgent, location);
+	}
+	
 	
 	
 	

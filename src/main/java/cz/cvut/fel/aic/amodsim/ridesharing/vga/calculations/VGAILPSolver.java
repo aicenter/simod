@@ -19,10 +19,10 @@ public class VGAILPSolver {
 
     private VGAILPSolver() {}
 
-    public static Map<VGAVehicle, VGAVehiclePlan> assignOptimallyFeasiblePlans(Map<VGAVehicle, Set<VGAVehiclePlan>> feasiblePlans, List<VGARequest> requests) {
+    public static Map<VGAVehicle, VGAVehiclePlan> assignOptimallyFeasiblePlans(
+			Map<VGAVehicle, Set<VGAVehiclePlan>> feasiblePlans, Set<VGARequest> requests) {
 
         //Calculating size of the model
-
         Map<VGAVehicle, VGAVehiclePlan> optimalPlans = new LinkedHashMap<>();
         int size = 0, noOfVehicles = feasiblePlans.size() - 1;
 
@@ -34,7 +34,6 @@ public class VGAILPSolver {
         System.out.println("Creating ILP model");
 
         //Calculating costs
-
         boolean once = true;
         double[] costs = new double[size];
         double avgCost = 0;
@@ -43,10 +42,8 @@ public class VGAILPSolver {
         for (Map.Entry<VGAVehicle, Set<VGAVehiclePlan>> entry : feasiblePlans.entrySet()) {
             for (VGAVehiclePlan plan : entry.getValue()) {
                 if (entry.getKey().getRidesharingVehicle() != null) {
-
                     costs[i] = plan.calculateCost();
                     avgCost += costs[i];
-
                 } else {
                     if (once) {
                         once = false;
@@ -65,7 +62,6 @@ public class VGAILPSolver {
         }
 
         //Initializing variables and the objective function
-
         MPSolver solver = new MPSolver("solver", MPSolver.OptimizationProblemType.BOP_INTEGER_PROGRAMMING);
         MPVariable[] mpVariables = new MPVariable[size];
 
@@ -80,7 +76,6 @@ public class VGAILPSolver {
 
         //Creating and adding the constraints
         //Each vehicle needs to have exactly one plan assigned
-
         i = 0;
         for (Map.Entry<VGAVehicle, Set<VGAVehiclePlan>> entry : feasiblePlans.entrySet()) {
             if (entry.getValue().size() == 0) continue;
@@ -102,7 +97,6 @@ public class VGAILPSolver {
         //Only one constraint for the one new request is generated,
         // all of the ones before are already assigned to some vehicle,
         //which means that they will not show up in other vehicles' plans.
-
         for (VGARequest request : requests) {
             i = 0;
             double[] constraint = new double[size];

@@ -15,8 +15,6 @@ import java.util.*;
  */
 public class VGAVehiclePlan {
 
-    private static VGAVehiclePlan.CostType costType = VGAVehiclePlan.CostType.STANDARD;
-
     private double discomfort;
 
     private final RideSharingOnDemandVehicle vehicle;
@@ -75,17 +73,7 @@ public class VGAVehiclePlan {
         return actions.get(actions.size() - 1).getTime();
     }
 
-    public double calculateCost() {
-        if(costType == VGAVehiclePlan.CostType.STANDARD) {
-            return MathUtils.round(
-                    MathUtils.MINIMIZE_DISCOMFORT * discomfort +
-                            (1 - MathUtils.MINIMIZE_DISCOMFORT) * getCurrentTime(),
-                    8);
-        } else if (costType == VGAVehiclePlan.CostType.SUM_OF_DROPOFF_TIMES) {
-            return MathUtils.round(getDropoffTimeSum(), 8);
-        }
-        return -1;
-    }
+    
 
     public DriverPlan toDriverPlan(){
         if(vehicle == null) { return null; }
@@ -108,7 +96,7 @@ public class VGAVehiclePlan {
 		return onboardRequests.size() < vehicle.getCapacity();
 	}
 
-    private double getDropoffTimeSum() {
+    public double getDropoffTimeSum() {
         double sum = 0;
         for(VGAVehiclePlanAction action : actions) {
             if(action instanceof VGAVehiclePlanDropoff){
@@ -150,10 +138,6 @@ public class VGAVehiclePlan {
     public Set<VGARequest> getOnboardRequests() { return onboardRequests; }
 
     public List<VGAVehiclePlanAction> getActions() { return actions; }
-
-    public static VGAVehiclePlan.CostType getCostType() { return costType; }
-
-    public static void setCostType(VGAVehiclePlan.CostType costType) { VGAVehiclePlan.costType = costType; }
 
 	private void updateAccordingToRequests() {
 		for(VGARequest request: requests){

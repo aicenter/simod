@@ -25,7 +25,7 @@ import org.junit.Test;
  *
  * @author David Fiedler
  */
-public class ComplexTest {
+public class WeightTestWeight1 {
 	
 	@Test
     public void run() throws Throwable{
@@ -33,41 +33,35 @@ public class ComplexTest {
 		VGASystemTestScenario scenario = new VGASystemTestScenario();
 		Injector injector = scenario.getInjector();
 		
+		// config
+		scenario.config.amodsim.ridesharing.vga.weightParameter = 1.0;
+		
 		// set roadgraph - grid 5x4
         Graph<SimulationNode, SimulationEdge> graph 
-				= Utils.getGridGraph(5, injector.getInstance(Transformer.class), 4);
+				= Utils.getGridGraph(4, injector.getInstance(Transformer.class), 2);
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
 		// demand trips
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(graph.getNode(17), graph.getNode(3), 1000));
-		trips.add(new TimeTrip<>(graph.getNode(16), graph.getNode(14), 3000));
-		trips.add(new TimeTrip<>(graph.getNode(5), graph.getNode(10), 4000));
-		trips.add(new TimeTrip<>(graph.getNode(12), graph.getNode(9), 8000));
-		trips.add(new TimeTrip<>(graph.getNode(11), graph.getNode(0), 8000));
+		trips.add(new TimeTrip<>(graph.getNode(1), graph.getNode(6), 1000));
+		trips.add(new TimeTrip<>(graph.getNode(5), graph.getNode(7), 3000));
 		
 		// vehicles
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
-		vehicalInitPositions.add(graph.getNode(15));
 		vehicalInitPositions.add(graph.getNode(0));
+		vehicalInitPositions.add(graph.getNode(4));
 		
 		// expected events
 		List<VGAEventData> expectedEvents = new LinkedList<>();
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 1, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new VGAEventData("1 - autonomus agent", 2, OnDemandVehicleEvent.PICKUP));
 		expectedEvents.add(new VGAEventData("0 - autonomus agent", 0, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new VGAEventData("1 - autonomus agent", 2, OnDemandVehicleEvent.DROP_OFF));
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 3, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new VGAEventData("1 - autonomus agent", 4, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 1, OnDemandVehicleEvent.DROP_OFF));
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 3, OnDemandVehicleEvent.DROP_OFF));
-		expectedEvents.add(new VGAEventData("1 - autonomus agent", 4, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new VGAEventData("1 - autonomus agent", 1, OnDemandVehicleEvent.PICKUP));
 		expectedEvents.add(new VGAEventData("0 - autonomus agent", 0, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new VGAEventData("1 - autonomus agent", 1, OnDemandVehicleEvent.DROP_OFF));
         
         scenario.run(graph, trips, vehicalInitPositions, expectedEvents);
     }
 	
 	public static void main(String[] args) {
-        VisualTests.runVisualTest(ComplexTest.class);
+        VisualTests.runVisualTest(WeightTestWeight1.class);
     }
 }

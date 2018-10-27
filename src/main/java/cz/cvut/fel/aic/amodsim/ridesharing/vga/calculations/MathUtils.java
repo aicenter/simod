@@ -9,7 +9,7 @@ public class MathUtils {
 
     private static TravelTimeProvider travelTimeProvider = null;
 	
-    public static double MINIMIZE_DISCOMFORT = 1.0;
+    
 
     public static double round(double value, int places) {
         if (places < 0) throw new IllegalArgumentException();

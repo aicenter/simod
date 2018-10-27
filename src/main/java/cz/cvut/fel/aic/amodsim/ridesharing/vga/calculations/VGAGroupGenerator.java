@@ -17,9 +17,12 @@ import java.util.Stack;
 public class VGAGroupGenerator {
 	
 	private final double maximumRelativeDiscomfort;
+	
+	private final PlanCostComputation planCostComputation;
 
 	@Inject
-    private VGAGroupGenerator(AmodsimConfig amodsimConfig) {
+    private VGAGroupGenerator(AmodsimConfig amodsimConfig, PlanCostComputation planCostComputation) {
+		this.planCostComputation = planCostComputation;
 		maximumRelativeDiscomfort = amodsimConfig.amodsim.ridesharing.vga.maximumRelativeDiscomfort;
 	}
 
@@ -158,7 +161,7 @@ public class VGAGroupGenerator {
                 simplerPlan.add(new VGAVehiclePlanDropoff(r, simplerPlan));
 
                 if(r.getDestination().getWindow().isInWindow(simplerPlan.getCurrentTime())) {
-                    double currentCost = simplerPlan.calculateCost();
+                    double currentCost = planCostComputation.calculatePlanCost(simplerPlan);
                     if ((simplerPlan.getCurrentTime() - r.getOriginTime()) <= maximumRelativeDiscomfort *
                             MathUtils.getTravelTimeProvider().getTravelTime(vehicle.getRidesharingVehicle(), r.getOriginSimulationNode(), r.getDestinationSimulationNode()) / 1000.0 + 0.001
                             && currentCost < upperBound) {

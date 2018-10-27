@@ -34,6 +34,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	
 	private final VGAGroupGenerator vGAGroupGenerator;
 	
+	private final VGAILPSolver vGAILPSolver;
+	
 	private final VGARequest.VGARequestFactory vGARequestFactory;
 	
     private final Map<Integer,VGARequest> requestsMapBydemandAgents;
@@ -53,11 +55,13 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
     public VehicleGroupAssignmentSolver(TravelTimeProvider travelTimeProvider, TravelCostProvider travelCostProvider,
 			OnDemandVehicleStorage vehicleStorage, PositionUtil positionUtil, AmodsimConfig config, 
 			TimeProvider timeProvider, VGAGroupGenerator vGAGroupGenerator, 
-			VGARequest.VGARequestFactory vGARequestFactory, TypedSimulation eventProcessor) {
+			VGARequest.VGARequestFactory vGARequestFactory, TypedSimulation eventProcessor,
+			VGAILPSolver vGAILPSolver) {
         super(vehicleStorage, travelTimeProvider, travelCostProvider);
         this.positionUtil = positionUtil;
         this.config = config;
 		this.vGAGroupGenerator = vGAGroupGenerator;
+		this.vGAILPSolver = vGAILPSolver;
 		this.vGARequestFactory = vGARequestFactory;
 		this.eventProcessor = eventProcessor;
 		waitingRequests = new HashSet<>();
@@ -116,12 +120,12 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
         //Using an ILP solver to optimally assign a group to each vehicle
         Map<VGAVehicle, VGAVehiclePlan> optimalPlans 
-				= VGAILPSolver.assignOptimallyFeasiblePlans(feasiblePlans, activeRequests);
+				= vGAILPSolver.assignOptimallyFeasiblePlans(feasiblePlans, activeRequests);
 
         //Removing the unnecessary empty plans
         Set<VGAVehicle> toRemove = new LinkedHashSet<>();
         for (Map.Entry<VGAVehicle, VGAVehiclePlan> entry : optimalPlans.entrySet()) {
-            if(entry.getValue().getActions().size() == 0) {
+            if(entry.getValue().getActions().isEmpty()) {
                 toRemove.add(entry.getKey());
             }
         }
@@ -165,6 +169,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			activeRequests.remove(request);
 		}
 	}
+	
+	
 
 	private void setEventHandeling() {
 		List<Enum> typesToHandle = new LinkedList<>();

@@ -1,5 +1,7 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
@@ -10,16 +12,26 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlan;
 
 import java.util.*;
 
+@Singleton
 public class VGAILPSolver {
 
     //https://developers.google.com/optimization/install/java/
     static {
         System.loadLibrary("jniortools");
     }
+	
+	
+	private final PlanCostComputation planCostComputation;
+	
 
-    private VGAILPSolver() {}
+	
+	
+	@Inject
+    public VGAILPSolver(PlanCostComputation planCostComputation) {
+		this.planCostComputation = planCostComputation;
+	}
 
-    public static Map<VGAVehicle, VGAVehiclePlan> assignOptimallyFeasiblePlans(
+    public Map<VGAVehicle, VGAVehiclePlan> assignOptimallyFeasiblePlans(
 			Map<VGAVehicle, Set<VGAVehiclePlan>> feasiblePlans, Set<VGARequest> requests) {
 
         //Calculating size of the model
@@ -42,7 +54,7 @@ public class VGAILPSolver {
         for (Map.Entry<VGAVehicle, Set<VGAVehiclePlan>> entry : feasiblePlans.entrySet()) {
             for (VGAVehiclePlan plan : entry.getValue()) {
                 if (entry.getKey().getRidesharingVehicle() != null) {
-                    costs[i] = plan.calculateCost();
+                    costs[i] = planCostComputation.calculatePlanCost(plan);
                     avgCost += costs[i];
                 } else {
                     if (once) {
@@ -51,9 +63,9 @@ public class VGAILPSolver {
                         avgCost = avgCost == 0 ? 1 : avgCost;
                     }
 
-                    if (VGAVehiclePlan.getCostType() == VGAVehiclePlan.CostType.STANDARD) {
+                    if (PlanCostComputation.COST_TYPE == VGAVehiclePlan.CostType.STANDARD) {
                         costs[i] = 100 * avgCost;
-                    } else if (VGAVehiclePlan.getCostType() == VGAVehiclePlan.CostType.SUM_OF_DROPOFF_TIMES) {
+                    } else if (PlanCostComputation.COST_TYPE == VGAVehiclePlan.CostType.SUM_OF_DROPOFF_TIMES) {
                         costs[i] = 1000;
                     }
                 }

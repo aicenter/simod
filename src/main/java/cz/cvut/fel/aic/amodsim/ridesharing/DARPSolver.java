@@ -1,5 +1,6 @@
 package cz.cvut.fel.aic.amodsim.ridesharing;
 
+import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import java.util.List;
@@ -14,7 +15,6 @@ public abstract class DARPSolver {
 	protected final OnDemandVehicleStorage vehicleStorage;
 	protected final TravelTimeProvider travelTimeProvider;
 	protected final TravelCostProvider travelCostProvider;
-
 	
 	
 	

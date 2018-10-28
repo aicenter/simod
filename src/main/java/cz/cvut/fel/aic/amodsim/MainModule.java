@@ -24,6 +24,8 @@ import cz.cvut.fel.aic.amodsim.visio.AmodsimVisioInItializer;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.VehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.GeojsonMapInitializer;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.AllNetworkNodes;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer;
@@ -35,6 +37,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.EuclideanTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.InsertionHeuristicSolver;
+import cz.cvut.fel.aic.amodsim.ridesharing.InsertionHeuristicSolver1;
 import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingStationsCentral;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.RidesharingOnDemandVehicleFactory;
@@ -72,7 +75,7 @@ public class MainModule extends StandardAgentPolisModule{
         
         bind(new TypeLiteral<Set<TransportMode>>(){}).toInstance(Sets.immutableEnumSet(TransportMode.CAR));
         bind(AmodsimConfig.class).toInstance(amodsimConfig);
-
+        bind(MapInitializer.class).to(GeojsonMapInitializer.class);
         bind(EntityStorage.class).to(VehicleStorage.class);
         
         if(amodsimConfig.amodsim.useTripCache){
@@ -85,12 +88,13 @@ public class MainModule extends StandardAgentPolisModule{
         bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 
         if(amodsimConfig.amodsim.ridesharing.on){
+           
             bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
             bind(OnDemandVehicleStationsCentral.class).to(RidesharingStationsCentral.class);
-            bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
-            //bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
+            bind(DARPSolver.class).to(InsertionHeuristicSolver1.class);
             bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
-        } else{
+            //bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
+           } else{
            bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
         }
         install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)

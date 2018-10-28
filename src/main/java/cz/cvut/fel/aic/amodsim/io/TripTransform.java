@@ -18,6 +18,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.NearestElementUtil;
@@ -29,12 +30,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import jogamp.opengl.util.stereo.GenericStereoDevice;
+import java.util.Map;
 import me.tongfei.progressbar.ProgressBar;
 import org.slf4j.LoggerFactory;
+
 
 /**
  *
@@ -52,21 +58,21 @@ public class TripTransform {
     private int sameStartAndTargetInDataCount = 0;
     private int totalTrips = 0;
     
-    //move to config
-    private int maxRideDistance;
-    private int pickupRadius;
+    private final double maxRideDistance;
+    private final int pickupRadius;
         
     private final Graph<SimulationNode,SimulationEdge> highwayGraph;
-    private final NearestElementUtils nearestElementUtils;
-
+   // private final NearestElementUtils nearestElementUtils;
+    private final Rtree tree;
     
     @Inject
     public TripTransform(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils,
-        AmodsimConfig config) {
+        AmodsimConfig config, TravelTimeProvider travelTimeProvider) {
         this.highwayGraph = highwayNetwork.getNetwork();
-        this.nearestElementUtils = nearestElementUtils;
+        //this.nearestElementUtils = nearestElementUtils;
         pickupRadius = config.amodsim.ridesharing.pickupRadius;
-        maxRideDistance = config.amodsim.ridesharing.maxRideTime * 60 * config.amodsim.ridesharing.maxSpeedEstimation;
+        maxRideDistance = 1000 * (config.amodsim.ridesharing.maxRideTime / 60.0) * config.amodsim.ridesharing.maxSpeedEstimation;
+        tree = new Rtree(this.highwayGraph.getAllNodes(), this.highwayGraph.getAllEdges());
     }   
        
 
@@ -83,7 +89,7 @@ public class TripTransform {
 				List.class, typeFactory.constructParametricType(TimeTripWithValue.class, locationType)));
 	}
     
-    public List<TimeTripWithValue<SimulationNode>> loadTripsFromTxt(File inputFile){
+    public List<TimeTripWithValue<GPSLocation>> loadTripsFromTxt(File inputFile){
 
         List<TimeTripWithValue<GPSLocation>> gpsTrips = new LinkedList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
@@ -111,7 +117,7 @@ public class TripTransform {
         }catch (IOException ex) {
             LOGGER.error(null, ex);
         }
-        List<TimeTripWithValue<SimulationNode>> trips = new ArrayList<>();
+        List<TimeTripWithValue<GPSLocation>> trips = new ArrayList<>();
         for (TimeTripWithValue<GPSLocation> trip : ProgressBar.wrap(gpsTrips, "Process GPS trip: ")) {
                 processGpsTrip(trip, trips);
         }
@@ -122,43 +128,50 @@ public class TripTransform {
         LOGGER.info("{} trips with start node far away from graph discarded", startTooFarCount);
         LOGGER.info("{} trips with target node far away from graph  discarded", targetTooFarCount);
         LOGGER.info("{} trips remained", trips.size());
+        LOGGER.info("{} nodes not found in node tree", tree.count);
         return trips; 
     }
         
-    private void processGpsTrip(TimeTripWithValue<GPSLocation> gpsTrip, List<TimeTripWithValue<SimulationNode>>trips) {
-        List<GPSLocation> locations = gpsTrip.getLocations();
+    private void processGpsTrip(TimeTripWithValue<GPSLocation> gpsTrip, List<TimeTripWithValue<GPSLocation>>trips) {
+        LinkedList<GPSLocation> locations = gpsTrip.getLocations();
         GPSLocation startLocation = locations.get(0);
         GPSLocation targetLocation = locations.get(locations.size() - 1);
 
         // longer than 25 km
         double x = startLocation.getLongitudeProjected() - targetLocation.getLongitudeProjected();
         double y = startLocation.getLatitudeProjected() - targetLocation.getLatitudeProjected();
-        if((x*x + y*y) > 25000*25000){
+        if((x*x + y*y) > maxRideDistance*maxRideDistance){
             tooLongCount++;
             return;
         }
-        SimulationNode startNode = nearestElementUtils.getNearestElement(startLocation, EGraphType.HIGHWAY);
-        x = startLocation.getLongitudeProjected() - startNode.getLongitudeProjected();
-        y = startLocation.getLatitudeProjected() - startNode.getLatitudeProjected();
-        // no node in 50 radius
-        if((x*x + y*y) > 50*50){
+        //SimulationNode startNode = nearestElementUtils.getNearestElement(startLocation, EGraphType.HIGHWAY);
+        Map<Integer, Double> startNodesMap = new HashMap<>();
+        Map<Integer, Double> targetNodesMap = new HashMap<>();
+        Object[] result = tree.findNode(startLocation, pickupRadius);
+        if (result == null){
             startTooFarCount++;
             return;
+        }else if(result.length == 1){
+            startNodesMap.put((int) result[0], 0.0);
+        }else{
+            startNodesMap.put((int) result[0], (double) result[2]);
+            startNodesMap.put((int) result[1], (double) result[3]);
         }
-        SimulationNode targetNode = nearestElementUtils.getNearestElement(targetLocation, EGraphType.HIGHWAY);
-        x = targetLocation.getLongitudeProjected() - targetNode.getLongitudeProjected();
-        y = targetLocation.getLatitudeProjected() - targetNode.getLatitudeProjected();
-        if((x*x + y*y) > 50*50){
+        //SimulationNode targetNode = nearestElementUtils.getNearestElement(targetLocation, EGraphType.HIGHWAY);
+        result = tree.findNode(targetLocation, pickupRadius);
+        if (result == null){
             targetTooFarCount++;
             return;
+        }else if(result.length == 1){
+             targetNodesMap.put((int) result[0], 0.0);
+        }else{
+            targetNodesMap.put((int) result[0], (double) result[2]);
+            targetNodesMap.put((int) result[1], (double) result[3]);
         }
-        double rideValue = gpsTrip.getRideValue();
-	
-        if(startNode != targetNode){
-            LinkedList<SimulationNode> nodesList = new LinkedList<>();
-            nodesList.add(startNode);
-            nodesList.add(targetNode);
-            trips.add(new TimeTripWithValue<>(gpsTrip.id, nodesList, gpsTrip.getStartTime(), rideValue ));
+        if( Collections.disjoint(startNodesMap.keySet(), targetNodesMap.keySet())){
+            gpsTrip.addNodeMaps(startNodesMap, targetNodesMap);
+            trips.add(gpsTrip);
+            
         }else{
             zeroLenghtTripsCount++;
        }

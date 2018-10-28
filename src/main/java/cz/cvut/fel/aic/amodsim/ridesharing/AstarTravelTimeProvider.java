@@ -13,6 +13,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.Node;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  *
@@ -56,4 +57,10 @@ public class AstarTravelTimeProvider implements TravelTimeProvider{
     public double getTravelTime(SimulationNode positionA, SimulationNode positionB) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public double getTravelTime(Integer startId, Integer targetId) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }

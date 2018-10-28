@@ -5,12 +5,13 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
-import cz.cvut.fel.aic.agentpolis.simmodel.mapInitialization.MapInitializer;
 import ninja.fido.config.Configuration;
 import com.google.inject.Injector;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.GeojsonMapInitializer;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.geographtools.Graph;
 import java.io.File;
@@ -29,7 +30,7 @@ public class EdgesToJson {
         
         Injector injector = new AgentPolisInitializer(new MainModule(config, localConfigFile)).initialize();
         
-        MapInitializer mapInitializer = injector.getInstance(MapInitializer.class);
+        MapInitializer mapInitializer = injector.getInstance(GeojsonMapInitializer.class);
 
 //        Graph<RoadNode, RoadEdge> roadGraph = OsmUtil.getHigwayGraph(new File(config.mapFilePath), config.srid);
 

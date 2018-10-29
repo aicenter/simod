@@ -24,6 +24,7 @@ public class TimeTripWithValue<L> extends TimeTrip<L>{
     private double shortestLength;
     public List<Map<Integer, Double>> nodes;
     
+    
     public TimeTripWithValue(int tripId, LinkedList<L> locations, long startTime, double rideValue) {
         super(locations, startTime);
         id = tripId;
@@ -50,7 +51,8 @@ public class TimeTripWithValue<L> extends TimeTrip<L>{
     public double getRideValue(){
         return value;
     }
-
+    
+ 
     @Override
     public L getAndRemoveFirstLocation() {
         return super.getAndRemoveFirstLocation();

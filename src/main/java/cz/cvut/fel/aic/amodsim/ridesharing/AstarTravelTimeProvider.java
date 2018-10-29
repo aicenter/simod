@@ -10,6 +10,8 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphTy
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.TransportNetworks;
+import cz.cvut.fel.aic.amodsim.io.TimeTripWithValue;
+import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.Node;
 import java.util.Iterator;
@@ -60,6 +62,36 @@ public class AstarTravelTimeProvider implements TravelTimeProvider{
 
     @Override
     public double getTravelTime(Integer startId, Integer targetId) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public double computeBestLength(TimeTripWithValue<GPSLocation> start, SimulationNode target) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public double computeBestLength(SimulationNode start, TimeTripWithValue<GPSLocation> target) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public double computeBestLength(SimulationNode start, SimulationNode target) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public double computeBestLength(TimeTripWithValue<GPSLocation> trip) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public double computeBestLength(TimeTripWithValue<GPSLocation> start, TimeTripWithValue<GPSLocation> target) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public double computeBestLength(int[] startNodes, int[] endNodes) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

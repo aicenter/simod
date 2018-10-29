@@ -10,7 +10,7 @@ import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
+import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent.DemandAgentFactory;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
@@ -48,7 +48,7 @@ public class EventInitializer {
 
     private final DemandEventHandler demandEventHandler;
     
-    private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
+    private final StationsDispatcher onDemandVehicleStationsCentral;
     
     private final AmodsimConfig amodsimConfig;
     
@@ -60,7 +60,7 @@ public class EventInitializer {
     
     @Inject
     public EventInitializer(EventProcessor eventProcessor, 
-            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, AmodsimConfig config, 
+            StationsDispatcher onDemandVehicleStationsCentral, AmodsimConfig config, 
             DemandEventHandler demandEventHandler, AgentpolisConfig agentpolisConfig) {
         this.eventProcessor = eventProcessor;
         this.demandEventHandler = demandEventHandler;

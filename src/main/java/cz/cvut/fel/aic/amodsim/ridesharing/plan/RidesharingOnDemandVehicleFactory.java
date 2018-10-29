@@ -10,7 +10,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehi
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
-import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
+import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactory;
@@ -26,7 +26,7 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 	
 	@Inject
 	public RidesharingOnDemandVehicleFactory(PhysicalTransportVehicleStorage vehicleStorage, TripsUtil tripsUtil, 
-			OnDemandVehicleStationsCentral onDemandVehicleStationsCentral,
+			StationsDispatcher onDemandVehicleStationsCentral,
 			PhysicalVehicleDriveFactory driveActivityFactory, PositionUtil positionUtil, 
 			EventProcessor eventProcessor, StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, 
 			AmodsimConfig config) {

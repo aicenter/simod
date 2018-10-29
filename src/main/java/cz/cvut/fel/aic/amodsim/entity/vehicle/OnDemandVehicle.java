@@ -8,7 +8,7 @@ package cz.cvut.fel.aic.amodsim.entity.vehicle;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.amodsim.DemandSimulationEntityType;
-import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
+import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.entity.PlanningAgent;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
@@ -61,7 +61,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     
     protected final TripsUtil tripsUtil;
     
-    protected final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
+    protected final StationsDispatcher onDemandVehicleStationsCentral;
     
     protected final PhysicalVehicleDriveFactory driveFactory;
     
@@ -161,7 +161,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     
     @Inject
     public OnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
-            TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
+            TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
             PhysicalVehicleDriveFactory driveFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
             StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, 
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {

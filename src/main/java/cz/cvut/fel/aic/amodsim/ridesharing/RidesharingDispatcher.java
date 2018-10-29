@@ -10,7 +10,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.DemandData;
-import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
+import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
@@ -25,7 +25,7 @@ import java.util.Map.Entry;
  * @author fiedlda1
  */
 @Singleton
-public class RidesharingStationsCentral extends OnDemandVehicleStationsCentral{
+public class RidesharingDispatcher extends StationsDispatcher{
 	
 	private final DARPSolver solver;
 	
@@ -33,7 +33,7 @@ public class RidesharingStationsCentral extends OnDemandVehicleStationsCentral{
 	
 	
 	@Inject
-	public RidesharingStationsCentral(OnDemandvehicleStationStorage onDemandvehicleStationStorage, 
+	public RidesharingDispatcher(OnDemandvehicleStationStorage onDemandvehicleStationStorage, 
 			EventProcessor eventProcessor, AmodsimConfig config, DARPSolver solver, @Named("mapSrid") int srid) {
 		super(onDemandvehicleStationStorage, eventProcessor, config, srid);
 		this.solver = solver;

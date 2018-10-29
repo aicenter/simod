@@ -9,7 +9,7 @@ import com.google.inject.name.Named;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
 import cz.cvut.fel.aic.amodsim.DemandData;
-import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
+import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import cz.cvut.fel.aic.amodsim.storage.DemandStorage;
@@ -43,7 +43,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	
 	private final TimeTrip<SimulationNode> trip;
     
-    private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
+    private final StationsDispatcher onDemandVehicleStationsCentral;
     
     private final EventProcessor eventProcessor;
     
@@ -132,7 +132,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     
     
     @Inject
-	public DemandAgent(OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
+	public DemandAgent(StationsDispatcher onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
             DemandStorage demandStorage, StandardTimeProvider timeProvider, Statistics statistics, TripsUtil tripsUtil,
 			@Assisted String agentId, @Assisted int id, @Assisted TimeTrip<SimulationNode> trip) {
 		super(agentId, trip.getLocations().get(0));

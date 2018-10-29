@@ -32,7 +32,7 @@ import java.util.List;
  * @author fido
  */
 @Singleton
-public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
+public class StationsDispatcher extends EventHandlerAdapter{
     
     private final OnDemandvehicleStationStorage onDemandvehicleStationStorage;
     
@@ -81,7 +81,7 @@ public class OnDemandVehicleStationsCentral extends EventHandlerAdapter{
     
     
     @Inject
-    public OnDemandVehicleStationsCentral(OnDemandvehicleStationStorage onDemandvehicleStationStorage,
+    public StationsDispatcher(OnDemandvehicleStationStorage onDemandvehicleStationStorage,
             EventProcessor eventProcessor, AmodsimConfig config, @Named("mapSrid") int srid) {
         this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
         this.eventProcessor = eventProcessor;

@@ -11,7 +11,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestE
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
-import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
+import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
@@ -43,14 +43,14 @@ public class OnDemandVehicleStationFactory {
     
     private final PositionUtil positionUtil;
     
-    private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
+    private final StationsDispatcher onDemandVehicleStationsCentral;
 
     @Inject
     public OnDemandVehicleStationFactory(AmodsimConfig config, EventProcessor eventProcessor, OnDemandVehicleFactorySpec 
             onDemandVehicleFactory, NearestElementUtils nearestElementUtils, OnDemandvehicleStationStorage 
                     onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage,
                     Transformer transformer, PositionUtil positionUtil, 
-                    OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
+                    StationsDispatcher onDemandVehicleStationsCentral, 
                     Map<Long, SimulationNode> nodesMappedByNodeSourceIds) {
         this.config = config;
         this.eventProcessor = eventProcessor;

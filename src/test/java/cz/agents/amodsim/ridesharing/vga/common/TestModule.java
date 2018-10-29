@@ -24,13 +24,13 @@ import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehi
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer;
-import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
+import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.EuclideanTravelTimeProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingStationsCentral;
+import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.RidesharingOnDemandVehicleFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
@@ -64,7 +64,7 @@ public class TestModule extends StandardAgentPolisModule{
             .build(DemandAgent.DemandAgentFactory.class));
 		bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 		bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
-		bind(OnDemandVehicleStationsCentral.class).to(RidesharingStationsCentral.class);
+		bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
 		bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
 		bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
 		install(new FactoryModuleBuilder().implement(VGARequest.class, VGARequest.class)

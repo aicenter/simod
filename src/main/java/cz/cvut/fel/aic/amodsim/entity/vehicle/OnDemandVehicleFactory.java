@@ -12,7 +12,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
-import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
+import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
@@ -28,7 +28,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     
     protected final TripsUtil tripsUtil;
     
-    protected final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
+    protected final StationsDispatcher onDemandVehicleStationsCentral;
     
     protected final PhysicalVehicleDriveFactory driveActivityFactory;
     
@@ -49,7 +49,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     
     @Inject
     public OnDemandVehicleFactory(PhysicalTransportVehicleStorage vehicleStorage, 
-            TripsUtil tripsUtil, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, 
+            TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
             PhysicalVehicleDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
             StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config) {
         this.tripsUtil = tripsUtil;

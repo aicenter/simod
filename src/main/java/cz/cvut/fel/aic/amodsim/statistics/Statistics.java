@@ -11,7 +11,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.eventType.DriveEvent;
-import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
+import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
@@ -50,7 +50,7 @@ public class Statistics extends AliteEntity implements EventHandler{
     
     private final OnDemandVehicleStorage onDemandVehicleStorage;
     
-    private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
+    private final StationsDispatcher onDemandVehicleStationsCentral;
     
     private final LinkedList<HashMap<Integer,Integer>> allEdgesLoadHistory;
     
@@ -93,7 +93,7 @@ public class Statistics extends AliteEntity implements EventHandler{
     @Inject
     public Statistics(TypedSimulation eventProcessor, Provider<EdgesLoadByState> allEdgesLoadProvider, 
             OnDemandVehicleStorage onDemandVehicleStorage, 
-            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, AmodsimConfig config) throws IOException {
+            StationsDispatcher onDemandVehicleStationsCentral, AmodsimConfig config) throws IOException {
         this.eventProcessor = eventProcessor;
         this.allEdgesLoadProvider = allEdgesLoadProvider;
         this.onDemandVehicleStorage = onDemandVehicleStorage;

@@ -21,7 +21,7 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
-import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
+import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
@@ -53,7 +53,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     
     private final PositionUtil positionUtil;
     
-    private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
+    private final StationsDispatcher onDemandVehicleStationsCentral;
     
     private final AmodsimConfig config;
 
@@ -66,7 +66,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 
             @Assisted String id, @Assisted SimulationNode node, 
             @Assisted int initialVehicleCount, Transformer transformer, PositionUtil positionUtil, 
-            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral) {
+            StationsDispatcher onDemandVehicleStationsCentral) {
         super(id, node);
         this.eventProcessor = eventProcessor;
         parkedVehicles = new LinkedList<>();

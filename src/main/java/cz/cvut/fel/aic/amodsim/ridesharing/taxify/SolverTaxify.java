@@ -1,4 +1,4 @@
-package cz.cvut.fel.aic.amodsim.ridesharing;
+package cz.cvut.fel.aic.amodsim.ridesharing.taxify;
 
 import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
@@ -12,6 +12,11 @@ import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.io.TimeTripWithValue;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
+import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
+import cz.cvut.fel.aic.amodsim.ridesharing.OnDemandRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
+import cz.cvut.fel.aic.amodsim.ridesharing.TravelCostProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTask;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTaskType;
@@ -25,8 +30,8 @@ import org.slf4j.LoggerFactory;
 /**
  * @author F.I.D.O.
  */
-public class InsertionHeuristicSolver1 extends DARPSolver {
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(InsertionHeuristicSolver1.class);
+public class SolverTaxify extends DARPSolver {
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(SolverTaxify.class);
     private final AmodsimConfig config;
     private final double maxDistance;
     private final double maxDistanceSquared;
@@ -39,7 +44,7 @@ public class InsertionHeuristicSolver1 extends DARPSolver {
    // private long vehiclePlanningAllCallCount = 0;
     //private Map<Integer, Double> tripLengths;
     
-    @Inject public InsertionHeuristicSolver1(TravelTimeProvider travelTimeProvider, TravelCostProvider travelCostProvider, 
+    @Inject public SolverTaxify(TravelTimeProvider travelTimeProvider, TravelCostProvider travelCostProvider, 
         OnDemandVehicleStorage vehicleStorage, PositionUtil positionUtil, AmodsimConfig config, TimeProvider timeProvider,
         TripTransform tripTransform) {
 
@@ -58,8 +63,7 @@ public class InsertionHeuristicSolver1 extends DARPSolver {
        List<TimeTripWithValue<GPSLocation>> rawDemand = tripTransform.loadTripsFromTxt(new File(config.amodsim.tripsPath));
        Demand demand = new Demand(travelTimeProvider, config, rawDemand.size(), rawDemand.get(rawDemand.size()-1).id+1);
        demand.prepareDemand(rawDemand);
-       demand.hopcroftKarp(5);
-       int[][] paths = demand.buildPaths();
+       int[][] paths = demand.buildPaths(5);
        LOGGER.info("Number of  paths " + paths.length);
        
        //int[][] adj = demand.buildAdjacency(5);
@@ -68,7 +72,10 @@ public class InsertionHeuristicSolver1 extends DARPSolver {
        return new  HashMap<>();
     }
     
-
+    private void savePath(List<double[]> path){
+        
+        
+    }
        
     
 

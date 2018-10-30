@@ -37,10 +37,11 @@ import cz.cvut.fel.aic.amodsim.ridesharing.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.EuclideanTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.InsertionHeuristicSolver;
-import cz.cvut.fel.aic.amodsim.ridesharing.InsertionHeuristicSolver1;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.SolverTaxify;
 import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingStationsCentral;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.RidesharingOnDemandVehicleFactory;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.TravelTimeProviderTaxify;
 import cz.cvut.fel.aic.geographtools.TransportMode;
 import java.io.File;
 
@@ -91,8 +92,8 @@ public class MainModule extends StandardAgentPolisModule{
            
             //bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
             //bind(OnDemandVehicleStationsCentral.class).to(RidesharingStationsCentral.class);
-            bind(DARPSolver.class).to(InsertionHeuristicSolver1.class);
-            bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
+            bind(DARPSolver.class).to(SolverTaxify.class);
+            bind(TravelTimeProvider.class).to(TravelTimeProviderTaxify.class);
             //bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
            } else{
            bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);

@@ -42,33 +42,10 @@ public class OnDemandVehiclesSimulationTaxify {
         SimulationCreator creator = injector.getInstance(SimulationCreator.class);
         // prepare map, entity storages...
         creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
-
-//        List<TimeTrip<Long>> osmNodesList;
-        try {
-//            osmNodesList = TripTransform.jsonToTrips(new File(config.amodsim.preprocessedTrips), Long.class);
-            //TripTransform tripTransform = injector.getInstance(TripTransform.class);
-            //RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
-            //rebalancingLoader.load(new File(config.rebalancing.policyFilePath));
-            
-            //  injector.getInstance(EntityInitializer.class).initialize(rebalancingLoader.getOnDemandVehicleStations());
-
-            // injector.getInstance(EventInitializer.class).initialize(
-            //        tripTransform.loadTripsFromTxt(new File(config.amodsim.tripsPath)),rebalancingLoader.getRebalancingTrips());
-             // statistics l
-            injector.getInstance(DARPSolver.class).solve();
-            injector.getInstance(StatisticInitializer.class).initialize();
-
-            // start it up
-            //creator.startSimulation();
-
-            if (config.amodsim.useTripCache) {
-                injector.getInstance(TripsUtilCached.class).saveNewTrips();
-            }
-            //injector.getInstance(Statistics.class).simulationFinished();
-
-        } catch (Exception ex) {
-            LOGGER.error(null, ex);
-        }
+ 
+        injector.getInstance(DARPSolver.class).solve();
+        injector.getInstance(StatisticInitializer.class).initialize();
+ 
 
     }
 }

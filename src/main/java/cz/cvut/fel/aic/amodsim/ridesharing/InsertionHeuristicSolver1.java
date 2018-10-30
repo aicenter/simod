@@ -59,6 +59,9 @@ public class InsertionHeuristicSolver1 extends DARPSolver {
        Demand demand = new Demand(travelTimeProvider, config, rawDemand.size(), rawDemand.get(rawDemand.size()-1).id+1);
        demand.prepareDemand(rawDemand);
        demand.hopcroftKarp(5);
+       int[][] paths = demand.buildPaths();
+       LOGGER.info("Number of  paths " + paths.length);
+       
        //int[][] adj = demand.buildAdjacency(5);
        //int[][] rAdj = demand.reverseAdjacency(adj);
        

@@ -22,12 +22,12 @@ import org.slf4j.LoggerFactory;
 /**
  * @author David Fiedler
  */
-public class OnDemandVehiclesSimulation {
+public class OnDemandVehiclesSimulationTaxify {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OnDemandVehiclesSimulation.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OnDemandVehiclesSimulationTaxify.class);
     
     public static void main(String[] args) throws MalformedURLException {
-        new OnDemandVehiclesSimulation().run(args);
+        new OnDemandVehiclesSimulationTaxify().run(args);
     }
 
 

@@ -11,8 +11,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.amodsim.OsmUtil;
 //import cz.agents.amodsim.pathPlanner.PathPlanner;
-import com.vividsolutions.jts.geom.Coordinate;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
@@ -21,16 +19,12 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
-import cz.cvut.fel.aic.geographtools.util.NearestElementUtil;
-import cz.cvut.fel.aic.geographtools.util.NearestElementUtilPair;
-import cz.cvut.fel.aic.geographtools.util.Transformer;
 import cz.cvut.fel.aic.geographtools.util.GPSLocationTools;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,19 +54,20 @@ public class TripTransform {
     
     private final double maxRideDistance;
     private final int pickupRadius;
-        
+    AmodsimConfig config;
     private final Graph<SimulationNode,SimulationEdge> highwayGraph;
    // private final NearestElementUtils nearestElementUtils;
-    private final Rtree tree;
+    private Rtree tree;
     
     @Inject
     public TripTransform(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils,
         AmodsimConfig config, TravelTimeProvider travelTimeProvider) {
         this.highwayGraph = highwayNetwork.getNetwork();
         //this.nearestElementUtils = nearestElementUtils;
+        this.config = config;
         pickupRadius = config.amodsim.ridesharing.pickupRadius;
         maxRideDistance = 1000 * (config.amodsim.ridesharing.maxRideTime / 60.0) * config.amodsim.ridesharing.maxSpeedEstimation;
-        tree = new Rtree(this.highwayGraph.getAllNodes(), this.highwayGraph.getAllEdges());
+        
     }   
        
 
@@ -90,7 +85,7 @@ public class TripTransform {
 	}
     
     public List<TimeTripWithValue<GPSLocation>> loadTripsFromTxt(File inputFile){
-
+        tree = new Rtree(this.highwayGraph.getAllNodes(), this.highwayGraph.getAllEdges());
         List<TimeTripWithValue<GPSLocation>> gpsTrips = new LinkedList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
             String line;
@@ -129,10 +124,12 @@ public class TripTransform {
         LOGGER.info("{} trips with target node far away from graph  discarded", targetTooFarCount);
         LOGGER.info("{} trips remained", trips.size());
         LOGGER.info("{} nodes not found in node tree", tree.count);
+        tree = null;
         return trips; 
     }
         
     private void processGpsTrip(TimeTripWithValue<GPSLocation> gpsTrip, List<TimeTripWithValue<GPSLocation>>trips) {
+        
         LinkedList<GPSLocation> locations = gpsTrip.getLocations();
         GPSLocation startLocation = locations.get(0);
         GPSLocation targetLocation = locations.get(locations.size() - 1);
@@ -175,6 +172,31 @@ public class TripTransform {
         }else{
             zeroLenghtTripsCount++;
        }
+    }
+    
+    public List<List<Integer>> loadStations() throws IOException{
+        List<List<Integer>> stationsAsNodes = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String,Object> data = mapper.readValue(new File(config.rebalancing.policyFilePath), Map.class);
+        ArrayList stations = (ArrayList) data.get("stations");
+        
+        tree = new Rtree(this.highwayGraph.getAllNodes(), this.highwayGraph.getAllEdges());
+        for(int i = 0; i < stations.size();i++ ){
+            ArrayList<Double> station = (ArrayList<Double>) stations.get(i);
+            GPSLocation location = GPSLocationTools.createGPSLocation(station.get(0), station.get(1), 0, SRID);
+            Object[] result = tree.findNode(location, 3*pickupRadius);
+            if (result == null){
+                LOGGER.error("Node not found for station " + i);
+                stationsAsNodes.add(new ArrayList<>());
+            }else if(result.length == 1){
+                stationsAsNodes.add(Arrays.asList((int) result[0], 0));
+            }else{
+                stationsAsNodes.add(Arrays.asList((int)result[0], (int) (Math.round((double)result[2])),
+                                                  (int)result[1], (int) (Math.round((double)result[3]))));
+            }
+        }
+        tree = null;
+        return stationsAsNodes;
     }
 }
  

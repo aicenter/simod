@@ -57,7 +57,7 @@ public class TripTransform {
     AmodsimConfig config;
     private final Graph<SimulationNode,SimulationEdge> highwayGraph;
    // private final NearestElementUtils nearestElementUtils;
-    private Rtree tree;
+    private Rtree rtree;
     
     @Inject
     public TripTransform(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils,
@@ -85,7 +85,7 @@ public class TripTransform {
 	}
     
     public List<TimeTripWithValue<GPSLocation>> loadTripsFromTxt(File inputFile){
-        tree = new Rtree(this.highwayGraph.getAllNodes(), this.highwayGraph.getAllEdges());
+        rtree = new Rtree(this.highwayGraph.getAllNodes(), this.highwayGraph.getAllEdges());
         List<TimeTripWithValue<GPSLocation>> gpsTrips = new LinkedList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
             String line;
@@ -123,8 +123,8 @@ public class TripTransform {
         LOGGER.info("{} trips with start node far away from graph discarded", startTooFarCount);
         LOGGER.info("{} trips with target node far away from graph  discarded", targetTooFarCount);
         LOGGER.info("{} trips remained", trips.size());
-        LOGGER.info("{} nodes not found in node tree", tree.count);
-        tree = null;
+        LOGGER.info("{} nodes not found in node tree", rtree.count);
+        rtree = null;
         return trips; 
     }
         
@@ -144,7 +144,7 @@ public class TripTransform {
         //SimulationNode startNode = nearestElementUtils.getNearestElement(startLocation, EGraphType.HIGHWAY);
         Map<Integer, Double> startNodesMap = new HashMap<>();
         Map<Integer, Double> targetNodesMap = new HashMap<>();
-        Object[] result = tree.findNode(startLocation, pickupRadius);
+        Object[] result = rtree.findNode(startLocation, pickupRadius);
         if (result == null){
             startTooFarCount++;
             return;
@@ -155,7 +155,7 @@ public class TripTransform {
             startNodesMap.put((int) result[1], (double) result[3]);
         }
         //SimulationNode targetNode = nearestElementUtils.getNearestElement(targetLocation, EGraphType.HIGHWAY);
-        result = tree.findNode(targetLocation, pickupRadius);
+        result = rtree.findNode(targetLocation, pickupRadius);
         if (result == null){
             targetTooFarCount++;
             return;
@@ -174,29 +174,27 @@ public class TripTransform {
        }
     }
     
-    public List<List<Integer>> loadStations() throws IOException{
-        List<List<Integer>> stationsAsNodes = new ArrayList<>();
+    public List<SimulationNode> loadStations() throws IOException{
+        List<SimulationNode> stationNodes = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> data = mapper.readValue(new File(config.rebalancing.policyFilePath), Map.class);
         ArrayList stations = (ArrayList) data.get("stations");
         
-        tree = new Rtree(this.highwayGraph.getAllNodes(), this.highwayGraph.getAllEdges());
+        rtree = new Rtree(this.highwayGraph.getAllNodes(), this.highwayGraph.getAllEdges());
         for(int i = 0; i < stations.size();i++ ){
             ArrayList<Double> station = (ArrayList<Double>) stations.get(i);
             GPSLocation location = GPSLocationTools.createGPSLocation(station.get(0), station.get(1), 0, SRID);
-            Object[] result = tree.findNode(location, 3*pickupRadius);
+            Object[] result = rtree.findNode(location, 3*pickupRadius);
             if (result == null){
                 LOGGER.error("Node not found for station " + i);
-                stationsAsNodes.add(new ArrayList<>());
-            }else if(result.length == 1){
-                stationsAsNodes.add(Arrays.asList((int) result[0], 0));
+                //stationNodes.add(0);
             }else{
-                stationsAsNodes.add(Arrays.asList((int)result[0], (int) (Math.round((double)result[2])),
-                                                  (int)result[1], (int) (Math.round((double)result[3]))));
+                stationNodes.add(this.highwayGraph.getNode((int) result[0]));
+                //stationsAsNodes.add((int) result[0]);
             }
         }
-        tree = null;
-        return stationsAsNodes;
+        rtree = null;
+        return stationNodes;
     }
 }
  

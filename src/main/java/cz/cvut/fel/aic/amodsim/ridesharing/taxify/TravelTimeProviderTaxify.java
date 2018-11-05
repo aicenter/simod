@@ -29,10 +29,10 @@ import java.util.Map;
 public class TravelTimeProviderTaxify implements TravelTimeProvider{
 	private final PositionUtil positionUtil;
 	private final AmodsimConfig config;
-    private final double travelSpeedEstimatePerSecond;
+    //private final double travelSpeedEstimatePerSecond;
 	private long callCount = 0;
     private final Graph<SimulationNode, SimulationEdge> graph;
-    private final double speedMS;
+    private final double speedMillis;
     
     
 	public long getCallCount() {
@@ -44,26 +44,29 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
 	public TravelTimeProviderTaxify(PositionUtil positionUtil, AmodsimConfig config, TransportNetworks transportNetworks) {
 		this.positionUtil = positionUtil;
 		this.config = config;
-		travelSpeedEstimatePerSecond = config.amodsim.ridesharing.maxSpeedEstimation / 3.6;
+		//travelSpeedEstimatePerSecond = config.amodsim.ridesharing.maxSpeedEstimation / 3.6;
         this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
-        speedMS = config.amodsim.ridesharing.maxSpeedEstimation;
+        speedMillis = config.amodsim.ridesharing.maxSpeedEstimation*1000;
 	}
 	
 	
 	@Override
 	public double getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
-		callCount++;
-		double distance = positionUtil.getPosition(positionA).distance(positionUtil.getPosition(positionB));
-		long traveltime = MoveUtil.computeDuration(travelSpeedEstimatePerSecond, distance);
-		return traveltime;
+//		callCount++;
+//		double distance = positionUtil.getPosition(positionA).distance(positionUtil.getPosition(positionB));
+//		long traveltime = MoveUtil.computeDuration(travelSpeedEstimatePerSecond, distance);
+        
+		//return traveltime;
+        throw new UnsupportedOperationException("Not supported yet.");
 	}
     
     @Override
 	public double getTravelTime(SimulationNode positionA, SimulationNode positionB) {
-		callCount++;
-		double distance = positionUtil.getPosition(positionA).distance(positionUtil.getPosition(positionB));
-		long traveltime = MoveUtil.computeDuration(travelSpeedEstimatePerSecond, distance);
-		return traveltime;
+//		callCount++;
+//		double distance = positionUtil.getPosition(positionA).distance(positionUtil.getPosition(positionB));
+//		long traveltime = MoveUtil.computeDuration(travelSpeedEstimatePerSecond, distance);
+//		return traveltime;
+        throw new UnsupportedOperationException("Not supported yet.");
 	}
 
     @Override
@@ -82,7 +85,7 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
 //        double bestLength = Double.MAX_VALUE;
 //        for (Integer sn : startNodes.keySet()) {
 //            for (Integer en : endNodes.keySet()) {
-//                double n2n = getTravelTime(sn, en);
+//                double n2n = getTravelTimeInMillis(sn, en);
 //                double s2n = startNodes.get(sn);
 //                double e2n = endNodes.get(en);
 //                double pathLength = s2n + n2n + e2n;
@@ -114,7 +117,7 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
 //        Map<Integer, Double> endNodes = target.nodes.get(0);
 //        double bestLength = Double.MAX_VALUE;
 //        for (Integer en : endNodes.keySet()) {
-//            double n2n = getTravelTime(start.id, en);
+//            double n2n = getTravelTimeInMillis(start.id, en);
 //            double e2n = endNodes.get(en);
 //            double pathLength = n2n + e2n;
 //            bestLength = bestLength <= pathLength ? bestLength : pathLength;
@@ -127,7 +130,7 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
 //        Map<Integer, Double> startNodes = start.nodes.get(1);
 //        double bestLength = Double.MAX_VALUE;
 //        for (Integer sn : startNodes.keySet()) {
-//            double n2n = getTravelTime(start.id, sn);
+//            double n2n = getTravelTimeInMillis(start.id, sn);
 //            double s2n = startNodes.get(sn);
 //            double pathLength = n2n + s2n;
 //            bestLength = bestLength <= pathLength ? bestLength : pathLength;
@@ -137,11 +140,12 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
 
 //    @Override
 //    public double computeBestLength(SimulationNode start, SimulationNode target) {
-//        return getTravelTime(start.id, target.id);
+//        return getTravelTimeInMillis(start.id, target.id);
 //    }
     @Override
-    public double  getTravelTime(int[] startNodes, int[] endNodes) {
+    public int  getTravelTimeInMillis(int[] startNodes, int[] endNodes) {
         double bestLength = Double.MAX_VALUE;
+        int[] nodes = new int[]{1,1};
         for (int i=0; i<startNodes.length; i+=2){
             for(int j=0; j<endNodes.length; j+=2){
                 int startNode = startNodes[i];
@@ -150,11 +154,29 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
                 int s2n = startNodes[i+1];
                 int e2n = endNodes[j+1];
                 double pathLength = n2n + s2n + e2n;
-                bestLength = bestLength <= pathLength ? bestLength : pathLength;
+                if(pathLength < bestLength){
+                    bestLength = pathLength;
+                    nodes[0] = i;
+                    nodes[1] = j;
+                }
             }
         }
-        double bestTravelTimeMs = (bestLength/speedMS) * 1000;
-        return bestTravelTimeMs;
+        if(nodes[0] == 2){
+            swapNodes(startNodes);            
+        }
+        if(nodes[1] == 2){
+            swapNodes(endNodes);
+        }
+        return (int) Math.round(bestLength/speedMillis);
+    }
+    
+    private void swapNodes(int[] nodes){
+        int tmpN = nodes[0];
+        int tmpD = nodes[1];
+        nodes[0] = nodes[2];
+        nodes[1] = nodes[3];
+        nodes[2] = tmpN;
+        nodes[3] = tmpD;
     }
 
 

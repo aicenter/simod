@@ -173,6 +173,10 @@ public class TripTransform {
             zeroLenghtTripsCount++;
        }
     }
+
+    public Graph<SimulationNode, SimulationEdge> getGraph() {
+        return highwayGraph;
+    }
     
     public List<SimulationNode> loadStations() throws IOException{
         List<SimulationNode> stationNodes = new ArrayList<>();
@@ -184,7 +188,7 @@ public class TripTransform {
         for(int i = 0; i < stations.size();i++ ){
             ArrayList<Double> station = (ArrayList<Double>) stations.get(i);
             GPSLocation location = GPSLocationTools.createGPSLocation(station.get(0), station.get(1), 0, SRID);
-            Object[] result = rtree.findNode(location, 3*pickupRadius);
+            Object[] result = rtree.findNode(location, 4*pickupRadius);
             if (result == null){
                 LOGGER.error("Node not found for station " + i);
                 //stationNodes.add(0);

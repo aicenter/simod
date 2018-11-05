@@ -71,7 +71,7 @@ public class AstarTravelTimeProvider implements TravelTimeProvider{
     }
 
     @Override
-    public double getTravelTime(int[] startNodes, int[] endNodes) {
+    public int getTravelTimeInMillis(int[] startNodes, int[] endNodes) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

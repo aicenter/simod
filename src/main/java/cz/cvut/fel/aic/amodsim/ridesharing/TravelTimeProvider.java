@@ -18,7 +18,7 @@ public interface TravelTimeProvider {
 	public double getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB);
     public double getTravelTime(SimulationNode positionA, SimulationNode positionB);
     public double getTravelTime(Integer startId, Integer targetId);
-    public double getTravelTime(int[] startNodes, int[] endNodes);
+    public int getTravelTimeInMillis(int[] startNodes, int[] endNodes);
    // public double computeBestLength(TimeTripWithValue<GPSLocation> start, SimulationNode target);
     //public double computeBestLength(SimulationNode start, TimeTripWithValue<GPSLocation> target) ;
     //public double computeBestLength(SimulationNode start, SimulationNode target) ;

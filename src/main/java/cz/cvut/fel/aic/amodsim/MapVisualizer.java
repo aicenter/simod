@@ -2,8 +2,9 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
-import cz.cvut.fel.aic.agentpolis.simmodel.mapInitialization.MapInitializer;
+//import cz.cvut.fel.aic.agentpolis.simmodel.mapInitialization.MapInitializer;
 import com.google.inject.Injector;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.GeojsonMapInitializer;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
@@ -34,7 +35,7 @@ public class MapVisualizer {
         SimulationCreator creator = injector.getInstance(SimulationCreator.class);
 
         // prepare map, entity storages...
-        creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
+        creator.prepareSimulation(injector.getInstance(GeojsonMapInitializer.class).getMap());
 
 //        List<TimeTrip<Long>> osmNodesList;
 //        try {

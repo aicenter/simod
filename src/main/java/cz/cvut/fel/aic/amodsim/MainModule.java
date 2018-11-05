@@ -35,6 +35,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.EuclideanTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.InsertionHeuristicSolver;
+import cz.cvut.fel.aic.amodsim.ridesharing.NodeMatrixTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingStationsCentral;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.RidesharingOnDemandVehicleFactory;
@@ -88,7 +89,8 @@ public class MainModule extends StandardAgentPolisModule{
             bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
             bind(OnDemandVehicleStationsCentral.class).to(RidesharingStationsCentral.class);
             bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
-            bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
+            bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);//if necessary, change by required time provider
+            
         } else{
            bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
         }

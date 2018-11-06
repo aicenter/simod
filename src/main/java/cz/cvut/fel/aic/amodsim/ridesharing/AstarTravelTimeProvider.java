@@ -61,17 +61,17 @@ public class AstarTravelTimeProvider implements TravelTimeProvider{
     }
 
     @Override
-    public double getTravelTime(Integer startId, Integer targetId) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public double computeBestLength(TimeTripWithValue<GPSLocation> trip) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public int getTravelTimeInMillis(int[] startNodes, int[] endNodes) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public int getTravelTimeInMillis(TimeTripWithValue<GPSLocation> trip) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public int getTravelTimeInMillis(Integer startId, Integer targetId) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

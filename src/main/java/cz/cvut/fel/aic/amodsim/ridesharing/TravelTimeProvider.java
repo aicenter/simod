@@ -17,12 +17,10 @@ import cz.cvut.fel.aic.geographtools.GPSLocation;
 public interface TravelTimeProvider {
 	public double getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB);
     public double getTravelTime(SimulationNode positionA, SimulationNode positionB);
-    public double getTravelTime(Integer startId, Integer targetId);
+    
+        //taxify
     public int getTravelTimeInMillis(int[] startNodes, int[] endNodes);
-   // public double computeBestLength(TimeTripWithValue<GPSLocation> start, SimulationNode target);
-    //public double computeBestLength(SimulationNode start, TimeTripWithValue<GPSLocation> target) ;
-    //public double computeBestLength(SimulationNode start, SimulationNode target) ;
-    public double computeBestLength(TimeTripWithValue<GPSLocation> trip);
-    //public double computeBestLength(TimeTripWithValue<GPSLocation> start, TimeTripWithValue<GPSLocation> target); 
+    public int getTravelTimeInMillis(TimeTripWithValue<GPSLocation> trip);
+    public int getTravelTimeInMillis(Integer startId, Integer targetId);
     
 }

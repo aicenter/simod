@@ -25,9 +25,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+
 
 import org.slf4j.LoggerFactory;
 
@@ -71,9 +69,7 @@ public class SolverTaxify extends DARPSolver {
 //            System.out.println(node.id);
 //        }
         List<TimeTripWithValue<GPSLocation>> rawDemand = tripTransform.loadTripsFromTxt(new File(config.amodsim.tripsPath));
-        Demand demand = new Demand(travelTimeProvider, config, 
-           rawDemand.size(), rawDemand.get(rawDemand.size()-1).id+1);
-        demand.prepareDemand(rawDemand);
+        Demand demand = new Demand(travelTimeProvider, config, rawDemand);
        //LOGGER.info("Number of  paths " + paths.length);
         StationCentral central = new StationCentral(tripTransform, config, travelTimeProvider,graph);
         //int[][] paths = demand.buildPaths(5, central);

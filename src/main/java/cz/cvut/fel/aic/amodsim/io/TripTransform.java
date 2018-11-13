@@ -23,8 +23,11 @@ import cz.cvut.fel.aic.geographtools.util.GPSLocationTools;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,6 +61,7 @@ public class TripTransform {
     private final Graph<SimulationNode,SimulationEdge> highwayGraph;
    // private final NearestElementUtils nearestElementUtils;
     private Rtree rtree;
+//     List<Integer>[] unmappedTrips; 
     
     @Inject
     public TripTransform(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils,
@@ -67,7 +71,9 @@ public class TripTransform {
         this.config = config;
         pickupRadius = config.amodsim.ridesharing.pickupRadius;
         maxRideDistance = 1000 * (config.amodsim.ridesharing.maxRideTime / 60.0) * config.amodsim.ridesharing.maxSpeedEstimation;
-        
+//        unmappedTrips = new List[2];
+//        unmappedTrips[0] = new ArrayList<>();
+//        unmappedTrips[1] = new ArrayList<>();
     }   
        
 
@@ -84,7 +90,8 @@ public class TripTransform {
 				List.class, typeFactory.constructParametricType(TimeTripWithValue.class, locationType)));
 	}
     
-    public List<TimeTripWithValue<GPSLocation>> loadTripsFromTxt(File inputFile){
+    public List<TimeTripWithValue<GPSLocation>> loadTripsFromTxt(File inputFile) throws FileNotFoundException, IOException{
+              
         rtree = new Rtree(this.highwayGraph.getAllNodes(), this.highwayGraph.getAllEdges());
         List<TimeTripWithValue<GPSLocation>> gpsTrips = new LinkedList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
@@ -125,6 +132,9 @@ public class TripTransform {
         LOGGER.info("{} trips remained", trips.size());
         LOGGER.info("{} nodes not found in node tree", rtree.count);
         rtree = null;
+//        FileOutputStream fos = new FileOutputStream(config.amodsimExperimentDir+"/unmapped");
+//        ObjectOutputStream oos = new ObjectOutputStream(fos);
+//        oos.writeObject(unmappedTrips);
         return trips; 
     }
         
@@ -147,6 +157,7 @@ public class TripTransform {
         Object[] result = rtree.findNode(startLocation, pickupRadius);
         if (result == null){
             startTooFarCount++;
+           // unmappedTrips[0].add(gpsTrip.id);
             return;
         }else if(result.length == 1){
             startNodesMap.put((int) result[0], 0.0);
@@ -158,6 +169,7 @@ public class TripTransform {
         result = rtree.findNode(targetLocation, pickupRadius);
         if (result == null){
             targetTooFarCount++;
+           // unmappedTrips[1].add(gpsTrip.id);
             return;
         }else if(result.length == 1){
              targetNodesMap.put((int) result[0], 0.0);
@@ -165,13 +177,13 @@ public class TripTransform {
             targetNodesMap.put((int) result[0], (double) result[2]);
             targetNodesMap.put((int) result[1], (double) result[3]);
         }
-        if( Collections.disjoint(startNodesMap.keySet(), targetNodesMap.keySet())){
-            gpsTrip.addNodeMaps(startNodesMap, targetNodesMap);
-            trips.add(gpsTrip);
+  //      if( Collections.disjoint(startNodesMap.keySet(), targetNodesMap.keySet())){
+        gpsTrip.addNodeMaps(startNodesMap, targetNodesMap);
+        trips.add(gpsTrip);
             
-        }else{
-            zeroLenghtTripsCount++;
-       }
+//        }else{
+//            zeroLenghtTripsCount++;
+//       }
     }
 
     public Graph<SimulationNode, SimulationEdge> getGraph() {

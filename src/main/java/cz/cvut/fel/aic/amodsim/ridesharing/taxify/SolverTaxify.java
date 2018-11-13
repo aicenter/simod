@@ -23,8 +23,11 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.text.ParseException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 
 import org.slf4j.LoggerFactory;
@@ -39,7 +42,7 @@ public class SolverTaxify extends DARPSolver {
     Graph<SimulationNode,SimulationEdge> graph;
 //    private final double maxDistanceSquared;
 //    private final int maxDelayTime;
-    private final TripTransform tripTransform;
+    private final TripTransformTaxify tripTransform;
    // private long callCount = 0;
     //private long totalTime = 0;
    // private long iterationTime = 0;
@@ -49,91 +52,32 @@ public class SolverTaxify extends DARPSolver {
     
     @Inject public SolverTaxify(TravelTimeProvider travelTimeProvider, TravelCostProvider travelCostProvider, 
         OnDemandVehicleStorage vehicleStorage, AmodsimConfig config, TimeProvider timeProvider,
-        TripTransform tripTransform) {
+        TripTransformTaxify tripTransform) {
 
         super(vehicleStorage, travelTimeProvider, travelCostProvider);
         this.config = config;
         this.tripTransform = tripTransform;
         graph = tripTransform.getGraph();
-       
-//        maxDistance = (double ) config.amodsim.ridesharing.maxWaitTime 
-//            * config.amodsim.ridesharing.maxSpeedEstimation / 3.6; 
-//        maxDistanceSquared = maxDistance * maxDistance;
-//        maxDelayTime = config.amodsim.ridesharing.maxWaitTime * 1000;
-        //tripLengths = new HashMap<>();
-        LOGGER.warn("");
-    }
+    };
 
     @Override public Map<RideSharingOnDemandVehicle, DriverPlan> solve() {
-//        for(SimulationNode node: graph.getAllNodes()){
-//            System.out.println(node.id);
-//        }
-        List<TimeTripWithValue<GPSLocation>> rawDemand = tripTransform.loadTripsFromTxt(new File(config.amodsim.tripsPath));
-        Demand demand = new Demand(travelTimeProvider, config, rawDemand);
-       //LOGGER.info("Number of  paths " + paths.length);
-        StationCentral central = new StationCentral(tripTransform, config, travelTimeProvider,graph);
-        //int[][] paths = demand.buildPaths(5, central);
-        Solution solution = new Solution(demand, travelTimeProvider, central, config);
-        solution.buildPaths();
         try {
-            writeCsv(solution.getAllCars(), demand);
+            List<TimeTripWithValue<GPSLocation>>    rawDemand = tripTransform.loadTripsFromCsv(new File(config.amodsim.tripsPath));
+            //Demand demand = new Demand(travelTimeProvider, config, graph, config.amodsimDataDir + "/robotex2.csv");
+            Demand demand = new Demand(travelTimeProvider, config, rawDemand, graph);
+            StationCentral central = new StationCentral(tripTransform, config, travelTimeProvider,graph);
+            Solution solution = new Solution(demand, travelTimeProvider,  central, config);
+            solution.buildPaths();
+            //Stats.writeCsv(solution.getAllCars(), demand, graph, config.amodsimExperimentDir+"result.csv");
+            Stats.writeEvaluationCsv(solution.getAllCars(), demand, config.amodsimExperimentDir+"eval_result_1211.csv");
         } catch (IOException ex) {
             LOGGER.error("FIlE IO error: "+ex);
-        }
+        } 
         return new  HashMap<>();
     }
    
-    private void writeCsv(List<Car> cars, Demand demand) throws IOException {
-        try (CSVWriter csvWriter = new CSVWriter(new FileWriter(config.amodsimExperimentDir +"result.csv"))) {
-            csvWriter.writeNext(new String[]{"car_id", "trip_id", "start_time","end_time",
-                "start_lat", "start_lon", "end_lat", "end_lon", "charge_left [min]"});
-            for(Car car : cars){
-                csvWriter.writeAll(pathToCsv(car.getPathStats(), demand));
-            }
-        }
-    }
-
-    private List<String[]> pathToCsv(List<int[]> path, Demand demand){
-        //"car_id", "trip_id", "start_time","end_time", 
-        //"start_lat", "start_lon", "end_lat", "end_lon"
-        List<String[]> newPaths = new ArrayList<>();
-        for(int[] node: path){
-            String[] str = new String[node.length];
-            str[0] = String.valueOf(node[0]);
-            // station
-            if(node[1] < 0){
-                SimulationNode simNode = graph.getNode(-node[1]);
-                str[1] = "DEPO "+String.valueOf(-node[1]);
-                str[4] = String.valueOf(simNode.getLatitude());
-                str[5] = String.valueOf(simNode.getLongitude());
-                str[6] = String.valueOf(simNode.getLatitude());
-                str[7] = String.valueOf(simNode.getLongitude());
-           // trip
-            }else{
-                int tripId = demand.ind2id(node[1]);
-                str[1] = String.valueOf(tripId);
-                int[] startNodes = demand.getStartNodes(node[1]);
-                int[] endNodes = demand.getEndNodes(node[1]);
-                SimulationNode start = graph.getNode(startNodes[0]);
-                SimulationNode target = graph.getNode(endNodes[0]);
-                str[4] = String.valueOf(start.getLatitude());
-                str[5] = String.valueOf(start.getLongitude());
-                str[6] = String.valueOf(target.getLatitude());
-                str[7] = String.valueOf(target.getLongitude());
-            }
-            str[2] = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(node[2]),
-                                            TimeUnit.MILLISECONDS.toMinutes(node[2]) % TimeUnit.HOURS.toMinutes(1),
-                                            TimeUnit.MILLISECONDS.toSeconds(node[2]) % TimeUnit.MINUTES.toSeconds(1));
-            str[3] = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(node[3]),
-                                            TimeUnit.MILLISECONDS.toMinutes(node[3]) % TimeUnit.HOURS.toMinutes(1),
-                                            TimeUnit.MILLISECONDS.toSeconds(node[3]) % TimeUnit.MINUTES.toSeconds(1));
-            str[8] = node[8] == 0? " ": String.valueOf(node[8]/60000);
-            newPaths.add(str);
-        }
-        return newPaths;
-    }  
+ 
     
-
     @Override
     public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<OnDemandRequest> requests) {
         throw new UnsupportedOperationException("Not supported yet.");

@@ -37,7 +37,7 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
     private final Graph<SimulationNode, SimulationEdge> graph;
     private final double speedMs;
     private final String pathToMatrix;
-    private int[][] distMatrix;
+    private int[][] timeMatrix;
     private final AStar astar;
     int n;
    
@@ -54,8 +54,8 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
         speedMs = config.amodsim.ridesharing.maxSpeedEstimation;
         n = graph.numberOfNodes();
         astar = new AStar(graph);
-        distMatrix = new int[n][n];
-        pathToMatrix = config.amodsimDataDir+"/tallin_10000.bin";
+        timeMatrix = new int[n][n];
+        pathToMatrix = config.amodsimDataDir+"/tallin_times.bin";
 
         buildMatrix();
 	}
@@ -66,16 +66,30 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
             LOGGER.info("Reading matrix from "+pathToMatrix);
             FileInputStream fis = new FileInputStream(pathToMatrix);
             ObjectInputStream iis = new ObjectInputStream(fis);
-            distMatrix = (int[][]) iis.readObject();
-//            for(int[] row: distMatrix){
+            timeMatrix = (int[][]) iis.readObject();
+//            for(int[] row: timeMatrix){
 //                System.out.println(Arrays.toString(row));
 //           }
             LOGGER.info("Distance matrix successfully loaded");
             return;
         }catch(IOException | ClassNotFoundException ex){
-            LOGGER.error("File with  distances not found: "+ex);
+            LOGGER.error("File with  times  not found: "+ex);
+            LOGGER.error("Trying to read distance matrix. "+ex);
+            try{
+                FileInputStream fis = new FileInputStream(config.amodsimDataDir+"/tallin_10000.bin");
+                ObjectInputStream iis = new ObjectInputStream(fis);
+                timeMatrix = (int[][]) iis.readObject();
+                dist2times();
+                FileOutputStream fos = new FileOutputStream(pathToMatrix);
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+                oos.writeObject(timeMatrix);
+                LOGGER.info("Time matrix saved successfully");
+                return;
+            }catch(IOException | ClassNotFoundException ex2){
+                LOGGER.error("File with   not found: "+ex2);
+            }
         }
-        for(int[] r: distMatrix){
+        for(int[] r: timeMatrix){
             for(int i = 0; i <n; i++){
                 r[i] = -1;
             }
@@ -87,7 +101,7 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
                 if(j == i){
                     continue;
                 }
-                if(distMatrix[i][j] == -1){
+                if(timeMatrix[i][j] == -1){
                     int[] result = astar.search(i, j);
                     updateMatrix(i, result);
                 }
@@ -97,32 +111,40 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
         try {
             FileOutputStream fos = new FileOutputStream(pathToMatrix);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(distMatrix);
+            oos.writeObject(timeMatrix);
             LOGGER.info("Distance matrix saved successfully");
         } catch (IOException ex) {
             LOGGER.error("Error saving matrix "+ex);
         }
     }
-
-    private int getTravelDistMeters(int startId, int targetId) {
-       // callCount++;
-        //LOGGER.info(" "+callCount);
-//        if(distMatrix[startId][targetId] != -1){
-//            return distMatrix[startId][targetId];
-//        }
-//        int[] result = astar.search(startId, targetId);
-//        //System.out.println(Arrays.toString(result));
-//        updateMatrix(startId, result);
-        //System.out.println(Arrays.toString(distMatrix[startId]));
-        return distMatrix[startId][targetId];
+    
+    private void dist2times(){
+        for(int r=0;r<n;r++){
+            for(int c = 0;c<n;c++){
+                timeMatrix[r][c] = (int) Math.round(1000*(timeMatrix[r][c]/speedMs)); 
+            }
+        }
     }
+
+//    private int getTravelDistMeters(int startId, int targetId) {
+//       // callCount++;
+//        //LOGGER.info(" "+callCount);
+////        if(distMatrix[startId][targetId] != -1){
+////            return distMatrix[startId][targetId];
+////        }
+////        int[] result = astar.search(startId, targetId);
+////        //System.out.println(Arrays.toString(result));
+////        updateMatrix(startId, result);
+//        //System.out.println(Arrays.toString(distMatrix[startId]));
+//        return timeMatrix[startId][targetId];
+//    }
     
     private void updateMatrix(int nodeId, int[] distArray){
         //int count = 0;
         for(int target = 0; target < distArray.length; target++){
             if(distArray[target] != -1){
                 //count++;
-                distMatrix[nodeId][target] = distArray[target];
+                timeMatrix[nodeId][target] = distArray[target];
             }
         }
         //LOGGER.info("Updates count "+count);
@@ -131,41 +153,53 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
 
     @Override
     public int getTravelTimeInMillis(Integer startId, Integer targetId) {
-        return (int) Math.round(1000*distMatrix[startId][targetId]/speedMs);
+        return timeMatrix[startId][targetId];
     }
 
-
+    /**
+     * Returns best possible travel time for the trip in milliseconds.
+     * The total trip consists of three parts: from first location to one of the assigned nodes, from last location to one of the
+     * assigned nodes, and trip itself. Trip instance has data about distance btw location and nodes in meters(!).
+     * Value for shortest path from time matrix is already in milliseconds.
+     * @param trip
+     * @return 
+     */
     @Override
     public int getTravelTimeInMillis(TimeTripWithValue<GPSLocation> trip) {
         Map<Integer, Double> startNodes = trip.nodes.get(0);
         Map<Integer, Double> endNodes = trip.nodes.get(1);
-        double bestLength = Double.MAX_VALUE;
+        int bestTime = Integer.MAX_VALUE;
         for (Integer sn : startNodes.keySet()) {
             for (Integer en : endNodes.keySet()) {
-                int n2n = getTravelDistMeters(sn, en);
-                double s2n = startNodes.get(sn);
-                double e2n = endNodes.get(en);
-                double pathLength = s2n + n2n + e2n;
-                bestLength = bestLength <= pathLength ? bestLength : pathLength;
+                int n2n = timeMatrix[sn][en];
+                int s2n = (int) Math.round(1000*(startNodes.get(sn)/speedMs));
+                int e2n = (int) Math.round(1000*(endNodes.get(en)/speedMs));
+                int pathLength = s2n + n2n + e2n;
+                bestTime = bestTime <= pathLength ? bestTime : pathLength;
             }
         }
-        return (int) Math.round(1000*bestLength/speedMs);
+        return bestTime+2000;
     }
-
+    /**
+     * 
+     * @param startNodes
+     * @param endNodes
+     * @return 
+     */
     @Override
     public int  getTravelTimeInMillis(int[] startNodes, int[] endNodes) {
-        double bestLength = Double.MAX_VALUE;
+        int bestTime = Integer.MAX_VALUE;
         int[] nodes = new int[]{1,1};
         for (int i=0; i<startNodes.length; i+=2){
             for(int j=0; j<endNodes.length; j+=2){
                 int sn = startNodes[i];
                 int en = endNodes[j];
-                int n2n = getTravelDistMeters(sn, en);
+                int n2n = timeMatrix[sn][en];
                 int s2n = startNodes[i+1];
                 int e2n = endNodes[j+1];
-                int pathLength = n2n + s2n + e2n;
-                if(pathLength < bestLength){
-                    bestLength = pathLength;
+                int time = n2n + s2n + e2n;
+                if(time < bestTime){
+                    bestTime = time;
                     nodes[0] = i;
                     nodes[1] = j;
                 }
@@ -177,7 +211,7 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
         if(nodes[1] == 2){
             swapNodes(endNodes);
         }
-        return (int) Math.round(1000*bestLength/speedMs);
+        return bestTime+2000;
     }
     
     private void swapNodes(int[] nodes){

@@ -40,7 +40,7 @@ public class Solution {
         this.travelTimeProvider = travelTimeProvider;
         this.central = central;
         this.config = config;
-        maxWaitTime = config.amodsim.ridesharing.maxWaitTime * 1000;
+        maxWaitTime = config.amodsim.ridesharing.maxWaitTime * 800;
         
         maxCar = 10000;
         sigma = 5; //minutes

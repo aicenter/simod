@@ -54,19 +54,21 @@ public class TripTransformTaxify {
     private int targetTooFarCount = 0;
     private int tooLongCount = 0;
     private int sameStartAndTargetInDataCount = 0;
-    private int totalTrips = 0;
+
     
     private final double maxRideDistance;
     private final int pickupRadius;
     AmodsimConfig config;
-    private final Graph<SimulationNode,SimulationEdge> highwayGraph;
+    TravelTimeProvider travelTimeProvider;
+    private final Graph<SimulationNode,SimulationEdge> graph;
     private Rtree rtree;
 //     List<Integer>[] unmappedTrips; 
     
     @Inject
     public TripTransformTaxify(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils,
         AmodsimConfig config, TravelTimeProvider travelTimeProvider) {
-        this.highwayGraph = highwayNetwork.getNetwork();
+        this.graph = highwayNetwork.getNetwork();
+        this.travelTimeProvider = travelTimeProvider;
         //this.nearestElementUtils = nearestElementUtils;
         this.config = config;
         pickupRadius = config.amodsim.ridesharing.pickupRadius;
@@ -79,37 +81,34 @@ public class TripTransformTaxify {
 
 	
     
-    public List<TimeTripWithValue<GPSLocation>> loadTripsFromCsv(File inputFile) throws FileNotFoundException, IOException{
-              
-        rtree = new Rtree(this.highwayGraph.getAllNodes(), this.highwayGraph.getAllEdges());
-        List<TimeTripWithValue<GPSLocation>> gpsTrips = new LinkedList<>();
+    public List<TripTaxify<GPSLocation>> loadTripsFromCsv(File inputFile) throws FileNotFoundException, IOException{
+           
+        rtree = new Rtree(this.graph.getAllNodes(), this.graph.getAllEdges());
+        List<TripTaxify<GPSLocation>> gpsTrips = new LinkedList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
             String line;
+            int count = -1;
             while ((line = br.readLine()) != null) {
+                count++;
                 String[] parts = line.split(" ");
+                System.out.println(count+Arrays.toString(parts));
                 GPSLocation startLocation
                     = GPSLocationTools.createGPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, SRID);
                 GPSLocation targetLocation
-                 = GPSLocationTools.createGPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, SRID);
-                
-                if(startLocation.equals(targetLocation)){
-                   sameStartAndTargetInDataCount++;
-                }else{
-                    if(parts.length == 6){
-                        gpsTrips.add(new TimeTripWithValue<>(totalTrips, startLocation, targetLocation, 
-                        Long.parseLong(parts[0].split("\\.")[0]), Double.parseDouble(parts[5])));
-                    }else{
-                        gpsTrips.add(new TimeTripWithValue<>(totalTrips, startLocation, targetLocation, 
-                        Long.parseLong(parts[0].split("\\.")[0]), 0));
-                    }
-                }
-                totalTrips++;
+                    = GPSLocationTools.createGPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, SRID);
+//                
+//                if(startLocation.equals(targetLocation)){
+//                   sameStartAndTargetInDataCount++;
+//                   continue;
+//                }
+                gpsTrips.add(new TripTaxify<>(count, startLocation, targetLocation, 
+                Long.parseLong(parts[0].split("\\.")[0]), Double.parseDouble(parts[5])));
             }
         }catch (IOException ex) {
             LOGGER.error(null, ex);
         }
-        List<TimeTripWithValue<GPSLocation>> trips = new ArrayList<>();
-        for (TimeTripWithValue<GPSLocation> trip : ProgressBar.wrap(gpsTrips, "Process GPS trip: ")) {
+        List<TripTaxify<GPSLocation>> trips = new ArrayList<>();
+        for (TripTaxify<GPSLocation> trip : ProgressBar.wrap(gpsTrips, "Process GPS trip: ")) {
                 processGpsTrip(trip, trips);
         }
         
@@ -127,8 +126,8 @@ public class TripTransformTaxify {
         return trips; 
     }
         
-    private void processGpsTrip(TimeTripWithValue<GPSLocation> gpsTrip, List<TimeTripWithValue<GPSLocation>>trips) {
-        
+    private void processGpsTrip(TripTaxify<GPSLocation> gpsTrip, List<TripTaxify<GPSLocation>>trips) {
+        int maxDist2 = 25000*25000;
         LinkedList<GPSLocation> locations = gpsTrip.getLocations();
         GPSLocation startLocation = locations.get(0);
         GPSLocation targetLocation = locations.get(locations.size() - 1);
@@ -136,47 +135,58 @@ public class TripTransformTaxify {
         // longer than 25 km
         double x = startLocation.getLongitudeProjected() - targetLocation.getLongitudeProjected();
         double y = startLocation.getLatitudeProjected() - targetLocation.getLatitudeProjected();
-        if((x*x + y*y) > maxRideDistance*maxRideDistance){
+        if((x*x + y*y) > maxDist2){
             tooLongCount++;
             return;
         }
-        //SimulationNode startNode = nearestElementUtils.getNearestElement(startLocation, EGraphType.HIGHWAY);
         Map<Integer, Double> startNodesMap = new HashMap<>();
         Map<Integer, Double> targetNodesMap = new HashMap<>();
+        double[] coord = new double[4];
         Object[] result = rtree.findNode(startLocation, pickupRadius);
         if (result == null){
             startTooFarCount++;
-           // unmappedTrips[0].add(gpsTrip.id);
             return;
         }else if(result.length == 1){
-            startNodesMap.put((int) result[0], 0.0);
+            int simNodeId = (int) result[0];
+            startNodesMap.put(simNodeId, 0.0);
+            coord[0] = graph.getNode(simNodeId).getLatitude();
+            coord[1] = graph.getNode(simNodeId).getLongitude();
         }else{
             startNodesMap.put((int) result[0], (double) result[2]);
             startNodesMap.put((int) result[1], (double) result[3]);
+            double[] projCoord = (double[]) result[4];
+            double[] gpsCoord = fromProjected(projCoord);
+            coord[0] = gpsCoord[0];
+            coord[1] = gpsCoord[1];
         }
-        //SimulationNode targetNode = nearestElementUtils.getNearestElement(targetLocation, EGraphType.HIGHWAY);
         result = rtree.findNode(targetLocation, pickupRadius);
         if (result == null){
             targetTooFarCount++;
-           // unmappedTrips[1].add(gpsTrip.id);
+            
             return;
         }else if(result.length == 1){
-             targetNodesMap.put((int) result[0], 0.0);
+            int simNodeId = (int) result[0];
+            targetNodesMap.put(simNodeId, 0.0);
+            coord[2] = graph.getNode(simNodeId).getLatitude();
+            coord[3] = graph.getNode(simNodeId).getLongitude();
         }else{
             targetNodesMap.put((int) result[0], (double) result[2]);
             targetNodesMap.put((int) result[1], (double) result[3]);
+            double[] projCoord = (double[]) result[4];
+            double[] gpsCoord = fromProjected(projCoord);
+            coord[0] = gpsCoord[0];
+            coord[1] = gpsCoord[1];
         }
-  //      if( Collections.disjoint(startNodesMap.keySet(), targetNodesMap.keySet())){
         gpsTrip.addNodeMaps(startNodesMap, targetNodesMap);
-        trips.add(gpsTrip);
+        if(travelTimeProvider.getTravelTimeInMillis(gpsTrip) < 1802000){
             
-//        }else{
-//            zeroLenghtTripsCount++;
-//       }
+            gpsTrip.setCoordinates(coord);
+            trips.add(gpsTrip);
+        }
     }
 
     public Graph<SimulationNode, SimulationEdge> getGraph() {
-        return highwayGraph;
+        return graph;
     }
     
     public List<SimulationNode> loadStations() throws IOException{
@@ -185,21 +195,26 @@ public class TripTransformTaxify {
         Map<String,Object> data = mapper.readValue(new File(config.rebalancing.policyFilePath), Map.class);
         ArrayList stations = (ArrayList) data.get("stations");
         
-        rtree = new Rtree(this.highwayGraph.getAllNodes(), this.highwayGraph.getAllEdges());
+        rtree = new Rtree(this.graph.getAllNodes(), this.graph.getAllEdges());
         for(int i = 0; i < stations.size();i++ ){
             ArrayList<Double> station = (ArrayList<Double>) stations.get(i);
             GPSLocation location = GPSLocationTools.createGPSLocation(station.get(0), station.get(1), 0, SRID);
             Object[] result = rtree.findNode(location, 4*pickupRadius);
             if (result == null){
                 LOGGER.error("Node not found for station " + i);
-                //stationNodes.add(0);
             }else{
-                stationNodes.add(this.highwayGraph.getNode((int) result[0]));
-                //stationsAsNodes.add((int) result[0]);
+                stationNodes.add(this.graph.getNode((int) result[0]));
             }
         }
         rtree = null;
         return stationNodes;
+    }
+    
+    private double[] fromProjected(double[] projCoord){
+        GPSLocation loc = GPSLocationTools.createGPSLocationFromProjected(
+            (int) (projCoord[1]*1E2),(int) (projCoord[0]*1E2),0, SRID);
+        
+        return new double[]{loc.getLatitude(), loc.getLongitude()};
     }
 }
  

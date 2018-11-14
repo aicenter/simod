@@ -8,6 +8,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.io.TimeTripWithValue;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.TripTaxify;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 
 /**
@@ -20,7 +21,7 @@ public interface TravelTimeProvider {
     
         //taxify
     public int getTravelTimeInMillis(int[] startNodes, int[] endNodes);
-    public int getTravelTimeInMillis(TimeTripWithValue<GPSLocation> trip);
+    public int getTravelTimeInMillis(TripTaxify<GPSLocation> trip);
     public int getTravelTimeInMillis(Integer startId, Integer targetId);
     
 }

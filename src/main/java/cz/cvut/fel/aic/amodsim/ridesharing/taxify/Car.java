@@ -22,6 +22,7 @@ public class Car {
     private static final int maxChargeMs = 14400000;
     private static final int chargingTimeMs = 7200000;
     private static final int minCharge = maxChargeMs/20;
+    private static final int maxWaitTime = 180*1000 - 3000;
     int arr = 1000;
     
     int[] nodes;
@@ -89,11 +90,11 @@ public class Car {
        // LOGGER.debug(id+":startTime="+times[size][0]);
         times[size][1] = times[size][0] + tripDuration;
       //  LOGGER.debug(id+": endTime="+times[size][1]);
-        times[size][2] = startTime + 180000 - earliestPossibleArrival;
-       // LOGGER.debug(id+": fts="+times[size][2]);
-        if(times[size][2] < 0){
-            LOGGER.error(node+" can't be served by "+id+". Invalid arrival time.");
-        }
+        times[size][2] = startTime + maxWaitTime - earliestPossibleArrival;
+        //LOGGER.debug(id+": fts="+times[size][2]);
+//        if(times[size][2] < 0){
+//            LOGGER.error(node+" can't be served by "+id+". Invalid arrival time.");
+//        }
         chargeLeft -= (bestTimeToStart + tripDuration);
         size++;
         if(size == arr){

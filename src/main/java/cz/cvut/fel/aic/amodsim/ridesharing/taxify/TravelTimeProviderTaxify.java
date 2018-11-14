@@ -126,29 +126,13 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
         }
     }
 
-//    private int getTravelDistMeters(int startId, int targetId) {
-//       // callCount++;
-//        //LOGGER.info(" "+callCount);
-////        if(distMatrix[startId][targetId] != -1){
-////            return distMatrix[startId][targetId];
-////        }
-////        int[] result = astar.search(startId, targetId);
-////        //System.out.println(Arrays.toString(result));
-////        updateMatrix(startId, result);
-//        //System.out.println(Arrays.toString(distMatrix[startId]));
-//        return timeMatrix[startId][targetId];
-//    }
     
     private void updateMatrix(int nodeId, int[] distArray){
-        //int count = 0;
         for(int target = 0; target < distArray.length; target++){
             if(distArray[target] != -1){
-                //count++;
                 timeMatrix[nodeId][target] = distArray[target];
             }
         }
-        //LOGGER.info("Updates count "+count);
-        
     }
 
     @Override
@@ -165,7 +149,7 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
      * @return 
      */
     @Override
-    public int getTravelTimeInMillis(TimeTripWithValue<GPSLocation> trip) {
+    public int getTravelTimeInMillis(TripTaxify<GPSLocation> trip) {
         Map<Integer, Double> startNodes = trip.nodes.get(0);
         Map<Integer, Double> endNodes = trip.nodes.get(1);
         int bestTime = Integer.MAX_VALUE;
@@ -235,62 +219,3 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
 	}
 
 }
-
-
-//    @Override
-//    public double getTravelTime(Integer startId, Integer targetId) {
-//        SimulationNode startNode = graph.getNode(startId);
-//        SimulationNode targetNode = graph.getNode(targetId);
-//        double x = targetNode.getLongitudeProjected() - startNode.getLongitudeProjected();
-//        double y = targetNode.getLatitudeProjected() - startNode.getLatitudeProjected();
-//        return Math.sqrt(x*x + y*y);
-//    }
-
-//    @Override
-//    public double computeBestLength(SimulationNode start, TimeTripWithValue<GPSLocation> target) {
-//        Map<Integer, Double> endNodes = target.nodes.get(0);
-//        double bestLength = Double.MAX_VALUE;
-//        for (Integer en : endNodes.keySet()) {
-//            double n2n = getTravelTimeInMillis(start.id, en);
-//            double e2n = endNodes.get(en);
-//            double pathLength = n2n + e2n;
-//            bestLength = bestLength <= pathLength ? bestLength : pathLength;
-//        }
-//        return bestLength;
-//    }
-
-//    @Override
-//    public double computeBestLength(TimeTripWithValue<GPSLocation> start, SimulationNode target) {
-//        Map<Integer, Double> startNodes = start.nodes.get(1);
-//        double bestLength = Double.MAX_VALUE;
-//        for (Integer sn : startNodes.keySet()) {
-//            double n2n = getTravelTimeInMillis(start.id, sn);
-//            double s2n = startNodes.get(sn);
-//            double pathLength = n2n + s2n;
-//            bestLength = bestLength <= pathLength ? bestLength : pathLength;
-//        }
-//        return bestLength;
-//    }
-
-//    @Override
-//    public double computeBestLength(SimulationNode start, SimulationNode target) {
-//        return getTravelTimeInMillis(start.id, target.id);
-//    }
-
-
-//    @Override
-//    public double computeBestLength(TimeTripWithValue<GPSLocation> start, TimeTripWithValue<GPSLocation> target) {
-//        Map<Integer, Double> startNodes = start.nodes.get(1);
-//        Map<Integer, Double> endNodes = target.nodes.get(0);
-//        double bestLength = Double.MAX_VALUE;
-//        for (Integer sn : startNodes.keySet()) {
-//            for (Integer en : endNodes.keySet()) {
-//                double n2n = getTravelTimeInMillis(sn, en);
-//                double s2n = startNodes.get(sn);
-//                double e2n = endNodes.get(en);
-//                double pathLength = s2n + n2n + e2n;
-//                bestLength = bestLength <= pathLength ? bestLength : pathLength;
-//            }
-//        }
-//        return bestLength;
-//    }

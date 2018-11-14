@@ -16,6 +16,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -103,7 +104,7 @@ public class Rtree {
                 if(result.length == 1){
                     return new Object[]{value[(int) result[0]]};
                 }else{
-                    return new Object[]{value[0], value[1], result[0], result[1]};
+                    return new Object[]{value[0], value[1], result[0], result[1], result[2]};
                 }
             }
         return null;
@@ -160,7 +161,7 @@ public class Rtree {
                 return null;
         }    
         double dist = Math.sqrt(v[0]*v[0] + v[1]*v[1]);
-        return new Object[]{b*dist, (1 - b)*dist };
+        return new Object[]{b*dist, (1 - b)*dist, pb };
     }
     
     

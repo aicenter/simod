@@ -8,26 +8,13 @@ package cz.cvut.fel.aic.amodsim.ridesharing.taxify;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.io.TimeTripWithValue;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
-import cz.cvut.fel.aic.geographtools.util.GPSLocationTools;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
@@ -37,36 +24,37 @@ import org.slf4j.LoggerFactory;
  */
 public class Demand {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Demand.class);
-   private static final int SRID = 32633;
     int maxRideDistanceSquared;
     TravelTimeProvider travelTimeProvider;
     AmodsimConfig config;
-    private  int[] index;
-    private  int[] revIndex;
-    private  int[][] startNodes;
-    private int[][] endNodes;
-    private  int[] startTimes;
-    private  int[] bestTimes;
+    private final  int[] index;
+    private final  int[] revIndex;
+    private final  int[][] startNodes;
+    private final int[][] endNodes;
+    private final  int[] startTimes;
+    private final  int[] bestTimes;
     private final double[] values;
     private final double[][] coordinates;
+    private final double[][] gpsCoordinates;
     private final int N;
     private int lastInd;
-    private String startTime = "2018-09-09 00:00:00.00000000";
-    private Rtree rtree;
-    private Graph<SimulationNode, SimulationEdge> graph;
+    private final String startTime;
+    private final Graph<SimulationNode, SimulationEdge> graph;
+    private final int timeBuffer;
     
     
-    public Demand(TravelTimeProvider travelTimeProvider, AmodsimConfig config, List<TimeTripWithValue<GPSLocation>> demand,
+    public Demand(TravelTimeProvider travelTimeProvider, AmodsimConfig config, List<TripTaxify<GPSLocation>> demand,
         Graph<SimulationNode, SimulationEdge> graph){
+        this.startTime = "2022-03-01 00:00:00.000";
         this.travelTimeProvider = travelTimeProvider;
         this.config = config;
         maxRideDistanceSquared = 25000*25000;
         index  = new int[demand.get(demand.size()-1).id+1];
         LOGGER.debug("size of demand "+demand.size()+", last index "+demand.get(demand.size()-1).id);
 
-        List<TimeTripWithValue<GPSLocation>> filteredDemand = demand.stream()
-            .filter(trip->travelTimeProvider.getTravelTimeInMillis(trip) < 1800000).collect(Collectors.toList());
-        N = filteredDemand.size();
+//        List<TripTaxify<GPSLocation>> filteredDemand = demand.stream()
+//            .filter(trip->travelTimeProvider.getTravelTimeInMillis(trip) < 1802000).collect(Collectors.toList());
+        N = demand.size();
         LOGGER.debug("filtered demand size "+N);
         revIndex = new int[N];
         startTimes = new int[N];
@@ -75,34 +63,13 @@ public class Demand {
         endNodes = new int[N][];
         values = new double[N];
         coordinates = new double[N][4];
+        gpsCoordinates = new double[N][4];
         lastInd = 0;
+        timeBuffer = 2*1000;
         this.graph = graph;
-        prepareDemand(filteredDemand);
+        prepareDemand(demand);
         
     }
-    public Demand(TravelTimeProvider travelTimeProvider, AmodsimConfig config,
-        Graph<SimulationNode, SimulationEdge> graph, String filename) throws ParseException{
-
-            this.travelTimeProvider = travelTimeProvider;
-            this.config = config;
-            this.graph = graph;
-            maxRideDistanceSquared = 25000*25000;
-            //index  = new int[demand.get(demand.size()-1).id+1];
-            List<Object[]> rawDemand = readCsv(filename);
-            N = rawDemand.size();
-            LOGGER.debug("size of demand, N "+rawDemand.size()+", last index "+index.length);
-            revIndex = new int[N];
-            startTimes = new int[N];
-            bestTimes = new int[N];
-            startNodes = new int[N][];
-            endNodes = new int[N][];
-            values = new double[N];
-            coordinates = new double[N][4];
-            lastInd = 0;
-
-            prepareDemandCsv(rawDemand);
-    }
-    
     public int id2ind(int id){
         return index[id];
     }
@@ -110,7 +77,6 @@ public class Demand {
     public int ind2id(int ind){
         return revIndex[ind];
     }
-    
     public int getStartTime(int ind){
         return startTimes[ind];
     }
@@ -138,157 +104,41 @@ public class Demand {
     public double getTargetLongitude(int ind){
         return coordinates[ind][3];
     }
+    public double[] getGpsCoordinates(int ind) {
+        return gpsCoordinates[ind];
+    }
     
     public double getRideValue(int ind){
+         if(ind2id(ind) == 494){
+             System.out.println("getter "+values[ind]);
+         }
         return values[ind];
     }
-        
-    public int[][] convertPathsToIds(int[][] paths){
-        //int[][] coordinates = new int[paths.length][];
-        for(int[] path: paths){
-            for(int i = 1; i < path.length - 1; i++){
-                path[i] = ind2id(path[i]);
-            }
-        }
-        return paths;
-    }
     
-    private   List<Object[]> readCsv(String filename) throws ParseException{
-        int count = -1;
-        int pickupRadius = 50;
-      
-        rtree = new Rtree(graph.getAllNodes(), graph.getAllEdges());
-                                                     // 2022-03-01 00:01:57.515870999
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        Date startDate = format.parse(startTime);
-        Long zeroMillis = startDate.getTime();
-        //filereader = new FileReader(filename);
-        List<Object[]> rawDemand = new ArrayList<>();
-        try{
-            FileInputStream fis = new FileInputStream(filename);
-            InputStreamReader isr = new InputStreamReader(fis);
-            BufferedReader br = new BufferedReader(isr);
-            String buffer = br.readLine();
-            while((buffer = br.readLine()) != null ){
-                count++;
-                System.out.println(buffer);
-                String[] str = buffer.split(",");
-                System.out.println(Arrays.toString(str));
-                System.out.println(str.length);
-                //double[][] trip = new double[3][];
-                //trip[0] = new double[5];
-                int id = count;
-                //trip[0][0] = id;   
-                int time = 0;
-                try {
-                    Date date   = format.parse (str[0]);
-                    time = (int) (date.getTime() - zeroMillis + 500);
-                    //trip[0][1] = date.getTime() - zeroMillis; // time
-                } catch (ParseException ex) {
-                   
-                    LOGGER.error("Date parse error "+ex);
-                     continue;
-                }
-                double startLat =  Double.parseDouble(str[1]); // star lat
-                double startLon =  Double.parseDouble(str[2]); // start lon
-                double endLat =  Double.parseDouble(str[3]);  // end lat 
-                double endLon =  Double.parseDouble(str[4]);  // end lon
-                double value = Double.parseDouble(str[5]);    // value
-                                
-                GPSLocation startLocation
-                    = GPSLocationTools.createGPSLocation(startLat, startLon, 0, SRID);
-                GPSLocation targetLocation
-                 = GPSLocationTools.createGPSLocation(endLat, endLon, 0, SRID);
-                
-                double x = startLocation.getLongitudeProjected() - targetLocation.getLongitudeProjected();
-                double y = startLocation.getLatitudeProjected() - targetLocation.getLatitudeProjected();
-                if((x*x + y*y) > maxRideDistanceSquared){
-                    continue;
-                }
-                Object[] result = rtree.findNode(startLocation, pickupRadius);
-                int startNodes[];
-                int endNodes[];
-                if (result == null){
-                    //startTooFarCount++;
-                   // unmappedTrips[0].add(gpsTrip.id);
-                    continue;
-                }else if(result.length == 1){
-                    startNodes = new int[]{(int) result[0], 0};
-                }else{
-                    startNodes = new int[]{(int) result[0], (int) Math.round((double) result[2])+1,
-                                           (int) result[1], (int) Math.round((double)result[3])+1};
-                }
-                result = rtree.findNode(targetLocation, pickupRadius);
-                if (result == null){
-                    //targetTooFarCount++;
-                   // unmappedTrips[1].add(gpsTrip.id);
-                      continue;
-                }else if(result.length == 1){
-                    endNodes = new int[]{(int) result[0], 0};
-                }else{
-                     endNodes = new int[]{(int) result[0], (int) Math.round((double) result[2])+1,
-                                          (int) result[1], (int) Math.round((double)result[3])+1};
-                }
-                int bestTravelTime = travelTimeProvider.getTravelTimeInMillis(startNodes, endNodes);
-                if(bestTravelTime > 1800000){
-                    continue;
-                }
-                rawDemand.add(new Object[]{id, time, startNodes, endNodes, bestTravelTime,
-                                            startLat, startLon, endLat, endLon,value});
-            }
-        }catch (IOException ex){
-            LOGGER.error("Date parse exception "+ex);
-        }
-        index = new int[count+1];
-        rtree = null;
-        return rawDemand;
-    }
-    
-    private void prepareDemandCsv(List<Object[]> rawDemand) throws ParseException{
-        //0i    1i     2i[]       3i[]       4i             5d        6d        7d      8d     9d
-        //id, time, startNodes, endNodes, bestTravelTime, startLat, startLon, endLat, endLon,value
-        for(int ind = 0; ind < N; ind++){
-            Object[] trip = rawDemand.get(ind);
-            int tripId = (int) trip[0];
-            index[tripId] = ind;
-            revIndex[ind] = tripId;
-            startTimes[ind] = (int) trip[1];
-            bestTimes[ind] = (int) trip[4];
-            //LOGGER.debug(ind+" best time="+bestTime);
-            values[ind] = (double) trip[9];
-            startNodes[ind] = (int[]) trip[2];
-            endNodes[ind] = (int[]) trip[3];
-            coordinates[ind] = new double[]{(double) trip[5], (double) trip[6], 
-                                            (double) trip[7], (double) trip[8]};
-
-        }
-        
-      
-    }
-    
-    
-    private void prepareDemand(List<TimeTripWithValue<GPSLocation>> demand) {
-        int count = 0;
-        for (TimeTripWithValue<GPSLocation> trip : demand) {
+    private void prepareDemand(List<TripTaxify<GPSLocation>> demand) {
+        for (TripTaxify<GPSLocation> trip : demand) {
             int bestTime = travelTimeProvider.getTravelTimeInMillis(trip);
-//            if (bestTime > 1800000) {
-//                LOGGER.error("Not filterd too long trip "+bestTime);
-//            } else {
                 addTripToIndex(trip, bestTime);
- //           }
         }
     }
-    
     
     // helpers for prepareDemand
-    private void addTripToIndex(TimeTripWithValue<GPSLocation> trip, int bestTime){
+    private void addTripToIndex(TripTaxify<GPSLocation> trip, int bestTime){
+        if(trip.id == 494){
+            System.out.println(trip.id+"; "+trip.getRideValue()+", ind"+lastInd);
+        }
         int ind = lastInd;
         index[trip.id] = ind;
         revIndex[ind] = trip.id;
-        startTimes[ind] = (int) trip.getStartTime();
+        startTimes[ind] = (int) trip.getStartTime() + timeBuffer;
         bestTimes[ind] = bestTime;
-        //LOGGER.debug(ind+" best time="+bestTime);
+        gpsCoordinates[ind] = trip.getGpsCoordinates();
+        
+        //LOGGER.debug(ind+Arrays.toString(gpsCoordinates[ind]));
         values[ind] = trip.getRideValue();
+         if(trip.id == 494){
+            System.out.println(trip.id+" values[ind] = "+values[ind]);
+        }
         Map<Integer,Double> nodeMap = (Map<Integer,Double>)  trip.nodes.get(0);
         addNodesToIndex(nodeMap, startNodes, ind);
         nodeMap = (Map<Integer,Double>)  trip.nodes.get(1);
@@ -296,6 +146,8 @@ public class Demand {
         addCoordinatesToIndex(trip.getLocations(), ind);
         lastInd++;
     }
+
+  
     
     private void addCoordinatesToIndex(List<GPSLocation> nodes, int ind){
         GPSLocation start = nodes.get(0);
@@ -319,7 +171,7 @@ public class Demand {
         int i = 0;
         for(Integer nodeId : nodeToDistMap.keySet()){
             nodeList[ind][i] = nodeId;
-            nodeList[ind][i+1] = (int) (Math.round(1000*(nodeToDistMap.get(nodeId)/13.88)));
+            nodeList[ind][i+1] = (int) (Math.round(1000*(nodeToDistMap.get(nodeId)/13.88))); //TODO get speed from config
             i+=2;
         }
     }
@@ -331,7 +183,7 @@ public class Demand {
     }
    
     private int[][] buildAdjacency(int sigma) {
-        //long maxWaitTimeMs = config.amodsim.ridesharing.maxWaitTime * 1000;
+        int maxWaitTime = config.amodsim.ridesharing.maxWaitTime * 800;
         //double speed = config.amodsim.ridesharing.maxSpeedEstimation;
         int sigmaMs = sigma * 60000;
         LOGGER.debug("sigma in millis " + sigmaMs);
@@ -357,7 +209,7 @@ public class Demand {
                 int travelTime = bestTimes[tripInd] + bestTravelTimeMs;
                 //long latestValidArrival = nextTrip.getStartTime() + maxWaitTimeMs;
                 //if(earliestPossibleArrival <= latestValidArrival){
-                if (getEndTime(tripInd)+travelTime <= startTimes[nextTripInd]) {
+                if (getEndTime(tripInd)+travelTime <= startTimes[nextTripInd]+maxWaitTime) {
 //                    if(nextTripInd - tripInd > Short.MAX_VALUE){
 //                        System.out.println("Index difference exceeds short max value");
 //                    }

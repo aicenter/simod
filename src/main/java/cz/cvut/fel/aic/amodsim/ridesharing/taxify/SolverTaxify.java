@@ -62,14 +62,13 @@ public class SolverTaxify extends DARPSolver {
 
     @Override public Map<RideSharingOnDemandVehicle, DriverPlan> solve() {
         try {
-            List<TimeTripWithValue<GPSLocation>>    rawDemand = tripTransform.loadTripsFromCsv(new File(config.amodsim.tripsPath));
-            //Demand demand = new Demand(travelTimeProvider, config, graph, config.amodsimDataDir + "/robotex2.csv");
+            List<TripTaxify<GPSLocation>>    rawDemand = tripTransform.loadTripsFromCsv(new File(config.amodsim.tripsPath));
             Demand demand = new Demand(travelTimeProvider, config, rawDemand, graph);
             StationCentral central = new StationCentral(tripTransform, config, travelTimeProvider,graph);
             Solution solution = new Solution(demand, travelTimeProvider,  central, config);
             solution.buildPaths();
-            //Stats.writeCsv(solution.getAllCars(), demand, graph, config.amodsimExperimentDir+"result.csv");
-            Stats.writeEvaluationCsv(solution.getAllCars(), demand, config.amodsimExperimentDir+"eval_result_1211.csv");
+            Stats.writeCsv(solution.getAllCars(), demand, graph, config.amodsimExperimentDir+"result_1511.csv");
+            Stats.writeEvaluationCsv(solution.getAllCars(), demand, config.amodsimExperimentDir+"eval_result_1511.csv");
         } catch (IOException ex) {
             LOGGER.error("FIlE IO error: "+ex);
         } 

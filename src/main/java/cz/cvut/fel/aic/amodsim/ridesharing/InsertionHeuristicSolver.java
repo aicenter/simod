@@ -55,6 +55,8 @@ public class InsertionHeuristicSolver extends DARPSolver{
 	
 	private long vehiclePlanningAllCallCount = 0;
 	
+	private Map<RideSharingOnDemandVehicle, DriverPlan> planMap;
+	
 	
 	
 	
@@ -78,54 +80,55 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		callCount++;
 		long startTime = System.nanoTime();
 		
-		Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new HashMap<>();
+		planMap = new HashMap<>();
 		
-		double minCostIncrement = Double.MAX_VALUE;
-		DriverPlan bestPlan = null;
-		RideSharingOnDemandVehicle servingVehicle = null;
-		OnDemandRequest request = requests.get(0);
-		
-		long iterationStartTime = System.nanoTime();
-		
-		for(AgentPolisEntity tVvehicle: vehicleStorage.getEntitiesForIteration()){
-			
-			RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
-			if(canServeRequest(vehicle, request)){
-				vehiclePlanningAllCallCount++;
-				
-				PlanData newPlanData = getOptimalPlan(vehicle, request);
-				if(newPlanData != null && newPlanData.increment < minCostIncrement){
-					minCostIncrement = newPlanData.increment;
-					bestPlan = newPlanData.plan;
-					servingVehicle = vehicle;
+		for(OnDemandRequest request: requests){
+			double minCostIncrement = Double.MAX_VALUE;
+			DriverPlan bestPlan = null;
+			RideSharingOnDemandVehicle servingVehicle = null;
+
+			long iterationStartTime = System.nanoTime();
+
+			for(AgentPolisEntity tVvehicle: vehicleStorage.getEntitiesForIteration()){
+
+				RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
+				if(canServeRequest(vehicle, request)){
+					vehiclePlanningAllCallCount++;
+
+					PlanData newPlanData = getOptimalPlan(vehicle, request);
+					if(newPlanData != null && newPlanData.increment < minCostIncrement){
+						minCostIncrement = newPlanData.increment;
+						bestPlan = newPlanData.plan;
+						servingVehicle = vehicle;
+					}
 				}
 			}
-		}
-		
-		iterationTime += System.nanoTime() - iterationStartTime;
-		
-		if(bestPlan != null){
-			planMap.put(servingVehicle, bestPlan);
-			
-			// compute scheduled pickup delay
-			DriverPlanTask previousTask = null;
-			long currentDelay = 0;
-			for(DriverPlanTask task: bestPlan){
-				if(previousTask !=  null){
-					currentDelay += travelTimeProvider.getTravelTime(servingVehicle, previousTask.getLocation(), 
-							task.getLocation());
+
+			iterationTime += System.nanoTime() - iterationStartTime;
+
+			if(bestPlan != null){
+				planMap.put(servingVehicle, bestPlan);
+
+				// compute scheduled pickup delay
+				DriverPlanTask previousTask = null;
+				long currentDelay = 0;
+				for(DriverPlanTask task: bestPlan){
+					if(previousTask !=  null){
+						currentDelay += travelTimeProvider.getTravelTime(servingVehicle, previousTask.getLocation(), 
+								task.getLocation());
+					}
+
+					if(task.demandAgent == request.getDemandAgent()){
+						request.getDemandAgent().setScheduledPickupDelay(currentDelay);
+						break;
+					}
+
+					previousTask = task;
 				}
-				
-				if(task.demandAgent == request.getDemandAgent()){
-					request.getDemandAgent().setScheduledPickupDelay(currentDelay);
-					break;
-				}
-				
-				previousTask = task;
 			}
-		}
-		else{
-			debugFail(request);
+			else{
+				debugFail(request);
+			}
 		}
 		
 		totalTime += System.nanoTime() - startTime;
@@ -187,6 +190,12 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		double minCostIncrement = Double.MAX_VALUE;
 		DriverPlan bestPlan = null;
 		DriverPlan currentPlan = vehicle.getCurrentPlan();
+		
+		// if the plan was already changed
+		if(planMap.containsKey(vehicle)){
+			currentPlan = planMap.get(vehicle);
+		}
+		
 		int freeCapacity = vehicle.getFreeCapacity();
 		
 		for(int pickupOptionIndex = 1; pickupOptionIndex <= currentPlan.getLength(); pickupOptionIndex++){

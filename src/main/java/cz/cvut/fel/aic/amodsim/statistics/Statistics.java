@@ -23,6 +23,7 @@ import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.amodsim.CsvWriter;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.io.Common;
+import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -71,6 +72,8 @@ public class Statistics extends AliteEntity implements EventHandler{
     private final LinkedList<Integer> tripDistances;
 	
 	private final List<Map<String,Integer>> vehicleOccupancy;
+	
+	private final StationsDispatcher dispatcher;
    
     
     private long tickCount;
@@ -93,12 +96,13 @@ public class Statistics extends AliteEntity implements EventHandler{
     @Inject
     public Statistics(TypedSimulation eventProcessor, Provider<EdgesLoadByState> allEdgesLoadProvider, 
             OnDemandVehicleStorage onDemandVehicleStorage, 
-            StationsDispatcher onDemandVehicleStationsCentral, AmodsimConfig config) throws IOException {
+            StationsDispatcher onDemandVehicleStationsCentral, AmodsimConfig config, StationsDispatcher dispatcher) throws IOException {
         this.eventProcessor = eventProcessor;
         this.allEdgesLoadProvider = allEdgesLoadProvider;
         this.onDemandVehicleStorage = onDemandVehicleStorage;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.config = config;
+		this.dispatcher = dispatcher;
         allEdgesLoadHistory = new LinkedList<>();
         allEdgesLoadHistoryPerState = new HashMap<>();
         vehicleLeftStationToServeDemandTimes = new LinkedList<>();
@@ -201,6 +205,9 @@ public class Statistics extends AliteEntity implements EventHandler{
         saveDistances();
 		saveOccupancies();
 		saveServiceStatistics();
+		if(dispatcher instanceof RidesharingDispatcher){
+			saveDarpSolverComputationalTimes();
+		}
         try {
             transitWriter.close();
         } catch (IOException ex) {
@@ -338,6 +345,21 @@ public class Statistics extends AliteEntity implements EventHandler{
 				period++;
             }
             writer.close();
+        } catch (IOException ex) {
+            LOGGER.error(null, ex);
+        }
+    }
+	
+	private void saveDarpSolverComputationalTimes() {
+		List<Long> times = ((RidesharingDispatcher) dispatcher).getDarpSolverComputationalTimes();
+        try {
+			CsvWriter writer = new CsvWriter(
+                    Common.getFileWriter(config.amodsim.statistics.darpSolverComputationalTimesFilePath));
+            for (Long time : times) {
+                writer.writeLine(Long.toString(time));
+            }
+            transitWriter.flush();
+            allTransit = new LinkedList<>();
         } catch (IOException ex) {
             LOGGER.error(null, ex);
         }

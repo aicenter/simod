@@ -83,7 +83,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 
         System.out.println("Current sim time is: " + timeProvider.getCurrentSimTime() / 1000.0);
-        System.out.println("No. of request being added: " + requests.get(0).getDemandAgent().getSimpleId());
+        System.out.println("No. of request new requests: " + requests.size());
         System.out.println();
 
         Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new LinkedHashMap<>();

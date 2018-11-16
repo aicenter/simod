@@ -40,7 +40,7 @@ public class StationsDispatcher extends EventHandlerAdapter{
     
     private final EventProcessor eventProcessor;
 	
-	private final AmodsimConfig config;
+	protected final AmodsimConfig config;
     
     
     private NearestElementUtil<OnDemandVehicleStation> nearestElementUtil;

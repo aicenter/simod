@@ -25,6 +25,8 @@ public class Statistics {
 
   public String occupanciesFileName;
 
+  public String darpSolverComputationalTimesFilePath;
+
   public String allEdgesLoadHistoryFileName;
 
   public String serviceFileName;
@@ -42,6 +44,7 @@ public class Statistics {
     this.allEdgesLoadIntervalMilis = (Integer) statistics.get("all_edges_load_interval_milis");
     this.tripDistancesFilePath = (String) statistics.get("trip_distances_file_path");
     this.occupanciesFileName = (String) statistics.get("occupancies_file_name");
+    this.darpSolverComputationalTimesFilePath = (String) statistics.get("darp_solver_computational_times_file_path");
     this.allEdgesLoadHistoryFileName = (String) statistics.get("all_edges_load_history_file_name");
     this.serviceFileName = (String) statistics.get("service_file_name");
     this.serviceFilePath = (String) statistics.get("service_file_path");

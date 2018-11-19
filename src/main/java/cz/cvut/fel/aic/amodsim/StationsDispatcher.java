@@ -176,11 +176,16 @@ public class StationsDispatcher extends EventHandlerAdapter{
     private void serveRebalancing(Event event) {
         TimeTrip<OnDemandVehicleStation> rebalancingTrip = (TimeTrip<OnDemandVehicleStation>) event.getContent();
         OnDemandVehicleStation sourceStation = rebalancingTrip.getLocations().peek();
-        boolean success = sourceStation.rebalance(rebalancingTrip);
+		OnDemandVehicleStation targetStation = rebalancingTrip.getLocations().peekLast();
+        rebalance(sourceStation, targetStation);
+    }
+	
+	public void rebalance(OnDemandVehicleStation from, OnDemandVehicleStation to){
+		boolean success = from.rebalance(to);
         if(!success){
             rebalancingDropped++;
         }
-    }
+	}
 
     private int getNumberOfstations() {
         return onDemandvehicleStationStorage.getEntityIds().size();

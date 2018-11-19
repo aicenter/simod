@@ -59,7 +59,6 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 
     
     
-    
 
     public OnDemandVehicleStation(AmodsimConfig config, EventProcessor eventProcessor, 
             OnDemandVehicleFactorySpec onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
@@ -169,10 +168,10 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         }
     }
 
-    public boolean rebalance(TimeTrip<OnDemandVehicleStation> rebalancingTrip) {
+    public boolean rebalance(OnDemandVehicleStation targetStation) {
         OnDemandVehicle vehicle = getVehicle();
         if(vehicle != null){
-            vehicle.startRebalancing(rebalancingTrip.getLocations().getLast());
+            vehicle.startRebalancing(targetStation);
             return true;
         }
         else{

@@ -20,6 +20,8 @@ public class Amodsim {
 
   public String tripCacheFile;
 
+  public AmodsimRebalancing amodsimRebalancing;
+
   public String preprocessorPath;
 
   public Boolean simplifyGraph;
@@ -36,6 +38,7 @@ public class Amodsim {
     this.edgesFilePath = (String) amodsim.get("edges_file_path");
     this.edgePairsFilePath = (String) amodsim.get("edge_pairs_file_path");
     this.tripCacheFile = (String) amodsim.get("trip_cache_file");
+    this.amodsimRebalancing = new AmodsimRebalancing((Map) amodsim.get("amodsim_rebalancing"));
     this.preprocessorPath = (String) amodsim.get("preprocessor_path");
     this.simplifyGraph = (Boolean) amodsim.get("simplify_graph");
     this.ridesharing = new Ridesharing((Map) amodsim.get("ridesharing"));

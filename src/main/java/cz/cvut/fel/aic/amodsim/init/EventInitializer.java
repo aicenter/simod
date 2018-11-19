@@ -98,14 +98,16 @@ public class EventInitializer {
                 }
             }
         }
-        for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
-            long startTime = rebalancingTrip.getStartTime() - amodsimConfig.amodsim.startTime;
-            if(startTime < 1 || startTime > agentpolisConfig.simulationDurationInMillis){
-                continue;
-            }
-            eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 
-                    null, rebalancingTrip, startTime);
-        }
+		if(rebalancingTrips != null){
+			for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
+				long startTime = rebalancingTrip.getStartTime() - amodsimConfig.amodsim.startTime;
+				if(startTime < 1 || startTime > agentpolisConfig.simulationDurationInMillis){
+					continue;
+				}
+				eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 
+						null, rebalancingTrip, startTime);
+			}
+		}
     }
     
     

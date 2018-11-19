@@ -11,6 +11,7 @@ import cz.cvut.fel.aic.amodsim.init.EventInitializer;
 import cz.cvut.fel.aic.amodsim.init.StatisticInitializer;
 import cz.cvut.fel.aic.amodsim.io.RebalancingLoader;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
+import cz.cvut.fel.aic.amodsim.rebalancing.ReactiveRebalancing;
 import cz.cvut.fel.aic.amodsim.statistics.Statistics;
 import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
 
@@ -47,14 +48,23 @@ public class OnDemandVehiclesSimulation {
         try {
 //            osmNodesList = TripTransform.jsonToTrips(new File(config.amodsim.preprocessedTrips), Long.class);
             TripTransform tripTransform = injector.getInstance(TripTransform.class);
-            RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
-            rebalancingLoader.load(new File(config.rebalancing.policyFilePath));
+			
+			if(config.amodsim.amodsimRebalancing.on){
+				injector.getInstance(ReactiveRebalancing.class).start();
+				injector.getInstance(EventInitializer.class).initialize(
+                    tripTransform.loadTripsFromTxt(new File(config.amodsim.tripsPath)), null);
+			}
+			else{
+				RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
+				rebalancingLoader.load(new File(config.rebalancing.policyFilePath));
+				injector.getInstance(EventInitializer.class).initialize(
+                    tripTransform.loadTripsFromTxt(new File(config.amodsim.tripsPath)),
+                    rebalancingLoader.getRebalancingTrips());
+			}
 
             //  injector.getInstance(EntityInitializer.class).initialize(rebalancingLoader.getOnDemandVehicleStations());
 
-            injector.getInstance(EventInitializer.class).initialize(
-                    tripTransform.loadTripsFromTxt(new File(config.amodsim.tripsPath)),
-                    rebalancingLoader.getRebalancingTrips());
+            
 
             injector.getInstance(StatisticInitializer.class).initialize();
 

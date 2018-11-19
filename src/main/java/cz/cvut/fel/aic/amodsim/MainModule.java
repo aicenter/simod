@@ -21,6 +21,8 @@ import cz.cvut.fel.aic.amodsim.visio.DemandLayerWithJitter;
 import cz.cvut.fel.aic.amodsim.visio.AmodsimVisioInItializer;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.VehicleStorage;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.GeojsonMapInitializer;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
@@ -56,8 +58,8 @@ public class MainModule extends StandardAgentPolisModule{
     protected void configureNext() {      
         bind(new TypeLiteral<Set<TransportMode>>(){}).toInstance(Sets.immutableEnumSet(TransportMode.CAR));
         bind(AmodsimConfig.class).toInstance(amodsimConfig);
-
         bind(EntityStorage.class).to(VehicleStorage.class);
+		bind(MapInitializer.class).to(GeojsonMapInitializer.class);
         
         if(amodsimConfig.amodsim.useTripCache){
             bind(TripsUtil.class).to(TripsUtilCached.class);

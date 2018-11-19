@@ -50,8 +50,7 @@ public class OnDemandVehicleStationFactory {
             onDemandVehicleFactory, NearestElementUtils nearestElementUtils, OnDemandvehicleStationStorage 
                     onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage,
                     Transformer transformer, PositionUtil positionUtil, 
-                    StationsDispatcher onDemandVehicleStationsCentral, 
-                    Map<Long, SimulationNode> nodesMappedByNodeSourceIds) {
+                    StationsDispatcher onDemandVehicleStationsCentral) {
         this.config = config;
         this.eventProcessor = eventProcessor;
         this.onDemandVehicleFactory = onDemandVehicleFactory;

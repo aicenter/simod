@@ -77,7 +77,7 @@ public class RebalancingLoader {
     
     
     
-    public void load(File file) throws IOException{
+    public void load(File file, boolean createRebalancing) throws IOException{
         ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> data = mapper.readValue(file, Map.class);
         
@@ -109,35 +109,37 @@ public class RebalancingLoader {
         }
         
         // rebalancing
-        ArrayList rebalancingTimes = (ArrayList) data.get("rebalancing");
-        
-        for (int i = 0; i < rebalancingTimes.size(); i++) {
-            ArrayList rebalancingStations = (ArrayList) rebalancingTimes.get(i);
-            for (int j = 0; j < rebalancingStations.size(); j++) {
-                ArrayList rebalancingTargetStations = (ArrayList) rebalancingStations.get(j);
-                long startTime = computeStartTime(i);
-                for (int k = 0; k < rebalancingTargetStations.size(); k++) {
-                    int rebalancingTripsCount = (int) rebalancingTargetStations.get(k);
-                    if(rebalancingTripsCount > 0){
-                        // hack for the rebalancing with identical from to
-                        if(j == k){
-                            LOGGER.warn("Cannot rebalance to the same station (station number: {}" + 
-                                    "interval: {}", k, i);
-                            continue;
-                        }
-                        
-                        int intervalBetweenCars = REBALANCING_INTERVAL / rebalancingTripsCount;
-                        long finalStartTime = startTime;
-                        
-						rebalancingTripsCount = (int) ((double) rebalancingTripsCount / 4);
-                        for (int l = 0; l < rebalancingTripsCount; l++) {
-                            rebalancingTrips.add(new TimeTrip<>(onDemandVehicleStations.get(j), 
-                                    onDemandVehicleStations.get(k), finalStartTime));
-                            finalStartTime += intervalBetweenCars;
-                        }
-                    }
-                }
-            }
+		if(createRebalancing){
+			ArrayList rebalancingTimes = (ArrayList) data.get("rebalancing");
+
+			for (int i = 0; i < rebalancingTimes.size(); i++) {
+				ArrayList rebalancingStations = (ArrayList) rebalancingTimes.get(i);
+				for (int j = 0; j < rebalancingStations.size(); j++) {
+					ArrayList rebalancingTargetStations = (ArrayList) rebalancingStations.get(j);
+					long startTime = computeStartTime(i);
+					for (int k = 0; k < rebalancingTargetStations.size(); k++) {
+						int rebalancingTripsCount = (int) rebalancingTargetStations.get(k);
+						if(rebalancingTripsCount > 0){
+							// hack for the rebalancing with identical from to
+							if(j == k){
+								LOGGER.warn("Cannot rebalance to the same station (station number: {}" + 
+										"interval: {}", k, i);
+								continue;
+							}
+
+							int intervalBetweenCars = REBALANCING_INTERVAL / rebalancingTripsCount;
+							long finalStartTime = startTime;
+
+							rebalancingTripsCount = (int) ((double) rebalancingTripsCount / 4);
+							for (int l = 0; l < rebalancingTripsCount; l++) {
+								rebalancingTrips.add(new TimeTrip<>(onDemandVehicleStations.get(j), 
+										onDemandVehicleStations.get(k), finalStartTime));
+								finalStartTime += intervalBetweenCars;
+							}
+						}
+					}
+				}
+			}
         }
     }
 

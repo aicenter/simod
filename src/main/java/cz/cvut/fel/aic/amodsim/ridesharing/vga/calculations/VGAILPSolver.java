@@ -56,7 +56,9 @@ public class VGAILPSolver {
                 if (entry.getKey().getRidesharingVehicle() != null) {
                     costs[i] = planCostComputation.calculatePlanCost(plan);
                     avgCost += costs[i];
-                } else {
+                } 
+				// this else block currently works only if there are some vehicles !!
+				else {
                     if (once) {
                         once = false;
                         avgCost /= size - noOfVehicles - requests.size();

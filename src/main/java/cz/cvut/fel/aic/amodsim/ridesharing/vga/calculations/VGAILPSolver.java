@@ -80,7 +80,7 @@ public class VGAILPSolver {
         }
 
         //Initializing variables and the objective function
-        MPSolver solver = new MPSolver("solver", MPSolver.OptimizationProblemType.BOP_INTEGER_PROGRAMMING);
+        MPSolver solver = new MPSolver("solver", MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING);
         MPVariable[] mpVariables = new MPVariable[size];
 
         for (int j = 0; j < size; j++) {

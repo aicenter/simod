@@ -65,9 +65,9 @@ public class ReactiveRebalancing implements Routine{
 
 	@Override
 	public void doRoutine() {
-		Map<OnDemandVehicleStation,Integer> compensations = computeCompensations();
-		List<Transfer> transfers = computeTransfers(compensations);
-		sendOrders(transfers);
+//		Map<OnDemandVehicleStation,Integer> compensations = computeCompensations();
+//		List<Transfer> transfers = computeTransfers(compensations);
+//		sendOrders(transfers);
 	}
 
 	private Map<OnDemandVehicleStation, Integer> computeCompensations() {

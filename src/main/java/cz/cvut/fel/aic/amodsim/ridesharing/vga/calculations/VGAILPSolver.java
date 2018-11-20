@@ -6,14 +6,18 @@ import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPVariable;
+import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlan;
 
 import java.util.*;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class VGAILPSolver {
+	
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(VGAILPSolver.class);
 
     //https://developers.google.com/optimization/install/java/
     static {
@@ -42,8 +46,8 @@ public class VGAILPSolver {
             size += entry.getValue().size();
         }
 
-        System.out.println("Total number of feasible groups is: " + size + "\n");
-        System.out.println("Creating ILP model");
+        LOGGER.info("Total number of feasible groups is: " + size + "\n");
+        LOGGER.info("Creating ILP model");
 
         //Calculating costs
         boolean once = true;
@@ -128,10 +132,9 @@ public class VGAILPSolver {
             for (int k = 0; k < size; k++) {
                 constraint1.setCoefficient(mpVariables[k], constraint[k]);
             }
-            System.out.println();
         }
 
-        System.out.println("Solving ILP...");
+        LOGGER.info("Solving ILP...");
 
         double results[] = new double[size];
 
@@ -139,14 +142,14 @@ public class VGAILPSolver {
 
         objective.setMinimization();
 
-        solver.setTimeLimit(10000);
+        solver.setTimeLimit(10000000);
         MPSolver.ResultStatus status = solver.solve();
         if (status == MPSolver.ResultStatus.OPTIMAL) {
-            System.out.println("Google optimization tools found an optimal solution.");
+            LOGGER.info("Google optimization tools found an optimal solution.");
         } else if (status == MPSolver.ResultStatus.FEASIBLE) {
-            System.out.println("Google optimization tools found a solution, but it was not able to prove in the given time limit, that it is optimal.");
+            LOGGER.info("Google optimization tools found a solution, but it was not able to prove in the given time limit, that it is optimal.");
         } else if (status == MPSolver.ResultStatus.INFEASIBLE) {
-            System.out.println("Oops, the model is infeasible, it was probably created in a wrong way.");
+            LOGGER.info("Oops, the model is infeasible, it was probably created in a wrong way.");
         }
 
         for (int j = 0; j < size; j++) {
@@ -154,10 +157,8 @@ public class VGAILPSolver {
         }
 
         //Printing the results
-
-        System.out.println();
-        System.out.println("Google OR results: " + Arrays.toString(results));
-        System.out.println("The optimal vehicle plans are:");
+        LOGGER.info("Google OR results: " + Arrays.toString(results));
+        LOGGER.info("The optimal vehicle plans are:");
 
         double totalDiscomfort = 0, totalTimeInOperation = 0;
 

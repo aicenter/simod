@@ -60,7 +60,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		requestQueue = new LinkedList<>();
 		darpSolverComputationalTimes = new LinkedList<>();
 		if(config.amodsim.ridesharing.vga.batchPeriod != 0){
-			ticker.registerRoutine(this, config.amodsim.ridesharing.vga.batchPeriod);
+			ticker.registerRoutine(this, config.amodsim.ridesharing.vga.batchPeriod * 1000);
 		}
 	}
 

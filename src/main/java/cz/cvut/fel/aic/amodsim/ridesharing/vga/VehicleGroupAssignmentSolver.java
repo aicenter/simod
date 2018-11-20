@@ -1,6 +1,7 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.vga;
 
 import com.google.inject.Inject;
+import cz.cvut.fel.aic.agentpolis.CollectionUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
@@ -8,7 +9,9 @@ import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import cz.cvut.fel.aic.amodsim.ridesharing.*;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
@@ -20,8 +23,12 @@ import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 
 import java.util.*;
+import org.slf4j.LoggerFactory;
 
 public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHandler{
+	
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(VehicleGroupAssignmentSolver.class);
+	
 	
 	private final Set<VGARequest> waitingRequests;
 	
@@ -44,7 +51,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	
 	private final TypedSimulation eventProcessor;
 	
-	private VGAVehicle[] vgaVehicles;
+	private List<VGAVehicle> vgaVehicles;
 
     private static TimeProvider timeProvider;
 	
@@ -82,14 +89,14 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			initVehicles();
 		}
 
-        System.out.println("Current sim time is: " + timeProvider.getCurrentSimTime() / 1000.0);
-        System.out.println("No. of request new requests: " + requests.size());
-        System.out.println();
+        LOGGER.info("Current sim time is: " + timeProvider.getCurrentSimTime() / 1000.0);
+		LOGGER.info("No. of request new requests: " + requests.size());
 
         Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new LinkedHashMap<>();
 
-		// here it will be possible to exclude some vehicles
-		List<VGAVehicle> vehiclesForPlanning = Arrays.asList(vgaVehicles);
+		LOGGER.info("Total vehicle count: " + vgaVehicles.size());
+		List<VGAVehicle> vehiclesForPlanning = excludeUnnecesaryParkedVehicles(vgaVehicles, requests.size());
+		LOGGER.info("Number of vehicles used for planning: " + vehiclesForPlanning.size());
 
         // Converting requests and adding them to collections
         for (OnDemandRequest request : requests) {
@@ -102,6 +109,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
         // Generating feasible plans for each vehicle
         Map<VGAVehicle, Set<VGAVehiclePlan>> feasiblePlans = new LinkedHashMap<>();
+		LOGGER.info("Generating groups for vehicles.");
         for (VGAVehicle vehicle : vehiclesForPlanning) {
 			List<VGARequest> requestsForVehicle = new ArrayList<>(waitingRequests);
 
@@ -116,7 +124,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		feasiblePlans.put(nullVehicle, 
 				VGAGroupGenerator.generateDroppingVehiclePlans(nullVehicle, activeRequests));
         
-		System.out.println("Generated groups for all vehicles.");
+		LOGGER.info("Groups generaated");
 
         //Using an ILP solver to optimally assign a group to each vehicle
         Map<VGAVehicle, VGAVehiclePlan> optimalPlans 
@@ -180,13 +188,33 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	}
 
 	private void initVehicles() {
-		vgaVehicles = new VGAVehicle[vehicleStorage.size()];
+		vgaVehicles = new LinkedList<>();
 		int i = 0;
 		for(OnDemandVehicle onDemandVehicle: vehicleStorage){
 			VGAVehicle newVGAVehicle = VGAVehicle.newInstance((RideSharingOnDemandVehicle) onDemandVehicle);
-			vgaVehicles[i++] = newVGAVehicle;
+			vgaVehicles.add(newVGAVehicle);
 			vgaVehiclesMapBydemandOnDemandVehicles.put(onDemandVehicle.getId(), newVGAVehicle);
 		}
+	}
+
+	private List<VGAVehicle> excludeUnnecesaryParkedVehicles(List<VGAVehicle> vehiclesForPlanning, int size) {
+		Map<OnDemandVehicleStation,Integer> includedParkedVehiclesPerStation = new HashMap<>();
+		List<VGAVehicle> filteredVehiclesForPlanning = new LinkedList<>();
+		for (VGAVehicle vGAVehicle : vehiclesForPlanning) {
+			OnDemandVehicle vehicle = vGAVehicle.getRidesharingVehicle();
+			OnDemandVehicleStation parkedIn = vehicle.getParkedIn();
+			if(parkedIn != null){
+				if(includedParkedVehiclesPerStation.containsKey(parkedIn) 
+						&& includedParkedVehiclesPerStation.get(parkedIn) >= size){
+					continue;
+				}
+				else{
+					CollectionUtil.incrementMapValue(includedParkedVehiclesPerStation, parkedIn, 1);
+				}
+			}
+			filteredVehiclesForPlanning.add(vGAVehicle);
+		}
+		return filteredVehiclesForPlanning;
 	}
 
 }

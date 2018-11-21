@@ -29,13 +29,20 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import me.tongfei.progressbar.ProgressBar;
 import org.slf4j.LoggerFactory;
 
@@ -81,49 +88,62 @@ public class TripTransformTaxify {
 
 	
     
-    public List<TripTaxify<GPSLocation>> loadTripsFromCsv(File inputFile) throws FileNotFoundException, IOException{
-           
-        rtree = new Rtree(this.graph.getAllNodes(), this.graph.getAllEdges());
-        List<TripTaxify<GPSLocation>> gpsTrips = new LinkedList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
-            String line;
-            int count = -1;
-            while ((line = br.readLine()) != null) {
-                count++;
-                String[] parts = line.split(" ");
-                System.out.println(count+Arrays.toString(parts));
-                GPSLocation startLocation
-                    = GPSLocationTools.createGPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, SRID);
-                GPSLocation targetLocation
-                    = GPSLocationTools.createGPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, SRID);
-//                
+    public List<TripTaxify<GPSLocation>> loadTripsFromCsv(File inputFile) throws FileNotFoundException, IOException, ParseException{
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime startDateTime = LocalDateTime.parse("2022-03-01 00:00:00" ,formatter);
+            int startDay = startDateTime.getDayOfMonth();
+            rtree = new Rtree(this.graph.getAllNodes(), this.graph.getAllEdges());
+            List<TripTaxify<GPSLocation>> gpsTrips = new LinkedList<>();
+            try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
+                String line;
+                int count = -1;
+                System.out.println(br.readLine());
+                while ((line = br.readLine()) != null) {
+                    count++;
+                    String[] parts = line.split(",");
+                    //System.out.println(count+Arrays.toString(parts));
+                    GPSLocation startLocation
+                        = GPSLocationTools.createGPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, SRID);
+                    GPSLocation targetLocation
+                        = GPSLocationTools.createGPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, SRID);
+//
 //                if(startLocation.equals(targetLocation)){
 //                   sameStartAndTargetInDataCount++;
 //                   continue;
 //                }
-                gpsTrips.add(new TripTaxify<>(count, startLocation, targetLocation, 
-                Long.parseLong(parts[0].split("\\.")[0]), Double.parseDouble(parts[5])));
+                    //System.out.println("parts[0]="+parts[0].substring(0,19));
+                    LocalDateTime dateTime = LocalDateTime.parse(parts[0].substring(0,19) ,formatter);
+                    int day = dateTime.getDayOfMonth() - startDay;
+                    int hour = day*24 + dateTime.getHour();
+                    int min = hour*60 + dateTime.getMinute();
+                    int sec = min*60 + dateTime.getSecond();
+                    int millisFromStart = sec*1000 + Integer.parseInt(parts[0].substring(20,23));
+                    //long millisFromStart = (dateTime.getTime() - startMillis);
+                    
+                  //  System.out.println("millis from start "+millisFromStart);
+                    gpsTrips.add(new TripTaxify<>(count, startLocation, targetLocation,
+                        millisFromStart, Double.parseDouble(parts[5])));
+                }
+            }catch (IOException ex) {
+                LOGGER.error(null, ex);
             }
-        }catch (IOException ex) {
-            LOGGER.error(null, ex);
-        }
-        List<TripTaxify<GPSLocation>> trips = new ArrayList<>();
-        for (TripTaxify<GPSLocation> trip : ProgressBar.wrap(gpsTrips, "Process GPS trip: ")) {
+            List<TripTaxify<GPSLocation>> trips = new ArrayList<>();
+            for (TripTaxify<GPSLocation> trip : ProgressBar.wrap(gpsTrips, "Process GPS trip: ")) {
                 processGpsTrip(trip, trips);
-        }
-        
-        LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);
-        LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
-        LOGGER.info("{} too long trips discarded", tooLongCount);
-        LOGGER.info("{} trips with start node far away from graph discarded", startTooFarCount);
-        LOGGER.info("{} trips with target node far away from graph  discarded", targetTooFarCount);
-        LOGGER.info("{} trips remained", trips.size());
-        LOGGER.info("{} nodes not found in node tree", rtree.count);
-        rtree = null;
+            }
+            
+            LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);
+            LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
+            LOGGER.info("{} too long trips discarded", tooLongCount);
+            LOGGER.info("{} trips with start node far away from graph discarded", startTooFarCount);
+            LOGGER.info("{} trips with target node far away from graph  discarded", targetTooFarCount);
+            LOGGER.info("{} trips remained", trips.size());
+            LOGGER.info("{} nodes not found in node tree", rtree.count);
+            rtree = null;
 //        FileOutputStream fos = new FileOutputStream(config.amodsimExperimentDir+"/unmapped");
 //        ObjectOutputStream oos = new ObjectOutputStream(fos);
 //        oos.writeObject(unmappedTrips);
-        return trips; 
+        return trips;
     }
         
     private void processGpsTrip(TripTaxify<GPSLocation> gpsTrip, List<TripTaxify<GPSLocation>>trips) {
@@ -178,7 +198,7 @@ public class TripTransformTaxify {
             coord[1] = gpsCoord[1];
         }
         gpsTrip.addNodeMaps(startNodesMap, targetNodesMap);
-        if(travelTimeProvider.getTravelTimeInMillis(gpsTrip) < 1802000){
+        if(travelTimeProvider.getTravelTimeInMillis(gpsTrip) < 1800000){
             
             gpsTrip.setCoordinates(coord);
             trips.add(gpsTrip);

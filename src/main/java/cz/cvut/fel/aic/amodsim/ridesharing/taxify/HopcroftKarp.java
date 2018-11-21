@@ -5,6 +5,7 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.taxify;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,8 @@ public class HopcroftKarp {
     
     
     public int[] findMapCover(int[][] adjacency){
+        LOGGER.debug("HK " +adjacency.length);
+        //LOGGER.debug(Arrays.toString(adjacency[0]));
         adj = adjacency;
         int matching = 0;
         while(BFS() == true){

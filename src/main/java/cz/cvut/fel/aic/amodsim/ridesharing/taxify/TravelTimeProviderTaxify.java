@@ -162,7 +162,7 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
                 bestTime = bestTime <= pathLength ? bestTime : pathLength;
             }
         }
-        return bestTime+2000;
+        return bestTime;
     }
     /**
      * 
@@ -195,7 +195,7 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
         if(nodes[1] == 2){
             swapNodes(endNodes);
         }
-        return bestTime+2000;
+        return bestTime;
     }
     
     private void swapNodes(int[] nodes){

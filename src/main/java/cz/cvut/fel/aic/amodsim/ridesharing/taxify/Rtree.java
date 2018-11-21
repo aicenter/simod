@@ -32,6 +32,27 @@ public class Rtree {
     RTree<int[], Rectangle> edgeTree;
     int count = 0;
     
+    
+    // clustering demand
+    public Rtree(double[][] points){
+        nodeTree = RTree.star().create();
+        for(int i = 0; i< points.length; i++){
+            nodeTree = nodeTree.add(i, point(points[i][1], points[i][0]));
+        }
+    }
+    public List<Integer> findNodes(double[] point, int radius){
+        List<Integer> result = new ArrayList<>();
+        Rectangle mbr = rectangle(point[1]- radius, point[0] - radius, point[1] + radius, point[0] + radius);
+        Iterator<Entry<Integer, Point>> pointIt = nodeTree.search(mbr).toBlocking().toIterable().iterator();
+        while(pointIt.hasNext()){
+            Entry entry = pointIt.next();
+            result.add((int)entry.value());
+        }
+        return result;
+    }
+    
+    
+    // matching demand to graph
     public Rtree(Collection<SimulationNode> nodes, Collection<SimulationEdge> edges){
         nodeTree = RTree.star().create();
         for(SimulationNode node:nodes){
@@ -46,32 +67,7 @@ public class Rtree {
             edgeTree = edgeTree.add(new int[]{edge.fromNode.id, edge.toNode.id}, mbr);
         }
     }
-    
-    public  Rtree(Collection<SimulationNode> nodes){
-        nodeTree = RTree.star().create();
-        for(SimulationNode node:nodes){
-            nodeTree = nodeTree.add(node.id, point(node.getLongitudeProjected(), node.getLatitudeProjected()));
-        }
-
-    }
-    
-    public List<Integer> findNearestStations(GPSLocation loc){
-        int radius = 100;
-        List<Integer> result = new ArrayList<>();
-        double locX = loc.getLongitudeProjected();
-        double locY = loc.getLatitudeProjected();
-        while(result.isEmpty()){
-            Rectangle mbr = rectangle(locX - radius, locY - radius, locX + radius, locY + radius);
-            Iterator<Entry<Integer, Point>> pointIt = nodeTree.search(mbr).toBlocking().toIterable().iterator();
-            while(pointIt.hasNext()){
-                Entry entry = pointIt.next();
-                result.add((Integer) entry.value());
-            }
-            radius *=2;
-        }
-        return result;       
-    }
-    
+       
     public Object[] findNode(GPSLocation loc, double radius){
         double locX = loc.getLongitudeProjected();
         double locY = loc.getLatitudeProjected();
@@ -164,7 +160,32 @@ public class Rtree {
         return new Object[]{b*dist, (1 - b)*dist, pb };
     }
     
+    // stations
+    public  Rtree(Collection<SimulationNode> nodes){
+        nodeTree = RTree.star().create();
+        for(SimulationNode node:nodes){
+            nodeTree = nodeTree.add(node.id, point(node.getLongitudeProjected(), node.getLatitudeProjected()));
+        }
+    }
     
+    public List<Integer> findNearestStations(GPSLocation loc){
+        int radius = 100;
+        List<Integer> result = new ArrayList<>();
+        double locX = loc.getLongitudeProjected();
+        double locY = loc.getLatitudeProjected();
+        while(result.isEmpty()){
+            Rectangle mbr = rectangle(locX - radius, locY - radius, locX + radius, locY + radius);
+            Iterator<Entry<Integer, Point>> pointIt = nodeTree.search(mbr).toBlocking().toIterable().iterator();
+            while(pointIt.hasNext()){
+                Entry entry = pointIt.next();
+                result.add((Integer) entry.value());
+            }
+            radius *=2;
+        }
+        return result;       
+    }
+    
+    // 
     public int size(){
         if(edgeTree == null){
             return nodeTree.size();

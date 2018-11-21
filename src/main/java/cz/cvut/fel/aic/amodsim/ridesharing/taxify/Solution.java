@@ -32,22 +32,25 @@ public class Solution {
     TravelTimeProvider travelTimeProvider;
     StationCentral central;
     AmodsimConfig config;
-        
+    int timeBuffer;
     List<Car>[] cars;
-
+    private int minCharge;
+    
+    
     public Solution(Demand demand, TravelTimeProvider travelTimeProvider, StationCentral central, AmodsimConfig config) {
         this.demand = demand;
         this.travelTimeProvider = travelTimeProvider;
         this.central = central;
         this.config = config;
         maxWaitTime = config.amodsim.ridesharing.maxWaitTime * 800;
-        
+        timeBuffer = demand.getTimeBuffer();
         maxCar = 10000;
-        sigma = 5; //minutes
+        sigma = 7; //minutes
         cars = new List[3];
         cars[D] = new ArrayList<>();
         cars[C] = new ArrayList<>();
         cars[W] = new ArrayList<>();
+        minCharge = 20*60*1000;
     }
            
     /**
@@ -67,7 +70,7 @@ public class Solution {
      * 
      */
     public void buildPaths(){
-        
+    
         int[] pair = demand.findMapCover(sigma);
         int n = pair.length;
         Set<Integer> usedNodes = new HashSet<>();
@@ -80,13 +83,7 @@ public class Solution {
             // start of new segment, which doesn't have an assigned car
             int currentNode = i; 
  //           LOGGER.debug("node ind "+currentNode+", simId "+demand.ind2id(currentNode));
-            int[] starts = demand.getStartNodes(currentNode);{
-//            for(int k=0; k<starts.length;k+=2){
-//                if(starts[k]>=10019){
-//                    System.out.println("Invalid simNode "+starts[k]+", dist "+starts[k+1]);
-//                }
-//            }
-        }
+            int[] starts = demand.getStartNodes(currentNode);
             //LOGGER.debug(Arrays.toString(starts));
             int[] depo = central.findNearestStation(starts);
             
@@ -96,33 +93,24 @@ public class Solution {
             if(car == null){
                 LOGGER.info("No car found, discarded trip "+demand.ind2id(currentNode));
                 continue;
-                // creates new car in the nearest depo
-//                car = new Car(depo[0]);
-//                cars[D].add(car);
-//                LOGGER.info("New car added "+car.id);
-                //LOGGER.info("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
             }
             // if car drives out of depo
             if(car.getLastNode() < 0 ){
-                //System.out.println(car.id+" drives out of depo "+depo[1]);
- //               LOGGER.debug(currentNode+" being add. timeTo="+depo[1]+", bestTime="+demand.getBestTime(currentNode));
                 car.addTrip(currentNode, depo[1], demand.getStartTime(currentNode), demand.getBestTime(currentNode));
                 currentNode = pair[currentNode];
                 usedNodes.add(currentNode);
             }
             //car continues along the path
-          //  System.out.println("car "+car.id+" drives from "+car.getLastNode());
+           // LOGGER.debug("car "+car.id+" drives from "+car.getLastNode());
             while(currentNode != n){
                 int prevNode = car.getLastNode();
-               // System.out.println("currentNode "+currentNode);
-//                depo = central.findNearestStation(demand.getStartNodes(currentNode));
                 int[] startSimNodes = demand.getEndNodes(prevNode);
                 int[] endSimNodes = demand.getStartNodes(currentNode);
                 int timeToTripStart = travelTimeProvider.getTravelTimeInMillis(startSimNodes, endSimNodes);
                 int travelTime = timeToTripStart + demand.getBestTime(currentNode);
                 if (car.hasCharge(travelTime)){
                     usedNodes.add(currentNode);
- //                   LOGGER.debug(currentNode+" being add. timeTo="+timeToTripStart+", timeOf="+demand.getBestTime(currentNode));
+ //                 LOGGER.debug(currentNode+" being add. timeTo="+timeToTripStart+", timeOf="+demand.getBestTime(currentNode));
                     car.addTrip(currentNode, timeToTripStart, demand.getStartTime(currentNode), demand.getBestTime(currentNode));
                     currentNode  = pair[currentNode];
                 }else{
@@ -131,11 +119,11 @@ public class Solution {
                 }
             }//while
             if(currentNode == n){
-               // LOGGER.info("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
-                //LOGGER.info("Car moved from D to W " + car.id);
+               // LOGGER.debug("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
+                //LOGGER.debug("Car moved from D to W " + car.id);
                 cars[W].add(car);
                 cars[D].remove(car);
-                //LOGGER.info("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
+                //LOGGER.debug("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
             }
         }//main for
         int totaTrips = cars[D].stream().map(c->c.getTripCount()).mapToInt(Integer::intValue).sum();
@@ -159,14 +147,11 @@ public class Solution {
     
     private Car getCar(int trip, int[] depo){
         Car theCar = null;
-        int bestTime = Integer.MAX_VALUE;
         // first check among waiting cars
         List<Car> toPark = new ArrayList<>();
-        //cars[W].((c0, c1)->(c0.getLastNodeEndTime() - c1.getLastNodeEndTime()));
         List<Car> sortedCars = cars[W].stream().sorted(Comparator.comparingInt(Car::getLastNodeEndTime))
             .collect(Collectors.toList());
         for (Car car: sortedCars){
-            //System.out.println(car.id);
             if(canServe(car.getLastNode(), car.getLastNodeEndTime(), trip)){
                 theCar = car;
                 int currentNode = car.getLastNode();
@@ -174,31 +159,26 @@ public class Solution {
                 int[] endSimNodes = demand.getStartNodes(trip);
                 int timeToTripStart = travelTimeProvider.getTravelTimeInMillis(startSimNodes, endSimNodes);
                 int travelTime = timeToTripStart + demand.getBestTime(trip);
-//                LOGGER.debug("traveTime="+travelTime);
+//              LOGGER.debug("traveTime="+travelTime);
                 if(car.hasCharge(travelTime)){
-                    //if(travelTime < bestTime){
-                    //LOGGER.info("Found car in waiting list");
-                    theCar = car;
+                     theCar = car;
                     break;
-                    //bestTime = travelTime;
-                    }
-                }else{
-                    if(!car.hasCharge(20*60*1000))
-                        toPark.add(car);
-                    }
+                }
+            }else{
+                if(!car.hasCharge(minCharge))
+                toPark.add(car);
             }
-       // }
+        }
         if(theCar != null){
             //LOGGER.info("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
-           // LOGGER.info("Car moved from W to D " + theCar.id);
+           // LOGGER.debug("Car moved from W to D " + theCar.id);
             cars[D].add(theCar);
             cars[W].remove(theCar);
-            //LOGGER.info("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
+            //LOGGER.debug("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
             toPark.forEach((car) -> {parkCar(car);});
             return theCar;
         }
         //second, search for cars in the nearest Depo
-        //List<Car> sameDepo = cars[C].stream().filter(c->c.getLastNode() == -depo[0]).collect(Collectors.toList());
         int latestPossibleArrival = demand.getStartTime(trip) + maxWaitTime;
         sortedCars = cars[C].stream().sorted(Comparator.comparingInt(Car::getLastNodeEndTime))
             .collect(Collectors.toList());
@@ -206,31 +186,23 @@ public class Solution {
             int[] startSimNodes = new int[]{-car.getLastNode(), 0};
             int[] endSimNodes = demand.getStartNodes(trip);
             int timeFromeDepo = travelTimeProvider.getTravelTimeInMillis(startSimNodes, endSimNodes);
-            if (car.getLastNodeEndTime() + timeFromeDepo <= latestPossibleArrival){
-                //if(car.getLastNodeEndTime() + timeFromeDepo < bestTime){
-                    //LOGGER.info("Found car in depo list");
-                   // bestTime = car.getLastNodeEndTime() + timeFromeDepo;
-                    theCar = car;
-                    break;
+            if (car.getLastNodeEndTime() + timeFromeDepo + timeBuffer <= latestPossibleArrival){
+                theCar = car;
+                break;
                 }
             }
-        //}
         if(theCar != null){
-           // LOGGER.info("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
-            //LOGGER.info("Car moved from C to D " + theCar.id);
+           // LOGGER.debug("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
+            //LOGGER.debug("Car moved from C to D " + theCar.id);
             cars[D].add(theCar);
             cars[C].remove(theCar);
-            //LOGGER.info("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
+            //LOGGER.debug("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
             return theCar;
         }
-     //   if(canServe(depo[0], 0, trip)){
-            //TODO add max car check
-            theCar = new Car(depo[0]);
-            cars[D].add(theCar);
-            LOGGER.debug("New car added "+theCar.id);
-            return theCar;
-       // }
-       // return theCar;
+        theCar = new Car(depo[0]);
+        cars[D].add(theCar);
+        LOGGER.debug("New car added "+theCar.id);
+        return theCar;
     }
     
     private boolean canServe(int prevNode, int prevDeparture, int trip){
@@ -238,7 +210,7 @@ public class Solution {
         int[] endNodes = demand.getStartNodes(trip);
         int timeToTrip = travelTimeProvider.getTravelTimeInMillis(startNodes, endNodes);
         int latestArrival = demand.getStartTime(trip) + maxWaitTime;
-        return prevDeparture + timeToTrip <= latestArrival;
+        return prevDeparture + timeToTrip + timeBuffer <= latestArrival;
     }
 }
 
@@ -250,110 +222,4 @@ public class Solution {
 
 
 
-    /**
-     * Checks if the car has enough charge to serve the trip.
-     * (Drive from the current location to the start, from start to target,
-     * so that resulting charge is more or equal to min defined in Car.class;
-     * @param car
-     * @param node
-     * @return 
-     */
-//    private boolean checkCharge(Car car, int travelTime){
-//        //LOGGER.debug("car "+car.id);
-//        int currentNode = car.getLastNode();
-//        if(currentNode < 0){
-//            currentNode = - currentNode;
-//            LOGGER.error("Car from station in checkCharge "+car.id);
-//            //return true;
-//        }
-//
-//        //if(car.hasCharge(travelTime)){
-//        //    return true;
-//       // }else{
-//            //parkCar(car);
-////            car.addChargingStation(depo[0], (int) Math.round(depo[1]/13.88));
-////            LOGGER.info("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
-////            LOGGER.info("Car moved from D or W to C" + car.id);
-////            cars[D].remove(car);
-////            cars[W].remove(car);
-////            cars[C].add(car);
-////            LOGGER.info("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
-//         //   return false;
-//        //}
-//        return car.hasCharge(travelTime);
-//    }
-
-
-//    public int[][] buildPaths(int sigma, StationCentral central){
-//        int[][] longPaths = buildPaths(sigma);
-//        int[][] segments = cutPaths(longPaths, central);
-//        
-//        //convertPathsToIds(segments);
-//  
-//        return segments;
-//    }
     
-//    public int[][] cutPaths(int[][] paths, StationCentral central){
-//        List<int[]> result = new ArrayList<>();
-//        for(int[] path : paths){
-//            result.addAll(cutPath(path, central));
-//        }
-//        System.out.println("Total number of segments "+result.size());
-//        return result.toArray(new int[result.size()][]);
-//    }
-    
-    /**
-     * 
-     * @param path array of node indices
-     * @param central link to stations
-     * @return List of path segments not exceeding max ride distance with stations attached
-     */
-//    private List<int[]> cutPath(int[] path, StationCentral central){
-//        List<int[]> result = new ArrayList<>();
-//        int pathInd = 0;
-//        while(pathInd < path.length){
-//            //start of new segment
-//            int drivenDist = 0;
-//            List<Integer> newPath = new ArrayList<>();
-//            int current = path[pathInd];
-//            //find nearest depo node, compute distance from depo to start, from start to target, and from target
-//            // to possible end station.
-//            int[] depo1 = central.findNearestStation(startNodes[current]);
-//            newPath.add(-depo1[0]);
-//            int toStart = depo1[1];
-//            int startToTarget = (int) Math.round(bestTimes[current]/1000*13.88);
-//            int[] depo2 = central.findNearestStation(endNodes[current]);
-//            int targetToDepo = depo2[1];
-//            int distToDrive = toStart + startToTarget + targetToDepo;
-//            
-//            // if distance from here to next node, through the node, and to depo is less than limit
-//            while(drivenDist + distToDrive < 190000){ // 200km
-//                depo1 = depo2;
-//                newPath.add(current); // add node to path, increase distance
-//                drivenDist += (toStart + startToTarget);
-//                if(++pathInd == path.length){// it's the last node in the segment
-//                    break;
-//                }
-//                int next = path[pathInd];
-//                toStart = (int) Math.round(travelTimeProvider.getTravelTimeInMillis(endNodes[current], startNodes[next]));
-//                startToTarget = (int) Math.round(bestTimes[next]/1000*13.88);
-//                depo2 = central.findNearestStation(endNodes[next]);
-//                targetToDepo = depo2[1];
-//                distToDrive = toStart + startToTarget + targetToDepo;
-//                current = next;
-//                
-//            }
-//            newPath.add(-depo1[0]);
-//            drivenDist += targetToDepo;
-//            System.out.println("Driven dist= "+drivenDist);
-//            if(drivenDist > 200000){
-//                LOGGER.warn("Max ride distance exceeded "+drivenDist);
-//            }
-//            result.add(newPath.stream().mapToInt(Integer::intValue).toArray());
-//            //System.out.println(" Number of pieces "+newPath.size());
-//        }
-//        int pathSize = result.stream().map(sl->sl.length).mapToInt(Integer::intValue).sum() - result.size()*2;    
-//        //System.out.println("nodes in original path "+path.length+", in parts "+pathSize);
-//        //System.out.println(Arrays.toString(result.get(0)));
-//        return result;
-//    }

@@ -1,17 +1,19 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.taxify;
 
-
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.io.TripTaxify;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.entities.StationCentral;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.io.TripTransformTaxify;
 import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.OnDemandRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.io.Stats;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
@@ -28,18 +30,16 @@ import org.slf4j.LoggerFactory;
  */
 public class SolverTaxify extends DARPSolver {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(SolverTaxify.class);
-    private final AmodsimConfig config;
-//    private final double maxDistance;
+    private final ConfigTaxify config;
     Graph<SimulationNode,SimulationEdge> graph;
-//    private final double maxDistanceSquared;
-//    private final int maxDelayTime;
     private final TripTransformTaxify tripTransform;
     
-    @Inject public SolverTaxify(TravelTimeProvider travelTimeProvider, TravelCostProvider travelCostProvider, 
-        OnDemandVehicleStorage vehicleStorage, AmodsimConfig config, TimeProvider timeProvider,
+    @Inject 
+    public SolverTaxify(TravelTimeProvider travelTimeProvider, TravelCostProvider travelCostProvider, 
+        OnDemandVehicleStorage vehicleStorage, TimeProvider timeProvider,
         TripTransformTaxify tripTransform) {
         super(vehicleStorage, travelTimeProvider, travelCostProvider);
-        this.config = config;
+        config = new ConfigTaxify();
         this.tripTransform = tripTransform;
         graph = tripTransform.getGraph();
     };
@@ -48,18 +48,20 @@ public class SolverTaxify extends DARPSolver {
     public Map<RideSharingOnDemandVehicle, DriverPlan> solve() {
         try {
             // Path to original .csv file with data
-            List<TripTaxify<GPSLocation>>  rawDemand = tripTransform.loadTripsFromCsv(new File(config.amodsimDataDir + "/robotex2.csv"));
+            List<TripTaxify<GPSLocation>>  rawDemand = tripTransform.loadTripsFromCsv(new File(config.tripFileName));
             Demand demand = new Demand(travelTimeProvider, config, rawDemand, graph);
             rawDemand = null;
             //demand.dumpData();
-            StationCentral central = new StationCentral(tripTransform, config, travelTimeProvider, graph);
+            
+            StationCentral central = new StationCentral(config, travelTimeProvider, graph);
             Solution solution = new Solution(demand, travelTimeProvider,  central, config);
             solution.buildPaths();
             //demand.loadData();
             
-            // Paths to save results
-            Stats.writeCsv(solution.getAllCars(), demand, graph, config.amodsimExperimentDir+"result_2011.csv");
-            Stats.writeEvaluationCsv(solution.getAllCars(), demand, config.amodsimExperimentDir+"eval_result_2011.csv");
+            //uncomment to save results
+            Date timeStamp = Calendar.getInstance().getTime();
+            Stats.writeCsv(solution.getAllCars(), demand, graph, config, timeStamp);
+            Stats.writeEvaluationCsv(solution.getAllCars(), demand, config, timeStamp);
         } catch (IOException ex) {
             LOGGER.error("File IO exception: "+ex);
         } catch (ParseException ex) {

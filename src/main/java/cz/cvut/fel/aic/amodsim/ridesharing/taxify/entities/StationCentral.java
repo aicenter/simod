@@ -3,30 +3,23 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.cvut.fel.aic.amodsim.ridesharing.taxify;
+package cz.cvut.fel.aic.amodsim.ridesharing.taxify.entities;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.config.Stations;
 import cz.cvut.fel.aic.amodsim.io.Rtree;
-import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.ConfigTaxify;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.GPSLocationTools;
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -35,23 +28,29 @@ import org.slf4j.LoggerFactory;
  */
 public class StationCentral {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StationCentral.class);
-    AmodsimConfig config;
+    ConfigTaxify config;
     TravelTimeProvider travelTimeProvider;
     Graph<SimulationNode,SimulationEdge> graph;
     private final Map<Integer, int[]> nearestStation;
-    int N;
+    private final int N;
     int[] nodes; 
     private Rtree rtree;
 
-    public StationCentral(TripTransformTaxify tripTransform,  AmodsimConfig config, TravelTimeProvider travelTimeProvider,
-                            Graph<SimulationNode,SimulationEdge> graph){
+    public StationCentral(ConfigTaxify config, TravelTimeProvider travelTimeProvider,
+                          Graph<SimulationNode,SimulationEdge> graph){
         this.config = config;
         this.graph = graph; 
         this.travelTimeProvider = travelTimeProvider;
         nearestStation = new HashMap<>();
-        loadStations(tripTransform);
+        N = config.maxStations;
+        loadStations();
     }
     
+    /**
+     * 
+     * @param nodeId id of SimulationNode
+     * @return id of Simulation node where the nearest station is located
+     */
     public int[] findNearestStation(int nodeId){
         if(nearestStation.containsKey(nodeId)){
             return nearestStation.get(nodeId);
@@ -69,10 +68,16 @@ public class StationCentral {
         }
         return nearestStation.get(nodeId);
     }
-    
+    /**
+     * 
+     * @param nodes array of simulationNodes ids and distances [node1, dist1, node2, dist2]
+     * array length is either 2 (one node, ie gps location was mapped to the node), or 4 (2 nodes, mapped to edge)
+     * @return 
+     */
     public int[] findNearestStation(int[] nodes){
+        
 //        LOGGER.debug(Arrays.toString(nodes));
-        if(nodes.length == 2){
+        if(nodes.length == 2){ // 
             return findNearestStation(nodes[0]);
         }
         int[] node1Result = findNearestStation(nodes[0]);
@@ -83,21 +88,37 @@ public class StationCentral {
             return node2Result;
         }
     }
-    
-    
-
             
-    private void loadStations(TripTransformTaxify tripTransform){
-        try {
-            List<SimulationNode> stationsList = tripTransform.loadStations();
-            N = stationsList.size();
-            nodes = stationsList.stream().map(n->n.id).mapToInt(Integer::intValue).toArray();
-            LOGGER.info("Stations loaded: "+N);
-            System.out.println(Arrays.toString(nodes));
-            rtree = new Rtree(stationsList);
-            System.out.println("rtree for stations, size "+rtree.size());
+    private void loadStations(){
+        int radius = 4*config.pickupRadius;
+        List<SimulationNode> stationNodes = new ArrayList<>();
+        rtree = new Rtree(this.graph.getAllNodes(), this.graph.getAllEdges());
+        try (BufferedReader br = new BufferedReader(new FileReader(config.depoFileName))) {
+            String line = br.readLine();
+            for(int i= 0; i < N; i++){
+                line = br.readLine();
+                String[] parts = line.split(",");
+                //System.out.println(count+Arrays.toString(parts));
+                GPSLocation loc = GPSLocationTools.createGPSLocation(Double.parseDouble(parts[0]),
+                                                                    Double.parseDouble(parts[1]),
+                                                                    0, config.SRID);
+                Object[] result = rtree.findNode(loc, radius);
+                if (result == null){
+                    LOGGER.error("Node not found for station " + i);
+                }else{
+                    stationNodes.add(this.graph.getNode((int) result[0]));
+                }
+            }
+            rtree = null;
+            nodes = stationNodes.stream().map(n->n.id).mapToInt(Integer::intValue).toArray();
+            if(nodes.length != N){
+                LOGGER.error("Number of stations loaded differs from config");
+            }
+            rtree = new Rtree(stationNodes);
         } catch (IOException ex) {
             LOGGER.error("Error loading stations: "+ex);
         }
     }
 }
+
+

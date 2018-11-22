@@ -5,6 +5,8 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.taxify;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.entities.StationCentral;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.entities.Car;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import java.util.ArrayList;
@@ -25,37 +27,33 @@ public class Solution {
     private final int D = 0;
     private final int C = 1;
     private final int W = 2;
-    final int maxCar;
-    final int sigma;
+    
+    private final int maxCar;
     private final int maxWaitTime;
-    Demand demand;
-    TravelTimeProvider travelTimeProvider;
-    StationCentral central;
-    AmodsimConfig config;
+    private final Demand demand;
+    private final TravelTimeProvider travelTimeProvider;
+    private final  StationCentral central;
+    private final ConfigTaxify config;
     int timeBuffer;
     List<Car>[] cars;
-    private int minCharge;
-    
-    
-    public Solution(Demand demand, TravelTimeProvider travelTimeProvider, StationCentral central, AmodsimConfig config) {
+
+       
+    public Solution(Demand demand, TravelTimeProvider travelTimeProvider, StationCentral central, ConfigTaxify config) {
         this.demand = demand;
         this.travelTimeProvider = travelTimeProvider;
         this.central = central;
         this.config = config;
-        maxWaitTime = config.amodsim.ridesharing.maxWaitTime * 800;
-        timeBuffer = demand.getTimeBuffer();
-        maxCar = 10000;
-        sigma = 7; //minutes
+        maxWaitTime = (int) (config.maxWaitTime * 0.8);
+        timeBuffer = config.timeBuffer;
+        maxCar = config.maxCar;
         cars = new List[3];
-        cars[D] = new ArrayList<>();
+        cars[D] = new ArrayList<>(); //TODO remove D, 2 lists are enough;
         cars[C] = new ArrayList<>();
         cars[W] = new ArrayList<>();
-        minCharge = 20*60*1000;
     }
            
     /**
-     * Returns list of cars from sublists in one list.
-     * @return 
+     * Returns list of all cars.
      */
     public List<Car> getAllCars(){
         List<Car> carList = new ArrayList<>();
@@ -66,12 +64,11 @@ public class Solution {
     }
 
     /**
-     * Creates path with cars assigned from pairing returned by HK.
+     * Creates path and assigns cars without ride-sharing.
      * 
      */
     public void buildPaths(){
-    
-        int[] pair = demand.findMapCover(sigma);
+        int[] pair = demand.findMapCover(config.hkSigma);
         int n = pair.length;
         Set<Integer> usedNodes = new HashSet<>();
         for(int i = 0; i < n; i++ ){
@@ -136,7 +133,6 @@ public class Solution {
         LOGGER.info("Cars used: "+(cars[C].size()+cars[W].size()+cars[D].size()));
     }
     
-
     private void parkCar(Car car){
         int[] depo = central.findNearestStation(demand.getEndNodes(car.getLastNode()));
         car.addChargingStation(depo[0], depo[1]);
@@ -146,6 +142,7 @@ public class Solution {
     }
     
     private Car getCar(int trip, int[] depo){
+        double minCharge = config.maxChargeMs/12; //20 minutes
         Car theCar = null;
         // first check among waiting cars
         List<Car> toPark = new ArrayList<>();
@@ -165,7 +162,7 @@ public class Solution {
                     break;
                 }
             }else{
-                if(!car.hasCharge(minCharge))
+                if(!car.hasCharge((int) minCharge))
                 toPark.add(car);
             }
         }
@@ -201,7 +198,7 @@ public class Solution {
         }
         theCar = new Car(depo[0]);
         cars[D].add(theCar);
-        LOGGER.debug("New car added "+theCar.id);
+       // LOGGER.debug("New car added "+theCar.id);
         return theCar;
     }
     

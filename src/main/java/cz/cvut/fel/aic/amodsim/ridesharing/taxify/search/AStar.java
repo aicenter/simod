@@ -49,11 +49,7 @@ public class AStar {
     }
   
     /**
-     * A* search
-     * Search for the path with the shortest distance.
-     * BFS with minimum heap.
-     * Heuristic function - euclidean distance calculated from projected coordinates
-     * 
+    * 
      * @param origin SimulationNode
      * @param destination SimulationNode
      * @return 

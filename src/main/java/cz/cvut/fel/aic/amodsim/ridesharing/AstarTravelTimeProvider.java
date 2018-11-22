@@ -11,7 +11,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.TransportNetworks;
 import cz.cvut.fel.aic.amodsim.io.TimeTripWithValue;
-import cz.cvut.fel.aic.amodsim.ridesharing.taxify.TripTaxify;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.io.TripTaxify;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.Node;

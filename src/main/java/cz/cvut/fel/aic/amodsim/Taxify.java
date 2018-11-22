@@ -41,7 +41,7 @@ public class Taxify {
         creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
  
         injector.getInstance(DARPSolver.class).solve();
-        injector.getInstance(StatisticInitializer.class).initialize();
+        //injector.getInstance(StatisticInitializer.class).initialize();
  
 
     }

@@ -41,7 +41,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.taxify.SolverTaxify;
 import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingStationsCentral;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.RidesharingOnDemandVehicleFactory;
-import cz.cvut.fel.aic.amodsim.ridesharing.taxify.TravelTimeProviderTaxify;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.search.TravelTimeProviderTaxify;
 import cz.cvut.fel.aic.geographtools.TransportMode;
 import java.io.File;
 

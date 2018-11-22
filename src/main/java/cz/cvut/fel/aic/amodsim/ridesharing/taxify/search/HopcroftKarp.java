@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.cvut.fel.aic.amodsim.ridesharing.taxify;
+package cz.cvut.fel.aic.amodsim.ridesharing.taxify.search;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -25,19 +25,23 @@ public class HopcroftKarp {
     private int[] dist;
     
     public HopcroftKarp(int numOfTrips){
-        
         N = numOfTrips;
         inf = Integer.MAX_VALUE;
         dist = new int[N+1];
         pair_u = new int[N];
         pair_v = new int[N];
-        for(int i=0;i<N;i++){
+        for(int i=0;i < N;i++){
             pair_u[i] = N;
             pair_v[i] = N;
         }
     }
     
-    
+    /**
+     * 
+     * @param adjacency adjacency matrix
+     * @return disjoint set of node pairs from two subsets.
+     *         Each index represents the trip, value at that index - next trip to which the car should proceed.
+     */
     public int[] findMapCover(int[][] adjacency){
         LOGGER.debug("HK " +adjacency.length);
         //LOGGER.debug(Arrays.toString(adjacency[0]));
@@ -54,8 +58,7 @@ public class HopcroftKarp {
         }
         pair_v = null;
         dist = null;
-        
-        System.out.println("Matching "+matching);
+        LOGGER.debug("Matching "+matching);
         return pair_u;
     }
    
@@ -100,8 +103,5 @@ public class HopcroftKarp {
         dist[u] = inf;
         return false;
     }
-    
-
-    
-    
+   
 }

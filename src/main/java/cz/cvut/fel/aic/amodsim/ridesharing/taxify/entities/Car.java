@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.cvut.fel.aic.amodsim.ridesharing.taxify;
+package cz.cvut.fel.aic.amodsim.ridesharing.taxify.entities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,12 +19,10 @@ import org.slf4j.LoggerFactory;
 public class Car {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Car.class);
     private static int count = 0;
-    private static final int maxChargeMs = 14400000;
-    private static final int chargingTimeMs = 7200000;
-    private static final int minCharge = maxChargeMs/20;
-    //private static final int maxDriveTime = 30*60*1000;
+    private static  int maxChargeMs = 14400000; // TODO get them here from config?
+    private static int chargingTimeMs = 7200000;
+    private static int minCharge = maxChargeMs/10;
     int arr = 1000;
-    
     int[] nodes;
     int[][] times;
     int id;
@@ -43,7 +41,6 @@ public class Car {
         times[0] = new int[]{0,0}; 
         depoCount = 1;
         chargeAtDepo = new HashMap<>();
-      
     }
     
     public int getTripCount(){
@@ -64,18 +61,29 @@ public class Car {
     public int getChargeLeft() {
         return chargeLeft;
     }
-
     public int getSize() {
         return size;
     }
     
-    
+    /**
+     *  Return true if the car travel the given time not going below
+     * min charge level.
+     * @param travelTime, time in millis
+     * @return 
+     */
     public boolean hasCharge(int travelTime){
         //LOGGER.debug(id+" charge left " + chargeLeft);
         return (chargeLeft - travelTime) >= minCharge;
     }
-
-    public boolean addTrip(int node, int bestTimeToStart, int startTime, int tripDuration){
+    
+    /**
+     *  adds new trip to the route.
+     * @param node, index of the trip in Demand
+     * @param bestTimeToStart, best possible time to get to the start of the inserted trip
+     * @param startTime, start time of the trip
+     * @param tripDuration, best possible time for the trip itself
+     */
+    public void addTrip(int node, int bestTimeToStart, int startTime, int tripDuration){
         //LOGGER.debug(node+" received by "+id+"; charge "+chargeLeft+", toStart="+bestTimeToStart+", duration in sec="+tripDuration/1000
       // + "; app travel time "+ (tripDuration+bestTimeToStart)/1000);
         if(chargeLeft < tripDuration+bestTimeToStart){
@@ -83,7 +91,7 @@ public class Car {
         }
         nodes[size] = node;
        // LOGGER.debug(id+": toStart="+bestTimeToStart+", lastEndTime="+times[size-1][1]);
-       int earliestPossibleArrival = times[size-1][1]+bestTimeToStart;
+       int earliestPossibleArrival = times[size-1][1] + bestTimeToStart;
        // LOGGER.debug(id+": earliestPossibleArrival="+earliestPossibleArrival+", start="+startTime);
         times[size][0] = Math.max(startTime, earliestPossibleArrival);
        // LOGGER.debug(id+":startTime="+times[size][0]);
@@ -94,12 +102,13 @@ public class Car {
         if(size == arr){
             LOGGER.error("Warning: array size exceeded ");
             realloc();
-
         }
-
-        return true;
     }
-   
+   /**
+    * 
+    * @param station, id of SimulationNode there station is located
+    * @param bestTimeToNode, best possible time to the station from the last location
+    */
     public void addChargingStation(int station, int bestTimeToNode){
         nodes[size] = -station;
         times[size][0] = getLastNodeEndTime() + bestTimeToNode;
@@ -116,9 +125,13 @@ public class Car {
         depoCount++;
     }
 
+    /**
+     * Returns the whole route for Stats.
+     * @return  list of values for each node visited in the following order
+     * "car_id", "trip_id", "start_time","end_time","start_lat", "start_lon", "end_lat", "end_lon", "is_depo";
+     */
     public List<int[]> getPathStats(){
-        //"car_id", "trip_id", "start_time","end_time", 
-        //"start_lat", "start_lon", "end_lat", "end_lon", "is_depo"
+       
         List<int[]> paths = new ArrayList<>();
         for(int i = 0; i<size;i++){
             int node = nodes[i];

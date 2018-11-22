@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.cvut.fel.aic.amodsim.ridesharing.taxify;
+package cz.cvut.fel.aic.amodsim.ridesharing.taxify.search;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.io.TripTaxify;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
@@ -15,6 +16,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.io.TimeTripWithValue;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.ConfigTaxify;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.search.AStar;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
@@ -32,7 +34,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class TravelTimeProviderTaxify implements TravelTimeProvider{
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TravelTimeProviderTaxify.class); 
-	private final AmodsimConfig config;
+	private final ConfigTaxify config;
 	private long callCount = 0;
     private final Graph<SimulationNode, SimulationEdge> graph;
     private final double speedMs;
@@ -48,15 +50,14 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
 	
 
 	@Inject
-	public TravelTimeProviderTaxify(AmodsimConfig config, TransportNetworks transportNetworks) {
+	public TravelTimeProviderTaxify(ConfigTaxify config, TransportNetworks transportNetworks) {
 		this.config = config;
         this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
-        speedMs = config.amodsim.ridesharing.maxSpeedEstimation;
+        speedMs = config.speed;
         n = graph.numberOfNodes();
         astar = new AStar(graph);
         timeMatrix = new int[n][n];
-        pathToMatrix = config.amodsimDataDir+"/tallin_times.bin";
-
+        pathToMatrix = config.matrixFileName;
         buildMatrix();
 	}
     
@@ -67,30 +68,34 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
             FileInputStream fis = new FileInputStream(pathToMatrix);
             ObjectInputStream iis = new ObjectInputStream(fis);
             timeMatrix = (int[][]) iis.readObject();
-//            for(int[] row: timeMatrix){
-//                System.out.println(Arrays.toString(row));
-//           }
             LOGGER.info("Distance matrix successfully loaded");
             return;
         }catch(IOException | ClassNotFoundException ex){
-            LOGGER.error("File with  times  not found: "+ex);
-            LOGGER.error("Trying to read distance matrix. "+ex);
-            try{
-                FileInputStream fis = new FileInputStream(config.amodsimDataDir+"/tallin_10000.bin");
-                ObjectInputStream iis = new ObjectInputStream(fis);
-                timeMatrix = (int[][]) iis.readObject();
-                dist2times();
-                FileOutputStream fos = new FileOutputStream(pathToMatrix);
-                ObjectOutputStream oos = new ObjectOutputStream(fos);
-                oos.writeObject(timeMatrix);
-                LOGGER.info("Time matrix saved successfully");
-                return;
-            }catch(IOException | ClassNotFoundException ex2){
-                LOGGER.error("File with   not found: "+ex2);
-            }
+            LOGGER.error("File with  time matrix  not found: "+ex);
+            return;
+            //computeMatrix(); // takes 4-5 hours for 10000 nodes
         }
-        for(int[] r: timeMatrix){
-            for(int i = 0; i <n; i++){
+            //LOGGER.error("Trying to read distance matrix. "+ex);
+//            try{
+//                FileInputStream fis = new FileInputStream(config.dir+"/tallin_10000.bin");
+//                ObjectInputStream iis = new ObjectInputStream(fis);
+//                timeMatrix = (int[][]) iis.readObject();
+//                dist2times();
+//                FileOutputStream fos = new FileOutputStream(pathToMatrix);
+//                ObjectOutputStream oos = new ObjectOutputStream(fos);
+//                oos.writeObject(timeMatrix);
+//                LOGGER.info("Time matrix saved successfully");
+//                return;
+//            }catch(IOException | ClassNotFoundException ex2){
+//                LOGGER.error("File with   not found: "+ex2);
+//            }
+
+       
+    }
+    
+    private void computeMatrix(){
+         for(int[] r: timeMatrix){
+            for(int i = 0; i < n; i++){
                 r[i] = -1;
             }
         }
@@ -106,8 +111,9 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
                     updateMatrix(i, result);
                 }
             }
-            LOGGER.info("Astar: "+i+" cycle, time "+ (System.currentTimeMillis() - startTime)); 
+            //LOGGER.info("Astar: "+i+" cycle, time "+ (System.currentTimeMillis() - startTime)); 
         }
+        dist2times();
         try {
             FileOutputStream fos = new FileOutputStream(pathToMatrix);
             ObjectOutputStream oos = new ObjectOutputStream(fos);

@@ -1,13 +1,8 @@
-package cz.cvut.fel.aic.amodsim.ridesharing.taxify;
+package cz.cvut.fel.aic.amodsim.ridesharing.taxify.io;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.io.TripTransformTaxify;
 import cz.cvut.fel.aic.amodsim.io.*;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.LoggerFactory;
@@ -51,7 +46,6 @@ public class TripTaxify<L> extends TimeTrip<L>{
         this.gpsCoordinates = coordinates;
     }
     
-    
     public double getShortestLength(){
         return shortestLength;
     }
@@ -61,8 +55,7 @@ public class TripTaxify<L> extends TimeTrip<L>{
     public double getRideValue(){
         return value;
     }
-    
- 
+     
     @Override
     public L getAndRemoveFirstLocation() {
         return super.getAndRemoveFirstLocation();

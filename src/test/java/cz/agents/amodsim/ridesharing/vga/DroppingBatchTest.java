@@ -26,7 +26,7 @@ import org.junit.Test;
  *
  * @author David Fiedler
  */
-public class BatchTest {
+public class DroppingBatchTest {
 	
 	@Test
     public void run() throws Throwable{
@@ -36,16 +36,17 @@ public class BatchTest {
 		
 		// set batch time
 		injector.getInstance(AmodsimConfig.class).amodsim.ridesharing.vga.batchPeriod = 10;
+		injector.getInstance(AmodsimConfig.class).amodsim.ridesharing.vga.maximumRelativeDiscomfort = 1.8;
 		
 		// set roadgraph
         Graph<SimulationNode, SimulationEdge> graph 
-				= Utils.getGridGraph(5, injector.getInstance(Transformer.class), 1);
+				= Utils.getGridGraph(20, injector.getInstance(Transformer.class), 1);
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
 		// trips
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
 		trips.add(new TimeTrip<>(graph.getNode(1), graph.getNode(3), 8000));
-		trips.add(new TimeTrip<>(graph.getNode(2), graph.getNode(4), 1000));
+		trips.add(new TimeTrip<>(graph.getNode(19), graph.getNode(0), 1000));
 		
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
 		vehicalInitPositions.add(graph.getNode(0));
@@ -53,14 +54,12 @@ public class BatchTest {
 		// expected events
 		List<VGAEventData> expectedEvents = new LinkedList<>();
 		expectedEvents.add(new VGAEventData("0 - autonomus agent", 1, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 0, OnDemandVehicleEvent.PICKUP));
 		expectedEvents.add(new VGAEventData("0 - autonomus agent", 1, OnDemandVehicleEvent.DROP_OFF));
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 0, OnDemandVehicleEvent.DROP_OFF));
         
         scenario.run(graph, trips, vehicalInitPositions, expectedEvents);
     }
 	
 	public static void main(String[] args) {
-        VisualTests.runVisualTest(BatchTest.class);
+        VisualTests.runVisualTest(DroppingBatchTest.class);
     }
 }

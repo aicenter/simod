@@ -14,6 +14,7 @@ import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import cz.cvut.fel.aic.amodsim.ridesharing.*;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.VGAGroupGenerator;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.VGAILPSolver;
@@ -43,6 +44,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	
 	private final VGAILPSolver vGAILPSolver;
 	
+	private final GurobiSolver gurobiSolver;
+	
 	private final VGARequest.VGARequestFactory vGARequestFactory;
 	
     private final Map<Integer,VGARequest> requestsMapBydemandAgents;
@@ -63,12 +66,13 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			OnDemandVehicleStorage vehicleStorage, PositionUtil positionUtil, AmodsimConfig config, 
 			TimeProvider timeProvider, VGAGroupGenerator vGAGroupGenerator, 
 			VGARequest.VGARequestFactory vGARequestFactory, TypedSimulation eventProcessor,
-			VGAILPSolver vGAILPSolver) {
+			VGAILPSolver vGAILPSolver, GurobiSolver gurobiSolver) {
         super(vehicleStorage, travelTimeProvider, travelCostProvider);
         this.positionUtil = positionUtil;
         this.config = config;
 		this.vGAGroupGenerator = vGAGroupGenerator;
 		this.vGAILPSolver = vGAILPSolver;
+		this.gurobiSolver = gurobiSolver;
 		this.vGARequestFactory = vGARequestFactory;
 		this.eventProcessor = eventProcessor;
 		waitingRequests = new HashSet<>();
@@ -113,22 +117,22 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
         for (VGAVehicle vehicle : vehiclesForPlanning) {
 			List<VGARequest> requestsForVehicle = new ArrayList<>(waitingRequests);
 
-			// we only try to serve onboard request that are already transported by this vehicle
-			requestsForVehicle.addAll(vehicle.getRequestsOnBoard());
+//			// we only try to serve onboard request that are already transported by this vehicle
+//			requestsForVehicle.addAll(vehicle.getRequestsOnBoard());
 
 			feasiblePlans.put(vehicle, 
 					vGAGroupGenerator.generateGroupsForVehicle(vehicle, requestsForVehicle, vehiclesForPlanning.size()));
         }
-		// empty plan
-		VGAVehicle nullVehicle = VGAVehicle.newInstance(null);
-		feasiblePlans.put(nullVehicle, 
-				VGAGroupGenerator.generateDroppingVehiclePlans(nullVehicle, activeRequests));
+//		// empty plan
+//		VGAVehicle nullVehicle = VGAVehicle.newInstance(null);
+//		feasiblePlans.put(nullVehicle, 
+//				VGAGroupGenerator.generateDroppingVehiclePlans(nullVehicle, activeRequests));
         
 		LOGGER.info("Groups generaated");
 
         //Using an ILP solver to optimally assign a group to each vehicle
         Map<VGAVehicle, VGAVehiclePlan> optimalPlans 
-				= vGAILPSolver.assignOptimallyFeasiblePlans(feasiblePlans, activeRequests);
+				= gurobiSolver.assignOptimallyFeasiblePlans(feasiblePlans, activeRequests);
 
         //Removing the unnecessary empty plans
         Set<VGAVehicle> toRemove = new LinkedHashSet<>();

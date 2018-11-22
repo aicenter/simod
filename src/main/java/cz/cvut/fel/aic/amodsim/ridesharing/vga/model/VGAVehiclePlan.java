@@ -18,13 +18,17 @@ public class VGAVehiclePlan {
     private double discomfort;
 
     private final RideSharingOnDemandVehicle vehicle;
+	
+	public final VGAVehicle vgaVehicle;
+	
     private final Set<VGARequest> requests;
     private final Set<VGARequest> waitingRequests;
     private final Set<VGARequest> onboardRequests;
     private final List<VGAVehiclePlanAction> actions;
 
-    public VGAVehiclePlan(RideSharingOnDemandVehicle vehicle, Set<VGARequest> group){
-        this.vehicle = vehicle;
+    public VGAVehiclePlan(VGAVehicle vgaVehicle, Set<VGARequest> group){
+		this.vgaVehicle = vgaVehicle;
+        this.vehicle = vgaVehicle.getRidesharingVehicle();
         this.discomfort = 0;
         this.actions = new ArrayList<>();
         this.requests = new LinkedHashSet<>(group);
@@ -34,6 +38,7 @@ public class VGAVehiclePlan {
     }
 
     public VGAVehiclePlan(VGAVehiclePlan vehiclePlan){
+		this.vgaVehicle = vehiclePlan.vgaVehicle;
         this.vehicle = vehiclePlan.vehicle;
         this.discomfort = vehiclePlan.discomfort;
         this.actions = new ArrayList<>(vehiclePlan.actions);

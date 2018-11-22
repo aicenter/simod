@@ -53,6 +53,9 @@ public class VGASystemTestScenario {
         AgentPolisInitializer agentPolisInitializer 
 				= new AgentPolisInitializer(new TestModule(config, localConfigFile));
         injector = agentPolisInitializer.initialize();
+		
+		// config changes
+		config.amodsim.ridesharing.vga.batchPeriod = 0;
 	}
 	
 	

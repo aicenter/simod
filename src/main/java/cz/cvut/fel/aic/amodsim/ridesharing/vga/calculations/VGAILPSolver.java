@@ -1,17 +1,28 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
+import com.google.common.io.Files;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.ortools.linearsolver.MPConstraint;
 import com.google.ortools.linearsolver.MPObjective;
 import com.google.ortools.linearsolver.MPSolver;
+import com.google.ortools.linearsolver.MPSolverParameters;
 import com.google.ortools.linearsolver.MPVariable;
-import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlan;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
@@ -29,10 +40,13 @@ public class VGAILPSolver {
 	
 
 	
+	int iteration;
+	
 	
 	@Inject
     public VGAILPSolver(PlanCostComputation planCostComputation) {
 		this.planCostComputation = planCostComputation;
+		iteration = 1;
 	}
 
     public Map<VGAVehicle, VGAVehiclePlan> assignOptimallyFeasiblePlans(
@@ -143,7 +157,17 @@ public class VGAILPSolver {
         objective.setMinimization();
 
         solver.setTimeLimit(10000000);
+//		MPSolverParameters params = new MPSolverParameters();
+		boolean sucess = solver.setSolverSpecificParametersAsString("preprocess off");
+		if(!sucess){
+			LOGGER.error("Setting solver param was not succesful");
+		}
+//		solver.enableOutput();
+		String problemDefinition = solver.exportModelAsLpFormat(false);
+		long startTime = System.nanoTime();
         MPSolver.ResultStatus status = solver.solve();
+		long totalTime = System.nanoTime() - startTime;
+		exportSolver(problemDefinition, totalTime);
         if (status == MPSolver.ResultStatus.OPTIMAL) {
             LOGGER.info("Google optimization tools found an optimal solution.");
         } else if (status == MPSolver.ResultStatus.FEASIBLE) {
@@ -188,7 +212,33 @@ public class VGAILPSolver {
         System.out.println();
         System.out.println();
 
+		iteration++;
+		
         return optimalPlans;
     }
+
+	private void exportSolver(String problemDefinition, long totalTime) {
+		String firstLine = String.format("/* Totaltime: %s */\n", totalTime);
+		String content = firstLine + problemDefinition;
+		
+		String filename = String.format("%s_vga-iteration_%s.lp", getCurrentTimeStamp(), iteration);
+		String filepath = "C:/AIC data/Shared/amod-data/agentpolis-experiment/Prague/experiment/test/vga-problems/" 
+				+ filename;
+		
+		File outputFile = new File(filepath);
+		
+		try {
+			Files.asCharSink(outputFile, Charset.forName("utf-8")).write(content);
+		} catch (IOException ex) {
+			Logger.getLogger(VGAILPSolver.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	}
+	
+	public static String getCurrentTimeStamp() {
+		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss-SSS");//dd/MM/yyyy
+		Date now = new Date();
+		String strDate = sdfDate.format(now);
+		return strDate;
+	}
 
 }

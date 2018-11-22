@@ -145,6 +145,12 @@
 			<artifactId>ortools</artifactId>
 			<version>1.0</version>
 		</dependency>
+		<dependency>
+			<groupId>com.gurobi</groupId>
+			<artifactId>gurobi</artifactId>
+			<version>1.0</version>
+		</dependency>
+			
     </dependencies>
     
     <repositories>

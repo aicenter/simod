@@ -34,30 +34,33 @@ public class VGAGroupGenerator {
 		// F_v^{1}
         Set<VGARequest> feasibleRequests = new LinkedHashSet<>();
 		
-		// F_v all groups feasible for vehicle with optimal plan alreadz assigne to them - the output
+		// F_v all groups feasible for vehicle with optimal plan already assigned to them - the output
         Set<VGAVehiclePlan> groups = new LinkedHashSet<>();
 
 		
 		if(vehicle.getRequestsOnBoard().isEmpty()){
-			// BASE PLAN - for each empty vehicle, an empty plan is valid
-			groups.add(new VGAVehiclePlan(vehicle.getRidesharingVehicle(), new LinkedHashSet<>()));
+			// BASE PLAN - for each empty vehicle, an EMPTY PLAN is valid
+			groups.add(new VGAVehiclePlan(vehicle, new LinkedHashSet<>()));
 		}
 		else{
-			// BASE PLAN - for nonempty vehicles, we add a base plan that serves all vehicles
+			// BASE PLAN - for non-empty vehicles, we add a base plan that serves all onboard vehicles
 			Set<VGARequest> group = vehicle.getRequestsOnBoard();
-			VGAVehiclePlan plan = getOptimalPlan(vehicle, group);
+			
+			// currently, the time window has to be ignored, because the planner underestimates the cost
+			VGAVehiclePlan plan = getOptimalPlan(vehicle, group, true);
 			groups.add(plan);
 			
 			// onboard request composes the single base group
 			currentGroups.add(group);
 		}
 		
+		// groups of size 1
 		for (VGARequest r : requests) {
 			Set<VGARequest> group = new LinkedHashSet<>();
 			group.add(r);
 
 			VGAVehiclePlan plan;
-			if((plan = getOptimalPlan(vehicle, group)) != null) {
+			if((plan = getOptimalPlan(vehicle, group, false)) != null) {
 				feasibleRequests.add(r);
 				//if the vehicle is empty, feasible requests are feasible plans and are used as base groups
 				if(vehicle.getRequestsOnBoard().isEmpty()){
@@ -103,7 +106,7 @@ public class VGAGroupGenerator {
 //                    }
 
                     VGAVehiclePlan plan;
-                    if((plan = getOptimalPlan(vehicle, newGroupToCheck)) != null) {
+                    if((plan = getOptimalPlan(vehicle, newGroupToCheck, false)) != null) {
                         newCurrentGroups.add(newGroupToCheck);
                         groups.add(plan);
                         if(groups.size() > 150000 / noOfVehicles){
@@ -125,7 +128,7 @@ public class VGAGroupGenerator {
         for(VGARequest r : requests) {
             Set<VGARequest> request = new LinkedHashSet<>();
             request.add(r);
-            VGAVehiclePlan plan = new VGAVehiclePlan(v.getRidesharingVehicle(), request);
+            VGAVehiclePlan plan = new VGAVehiclePlan(v, request);
             plan.add(new VGAVehiclePlanRequestDrop(r, plan));
             droppingPlans.add(plan);
         }
@@ -133,7 +136,7 @@ public class VGAGroupGenerator {
         return droppingPlans;
     }
 
-    private VGAVehiclePlan getOptimalPlan(VGAVehicle vehicle, Set<VGARequest> group){
+    private VGAVehiclePlan getOptimalPlan(VGAVehicle vehicle, Set<VGARequest> group, boolean ignoreTime){
 //		// check if all onboard requests are in the group
 //		for(VGARequest onboardRequest: vehicle.getRequestsOnBoard()){
 //			if(!group.contains(onboardRequest)){
@@ -142,7 +145,7 @@ public class VGAGroupGenerator {
 //		}
 		
         Stack<VGAVehiclePlan> toCheck = new Stack<>();
-		VGAVehiclePlan emptyPlan = new VGAVehiclePlan(vehicle.getRidesharingVehicle(), group);
+		VGAVehiclePlan emptyPlan = new VGAVehiclePlan(vehicle, group);
         toCheck.push(emptyPlan);
 
         double upperBound = Double.POSITIVE_INFINITY;
@@ -160,11 +163,11 @@ public class VGAGroupGenerator {
                 VGAVehiclePlan simplerPlan = new VGAVehiclePlan(plan);
                 simplerPlan.add(new VGAVehiclePlanDropoff(r, simplerPlan));
 
-                if(r.getDestination().getWindow().isInWindow(simplerPlan.getCurrentTime())) {
+                if(r.getDestination().getWindow().isInWindow(simplerPlan.getCurrentTime()) || ignoreTime) {
                     double currentCost = planCostComputation.calculatePlanCost(simplerPlan);
-                    if ((simplerPlan.getCurrentTime() - r.getOriginTime()) <= maximumRelativeDiscomfort *
+                    if (((simplerPlan.getCurrentTime() - r.getOriginTime()) <= maximumRelativeDiscomfort *
                             MathUtils.getTravelTimeProvider().getTravelTime(vehicle.getRidesharingVehicle(), r.getOriginSimulationNode(), r.getDestinationSimulationNode()) / 1000.0 + 0.001
-                            && currentCost < upperBound) {
+                            || ignoreTime) && currentCost < upperBound) {
                         if (simplerPlan.getWaitingRequests().isEmpty() && simplerPlan.getOnboardRequests().isEmpty()) {
                             upperBound = currentCost;
                             bestPlan = simplerPlan;

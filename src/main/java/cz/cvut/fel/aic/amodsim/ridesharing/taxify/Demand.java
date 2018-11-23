@@ -43,18 +43,11 @@ public class Demand {
     private  double[] values;
     private  double[][] coordinates;
     private  double[][] gpsCoordinates;
-   
-    
     double[][] projStart;
     double[][] vectors;
     Rtree rtree;
-    int[] nodeToCluster;
-    int[][] clusterStartNodes;
-    int[][] clusterEndNodes;
-    int[][] clusterTimes;
-    int NC;
-    
-    
+
+   
     public Demand(TravelTimeProvider travelTimeProvider, ConfigTaxify config, List<TripTaxify<GPSLocation>> demand,
         Graph<SimulationNode, SimulationEdge> graph){
         this.travelTimeProvider = travelTimeProvider;
@@ -79,8 +72,17 @@ public class Demand {
         prepareDemand(demand);
     }
     
+    public int size(){
+        return N;
+    }
     public int id2ind(int id){
         return index[id];
+    }
+    public double[] getProjStart(int ind) {
+        return projStart[ind];
+    }
+    public double[] getVectors(int ind) {
+        return vectors[ind];
     }
     public int ind2id(int ind){
         return revIndex[ind];
@@ -115,7 +117,6 @@ public class Demand {
     public double[] getGpsCoordinates(int ind) {
         return gpsCoordinates[ind];
     }
-    
     public double getRideValue(int ind){
         return values[ind];
     }
@@ -154,6 +155,14 @@ public class Demand {
         coordinates[ind][1] = start.getLongitude();
         coordinates[ind][2] = end.getLatitude();
         coordinates[ind][3] = end.getLongitude();
+        
+        //ridesharing
+        projStart[ind][0] = start.getLatitudeProjected();
+        projStart[ind][1] = start.getLongitudeProjected();
+        double norm = Math.sqrt(Math.pow(end.getLatitudeProjected() - start.getLatitudeProjected(), 2) +
+                                Math.pow(end.getLongitudeProjected() - start.getLongitudeProjected(), 2));
+        vectors[ind][1] = (end.getLatitudeProjected() - start.getLatitudeProjected())/norm;
+        vectors[ind][0] = (end.getLongitudeProjected() - start.getLongitudeProjected())/norm;
     }
     
     private void addNodesToIndex(Map<Integer,Double> nodeToDistMap, int[][] nodeList, int ind){
@@ -222,7 +231,7 @@ public class Demand {
         return adjacency;
     }
 
-    private int getIndexByTime(int time){
+    protected int getIndexByTime(int time){
         int ind = Arrays.binarySearch(startTimes, time);
         ind = ind >= 0 ? ind : -(ind + 1);
         ind =  ind <= N ? ind : N;

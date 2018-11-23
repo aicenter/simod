@@ -66,8 +66,8 @@ public class Demand {
         coordinates = new double[N][4];
         gpsCoordinates = new double[N][4];
        
-        projStart = new double[N][2];
-        vectors =  new double[N][2];
+        //projStart = new double[N][2];
+        //vectors =  new double[N][2];
         lastInd = 0;
         prepareDemand(demand);
     }
@@ -157,12 +157,12 @@ public class Demand {
         coordinates[ind][3] = end.getLongitude();
         
         //ridesharing
-        projStart[ind][0] = start.getLatitudeProjected();
-        projStart[ind][1] = start.getLongitudeProjected();
-        double norm = Math.sqrt(Math.pow(end.getLatitudeProjected() - start.getLatitudeProjected(), 2) +
-                                Math.pow(end.getLongitudeProjected() - start.getLongitudeProjected(), 2));
-        vectors[ind][1] = (end.getLatitudeProjected() - start.getLatitudeProjected())/norm;
-        vectors[ind][0] = (end.getLongitudeProjected() - start.getLongitudeProjected())/norm;
+       // projStart[ind][0] = start.getLatitudeProjected();
+        //projStart[ind][1] = start.getLongitudeProjected();
+        //double norm = Math.sqrt(Math.pow(end.getLatitudeProjected() - start.getLatitudeProjected(), 2) +
+        //                        Math.pow(end.getLongitudeProjected() - start.getLongitudeProjected(), 2));
+        //vectors[ind][1] = (end.getLatitudeProjected() - start.getLatitudeProjected())/norm;
+        //vectors[ind][0] = (end.getLongitudeProjected() - start.getLongitudeProjected())/norm;
     }
     
     private void addNodesToIndex(Map<Integer,Double> nodeToDistMap, int[][] nodeList, int ind){

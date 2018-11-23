@@ -51,9 +51,10 @@ public class SolverTaxify extends DARPSolver {
             List<TripTaxify<GPSLocation>>  rawDemand = tripTransform.loadTripsFromCsv(new File(config.tripFileName));
             Demand demand = new Demand(travelTimeProvider, config, rawDemand, graph);
             rawDemand = null;
-            //demand.dumpData();
+            demand.dumpData();
             Ridesharing rs = new Ridesharing(demand, config, travelTimeProvider);
-            rs.cluster();;
+            rs.cluster();
+            rs.buildAdjacency(config.hkSigma);
 //            StationCentral central = new StationCentral(config, travelTimeProvider, graph);
 //            Solution solution = new Solution(demand, travelTimeProvider,  central, config);
 //            solution.buildPaths();

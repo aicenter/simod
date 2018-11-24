@@ -137,6 +137,7 @@ public class Demand {
         startTimes[ind] = (int) trip.getStartTime() + buffer;
         bestTimes[ind] = bestTime;
         gpsCoordinates[ind] = trip.getGpsCoordinates();
+ //       LOGGER.debug(trip.id +" "+Arrays.toString(trip.getGpsCoordinates()));
         values[ind] = trip.getRideValue();
 
         Map<Integer,Double> nodeMap = (Map<Integer,Double>)  trip.nodes.get(0);

@@ -51,19 +51,22 @@ public class SolverTaxify extends DARPSolver {
             List<TripTaxify<GPSLocation>>  rawDemand = tripTransform.loadTripsFromCsv(new File(config.tripFileName));
             Demand demand = new Demand(travelTimeProvider, config, rawDemand, graph);
             rawDemand = null;
-            demand.dumpData();
-            Ridesharing rs = new Ridesharing(demand, config, travelTimeProvider);
-            rs.cluster();
-            rs.buildAdjacency(config.hkSigma);
-//            StationCentral central = new StationCentral(config, travelTimeProvider, graph);
-//            Solution solution = new Solution(demand, travelTimeProvider,  central, config);
-//            solution.buildPaths();
-//            //demand.loadData();
+            StationCentral central = new StationCentral(config, travelTimeProvider, graph);
+            //demand.dumpData();
+            
+            Solution sol = new Solution(demand, travelTimeProvider, central, config);
+            sol.buildPaths();
+            
+//            Ridesharing rs = new Ridesharing(demand, config, travelTimeProvider);
+//            rs.cluster();
+//            rs.findMapCover(config.hkSigma);
+//            SolutionRS sol = new SolutionRS(rs, travelTimeProvider,  central, config);
+            //demand.loadData();
 //            
 //            //uncomment to save results
-//            Date timeStamp = Calendar.getInstance().getTime();
-//            Stats.writeCsv(solution.getAllCars(), demand, graph, config, timeStamp);
-//            Stats.writeEvaluationCsv(solution.getAllCars(), demand, config, timeStamp);
+            Date timeStamp = Calendar.getInstance().getTime();
+            Stats.writeCsv(sol.getAllCars(), demand, graph, config, timeStamp);
+//            Stats.writeEvaluationCsv(sol.getAllCars(), demand, config, timeStamp);
         } catch (IOException ex) {
             LOGGER.error("File IO exception: "+ex);
         } catch (ParseException ex) {

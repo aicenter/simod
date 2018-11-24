@@ -3,6 +3,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.taxify.io;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.io.TripTransformTaxify;
 import cz.cvut.fel.aic.amodsim.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,7 @@ public class TripTaxify<L> extends TimeTrip<L>{
     }
 
     public void setCoordinates(double[] coordinates) {
-        //LOGGER.debug(Arrays.toString(coordinates));
+       // LOGGER.debug(Arrays.toString(coordinates));
         this.gpsCoordinates = coordinates;
     }
     

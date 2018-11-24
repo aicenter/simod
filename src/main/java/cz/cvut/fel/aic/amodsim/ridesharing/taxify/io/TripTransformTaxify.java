@@ -28,6 +28,7 @@ import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,7 +48,7 @@ public class TripTransformTaxify {
     private int zeroLenghtTripsCount = 0;
     private int tooFarCount = 0;
     private int tooLongCount = 0;
-
+    private int discardedValue = 0;
     private final int pickupRadius;
     ConfigTaxify config;
     TravelTimeProvider travelTimeProvider;
@@ -106,6 +107,7 @@ public class TripTransformTaxify {
         }
         LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
         LOGGER.info("{} too long trips discarded", tooLongCount);
+        LOGGER.info("{} valued discarded for too long trips", discardedValue);
         LOGGER.info("{} trips remained", trips.size());
         LOGGER.info("{} nodes not found in node tree", tooFarCount);
         rtree = null;
@@ -123,6 +125,7 @@ public class TripTransformTaxify {
         double y = startLocation.getLatitudeProjected() - targetLocation.getLatitudeProjected();
         if((x*x + y*y) > maxDist2){
             tooLongCount++;
+            discardedValue += gpsTrip.getRideValue();
             return;
         }
         Map<Integer, Double> startNodesMap = new HashMap<>();
@@ -158,9 +161,10 @@ public class TripTransformTaxify {
             targetNodesMap.put((int) result[0], (double) result[2]);
             targetNodesMap.put((int) result[1], (double) result[3]);
             double[] projCoord = (double[]) result[4];
+            //LOGGER.debug("Projected "+Arrays.toString(projCoord));
             double[] gpsCoord = fromProjected(projCoord);
-            coord[0] = gpsCoord[0];
-            coord[1] = gpsCoord[1];
+            coord[2] = gpsCoord[0];
+            coord[3] = gpsCoord[1];
         }
         gpsTrip.addNodeMaps(startNodesMap, targetNodesMap);
         if(travelTimeProvider.getTravelTimeInMillis(gpsTrip) <= 1800000){

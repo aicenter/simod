@@ -21,11 +21,11 @@ public class Car {
     private static int count = 0;
     private static  int maxChargeMs = 14400000; // TODO get them here from config?
     private static int chargingTimeMs = 7200000;
-    private static int minCharge = maxChargeMs/10;
+    private static int minCharge = maxChargeMs/25;
     int arr = 1000;
     int[] nodes;
     int[][] times;
-    int id;
+    public final int id;
     int chargeLeft;
     int size;
     int depoCount;
@@ -75,6 +75,10 @@ public class Car {
         //LOGGER.debug(id+" charge left " + chargeLeft);
         return (chargeLeft - travelTime) >= minCharge;
     }
+    public boolean hasCharge(){
+        //LOGGER.debug(id+" charge left " + chargeLeft);
+        return chargeLeft >= minCharge;
+    }
     
     /**
      *  adds new trip to the route.
@@ -90,9 +94,9 @@ public class Car {
             LOGGER.error("Not enough charge, car "+id);
         }
         nodes[size] = node;
-       // LOGGER.debug(id+": toStart="+bestTimeToStart+", lastEndTime="+times[size-1][1]);
+        //LOGGER.debug(id+": toStart="+bestTimeToStart+", lastEndTime="+times[size-1][1]);
        int earliestPossibleArrival = times[size-1][1] + bestTimeToStart;
-       // LOGGER.debug(id+": earliestPossibleArrival="+earliestPossibleArrival+", start="+startTime);
+        //LOGGER.debug(id+": earliestPossibleArrival="+earliestPossibleArrival+", start="+startTime);
         times[size][0] = Math.max(startTime, earliestPossibleArrival);
        // LOGGER.debug(id+":startTime="+times[size][0]);
         times[size][1] = times[size][0] + tripDuration;

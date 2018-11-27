@@ -102,7 +102,8 @@ public class Car {
         //LOGGER.debug(id+": toStart="+bestTimeToStart+", lastEndTime="+times[size-1][1]);
        int earliestPossibleArrival = times[size-1][1] + bestTimeToStart;
        if(earliestPossibleArrival - startTime >= 180000){
-           LOGGER.debug(id+": earliestPossibleArrival="+earliestPossibleArrival+", start="+startTime);
+           LOGGER.debug(String.format("%d arrives to %d  %f sec late: earliestPossibleArrival %f, start %f",
+               id, node, (earliestPossibleArrival-startTime)/1000.0,  earliestPossibleArrival/1000.0, startTime/1000.0));
        }
         
         times[size][0] = Math.max(startTime, earliestPossibleArrival);

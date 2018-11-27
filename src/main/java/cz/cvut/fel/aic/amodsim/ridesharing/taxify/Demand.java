@@ -134,17 +134,21 @@ public class Demand {
      * @return 
      */
     public int compareByValue(int[] car1, int[] car2){
-        double value1 = Arrays.stream(car1).mapToDouble(ind->getValue(ind)).sum();
-        double value2 = Arrays.stream(car2).mapToDouble(ind->getValue(ind)).sum();
-        if(value1 <= value2){
-            return -1;
-        }else{
-            return 1;
-        }
+        int ret = getValue(car1) <= getValue(car2) ? 1 : -1;
+        return ret;
+    }
+    /**
+     * Returns total values for trips in array.
+     * 
+     * @param trips array of trip indices
+     * @return 
+     */
+    public double getValue(int[] trips){
+        return Arrays.stream(trips).mapToDouble(ind->getValue(ind)).sum();
     }
     
     private void prepareDemand(List<TripTaxify<GPSLocation>> demand) {
-        int buffer = config.timeBuffer;
+        int buffer = config.timeBuffer/2;
         for (TripTaxify<GPSLocation> trip : demand) {
             int bestTime = travelTimeProvider.getTravelTimeInMillis(trip);
                 addTripToIndex(trip, bestTime, buffer);
@@ -178,14 +182,6 @@ public class Demand {
         coordinates[ind][1] = start.getLongitude();
         coordinates[ind][2] = end.getLatitude();
         coordinates[ind][3] = end.getLongitude();
-        
-        //ridesharing
-       // projStart[ind][0] = start.getLatitudeProjected();
-        //projStart[ind][1] = start.getLongitudeProjected();
-//        double norm = Math.sqrt(Math.pow(end.getLatitudeProjected() - start.getLatitudeProjected(), 2) +
-//                                Math.pow(end.getLongitudeProjected() - start.getLongitudeProjected(), 2));
-//        vectors[ind][1] = (end.getLatitudeProjected() - start.getLatitudeProjected())/norm;
-//        vectors[ind][0] = (end.getLongitudeProjected() - start.getLongitudeProjected())/norm;
     }
     
     private void addNodesToIndex(Map<Integer,Double> nodeToDistMap, int[][] nodeList, int ind){
@@ -209,7 +205,11 @@ public class Demand {
 //-----------------------------------
 
     /**
-     * 
+     * Finds map cover for graph there each node is complete trip.
+     * It's a bipartite graph with one subset made by end nodes of the trip, and another by start nodes.
+     * Edges are build from the first to the last with two constraints:
+     *  arrival to the next start not later than max waiting time
+     *  maximum travel distance is sigma.
      * @param sigma time in millis, limit for driving time between the end of one trip and beginning of the next.
      * @return
      */
@@ -219,7 +219,7 @@ public class Demand {
         return pair_u;
     }
    
-    public int[][] buildAdjacency(int sigma) {
+    private int[][] buildAdjacency(int sigma) {
         int maxWaitTime = (int) (config.maxWaitTime * 0.3);
         LOGGER.debug("sigma in millis " + sigma);
         LOGGER.debug("timeLine length: " + startTimes.length);

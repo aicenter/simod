@@ -71,11 +71,10 @@ public class Solution {
             }
             return filteredCars;
         }
-        
     }
 
     /**
-     * Creates path and assigns cars without ride-sharing.
+     * Creates path from map covering, and assigns cars, without ride-sharing.
      * 
      */
     public void buildPaths(){
@@ -83,7 +82,6 @@ public class Solution {
         int n = pair.length;
         Set<Integer> usedNodes = new HashSet<>();
         for(int i = 0; i < n; i++ ){
-           // LOGGER.info("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
             // the node is already used in the path
             if(usedNodes.contains(i)){
                 continue;
@@ -94,8 +92,6 @@ public class Solution {
             int[] starts = demand.getStartNodes(currentNode);
             //LOGGER.debug(Arrays.toString(starts));
             int[] depo = central.findNearestStation(starts);
-            
-            //LOGGER.debug("trip "+ demand.ind2id(currentNode)+", bestTime "+ demand.getBestTime(currentNode));
             //LOGGER.debug("nearest depo at  "+ depo[1]+" ms");
             Car car = getCar(currentNode, depo);
             if(car == null){
@@ -129,11 +125,8 @@ public class Solution {
                 }
             }//while
             if(currentNode == n){
-               // LOGGER.debug("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
-                //LOGGER.debug("Car moved from D to W " + car.id);
                 cars[W].add(car);
                 cars[D].remove(car);
-                //LOGGER.debug("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
             }
         }//main for
         int totaTrips = cars[D].stream().map(c->c.getTripCount()).mapToInt(Integer::intValue).sum();
@@ -144,6 +137,9 @@ public class Solution {
         LOGGER.info("Cars in waiting list: "+cars[W].size());
         LOGGER.info("Cars in charging list: "+cars[C].size());
         LOGGER.info("Cars used: "+(cars[C].size()+cars[W].size()+cars[D].size()));
+        LOGGER.info("Total value earned: "+ getAllCars().stream()
+                                                .map(car->demand.getValue(car.getAllTrips()))
+                                                .mapToDouble(Double::doubleValue).sum());
     }
     
     
@@ -165,7 +161,7 @@ public class Solution {
     
     private Car getCar(int trip, int[] depo){
         Car theCar = null;
-        // first check among waiting cars
+        // check among waiting cars
         List<Car> toPark = new ArrayList<>();
         List<Car> sortedCars = cars[W].stream().sorted(Comparator.comparingInt(Car::getLastNodeEndTime))
             .collect(Collectors.toList());
@@ -178,9 +174,8 @@ public class Solution {
                 int timeToTripStart = travelTimeProvider.getTravelTimeInMillis(startSimNodes, endSimNodes);
                 int travelTime = timeToTripStart + demand.getBestTime(trip);
                 int[] nextDepo = central.findNearestStation(demand.getEndNodes(trip));
-//              LOGGER.debug("traveTime="+travelTime);
                 if(car.hasCharge(travelTime+nextDepo[1])){
-                    theCar = car;
+                    //LOGGER.debug("Waiting "+theCar.id);
                     break;
                 }
             }else{
@@ -189,6 +184,7 @@ public class Solution {
             }
         }
         if(theCar != null){
+            
             cars[D].add(theCar);
             cars[W].remove(theCar);
             toPark.forEach((car) -> {parkCar(car);});
@@ -210,11 +206,14 @@ public class Solution {
         if(theCar != null){
             cars[D].add(theCar);
             cars[C].remove(theCar);
-            return theCar;
+            // LOGGER.debug("Charging "+theCar.id);
+             return theCar;
+           
         }
         if(depo[1] < latestPossibleArrival){
-       // LOGGER.debug("New car added "+theCar.id);
+         
             theCar = new Car(depo[0]);
+            //LOGGER.debug("New car added "+theCar.id);
             cars[D].add(theCar);
             return theCar;
         }

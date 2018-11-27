@@ -33,7 +33,8 @@ public class ConfigTaxify {
     public double speed = 13.88;
     public String startTime = "2022-03-01 00:00:00";
     // paths
-    public String dir = "/home/olga/Documents/GPX/taxify data/";
+    //TODO CHANGE THIS FOR YOUR MACHINE
+    public String dir = "/home/martin/projects/taxify/amodsim-data/";
     public String tripFileName = dir+ "robotex2.csv";
     public String depoFileName = dir + "robotex-depos.csv";
     public String matrixFileName = dir + "tallin_dist.bin";

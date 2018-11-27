@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.LoggerFactory;
-import static cz.cvut.fel.aic.amodsim.ridesharing.taxify.Utils.cosine;
 /**
   * @author olga
   * 

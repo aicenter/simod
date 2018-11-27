@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -33,7 +34,8 @@ public class StationCentral {
     Graph<SimulationNode,SimulationEdge> graph;
     private final Map<Integer, int[]> nearestStation;
     private final int N;
-    int[] nodes; 
+    //int[] nodes; 
+    Map<Integer, Integer> depoIds;
     private Rtree rtree;
 
     public StationCentral(ConfigTaxify config, TravelTimeProvider travelTimeProvider,
@@ -42,6 +44,7 @@ public class StationCentral {
         this.graph = graph; 
         this.travelTimeProvider = travelTimeProvider;
         nearestStation = new HashMap<>();
+        depoIds = new HashMap<>();
         N = config.maxStations;
         loadStations();
     }
@@ -88,10 +91,15 @@ public class StationCentral {
             return node2Result;
         }
     }
+    
+    public int getDepoId(int nodeId){
+        nodeId = nodeId >=0 ? nodeId : -nodeId;
+        return depoIds.get(nodeId);
+    }
             
     private void loadStations(){
         int radius = 4*config.pickupRadius;
-        List<SimulationNode> stationNodes = new ArrayList<>();
+        //List<SimulationNode> stationNodes = new ArrayList<>();
         rtree = new Rtree(this.graph.getAllNodes(), this.graph.getAllEdges());
         try (BufferedReader br = new BufferedReader(new FileReader(config.depoFileName))) {
             String line = br.readLine();
@@ -106,15 +114,18 @@ public class StationCentral {
                 if (result == null){
                     LOGGER.error("Node not found for station " + i);
                 }else{
-                    stationNodes.add(this.graph.getNode((int) result[0]));
+                    depoIds.put((int) result[0], i);
+                    //stationNodes.add(this.graph.getNode((int) result[0]));
                 }
             }
             rtree = null;
-            nodes = stationNodes.stream().map(n->n.id).mapToInt(Integer::intValue).toArray();
-            if(nodes.length != N){
+            //nodes = stationNodes.stream().map(n->n.id).mapToInt(Integer::intValue).toArray();
+            if(depoIds.size() != N){
                 LOGGER.error("Number of stations loaded differs from config");
             }
-            rtree = new Rtree(stationNodes);
+            rtree = new Rtree(depoIds.keySet().stream()
+                                .map(nodeId->graph.getNode(nodeId))
+                                .collect(Collectors.toList()));
         } catch (IOException ex) {
             LOGGER.error("Error loading stations: "+ex);
         }

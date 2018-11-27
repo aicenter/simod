@@ -36,6 +36,6 @@ public class ConfigTaxify {
     public String dir = "/home/olga/Documents/GPX/taxify data/";
     public String tripFileName = dir+ "robotex2.csv";
     public String depoFileName = dir + "robotex-depos.csv";
-    public String matrixFileName = dir + "tallin_times.bin";
+    public String matrixFileName = dir + "tallin_dist.bin";
    
 }

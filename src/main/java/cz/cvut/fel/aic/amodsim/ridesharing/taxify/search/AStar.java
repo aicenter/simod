@@ -8,9 +8,12 @@ package cz.cvut.fel.aic.amodsim.ridesharing.taxify.search;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.geographtools.Graph;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import org.slf4j.LoggerFactory;
 
@@ -46,8 +49,30 @@ public class AStar {
                 r[i] = -1;
             }
         }
+//       test(539 , 8471);
+//        test( 4139 , 8073);
+//        test(32 , 4833);
     }
-  
+    private final void test(int start, int target){
+        int dist[] = search(start, target);
+        LOGGER.debug(start+"->"+target+" = "+dist[target]);
+//        for(int  i = 0; i < numOfNodes; i++){
+//            System.out.println(i+ " -  "+dist[i]);
+//        }
+        getBestPath(target);
+    }
+    
+    private void getBestPath(int target){
+        List<Integer> path = new ArrayList<>(); 
+       int currentNode = target;
+        while(currentNode != -1){
+            path.add(currentNode);
+            currentNode = bestParent.get(currentNode);
+        }
+        Collections.reverse(path);
+        LOGGER.debug("Path: "+path.toString());
+        
+    }
     /**
     * 
      * @param origin SimulationNode

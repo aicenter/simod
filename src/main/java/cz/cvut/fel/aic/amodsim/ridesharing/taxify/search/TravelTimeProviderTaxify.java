@@ -39,8 +39,8 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
     private final Graph<SimulationNode, SimulationEdge> graph;
     private final double speedMs;
     private final String pathToMatrix;
-    private int[][] timeMatrix;
-    private final AStar astar;
+    private int[][] distMatrix;
+    private AStar astar;
     int n;
    
     
@@ -55,25 +55,25 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
         this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
         speedMs = config.speed;
         n = graph.numberOfNodes();
-        astar = new AStar(graph);
-        timeMatrix = new int[n][n];
         pathToMatrix = config.matrixFileName;
+        astar = new AStar(graph);
         buildMatrix();
 	}
     
-    private void buildMatrix(){
+    public final void buildMatrix(){
         
         try{
-            LOGGER.info("Reading matrix from "+pathToMatrix);
+            LOGGER.info("Reading matrix from " + pathToMatrix);
             FileInputStream fis = new FileInputStream(pathToMatrix);
             ObjectInputStream iis = new ObjectInputStream(fis);
-            timeMatrix = (int[][]) iis.readObject();
+            distMatrix = (int[][]) iis.readObject();
             LOGGER.info("Distance matrix successfully loaded");
-            return;
+            //return;
         }catch(IOException | ClassNotFoundException ex){
-            LOGGER.error("File with  time matrix  not found: "+ex);
-            return;
-            //computeMatrix(); // takes 4-5 hours for 10000 nodes
+            LOGGER.error("File with  distance matrix  not found: "+ex);
+            //return;
+            distMatrix = new int[n][n];
+            computeMatrix(); // takes 4-5 hours for 10000 nodes
         }
             //LOGGER.error("Trying to read distance matrix. "+ex);
 //            try{
@@ -94,56 +94,54 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
     }
     
     private void computeMatrix(){
-         for(int[] r: timeMatrix){
+        for(int[] r: distMatrix){
             for(int i = 0; i < n; i++){
                 r[i] = -1;
             }
         }
         LOGGER.info("Start building matrix");
         for(int i = 0; i < n; i++){
-            long startTime = System.currentTimeMillis();
             for(int j = 0; j<n; j++){
                 if(j == i){
                     continue;
                 }
-                if(timeMatrix[i][j] == -1){
+                if(distMatrix[i][j] == -1){
                     int[] result = astar.search(i, j);
                     updateMatrix(i, result);
                 }
             }
             //LOGGER.info("Astar: "+i+" cycle, time "+ (System.currentTimeMillis() - startTime)); 
         }
-        dist2times();
+        //dist2times();
         try {
             FileOutputStream fos = new FileOutputStream(pathToMatrix);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(timeMatrix);
+            oos.writeObject(distMatrix);
             LOGGER.info("Distance matrix saved successfully");
         } catch (IOException ex) {
             LOGGER.error("Error saving matrix "+ex);
         }
-    }
-    
-    private void dist2times(){
-        for(int r=0;r<n;r++){
-            for(int c = 0;c<n;c++){
-                timeMatrix[r][c] = (int) Math.round(1000*(timeMatrix[r][c]/speedMs)); 
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j<n; j++){
+                if(j != i && distMatrix[i][j] == -1){
+                    LOGGER.error("No path between nodes "+i +" and "+ j);
+                }
             }
         }
     }
-
     
+
     private void updateMatrix(int nodeId, int[] distArray){
-        for(int target = 0; target < distArray.length; target++){
+        for(int target = 0; target < n; target++){
             if(distArray[target] != -1){
-                timeMatrix[nodeId][target] = distArray[target];
+                distMatrix[nodeId][target] = distArray[target];
             }
         }
     }
 
     @Override
     public int getTravelTimeInMillis(Integer startId, Integer targetId) {
-        return timeMatrix[startId][targetId];
+        return distToTime(distMatrix[startId][targetId]);
     }
 
     /**
@@ -158,17 +156,17 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
     public int getTravelTimeInMillis(TripTaxify<GPSLocation> trip) {
         Map<Integer, Double> startNodes = trip.nodes.get(0);
         Map<Integer, Double> endNodes = trip.nodes.get(1);
-        int bestTime = Integer.MAX_VALUE;
+        double bestDist = Integer.MAX_VALUE;
         for (Integer sn : startNodes.keySet()) {
             for (Integer en : endNodes.keySet()) {
-                int n2n = timeMatrix[sn][en];
-                int s2n = (int) Math.round(1000*(startNodes.get(sn)/speedMs));
-                int e2n = (int) Math.round(1000*(endNodes.get(en)/speedMs));
-                int pathLength = s2n + n2n + e2n;
-                bestTime = bestTime <= pathLength ? bestTime : pathLength;
+                int n2n = distMatrix[sn][en];
+                double s2n = startNodes.get(sn);
+                double e2n = endNodes.get(en);
+                double dist = s2n + n2n + e2n;
+                bestDist = bestDist <= dist ? bestDist : dist;
             }
         }
-        return bestTime;
+        return distToTime(bestDist);
     }
     /**
      * 
@@ -178,18 +176,16 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
      */
     @Override
     public int  getTravelTimeInMillis(int[] startNodes, int[] endNodes) {
-        int bestTime = Integer.MAX_VALUE;
+        int bestDist = Integer.MAX_VALUE;
         int[] nodes = new int[]{1,1};
-        for (int i=0; i<startNodes.length; i+=2){
-            for(int j=0; j<endNodes.length; j+=2){
-                int sn = startNodes[i];
-                int en = endNodes[j];
-                int n2n = timeMatrix[sn][en];
+        for (int i=0; i < startNodes.length; i+=2){
+            for(int j=0; j < endNodes.length; j+=2){
+                int n2n = distMatrix[startNodes[i]][endNodes[j]];
                 int s2n = startNodes[i+1];
                 int e2n = endNodes[j+1];
-                int time = n2n + s2n + e2n;
-                if(time < bestTime){
-                    bestTime = time;
+                int dist = n2n + s2n + e2n;
+                if(dist < bestDist){
+                    bestDist = dist;
                     nodes[0] = i;
                     nodes[1] = j;
                 }
@@ -201,9 +197,9 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
         if(nodes[1] == 2){
             swapNodes(endNodes);
         }
-        return bestTime;
+        return distToTime(bestDist);
     }
-    
+
     private void swapNodes(int[] nodes){
         int tmpN = nodes[0];
         int tmpD = nodes[1];
@@ -212,6 +208,11 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
         nodes[2] = tmpN;
         nodes[3] = tmpD;
     }
+        
+    private int distToTime(double dist){
+        return (int) Math.round(1000*(dist/speedMs));
+    }
+      
 
 	// unused interface methods
 	@Override
@@ -223,5 +224,16 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
 	public double getTravelTime(SimulationNode positionA, SimulationNode positionB) {
         throw new UnsupportedOperationException("Not supported yet.");
 	}
+    
+//    
+//        private void dist2times(){
+//        for(int r=0;r < n;r++){
+//            for(int c = 0;c<n;c++){
+//                distMatrix[r][c] = (int) Math.round(1000*(distMatrix[r][c]/speedMs)); 
+//            }
+//        }
+//    }
+
+    
 
 }

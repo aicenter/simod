@@ -5,6 +5,7 @@
  */
 
 package cz.cvut.fel.aic.amodsim.ridesharing.taxify.search;
+import com.github.davidmoten.guavamini.Lists;
 import com.github.davidmoten.rtree.Entry;
 import com.github.davidmoten.rtree.RTree;
 import static com.github.davidmoten.rtree.geometry.Geometries.*;
@@ -24,7 +25,7 @@ public class Rtree {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Rtree.class);
     RTree<Integer, Point> nodeTree;
     RTree<int[], Rectangle> edgeTree;
-   
+    int[] sample = new int[]{15502,16003,25538,138230,159386};
     
     // matching demand to graph
     public Rtree(Collection<SimulationNode> nodes, Collection<SimulationEdge> edges){
@@ -56,6 +57,7 @@ public class Rtree {
         Iterator<Entry<Integer, Point>> pointIt = nodeTree.search(mbr).toBlocking().toIterable().iterator();
         double radius2 = radius*radius; 
         while(pointIt.hasNext()){
+            
             Entry entry = pointIt.next();
             Point point = (Point) entry.geometry();
             double x = locX - point.x();
@@ -160,5 +162,25 @@ public class Rtree {
         }
     }
     
+    
+    // groups
+    public Rtree(List<double[]> points){
+        nodeTree = RTree.star().create();
+        for(int i=0; i<points.size();i++){
+            double[] point = points.get(i);
+            nodeTree = nodeTree.add(i, point(point[1], point[0]));
+        }
+    }
+    
+    public List<Integer> findNodes(double[] point, int radius){
+        Rectangle mbr = rectangle(point[1] - radius, point[0] - radius, point[1] + radius, point[0] + radius);
+        
+        Iterator<Entry<Integer, Point>> pointIt = nodeTree.search(mbr).toBlocking().toIterable().iterator();
+        List<Integer> result = new ArrayList<>(); 
+        while(pointIt.hasNext()){
+            result.add((int) pointIt.next().value());
+        }
+       return result; 
+    }
     
 }

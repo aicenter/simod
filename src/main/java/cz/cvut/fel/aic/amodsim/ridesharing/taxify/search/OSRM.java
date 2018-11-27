@@ -52,8 +52,8 @@ public class OSRM {
 		return result;
 	}
     
-    public JSONObject getRoute(double startLat, double startLon, double endLat, double endLon) {
-		String url = String.format("http://127.0.0.1:5000/route/v1/%s/%f,%f;%f,%f?geometries=geojson&overview=simplified&steps=false",
+    public double getRoute(double startLat, double startLon, double endLat, double endLon) {
+		String url = String.format("http://127.0.0.1:5000/route/v1/%s/%f,%f;%f,%f?geometries=geojson&overview=false&steps=false",
                                     "driving", startLon, startLat, endLon, endLat);
          //System.out.println(url);
 		HttpClient httpClient = HttpClients.createDefault();
@@ -65,10 +65,12 @@ public class OSRM {
 			request.addHeader("accept", "application/json");
 			HttpResponse response = httpClient.execute(request);
 			result = new JSONObject(IOUtils.toString(response.getEntity().getContent()));
+            JSONObject route =  (JSONObject)result.getJSONArray("routes").get(0);
+            return Double.parseDouble(route.get("distance").toString());
 		} catch (Exception e){
 			System.out.println(e.getMessage());
+            return -1;
 		}
-		return result;
 
 }
 
@@ -83,11 +85,9 @@ public class OSRM {
 
         //System.out.println("CODE "+data.get("code"));
         //15502 (59.433002,	24.744429, 59.438425, 24.72181)
-        JSONObject json = osrm.getRoute(59.433002,	24.744429, 59.438425, 24.72181);
-        //data = json.toMap();
-        JSONArray array = json.getJSONArray("routes");
-        JSONObject map = (JSONObject)array.get(0);
-        double dist = (double) map.get("distance");
+        
+       double dist = osrm.getRoute(59.433002,	24.744429, 59.438425, 24.72181);
+        System.out.println(dist);
  
         System.out.println((1000*(dist/13.88)));
     }

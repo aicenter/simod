@@ -9,6 +9,7 @@ import com.opencsv.CSVWriter;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.entities.Car;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.entities.StationCentral;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.ConfigTaxify;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.Demand;
 import cz.cvut.fel.aic.geographtools.Graph;
@@ -38,71 +39,86 @@ public class Stats {
      * @param timeStamp
      * @throws IOException 
      */
-    public static void writeCsv(List<Car> cars, Demand demand, 
-        Graph<SimulationNode,SimulationEdge> graph, ConfigTaxify config, Date timeStamp) throws IOException {
-        String filename = makeFilename(config.dir,"result" , timeStamp);
+//    public static void writeCsv(List<Car> cars, Demand demand, 
+//        Graph<SimulationNode,SimulationEdge> graph, ConfigTaxify config, Date timeStamp) throws IOException {
+//        String filename = makeFilename(config.dir,"result" , timeStamp);
+//        try (CSVWriter csvWriter = new CSVWriter(new FileWriter(filename))) {
+//            csvWriter.writeNext(new String[]{"car_id",     "trip_id",    "call_time",   "start_time",  "end_time",
+//                                             "pickup_lat", "pickup_lon", "dropoff_lat", "dropoff_lon", "charge_left [min]",
+//                                              "start_lat", "start_lon",  "end_lat",     "end_lon",     "value",
+//                                               "pickup_dist","dropoff_dist" });
+//            for(Car car : cars){
+//                csvWriter.writeAll(pathToCsv(car.getPathStats(), demand, graph));
+//            }
+//        }
+//    }
+    /**
+     * Writes results for evaluation script.
+
+     * @param cars 
+     * @param demand
+     * @param config
+     * @param central
+     * @param timeStamp
+     * @param coord if true writes pickup and drop off gps coordinates to the file
+     * @throws IOException 
+     * 
+     *      car_id, passenger_id, ride_start_time, ride_end_time, ride_value,
+            pickup_lat, pickup_lng, dropoff_lat, dropoff_lng,
+            distance_driven_since_charging (in km), times_charged,
+            last_charge_location (depot id)"
+     */
+    public static void writeEvaluationCsv(List<Car> cars, Demand demand, ConfigTaxify config, StationCentral central,
+        Date timeStamp) throws IOException{
+        String name = "eval_result";
+        String filename = makeFilename(config.dir, name , timeStamp);
         try (CSVWriter csvWriter = new CSVWriter(new FileWriter(filename))) {
-            csvWriter.writeNext(new String[]{"car_id",     "trip_id",    "call_time",   "start_time",  "end_time",
-                                             "pickup_lat", "pickup_lon", "dropoff_lat", "dropoff_lon", "charge_left [min]",
-                                              "start_lat", "start_lon",  "end_lat",     "end_lon",     "value",
-                                               "pickup_dist","dropoff_dist" });
+            csvWriter.writeNext(new String[]{"car_id", "passenger_id",
+                                             "ride_start_time", "ride_end_time",
+                                             "ride_value",
+                                             "pickup_lat", "pickup_lng",  "dropoff_lat", "dropoff_lng", 
+                                             "distance_driven_since_charging", "times_charged", 
+                                             "last_charge_location"});
             for(Car car : cars){
-                csvWriter.writeAll(pathToCsv(car.getPathStats(), demand, graph));
+                csvWriter.writeAll(pathToEval(car.getPathStats(), demand, central));
             }
         }
     }
     /**
-     * Writes results for evaluation script.
+     *  "car_id", "passenger_id", "start_time","end_time",
+     * distance_driven_since_charging,   times_charged,  last_charge_location
      * 
-     * @param cars 
+     * 
+     * @param path
      * @param demand
-     * @param config
-     * @param timeStamp
-     * @param coord if true writes pickup and drop off gps coordinates to the file
-     * @throws IOException 
+     * @return 
      */
-    public static void writeEvaluationCsv(List<Car> cars, Demand demand, ConfigTaxify config, Date timeStamp, boolean coord) throws IOException{
-        String name = coord ? "eval_result_coord": "eval_result";
-        String filename = makeFilename(config.dir, name , timeStamp);
-        try (CSVWriter csvWriter = new CSVWriter(new FileWriter(filename))) {
-            if(coord){
-            csvWriter.writeNext(new String[]{"car_id", "passenger_id", "ride_start_time", "ride_end_time",
-                                               "start_lat", "start_lon",  "end_lat", "end_lon", 
-                                               "ride_value"});
-            }else{
-                csvWriter.writeNext(new String[]{"car_id", "passenger_id", "ride_start_time", "ride_end_time","ride_value"});
-            }
-            for(Car car : cars){
-                csvWriter.writeAll(pathToEval(car.getPathStats(), demand, coord));
-            }
-        }
-    }
-    
-    private static List<String[]> pathToEval(List<int[]> path, Demand demand, boolean coord){
+    private static List<String[]> pathToEval(List<double[]> path, Demand demand, StationCentral central){
         List<String[]> newPaths = new ArrayList<>();
-        for(int[] node: path){
-            int nodeInd = node[1];
+        for(double[] node: path){
+            int nodeInd = (int) node[1]; //trip index in demand
             if(nodeInd >= 0){
-                String[] str;
-                if(coord){
-                    str = new String[9];
-                }else{
-                    str = new String[5];
-                }
-                str[0] = String.valueOf(node[0]);
-                str[1] = String.valueOf(demand.ind2id(nodeInd));
-                str[2] = timeToString(node[3]);
-                str[3] = timeToString(node[4]);
-                if(coord){
-                    double[] gps = demand.getGpsCoordinates(nodeInd);
-                    str[4] = String.valueOf(gps[0]);
-                    str[5] = String.valueOf(gps[1]);
-                    str[6] = String.valueOf(gps[2]);
-                    str[7] = String.valueOf(gps[3]);
-                    str[8] = String.valueOf(demand.getRideValue(nodeInd));
-                }else{
-                    str[4] = String.valueOf(demand.getRideValue(nodeInd));
-                }
+                String[] str = new String[12];
+                str[0] = String.valueOf(node[0]);//car id
+                str[2] = timeToString((int)node[2]);//star time
+                str[3] = timeToString((int)node[3]);//end time
+                str[1] = String.valueOf(demand.ind2id(nodeInd));//passenger id
+                str[4] = String.valueOf(demand.getRideValue(nodeInd)); //value
+                double[] gps = demand.getGpsCoordinates(nodeInd);
+                str[5] = String.valueOf(gps[0]);//pickup lat
+                str[6] = String.valueOf(gps[1]);//pickup lng
+                str[7] = String.valueOf(gps[2]);//dropoff lat
+                str[8] =  String.valueOf(gps[3]);//dropoff lng
+//            }else{ //depo node
+//                str[4] = String.valueOf(""); //value
+//                str[5] = String.valueOf("");//pickup lat
+//                str[6] = String.valueOf("");//pickup lng
+//                str[7] = String.valueOf("");//dropoff lat
+//                str[8] =  String.valueOf("");//dropoff lng
+//            }
+                str[9] = String.valueOf(node[4]);//distance_driven_since_charging
+                str[10] = String.valueOf(node[5]);//times_charged
+                str[11] = String.valueOf(central.getDepoId((int)node[6]));//last_charge_location
                 newPaths.add(str);
             }
         }

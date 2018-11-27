@@ -46,27 +46,22 @@ public class SolverTaxify extends DARPSolver {
 
     @Override 
     public Map<RideSharingOnDemandVehicle, DriverPlan> solve() {
+
+        
         try {
-            // Path to original .csv file with data
             List<TripTaxify<GPSLocation>>  rawDemand = tripTransform.loadTripsFromCsv(new File(config.tripFileName));
+            // Path to original .csv file with data
             Demand demand = new Demand(travelTimeProvider, config, rawDemand, graph);
             rawDemand = null;
             StationCentral central = new StationCentral(config, travelTimeProvider, graph);
             //demand.dumpData();
-            
             Solution sol = new Solution(demand, travelTimeProvider, central, config);
             sol.buildPaths();
-            
-//            Ridesharing rs = new Ridesharing(demand, config, travelTimeProvider);
-//            rs.cluster();
-//            rs.findMapCover(config.hkSigma);
-//            SolutionRS sol = new SolutionRS(rs, travelTimeProvider,  central, config);
-            //demand.loadData();
-//            
-//            //uncomment to save results
+
+//          demand.loadData();
+            //uncomment to save results
             Date timeStamp = Calendar.getInstance().getTime();
-            Stats.writeCsv(sol.getAllCars(), demand, graph, config, timeStamp);
-//            Stats.writeEvaluationCsv(sol.getAllCars(), demand, config, timeStamp);
+            Stats.writeEvaluationCsv(sol.getAllCars(), demand, config, central, timeStamp);
         } catch (IOException ex) {
             LOGGER.error("File IO exception: "+ex);
         } catch (ParseException ex) {
@@ -74,7 +69,8 @@ public class SolverTaxify extends DARPSolver {
         }
         return new  HashMap<>();
     }
-   
+
+    
     
     @Override
     public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<OnDemandRequest> requests) {
@@ -83,3 +79,30 @@ public class SolverTaxify extends DARPSolver {
 
  }
 
+//n1 = graph.getNode(4139);
+//        n2  = graph.getNode(8073);
+//        System.out.println(n1.id+": "+n1.getLatitude()+", "+n1.getLongitude());
+//        System.out.println(n2.id+": "+n2.getLatitude()+", "+n2.getLongitude());
+//        System.out.println("    Time in millis ="+travelTimeProvider.getTravelTimeInMillis(n1.id, n2.id));
+//        n1 = graph.getNode(32);
+//        n2  = graph.getNode(4833);
+//        System.out.println(n1.id+": "+n1.getLatitude()+", "+n1.getLongitude());
+//        System.out.println(n2.id+": "+n2.getLatitude()+", "+n2.getLongitude());
+//        System.out.println("    Time in millis ="+travelTimeProvider.getTravelTimeInMillis(n1.id, n2.id));
+//
+//        SimulationNode n1 = graph.getNode(539);
+//        SimulationNode n2  = graph.getNode(8471);
+//        System.out.println(n1.id+": "+n1.getLatitude()+", "+n1.getLongitude());
+//        System.out.println(n2.id+": "+n2.getLatitude()+", "+n2.getLongitude());
+//        System.out.println("    Time in millis ="+travelTimeProvider.getTravelTimeInMillis(n1.id, n2.id));
+//        
+
+//            int[] sample = new int[] {16003,25538, 138230, 159386};
+//            for(int tripId : sample){
+//                System.out.println("Id "+ tripId);
+//                int tripInd = demand.id2ind(tripId);
+//                int[] starts = demand.getStartNodes(tripInd);
+//                int[] ends = demand.getEndNodes(tripInd);
+//                System.out.println("    Starts "+Arrays.toString(starts));
+//                System.out.println("    Ends "+Arrays.toString(ends));
+//            }

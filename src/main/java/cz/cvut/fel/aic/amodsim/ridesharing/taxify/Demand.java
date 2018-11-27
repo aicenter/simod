@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.LoggerFactory;
-
+//import static cz.cvut.fel.aic.amodsim.ridesharing.taxify.Utils.cosine;
 /**
   * @author olga
   * 
@@ -43,8 +43,8 @@ public class Demand {
     private  double[] values;
     private  double[][] coordinates;
     private  double[][] gpsCoordinates;
-    double[][] projStart;
-    double[][] vectors;
+//    double[][] projStart;
+//    double[][] vectors;
     Rtree rtree;
 
    
@@ -67,23 +67,28 @@ public class Demand {
         gpsCoordinates = new double[N][4];
        
         //projStart = new double[N][2];
-        //vectors =  new double[N][2];
+//        vectors =  new double[N][2];
         lastInd = 0;
         prepareDemand(demand);
     }
-    
+    public int getTime(int ind1, int ind2){
+        int[] starts = ind1 < N ? getStartNodes(ind1) : getEndNodes(ind1 - N);
+        int[] ends = ind2 < N ? getStartNodes(ind2) : getEndNodes(ind2 - N);
+        int time = travelTimeProvider.getTravelTimeInMillis(starts, ends);
+        return time;
+    }
     public int size(){
         return N;
     }
     public int id2ind(int id){
         return index[id];
     }
-    public double[] getProjStart(int ind) {
-        return projStart[ind];
-    }
-    public double[] getVectors(int ind) {
-        return vectors[ind];
-    }
+//    public double[] getProjStart(int ind) {
+//        return projStart[ind];
+//    }
+//    public double[] getVector(int ind) {
+//        return vectors[ind];
+//    }
     public int ind2id(int ind){
         return revIndex[ind];
     }
@@ -160,10 +165,10 @@ public class Demand {
         //ridesharing
        // projStart[ind][0] = start.getLatitudeProjected();
         //projStart[ind][1] = start.getLongitudeProjected();
-        //double norm = Math.sqrt(Math.pow(end.getLatitudeProjected() - start.getLatitudeProjected(), 2) +
-        //                        Math.pow(end.getLongitudeProjected() - start.getLongitudeProjected(), 2));
-        //vectors[ind][1] = (end.getLatitudeProjected() - start.getLatitudeProjected())/norm;
-        //vectors[ind][0] = (end.getLongitudeProjected() - start.getLongitudeProjected())/norm;
+//        double norm = Math.sqrt(Math.pow(end.getLatitudeProjected() - start.getLatitudeProjected(), 2) +
+//                                Math.pow(end.getLongitudeProjected() - start.getLongitudeProjected(), 2));
+//        vectors[ind][1] = (end.getLatitudeProjected() - start.getLatitudeProjected())/norm;
+//        vectors[ind][0] = (end.getLongitudeProjected() - start.getLongitudeProjected())/norm;
     }
     
     private void addNodesToIndex(Map<Integer,Double> nodeToDistMap, int[][] nodeList, int ind){
@@ -197,7 +202,7 @@ public class Demand {
         return pair_u;
     }
    
-    private int[][] buildAdjacency(int sigma) {
+    public int[][] buildAdjacency(int sigma) {
         int maxWaitTime = (int) (config.maxWaitTime * 0.3);
         LOGGER.debug("sigma in millis " + sigma);
         LOGGER.debug("timeLine length: " + startTimes.length);
@@ -208,7 +213,7 @@ public class Demand {
            // LOGGER.debug("trip = "+ind2id(tripInd) +"; start "+getStartTime(tripInd)+"; end "+getEndTime(tripInd));
             int timeLimit = getEndTime(tripInd) + sigma;
            // LOGGER.debug("timeLimit = "+timeLimit);
-            int lastTripInd = getIndexByTime(timeLimit);
+            int lastTripInd = getIndexByStartTime(timeLimit);
            // LOGGER.debug("returned index = "+lastTripInd+", starts at "+getStartTime(lastTripInd));
             for (int nextTripInd = tripInd + 1; nextTripInd < lastTripInd; nextTripInd++) {
               //  LOGGER.debug("  nextTrip = "+ind2id(nextTripInd) +"; start "+getStartTime(nextTripInd));
@@ -224,16 +229,24 @@ public class Demand {
                     neighbors.add(nextTripInd);
                 }
             }
-            adjacency[tripInd] = neighbors.stream().mapToInt(Integer::intValue).sorted().toArray();
+            adjacency[tripInd] = neighbors.stream().mapToInt(Integer::intValue).sorted().limit(50).toArray();
            // System.out.println("Processed="+tripInd+", total="+C);
         }
         double avg = Arrays.stream(adjacency).map((int[] ns) -> ns.length).mapToInt(Integer::intValue).sum() / N;
         LOGGER.debug("average edges per node " + avg);
         return adjacency;
     }
-
-    protected int getIndexByTime(int time){
+    
+     
+    protected int getIndexByStartTime(int time){
         int ind = Arrays.binarySearch(startTimes, time);
+        ind = ind >= 0 ? ind : -(ind + 1);
+        ind =  ind <= N ? ind : N;
+        return ind;
+    }
+    
+    protected int getIndexByEndTime(int[] endTimes, int time){
+        int ind = Arrays.binarySearch(endTimes, time);
         ind = ind >= 0 ? ind : -(ind + 1);
         ind =  ind <= N ? ind : N;
         return ind;

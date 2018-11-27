@@ -21,7 +21,7 @@ public class Car {
     private static int count = 0;
     private static  int maxChargeMs = 14400000; // TODO get them here from config?
     private static int chargingTimeMs = 7200000;
-    private static int minCharge = maxChargeMs/25;
+    private static int minCharge = maxChargeMs/20;
     int arr = 1000;
     int[] nodes;
     int[][] times;
@@ -88,8 +88,8 @@ public class Car {
      * @param tripDuration, best possible time for the trip itself
      */
     public void addTrip(int node, int bestTimeToStart, int startTime, int tripDuration){
-        //LOGGER.debug(node+" received by "+id+"; charge "+chargeLeft+", toStart="+bestTimeToStart+", duration in sec="+tripDuration/1000
-      // + "; app travel time "+ (tripDuration+bestTimeToStart)/1000);
+//        LOGGER.debug(node+" received by "+id+"; charge "+chargeLeft+", toStart="+bestTimeToStart+", duration in sec="+tripDuration/1000
+//        + "; app travel time "+ (tripDuration+bestTimeToStart)/1000);
         if(chargeLeft < tripDuration+bestTimeToStart){
             LOGGER.error("Not enough charge, car "+id);
         }
@@ -132,26 +132,38 @@ public class Car {
     /**
      * Returns the whole route for Stats.
      * @return  list of values for each node visited in the following order
-     * "car_id", "trip_id", "start_time","end_time","start_lat", "start_lon", "end_lat", "end_lon", "is_depo";
+     * "car_id", "passenger_id", "start_time","end_time",
+     * distance_driven_since_charging,   times_charged,  last_charge_location
      */
-    public List<int[]> getPathStats(){
+    public List<double[]> getPathStats(){
        
-        List<int[]> paths = new ArrayList<>();
-        for(int i = 0; i<size;i++){
+        List<double[]> paths = new ArrayList<>();
+        double distSinceCharging = 0;
+        int timesChargedSoFar = -1;
+        int lastDepo = 0;
+        int leftDepoAt = 0;
+        for(int i = 0; i < size; i++){
             int node = nodes[i];
-            int[] result = new int[10];
-            result[0] = id;
-            result[1] = node;
-            result[3] = times[i][0];
-            result[4] = times[i][1];
-            if(i > 0 && node < 0){
-                result[9] = chargeAtDepo.get(i);
-            }else{
-                result[9] = 0;
+            double[] result = new double[7];
+            result[0] = id; //car_id
+            result[1] = node; //passenger_id
+            result[2] = times[i][0];//start_time
+            result[3] = times[i][1];//end_time
+            if(node >=0){
+                distSinceCharging += (((times[i][1] - leftDepoAt)/1000)*13.88)/1000; // milliseconds to km
+                result[4] = distSinceCharging;
+            }
+            result[5] = timesChargedSoFar;
+            result[6] = lastDepo;
+            if(node < 0){
+                result[4] = distSinceCharging + (((times[i][0] - leftDepoAt)/1000)*13.88)/1000;//
+                timesChargedSoFar++;
+                distSinceCharging = 0;
+                lastDepo = node;
+                leftDepoAt = times[i][1];
             }
             paths.add(result);
         }
-        paths.get(size-1)[9] = chargeLeft;
         return paths;
     }
     

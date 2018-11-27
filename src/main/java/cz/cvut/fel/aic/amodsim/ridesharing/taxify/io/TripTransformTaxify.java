@@ -54,8 +54,10 @@ public class TripTransformTaxify {
     TravelTimeProvider travelTimeProvider;
     private final Graph<SimulationNode,SimulationEdge> graph;
     private Rtree rtree;
-//     List<Integer>[] unmappedTrips; 
+    //List<Integer> unmappedTrips; 
     
+
+                
     @Inject
     public TripTransformTaxify(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils,
         ConfigTaxify config, TravelTimeProvider travelTimeProvider) {
@@ -63,6 +65,7 @@ public class TripTransformTaxify {
         this.travelTimeProvider = travelTimeProvider;
         this.config = config;
         pickupRadius = config.pickupRadius;
+        //unmappedTrips = new ArrayList<>();
     }   
        	
     
@@ -115,6 +118,8 @@ public class TripTransformTaxify {
     }
         
     private void processGpsTrip(TripTaxify<GPSLocation> gpsTrip, List<TripTaxify<GPSLocation>>trips) {
+
+        
         int maxDist2 = config.maxRideDistance*config.maxRideDistance;
         LinkedList<GPSLocation> locations = gpsTrip.getLocations();
         GPSLocation startLocation = locations.get(0);
@@ -148,8 +153,10 @@ public class TripTransformTaxify {
             coord[0] = gpsCoord[0];
             coord[1] = gpsCoord[1];
         }
+ 
         result = rtree.findNode(targetLocation, pickupRadius);
         if (result == null){
+            
             tooFarCount++;
             return;
         }else if(result.length == 1){

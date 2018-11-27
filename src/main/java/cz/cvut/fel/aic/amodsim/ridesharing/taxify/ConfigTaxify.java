@@ -12,7 +12,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.taxify;
 public class ConfigTaxify {
     public final int SRID = 32633;
     
-    public int maxCar = 10000;
+    public int maxCar = 10000; // -1 for infinite number of cars
     public int maxStations = 30;
     public int maxPassengers = 4;
     
@@ -25,17 +25,18 @@ public class ConfigTaxify {
     public int maxRideTime = 30*60*1000; // 30 minutes 
     public int maxChargeMs = 4*60*60*1000; //4 hours
     public int chargingTimeMs = 2*60*60*1000; //2 hours
-    public int hkSigma = 15*60*1000; // 7 minutes
+    public int hkSigma = 15*60*1000; // 15 minutes
     public int timeBuffer = 2*1000; //2 seconds
     public int totalDuration = 48*60*60*1000; // 48 hours
     
     // speed in m/s
-    public double speed = 13.88;
+    public double speed = 50/3.6; //50km/h = 13.89 m/s
     public String startTime = "2022-03-01 00:00:00";
+    public String startYM = startTime.substring(0, 8);
     // paths
+    //TODO CHANGE THIS FOR YOUR MACHINE
     public String dir = "/home/olga/Documents/GPX/taxify data/";
     public String tripFileName = dir+ "robotex2.csv";
     public String depoFileName = dir + "robotex-depos.csv";
     public String matrixFileName = dir + "tallin_dist.bin";
-   
 }

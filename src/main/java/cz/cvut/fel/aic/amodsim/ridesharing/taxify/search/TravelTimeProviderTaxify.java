@@ -13,15 +13,11 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphTy
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.TransportNetworks;
-import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.io.TimeTripWithValue;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.ConfigTaxify;
-import cz.cvut.fel.aic.amodsim.ridesharing.taxify.search.AStar;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -34,7 +30,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class TravelTimeProviderTaxify implements TravelTimeProvider{
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TravelTimeProviderTaxify.class); 
-	private final ConfigTaxify config;
+	//private final ConfigTaxify config;
 	private long callCount = 0;
     private final Graph<SimulationNode, SimulationEdge> graph;
     private final double speedMs;
@@ -51,57 +47,40 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
 
 	@Inject
 	public TravelTimeProviderTaxify(ConfigTaxify config, TransportNetworks transportNetworks) {
-		this.config = config;
+		//this.config = config;
         this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
         speedMs = config.speed;
         n = graph.numberOfNodes();
         pathToMatrix = config.matrixFileName;
-        astar = new AStar(graph);
         buildMatrix();
 	}
     
+    
     public final void buildMatrix(){
-        
         try{
             LOGGER.info("Reading matrix from " + pathToMatrix);
             FileInputStream fis = new FileInputStream(pathToMatrix);
             ObjectInputStream iis = new ObjectInputStream(fis);
             distMatrix = (int[][]) iis.readObject();
             LOGGER.info("Distance matrix successfully loaded");
-            //return;
+            checkConnectivity();
         }catch(IOException | ClassNotFoundException ex){
             LOGGER.error("File with  distance matrix  not found: "+ex);
             //return;
+            astar = new AStar(graph);
             distMatrix = new int[n][n];
             computeMatrix(); // takes 4-5 hours for 10000 nodes
         }
-            //LOGGER.error("Trying to read distance matrix. "+ex);
-//            try{
-//                FileInputStream fis = new FileInputStream(config.dir+"/tallin_10000.bin");
-//                ObjectInputStream iis = new ObjectInputStream(fis);
-//                timeMatrix = (int[][]) iis.readObject();
-//                dist2times();
-//                FileOutputStream fos = new FileOutputStream(pathToMatrix);
-//                ObjectOutputStream oos = new ObjectOutputStream(fos);
-//                oos.writeObject(timeMatrix);
-//                LOGGER.info("Time matrix saved successfully");
-//                return;
-//            }catch(IOException | ClassNotFoundException ex2){
-//                LOGGER.error("File with   not found: "+ex2);
-//            }
-
-       
+ 
     }
     
     private void computeMatrix(){
         for(int[] r: distMatrix){
-            for(int i = 0; i < n; i++){
-                r[i] = -1;
-            }
+            Arrays.fill(r, -1);
         }
         LOGGER.info("Start building matrix");
         for(int i = 0; i < n; i++){
-            for(int j = 0; j<n; j++){
+            for(int j = 0; j < n; j++){
                 if(j == i){
                     continue;
                 }
@@ -112,7 +91,6 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
             }
             //LOGGER.info("Astar: "+i+" cycle, time "+ (System.currentTimeMillis() - startTime)); 
         }
-        //dist2times();
         try {
             FileOutputStream fos = new FileOutputStream(pathToMatrix);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
@@ -121,21 +99,30 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
         } catch (IOException ex) {
             LOGGER.error("Error saving matrix "+ex);
         }
-        for(int i = 0; i < n; i++){
-            for(int j = 0; j<n; j++){
-                if(j != i && distMatrix[i][j] == -1){
-                    LOGGER.error("No path between nodes "+i +" and "+ j);
-                }
-            }
-        }
     }
-    
-
+   
     private void updateMatrix(int nodeId, int[] distArray){
         for(int target = 0; target < n; target++){
             if(distArray[target] != -1){
                 distMatrix[nodeId][target] = distArray[target];
             }
+        }
+    }
+    
+    private void checkConnectivity(){
+        int count = 0;
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < n; j++){
+                if(j != i && distMatrix[i][j] == -1){
+                    LOGGER.error("No path between nodes "+i +" and "+ j);
+                    count++;
+                }
+            }
+        }
+        if(count == 0){
+            LOGGER.info("Graph is connected.");
+        }else{
+            LOGGER.error(count+" missing paths");
         }
     }
 
@@ -191,12 +178,12 @@ public class TravelTimeProviderTaxify implements TravelTimeProvider{
                 }
             }
         }
-        if(nodes[0] == 2){
-            swapNodes(startNodes);            
-        }
-        if(nodes[1] == 2){
-            swapNodes(endNodes);
-        }
+//        if(nodes[0] == 2){
+//            swapNodes(startNodes);            
+//        }
+//        if(nodes[1] == 2){
+//            swapNodes(endNodes);
+//        }
         return distToTime(bestDist);
     }
 

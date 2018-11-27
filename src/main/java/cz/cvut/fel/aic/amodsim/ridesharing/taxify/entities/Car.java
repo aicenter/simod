@@ -7,9 +7,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.taxify.entities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -24,23 +22,25 @@ public class Car {
     private static int minCharge = maxChargeMs/20;
     int arr = 1000;
     int[] nodes;
+    int[] timeTraveled;
     int[][] times;
     public final int id;
     int chargeLeft;
     int size;
     int depoCount;
-    Map<Integer, Integer> chargeAtDepo;
+
     
     public Car(int depoNode) {
         id = count++;
         size = 1;
         chargeLeft = maxChargeMs;
         nodes = new int[arr];
+        timeTraveled = new int[arr];
         nodes[0] = -depoNode;
+        timeTraveled [0] = 0;
         times = new int[arr][2];
         times[0] = new int[]{0,0}; 
         depoCount = 1;
-        chargeAtDepo = new HashMap<>();
     }
     
     public int getTripCount(){
@@ -80,6 +80,10 @@ public class Car {
         return chargeLeft >= minCharge;
     }
     
+    public int[] getAllTrips(){
+        return Arrays.stream(nodes).filter(n -> n >= 0).toArray();
+    }
+    
     /**
      *  adds new trip to the route.
      * @param node, index of the trip in Demand
@@ -94,14 +98,19 @@ public class Car {
             LOGGER.error("Not enough charge, car "+id);
         }
         nodes[size] = node;
+        
         //LOGGER.debug(id+": toStart="+bestTimeToStart+", lastEndTime="+times[size-1][1]);
        int earliestPossibleArrival = times[size-1][1] + bestTimeToStart;
-        //LOGGER.debug(id+": earliestPossibleArrival="+earliestPossibleArrival+", start="+startTime);
+       if(earliestPossibleArrival - startTime >= 180000){
+           LOGGER.debug(id+": earliestPossibleArrival="+earliestPossibleArrival+", start="+startTime);
+       }
+        
         times[size][0] = Math.max(startTime, earliestPossibleArrival);
        // LOGGER.debug(id+":startTime="+times[size][0]);
         times[size][1] = times[size][0] + tripDuration;
       //  LOGGER.debug(id+": endTime="+times[size][1]);
         chargeLeft -= (bestTimeToStart + tripDuration);
+        timeTraveled[size] = bestTimeToStart + tripDuration;
         size++;
         if(size == arr){
             LOGGER.error("Warning: array size exceeded ");
@@ -115,11 +124,13 @@ public class Car {
     */
     public void addChargingStation(int station, int bestTimeToNode){
         nodes[size] = -station;
+        timeTraveled[size] = bestTimeToNode;
         times[size][0] = getLastNodeEndTime() + bestTimeToNode;
         chargeLeft -= bestTimeToNode;
-        chargeAtDepo.put(size, chargeLeft);
+        //chargeAtDepo.put(size, chargeLeft);
         if(chargeLeft < 0){
             LOGGER.error("Car arrives to the station with less than zero charge!");
+            LOGGER.debug("Car "+id+" arrives to the station with charge "+chargeLeft);
            // LOGGER.error("Path "+Arrays.toString(nodes));
         }
         //LOGGER.debug("Car "+id+" arrives to the station with charge "+chargeLeft);
@@ -132,35 +143,31 @@ public class Car {
     /**
      * Returns the whole route for Stats.
      * @return  list of values for each node visited in the following order
-     * "car_id", "passenger_id", "start_time","end_time",
-     * distance_driven_since_charging,   times_charged,  last_charge_location
+     * car_id  passenger_id  start_time   end_time   time_since_charging  times_charged   last_charge_location
      */
-    public List<double[]> getPathStats(){
-       
-        List<double[]> paths = new ArrayList<>();
-        double distSinceCharging = 0;
+    public List<int[]> getPathStats(){
+        //LOGGER.debug("Car  "+id);
+        List<int[]> paths = new ArrayList<>();
         int timesChargedSoFar = -1;
         int lastDepo = 0;
-        int leftDepoAt = 0;
+        int time = 0;
         for(int i = 0; i < size; i++){
+            //LOGGER.debug("left depo at "+leftDepoAt);
             int node = nodes[i];
-            double[] result = new double[7];
+            int[] result = new int[7];
             result[0] = id; //car_id
             result[1] = node; //passenger_id
             result[2] = times[i][0];//start_time
             result[3] = times[i][1];//end_time
-            if(node >=0){
-                distSinceCharging += (((times[i][1] - leftDepoAt)/1000)*13.88)/1000; // milliseconds to km
-                result[4] = distSinceCharging;
-            }
+            // LOGGER.debug("Time since last chargeL:  "+ (times[i][1] - leftDepoAt)/1000 +" sec");
+            result[4] = (time +=timeTraveled[i]);
+
             result[5] = timesChargedSoFar;
             result[6] = lastDepo;
             if(node < 0){
-                result[4] = distSinceCharging + (((times[i][0] - leftDepoAt)/1000)*13.88)/1000;//
                 timesChargedSoFar++;
-                distSinceCharging = 0;
                 lastDepo = node;
-                leftDepoAt = times[i][1];
+                time = 0;
             }
             paths.add(result);
         }

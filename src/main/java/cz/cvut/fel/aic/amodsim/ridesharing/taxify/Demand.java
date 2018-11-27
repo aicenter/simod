@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.LoggerFactory;
+//import static cz.cvut.fel.aic.amodsim.ridesharing.taxify.Utils.cosine;
 /**
   * @author olga
   * 
@@ -121,8 +122,25 @@ public class Demand {
     public double[] getGpsCoordinates(int ind) {
         return gpsCoordinates[ind];
     }
-    public double getRideValue(int ind){
+    public double getValue(int ind){
         return values[ind];
+    }
+    
+    /**
+     * compares value earned by two cars, descending
+     * 
+     * @param car1 list of trips served by the car
+     * @param car2
+     * @return 
+     */
+    public int compareByValue(int[] car1, int[] car2){
+        double value1 = Arrays.stream(car1).mapToDouble(ind->getValue(ind)).sum();
+        double value2 = Arrays.stream(car2).mapToDouble(ind->getValue(ind)).sum();
+        if(value1 <= value2){
+            return -1;
+        }else{
+            return 1;
+        }
     }
     
     private void prepareDemand(List<TripTaxify<GPSLocation>> demand) {

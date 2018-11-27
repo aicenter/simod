@@ -54,7 +54,7 @@ public class Rtree {
     }
     
     public List<Integer> findNearestStations(GPSLocation loc){
-        int radius = 100;
+        int radius = 200;
         List<Integer> result = new ArrayList<>();
         double locX = loc.getLongitudeProjected();
         double locY = loc.getLatitudeProjected();

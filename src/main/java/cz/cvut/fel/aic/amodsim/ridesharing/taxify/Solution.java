@@ -7,10 +7,8 @@ package cz.cvut.fel.aic.amodsim.ridesharing.taxify;
 
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.entities.StationCentral;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.entities.Car;
-import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -43,17 +41,17 @@ public class Solution {
         this.travelTimeProvider = travelTimeProvider;
         this.central = central;
         this.config = config;
-        maxWaitTime = (int) (config.maxWaitTime * 0.8);
+        maxWaitTime = (int) (config.maxWaitTime - config.timeBuffer);
         timeBuffer = config.timeBuffer;
         maxCar = config.maxCar;
         cars = new List[3];
-        cars[D] = new ArrayList<>(); //TODO remove D, 2 lists are enough;
+        cars[D] = new ArrayList<>(); //TODO remove D, 2 lists seems to be enough.
         cars[C] = new ArrayList<>();
         cars[W] = new ArrayList<>();
     }
            
     /**
-     * Returns list of all cars.
+     * Returns list size maxCar with cars that earned more value.
      * @return 
      */
     public List<Car> getAllCars(){
@@ -61,7 +59,19 @@ public class Solution {
         carList.addAll(cars[D]);
         carList.addAll(cars[W]);
         carList.addAll(cars[C]);
-        return carList;
+        if(maxCar < 0){
+            return carList;
+        }else{
+            List<Car> filteredCars =  carList.stream()
+                .sorted((car1, car2)-> demand.compareByValue(car1.getAllTrips(), car2.getAllTrips()))
+                .limit(maxCar).collect(Collectors.toList());
+            //LOGGER.debug(String.format("Max car allowed %d, cars in list %d", maxCar, filteredCars.size()));
+            if(maxCar < filteredCars.size()){
+                LOGGER.error("Max car exceeded");
+            }
+            return filteredCars;
+        }
+        
     }
 
     /**
@@ -94,6 +104,7 @@ public class Solution {
             }
             // if car drives out of depo
             if(car.getLastNode() < 0 ){
+                //TODO add charge check
                 car.addTrip(currentNode, depo[1], demand.getStartTime(currentNode), demand.getBestTime(currentNode));
                 currentNode = pair[currentNode];
                 usedNodes.add(currentNode);
@@ -106,13 +117,14 @@ public class Solution {
                 int[] endSimNodes = demand.getStartNodes(currentNode);
                 int timeToTripStart = travelTimeProvider.getTravelTimeInMillis(startSimNodes, endSimNodes);
                 int travelTime = timeToTripStart + demand.getBestTime(currentNode);
-                if (car.hasCharge(travelTime)){
+                int[] nextDepo = central.findNearestStation(demand.getEndNodes(currentNode));
+                if (car.hasCharge(travelTime+nextDepo[1])){
                     usedNodes.add(currentNode);
  //                 LOGGER.debug(currentNode+" being add. timeTo="+timeToTripStart+", timeOf="+demand.getBestTime(currentNode));
                     car.addTrip(currentNode, timeToTripStart, demand.getStartTime(currentNode), demand.getBestTime(currentNode));
                     currentNode  = pair[currentNode];
                 }else{
-                     parkCar(car);
+                     parkCar(car, depo);
                      break;
                 }
             }//while
@@ -129,10 +141,11 @@ public class Solution {
         totaTrips += cars[C].stream().map(c->c.getTripCount()).mapToInt(Integer::intValue).sum();
         LOGGER.info("Total trip nodes in paths: "+totaTrips);
         LOGGER.info("Cars in driving list: "+cars[D].size());
-        LOGGER.info("Cars in driving waiting list: "+cars[W].size());
+        LOGGER.info("Cars in waiting list: "+cars[W].size());
         LOGGER.info("Cars in charging list: "+cars[C].size());
         LOGGER.info("Cars used: "+(cars[C].size()+cars[W].size()+cars[D].size()));
     }
+    
     
     private void parkCar(Car car){
         int[] depo = central.findNearestStation(demand.getEndNodes(car.getLastNode()));
@@ -141,6 +154,14 @@ public class Solution {
         cars[W].remove(car);
         cars[C].add(car);
     }
+    
+    private void parkCar(Car car, int[] depo){
+        car.addChargingStation(depo[0], depo[1]);
+        cars[D].remove(car);
+        cars[W].remove(car);
+        cars[C].add(car);
+    }
+    
     
     private Car getCar(int trip, int[] depo){
         Car theCar = null;
@@ -156,22 +177,20 @@ public class Solution {
                 int[] endSimNodes = demand.getStartNodes(trip);
                 int timeToTripStart = travelTimeProvider.getTravelTimeInMillis(startSimNodes, endSimNodes);
                 int travelTime = timeToTripStart + demand.getBestTime(trip);
+                int[] nextDepo = central.findNearestStation(demand.getEndNodes(trip));
 //              LOGGER.debug("traveTime="+travelTime);
-                if(car.hasCharge(travelTime)){
-                     theCar = car;
+                if(car.hasCharge(travelTime+nextDepo[1])){
+                    theCar = car;
                     break;
                 }
             }else{
                 if(!car.hasCharge())
-                toPark.add(car);
+                    parkCar(car, depo);
             }
         }
         if(theCar != null){
-            //LOGGER.info("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
-           // LOGGER.debug("Car moved from W to D " + theCar.id);
             cars[D].add(theCar);
             cars[W].remove(theCar);
-            //LOGGER.debug("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
             toPark.forEach((car) -> {parkCar(car);});
             return theCar;
         }
@@ -189,17 +208,17 @@ public class Solution {
                 }
             }
         if(theCar != null){
-           // LOGGER.debug("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
-            //LOGGER.debug("Car moved from C to D " + theCar.id);
             cars[D].add(theCar);
             cars[C].remove(theCar);
-            //LOGGER.debug("D: "+cars[D].size()+", W: "+cars[W].size()+", C: "+cars[C].size());
             return theCar;
         }
-        theCar = new Car(depo[0]);
-        cars[D].add(theCar);
+        if(depo[1] < latestPossibleArrival){
        // LOGGER.debug("New car added "+theCar.id);
-        return theCar;
+            theCar = new Car(depo[0]);
+            cars[D].add(theCar);
+            return theCar;
+        }
+        return null;
     }
     
     private boolean canServe(int prevNode, int prevDeparture, int trip){

@@ -24,7 +24,9 @@ import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * Keeps information about stations.
+ * Returns nearest station for simulation nodes by id.
+ * 
  * @author olga
  */
 public class StationCentral {
@@ -34,10 +36,17 @@ public class StationCentral {
     Graph<SimulationNode,SimulationEdge> graph;
     private final Map<Integer, int[]> nearestStation;
     private final int N;
-    //int[] nodes; 
     Map<Integer, Integer> depoIds;
     private Rtree rtree;
 
+    /**
+     * Loads station coordinates from .csv, maps stations to graph nodes,
+     * create rtree for search.
+     * 
+     * @param config
+     * @param travelTimeProvider
+     * @param graph 
+     */
     public StationCentral(ConfigTaxify config, TravelTimeProvider travelTimeProvider,
                           Graph<SimulationNode,SimulationEdge> graph){
         this.config = config;
@@ -50,11 +59,13 @@ public class StationCentral {
     }
     
     /**
+     * Finds nearest station by SimulationNode id.
      * 
      * @param nodeId id of SimulationNode
      * @return id of Simulation node where the nearest station is located
      */
     public int[] findNearestStation(int nodeId){
+        //TODO the map is completely filled, destroy the rtree.
         if(nearestStation.containsKey(nodeId)){
             return nearestStation.get(nodeId);
         }
@@ -72,13 +83,16 @@ public class StationCentral {
         return nearestStation.get(nodeId);
     }
     /**
+     * Finds nearest station for the location with one or two possible nodes.
      * 
-     * @param nodes array of simulationNodes ids and distances [node1, dist1, node2, dist2]
-     * array length is either 2 (one node, ie gps location was mapped to the node), or 4 (2 nodes, mapped to edge)
+     * @param nodes array of simulationNodes ids and distances 
+     * [node1, dist1, node2, dist2]
+     * array length is either 2 (one node, ie gps location was mapped to the node),
+     * or 4 (2 nodes, mapped to edge)
      * @return 
      */
     public int[] findNearestStation(int[] nodes){
-        
+    
 //        LOGGER.debug(Arrays.toString(nodes));
         if(nodes.length == 2){ // 
             return findNearestStation(nodes[0]);
@@ -91,7 +105,12 @@ public class StationCentral {
             return node2Result;
         }
     }
-    
+    /**
+     * returns depo id (from 0 to maxDepo) by SimulationNode id
+     * 
+     * @param nodeId
+     * @return 
+     */
     public int getDepoId(int nodeId){
         nodeId = nodeId >=0 ? nodeId : -nodeId;
         return depoIds.get(nodeId);
@@ -115,11 +134,9 @@ public class StationCentral {
                     LOGGER.error("Node not found for station " + i);
                 }else{
                     depoIds.put((int) result[0], i);
-                    //stationNodes.add(this.graph.getNode((int) result[0]));
                 }
             }
             rtree = null;
-            //nodes = stationNodes.stream().map(n->n.id).mapToInt(Integer::intValue).toArray();
             if(depoIds.size() != N){
                 LOGGER.error("Number of stations loaded differs from config");
             }

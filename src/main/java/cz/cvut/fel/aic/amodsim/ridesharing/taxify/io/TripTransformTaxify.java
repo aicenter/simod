@@ -68,7 +68,14 @@ public class TripTransformTaxify {
         //unmappedTrips = new ArrayList<>();
     }   
        	
-    
+    /**
+     * Reads demand data from .csv
+     * @param inputFile
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws ParseException 
+     */
     public List<TripTaxify<GPSLocation>> loadTripsFromCsv(File inputFile) throws FileNotFoundException, IOException, ParseException{
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime startDateTime = LocalDateTime.parse(config.startTime ,formatter);
@@ -110,7 +117,7 @@ public class TripTransformTaxify {
         }
         LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
         LOGGER.info("{} too long trips discarded", tooLongCount);
-        LOGGER.info("{} valued discarded for too long trips", discardedValue);
+        LOGGER.info("{} value value discarded for too long trips", discardedValue);
         LOGGER.info("{} trips remained", trips.size());
         LOGGER.info("{} nodes not found in node tree", tooFarCount);
         rtree = null;
@@ -118,9 +125,7 @@ public class TripTransformTaxify {
     }
         
     private void processGpsTrip(TripTaxify<GPSLocation> gpsTrip, List<TripTaxify<GPSLocation>>trips) {
-
-        
-        int maxDist2 = config.maxRideDistance*config.maxRideDistance;
+       int maxDist2 = config.maxRideDistance*config.maxRideDistance;
         LinkedList<GPSLocation> locations = gpsTrip.getLocations();
         GPSLocation startLocation = locations.get(0);
         GPSLocation targetLocation = locations.get(locations.size() - 1);
@@ -153,10 +158,8 @@ public class TripTransformTaxify {
             coord[0] = gpsCoord[0];
             coord[1] = gpsCoord[1];
         }
- 
         result = rtree.findNode(targetLocation, pickupRadius);
         if (result == null){
-            
             tooFarCount++;
             return;
         }else if(result.length == 1){
@@ -192,6 +195,8 @@ public class TripTransformTaxify {
     }
 }
  
+
+
 
 //    
 //    public List<SimulationNode> loadStations() throws IOException{

@@ -81,7 +81,7 @@ public class Stats {
                 str[6] = String.valueOf(gps[1]);//pickup lng
                 str[7] = String.valueOf(gps[2]);//dropoff lat
                 str[8] =  String.valueOf(gps[3]);//dropoff lng
-                str[9] = String.valueOf(millisToKm(node[4],speed));//distance_driven_since_charging
+                str[9] = String.valueOf(millisToKm(node[4], speed));//distance_driven_since_charging
                 str[10] = String.valueOf(node[5]);//times_charged
                 str[11] = String.valueOf(central.getDepoId((int)node[6]));//last_charge_location
                 newPaths.add(str);

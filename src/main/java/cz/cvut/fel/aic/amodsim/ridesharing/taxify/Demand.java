@@ -44,7 +44,7 @@ public class Demand {
     private  double[][] coordinates;
     private  double[][] gpsCoordinates;
 //    double[][] projStart;
-//    double[][] vectors;
+    double[][] vectors;
     Rtree rtree;
 
    
@@ -67,7 +67,7 @@ public class Demand {
         gpsCoordinates = new double[N][4];
        
         //projStart = new double[N][2];
-//        vectors =  new double[N][2];
+        vectors =  new double[N][2];
         lastInd = 0;
         prepareDemand(demand);
     }
@@ -86,9 +86,9 @@ public class Demand {
 //    public double[] getProjStart(int ind) {
 //        return projStart[ind];
 //    }
-//    public double[] getVector(int ind) {
-//        return vectors[ind];
-//    }
+    public double[] getVector(int ind) {
+        return vectors[ind];
+    }
     public int ind2id(int ind){
         return revIndex[ind];
     }
@@ -182,6 +182,11 @@ public class Demand {
         coordinates[ind][1] = start.getLongitude();
         coordinates[ind][2] = end.getLatitude();
         coordinates[ind][3] = end.getLongitude();
+        
+        vectors[ind][0] = end.getLongitudeProjected() - start.getLongitudeProjected();
+        vectors[ind][0] = end.getLatitudeProjected() - start.getLatitudeProjected();
+        
+        
     }
     
     private void addNodesToIndex(Map<Integer,Double> nodeToDistMap, int[][] nodeList, int ind){

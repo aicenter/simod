@@ -53,15 +53,17 @@ public class SolverTaxify extends DARPSolver {
             // Path to original .csv file with data
             Demand demand = new Demand(travelTimeProvider, config, rawDemand, graph);
             rawDemand = null;
+//            Ridesharing rs = new Ridesharing(demand, config, travelTimeProvider);
+//            rs.cluster();
             StationCentral central = new StationCentral(config, travelTimeProvider, graph);
             //demand.dumpData();
             Solution sol = new Solution(demand, travelTimeProvider, central, config);
             sol.buildPaths();
-
-//          demand.loadData();
-            //uncomment to save results
+//
+////          demand.loadData();
+//            //uncomment to save results
             Date timeStamp = Calendar.getInstance().getTime();
-            Stats.writeEvaluationCsv(sol.getAllCars(), demand, config, central, timeStamp);
+            //Stats.writeEvaluationCsv(sol.getAllCars(), demand, config, central, timeStamp);
         } catch (IOException ex) {
             LOGGER.error("File IO exception: "+ex);
         } catch (ParseException ex) {

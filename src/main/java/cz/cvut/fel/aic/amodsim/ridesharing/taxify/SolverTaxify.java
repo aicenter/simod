@@ -7,13 +7,18 @@ import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.OnDemandRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.groupgeneration.GroupGenerator;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.groupgeneration.GroupPlan;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.groupgeneration.Request;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.io.Stats;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.search.TravelTimeProviderTaxify;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
@@ -28,17 +33,23 @@ import org.slf4j.LoggerFactory;
  * @author olga
  * 
  */
-public class SolverTaxify extends DARPSolver {
+public class SolverTaxify extends DARPSolver<TravelTimeProviderTaxify> {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(SolverTaxify.class);
     private final ConfigTaxify config;
     Graph<SimulationNode,SimulationEdge> graph;
     private final TripTransformTaxify tripTransform;
+	
+	private final GroupGenerator groupGenerator;
+	
+	private final AmodsimConfig amodsimConfig;
     
     @Inject 
-    public SolverTaxify(TravelTimeProvider travelTimeProvider, TravelCostProvider travelCostProvider, 
+    public SolverTaxify(TravelTimeProviderTaxify travelTimeProvider, TravelCostProvider travelCostProvider, 
         OnDemandVehicleStorage vehicleStorage, TimeProvider timeProvider,
-        TripTransformTaxify tripTransform) {
+        TripTransformTaxify tripTransform, GroupGenerator groupGenerator, AmodsimConfig amodsimConfig) {
         super(vehicleStorage, travelTimeProvider, travelCostProvider);
+		this.groupGenerator = groupGenerator;
+		this.amodsimConfig = amodsimConfig;
         config = new ConfigTaxify();
         this.tripTransform = tripTransform;
         graph = tripTransform.getGraph();
@@ -50,11 +61,15 @@ public class SolverTaxify extends DARPSolver {
         
         try {
             List<TripTaxify<GPSLocation>>  rawDemand = tripTransform.loadTripsFromCsv(new File(config.tripFileName));
+			
+//			Set<GroupPlan> groupPlans = buildGroupPlans(rawDemand);
+			
             // Path to original .csv file with data
             Demand demand = new Demand(travelTimeProvider, config, rawDemand, graph);
             rawDemand = null;
             StationCentral central = new StationCentral(config, travelTimeProvider, graph);
             //demand.dumpData();
+			
             Solution sol = new Solution(demand, travelTimeProvider, central, config);
             sol.buildPaths();
 
@@ -76,6 +91,36 @@ public class SolverTaxify extends DARPSolver {
     public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<OnDemandRequest> requests) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+	private Set<GroupPlan> buildGroupPlans(List<TripTaxify<GPSLocation>> rawDemand) {
+		List<Request> requests = new LinkedList<>();
+		int counter = 0;
+		for (TripTaxify<GPSLocation> trip : rawDemand) {
+			// TODO  - change for multiple nodes
+			Map<Integer, Double> startNodes = trip.nodes.get(0);
+			int fromId = 0;
+			for(Integer nodeId: startNodes.keySet()){
+				fromId = nodeId;
+				break;
+			}
+			
+			Map<Integer, Double> endNodes = trip.nodes.get(1);
+			int toId = 0;
+			for(Integer nodeId: endNodes.keySet()){
+				toId = nodeId;
+				break;
+			}
+			
+			requests.add(new Request(trip.getStartTime(), fromId, toId, travelTimeProvider, amodsimConfig));
+			
+			counter++;
+			if(counter >= 25000){
+				break;
+			}
+		}
+		
+		return groupGenerator.generateGroups(requests);
+	}
 
  }
 

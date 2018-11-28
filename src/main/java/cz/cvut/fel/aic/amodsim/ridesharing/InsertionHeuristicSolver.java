@@ -18,7 +18,7 @@ import java.util.*;
 /**
  * @author F.I.D.O.
  */
-public class InsertionHeuristicSolver extends DARPSolver {
+public class InsertionHeuristicSolver extends DARPSolver<TravelTimeProvider> {
     private static final int INFO_PERIOD = 100000;
     private final PositionUtil positionUtil;
     private final AmodsimConfig config;

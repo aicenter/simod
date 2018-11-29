@@ -23,6 +23,31 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>java</executable>
+                    <arguments>
+                        <argument>-classpath</argument>
+                        <!-- automatically creates the classpath using all project dependencies,
+                             also adding the project build directory -->
+                        <classpath/>
+                        <argument>cz.cvut.fel.aic.amodsim.Taxify</argument>
+                        <argument>/home/martin/projects/taxify/local_config_files/taxify.cfg</argument>
+                        <argument>-Xmx8g</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+
 			<plugin>
 				<groupId>ninja.fido.config</groupId>
 				<artifactId>config-maven-plugin</artifactId>
@@ -75,6 +100,11 @@
         <dependency>
             <groupId>ninja.fido.config</groupId>
             <artifactId>core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>weka-stable</artifactId>
+            <version>3.8.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -160,11 +190,11 @@
             <artifactId>opencsv</artifactId>
             <version>3.7</version>
         </dependency> 
-		<dependency>
-			<groupId>com.gurobi</groupId>
-			<artifactId>gurobi</artifactId>
-			<version>1.0</version>
-		</dependency>  
+		<!--<dependency>-->
+			<!--<groupId>com.gurobi</groupId>-->
+			<!--<artifactId>gurobi</artifactId>-->
+			<!--<version>1.0</version>-->
+		<!--</dependency>  -->
     </dependencies>
     
     <repositories>

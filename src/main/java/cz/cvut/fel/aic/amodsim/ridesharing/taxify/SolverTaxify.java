@@ -74,8 +74,8 @@ public class SolverTaxify extends DARPSolver<TravelTimeProviderTaxify> {
 			
             // Path to original .csv file with data
             Demand demand = new Demand(travelTimeProvider, config, rawDemand, graph);
+            StationCentral central = new StationCentral(config, travelTimeProvider, graph, demand);
             rawDemand = null;
-            StationCentral central = new StationCentral(config, travelTimeProvider, graph);
             //demand.dumpData();
 			
             Solution sol = new Solution(demand, travelTimeProvider, central, config);

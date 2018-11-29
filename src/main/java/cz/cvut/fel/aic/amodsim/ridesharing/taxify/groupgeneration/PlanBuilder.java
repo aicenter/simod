@@ -129,6 +129,22 @@ public class PlanBuilder {
 		}
 	}
 
+	boolean reaminingRequestsFeasibile() {
+		for (Request onBoardRequest : onboardRequests) {
+			if(onBoardRequest.maxDropOffTime < endTime){
+				return false;
+			}
+		}
+		
+		for(Request waitingRequest: waitingRequests){
+			if(waitingRequest.maxPickUpTime < endTime){
+				return false;
+			}
+		}
+		
+		return true;
+	}
+
 	
 
 }

@@ -9,11 +9,13 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.SolverTaxify;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.search.TravelTimeProviderTaxify;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class should generate all possible ridesharing groups. The groups here are not related to any vehicle. 
@@ -23,6 +25,11 @@ import java.util.Stack;
  */
 @Singleton
 public class GroupGenerator {
+	
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GroupGenerator.class);
+	
+	
+	
 	
 	private final TravelTimeProviderTaxify travelTimeProvider;
 	
@@ -54,6 +61,7 @@ public class GroupGenerator {
 		groupsPlans.add(new GroupPlan(new LinkedHashSet<>()));
 
 		// groups of size 1 - allways valid
+		LOGGER.info("Generating groups of size 1");
 		for (Request request : requests) {
 			feasibleRequests.add(request);	
 			
@@ -66,7 +74,18 @@ public class GroupGenerator {
 		}
 		
 		// generate other groups
+		int currentGroupSize = 1;
         while(!currentGroups.isEmpty()) {
+			
+			LOGGER.info("Generating groups of size {}", currentGroupSize + 1);
+			
+			Set<Request> feasibleRequestsForIteration;
+			if(currentGroupSize == 1){
+				feasibleRequestsForIteration = new LinkedHashSet<>(feasibleRequests);
+			}
+			else{
+				feasibleRequestsForIteration = feasibleRequests;
+			}
 
 			// current groups for the next iteration
             Set<GroupPlan> newCurrentGroups = new LinkedHashSet<>();
@@ -75,7 +94,7 @@ public class GroupGenerator {
 			Set<Set<Request>> currentCheckedGroups = new LinkedHashSet<>();
 
             for (GroupPlan groupPlan : currentGroups) {
-                for (Request request : feasibleRequests) {
+                for (Request request : feasibleRequestsForIteration) {
                     if (groupPlan.requests.contains(request) || !groupPlan.overlaps(request)){
 						continue;
 					}
@@ -98,10 +117,21 @@ public class GroupGenerator {
                         groupsPlans.add(newGroupPlan);
                     }
                 }
+				
+				if(currentGroupSize == 1){
+					feasibleRequestsForIteration.remove(groupPlan.requests.iterator().next());
+				}
             }
 
-            currentGroups = newCurrentGroups;
+            currentGroups = newCurrentGroups;		
+			currentGroupSize++;
+			
+			if(currentGroupSize >= 2){
+				break;
+			}
         }
+		
+		LOGGER.info("{} group plans generated.", groupsPlans.size());
 
         return groupsPlans;
     }
@@ -126,7 +156,7 @@ public class GroupGenerator {
                 PlanBuilder longerPlan = new PlanBuilder(plan);
                 longerPlan.add(new DropOffAction(request), travelTimeProvider);
 
-                if(request.maxDropOffTime >= longerPlan.getEndTime()) {
+                if(request.maxDropOffTime >= longerPlan.getEndTime() && longerPlan.reaminingRequestsFeasibile()) {
                     double currentCost = longerPlan.getPlanCost();
                     if (currentCost < upperBound) {
                         if (longerPlan.getWaitingRequests().isEmpty() && longerPlan.getOnboardRequests().isEmpty()) {
@@ -148,7 +178,8 @@ public class GroupGenerator {
 					// pick up time == demand time
 					longerPlan.add(new PickUpAction(request), travelTimeProvider);
 
-					if(longerPlan.getEndTime() >= request.time && longerPlan.getEndTime() <= request.maxPickUpTime) {
+					if(longerPlan.getEndTime() >= request.time && longerPlan.getEndTime() <= request.maxPickUpTime
+							&&  longerPlan.reaminingRequestsFeasibile()) {
 						toCheck.push(longerPlan);
 					}
 				}

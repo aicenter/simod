@@ -43,7 +43,7 @@ public class Request {
 		this.toId = toId;
 		minTravelTime = (long) travelTimeProvider.getTravelTimeInMillis(fromId, toId);
 		
-		long maximumProlongation = (long) ((config.amodsim.ridesharing.maxRelativeDiscomfort - 1) * minTravelTime);
+		long maximumProlongation = (long) ((config.amodsim.ridesharing.maxRelativeDiscomfort) * minTravelTime);
 		maxPickUpTime = time + maximumProlongation;
 		maxDropOffTime = time + minTravelTime + maximumProlongation;
 	}

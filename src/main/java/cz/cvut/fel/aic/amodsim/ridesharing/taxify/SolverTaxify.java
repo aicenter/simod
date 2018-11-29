@@ -62,7 +62,7 @@ public class SolverTaxify extends DARPSolver<TravelTimeProviderTaxify> {
         try {
             List<TripTaxify<GPSLocation>>  rawDemand = tripTransform.loadTripsFromCsv(new File(config.tripFileName));
 			
-//			Set<GroupPlan> groupPlans = buildGroupPlans(rawDemand);
+			Set<GroupPlan> groupPlans = buildGroupPlans(rawDemand);
 			
             // Path to original .csv file with data
             Demand demand = new Demand(travelTimeProvider, config, rawDemand, graph);
@@ -114,7 +114,7 @@ public class SolverTaxify extends DARPSolver<TravelTimeProviderTaxify> {
 			requests.add(new Request(trip.getStartTime(), fromId, toId, travelTimeProvider, amodsimConfig));
 			
 			counter++;
-			if(counter >= 25000){
+			if(counter >= 500000){
 				break;
 			}
 		}

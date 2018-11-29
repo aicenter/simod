@@ -24,31 +24,31 @@ import org.slf4j.LoggerFactory;
   * @author olga
   * 
  */
-public class Demand {
+public abstract class Demand<D> {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Demand.class);
     TravelTimeProvider travelTimeProvider;
     ConfigTaxify config;
-    private final  int[] index;
-    private final  int[] revIndex;
-    private final  int[][] startNodes;
-    private final int[][] endNodes;
-    private final  int[] startTimes;
-    private final  int[] bestTimes;
+    final  int[] index;
+    final  int[] revIndex;
+    final  int[][] startNodes;
+    final int[][] endNodes;
+    final  int[] startTimes;
+    final  int[] bestTimes;
     private final int N;
-    private int lastInd;
+    int lastInd;
     //private final String startTime;
     private final Graph<SimulationNode, SimulationEdge> graph;
     //private final int timeBuffer;
     
-    private  double[] values;
-    private  double[][] coordinates;
-    private  double[][] gpsCoordinates;
+    double[] values;
+    private double[][] coordinates;
+    double[][] gpsCoordinates;
 //    double[][] projStart;
     double[][] vectors;
     Rtree rtree;
 
    
-    public Demand(TravelTimeProvider travelTimeProvider, ConfigTaxify config, List<TripTaxify<GPSLocation>> demand,
+    public Demand(TravelTimeProvider travelTimeProvider, ConfigTaxify config, List<D> demand,
         Graph<SimulationNode, SimulationEdge> graph){
         this.travelTimeProvider = travelTimeProvider;
         this.config = config;
@@ -147,13 +147,7 @@ public class Demand {
         return Arrays.stream(trips).mapToDouble(ind->getValue(ind)).sum();
     }
     
-    private void prepareDemand(List<TripTaxify<GPSLocation>> demand) {
-        int buffer = config.timeBuffer/2;
-        for (TripTaxify<GPSLocation> trip : demand) {
-            int bestTime = travelTimeProvider.getTravelTimeInMillis(trip);
-			addTripToIndex(trip, bestTime, buffer);
-        }
-    }
+    abstract void prepareDemand(List<D> demand);
 
     // helpers for prepareDemand
     private void addTripToIndex(TripTaxify<GPSLocation> trip, int bestTime, int buffer){
@@ -175,7 +169,7 @@ public class Demand {
     }
  
     
-    private void addCoordinatesToIndex(List<GPSLocation> nodes, int ind){
+    void addCoordinatesToIndex(List<GPSLocation> nodes, int ind){
         GPSLocation start = nodes.get(0);
         GPSLocation end = nodes.get(nodes.size()-1);
         coordinates[ind][0] = start.getLatitude();
@@ -189,7 +183,7 @@ public class Demand {
         
     }
     
-    private void addNodesToIndex(Map<Integer,Double> nodeToDistMap, int[][] nodeList, int ind){
+    void addNodesToIndex(Map<Integer,Double> nodeToDistMap, int[][] nodeList, int ind){
         double speed = config.speed;
         int n = nodeToDistMap.size();
         if (n == 0){

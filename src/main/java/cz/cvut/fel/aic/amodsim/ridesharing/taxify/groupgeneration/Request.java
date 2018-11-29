@@ -18,7 +18,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.taxify.search.TravelTimeProviderTaxif
  */
 public class Request {
 	
-//	private final TripTaxify trip;
+	final TripTaxify trip;
 	
 	public final long time;
 	
@@ -35,9 +35,9 @@ public class Request {
 	
 	
 
-	public Request(long time, int fromId, int toId, TravelTimeProviderTaxify travelTimeProvider, 
+	public Request(TripTaxify trip, long time, int fromId, int toId, TravelTimeProviderTaxify travelTimeProvider, 
 			AmodsimConfig config) {
-//		this.trip = trip;
+		this.trip = trip;
 		this.time = time;
 		this.fromId = fromId;
 		this.toId = toId;

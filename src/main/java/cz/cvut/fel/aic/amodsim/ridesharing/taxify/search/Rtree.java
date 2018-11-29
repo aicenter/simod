@@ -34,13 +34,7 @@ public class Rtree {
             nodeTree = nodeTree.add(node.id, point(node.getLongitudeProjected(), node.getLatitudeProjected()));
         }
         edgeTree = RTree.star().create();
-        for(SimulationEdge edge:edges){
-            Rectangle mbr = rectangle(Math.min(edge.getFromNode().getLongitudeProjected(), edge.getToNode().getLongitudeProjected()),
-                                       Math.min(edge.getFromNode().getLatitudeProjected(), edge.getToNode().getLatitudeProjected()),
-                                       Math.max(edge.getFromNode().getLongitudeProjected(), edge.getToNode().getLongitudeProjected()),
-                                       Math.max(edge.getFromNode().getLatitudeProjected(), edge.getToNode().getLatitudeProjected()));
-            edgeTree = edgeTree.add(new int[]{edge.fromNode.id, edge.toNode.id}, mbr);
-        }
+		fillEdgeTree(edges);
     }
     /**
      * Finds  point on the graph inside the radius.
@@ -182,5 +176,15 @@ public class Rtree {
         }
        return result; 
     }
+
+	void fillEdgeTree(Collection<SimulationEdge> edges) {
+		for(SimulationEdge edge:edges){
+            Rectangle mbr = rectangle(Math.min(edge.getFromNode().getLongitudeProjected(), edge.getToNode().getLongitudeProjected()),
+                                       Math.min(edge.getFromNode().getLatitudeProjected(), edge.getToNode().getLatitudeProjected()),
+                                       Math.max(edge.getFromNode().getLongitudeProjected(), edge.getToNode().getLongitudeProjected()),
+                                       Math.max(edge.getFromNode().getLatitudeProjected(), edge.getToNode().getLatitudeProjected()));
+            edgeTree = edgeTree.add(new int[]{edge.fromNode.id, edge.toNode.id}, mbr);
+        }
+	}
     
 }

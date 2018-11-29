@@ -15,6 +15,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.ConfigTaxify;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.search.RtreeUnsimplified;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.GPSLocationTools;
@@ -82,6 +83,7 @@ public class TripTransformTaxify {
         int SRID = config.SRID;
         int startDay = startDateTime.getDayOfMonth();
         rtree = new Rtree(this.graph.getAllNodes(), this.graph.getAllEdges());
+//		rtree = new RtreeUnsimplified(this.graph.getAllNodes(), this.graph.getAllEdges());
         List<TripTaxify<GPSLocation>> gpsTrips = new LinkedList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
             String line;

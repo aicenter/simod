@@ -44,7 +44,7 @@ public class SolverTaxify extends DARPSolver<TravelTimeProviderTaxify> {
 	
 	private final AmodsimConfig amodsimConfig;
 	
-	private final Solver solver;
+	//private final Solver solver;
     
     @Inject 
     public SolverTaxify(TravelTimeProviderTaxify travelTimeProvider, TravelCostProvider travelCostProvider, 
@@ -70,7 +70,7 @@ public class SolverTaxify extends DARPSolver<TravelTimeProviderTaxify> {
 			List<Request> requests = getRequests(rawDemand);
 			List<GroupPlan> groupPlans = groupGenerator.generateGroups(requests);
 			List<GroupPlan> optimalGroupPlans = solver.getOptimalGroups(groupPlans, requests);
-			
+			// g
 			
             // Path to original .csv file with data
             Demand demand = new Demand(travelTimeProvider, config, rawDemand, graph);

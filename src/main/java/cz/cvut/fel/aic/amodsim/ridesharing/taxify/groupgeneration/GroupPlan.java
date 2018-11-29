@@ -38,5 +38,8 @@ public class GroupPlan {
 		return request.time < plan.endTime && request.maxDropOffTime > plan.startTime;
 	}
 	
+	double getDuration(){
+		return plan.endTime - plan.startTime;
+	}
 			
 }

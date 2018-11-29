@@ -12,6 +12,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.SolverTaxify;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.search.TravelTimeProviderTaxify;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -46,7 +47,7 @@ public class GroupGenerator {
 	
 	
 	
-	public Set<GroupPlan> generateGroups(List<Request> requests) {
+	public List<GroupPlan> generateGroups(List<Request> requests) {
 		
 		// F_v^{k - 1} - groupes for request adding
 		Set<GroupPlan> currentGroups = new LinkedHashSet<>();
@@ -55,10 +56,10 @@ public class GroupGenerator {
         Set<Request> feasibleRequests = new LinkedHashSet<>();
 		
 		// F_v all feasible groups with optimal plan already assigned to them - the output
-        Set<GroupPlan> groupsPlans = new LinkedHashSet<>();
+        List<GroupPlan> groupsPlans = new LinkedList<>();
 
-		// BASE PLAN - an EMPTY PLAN is always valid
-		groupsPlans.add(new GroupPlan(new LinkedHashSet<>()));
+//		// BASE PLAN - an EMPTY PLAN is always valid
+//		groupsPlans.add(new GroupPlan(new LinkedHashSet<>()));
 
 		// groups of size 1 - allways valid
 		LOGGER.info("Generating groups of size 1");

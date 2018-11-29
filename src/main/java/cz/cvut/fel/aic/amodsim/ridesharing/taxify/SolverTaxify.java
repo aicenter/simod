@@ -17,7 +17,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.groupgeneration.GroupGenerator;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.groupgeneration.GroupPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.groupgeneration.Request;
-import cz.cvut.fel.aic.amodsim.ridesharing.taxify.groupgeneration.Solver;
+//import cz.cvut.fel.aic.amodsim.ridesharing.taxify.groupgeneration.Solver;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.io.Stats;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.search.TravelTimeProviderTaxify;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
@@ -44,17 +44,19 @@ public class SolverTaxify extends DARPSolver<TravelTimeProviderTaxify> {
 	
 	private final AmodsimConfig amodsimConfig;
 	
-	private final Solver solver;
+//	private final Solver solver;
     
     @Inject 
     public SolverTaxify(TravelTimeProviderTaxify travelTimeProvider, TravelCostProvider travelCostProvider, 
         OnDemandVehicleStorage vehicleStorage, TimeProvider timeProvider,
-        TripTransformTaxify tripTransform, GroupGenerator groupGenerator, AmodsimConfig amodsimConfig,
-			Solver solver) {
+        TripTransformTaxify tripTransform, GroupGenerator groupGenerator, AmodsimConfig amodsimConfig
+//            ,
+//			Solver solver) {
+    ){
         super(vehicleStorage, travelTimeProvider, travelCostProvider);
 		this.groupGenerator = groupGenerator;
 		this.amodsimConfig = amodsimConfig;
-		this.solver = solver;
+//		this.solver = solver;
         config = new ConfigTaxify();
         this.tripTransform = tripTransform;
         graph = tripTransform.getGraph();
@@ -68,8 +70,8 @@ public class SolverTaxify extends DARPSolver<TravelTimeProviderTaxify> {
             List<TripTaxify<GPSLocation>>  rawDemand = tripTransform.loadTripsFromCsv(new File(config.tripFileName));
 			
 			List<Request> requests = getRequests(rawDemand);
-			List<GroupPlan> groupPlans = groupGenerator.generateGroups(requests);
-			List<GroupPlan> optimalGroupPlans = solver.getOptimalGroups(groupPlans, requests);
+//			List<GroupPlan> groupPlans = groupGenerator.generateGroups(requests);
+//			List<GroupPlan> optimalGroupPlans = solver.getOptimalGroups(groupPlans, requests);
 			
 			
             // Path to original .csv file with data

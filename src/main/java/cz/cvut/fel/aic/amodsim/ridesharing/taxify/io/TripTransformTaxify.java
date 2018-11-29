@@ -103,7 +103,8 @@ public class TripTransformTaxify {
                 int hour = day*24 + dateTime.getHour();
                 int min = hour*60 + dateTime.getMinute();
                 int sec = min*60 + dateTime.getSecond();
-                int millisFromStart = sec*1000 + Integer.parseInt(parts[0].substring(20,23));
+//                int millisFromStart = sec*1000 + Integer.parseInt(parts[0].substring(20,23));
+                int millisFromStart = sec*1000;
                 //long millisFromStart = (dateTime.getTime() - startMillis);
 
               //  System.out.println("millis from start "+millisFromStart);

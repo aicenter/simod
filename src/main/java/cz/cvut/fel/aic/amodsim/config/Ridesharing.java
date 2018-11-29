@@ -1,6 +1,7 @@
 package cz.cvut.fel.aic.amodsim.config;
 
 import java.lang.Boolean;
+import java.lang.Double;
 import java.lang.Integer;
 import java.util.Map;
 
@@ -12,6 +13,8 @@ public class Ridesharing {
   public Integer maxRideTime;
 
   public Integer maxSpeedEstimation;
+
+  public Double maxRelativeDiscomfort;
 
   public Integer vehicleCapacity;
 
@@ -26,6 +29,7 @@ public class Ridesharing {
     this.drivingRange = (Integer) ridesharing.get("driving_range");
     this.maxRideTime = (Integer) ridesharing.get("max_ride_time");
     this.maxSpeedEstimation = (Integer) ridesharing.get("max_speed_estimation");
+    this.maxRelativeDiscomfort = (Double) ridesharing.get("max_relative_discomfort");
     this.vehicleCapacity = (Integer) ridesharing.get("vehicle_capacity");
     this.maxWaitTime = (Integer) ridesharing.get("max_wait_time");
     this.pickupRadius = (Integer) ridesharing.get("pickup_radius");

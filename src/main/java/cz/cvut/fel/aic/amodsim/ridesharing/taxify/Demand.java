@@ -151,7 +151,7 @@ public class Demand {
         int buffer = config.timeBuffer/2;
         for (TripTaxify<GPSLocation> trip : demand) {
             int bestTime = travelTimeProvider.getTravelTimeInMillis(trip);
-                addTripToIndex(trip, bestTime, buffer);
+			addTripToIndex(trip, bestTime, buffer);
         }
     }
 

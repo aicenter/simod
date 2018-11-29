@@ -15,7 +15,7 @@ nb-configuration.xml
 /trip_cache.json
 /allEdgesLoadHistory.json
 /src/main/python/.idea/
+/src/main/java/cz/agents/amodsim/config/
+/src/main/java/cz/agents/amodsim/LocalConfig.java
 
 maptiles/
-
-/src/main/java/cz/cvut/fel/aic/amodsim/ridesharing/taxify/ConfigTaxify.java

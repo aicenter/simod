@@ -6,7 +6,7 @@
 
 package cz.cvut.fel.aic.amodsim.ridesharing.taxify.groupgeneration;
 
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.io.TripTaxify;
 
 /**
  *
@@ -23,5 +23,7 @@ public abstract class Action {
 	
 	public abstract int getPossitionId();
 	
-	
+	public TripTaxify getTrip(){
+		return request.trip;
+	}
 }

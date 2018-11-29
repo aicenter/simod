@@ -113,7 +113,7 @@ public class PlanBuilder {
 	}
 	
 	Plan getPlan(){
-		return new Plan(startTime, endTime);
+		return new Plan(actions, startTime, endTime);
 	}
 	
 	private void recomputeTime(Action action, TravelTimeProvider travelTimeProvider) {

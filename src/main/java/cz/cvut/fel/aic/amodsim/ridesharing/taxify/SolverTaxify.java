@@ -73,7 +73,8 @@ public class SolverTaxify extends DARPSolver<TravelTimeProviderTaxify> {
 			
 			
             // Path to original .csv file with data
-            Demand demand = new Demand(travelTimeProvider, config, rawDemand, graph);
+//            Demand demand = new NormalDemand(travelTimeProvider, config, rawDemand, graph);
+			Demand demand = new GroupDemand(travelTimeProvider, config, optimalGroupPlans, graph);
             rawDemand = null;
             StationCentral central = new StationCentral(config, travelTimeProvider, graph);
             //demand.dumpData();
@@ -119,7 +120,7 @@ public class SolverTaxify extends DARPSolver<TravelTimeProviderTaxify> {
 				break;
 			}
 			
-			requests.add(new Request(trip.getStartTime(), fromId, toId, travelTimeProvider, amodsimConfig));
+			requests.add(new Request(trip, trip.getStartTime(), fromId, toId, travelTimeProvider, amodsimConfig));
 			
 			counter++;
 			if(counter >= 500000){

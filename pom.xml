@@ -42,8 +42,8 @@
                              also adding the project build directory -->
                         <classpath/>
                         <argument>cz.cvut.fel.aic.amodsim.Taxify</argument>
-                        <argument>/home/martin/projects/taxify/local_config_files/taxify.cfg</argument>
-                        <argument>-Xmx8g</argument>
+                        <argument>local_config_files/taxify.cfg</argument>
+                        <argument>-Xmx16g</argument>
                     </arguments>
                 </configuration>
             </plugin>

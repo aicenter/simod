@@ -55,7 +55,7 @@ public class NormalDemand extends Demand<TripTaxify<GPSLocation>>{
         nodeMap = (Map<Integer,Double>)  trip.nodes.get(1);
         addNodesToIndex(nodeMap, endNodes, ind);
         addCoordinatesToIndex(trip.getLocations(), ind);
-        demand.add(trip);
+//        demand.add(trip);
         lastInd++;
     }
 }

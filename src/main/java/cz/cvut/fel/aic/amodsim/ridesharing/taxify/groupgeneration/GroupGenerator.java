@@ -127,7 +127,7 @@ public class GroupGenerator {
             currentGroups = newCurrentGroups;		
 			currentGroupSize++;
 			
-			if(currentGroupSize >= 3){
+			if(currentGroupSize >= 2){
 				break;
 			}
         }

@@ -75,6 +75,7 @@ public abstract class Demand<D> {
         vectors =  new double[N][2];
         lastInd = 0;
         this.demand = demand;
+		prepareDemand(demand);
     }
     
 
@@ -151,26 +152,6 @@ public abstract class Demand<D> {
     
     abstract void prepareDemand(List<D> demand);
 
-    // helpers for prepareDemand
-    private void addTripToIndex(TripTaxify<GPSLocation> trip, int bestTime, int buffer){
-        int ind = lastInd;
-        //index[trip.id] = ind;
-        revIndex[ind] = trip.id;
-        startTimes[ind] = (int) trip.getStartTime() + buffer;
-        bestTimes[ind] = bestTime;
-        gpsCoordinates[ind] = trip.getGpsCoordinates();
- //       LOGGER.debug(trip.id +" "+Arrays.toString(trip.getGpsCoordinates()));
-        values[ind] = trip.getRideValue();
-
-        Map<Integer,Double> nodeMap = (Map<Integer,Double>)  trip.nodes.get(0);
-        addNodesToIndex(nodeMap, startNodes, ind);
-        nodeMap = (Map<Integer,Double>)  trip.nodes.get(1);
-        addNodesToIndex(nodeMap, endNodes, ind);
-        addCoordinatesToIndex(trip.getLocations(), ind);
-        lastInd++;
-    }
- 
-    
     void addCoordinatesToIndex(List<GPSLocation> nodes, int ind){
         GPSLocation start = nodes.get(0);
         GPSLocation end = nodes.get(nodes.size()-1);

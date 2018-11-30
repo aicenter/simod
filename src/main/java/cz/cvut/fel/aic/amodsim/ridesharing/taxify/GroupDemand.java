@@ -57,7 +57,7 @@ public class GroupDemand extends Demand<GroupPlan>{
         nodeMap = (Map<Integer,Double>)  groupPlan.getTargetNodeMap();
         addNodesToIndex(nodeMap, endNodes, ind);
         addCoordinatesToIndex(groupPlan.getLocations(), ind);
-        demand.add(groupPlan);
+//        demand.add(groupPlan);
         lastInd++;
 	}
     

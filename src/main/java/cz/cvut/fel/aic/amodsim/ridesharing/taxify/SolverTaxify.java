@@ -44,7 +44,7 @@ public class SolverTaxify extends DARPSolver<TravelTimeProviderTaxify> {
 	
 	private final AmodsimConfig amodsimConfig;
 	
-	//private final Solver solver;
+	private final Solver solver;
     
     @Inject 
     public SolverTaxify(TravelTimeProviderTaxify travelTimeProvider, TravelCostProvider travelCostProvider, 

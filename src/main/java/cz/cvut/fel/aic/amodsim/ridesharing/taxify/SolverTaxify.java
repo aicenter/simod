@@ -87,7 +87,7 @@ public class SolverTaxify extends DARPSolver<TravelTimeProviderTaxify> {
 ////          demand.loadData();
 //            //uncomment to save results
             Date timeStamp = Calendar.getInstance().getTime();
-            //Stats.writeEvaluationCsv(sol.getAllCars(), demand, config, central, timeStamp);
+            Stats.writeEvaluationCsv(sol.getAllCars(), demand, config, central, timeStamp);
         } catch (IOException ex) {
             LOGGER.error("File IO exception: "+ex);
         } catch (ParseException ex) {

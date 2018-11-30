@@ -50,6 +50,9 @@ public class Stats {
                 //pathToEval(car.getPathStats(), demand, central, config.speed, config.startYM);
             }
         }
+		catch(Exception ex){
+			ex.printStackTrace();
+		}
     }
     /**
      *  Data for evaluation script: 
@@ -105,7 +108,7 @@ public class Stats {
     }
     
     private static String makeFilename(String dir, String name, Date timeStamp){
-        String timeString = new SimpleDateFormat("dd-MM-HH:mm").format(timeStamp);
+        String timeString = new SimpleDateFormat("dd-MM-HH-mm").format(timeStamp);
         return dir + name + "_" + timeString+".csv";
     }
 }

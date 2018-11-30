@@ -1,10 +1,11 @@
 ### Taxify Competition: Team AIC's Solver
 
 The solution method is implemented in Java 8. The dependencies are managed by Maven 3.3.9. 
+To solve a integer linear program that appears as one of the subproblems of the solution approach, we use a mathematical optimization solver Gurobi 8.1.0. Gurobi is a dependency that is not in Maven and needs to be installed from http://www.gurobi.com/. 
 
 Choose an arbitrary base directory. The base directory will be denoted $BASEDIR. 
 
-1. Clone the project to a directory called $BASEDIR/taxify. 
+1. Clone the project/put the source codes to the directory called $BASEDIR/taxify. 
 
 2. The data are expected in a folder $BASEDIR/data.
 
@@ -28,6 +29,6 @@ If the build succeeds, you should see:
 
 $ mvn exec:exec
 
-5. When the solver has finished, the result will be stored in $BASEDIR/data directory. 
+5. The solver will read input data from $BASEDIR/data directory, computes vehicles routes to serve the requests, and stores the log to $BASEDIR/data directory. 
 
 

@@ -36,8 +36,8 @@ public class ConfigTaxify {
     // paths
     //TODO CHANGE THIS FOR YOUR MACHINE
     public String dir = "../data/";
-    public String tripFileName = dir+ "robotex2.csv";
-    public String depoFileName = dir + "robotex-depos.csv";
+    public String tripFileName = dir+ "robotex.csv";
+    public String depoFileName = dir + "robotex-depos-final.csv";
     public String matrixFileName = dir + "tallin_dist.bin";
 
 //    public int optimizeDepoLocations = 0; //default locations

@@ -1,84 +1,33 @@
-### Installation
-Install agentpolis from github.
-```commandline
-cd your/project/folder
-git clone https://github.com/aicenter/agentpolis.git
-```
-or with SSH key:
-```commandline
-git@github.com:aicenter/agentpolis.git
-```
-Install amodsim.
+### Taxify Competition: Team AIC's Solver
 
-```commandline
-cd your/project/folder
-git clone https://github.com/
-```
+The solution method is implemented in Java 8. The dependencies are managed by Maven 3.3.9. 
 
-### Data for simulation
-Create directory to keep data for simulation. For example:
+Choose an arbitrary base directory. The base directory will be denoted $BASEDIR. 
 
- /path/to/folder/amod-data
+1. Clone the project to a directory called $BASEDIR/taxify. 
 
-and two subdirectories
+2. The data are expected in a folder $BASEDIR/data.
 
-/amod-data/maps
+3. Compile the project using Maven:
 
-/amod-data/experiments
+$ cd taxify
+$ mvn compile
 
-Parent directory should contain following files:
+If the build succeeds, you should see:
 
-policy.json
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 4.159 s
+[INFO] Finished at: 2018-11-30T09:45:45+01:00
+[INFO] Final Memory: 31M/410M
+[INFO] ------------------------------------------------------------------------
+ 
 
+4. Run the solver main class (cz.cvut.fel.aic.amodsim.Taxify) using maven: 
 
-To /amod-data/maps go files with road graph:
+$ mvn exec:exec
 
-edges.geojson
-
-nodes.geojson
-
-Last subfolder is used by amodsim to save simulation results. 
-
-
-### Cofiguration
-Project uses two cofiguration files. Master config is in
-
-/your/folder/src/main/resources/cz/cvut/fel/aic/amodsim/config/config.cfg
-
-Local configuration files are in
-
-/your/folder/local_config_files
-
-Create new configuration file in local_config_files folder (like, my_config.cfg).
-
-Add paths to directory with data for simulation, and for saving the results:
-
-amodsim_data_dir: 'path/to/folder/amod-data/'
-
-trips_filename: 'trips'
-
-trips_file_path: $amodsim_data_dir + $trips_filenamev
-
-amodsim_experiment_dir: $amodsim_data_dir + 'experiments'  + '/'
-
-rebalancing:
-
-{
-
-    policy_file_path: $amodsim_data_dir +'policy.json'
-}
-
-In NetBeans open File/Project. First, open Cofigurations, add new configuration. The go to Run, choose configuration, you've just created.In Main class add
-cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation
-In Arguments path to your local configuration file
-/your/project/folder/local_config_files/my_config.cfg
-Go back to Configurations, and check if your configuration is activated.
-
-
-
-
-
-
-
+5. When the solver has finished, the result will be stored in $BASEDIR/data directory. 
 
 

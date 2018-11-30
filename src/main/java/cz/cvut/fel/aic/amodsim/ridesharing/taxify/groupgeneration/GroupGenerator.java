@@ -11,11 +11,13 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.SolverTaxify;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.search.TravelTimeProviderTaxify;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
+import me.tongfei.progressbar.ProgressBar;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -50,10 +52,10 @@ public class GroupGenerator {
 	public List<GroupPlan> generateGroups(List<Request> requests) {
 		
 		// F_v^{k - 1} - groupes for request adding
-		Set<GroupPlan> currentGroups = new LinkedHashSet<>();
+		List<GroupPlan> currentGroups = new LinkedList<>();
 		
 		// F_v^{1}
-        Set<Request> feasibleRequests = new LinkedHashSet<>();
+        List<Request> feasibleRequests = new ArrayList<>();
 		
 		// F_v all feasible groups with optimal plan already assigned to them - the output
         List<GroupPlan> groupsPlans = new LinkedList<>();
@@ -80,24 +82,41 @@ public class GroupGenerator {
 			
 			LOGGER.info("Generating groups of size {}", currentGroupSize + 1);
 			
-			Set<Request> feasibleRequestsForIteration;
-			if(currentGroupSize == 1){
-				feasibleRequestsForIteration = new LinkedHashSet<>(feasibleRequests);
-			}
-			else{
-				feasibleRequestsForIteration = feasibleRequests;
-			}
+//			Set<Request> feasibleRequestsForIteration;
+//			if(currentGroupSize == 1){
+//				feasibleRequestsForIteration = new LinkedHashSet<>(feasibleRequests);
+//			}
+//			else{
+//				feasibleRequestsForIteration = feasibleRequests;
+//			}
 
 			// current groups for the next iteration
-            Set<GroupPlan> newCurrentGroups = new LinkedHashSet<>();
+            List<GroupPlan> newCurrentGroups = new LinkedList<>();
 			
 			// set of groups that were already checked
 			Set<Set<Request>> currentCheckedGroups = new LinkedHashSet<>();
 
-            for (GroupPlan groupPlan : currentGroups) {
-                for (Request request : feasibleRequestsForIteration) {
-                    if (groupPlan.requests.contains(request) || !groupPlan.overlaps(request)){
+			int groupIndex = 0;
+            for (GroupPlan groupPlan : ProgressBar.wrap(currentGroups, "Generating groups of size " + (currentGroupSize + 1))) {
+//			for (GroupPlan groupPlan : currentGroups) {
+                for (int requestIndex = 0; requestIndex < requests.size(); requestIndex++) {
+                    if ((currentGroupSize == 1 && requestIndex <= groupIndex)){
 						continue;
+					}
+					
+					Request request = feasibleRequests.get(requestIndex);
+					
+					if(groupPlan.requests.contains(request)){
+						continue;
+					}
+					
+					if(!groupPlan.overlaps(request)){
+						if(currentGroupSize == 1){
+							break;
+						}
+						else{
+							continue;
+						}
 					}
 					
 					// G'
@@ -119,9 +138,11 @@ public class GroupGenerator {
                     }
                 }
 				
-				if(currentGroupSize == 1){
-					feasibleRequestsForIteration.remove(groupPlan.requests.iterator().next());
-				}
+//				if(currentGroupSize == 1){
+//					feasibleRequestsForIteration.remove(groupPlan.requests.iterator().next());
+//				}
+				
+				groupIndex++;
             }
 
             currentGroups = newCurrentGroups;		

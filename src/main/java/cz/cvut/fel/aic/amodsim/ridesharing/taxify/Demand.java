@@ -7,6 +7,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.taxify.search.HopcroftKarp;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.groupgeneration.GroupPlan;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
 import java.io.FileInputStream;
@@ -22,31 +23,35 @@ import org.slf4j.LoggerFactory;
 //import static cz.cvut.fel.aic.amodsim.ridesharing.taxify.Utils.cosine;
 /**
   * @author olga
+ * @param <D>
   * 
  */
 public abstract class Demand<D> {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Demand.class);
     TravelTimeProvider travelTimeProvider;
     ConfigTaxify config;
-    final  int[] index;
+    //final  int[] index;
+   
     final  int[] revIndex;
     final  int[][] startNodes;
     final int[][] endNodes;
     final  int[] startTimes;
     final  int[] bestTimes;
-    private final int N;
+    final int N;
     int lastInd;
     //private final String startTime;
     private final Graph<SimulationNode, SimulationEdge> graph;
     //private final int timeBuffer;
     
     double[] values;
-    private double[][] coordinates;
+    double[][] coordinates;
     double[][] gpsCoordinates;
 //    double[][] projStart;
     double[][] vectors;
     Rtree rtree;
+    List<D> demand;
 
+   
    
     public Demand(TravelTimeProvider travelTimeProvider, ConfigTaxify config, List<D> demand,
         Graph<SimulationNode, SimulationEdge> graph){
@@ -54,8 +59,8 @@ public abstract class Demand<D> {
         this.config = config;
         this.graph = graph;
         
-        index  = new int[demand.get(demand.size()-1).id+1];
-        LOGGER.debug("size of demand "+demand.size()+", last index "+demand.get(demand.size()-1).id);
+        //index  = new int[((TripTaxify) demand.get(demand.size()-1)).id+1];
+        LOGGER.debug("size of demand "+demand.size());//", last index "+index.length);
         N = demand.size();
         revIndex = new int[N];
         startTimes = new int[N];
@@ -69,28 +74,25 @@ public abstract class Demand<D> {
         //projStart = new double[N][2];
         vectors =  new double[N][2];
         lastInd = 0;
-        prepareDemand(demand);
+        this.demand = demand;
     }
-    public int getTime(int ind1, int ind2){
-        int[] starts = ind1 < N ? getStartNodes(ind1) : getEndNodes(ind1 - N);
-        int[] ends = ind2 < N ? getStartNodes(ind2) : getEndNodes(ind2 - N);
-        int time = travelTimeProvider.getTravelTimeInMillis(starts, ends);
-        return time;
-    }
+    
+
     public int size(){
         return N;
     }
-    public int id2ind(int id){
-        return index[id];
-    }
-//    public double[] getProjStart(int ind) {
-//        return projStart[ind];
-//    }
+
     public double[] getVector(int ind) {
         return vectors[ind];
     }
     public int ind2id(int ind){
-        return revIndex[ind];
+        //return revIndex[ind];
+        D trip = demand.get(ind);
+        if(trip.getClass() == TripTaxify.class){
+            return ((TripTaxify) demand.get(ind)).id;
+        }else{
+            return ((GroupPlan) demand.get(ind)).id;
+        }
     }
     public int getStartTime(int ind){
         return startTimes[ind];
@@ -152,7 +154,7 @@ public abstract class Demand<D> {
     // helpers for prepareDemand
     private void addTripToIndex(TripTaxify<GPSLocation> trip, int bestTime, int buffer){
         int ind = lastInd;
-        index[trip.id] = ind;
+        //index[trip.id] = ind;
         revIndex[ind] = trip.id;
         startTimes[ind] = (int) trip.getStartTime() + buffer;
         bestTimes[ind] = bestTime;

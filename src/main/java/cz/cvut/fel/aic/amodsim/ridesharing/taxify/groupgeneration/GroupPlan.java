@@ -18,10 +18,12 @@ import java.util.Set;
  * @author F.I.D.O.
  */
 public class GroupPlan {
+    private static int count = 0;
 	final Set<Request> requests;
 	
 	private final Plan plan;
-
+    public final int id;
+    
 	GroupPlan(Set<Request> requests) {
 		this(requests, null);
 	}
@@ -29,6 +31,7 @@ public class GroupPlan {
 	GroupPlan(Set<Request> requests, Plan plan) {
 		this.requests = requests;
 		this.plan = plan;
+        id = count++;
 	}
 	
 //	long getStartTime(){

@@ -12,6 +12,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.io.TripTaxify;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -20,10 +21,13 @@ import java.util.Map;
  * @author F.I.D.O.
  */
 public class NormalDemand extends Demand<TripTaxify<GPSLocation>>{
-
+       
+       
+       
 	public NormalDemand(TravelTimeProvider travelTimeProvider, ConfigTaxify config, 
 			List<TripTaxify<GPSLocation>> demand, Graph<SimulationNode, SimulationEdge> graph) {
 		super(travelTimeProvider, config, demand, graph);
+        
 	}
 
 	@Override
@@ -38,7 +42,7 @@ public class NormalDemand extends Demand<TripTaxify<GPSLocation>>{
 	// helpers for prepareDemand
     private void addTripToIndex(TripTaxify<GPSLocation> trip, int bestTime, int buffer){
         int ind = lastInd;
-        index[trip.id] = ind;
+        //index[trip.id] = ind;
         revIndex[ind] = trip.id;
         startTimes[ind] = (int) trip.getStartTime() + buffer;
         bestTimes[ind] = bestTime;
@@ -51,6 +55,7 @@ public class NormalDemand extends Demand<TripTaxify<GPSLocation>>{
         nodeMap = (Map<Integer,Double>)  trip.nodes.get(1);
         addNodesToIndex(nodeMap, endNodes, ind);
         addCoordinatesToIndex(trip.getLocations(), ind);
+        demand.add(trip);
         lastInd++;
     }
 }

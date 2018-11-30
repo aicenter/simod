@@ -38,7 +38,6 @@ public class NormalDemand extends Demand<TripTaxify<GPSLocation>>{
 	// helpers for prepareDemand
     private void addTripToIndex(TripTaxify<GPSLocation> trip, int bestTime, int buffer){
         int ind = lastInd;
-        index[trip.id] = ind;
         revIndex[ind] = trip.id;
         startTimes[ind] = (int) trip.getStartTime() + buffer;
         bestTimes[ind] = bestTime;

@@ -28,7 +28,6 @@ public abstract class Demand<D> {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Demand.class);
     TravelTimeProvider travelTimeProvider;
     ConfigTaxify config;
-    final  int[] index;
     final  int[] revIndex;
     final  int[][] startNodes;
     final int[][] endNodes;
@@ -53,9 +52,7 @@ public abstract class Demand<D> {
         this.travelTimeProvider = travelTimeProvider;
         this.config = config;
         this.graph = graph;
-        
-        index  = new int[demand.get(demand.size()-1).id+1];
-        LOGGER.debug("size of demand "+demand.size()+", last index "+demand.get(demand.size()-1).id);
+       
         N = demand.size();
         revIndex = new int[N];
         startTimes = new int[N];
@@ -79,9 +76,6 @@ public abstract class Demand<D> {
     }
     public int size(){
         return N;
-    }
-    public int id2ind(int id){
-        return index[id];
     }
 //    public double[] getProjStart(int ind) {
 //        return projStart[ind];
@@ -148,26 +142,6 @@ public abstract class Demand<D> {
     }
     
     abstract void prepareDemand(List<D> demand);
-
-    // helpers for prepareDemand
-    private void addTripToIndex(TripTaxify<GPSLocation> trip, int bestTime, int buffer){
-        int ind = lastInd;
-        index[trip.id] = ind;
-        revIndex[ind] = trip.id;
-        startTimes[ind] = (int) trip.getStartTime() + buffer;
-        bestTimes[ind] = bestTime;
-        gpsCoordinates[ind] = trip.getGpsCoordinates();
- //       LOGGER.debug(trip.id +" "+Arrays.toString(trip.getGpsCoordinates()));
-        values[ind] = trip.getRideValue();
-
-        Map<Integer,Double> nodeMap = (Map<Integer,Double>)  trip.nodes.get(0);
-        addNodesToIndex(nodeMap, startNodes, ind);
-        nodeMap = (Map<Integer,Double>)  trip.nodes.get(1);
-        addNodesToIndex(nodeMap, endNodes, ind);
-        addCoordinatesToIndex(trip.getLocations(), ind);
-        lastInd++;
-    }
- 
     
     void addCoordinatesToIndex(List<GPSLocation> nodes, int ind){
         GPSLocation start = nodes.get(0);

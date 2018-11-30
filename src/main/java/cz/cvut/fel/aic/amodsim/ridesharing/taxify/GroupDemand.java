@@ -38,8 +38,7 @@ public class GroupDemand extends Demand<GroupPlan>{
 
 	private void addGroupPlanToIndex(GroupPlan groupPlan, int bestTime, int buffer) {
 		int ind = lastInd;
-        index[trip.id] = ind;
-        revIndex[ind] = trip.id;
+        revIndex[ind] = 0;
         startTimes[ind] = (int) groupPlan.getStartTimeInSeconds() + buffer;
         bestTimes[ind] = bestTime;
         gpsCoordinates[ind] = groupPlan.getCoordinates();

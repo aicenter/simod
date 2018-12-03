@@ -52,10 +52,10 @@ public class BatchTest {
 		
 		// expected events
 		List<VGAEventData> expectedEvents = new LinkedList<>();
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 1, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 0, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 1, OnDemandVehicleEvent.DROP_OFF));
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 0, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new VGAEventData("0", 1, OnDemandVehicleEvent.PICKUP));
+		expectedEvents.add(new VGAEventData("0", 0, OnDemandVehicleEvent.PICKUP));
+		expectedEvents.add(new VGAEventData("0", 1, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new VGAEventData("0", 0, OnDemandVehicleEvent.DROP_OFF));
         
         scenario.run(graph, trips, vehicalInitPositions, expectedEvents);
     }

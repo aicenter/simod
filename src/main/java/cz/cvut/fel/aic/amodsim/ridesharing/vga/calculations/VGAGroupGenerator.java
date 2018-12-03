@@ -6,6 +6,9 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.taxify.groupgeneration.GroupGenerator;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -33,16 +36,15 @@ public class VGAGroupGenerator {
 		maximumRelativeDiscomfort = amodsimConfig.amodsim.ridesharing.vga.maximumRelativeDiscomfort;
 	}
 
-    public Set<VGAVehiclePlan> generateGroupsForVehicle(VGAVehicle vehicle, List<VGARequest> requests, 
-			int noOfVehicles) {
+    public List<VGAVehiclePlan> generateGroupsForVehicle(VGAVehicle vehicle, LinkedHashSet<VGARequest> requests) {
 		// F_v^{k - 1} - groupes for request adding
-		Set<Set<VGARequest>> currentGroups = new LinkedHashSet<>();
+		List<Set<VGARequest>> currentGroups = new ArrayList<>();
 		
 		// F_v^{1}
-        Set<VGARequest> feasibleRequests = new LinkedHashSet<>();
+        List<VGARequest> feasibleRequests = new ArrayList<>();
 		
 		// F_v all groups feasible for vehicle with optimal plan already assigned to them - the output
-        Set<VGAVehiclePlan> groups = new LinkedHashSet<>();
+        List<VGAVehiclePlan> groups = new ArrayList<>();
 
 		
 		if(vehicle.getRequestsOnBoard().isEmpty()){
@@ -63,7 +65,7 @@ public class VGAGroupGenerator {
 		
 		// groups of size 1
 		for (VGARequest r : requests) {
-			Set<VGARequest> group = new LinkedHashSet<>();
+			Set<VGARequest> group = new HashSet<>();
 			group.add(r);
 
 			VGAVehiclePlan plan;
@@ -83,7 +85,7 @@ public class VGAGroupGenerator {
         while(!currentGroups.isEmpty()) {
 
 			// current groups for the next iteration
-            Set<Set<VGARequest>> newCurrentGroups = new LinkedHashSet<>();
+            List<Set<VGARequest>> newCurrentGroups = new ArrayList<>();
 			
 			// set of groups that were already checked
 			Set<Set<VGARequest>> currentCheckedGroups = new LinkedHashSet<>();
@@ -95,7 +97,7 @@ public class VGAGroupGenerator {
 					}
 					
 					// G'
-                    Set<VGARequest> newGroupToCheck = new LinkedHashSet<>(group);
+                    Set<VGARequest> newGroupToCheck = new HashSet<>(group);
                     newGroupToCheck.add(request);
 					
                     if (currentCheckedGroups.contains(newGroupToCheck)){
@@ -107,9 +109,9 @@ public class VGAGroupGenerator {
                     if((plan = getOptimalPlan(vehicle, newGroupToCheck, false)) != null) {
                         newCurrentGroups.add(newGroupToCheck);
                         groups.add(plan);
-                        if(groups.size() > 150000 / noOfVehicles){
-                            return groups;
-                        }
+//                        if(groups.size() > 50){
+//                            return groups;
+//                        }
                     }
                 }
             }
@@ -117,6 +119,9 @@ public class VGAGroupGenerator {
             currentGroups = newCurrentGroups;
 			currentGroupSize++;
 //			LOGGER.debug("{} groups of the size {} generated", currentGroups.size(), currentGroupSize);
+			if(currentGroupSize >= 2){
+				break;
+			}
         }
 
 //		LOGGER.debug("Groups generated, total number of groups is {}", groups.size());
@@ -146,9 +151,7 @@ public class VGAGroupGenerator {
 
                 if(request.maxDropOffTime > simplerPlan.getCurrentTime() || ignoreTime) {
                     double currentCost = planCostComputation.calculatePlanCost(simplerPlan);
-                    if (((simplerPlan.getCurrentTime() - request.getOriginTime()) <= maximumRelativeDiscomfort *
-                            MathUtils.getTravelTimeProvider().getTravelTime(vehicle.getRidesharingVehicle(), request.from, request.to) / 1000.0 + 0.001
-                            || ignoreTime) && currentCost < upperBound) {
+                    if (currentCost < upperBound) {
                         if (simplerPlan.getWaitingRequests().isEmpty() && simplerPlan.getOnboardRequests().isEmpty()) {
                             upperBound = currentCost;
                             bestPlan = simplerPlan;

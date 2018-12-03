@@ -36,7 +36,7 @@ public class DroppingBatchTest {
 		
 		// set batch time
 		injector.getInstance(AmodsimConfig.class).amodsim.ridesharing.vga.batchPeriod = 10;
-		injector.getInstance(AmodsimConfig.class).amodsim.ridesharing.vga.maximumRelativeDiscomfort = 1.8;
+		injector.getInstance(AmodsimConfig.class).amodsim.ridesharing.vga.maximumRelativeDiscomfort = 0.8;
 		
 		// set roadgraph
         Graph<SimulationNode, SimulationEdge> graph 
@@ -53,8 +53,8 @@ public class DroppingBatchTest {
 		
 		// expected events
 		List<VGAEventData> expectedEvents = new LinkedList<>();
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 1, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 1, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new VGAEventData("0", 1, OnDemandVehicleEvent.PICKUP));
+		expectedEvents.add(new VGAEventData("0", 1, OnDemandVehicleEvent.DROP_OFF));
         
         scenario.run(graph, trips, vehicalInitPositions, expectedEvents);
     }

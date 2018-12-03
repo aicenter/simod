@@ -50,7 +50,7 @@ public class VGAILPSolver {
 	}
 
     public Map<VGAVehicle, VGAVehiclePlan> assignOptimallyFeasiblePlans(
-			Map<VGAVehicle, Set<VGAVehiclePlan>> feasiblePlans, Set<VGARequest> requests) {
+			Map<VGAVehicle, Set<VGAVehiclePlan>> feasiblePlans, LinkedHashSet<VGARequest> requests) {
 
         //Calculating size of the model
         Map<VGAVehicle, VGAVehiclePlan> optimalPlans = new LinkedHashMap<>();

@@ -13,6 +13,7 @@ import cz.cvut.fel.aic.agentpolis.CollectionUtil;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlan;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VehiclePlanList;
 import gurobi.GRB;
 import gurobi.GRBEnv;
 import gurobi.GRBException;
@@ -21,6 +22,7 @@ import gurobi.GRBModel;
 import gurobi.GRBVar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,7 +64,7 @@ public class GurobiSolver {
 	}
 	
 	public Map<VGAVehicle, VGAVehiclePlan> assignOptimallyFeasiblePlans(
-			Map<VGAVehicle, Set<VGAVehiclePlan>> feasiblePlans, Set<VGARequest> requests) {
+			List<VehiclePlanList> feasiblePlans, LinkedHashSet<VGARequest> requests) {
 		
 		try {
 			// solver init
@@ -77,15 +79,17 @@ public class GurobiSolver {
 			Map<VGARequest,List<GRBVar>> requestVariableMap = new HashMap<>();
 			
 			int vehicleCounter = 0;
-			for (Map.Entry<VGAVehicle, Set<VGAVehiclePlan>> vehicleEntry : feasiblePlans.entrySet()) {
+			for (VehiclePlanList vehicleEntry : feasiblePlans) {
 				
 				GRBLinExpr vehicleConstraint = new GRBLinExpr();
+				String vehicleId = vehicleEntry.vGAVehicle.getRidesharingVehicle().getId();
 				
 				int groupCounter = 0;
-				for (VGAVehiclePlan plan : vehicleEntry.getValue()) {
+				for (VGAVehiclePlan plan : vehicleEntry.feasibleGroupPlans) {
 					
 					// variables
-					String newVarName = String.format("vehicle: %s, group: %s", vehicleCounter, groupCounter);
+					String newVarName = String.format("vehicle: %s, group: %s", 
+							vehicleId, groupCounter);
 					GRBVar newVar = model.addVar(0.0, 1.0, 0.0, GRB.BINARY, newVarName);
 					variablePlanMap.put(newVar, plan);
 					
@@ -104,7 +108,7 @@ public class GurobiSolver {
 					groupCounter++;
 				}
 				
-				String vehicleConstraintName = String.format("One plan per vehicle - vehicle %s", vehicleCounter);
+				String vehicleConstraintName = String.format("One plan per vehicle - vehicle %s", vehicleId);
 				model.addConstr(vehicleConstraint, GRB.EQUAL, 1.0, vehicleConstraintName);
 				
 				vehicleCounter++;
@@ -115,7 +119,7 @@ public class GurobiSolver {
 			for (VGARequest request : requests) {
 				
 				// variables
-				String newVarName = String.format("droping request %s", requestCounter);
+				String newVarName = String.format("droping request %s", request.id);
 				GRBVar newVar = model.addVar(0.0, 1.0, 0.0, GRB.BINARY, newVarName);
 				
 				// objective
@@ -139,7 +143,7 @@ public class GurobiSolver {
 					requestConstraint.addTerm(1.0, planVariable);
 				}
 				
-				String requestConstraintName = String.format("One plan per request - request %s", requestCounter);
+				String requestConstraintName = String.format("One plan per request - request %s", request.id);
 				model.addConstr(requestConstraint, GRB.EQUAL, 1.0, requestConstraintName);
 				
 				requestCounter++;

@@ -165,7 +165,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
             PhysicalVehicleDriveFactory driveFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
             StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, 
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
-        super(vehicleId + " - autonomus agent", startPosition);
+        super(vehicleId, startPosition);
         this.tripsUtil = tripsUtil;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.driveFactory = driveFactory;

@@ -14,7 +14,7 @@ public class VGAVehicle {
 
     private VGAVehicle(RideSharingOnDemandVehicle v) {
         this.onDemandVehicle = v;
-        requestsOnBoard = new LinkedHashSet<>();
+        requestsOnBoard = new HashSet<>();
         agentpolisVehicleToVGA.put(v, this);
     }
 

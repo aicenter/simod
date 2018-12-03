@@ -56,16 +56,16 @@ public class ComplexTest {
 		
 		// expected events
 		List<VGAEventData> expectedEvents = new LinkedList<>();
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 1, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new VGAEventData("1 - autonomus agent", 2, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 0, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new VGAEventData("1 - autonomus agent", 2, OnDemandVehicleEvent.DROP_OFF));
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 3, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new VGAEventData("1 - autonomus agent", 4, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 1, OnDemandVehicleEvent.DROP_OFF));
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 3, OnDemandVehicleEvent.DROP_OFF));
-		expectedEvents.add(new VGAEventData("1 - autonomus agent", 4, OnDemandVehicleEvent.DROP_OFF));
-		expectedEvents.add(new VGAEventData("0 - autonomus agent", 0, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new VGAEventData("0", 1, OnDemandVehicleEvent.PICKUP));
+		expectedEvents.add(new VGAEventData("1", 2, OnDemandVehicleEvent.PICKUP));
+		expectedEvents.add(new VGAEventData("0", 0, OnDemandVehicleEvent.PICKUP));
+		expectedEvents.add(new VGAEventData("1", 2, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new VGAEventData("0", 3, OnDemandVehicleEvent.PICKUP));
+		expectedEvents.add(new VGAEventData("1", 4, OnDemandVehicleEvent.PICKUP));
+		expectedEvents.add(new VGAEventData("0", 1, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new VGAEventData("0", 3, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new VGAEventData("1", 4, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new VGAEventData("0", 0, OnDemandVehicleEvent.DROP_OFF));
         
         scenario.run(graph, trips, vehicalInitPositions, expectedEvents);
     }

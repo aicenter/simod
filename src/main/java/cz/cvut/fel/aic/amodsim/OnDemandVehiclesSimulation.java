@@ -52,7 +52,7 @@ public class OnDemandVehiclesSimulation {
 			
 			if(config.amodsim.amodsimRebalancing.on){
 				rebalancingLoader.load(new File(config.rebalancing.policyFilePath), true);
-				injector.getInstance(ReactiveRebalancing.class).start();
+//				injector.getInstance(ReactiveRebalancing.class).start();
 				injector.getInstance(EventInitializer.class).initialize(
                     tripTransform.loadTripsFromTxt(new File(config.amodsim.tripsPath)), null);
 			}

@@ -9,6 +9,9 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
 
 
 public class VGARequest {
+	
+	public final int id;
+	
     private final double originTime;
 
     private final DemandAgent demandAgent;
@@ -50,8 +53,10 @@ public class VGARequest {
 
 
 	@Inject
-    private VGARequest(AmodsimConfig amodsimConfig, @Assisted("origin") SimulationNode origin, 
+    private VGARequest(@Assisted int id, AmodsimConfig amodsimConfig, @Assisted("origin") SimulationNode origin, 
 			@Assisted("destination") SimulationNode destination, @Assisted DemandAgent demandAgent){
+		this.id = id;
+		
 		from = origin;
 		to = destination;
 		
@@ -90,7 +95,7 @@ public class VGARequest {
 	
 	
 	public interface VGARequestFactory {
-        public VGARequest create(@Assisted("origin") SimulationNode origin, 
+        public VGARequest create(int id, @Assisted("origin") SimulationNode origin, 
 				@Assisted("destination") SimulationNode destination, DemandAgent demandAgent);
     }
 

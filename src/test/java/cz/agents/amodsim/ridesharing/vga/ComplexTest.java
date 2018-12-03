@@ -33,6 +33,9 @@ public class ComplexTest {
 		VGASystemTestScenario scenario = new VGASystemTestScenario();
 		Injector injector = scenario.getInjector();
 		
+		// config
+		scenario.config.amodsim.ridesharing.vga.maximumRelativeDiscomfort = 3.0;
+		
 		// set roadgraph - grid 5x4
         Graph<SimulationNode, SimulationEdge> graph 
 				= Utils.getGridGraph(5, injector.getInstance(Transformer.class), 4);

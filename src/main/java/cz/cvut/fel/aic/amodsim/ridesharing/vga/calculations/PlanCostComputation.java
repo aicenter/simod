@@ -31,9 +31,10 @@ public class PlanCostComputation {
         if(COST_TYPE == VGAVehiclePlan.CostType.STANDARD) {
             return MathUtils.round(weight_parameter * plan.getDiscomfort() 
 					+ (1 - weight_parameter) * plan.getCurrentTime(), 8);
-        } else if (COST_TYPE == VGAVehiclePlan.CostType.SUM_OF_DROPOFF_TIMES) {
-            return MathUtils.round(plan.getDropoffTimeSum(), 8);
-        }
+        } 
+//		else if (COST_TYPE == VGAVehiclePlan.CostType.SUM_OF_DROPOFF_TIMES) {
+//            return MathUtils.round(plan.getDropoffTimeSum(), 8);
+//        }
         return -1;
     }
 	

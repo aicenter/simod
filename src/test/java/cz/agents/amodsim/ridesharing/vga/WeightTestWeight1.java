@@ -35,6 +35,7 @@ public class WeightTestWeight1 {
 		
 		// config
 		scenario.config.amodsim.ridesharing.vga.weightParameter = 1.0;
+		scenario.config.amodsim.ridesharing.vga.maximumRelativeDiscomfort = 3.0;
 		
 		// set roadgraph - grid 5x4
         Graph<SimulationNode, SimulationEdge> graph 

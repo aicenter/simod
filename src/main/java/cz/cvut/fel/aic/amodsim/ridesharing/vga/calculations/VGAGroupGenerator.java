@@ -3,6 +3,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.ridesharing.taxify.groupgeneration.GroupGenerator;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
 
@@ -10,11 +11,17 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
+import org.slf4j.LoggerFactory;
 
 
 
 @Singleton
 public class VGAGroupGenerator {
+	
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GroupGenerator.class);
+	
+	
+	
 	
 	private final double maximumRelativeDiscomfort;
 	
@@ -72,6 +79,7 @@ public class VGAGroupGenerator {
 		
 		
 		// generate other groups
+		int currentGroupSize = 1;
         while(!currentGroups.isEmpty()) {
 
 			// current groups for the next iteration
@@ -95,16 +103,6 @@ public class VGAGroupGenerator {
 					}
                     currentCheckedGroups.add(newGroupToCheck);
 
-//                    boolean add = true;
-//                    for(VGARequest rq : newGroupToCheck) {
-//                        Set<VGARequest> toCheckCase = new LinkedHashSet<>(newGroupToCheck);
-//                        toCheckCase.remove(rq);
-//                        if (!currentGroups.contains(toCheckCase)) {
-//                            add = false;
-//                            break;
-//                        }
-//                    }
-
                     VGAVehiclePlan plan;
                     if((plan = getOptimalPlan(vehicle, newGroupToCheck, false)) != null) {
                         newCurrentGroups.add(newGroupToCheck);
@@ -117,33 +115,16 @@ public class VGAGroupGenerator {
             }
 
             currentGroups = newCurrentGroups;
+			currentGroupSize++;
+//			LOGGER.debug("{} groups of the size {} generated", currentGroups.size(), currentGroupSize);
         }
 
+//		LOGGER.debug("Groups generated, total number of groups is {}", groups.size());
+		
         return groups;
     }
 
-    public static Set<VGAVehiclePlan> generateDroppingVehiclePlans(VGAVehicle v, Set<VGARequest> requests) {
-        Set<VGAVehiclePlan> droppingPlans = new LinkedHashSet<>();
-
-        for(VGARequest r : requests) {
-            Set<VGARequest> request = new LinkedHashSet<>();
-            request.add(r);
-            VGAVehiclePlan plan = new VGAVehiclePlan(v, request);
-            plan.add(new VGAVehiclePlanRequestDrop(r, plan));
-            droppingPlans.add(plan);
-        }
-
-        return droppingPlans;
-    }
-
     private VGAVehiclePlan getOptimalPlan(VGAVehicle vehicle, Set<VGARequest> group, boolean ignoreTime){
-//		// check if all onboard requests are in the group
-//		for(VGARequest onboardRequest: vehicle.getRequestsOnBoard()){
-//			if(!group.contains(onboardRequest)){
-//				return null;
-//			}
-//		}
-		
         Stack<VGAVehiclePlan> toCheck = new Stack<>();
 		VGAVehiclePlan emptyPlan = new VGAVehiclePlan(vehicle, group);
         toCheck.push(emptyPlan);
@@ -158,15 +139,15 @@ public class VGAGroupGenerator {
             VGAVehiclePlan plan = toCheck.pop();
 			
 			// dropoff actions
-            for(VGARequest r : plan.getOnboardRequests()){
+            for(VGARequest request : plan.getOnboardRequests()){
 
                 VGAVehiclePlan simplerPlan = new VGAVehiclePlan(plan);
-                simplerPlan.add(new VGAVehiclePlanDropoff(r, simplerPlan));
+                simplerPlan.add(new VGAVehiclePlanDropoff(request, simplerPlan));
 
-                if(r.getDestination().getWindow().isInWindow(simplerPlan.getCurrentTime()) || ignoreTime) {
+                if(request.maxDropOffTime > simplerPlan.getCurrentTime() || ignoreTime) {
                     double currentCost = planCostComputation.calculatePlanCost(simplerPlan);
-                    if (((simplerPlan.getCurrentTime() - r.getOriginTime()) <= maximumRelativeDiscomfort *
-                            MathUtils.getTravelTimeProvider().getTravelTime(vehicle.getRidesharingVehicle(), r.getOriginSimulationNode(), r.getDestinationSimulationNode()) / 1000.0 + 0.001
+                    if (((simplerPlan.getCurrentTime() - request.getOriginTime()) <= maximumRelativeDiscomfort *
+                            MathUtils.getTravelTimeProvider().getTravelTime(vehicle.getRidesharingVehicle(), request.from, request.to) / 1000.0 + 0.001
                             || ignoreTime) && currentCost < upperBound) {
                         if (simplerPlan.getWaitingRequests().isEmpty() && simplerPlan.getOnboardRequests().isEmpty()) {
                             upperBound = currentCost;
@@ -180,14 +161,14 @@ public class VGAGroupGenerator {
 
 			// pickup actions
 			if(plan.vehicleHasFreeCapacity()){
-				for (VGARequest r : plan.getWaitingRequests()) {
+				for (VGARequest request : plan.getWaitingRequests()) {
 
 					VGAVehiclePlan simplerPlan = new VGAVehiclePlan(plan);
 
 					// pick up time == demand time
-					simplerPlan.add(new VGAVehiclePlanPickup(r, simplerPlan));
+					simplerPlan.add(new VGAVehiclePlanPickup(request, simplerPlan));
 
-					if(r.getOrigin().getWindow().isInWindow(simplerPlan.getCurrentTime())) {
+					if(request.maxPickUpTime > simplerPlan.getCurrentTime()) {
 						toCheck.push(simplerPlan);
 					}
 				}

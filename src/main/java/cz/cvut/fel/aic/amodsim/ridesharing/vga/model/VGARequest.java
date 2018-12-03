@@ -10,13 +10,25 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
 
 public class VGARequest {
     private final double originTime;
-    private final VGANode origin;
-    private final VGANode destination;
+
     private final DemandAgent demandAgent;
 
 	private boolean onboard;
 	
 	private double discomfort;
+	
+	public final SimulationNode from;
+	
+	public final SimulationNode to;
+	
+	public final double minTravelTime;
+	
+	public final double maxPickUpTime;
+	
+	public final double maxDropOffTime;
+	
+	
+	
 
 	public boolean isOnboard() {
 		return onboard;
@@ -40,16 +52,16 @@ public class VGARequest {
 	@Inject
     private VGARequest(AmodsimConfig amodsimConfig, @Assisted("origin") SimulationNode origin, 
 			@Assisted("destination") SimulationNode destination, @Assisted DemandAgent demandAgent){
-		double originTime = demandAgent.getDemandTime() / 1000.0;
-        double idealTime = MathUtils.getTravelTimeProvider().getExpectedTravelTime(origin, destination) / 1000.0;
-        double delta = (amodsimConfig.amodsim.ridesharing.vga.maximumRelativeDiscomfort - 1) * idealTime;
-
-        VGANode o = VGANode.newInstance(new TimeWindow(originTime, originTime + delta), origin);
-        VGANode d = VGANode.newInstance(new TimeWindow(originTime + idealTime, originTime + idealTime + delta), destination);
+		from = origin;
+		to = destination;
 		
-        this.origin = o;
-        this.originTime = demandAgent.getDemandTime() / 1000.0;
-        this.destination = d;
+		originTime = demandAgent.getDemandTime() / 1000.0;
+        minTravelTime = MathUtils.getTravelTimeProvider().getExpectedTravelTime(origin, destination) / 1000.0;
+        double maxProlongation = (amodsimConfig.amodsim.ridesharing.vga.maximumRelativeDiscomfort) * minTravelTime;
+		
+		maxPickUpTime = originTime + maxProlongation;
+		maxDropOffTime = originTime + minTravelTime + maxProlongation;
+		
         this.demandAgent = demandAgent;
 		onboard = false;
 		discomfort = 0;
@@ -57,15 +69,7 @@ public class VGARequest {
 
     public double getOriginTime() { return originTime; }
 
-    public VGANode getOrigin() { return origin; }
-
-    public VGANode getDestination() { return destination; }
-
     public DemandAgent getDemandAgent() { return demandAgent; }
-
-    public SimulationNode getOriginSimulationNode() { return origin.getSimulationNode(); }
-
-    public SimulationNode getDestinationSimulationNode() { return destination.getSimulationNode(); }
 
     @Override
     public boolean equals(Object obj) {
@@ -80,7 +84,7 @@ public class VGARequest {
 
 	@Override
 	public String toString() {
-		return String.format("%s - from: %s to: %s", demandAgent, origin, destination);
+		return String.format("%s - from: %s to: %s", demandAgent, from, to);
 	}
 	
 	

@@ -165,6 +165,8 @@ public class GurobiSolver {
 				}
 			}
 			
+			model.dispose();
+			
 			return optimalPlans;
 		} catch (GRBException ex) {
 			Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);

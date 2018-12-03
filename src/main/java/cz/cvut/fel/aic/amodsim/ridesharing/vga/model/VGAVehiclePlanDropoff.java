@@ -3,7 +3,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.vga.model;
 public class VGAVehiclePlanDropoff extends VGAVehiclePlanAction {
 
     public VGAVehiclePlanDropoff(VGARequest request, VGAVehiclePlan plan){
-        super(request, request.getDestinationSimulationNode(), plan);
+        super(request, request.to, plan);
     }
 
     @Override

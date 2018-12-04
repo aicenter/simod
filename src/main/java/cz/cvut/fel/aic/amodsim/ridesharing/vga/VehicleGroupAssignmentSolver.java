@@ -132,17 +132,6 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
         Map<VGAVehicle, VGAVehiclePlan> optimalPlans 
 				= gurobiSolver.assignOptimallyFeasiblePlans(feasiblePlans, activeRequests);
 
-        //Removing the unnecessary empty plans
-        Set<VGAVehicle> toRemove = new LinkedHashSet<>();
-        for (Map.Entry<VGAVehicle, VGAVehiclePlan> entry : optimalPlans.entrySet()) {
-            if(entry.getValue().getActions().isEmpty()) {
-                toRemove.add(entry.getKey());
-            }
-        }
-        for(VGAVehicle v : toRemove) {
-            optimalPlans.remove(v);
-        }
-
         //Filling the output with converted plans
         for(Map.Entry<VGAVehicle, VGAVehiclePlan> entry : optimalPlans.entrySet()) {
             if(entry.getKey().getRidesharingVehicle() != null) {

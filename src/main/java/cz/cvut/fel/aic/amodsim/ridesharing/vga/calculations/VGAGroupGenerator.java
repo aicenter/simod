@@ -3,7 +3,6 @@ package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.ridesharing.taxify.groupgeneration.GroupGenerator;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
 import java.util.ArrayList;
@@ -21,7 +20,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class VGAGroupGenerator {
 	
-	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GroupGenerator.class);
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(VGAGroupGenerator.class);
 	
 	
 	
@@ -130,6 +129,62 @@ public class VGAGroupGenerator {
     }
 
     private VGAVehiclePlan getOptimalPlan(VGAVehicle vehicle, Set<VGARequest> group, boolean ignoreTime){
+        Stack<VGAVehiclePlan> toCheck = new Stack<>();
+		VGAVehiclePlan emptyPlan = new VGAVehiclePlan(vehicle, group);
+        toCheck.push(emptyPlan);
+
+        double upperBound = Double.POSITIVE_INFINITY;
+        VGAVehiclePlan bestPlan = null;
+
+		/* In each iteration, we try to add all reamining actions to the plan, one by one. After addition, there 
+		are feasibility tests. If the tests are OK, the new plan is added to queue for check. */
+        while(!toCheck.empty()){
+			
+            VGAVehiclePlan plan = toCheck.pop();
+			
+			// dropoff actions
+            for(VGARequest request : plan.getOnboardRequests()){
+
+                VGAVehiclePlan simplerPlan = new VGAVehiclePlan(plan);
+                simplerPlan.add(new VGAVehiclePlanDropoff(request, simplerPlan));
+
+                if(request.maxDropOffTime > simplerPlan.getCurrentTime() || ignoreTime) {
+                    double currentCost = planCostComputation.calculatePlanCost(simplerPlan);
+                    if (currentCost < upperBound) {
+                        if (simplerPlan.getWaitingRequests().isEmpty() && simplerPlan.getOnboardRequests().isEmpty()) {
+                            upperBound = currentCost;
+                            bestPlan = simplerPlan;
+                        } else {
+                            toCheck.push(simplerPlan);
+                        }
+                    }
+                }
+            }
+
+			// pickup actions
+			if(plan.vehicleHasFreeCapacity()){
+				for (VGARequest request : plan.getWaitingRequests()) {
+
+					VGAVehiclePlan simplerPlan = new VGAVehiclePlan(plan);
+
+					// pick up time == demand time
+					simplerPlan.add(new VGAVehiclePlanPickup(request, simplerPlan));
+
+					if(request.maxPickUpTime > simplerPlan.getCurrentTime()) {
+						toCheck.push(simplerPlan);
+					}
+				}
+			}
+        }
+
+        return bestPlan;
+    }
+	
+	private VGAVehiclePlan getOptimalPlanOptimized(VGAVehicle vehicle, Set<VGARequest> group, boolean ignoreTime){
+		VGAVehiclePlanAction[] plan = new VGAVehiclePlanAction[group.size()];
+		VGAVehiclePlanAction[] plan = new VGAVehiclePlanAction[group.size()];
+		
+		
         Stack<VGAVehiclePlan> toCheck = new Stack<>();
 		VGAVehiclePlan emptyPlan = new VGAVehiclePlan(vehicle, group);
         toCheck.push(emptyPlan);

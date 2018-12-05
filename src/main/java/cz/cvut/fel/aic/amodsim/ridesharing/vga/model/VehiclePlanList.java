@@ -15,9 +15,9 @@ import java.util.List;
 public class VehiclePlanList {
 	public final VGAVehicle vGAVehicle;
 	
-	public final List<VGAVehiclePlan> feasibleGroupPlans;
+	public final List<Plan> feasibleGroupPlans;
 
-	public VehiclePlanList(VGAVehicle vGAVehicle,List<VGAVehiclePlan> feasibleGroupPlans) {
+	public VehiclePlanList(VGAVehicle vGAVehicle, List<Plan> feasibleGroupPlans) {
 		this.vGAVehicle = vGAVehicle;
 		this.feasibleGroupPlans = feasibleGroupPlans;
 	}

@@ -54,8 +54,6 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     
     private DemandAgentState state;
     
-    private OnDemandVehicle vehicle;
-    
     private OnDemandVehicle onDemandVehicle;
     
     private long demandTime;
@@ -103,7 +101,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     }
 
     public OnDemandVehicle getVehicle() {
-        return vehicle;
+        return onDemandVehicle;
     }
 
     public OnDemandVehicle getOnDemandVehicle() {
@@ -186,7 +184,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
         eventProcessor.addEvent(StatisticEvent.DEMAND_DROPPED_OFF, null, null, 
                 new DemandServiceStatistic(demandTime, realPickupTime, timeProvider.getCurrentSimTime(), 
 						minDemandServiceDuration,
-						getId(), vehicle.getId()));
+						getId(), onDemandVehicle.getId()));
 		
         die();
     }
@@ -194,7 +192,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     public void tripStarted(OnDemandVehicle vehicle) {
         state = DemandAgentState.DRIVING;
 		realPickupTime = timeProvider.getCurrentSimTime();
-		this.vehicle = vehicle;
+		this.onDemandVehicle = vehicle;
     }
 
     @Override

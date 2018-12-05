@@ -117,10 +117,11 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
         // Generating feasible plans for each vehicle
         List<VehiclePlanList> feasiblePlans = new ArrayList<>(vehiclesForPlanning.size());
+		double startTime = VehicleGroupAssignmentSolver.getTimeProvider().getCurrentSimTime() / 1000.0;
 		LOGGER.info("Generating groups for vehicles.");
         for (VGAVehicle vehicle : ProgressBar.wrap(vehiclesForPlanning, "Generating groups for vehicles")) {
-			List<VGAVehiclePlan> feasibleGroupPlans = 
-					vGAGroupGenerator.generateGroupsForVehicle(vehicle, waitingRequests);
+			List<Plan> feasibleGroupPlans = 
+					vGAGroupGenerator.generateGroupsForVehicle(vehicle, waitingRequests, startTime);
 
 			VehiclePlanList vehiclePlanList = new VehiclePlanList(vehicle, feasibleGroupPlans);
 			feasiblePlans.add(vehiclePlanList);
@@ -129,11 +130,11 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		LOGGER.info("Groups generaated");
 
         //Using an ILP solver to optimally assign a group to each vehicle
-        Map<VGAVehicle, VGAVehiclePlan> optimalPlans 
+        Map<VGAVehicle,Plan> optimalPlans 
 				= gurobiSolver.assignOptimallyFeasiblePlans(feasiblePlans, activeRequests);
 
         //Filling the output with converted plans
-        for(Map.Entry<VGAVehicle, VGAVehiclePlan> entry : optimalPlans.entrySet()) {
+        for(Map.Entry<VGAVehicle,Plan> entry : optimalPlans.entrySet()) {
             if(entry.getKey().getRidesharingVehicle() != null) {
                 planMap.put(entry.getKey().getRidesharingVehicle(), entry.getValue().toDriverPlan());
             }

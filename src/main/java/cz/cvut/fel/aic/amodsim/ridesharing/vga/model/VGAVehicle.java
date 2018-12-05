@@ -10,11 +10,11 @@ public class VGAVehicle {
     private static Map<OnDemandVehicle, VGAVehicle> agentpolisVehicleToVGA = new LinkedHashMap<>();
 
     private final RideSharingOnDemandVehicle onDemandVehicle;
-    private final Set<VGARequest> requestsOnBoard;
+    private final LinkedHashSet<VGARequest> requestsOnBoard;
 
     private VGAVehicle(RideSharingOnDemandVehicle v) {
         this.onDemandVehicle = v;
-        requestsOnBoard = new HashSet<>();
+        requestsOnBoard = new LinkedHashSet<>();
         agentpolisVehicleToVGA.put(v, this);
     }
 
@@ -32,7 +32,7 @@ public class VGAVehicle {
 
     public RideSharingOnDemandVehicle getRidesharingVehicle() { return onDemandVehicle; }
 
-    public Set<VGARequest> getRequestsOnBoard() { 
+    public LinkedHashSet<VGARequest> getRequestsOnBoard() { 
 		return requestsOnBoard; 
 	}
 

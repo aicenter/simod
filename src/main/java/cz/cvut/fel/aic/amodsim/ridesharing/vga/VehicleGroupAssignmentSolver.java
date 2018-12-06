@@ -119,15 +119,17 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
         List<VehiclePlanList> feasiblePlans = new ArrayList<>(vehiclesForPlanning.size());
 		double startTime = VehicleGroupAssignmentSolver.getTimeProvider().getCurrentSimTime() / 1000.0;
 		LOGGER.info("Generating groups for vehicles.");
+		int planCount = 0;
         for (VGAVehicle vehicle : ProgressBar.wrap(vehiclesForPlanning, "Generating groups for vehicles")) {
 			List<Plan> feasibleGroupPlans = 
 					vGAGroupGenerator.generateGroupsForVehicle(vehicle, waitingRequests, startTime);
 
 			VehiclePlanList vehiclePlanList = new VehiclePlanList(vehicle, feasibleGroupPlans);
 			feasiblePlans.add(vehiclePlanList);
+			planCount += feasibleGroupPlans.size();
         }
         
-		LOGGER.info("Groups generaated");
+		LOGGER.info("{} groups generaated", planCount);
 
         //Using an ILP solver to optimally assign a group to each vehicle
         Map<VGAVehicle,Plan> optimalPlans 

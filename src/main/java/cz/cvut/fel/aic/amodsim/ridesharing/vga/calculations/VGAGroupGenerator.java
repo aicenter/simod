@@ -237,7 +237,7 @@ public class VGAGroupGenerator {
 			PlanActionData newActionData = availableActions[actionIndex];
 			
 			// check if action is not in the plan already
-			if(!newActionData.used){
+			if(newActionData.open && !newActionData.used){
 				VGAVehiclePlanAction newAction = newActionData.action;
 			
 				/**

@@ -303,9 +303,13 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
     protected void waitInStation() {
         targetStation.parkVehicle(this);
-        state = OnDemandVehicleState.WAITING;
-		completeTrip = null;
+        park();
     }
+	
+	protected void park(){
+		state = OnDemandVehicleState.WAITING;
+		completeTrip = null;
+	}
 
 	@Override
 	public VehicleTrip getCurrentTripPlan() {

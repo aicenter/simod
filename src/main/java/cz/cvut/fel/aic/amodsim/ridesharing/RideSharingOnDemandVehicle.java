@@ -162,6 +162,9 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 				if(onDemandVehicleStationsCentral.stationsOn()){
 					driveToNearestStation();
 				}
+				else{
+					park();
+				}
 			}
 		}
 		else{

@@ -114,6 +114,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			activeRequests.add(newRequest);
 			requestsMapBydemandAgents.put(newRequest.getDemandAgent().getSimpleId(), newRequest);
         }
+		
+		LOGGER.info("No. of active requests: {}", activeRequests.size());
 
         // Generating feasible plans for each vehicle
         List<VehiclePlanList> feasiblePlans = new ArrayList<>(vehiclesForPlanning.size());
@@ -132,11 +134,11 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		LOGGER.info("{} groups generaated", planCount);
 
         //Using an ILP solver to optimally assign a group to each vehicle
-        Map<VGAVehicle,Plan> optimalPlans 
+        Map<VGAVehicle,Plan<VGAVehicle>> optimalPlans 
 				= gurobiSolver.assignOptimallyFeasiblePlans(feasiblePlans, activeRequests);
 
         //Filling the output with converted plans
-        for(Map.Entry<VGAVehicle,Plan> entry : optimalPlans.entrySet()) {
+        for(Map.Entry<VGAVehicle,Plan<VGAVehicle>> entry : optimalPlans.entrySet()) {
             if(entry.getKey().getRidesharingVehicle() != null) {
                 planMap.put(entry.getKey().getRidesharingVehicle(), entry.getValue().toDriverPlan());
             }

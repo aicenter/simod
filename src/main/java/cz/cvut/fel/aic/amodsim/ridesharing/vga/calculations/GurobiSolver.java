@@ -13,7 +13,6 @@ import cz.cvut.fel.aic.agentpolis.CollectionUtil;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehicle;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanPickup;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VehiclePlanList;
@@ -28,7 +27,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +64,7 @@ public class GurobiSolver {
 		iteration = 1;
 	}
 	
-	public Map<VGAVehicle, Plan> assignOptimallyFeasiblePlans(
+	public Map<VGAVehicle, Plan<VGAVehicle>> assignOptimallyFeasiblePlans(
 			List<VehiclePlanList> feasiblePlans, LinkedHashSet<VGARequest> requests) {
 		
 		try {
@@ -76,7 +74,7 @@ public class GurobiSolver {
 			
 			
 			// map for solution processing
-			Map<GRBVar,Plan> variablePlanMap = new HashMap<>();
+			Map<GRBVar,Plan<VGAVehicle>> variablePlanMap = new HashMap<>();
 			
 			// map for request constraint generation
 			Map<VGARequest,List<GRBVar>> requestVariableMap = new HashMap<>();
@@ -88,7 +86,7 @@ public class GurobiSolver {
 				String vehicleId = vehicleEntry.vGAVehicle.getRidesharingVehicle().getId();
 				
 				int groupCounter = 0;
-				for (Plan plan : vehicleEntry.feasibleGroupPlans) {
+				for (Plan<VGAVehicle> plan : vehicleEntry.feasibleGroupPlans) {
 					
 					// variables
 					String newVarName = String.format("vehicle: %s, group: %s", 
@@ -165,11 +163,11 @@ public class GurobiSolver {
 			LOGGER.info("Objective function value: {}", model.get(GRB.DoubleAttr.ObjVal));
 			
 			// create output from solution
-			Map<VGAVehicle, Plan> optimalPlans = new LinkedHashMap<>();
+			Map<VGAVehicle, Plan<VGAVehicle>> optimalPlans = new LinkedHashMap<>();
 			
-			for (Map.Entry<GRBVar, Plan> entry : variablePlanMap.entrySet()) {
+			for (Map.Entry<GRBVar, Plan<VGAVehicle>> entry : variablePlanMap.entrySet()) {
 				GRBVar variable = entry.getKey();
-				Plan plan = entry.getValue();
+				Plan<VGAVehicle> plan = entry.getValue();
 				
 				if(variable.get(GRB.DoubleAttr.X) == 1.0){
 					optimalPlans.put(plan.getVehicle(), plan);

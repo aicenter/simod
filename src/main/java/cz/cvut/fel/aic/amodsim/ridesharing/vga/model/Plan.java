@@ -9,14 +9,16 @@ package cz.cvut.fel.aic.amodsim.ridesharing.vga.model;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTask;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTaskType;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
  * @author F.I.D.O.
+ * @param <V>
  */
-public class Plan {
+public class Plan<V extends IOptimalPlanVehicle>{
 	private final int startTime;
 	
 	private final int endTime;
@@ -25,7 +27,7 @@ public class Plan {
 	
 	private final List<VGAVehiclePlanAction> actions;
 	
-	private final VGAVehicle vehicle;
+	private final V vehicle;
 	
 
 	public int getCost() {
@@ -36,7 +38,7 @@ public class Plan {
 		return actions;
 	}
 
-	public VGAVehicle getVehicle() {
+	public V getVehicle() {
 		return vehicle;
 	}
 
@@ -45,7 +47,7 @@ public class Plan {
 	 * @param startTime
 	 * @param vehicle 
 	 */
-	public Plan(int startTime, VGAVehicle vehicle) {
+	public Plan(int startTime, V vehicle) {
 		this.startTime = startTime;
 		this.vehicle = vehicle;
 		endTime = startTime;
@@ -57,7 +59,7 @@ public class Plan {
 	
 	
 	
-	public Plan(int startTime, int endTime, int cost, List<VGAVehiclePlanAction> actions, VGAVehicle vehicle) {
+	public Plan(int startTime, int endTime, int cost, List<VGAVehiclePlanAction> actions, V vehicle) {
 		this.startTime = startTime;
 		this.endTime = endTime;
 		this.cost = cost;
@@ -68,7 +70,7 @@ public class Plan {
 	public DriverPlan toDriverPlan() {
 		List<DriverPlanTask> tasks = new ArrayList<>(actions.size() + 1);
 		tasks.add(new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, 
-				vehicle.getRidesharingVehicle().getPosition()));
+				vehicle.getPosition()));
 		for(VGAVehiclePlanAction action: actions){
 			DriverPlanTaskType taskType;
 			if(action instanceof VGAVehiclePlanPickup){

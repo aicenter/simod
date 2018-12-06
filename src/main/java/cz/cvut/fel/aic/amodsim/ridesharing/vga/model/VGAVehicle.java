@@ -1,11 +1,13 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.model;
 
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 
 import java.util.*;
 
-public class VGAVehicle {
+public class VGAVehicle implements IOptimalPlanVehicle{
 
     private static Map<OnDemandVehicle, VGAVehicle> agentpolisVehicleToVGA = new LinkedHashMap<>();
 
@@ -32,6 +34,7 @@ public class VGAVehicle {
 
     public RideSharingOnDemandVehicle getRidesharingVehicle() { return onDemandVehicle; }
 
+	@Override
     public LinkedHashSet<VGARequest> getRequestsOnBoard() { 
 		return requestsOnBoard; 
 	}
@@ -47,6 +50,16 @@ public class VGAVehicle {
 	@Override
 	public String toString() {
 		return String.format("VGA vehicle: %s", onDemandVehicle.getId());
+	}
+
+	@Override
+	public SimulationNode getPosition() {
+		return onDemandVehicle.getPosition();
+	}
+
+	@Override
+	public int getCapacity() {
+		return onDemandVehicle.getCapacity();
 	}
 	
 	

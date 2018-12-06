@@ -6,6 +6,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTask;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTaskType;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
 
 import java.util.*;
@@ -17,10 +18,8 @@ import java.util.*;
 public class VGAVehiclePlan {
 
     private double discomfort;
-
-    private final RideSharingOnDemandVehicle vehicle;
 	
-	public final VGAVehicle vgaVehicle;
+	public final IOptimalPlanVehicle vgaVehicle;
 	
     private final Set<VGARequest> requests;
     private final Set<VGARequest> waitingRequests;
@@ -34,9 +33,8 @@ public class VGAVehiclePlan {
 	
 	
 
-    public VGAVehiclePlan(VGAVehicle vgaVehicle, Set<VGARequest> group){
+    public VGAVehiclePlan(IOptimalPlanVehicle vgaVehicle, Set<VGARequest> group){
 		this.vgaVehicle = vgaVehicle;
-        this.vehicle = vgaVehicle.getRidesharingVehicle();
         this.discomfort = 0;
         this.actions = new ArrayList<>();
         this.requests = new LinkedHashSet<>(group);
@@ -50,7 +48,6 @@ public class VGAVehiclePlan {
 
     public VGAVehiclePlan(VGAVehiclePlan vehiclePlan){
 		this.vgaVehicle = vehiclePlan.vgaVehicle;
-        this.vehicle = vehiclePlan.vehicle;
         this.discomfort = vehiclePlan.discomfort;
 		this.startTime = vehiclePlan.startTime;
 		this.endTime = vehiclePlan.endTime;
@@ -68,20 +65,19 @@ public class VGAVehiclePlan {
             onboardRequests.add(action.getRequest());
         } else if (action instanceof VGAVehiclePlanDropoff) {
             discomfort += getCurrentTime() - action.request.getOriginTime() -
-                    MathUtils.getTravelTimeProvider().getTravelTime(vehicle,
-                        action.getRequest().from, action.getRequest().to) / 1000.0;
+                    MathUtils.getTravelTimeProvider().getExpectedTravelTime(
+							action.getRequest().from, action.getRequest().to) / 1000.0;
             onboardRequests.remove(action.getRequest());
         }
     }
 	
 	private void recomputeTime(SimulationNode position) {
-		endTime += MathUtils.getTravelTimeProvider().getTravelTime(
-				getVehicle(), getCurrentPosition(), position) / 1000.0;
+		endTime += MathUtils.getTravelTimeProvider().getExpectedTravelTime(getCurrentPosition(), position) / 1000.0;
 	}
 
     SimulationNode getCurrentPosition(){
         if(actions.size() == 0){
-            return vehicle.getPosition();
+            return vgaVehicle.getPosition();
         }
 
         return actions.get(actions.size() - 1).getPosition();
@@ -96,11 +92,11 @@ public class VGAVehiclePlan {
     
 
     public DriverPlan toDriverPlan(){
-        if(vehicle == null) { return null; }
+        if(vgaVehicle == null) { return null; }
 
         List<DriverPlanTask> tasks = new ArrayList<>();
 
-        tasks.add(new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, vehicle.getPosition()));
+        tasks.add(new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, vgaVehicle.getPosition()));
         for(VGAVehiclePlanAction action : actions){
             if(action instanceof VGAVehiclePlanPickup) {
                 tasks.add(new DriverPlanTask(DriverPlanTaskType.PICKUP, action.getRequest().getDemandAgent(), 
@@ -115,7 +111,7 @@ public class VGAVehiclePlan {
     }
 	
 	public boolean vehicleHasFreeCapacity(){
-		return onboardRequests.size() < vehicle.getCapacity();
+		return onboardRequests.size() < vgaVehicle.getCapacity();
 	}
 
 //    public double getDropoffTimeSum() {
@@ -143,7 +139,7 @@ public class VGAVehiclePlan {
     public boolean equals(Object obj) {
         if(!(obj instanceof VGAVehiclePlan)) return false;
 
-        return ((VGAVehiclePlan) obj).vehicle == this.vehicle && obj.toString().equals(this.toString());
+        return ((VGAVehiclePlan) obj).vgaVehicle == this.vgaVehicle && obj.toString().equals(this.toString());
     }
 
     @Override
@@ -151,7 +147,7 @@ public class VGAVehiclePlan {
         return toString().hashCode();
     }
 
-    public RideSharingOnDemandVehicle getVehicle() { return vehicle; }
+    public IOptimalPlanVehicle getVehicle() { return vgaVehicle; }
 
     public Set<VGARequest> getRequests() { return requests; }
 

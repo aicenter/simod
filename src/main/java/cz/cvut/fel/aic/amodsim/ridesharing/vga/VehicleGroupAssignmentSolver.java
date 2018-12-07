@@ -169,6 +169,9 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
         
 		LOGGER.info("{} groups generated", planCount);
+		if(true){
+			printGroupStats(feasiblePlans);
+		}
 		if(insufficientCacityCount > 0){
 			LOGGER.info("{} request won't be served from station due to insufficient capacity",
 					insufficientCacityCount);
@@ -280,6 +283,22 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		VehiclePlanList vehiclePlanList = new VehiclePlanList(vehicle, feasibleGroupPlans);
 		feasiblePlans.add(vehiclePlanList);
 		planCount += feasibleGroupPlans.size();
+	}
+
+	private void printGroupStats(List<VehiclePlanList> feasiblePlans) {
+		Map<Integer,Integer> stats = new HashMap();
+		for (VehiclePlanList feasiblePlan : feasiblePlans) {
+			for (Plan feasibleGroupPlan : feasiblePlan.feasibleGroupPlans) {
+				int size = Math.round(feasibleGroupPlan.getActions().size() / 2);
+				CollectionUtil.incrementMapValue(stats, size, 1);
+			}
+		}
+		
+		for (Map.Entry<Integer, Integer> entry : stats.entrySet()) {
+			Integer size = entry.getKey();
+			Integer count = entry.getValue();
+			LOGGER.info("{} groups of size {}", count, size);
+		}
 	}
 
 }

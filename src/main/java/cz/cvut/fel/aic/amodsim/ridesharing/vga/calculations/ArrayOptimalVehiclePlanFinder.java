@@ -57,7 +57,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 		int actionIndex = 0;
 		
 		// global stats
-		int onBoardCount = 0;
+		int onBoardCount = vehicle.getRequestsOnBoard().size();
 		
 		double endTime = startTime;
 		SimulationNode lastPosition = vehicle.getPosition();

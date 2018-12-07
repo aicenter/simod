@@ -36,16 +36,14 @@ public class StationsDispatcher extends EventHandlerAdapter{
     
     private final OnDemandvehicleStationStorage onDemandvehicleStationStorage;
     
-    private final Transformer transformer;
+    
     
     private final EventProcessor eventProcessor;
 	
 	protected final AmodsimConfig config;
     
     
-    private NearestElementUtil<OnDemandVehicleStation> nearestElementUtil;
     
-    private int numberOfDemandsNotServedFromNearestStation;
     
     protected int numberOfDemandsDropped;
     
@@ -57,7 +55,7 @@ public class StationsDispatcher extends EventHandlerAdapter{
     
     
     public int getNumberOfDemandsNotServedFromNearestStation() {
-        return numberOfDemandsNotServedFromNearestStation;
+        return onDemandvehicleStationStorage.getNumberOfDemandsNotServedFromNearestStation();
     }
 
     public int getNumberOfDemandsDropped() {
@@ -82,12 +80,10 @@ public class StationsDispatcher extends EventHandlerAdapter{
     
     @Inject
     public StationsDispatcher(OnDemandvehicleStationStorage onDemandvehicleStationStorage,
-            EventProcessor eventProcessor, AmodsimConfig config, @Named("mapSrid") int srid) {
+            EventProcessor eventProcessor, AmodsimConfig config) {
         this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
         this.eventProcessor = eventProcessor;
 		this.config = config;
-        transformer = new Transformer(srid);
-        numberOfDemandsNotServedFromNearestStation = 0;
         numberOfDemandsDropped = 0;
         demandsCount = 0;
         rebalancingDropped = 0;
@@ -110,58 +106,6 @@ public class StationsDispatcher extends EventHandlerAdapter{
                 break;
         }
         
-    }
-    
-    public OnDemandVehicleStation getNearestReadyStation(GPSLocation position){
-        if(nearestElementUtil == null){
-            nearestElementUtil = getNearestElementUtilForStations();
-        }
-        
-        OnDemandVehicleStation[] onDemandVehicleStationsSorted 
-                = (OnDemandVehicleStation[]) nearestElementUtil.getKNearestElements(position, 1);
-        
-//        OnDemandVehicleStation[] onDemandVehicleStationsSorted 
-//                = (OnDemandVehicleStation[]) nearestElementUtil.getKNearestElements(position, getNumberOfstations() - 1);
-        
-        OnDemandVehicleStation nearestStation = null;
-        int i = 0;
-        while(i < onDemandVehicleStationsSorted.length){
-            if(!onDemandVehicleStationsSorted[i].isEmpty()){
-                if(i > 0){
-                    numberOfDemandsNotServedFromNearestStation++;
-                }
-                nearestStation = onDemandVehicleStationsSorted[i];
-                break;
-            }
-            i++;
-        }
-        
-        return nearestStation;
-    }
-    
-     public OnDemandVehicleStation getNearestStation(GPSLocation position){
-        if(nearestElementUtil == null){
-            nearestElementUtil = getNearestElementUtilForStations();
-        }
-        
-        OnDemandVehicleStation nearestStation = nearestElementUtil.getNearestElement(position);
-        return nearestStation;
-    }
-    
-    private NearestElementUtil<OnDemandVehicleStation> getNearestElementUtilForStations() {
-        List<NearestElementUtilPair<Coordinate,OnDemandVehicleStation>> pairs = new ArrayList<>();
-        
-        OnDemandvehicleStationStorage.EntityIterator iterator = onDemandvehicleStationStorage.new EntityIterator();
-		
-        OnDemandVehicleStation station;
-		while ((station = iterator.getNextEntity()) != null) {
-            GPSLocation location = station.getPosition();
-            
-			pairs.add(new NearestElementUtilPair<>(new Coordinate(
-                    location.getLongitude(), location.getLatitude(), location.elevation), station));
-		}
-		
-		return new NearestElementUtil<>(pairs, transformer, new OnDemandVehicleStationArrayConstructor());
     }
 
     private void processDemand(Event event) {
@@ -192,7 +136,7 @@ public class StationsDispatcher extends EventHandlerAdapter{
     }
 
 	protected void serveDemand(Node startNode, DemandData demandData) {
-		OnDemandVehicleStation nearestStation = getNearestReadyStation(startNode); 
+		OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestReadyStation(startNode); 
 		if(nearestStation != null){
 			nearestStation.handleTripRequest(demandData);
 		}
@@ -200,20 +144,16 @@ public class StationsDispatcher extends EventHandlerAdapter{
 			numberOfDemandsDropped++;
 		}
 	}
-    
-    
-    
-    
-    
-    private static class OnDemandVehicleStationArrayConstructor 
-            implements SerializableIntFunction<OnDemandVehicleStation[]>{
 
-        @Override
-        public OnDemandVehicleStation[] apply(int value) {
-            return new OnDemandVehicleStation[value];
-        }
+	public OnDemandVehicleStation getNearestStation(GPSLocation position) {
+		return onDemandvehicleStationStorage.getNearestStation(position);
+	}
+    
+    
+    
+    
+    
 
-    }
     
     
 }

@@ -11,7 +11,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import cz.cvut.fel.aic.amodsim.DemandData;
 import cz.cvut.fel.aic.amodsim.DemandSimulationEntityType;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
-import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
@@ -43,7 +42,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OnDemandVehicleStation.class);
     
-    private final LinkedList<OnDemandVehicle> parkedVehicles;
+    private final ArrayList<OnDemandVehicle> parkedVehicles;
     
     private final EventProcessor eventProcessor;
 
@@ -68,7 +67,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             StationsDispatcher onDemandVehicleStationsCentral) {
         super(id, node);
         this.eventProcessor = eventProcessor;
-        parkedVehicles = new LinkedList<>();
+        parkedVehicles = new ArrayList<>();
 //		initialVehicleCount = 10;
         for (int i = 0; i < initialVehicleCount; i++) {
 			String onDemandVehicelId = String.format("%s-%d", id, i);
@@ -152,7 +151,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             return;
         }
         
-        OnDemandVehicle vehicle = getVehicle();
+        OnDemandVehicle vehicle = getAndRemoveVehicle();
         
         if(vehicle != null){
             vehicle.setDepartureStation(this);
@@ -169,7 +168,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     }
 
     public boolean rebalance(OnDemandVehicleStation targetStation) {
-        OnDemandVehicle vehicle = getVehicle();
+        OnDemandVehicle vehicle = getAndRemoveVehicle();
         if(vehicle != null){
             vehicle.startRebalancing(targetStation);
             return true;
@@ -183,13 +182,17 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         return parkedVehicles.isEmpty();
     }
 
-    private OnDemandVehicle getVehicle() {
+    private OnDemandVehicle getAndRemoveVehicle() {
         OnDemandVehicle nearestVehicle;
 
-        nearestVehicle = parkedVehicles.poll();
+        nearestVehicle = parkedVehicles.remove(0);
         
         return nearestVehicle;
     }
+	
+	public OnDemandVehicle getVehicle(int index){
+		return parkedVehicles.get(index);
+	}
     
     private NearestElementUtil<OnDemandVehicle> getNearestElementUtilForVehiclesBeforeDeparture(
             OnDemandVehicleStation targetStation) {

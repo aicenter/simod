@@ -53,9 +53,8 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	
 	@Inject
 	public RidesharingDispatcher(OnDemandvehicleStationStorage onDemandvehicleStationStorage, 
-			EventProcessor eventProcessor, AmodsimConfig config, DARPSolver solver, PeriodicTicker ticker,
-			@Named("mapSrid") int srid) {
-		super(onDemandvehicleStationStorage, eventProcessor, config, srid);
+			EventProcessor eventProcessor, AmodsimConfig config, DARPSolver solver, PeriodicTicker ticker) {
+		super(onDemandvehicleStationStorage, eventProcessor, config);
 		this.solver = solver;
 		requestQueue = new LinkedList<>();
 		darpSolverComputationalTimes = new LinkedList<>();

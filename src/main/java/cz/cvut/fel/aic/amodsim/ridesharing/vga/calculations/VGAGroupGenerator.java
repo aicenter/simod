@@ -6,9 +6,11 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 import org.slf4j.LoggerFactory;
@@ -108,21 +110,32 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 						continue;
 					}
                     currentCheckedGroups.add(newGroupToCheck);
+					
+					boolean checkFeasibility = true;
+					for(Set<PlanComputationRequest> subset: getAllNMinus1Subsets(newGroupToCheck)){
+						if(!currentGroups.contains(new GroupData(subset, null))){
+							checkFeasibility = false;
+							break;
+						}
+					}
+					
+					if(checkFeasibility){
 
-					// actions
-					List<VGAVehiclePlanAction> actions = new ArrayList<>(groupData.actions);
-					actions.add(new VGAVehiclePlanPickup(request));
-					actions.add(new VGAVehiclePlanDropoff(request));
-					
-					
-                    Plan plan;
-                    if((plan = optimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, actions, startTime, false)) != null) {
-                        newCurrentGroups.add(new GroupData(newGroupToCheck, actions));
-                        groupPlans.add(plan);
-//                        if(groups.size() > 50){
-//                            return groups;
-//                        }
-                    }
+						// actions
+						List<VGAVehiclePlanAction> actions = new ArrayList<>(groupData.actions);
+						actions.add(new VGAVehiclePlanPickup(request));
+						actions.add(new VGAVehiclePlanDropoff(request));
+
+
+						Plan plan;
+						if((plan = optimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, actions, startTime, false)) != null) {
+							newCurrentGroups.add(new GroupData(newGroupToCheck, actions));
+							groupPlans.add(plan);
+	//                        if(groups.size() > 50){
+	//                            return groups;
+	//                        }
+						}
+					}
                 }
             }
 
@@ -149,8 +162,46 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 			this.requests = requests;
 			this.actions = actions;
 		}
+
+		@Override
+		public int hashCode() {
+			int hash = 7;
+			hash = 31 * hash + Objects.hashCode(this.requests);
+			return hash;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			final GroupData other = (GroupData) obj;
+			if (!Objects.equals(this.requests, other.requests)) {
+				return false;
+			}
+			return true;
+		}
+		
+		
 	}
 	
-	
+	private List<Set<PlanComputationRequest>> getAllNMinus1Subsets(LinkedHashSet<PlanComputationRequest> set){
+		List<Set<PlanComputationRequest>> subsets = new ArrayList<>();
+		
+		for (PlanComputationRequest planComputationRequest : set) {
+			Set<PlanComputationRequest> subset = new HashSet<>(set);
+			subset.remove(planComputationRequest);
+			subsets.add(subset);
+		}
+		
+		return subsets;
+	}
+		
 
 }

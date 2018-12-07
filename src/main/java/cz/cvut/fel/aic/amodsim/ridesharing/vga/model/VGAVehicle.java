@@ -4,6 +4,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanComputationRequest;
 
 import java.util.*;
 
@@ -12,7 +13,7 @@ public class VGAVehicle implements IOptimalPlanVehicle{
     private static Map<OnDemandVehicle, VGAVehicle> agentpolisVehicleToVGA = new LinkedHashMap<>();
 
     private final RideSharingOnDemandVehicle onDemandVehicle;
-    private final LinkedHashSet<VGARequest> requestsOnBoard;
+    private final LinkedHashSet<PlanComputationRequest> requestsOnBoard;
 
     private VGAVehicle(RideSharingOnDemandVehicle v) {
         this.onDemandVehicle = v;
@@ -35,7 +36,7 @@ public class VGAVehicle implements IOptimalPlanVehicle{
     public RideSharingOnDemandVehicle getRidesharingVehicle() { return onDemandVehicle; }
 
 	@Override
-    public LinkedHashSet<VGARequest> getRequestsOnBoard() { 
+    public LinkedHashSet<PlanComputationRequest> getRequestsOnBoard() { 
 		return requestsOnBoard; 
 	}
 

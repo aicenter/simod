@@ -76,4 +76,10 @@ public class PlanActionData{
 		durationFromPreviousAction = 0;
 		discomfort = 0;
 	}
+
+	@Override
+	public String toString() {
+		return "PlanActionData{" + "action=" + action + '}';
+	}
+	
 }

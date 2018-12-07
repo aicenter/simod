@@ -10,7 +10,8 @@ import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.MoveUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
+import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 
 /**

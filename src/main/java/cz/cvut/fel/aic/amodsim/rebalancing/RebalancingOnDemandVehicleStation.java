@@ -11,7 +11,7 @@ import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
@@ -38,7 +38,7 @@ public class RebalancingOnDemandVehicleStation extends OnDemandVehicleStation{
             OnDemandVehicleFactorySpec onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
             OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 
             @Assisted String id, @Assisted SimulationNode node, 
-            @Assisted int initialVehicleCount, Transformer transformer, PositionUtil positionUtil, 
+            @Assisted int initialVehicleCount, Transformer transformer, VisioPositionUtil positionUtil, 
             StationsDispatcher onDemandVehicleStationsCentral) {
         super(config, eventProcessor, onDemandVehicleFactory, nearestElementUtils, onDemandVehicleStationStorage, 
 				onDemandVehicleStorage, id, node, initialVehicleCount, transformer, positionUtil, 

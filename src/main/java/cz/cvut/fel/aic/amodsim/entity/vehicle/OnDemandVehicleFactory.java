@@ -10,7 +10,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
@@ -32,7 +32,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     
     protected final PhysicalVehicleDriveFactory driveActivityFactory;
     
-    protected final PositionUtil positionUtil;
+    protected final VisioPositionUtil positionUtil;
     
     protected final EventProcessor eventProcessor;
     
@@ -50,7 +50,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
     @Inject
     public OnDemandVehicleFactory(PhysicalTransportVehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
-            PhysicalVehicleDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
+            PhysicalVehicleDriveFactory driveActivityFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor,
             StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config) {
         this.tripsUtil = tripsUtil;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;

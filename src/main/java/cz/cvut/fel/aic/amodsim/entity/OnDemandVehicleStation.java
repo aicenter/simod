@@ -17,7 +17,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
@@ -51,7 +51,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     
     private final Transformer transformer;
     
-    private final PositionUtil positionUtil;
+    private final VisioPositionUtil positionUtil;
     
     private final StationsDispatcher onDemandVehicleStationsCentral;
     
@@ -64,7 +64,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             OnDemandVehicleFactorySpec onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
             OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 
             @Assisted String id, @Assisted SimulationNode node, 
-            @Assisted int initialVehicleCount, Transformer transformer, PositionUtil positionUtil, 
+            @Assisted int initialVehicleCount, Transformer transformer, VisioPositionUtil positionUtil, 
             StationsDispatcher onDemandVehicleStationsCentral) {
         super(id, node);
         this.eventProcessor = eventProcessor;

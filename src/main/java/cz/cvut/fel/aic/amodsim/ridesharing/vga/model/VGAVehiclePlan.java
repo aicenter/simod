@@ -8,6 +8,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTaskType;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanComputationRequest;
 
 import java.util.*;
 
@@ -21,9 +22,9 @@ public class VGAVehiclePlan {
 	
 	public final IOptimalPlanVehicle vgaVehicle;
 	
-    private final Set<VGARequest> requests;
-    private final Set<VGARequest> waitingRequests;
-    private final Set<VGARequest> onboardRequests;
+    private final Set<PlanComputationRequest> requests;
+    private final Set<PlanComputationRequest> waitingRequests;
+    private final Set<PlanComputationRequest> onboardRequests;
     private final List<VGAVehiclePlanAction> actions;
 	
 	private double endTime;
@@ -33,7 +34,7 @@ public class VGAVehiclePlan {
 	
 	
 
-    public VGAVehiclePlan(IOptimalPlanVehicle vgaVehicle, Set<VGARequest> group){
+    public VGAVehiclePlan(IOptimalPlanVehicle vgaVehicle, Set<PlanComputationRequest> group){
 		this.vgaVehicle = vgaVehicle;
         this.discomfort = 0;
         this.actions = new ArrayList<>();
@@ -66,7 +67,7 @@ public class VGAVehiclePlan {
         } else if (action instanceof VGAVehiclePlanDropoff) {
             discomfort += getCurrentTime() - action.request.getOriginTime() -
                     MathUtils.getTravelTimeProvider().getExpectedTravelTime(
-							action.getRequest().from, action.getRequest().to) / 1000.0;
+							action.getRequest().getFrom(), action.getRequest().getTo()) / 1000.0;
             onboardRequests.remove(action.getRequest());
         }
     }
@@ -91,24 +92,24 @@ public class VGAVehiclePlan {
 
     
 
-    public DriverPlan toDriverPlan(){
-        if(vgaVehicle == null) { return null; }
-
-        List<DriverPlanTask> tasks = new ArrayList<>();
-
-        tasks.add(new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, vgaVehicle.getPosition()));
-        for(VGAVehiclePlanAction action : actions){
-            if(action instanceof VGAVehiclePlanPickup) {
-                tasks.add(new DriverPlanTask(DriverPlanTaskType.PICKUP, action.getRequest().getDemandAgent(), 
-						action.getRequest().from));
-            } else if (action instanceof VGAVehiclePlanDropoff) {
-                tasks.add(new DriverPlanTask(DriverPlanTaskType.DROPOFF, action.getRequest().getDemandAgent(), 
-						action.getRequest().to));
-            }
-        }
-
-        return new DriverPlan(tasks, (long) (getCurrentTime() * 1000));
-    }
+//    public DriverPlan toDriverPlan(){
+//        if(vgaVehicle == null) { return null; }
+//
+//        List<DriverPlanTask> tasks = new ArrayList<>();
+//
+//        tasks.add(new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, vgaVehicle.getPosition()));
+//        for(VGAVehiclePlanAction action : actions){
+//            if(action instanceof VGAVehiclePlanPickup) {
+//                tasks.add(new DriverPlanTask(DriverPlanTaskType.PICKUP, action.getRequest().getDemandAgent(), 
+//						action.getRequest().from));
+//            } else if (action instanceof VGAVehiclePlanDropoff) {
+//                tasks.add(new DriverPlanTask(DriverPlanTaskType.DROPOFF, action.getRequest().getDemandAgent(), 
+//						action.getRequest().to));
+//            }
+//        }
+//
+//        return new DriverPlan(tasks, (long) (getCurrentTime() * 1000));
+//    }
 	
 	public boolean vehicleHasFreeCapacity(){
 		return onboardRequests.size() < vgaVehicle.getCapacity();
@@ -149,19 +150,18 @@ public class VGAVehiclePlan {
 
     public IOptimalPlanVehicle getVehicle() { return vgaVehicle; }
 
-    public Set<VGARequest> getRequests() { return requests; }
+    public Set<PlanComputationRequest> getRequests() { return requests; }
 
-    public Set<VGARequest> getWaitingRequests() { return waitingRequests; }
+    public Set<PlanComputationRequest> getWaitingRequests() { return waitingRequests; }
 
-    public Set<VGARequest> getOnboardRequests() { return onboardRequests; }
+    public Set<PlanComputationRequest> getOnboardRequests() { return onboardRequests; }
 
     public List<VGAVehiclePlanAction> getActions() { return actions; }
 
 	private void updateAccordingToRequests() {
-		for(VGARequest request: requests){
+		for(PlanComputationRequest request: requests){
 			if(request.isOnboard()){
 				onboardRequests.add(request);
-				discomfort += request.getDiscomfort();
 				// mazbe check here if the request match the vehicle?
 			}
 			else{

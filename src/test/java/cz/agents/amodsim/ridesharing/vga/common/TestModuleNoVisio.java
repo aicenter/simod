@@ -44,16 +44,13 @@ import java.io.File;
  *
  * @author fido
  */
-public class TestModule extends StandardAgentPolisModule{
+public class TestModuleNoVisio extends StandardAgentPolisModule{
 	
 	private final AmodsimConfig amodsimConfig;
 
-    public TestModule(AmodsimConfig amodsimConfig, File localConfigFile) {
+    public TestModuleNoVisio(AmodsimConfig amodsimConfig, File localConfigFile) {
         super(amodsimConfig, localConfigFile, "agentpolis"); 
 		this.amodsimConfig = amodsimConfig;
-        agentpolisConfig.showVisio = VisualTests.SHOW_VISIO;
-		amodsimConfig.amodsim.startTime = 0;
-		amodsimConfig.tripsMultiplier = 1.0;
     }
 
 	
@@ -63,12 +60,12 @@ public class TestModule extends StandardAgentPolisModule{
 	protected void configureNext() {
 		super.configureNext();
 		bind(AmodsimConfig.class).toInstance(amodsimConfig);
-		install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
-            .build(DemandAgent.DemandAgentFactory.class));
-		bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
-		bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
-		bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
-		bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
+//		install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
+//            .build(DemandAgent.DemandAgentFactory.class));
+//		bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
+//		bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
+//		bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
+//		bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
 		bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
 		install(new FactoryModuleBuilder().implement(VGARequest.class, VGARequest.class)
 				.build(VGARequest.VGARequestFactory.class));
@@ -79,7 +76,7 @@ public class TestModule extends StandardAgentPolisModule{
 
     @Override
     protected void bindVisioInitializer() {
-        bind(VisioInitializer.class).to(VGATestVisioInitializer.class);
+//        bind(VisioInitializer.class).to(VGATestVisioInitializer.class);
     }
     
 }

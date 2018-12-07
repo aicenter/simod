@@ -3,7 +3,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.vga;
 import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.CollectionUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
@@ -14,6 +14,8 @@ import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import cz.cvut.fel.aic.amodsim.ridesharing.*;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
+import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTask;
+import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTaskType;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.VGAGroupGenerator;
@@ -41,7 +43,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 //	private final Set<VGARequest> onboardRequests;
 
     private final AmodsimConfig config;
-    private final PositionUtil positionUtil;
+    private final VisioPositionUtil positionUtil;
 	
 	private final VGAGroupGenerator vGAGroupGenerator;
 	
@@ -66,7 +68,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
     @Inject
     public VehicleGroupAssignmentSolver(TravelTimeProvider travelTimeProvider, TravelCostProvider travelCostProvider,
-			OnDemandVehicleStorage vehicleStorage, PositionUtil positionUtil, AmodsimConfig config, 
+			OnDemandVehicleStorage vehicleStorage, VisioPositionUtil positionUtil, AmodsimConfig config, 
 			TimeProvider timeProvider, VGAGroupGenerator vGAGroupGenerator, 
 			VGARequest.VGARequestFactory vGARequestFactory, TypedSimulation eventProcessor,
 			VGAILPSolver vGAILPSolver, GurobiSolver gurobiSolver) {
@@ -131,7 +133,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			planCount += feasibleGroupPlans.size();
         }
         
-		LOGGER.info("{} groups generaated", planCount);
+		LOGGER.info("{} groups generated", planCount);
 
         //Using an ILP solver to optimally assign a group to each vehicle
         Map<VGAVehicle,Plan<VGAVehicle>> optimalPlans 
@@ -140,7 +142,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
         //Filling the output with converted plans
         for(Map.Entry<VGAVehicle,Plan<VGAVehicle>> entry : optimalPlans.entrySet()) {
             if(entry.getKey().getRidesharingVehicle() != null) {
-                planMap.put(entry.getKey().getRidesharingVehicle(), entry.getValue().toDriverPlan());
+                planMap.put(entry.getKey().getRidesharingVehicle(), toDriverPlan(entry.getValue()));
             }
         }
 
@@ -217,6 +219,27 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			filteredVehiclesForPlanning.add(vGAVehicle);
 		}
 		return filteredVehiclesForPlanning;
+	}
+
+	private DriverPlan toDriverPlan(Plan<VGAVehicle> plan) {
+		List<DriverPlanTask> tasks = new ArrayList<>(plan.getActions().size() + 1);
+		tasks.add(new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, 
+				plan.getVehicle().getPosition()));
+		for(VGAVehiclePlanAction action: plan.getActions()){
+			DriverPlanTaskType taskType;
+			if(action instanceof VGAVehiclePlanPickup){
+				taskType = DriverPlanTaskType.PICKUP;
+			}
+			else{
+				taskType = DriverPlanTaskType.DROPOFF;
+			}
+			DriverPlanTask task = new DriverPlanTask(
+					taskType, ((VGARequest) action.getRequest()).getDemandAgent(), action.getPosition());
+			tasks.add(task);
+		}
+		DriverPlan driverPlan = new DriverPlan(tasks, plan.getEndTime() - plan.getStartTime());
+		
+		return driverPlan;
 	}
 
 }

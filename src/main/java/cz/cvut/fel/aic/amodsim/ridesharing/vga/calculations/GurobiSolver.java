@@ -106,7 +106,7 @@ public class GurobiSolver {
 						
 						// add variable once to each request list
 						if(action instanceof VGAVehiclePlanPickup){
-							CollectionUtil.addToListInMap(requestVariableMap, action.getRequest(), newVar);
+							CollectionUtil.addToListInMap(requestVariableMap, (VGARequest) action.getRequest(), newVar);
 						}
 					}
 					

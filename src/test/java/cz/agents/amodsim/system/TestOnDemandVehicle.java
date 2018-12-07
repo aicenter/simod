@@ -10,7 +10,7 @@ import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
@@ -28,7 +28,7 @@ public class TestOnDemandVehicle extends OnDemandVehicle{
     @Inject
     public TestOnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage,
             TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
-            StandardDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor, 
+            StandardDriveFactory driveActivityFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor, 
             StandardTimeProvider timeProvider, StatisticControl statisticControl,IdGenerator rebalancingIdGenerator, 
 			AmodsimConfig config, @Assisted String vehicleId, @Assisted SimulationNode startPosition) {
         super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, 

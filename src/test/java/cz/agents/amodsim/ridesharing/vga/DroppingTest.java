@@ -35,12 +35,12 @@ public class DroppingTest {
 		
 		// set roadgraph
         Graph<SimulationNode, SimulationEdge> graph 
-				= Utils.getGridGraph(20, injector.getInstance(Transformer.class), 1);
+				= Utils.getGridGraph(10, injector.getInstance(Transformer.class), 1);
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
 		trips.add(new TimeTrip<>(graph.getNode(1), graph.getNode(3), 1000));
-		trips.add(new TimeTrip<>(graph.getNode(19), graph.getNode(18), 2000));
+		trips.add(new TimeTrip<>(graph.getNode(9), graph.getNode(8), 2000));
 		
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
 		vehicalInitPositions.add(graph.getNode(0));

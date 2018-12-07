@@ -1,16 +1,17 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.model;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanComputationRequest;
 
 public abstract class VGAVehiclePlanAction {
 
-    final VGARequest request;
+    final PlanComputationRequest request;
 	
-	public VGARequest getRequest() { 
+	public PlanComputationRequest getRequest() { 
 		return request; 
 	}
 
-    VGAVehiclePlanAction(VGARequest request) {
+    VGAVehiclePlanAction(PlanComputationRequest request) {
         this.request = request;
     }
 

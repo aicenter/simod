@@ -11,7 +11,6 @@ import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.PlanActionData;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanDropoff;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanPickup;
@@ -41,7 +40,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 		int counter = 0;
 		for (VGAVehiclePlanAction action: actions) {
 			boolean open = action instanceof VGAVehiclePlanPickup 
-					|| vehicle.getRequestsOnBoard().contains(action.getRequest());
+					|| action.getRequest().isOnboard();
 			availableActions[counter] = new PlanActionData(action, counter, open);
 			counter++;
 		}
@@ -50,7 +49,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 		PlanActionData[] plan = new PlanActionData[actions.size()];
 		
 		// best plan
-		VGAVehiclePlanAction[] bestPlan = new VGAVehiclePlanAction[actions.size()];
+		VGAVehiclePlanAction[] bestPlan = null;
 		double bestPlanCost = Double.MAX_VALUE;
 		
 		// indexes
@@ -82,16 +81,20 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 					// max pick up / drop off time check
 					double duration = MathUtils.getTravelTimeProvider().getExpectedTravelTime(
 							lastPosition, newAction.getPosition()) / 1000.0;		
-					if((newAction instanceof VGAVehiclePlanPickup && newAction.getRequest().maxPickUpTime >= endTime + duration)
-							|| (newAction instanceof VGAVehiclePlanDropoff && (newAction.getRequest().maxDropOffTime >= endTime + duration || !ignoreTime))){
+					if((newAction instanceof VGAVehiclePlanPickup 
+							&& newAction.getRequest().getMaxPickupTime() >= endTime + duration)
+							|| (newAction instanceof VGAVehiclePlanDropoff 
+							&& (newAction.getRequest().getMaxDropoffTime() >= endTime + duration || ignoreTime))){
 
 						// completion check
 						if(planPositionIndex == plan.length - 1){
 							
 							// compute necessary variables as if going deep
 							double endTimeTemp = endTime + duration;
-							VGARequest request = newAction.getRequest();
-							double discomfort = endTimeTemp - request.getOriginTime() - request.minTravelTime;
+							PlanComputationRequest request = newAction.getRequest();
+							double discomfort = endTimeTemp - request.getOriginTime() - request.getMinTravelTime();
+							
+							//TODO add onboard vehicles previous discomfort
 							
 							int totalDuration = (int) (endTimeTemp - startTime);
 							double planCost = planCostComputation.calculatePlanCost(totalDiscomfort + discomfort,
@@ -101,6 +104,9 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 								bestPlanCost = planCost;
 
 								// save best plan
+								if(bestPlan == null){
+									bestPlan = new VGAVehiclePlanAction[actions.size()];
+								}
 								
 								// actions from previous steps
 								for (int i = 0; i < plan.length - 1; i++) {
@@ -118,8 +124,8 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 							endTime += duration;
 							lastPosition = newAction.getPosition();
 							if(newAction instanceof VGAVehiclePlanDropoff){
-								VGARequest request = newAction.getRequest();
-								double discomfort = endTime - request.getOriginTime() - request.minTravelTime;
+								PlanComputationRequest request = newAction.getRequest();
+								double discomfort = endTime - request.getOriginTime() - request.getMinTravelTime();
 								newActionData.setDiscomfort(discomfort);
 								totalDiscomfort += discomfort;
 							}
@@ -181,6 +187,10 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 					actionIndex++;
 				}
 			}
+		}
+		
+		if(bestPlan == null){
+			return null;
 		}
 		
 		// convert to Plan

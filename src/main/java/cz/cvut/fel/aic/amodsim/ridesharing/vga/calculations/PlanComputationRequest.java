@@ -6,19 +6,27 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
-import java.util.Set;
 
 /**
  *
  * @author LocalAdmin
  */
-public interface IOptimalPlanVehicle {
+public interface PlanComputationRequest {
 
-	public Set<PlanComputationRequest> getRequestsOnBoard();
-
-	public SimulationNode getPosition();
-
-	public int getCapacity();
+	@Override
+	public boolean equals(Object obj);
 	
+	public int getMaxPickupTime();
+	
+	public int getMaxDropoffTime();
+	
+	public int getOriginTime();
+	
+	public int getMinTravelTime();
+	
+	public SimulationNode getFrom();
+	
+	public SimulationNode getTo();
+	
+	public boolean isOnboard();
 }

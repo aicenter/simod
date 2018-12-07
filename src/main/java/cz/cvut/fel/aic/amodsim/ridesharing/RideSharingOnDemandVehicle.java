@@ -10,7 +10,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.inject.name.Named;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
@@ -37,7 +37,7 @@ import java.util.LinkedList;
  */
 public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
-    private final PositionUtil positionUtil;
+    private final VisioPositionUtil positionUtil;
 	
 	private DriverPlan currentPlan;
 	
@@ -55,7 +55,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
     @Inject
     public RideSharingOnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
-            PhysicalVehicleDriveFactory driveActivityFactory, PositionUtil positionUtil, EventProcessor eventProcessor, 
+            PhysicalVehicleDriveFactory driveActivityFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor, 
             StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, 
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
         super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,

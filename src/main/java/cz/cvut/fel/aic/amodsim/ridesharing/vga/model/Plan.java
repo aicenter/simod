@@ -42,6 +42,16 @@ public class Plan<V extends IOptimalPlanVehicle>{
 		return vehicle;
 	}
 
+	public int getStartTime() {
+		return startTime;
+	}
+
+	public int getEndTime() {
+		return endTime;
+	}
+	
+	
+
 	/**
 	 * Empty plan constructor
 	 * @param startTime
@@ -67,25 +77,25 @@ public class Plan<V extends IOptimalPlanVehicle>{
 		this.vehicle = vehicle;
 	}
 
-	public DriverPlan toDriverPlan() {
-		List<DriverPlanTask> tasks = new ArrayList<>(actions.size() + 1);
-		tasks.add(new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, 
-				vehicle.getPosition()));
-		for(VGAVehiclePlanAction action: actions){
-			DriverPlanTaskType taskType;
-			if(action instanceof VGAVehiclePlanPickup){
-				taskType = DriverPlanTaskType.PICKUP;
-			}
-			else{
-				taskType = DriverPlanTaskType.DROPOFF;
-			}
-			DriverPlanTask task = new DriverPlanTask(
-					taskType, action.getRequest().getDemandAgent(), action.getPosition());
-			tasks.add(task);
-		}
-		DriverPlan driverPlan = new DriverPlan(tasks, endTime - startTime);
-		
-		return driverPlan;
-	}
+//	public DriverPlan toDriverPlan() {
+//		List<DriverPlanTask> tasks = new ArrayList<>(actions.size() + 1);
+//		tasks.add(new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, 
+//				vehicle.getPosition()));
+//		for(VGAVehiclePlanAction action: actions){
+//			DriverPlanTaskType taskType;
+//			if(action instanceof VGAVehiclePlanPickup){
+//				taskType = DriverPlanTaskType.PICKUP;
+//			}
+//			else{
+//				taskType = DriverPlanTaskType.DROPOFF;
+//			}
+//			DriverPlanTask task = new DriverPlanTask(
+//					taskType, action.getRequest().getDemandAgent(), action.getPosition());
+//			tasks.add(task);
+//		}
+//		DriverPlan driverPlan = new DriverPlan(tasks, endTime - startTime);
+//		
+//		return driverPlan;
+//	}
 
 }

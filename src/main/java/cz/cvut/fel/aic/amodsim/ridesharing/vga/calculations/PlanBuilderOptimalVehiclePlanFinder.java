@@ -40,7 +40,7 @@ public class PlanBuilderOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> 
 		Stack<VGAVehiclePlan> toCheck = new Stack<>();
 		
 		// group reconstruction
-		Set<VGARequest> group = new LinkedHashSet<>();
+		Set<PlanComputationRequest> group = new LinkedHashSet<>();
 		for (VGAVehiclePlanAction action : actions) {
 			group.add(action.getRequest());
 		}
@@ -58,12 +58,12 @@ public class PlanBuilderOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> 
             VGAVehiclePlan plan = toCheck.pop();
 			
 			// dropoff actions
-            for(VGARequest request : plan.getOnboardRequests()){
+            for(PlanComputationRequest request : plan.getOnboardRequests()){
 
                 VGAVehiclePlan simplerPlan = new VGAVehiclePlan(plan);
                 simplerPlan.add(new VGAVehiclePlanDropoff(request));
 
-                if(request.maxDropOffTime > simplerPlan.getCurrentTime() || ignoreTime) {
+                if(request.getMaxDropoffTime() > simplerPlan.getCurrentTime() || ignoreTime) {
                     double currentCost = planCostComputation.calculatePlanCost(simplerPlan);
                     if (currentCost < upperBound) {
                         if (simplerPlan.getWaitingRequests().isEmpty() && simplerPlan.getOnboardRequests().isEmpty()) {
@@ -78,14 +78,14 @@ public class PlanBuilderOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> 
 
 			// pickup actions
 			if(plan.vehicleHasFreeCapacity()){
-				for (VGARequest request : plan.getWaitingRequests()) {
+				for (PlanComputationRequest request : plan.getWaitingRequests()) {
 
 					VGAVehiclePlan simplerPlan = new VGAVehiclePlan(plan);
 
 					// pick up time == demand time
 					simplerPlan.add(new VGAVehiclePlanPickup(request));
 
-					if(request.maxPickUpTime > simplerPlan.getCurrentTime()) {
+					if(request.getMaxPickupTime() > simplerPlan.getCurrentTime()) {
 						toCheck.push(simplerPlan);
 					}
 				}

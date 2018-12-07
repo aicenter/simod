@@ -22,7 +22,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.activity.PhysicalVehicleDrive;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.Driver;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
@@ -65,7 +65,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     
     protected final PhysicalVehicleDriveFactory driveFactory;
     
-    private final PositionUtil positionUtil;
+    private final VisioPositionUtil positionUtil;
     
     protected final EventProcessor eventProcessor;
     
@@ -162,7 +162,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     @Inject
     public OnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
             TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
-            PhysicalVehicleDriveFactory driveFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
+            PhysicalVehicleDriveFactory driveFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor,
             StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, 
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
         super(vehicleId, startPosition);

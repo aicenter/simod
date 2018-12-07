@@ -9,7 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
@@ -41,7 +41,7 @@ public class OnDemandVehicleStationFactory {
     
     private final Transformer transformer;
     
-    private final PositionUtil positionUtil;
+    private final VisioPositionUtil positionUtil;
     
     private final StationsDispatcher onDemandVehicleStationsCentral;
 
@@ -49,7 +49,7 @@ public class OnDemandVehicleStationFactory {
     public OnDemandVehicleStationFactory(AmodsimConfig config, EventProcessor eventProcessor, OnDemandVehicleFactorySpec 
             onDemandVehicleFactory, NearestElementUtils nearestElementUtils, OnDemandvehicleStationStorage 
                     onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage,
-                    Transformer transformer, PositionUtil positionUtil, 
+                    Transformer transformer, VisioPositionUtil positionUtil, 
                     StationsDispatcher onDemandVehicleStationsCentral) {
         this.config = config;
         this.eventProcessor = eventProcessor;

@@ -29,12 +29,12 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 		this.optimalVehiclePlanFinder = optimalVehiclePlanFinder;
 	}
 
-    public List<Plan> generateGroupsForVehicle(V vehicle, LinkedHashSet<VGARequest> requests, double startTime) {
+    public List<Plan> generateGroupsForVehicle(V vehicle, LinkedHashSet<PlanComputationRequest> requests, double startTime) {
 		// F_v^{k - 1} - groupes for request adding
 		List<GroupData> currentGroups = new ArrayList<>();
 		
 		// F_v^{1}
-        List<VGARequest> feasibleRequests = new ArrayList<>();
+        List<PlanComputationRequest> feasibleRequests = new ArrayList<>();
 		
 		// F_v all groups feasible for vehicle with optimal plan already assigned to them - the output
         List<Plan> groupPlans = new ArrayList<>();
@@ -46,11 +46,11 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 		}
 		else{
 			// BASE PLAN - for non-empty vehicles, we add a base plan that serves all onboard vehicles
-			Set<VGARequest> group = vehicle.getRequestsOnBoard();
+			Set<PlanComputationRequest> group = vehicle.getRequestsOnBoard();
 			
 			// actions - only drop off actions are generated for on board vehicles
 			List<VGAVehiclePlanAction> actions = new ArrayList<>();
-			for(VGARequest request: group){
+			for(PlanComputationRequest request: group){
 				actions.add(new VGAVehiclePlanDropoff(request));
 			}
 			
@@ -63,8 +63,8 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 		}
 		
 		// groups of size 1
-		for (VGARequest request : requests) {
-			LinkedHashSet<VGARequest> group = new LinkedHashSet<>();
+		for (PlanComputationRequest request : requests) {
+			LinkedHashSet<PlanComputationRequest> group = new LinkedHashSet<>();
 			group.add(request);
 			
 			// actions
@@ -92,16 +92,16 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
             List<GroupData> newCurrentGroups = new ArrayList<>();
 			
 			// set of groups that were already checked
-			Set<Set<VGARequest>> currentCheckedGroups = new LinkedHashSet<>();
+			Set<Set<PlanComputationRequest>> currentCheckedGroups = new LinkedHashSet<>();
 
             for (GroupData groupData : currentGroups) {
-                for (VGARequest request : feasibleRequests) {
+                for (PlanComputationRequest request : feasibleRequests) {
                     if (groupData.requests.contains(request)){
 						continue;
 					}
 					
 					// G'
-                    LinkedHashSet<VGARequest> newGroupToCheck = new LinkedHashSet<>(groupData.requests);
+                    LinkedHashSet<PlanComputationRequest> newGroupToCheck = new LinkedHashSet<>(groupData.requests);
                     newGroupToCheck.add(request);
 					
                     if (currentCheckedGroups.contains(newGroupToCheck)){
@@ -129,9 +129,9 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
             currentGroups = newCurrentGroups;
 			currentGroupSize++;
 //			LOGGER.debug("{} groups of the size {} generated", currentGroups.size(), currentGroupSize);
-			if(currentGroupSize >= 2){
-				break;
-			}
+//			if(currentGroupSize >= 2){
+//				break;
+//			}
         }
 
 //		LOGGER.debug("Groups generated, total number of groups is {}", groups.size());
@@ -139,66 +139,13 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
         return groupPlans;
     }
 
-    private VGAVehiclePlan getOptimalPlan(V vehicle, Set<VGARequest> group, boolean ignoreTime){
-        Stack<VGAVehiclePlan> toCheck = new Stack<>();
-		VGAVehiclePlan emptyPlan = new VGAVehiclePlan(vehicle, group);
-        toCheck.push(emptyPlan);
-
-        double upperBound = Double.POSITIVE_INFINITY;
-        VGAVehiclePlan bestPlan = null;
-
-		/* In each iteration, we try to add all reamining actions to the plan, one by one. After addition, there 
-		are feasibility tests. If the tests are OK, the new plan is added to queue for check. */
-        while(!toCheck.empty()){
-			
-            VGAVehiclePlan plan = toCheck.pop();
-			
-			// dropoff actions
-            for(VGARequest request : plan.getOnboardRequests()){
-
-                VGAVehiclePlan simplerPlan = new VGAVehiclePlan(plan);
-                simplerPlan.add(new VGAVehiclePlanDropoff(request));
-
-                if(request.maxDropOffTime > simplerPlan.getCurrentTime() || ignoreTime) {
-                    double currentCost = optimalVehiclePlanFinder.planCostComputation.calculatePlanCost(simplerPlan);
-                    if (currentCost < upperBound) {
-                        if (simplerPlan.getWaitingRequests().isEmpty() && simplerPlan.getOnboardRequests().isEmpty()) {
-                            upperBound = currentCost;
-                            bestPlan = simplerPlan;
-                        } else {
-                            toCheck.push(simplerPlan);
-                        }
-                    }
-                }
-            }
-
-			// pickup actions
-			if(plan.vehicleHasFreeCapacity()){
-				for (VGARequest request : plan.getWaitingRequests()) {
-
-					VGAVehiclePlan simplerPlan = new VGAVehiclePlan(plan);
-
-					// pick up time == demand time
-					simplerPlan.add(new VGAVehiclePlanPickup(request));
-
-					if(request.maxPickUpTime > simplerPlan.getCurrentTime()) {
-						toCheck.push(simplerPlan);
-					}
-				}
-			}
-        }
-
-        return bestPlan;
-    }
-	
-
 	
 	private class GroupData {
-		private final Set<VGARequest> requests;
+		private final Set<PlanComputationRequest> requests;
 
 		private final List<VGAVehiclePlanAction> actions;
 
-		private GroupData(Set<VGARequest> requests, List<VGAVehiclePlanAction> actions) {
+		private GroupData(Set<PlanComputationRequest> requests, List<VGAVehiclePlanAction> actions) {
 			this.requests = requests;
 			this.actions = actions;
 		}

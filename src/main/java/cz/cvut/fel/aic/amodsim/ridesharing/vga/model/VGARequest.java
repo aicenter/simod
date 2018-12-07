@@ -6,29 +6,28 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanComputationRequest;
 
 
-public class VGARequest {
+public class VGARequest implements PlanComputationRequest{
 	
 	public final int id;
 	
-    private final double originTime;
+    private final int originTime;
 
     private final DemandAgent demandAgent;
 
 	private boolean onboard;
 	
-	private double discomfort;
-	
 	public final SimulationNode from;
 	
 	public final SimulationNode to;
 	
-	public final double minTravelTime;
+	public final int minTravelTime;
 	
-	public final double maxPickUpTime;
+	public final int maxPickUpTime;
 	
-	public final double maxDropOffTime;
+	public final int maxDropOffTime;
 	
 	
 	
@@ -39,14 +38,6 @@ public class VGARequest {
 
 	public void setOnboard(boolean onboard) {
 		this.onboard = onboard;
-	}
-
-	public double getDiscomfort() {
-		return discomfort;
-	}
-
-	public void setDiscomfort(double discomfort) {
-		this.discomfort = discomfort;
 	}
 	
 	
@@ -60,19 +51,22 @@ public class VGARequest {
 		from = origin;
 		to = destination;
 		
-		originTime = demandAgent.getDemandTime() / 1000.0;
-        minTravelTime = MathUtils.getTravelTimeProvider().getExpectedTravelTime(origin, destination) / 1000.0;
-        double maxProlongation = (amodsimConfig.amodsim.ridesharing.vga.maximumRelativeDiscomfort) * minTravelTime;
+		originTime = (int) Math.round(demandAgent.getDemandTime() / 1000.0);
+        minTravelTime = (int) Math.round(
+				MathUtils.getTravelTimeProvider().getExpectedTravelTime(origin, destination) / 1000.0);
+        int maxProlongation = (int) Math.round(
+				amodsimConfig.amodsim.ridesharing.vga.maximumRelativeDiscomfort * minTravelTime);
 		
 		maxPickUpTime = originTime + maxProlongation;
 		maxDropOffTime = originTime + minTravelTime + maxProlongation;
 		
         this.demandAgent = demandAgent;
 		onboard = false;
-		discomfort = 0;
     }
 
-    public double getOriginTime() { return originTime; }
+    public int getOriginTime() { 
+		return originTime; 
+	}
 
     public DemandAgent getDemandAgent() { return demandAgent; }
 
@@ -90,6 +84,31 @@ public class VGARequest {
 	@Override
 	public String toString() {
 		return String.format("%s - from: %s to: %s", demandAgent, from, to);
+	}
+
+	@Override
+	public int getMaxPickupTime() {
+		return maxPickUpTime;
+	}
+
+	@Override
+	public int getMaxDropoffTime() {
+		return maxDropOffTime;
+	}
+
+	@Override
+	public int getMinTravelTime() {
+		return minTravelTime;
+	}
+
+	@Override
+	public SimulationNode getFrom() {
+		return from;
+	}
+
+	@Override
+	public SimulationNode getTo() {
+		return to;
 	}
 	
 	

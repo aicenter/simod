@@ -1,4 +1,4 @@
-from amodsim.init import config, roadmaptools_config
+from amodsim.init import config
 
 import json
 import numpy as np

@@ -9,9 +9,11 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
+import cz.cvut.fel.aic.amodsim.CsvWriter;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.amodsim.io.Common;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.OnDemandRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
@@ -29,6 +31,7 @@ import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
+import java.io.IOException;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -77,6 +80,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	int planCount;
 	
 	List<VehiclePlanList> feasiblePlans;
+	
+	List<List<String>> logRecords;
 
     @Inject
     public VehicleGroupAssignmentSolver(TravelTimeProvider travelTimeProvider, TravelCostProvider travelCostProvider,
@@ -106,6 +111,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
     @Override
     public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<OnDemandRequest> requests) {
+		
+		 logRecords = new ArrayList<>();
 		
 		//init VGA vehicles	
 		if(vgaVehicles == null){
@@ -192,6 +199,9 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
         }
 
         VGAVehicle.resetMapping();
+		
+		logRecords();
+		
         return planMap;
     }
 
@@ -280,12 +290,17 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	}
 
 	private void computeGroupsForVehicle(VGAVehicle vehicle, LinkedHashSet<VGARequest> waitingRequests) {
+		long startTimeNano = System.nanoTime();
 		List<Plan> feasibleGroupPlans = 
 					vGAGroupGenerator.generateGroupsForVehicle(vehicle, waitingRequests, startTime);
+		long totalTimeNano = System.nanoTime() - startTimeNano;
 
 		VehiclePlanList vehiclePlanList = new VehiclePlanList(vehicle, feasibleGroupPlans);
 		feasiblePlans.add(vehiclePlanList);
 		planCount += feasibleGroupPlans.size();
+		
+		// log
+		logPlansPerVehicle(vehicle, feasibleGroupPlans, totalTimeNano);
 	}
 
 	private void printGroupStats(List<VehiclePlanList> feasiblePlans) {
@@ -302,6 +317,42 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			Integer count = entry.getValue();
 			LOGGER.info("{} groups of size {}", count, size);
 		}
+	}
+
+	private void logPlansPerVehicle(VGAVehicle vehicle, List<Plan> feasibleGroupPlans, long totalTimeNano) {
+		List<String> record = new ArrayList<>(5);
+		record.add(Integer.toString(startTime));
+		record.add(vehicle.getRidesharingVehicle().getId());
+		record.add(Long.toString(totalTimeNano));
+		record.add(Integer.toString(vehicle.getRequestsOnBoard().size()));
+		
+		int actionCount = 13;
+		int[] counts = new int[actionCount];
+		for (int i = 0; i < counts.length; i++) {
+			counts[i] = 0;
+			
+		}
+		for (Plan feasibleGroupPlan : feasibleGroupPlans) {
+			counts[feasibleGroupPlan.getActions().size()]++;
+		}
+		for (int i = 0; i < counts.length; i++) {
+			record.add(Integer.toString(counts[i]));
+			
+		}
+		logRecords.add(record);
+	}
+
+	private void logRecords() {
+		try {
+            CsvWriter writer = new CsvWriter(
+                    Common.getFileWriter(config.amodsim.ridesharing.vga.groupGeneratorLogFilepath));
+            for (List<String> record : logRecords) {
+                writer.writeLine(record.toArray(new String[0]));
+            }
+            writer.close();
+        } catch (IOException ex) {
+            LOGGER.error(null, ex);
+        }
 	}
 
 }

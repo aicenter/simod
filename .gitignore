@@ -3,6 +3,7 @@
 *.ser
 *.iml
 *.pyc
+*.egg-info
 
 data
 

@@ -1,7 +1,5 @@
 from __future__ import print_function, division
 
-from mx.Tools.Tools import projection
-
 from scripts.config_loader import cfg as config
 from scripts.printer import print_info
 from scripts.prague.prepare_trips import get_trips

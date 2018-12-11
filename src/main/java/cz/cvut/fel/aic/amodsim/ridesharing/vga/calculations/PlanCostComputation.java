@@ -38,8 +38,8 @@ public class PlanCostComputation {
         return -1;
     }
 	
-	public double calculatePlanCost(double discomfort, int duration) {
-        return MathUtils.round(weight_parameter * discomfort + (1 - weight_parameter) * duration, 8);
+	public int calculatePlanCost(int discomfort, int duration) {
+        return (int) (weight_parameter * discomfort + (1 - weight_parameter) * duration);
     }
 	
 }

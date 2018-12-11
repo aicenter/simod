@@ -72,7 +72,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	
 	private int requestCounter;
 	
-	double startTime;
+	int startTime;
 	
 	int planCount;
 	
@@ -138,7 +138,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
         // Generating feasible plans for each vehicle
 		feasiblePlans = new ArrayList<>(drivingVehicles.size());
-		startTime = VehicleGroupAssignmentSolver.getTimeProvider().getCurrentSimTime() / 1000.0;
+		startTime = (int) Math.round(VehicleGroupAssignmentSolver.getTimeProvider().getCurrentSimTime() / 1000.0);
 		LOGGER.info("Generating groups for vehicles.");
 		planCount = 0;
 		
@@ -148,33 +148,36 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
         }
 		
 		// groups for vehicles in the station
-		Map<OnDemandVehicleStation,Integer> usedVehiclesPerStation = new HashMap<>();
-		int insufficientCacityCount = 0;
-		for(VGARequest request: waitingRequests){
-			OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(request.from);
-			int index = usedVehiclesPerStation.containsKey(nearestStation) 
-					? usedVehiclesPerStation.get(nearestStation) : 0;
-			if(index >= nearestStation.getParkedVehiclesCount()){
-				insufficientCacityCount++;
-				continue;
+		if(!onDemandvehicleStationStorage.isEmpty()){
+			Map<OnDemandVehicleStation,Integer> usedVehiclesPerStation = new HashMap<>();
+			int insufficientCacityCount = 0;
+			for(VGARequest request: waitingRequests){
+				OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(request.from);
+				int index = usedVehiclesPerStation.containsKey(nearestStation) 
+						? usedVehiclesPerStation.get(nearestStation) : 0;
+				if(index >= nearestStation.getParkedVehiclesCount()){
+					insufficientCacityCount++;
+					continue;
+				}
+
+				OnDemandVehicle onDemandVehicle = nearestStation.getVehicle(index);
+				VGAVehicle vGAVehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(onDemandVehicle.getId());
+				LinkedHashSet<VGARequest> set = new LinkedHashSet<>(1);
+				set.add(request);
+
+				computeGroupsForVehicle(vGAVehicle, set);
+				CollectionUtil.incrementMapValue(usedVehiclesPerStation, nearestStation, 1);
 			}
 			
-			OnDemandVehicle onDemandVehicle = nearestStation.getVehicle(index);
-			VGAVehicle vGAVehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(onDemandVehicle.getId());
-			LinkedHashSet<VGARequest> set = new LinkedHashSet<>(1);
-			set.add(request);
-			
-			computeGroupsForVehicle(vGAVehicle, set);
-			CollectionUtil.incrementMapValue(usedVehiclesPerStation, nearestStation, 1);
+			if(insufficientCacityCount > 0){
+				LOGGER.info("{} request won't be served from station due to insufficient capacity",
+						insufficientCacityCount);
+			}
 		}
         
 		LOGGER.info("{} groups generated", planCount);
 		if(true){
 			printGroupStats(feasiblePlans);
-		}
-		if(insufficientCacityCount > 0){
-			LOGGER.info("{} request won't be served from station due to insufficient capacity",
-					insufficientCacityCount);
 		}
 
         //Using an ILP solver to optimally assign a group to each vehicle

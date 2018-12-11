@@ -23,6 +23,6 @@ public abstract class OptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> {
 	}
 	
 	public abstract Plan<V> getOptimalVehiclePlanForGroup(V vehicle, List<VGAVehiclePlanAction> actions, 
-			double startTime, boolean ignoreTime);
+			int startTime, boolean ignoreTime);
 	
 }

@@ -31,9 +31,9 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 		this.optimalVehiclePlanFinder = optimalVehiclePlanFinder;
 	}
 
-    public List<Plan> generateGroupsForVehicle(V vehicle, LinkedHashSet<PlanComputationRequest> requests, double startTime) {
+    public List<Plan> generateGroupsForVehicle(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime) {
 		// F_v^{k - 1} - groupes for request adding
-		List<GroupData> currentGroups = new ArrayList<>();
+		Set<GroupData> currentGroups = new LinkedHashSet<>();
 		
 		// F_v^{1}
         List<PlanComputationRequest> feasibleRequests = new ArrayList<>();
@@ -41,7 +41,7 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 		// F_v all groups feasible for vehicle with optimal plan already assigned to them - the output
         List<Plan> groupPlans = new ArrayList<>();
 
-		
+		Set<PlanComputationRequest> onBoardRequestLock = null;
 		if(vehicle.getRequestsOnBoard().isEmpty()){
 			// BASE PLAN - for each empty vehicle, an EMPTY PLAN is valid
 			groupPlans.add(new Plan((int) startTime, vehicle));
@@ -49,6 +49,7 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 		else{
 			// BASE PLAN - for non-empty vehicles, we add a base plan that serves all onboard vehicles
 			Set<PlanComputationRequest> group = vehicle.getRequestsOnBoard();
+			onBoardRequestLock = group;
 			
 			// actions - only drop off actions are generated for on board vehicles
 			List<VGAVehiclePlanAction> actions = new ArrayList<>();
@@ -60,8 +61,16 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 			Plan plan = optimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, actions, startTime, true);
 			groupPlans.add(plan);
 			
-			// onboard request composes the single base group
-			currentGroups.add(new GroupData(group, actions));
+//			// onboard request composes the single base group
+//			currentGroups.add(new GroupData(group, actions));
+	
+			for (PlanComputationRequest request : group) {
+				Set<PlanComputationRequest> singleRequestGroup = new HashSet<>(1);
+				singleRequestGroup.add(request);
+				List<VGAVehiclePlanAction> singleAction = new ArrayList<>(1);
+				singleAction.add(new VGAVehiclePlanDropoff(request));
+				currentGroups.add(new GroupData(singleRequestGroup, singleAction, onBoardRequestLock));
+			}
 		}
 		
 		// groups of size 1
@@ -77,9 +86,9 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 			Plan plan;
 			if((plan = optimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, actions, startTime, false)) != null) {
 				feasibleRequests.add(request);
+				currentGroups.add(new GroupData(group, actions, onBoardRequestLock));
 				//if the vehicle is empty, feasible requests are feasible plans and are used as base groups
 				if(vehicle.getRequestsOnBoard().isEmpty()){
-					currentGroups.add(new GroupData(group, actions));
 					groupPlans.add(plan);
 				}			
 			}
@@ -91,7 +100,7 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
         while(!currentGroups.isEmpty()) {
 
 			// current groups for the next iteration
-            List<GroupData> newCurrentGroups = new ArrayList<>();
+            Set<GroupData> newCurrentGroups = new LinkedHashSet<>();
 			
 			// set of groups that were already checked
 			Set<Set<PlanComputationRequest>> currentCheckedGroups = new LinkedHashSet<>();
@@ -111,6 +120,7 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 					}
                     currentCheckedGroups.add(newGroupToCheck);
 					
+					// check whether all n-1 subsets are in F_v^{k - 1}
 					boolean checkFeasibility = true;
 					for(Set<PlanComputationRequest> subset: getAllNMinus1Subsets(newGroupToCheck)){
 						if(!currentGroups.contains(new GroupData(subset, null))){
@@ -126,11 +136,16 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 						actions.add(new VGAVehiclePlanPickup(request));
 						actions.add(new VGAVehiclePlanDropoff(request));
 
-
 						Plan plan;
 						if((plan = optimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, actions, startTime, false)) != null) {
-							newCurrentGroups.add(new GroupData(newGroupToCheck, actions));
-							groupPlans.add(plan);
+			
+							if(groupData.onboardRequestLock == null || newGroupToCheck.containsAll(groupData.onboardRequestLock)){
+								newCurrentGroups.add(new GroupData(newGroupToCheck, actions));
+								groupPlans.add(plan);
+							}
+							else{
+								newCurrentGroups.add(new GroupData(newGroupToCheck, actions, groupData.onboardRequestLock));
+							}
 	//                        if(groups.size() > 50){
 	//                            return groups;
 	//                        }
@@ -157,10 +172,18 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 		private final Set<PlanComputationRequest> requests;
 
 		private final List<VGAVehiclePlanAction> actions;
+		
+		private final Set<PlanComputationRequest> onboardRequestLock;
 
 		private GroupData(Set<PlanComputationRequest> requests, List<VGAVehiclePlanAction> actions) {
+			this(requests, actions, null);
+		}
+		
+		private GroupData(Set<PlanComputationRequest> requests, List<VGAVehiclePlanAction> actions,
+				Set<PlanComputationRequest> onboardRequestLock) {
 			this.requests = requests;
 			this.actions = actions;
+			this.onboardRequestLock = onboardRequestLock;
 		}
 
 		@Override
@@ -196,6 +219,7 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 		
 		for (PlanComputationRequest planComputationRequest : set) {
 			Set<PlanComputationRequest> subset = new HashSet<>(set);
+//			Set<PlanComputationRequest> subset = (Set<PlanComputationRequest>) set.clone();
 			subset.remove(planComputationRequest);
 			subsets.add(subset);
 		}

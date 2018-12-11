@@ -33,7 +33,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 	
 	@Override
 	public Plan<V> getOptimalVehiclePlanForGroup(V vehicle, List<VGAVehiclePlanAction> actions, 
-			double startTime, boolean ignoreTime){
+			int startTime, boolean ignoreTime){
 		
 		// prepare possible actions
 		PlanActionData[] availableActions = new PlanActionData[actions.size()];
@@ -50,7 +50,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 		
 		// best plan
 		VGAVehiclePlanAction[] bestPlan = null;
-		double bestPlanCost = Double.MAX_VALUE;
+		int bestPlanCost = Integer.MAX_VALUE;
 		
 		// indexes
 		int planPositionIndex = 0;
@@ -59,9 +59,9 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 		// global stats
 		int onBoardCount = vehicle.getRequestsOnBoard().size();
 		
-		double endTime = startTime;
+		int endTime = startTime;
 		SimulationNode lastPosition = vehicle.getPosition();
-		double totalDiscomfort = 0;
+		int totalDiscomfort = 0;
 		
 		while(true){
 			boolean goDeeper = false;
@@ -79,25 +79,41 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 				if(newAction instanceof VGAVehiclePlanDropoff || onBoardCount < vehicle.getCapacity()){
 
 					// max pick up / drop off time check
-					double duration = MathUtils.getTravelTimeProvider().getExpectedTravelTime(
-							lastPosition, newAction.getPosition()) / 1000.0;		
-					if((newAction instanceof VGAVehiclePlanPickup 
-							&& newAction.getRequest().getMaxPickupTime() >= endTime + duration)
+					int duration = (int) (MathUtils.getTravelTimeProvider().getExpectedTravelTime(
+							lastPosition, newAction.getPosition()) / 1000.0);		
+//					if((newAction instanceof VGAVehiclePlanPickup 
+//							&& newAction.getRequest().getMaxPickupTime() >= endTime + duration)
+//							|| (newAction instanceof VGAVehiclePlanDropoff 
+//							&& (newAction.getRequest().getMaxDropoffTime() >= endTime + duration || ignoreTime))){
+						
+//					 actions feasibility check
+					boolean allActionsFeasible = true;
+					for (int i = 0; i < availableActions.length; i++) {
+						PlanActionData actionData = availableActions[i];
+						if(!actionData.isUsed()){
+							if((newAction instanceof VGAVehiclePlanPickup 
+								&& newAction.getRequest().getMaxPickupTime() < endTime + duration)
 							|| (newAction instanceof VGAVehiclePlanDropoff 
-							&& (newAction.getRequest().getMaxDropoffTime() >= endTime + duration || ignoreTime))){
-
+								&& (newAction.getRequest().getMaxDropoffTime() < endTime + duration && !ignoreTime))){
+								allActionsFeasible = false;
+								break;
+							}
+						}
+					}
+					
+					if(allActionsFeasible){
 						// completion check
 						if(planPositionIndex == plan.length - 1){
 							
 							// compute necessary variables as if going deep
-							double endTimeTemp = endTime + duration;
+							int endTimeTemp = endTime + duration;
 							PlanComputationRequest request = newAction.getRequest();
-							double discomfort = endTimeTemp - request.getOriginTime() - request.getMinTravelTime();
+							int discomfort = endTimeTemp - request.getOriginTime() - request.getMinTravelTime();
 							
 							//TODO add onboard vehicles previous discomfort
 							
 							int totalDuration = (int) (endTimeTemp - startTime);
-							double planCost = planCostComputation.calculatePlanCost(totalDiscomfort + discomfort,
+							int planCost = planCostComputation.calculatePlanCost(totalDiscomfort + discomfort,
 									totalDuration);
 
 							if(planCost < bestPlanCost){
@@ -125,7 +141,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 							lastPosition = newAction.getPosition();
 							if(newAction instanceof VGAVehiclePlanDropoff){
 								PlanComputationRequest request = newAction.getRequest();
-								double discomfort = endTime - request.getOriginTime() - request.getMinTravelTime();
+								int discomfort = endTime - request.getOriginTime() - request.getMinTravelTime();
 								newActionData.setDiscomfort(discomfort);
 								totalDiscomfort += discomfort;
 							}

@@ -35,7 +35,7 @@ public class PlanBuilderOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> 
 	
 	
 	@Override
-	public Plan<V> getOptimalVehiclePlanForGroup(V vehicle, List<VGAVehiclePlanAction> actions, double startTime,
+	public Plan<V> getOptimalVehiclePlanForGroup(V vehicle, List<VGAVehiclePlanAction> actions, int startTime,
 			boolean ignoreTime) {
 		Stack<VGAVehiclePlan> toCheck = new Stack<>();
 		

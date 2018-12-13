@@ -15,6 +15,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanDropoff;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanPickup;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -32,21 +33,29 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 	
 	
 	@Override
-	public Plan<V> getOptimalVehiclePlanForGroup(V vehicle, List<VGAVehiclePlanAction> actions, 
+	public Plan<V> getOptimalVehiclePlanForGroup(V vehicle, LinkedHashSet<PlanComputationRequest> requests, 
 			int startTime, boolean ignoreTime){
 		
 		// prepare possible actions
-		PlanActionData[] availableActions = new PlanActionData[actions.size()];
+		List<PlanActionData> availableActionsList = new ArrayList(requests.size() * 2);
 		int counter = 0;
-		for (VGAVehiclePlanAction action: actions) {
-			boolean open = action instanceof VGAVehiclePlanPickup 
-					|| action.getRequest().isOnboard();
-			availableActions[counter] = new PlanActionData(action, counter, open);
-			counter++;
+		for (PlanComputationRequest request: requests) {
+			if(!request.isOnboard()){
+				availableActionsList.add(new PlanActionData(request.getPickUpAction(), counter, true));
+				counter++;
+				availableActionsList.add(new PlanActionData(request.getDropOffAction(), counter, false));
+				counter++;
+			}
+			else{
+				availableActionsList.add(new PlanActionData(request.getDropOffAction(), counter, true));
+				counter++;
+			}
 		}
 		
+		PlanActionData[] availableActions = availableActionsList.toArray(new PlanActionData[0]);
+		
 		// plan
-		PlanActionData[] plan = new PlanActionData[actions.size()];
+		PlanActionData[] plan = new PlanActionData[availableActions.length];
 		
 		// best plan
 		VGAVehiclePlanAction[] bestPlan = null;
@@ -121,7 +130,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 
 								// save best plan
 								if(bestPlan == null){
-									bestPlan = new VGAVehiclePlanAction[actions.size()];
+									bestPlan = new VGAVehiclePlanAction[availableActions.length];
 								}
 								
 								// actions from previous steps

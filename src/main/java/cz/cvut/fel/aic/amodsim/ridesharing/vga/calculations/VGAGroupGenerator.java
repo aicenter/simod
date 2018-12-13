@@ -48,28 +48,17 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 		}
 		else{
 			// BASE PLAN - for non-empty vehicles, we add a base plan that serves all onboard vehicles
-			Set<PlanComputationRequest> group = vehicle.getRequestsOnBoard();
+			LinkedHashSet<PlanComputationRequest> group = vehicle.getRequestsOnBoard();
 			onBoardRequestLock = group;
 			
-			// actions - only drop off actions are generated for on board vehicles
-			List<VGAVehiclePlanAction> actions = new ArrayList<>();
-			for(PlanComputationRequest request: group){
-				actions.add(new VGAVehiclePlanDropoff(request));
-			}
-			
 			// currently, the time window has to be ignored, because the planner underestimates the cost
-			Plan plan = optimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, actions, startTime, true);
+			Plan plan = optimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, group, startTime, true);
 			groupPlans.add(plan);
-			
-//			// onboard request composes the single base group
-//			currentGroups.add(new GroupData(group, actions));
 	
 			for (PlanComputationRequest request : group) {
 				Set<PlanComputationRequest> singleRequestGroup = new HashSet<>(1);
 				singleRequestGroup.add(request);
-				List<VGAVehiclePlanAction> singleAction = new ArrayList<>(1);
-				singleAction.add(new VGAVehiclePlanDropoff(request));
-				currentGroups.add(new GroupData(singleRequestGroup, singleAction, onBoardRequestLock));
+				currentGroups.add(new GroupData(singleRequestGroup, onBoardRequestLock));
 			}
 		}
 		
@@ -77,16 +66,11 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 		for (PlanComputationRequest request : requests) {
 			LinkedHashSet<PlanComputationRequest> group = new LinkedHashSet<>();
 			group.add(request);
-			
-			// actions
-			List<VGAVehiclePlanAction> actions = new ArrayList<>();
-			actions.add(new VGAVehiclePlanPickup(request));
-			actions.add(new VGAVehiclePlanDropoff(request));
 
 			Plan plan;
-			if((plan = optimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, actions, startTime, false)) != null) {
+			if((plan = optimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, group, startTime, false)) != null) {
 				feasibleRequests.add(request);
-				currentGroups.add(new GroupData(group, actions, onBoardRequestLock));
+				currentGroups.add(new GroupData(group, onBoardRequestLock));
 				//if the vehicle is empty, feasible requests are feasible plans and are used as base groups
 				if(vehicle.getRequestsOnBoard().isEmpty()){
 					groupPlans.add(plan);
@@ -131,20 +115,15 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 					
 					if(checkFeasibility){
 
-						// actions
-						List<VGAVehiclePlanAction> actions = new ArrayList<>(groupData.actions);
-						actions.add(new VGAVehiclePlanPickup(request));
-						actions.add(new VGAVehiclePlanDropoff(request));
-
 						Plan plan;
-						if((plan = optimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, actions, startTime, false)) != null) {
+						if((plan = optimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, newGroupToCheck, startTime, false)) != null) {
 			
 							if(groupData.onboardRequestLock == null || newGroupToCheck.containsAll(groupData.onboardRequestLock)){
-								newCurrentGroups.add(new GroupData(newGroupToCheck, actions));
+								newCurrentGroups.add(new GroupData(newGroupToCheck));
 								groupPlans.add(plan);
 							}
 							else{
-								newCurrentGroups.add(new GroupData(newGroupToCheck, actions, groupData.onboardRequestLock));
+								newCurrentGroups.add(new GroupData(newGroupToCheck, groupData.onboardRequestLock));
 							}
 //	                        if(groups.size() > 50){
 //	                            return groups;
@@ -170,19 +149,16 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 	
 	private class GroupData {
 		private final Set<PlanComputationRequest> requests;
-
-		private final List<VGAVehiclePlanAction> actions;
 		
 		private final Set<PlanComputationRequest> onboardRequestLock;
 
-		private GroupData(Set<PlanComputationRequest> requests, List<VGAVehiclePlanAction> actions) {
-			this(requests, actions, null);
+		private GroupData(Set<PlanComputationRequest> requests) {
+			this(requests, null);
 		}
 		
-		private GroupData(Set<PlanComputationRequest> requests, List<VGAVehiclePlanAction> actions,
+		private GroupData(Set<PlanComputationRequest> requests, 
 				Set<PlanComputationRequest> onboardRequestLock) {
 			this.requests = requests;
-			this.actions = actions;
 			this.onboardRequestLock = onboardRequestLock;
 		}
 

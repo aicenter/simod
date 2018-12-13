@@ -6,6 +6,8 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanDropoff;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanPickup;
 
 /**
  *
@@ -29,4 +31,8 @@ public interface PlanComputationRequest {
 	public SimulationNode getTo();
 	
 	public boolean isOnboard();
+	
+	public VGAVehiclePlanPickup getPickUpAction();
+	
+	public VGAVehiclePlanDropoff getDropOffAction();
 }

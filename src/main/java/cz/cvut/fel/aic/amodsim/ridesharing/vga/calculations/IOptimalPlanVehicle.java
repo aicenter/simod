@@ -6,8 +6,7 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 /**
  *
@@ -15,7 +14,7 @@ import java.util.Set;
  */
 public interface IOptimalPlanVehicle {
 
-	public Set<PlanComputationRequest> getRequestsOnBoard();
+	public LinkedHashSet<PlanComputationRequest> getRequestsOnBoard();
 
 	public SimulationNode getPosition();
 

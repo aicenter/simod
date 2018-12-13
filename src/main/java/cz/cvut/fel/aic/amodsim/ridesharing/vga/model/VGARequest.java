@@ -16,22 +16,31 @@ public class VGARequest implements PlanComputationRequest{
     private final int originTime;
 
     private final DemandAgent demandAgent;
+	
+	private final VGAVehiclePlanPickup pickUpAction;
+	
+	private final VGAVehiclePlanDropoff dropOffAction;
+	
+	private final int minTravelTime;
+	
 
 	private boolean onboard;
-	
-	public final SimulationNode from;
-	
-	public final SimulationNode to;
-	
-	public final int minTravelTime;
-	
-	public final int maxPickUpTime;
-	
-	public final int maxDropOffTime;
-	
-	
-	
 
+	
+	
+	
+	
+	@Override
+	public VGAVehiclePlanPickup getPickUpAction() {
+		return pickUpAction;
+	}
+
+	@Override
+	public VGAVehiclePlanDropoff getDropOffAction() {
+		return dropOffAction;
+	}
+
+	@Override
 	public boolean isOnboard() {
 		return onboard;
 	}
@@ -48,20 +57,20 @@ public class VGARequest implements PlanComputationRequest{
 			@Assisted("destination") SimulationNode destination, @Assisted DemandAgent demandAgent){
 		this.id = id;
 		
-		from = origin;
-		to = destination;
-		
 		originTime = (int) Math.round(demandAgent.getDemandTime() / 1000.0);
         minTravelTime = (int) Math.round(
 				MathUtils.getTravelTimeProvider().getExpectedTravelTime(origin, destination) / 1000.0);
         int maxProlongation = (int) Math.round(
 				amodsimConfig.amodsim.ridesharing.vga.maximumRelativeDiscomfort * minTravelTime);
 		
-		maxPickUpTime = originTime + maxProlongation;
-		maxDropOffTime = originTime + minTravelTime + maxProlongation;
+		int maxPickUpTime = originTime + maxProlongation;
+		int maxDropOffTime = originTime + minTravelTime + maxProlongation;
 		
         this.demandAgent = demandAgent;
 		onboard = false;
+		
+		pickUpAction = new VGAVehiclePlanPickup(this, origin, maxPickUpTime);
+		dropOffAction = new VGAVehiclePlanDropoff(this, destination, maxDropOffTime);
     }
 
     public int getOriginTime() { 
@@ -83,17 +92,17 @@ public class VGARequest implements PlanComputationRequest{
 
 	@Override
 	public String toString() {
-		return String.format("%s - from: %s to: %s", demandAgent, from, to);
+		return String.format("%s - from: %s to: %s", demandAgent, getFrom(), getTo());
 	}
 
 	@Override
 	public int getMaxPickupTime() {
-		return maxPickUpTime;
+		return pickUpAction.getMaxTime();
 	}
 
 	@Override
 	public int getMaxDropoffTime() {
-		return maxDropOffTime;
+		return dropOffAction.getMaxTime();
 	}
 
 	@Override
@@ -103,12 +112,12 @@ public class VGARequest implements PlanComputationRequest{
 
 	@Override
 	public SimulationNode getFrom() {
-		return from;
+		return pickUpAction.getPosition();
 	}
 
 	@Override
 	public SimulationNode getTo() {
-		return to;
+		return dropOffAction.getPosition();
 	}
 	
 	

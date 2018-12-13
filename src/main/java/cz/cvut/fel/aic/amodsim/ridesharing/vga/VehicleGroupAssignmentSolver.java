@@ -159,7 +159,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			Map<OnDemandVehicleStation,Integer> usedVehiclesPerStation = new HashMap<>();
 			int insufficientCacityCount = 0;
 			for(VGARequest request: waitingRequests){
-				OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(request.from);
+				OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(request.getFrom());
 				int index = usedVehiclesPerStation.containsKey(nearestStation) 
 						? usedVehiclesPerStation.get(nearestStation) : 0;
 				if(index >= nearestStation.getParkedVehiclesCount()){

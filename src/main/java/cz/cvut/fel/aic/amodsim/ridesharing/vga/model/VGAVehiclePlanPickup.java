@@ -5,18 +5,16 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanComputationReque
 
 public class VGAVehiclePlanPickup extends VGAVehiclePlanAction {
 
-    public VGAVehiclePlanPickup(PlanComputationRequest request) {
-        super(request);
-    }
+	public VGAVehiclePlanPickup(PlanComputationRequest request, SimulationNode node, int maxTime) {
+		super(request, node, maxTime);
+	}
+
+   
 
     @Override
     public String toString() {
         return "    Pick up  " + request.toString() + System.getProperty("line.separator");
     }
 
-	@Override
-	public SimulationNode getPosition() {
-		return request.getFrom();
-	}
 
 }

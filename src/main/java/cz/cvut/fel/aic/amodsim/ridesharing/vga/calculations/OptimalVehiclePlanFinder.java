@@ -6,12 +6,14 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
  *
  * @author LocalAdmin
+ * @param <V>
  */
 public abstract class OptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> {
 	
@@ -22,7 +24,7 @@ public abstract class OptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> {
 		this.planCostComputation = planCostComputation;
 	}
 	
-	public abstract Plan<V> getOptimalVehiclePlanForGroup(V vehicle, List<VGAVehiclePlanAction> actions, 
+	public abstract Plan<V> getOptimalVehiclePlanForGroup(V vehicle, LinkedHashSet<PlanComputationRequest> requests, 
 			int startTime, boolean ignoreTime);
 	
 }

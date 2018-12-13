@@ -36,6 +36,7 @@
                         <exclude>**/Simulation10MinuteTest.java</exclude>
                         <exclude>**/SimulationMinuteTest.java</exclude>
                     </excludes>
+					<trimStackTrace>false</trimStackTrace>
                 </configuration>
             </plugin>
 		</plugins>

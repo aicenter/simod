@@ -10,6 +10,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -18,13 +19,13 @@ import java.util.Set;
  */
 public class TestOptimalPlanVehicle implements IOptimalPlanVehicle{
 	
-	private final Set<PlanComputationRequest> requestsOnBoard;
+	private final LinkedHashSet<PlanComputationRequest> requestsOnBoard;
 	
 	private final SimulationNode position;
 	
 	private final int capacity;
 
-	public TestOptimalPlanVehicle(Set<PlanComputationRequest> requestsOnBoard, SimulationNode position, int capacity) {
+	public TestOptimalPlanVehicle(LinkedHashSet<PlanComputationRequest> requestsOnBoard, SimulationNode position, int capacity) {
 		this.requestsOnBoard = requestsOnBoard;
 		this.position = position;
 		this.capacity = capacity;
@@ -33,7 +34,7 @@ public class TestOptimalPlanVehicle implements IOptimalPlanVehicle{
 	
 
 	@Override
-	public Set<PlanComputationRequest> getRequestsOnBoard() {
+	public LinkedHashSet<PlanComputationRequest> getRequestsOnBoard() {
 		return requestsOnBoard;
 	}
 

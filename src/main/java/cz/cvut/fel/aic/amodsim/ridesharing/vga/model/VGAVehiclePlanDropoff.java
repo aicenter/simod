@@ -5,18 +5,17 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanComputationReque
 
 public class VGAVehiclePlanDropoff extends VGAVehiclePlanAction {
 
-    public VGAVehiclePlanDropoff(PlanComputationRequest request){
-        super(request);
-    }
+	public VGAVehiclePlanDropoff(PlanComputationRequest request, SimulationNode node, int maxTime) {
+		super(request, node, maxTime);
+	}
+
+
 
     @Override
     public String toString() {
         return "    Drop off " + request.toString() + System.getProperty("line.separator");
     }
 
-	@Override
-	public SimulationNode getPosition() {
-		return request.getTo();
-	}
+
 
 }

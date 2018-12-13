@@ -7,16 +7,29 @@ public abstract class VGAVehiclePlanAction {
 
     final PlanComputationRequest request;
 	
+	private final SimulationNode node;
+	
+	private final int maxTime;
+	
 	public PlanComputationRequest getRequest() { 
 		return request; 
 	}
+	
+	public SimulationNode getPosition(){
+		return node;
+	}
 
-    VGAVehiclePlanAction(PlanComputationRequest request) {
+	public int getMaxTime() {
+		return maxTime;
+	}
+	
+	
+
+    VGAVehiclePlanAction(PlanComputationRequest request, SimulationNode node, int maxTime) {
         this.request = request;
+		this.node = node;
+		this.maxTime = maxTime;
     }
 
-    
-
-    public abstract SimulationNode getPosition();
 
 }

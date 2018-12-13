@@ -10,6 +10,8 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanDropoff;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanPickup;
 
 /**
  *
@@ -19,29 +21,25 @@ public class TestPlanRequest implements PlanComputationRequest
 {
 	private boolean onboard;
 	
-	public final SimulationNode from;
-	
-	public final SimulationNode to;
-	
 	public final int minTravelTime;
-	
-	public final int maxPickUpTime;
-	
-	public final int maxDropOffTime;
 	
 	private final int originTime;
 	
 	private final int id;
 	
+	private final VGAVehiclePlanPickup pickUpAction;
+	
+	private final VGAVehiclePlanDropoff dropOffAction;
+	
 	
 	@Override
 	public int getMaxPickupTime() {
-		return maxPickUpTime;
+		return pickUpAction.getMaxTime();
 	}
 
 	@Override
 	public int getMaxDropoffTime() {
-		return maxDropOffTime;
+		return dropOffAction.getMaxTime();
 	}
 
 	@Override
@@ -51,32 +49,32 @@ public class TestPlanRequest implements PlanComputationRequest
 
 	@Override
 	public SimulationNode getFrom() {
-		return from;
+		return pickUpAction.getPosition();
 	}
 
 	@Override
 	public SimulationNode getTo() {
-		return to;
+		return dropOffAction.getPosition();
 	}
 
 	
 	public TestPlanRequest(int id, AmodsimConfig amodsimConfig, SimulationNode origin, 
 			SimulationNode destination, int originTime, boolean onboard){
 		
-		from = origin;
-		to = destination;
-		
         minTravelTime = (int) Math.round(
 				MathUtils.getTravelTimeProvider().getExpectedTravelTime(origin, destination) / 1000.0);
         int maxProlongation = (int) Math.round(
 				amodsimConfig.amodsim.ridesharing.vga.maximumRelativeDiscomfort * minTravelTime);
 		
-		maxPickUpTime = originTime + maxProlongation;
-		maxDropOffTime = originTime + minTravelTime + maxProlongation;
+		int maxPickUpTime = originTime + maxProlongation;
+		int maxDropOffTime = originTime + minTravelTime + maxProlongation;
 
 		this.onboard = onboard;
 		this.originTime = originTime;
 		this.id = id;
+		
+		pickUpAction = new VGAVehiclePlanPickup(this, origin, maxPickUpTime);
+		dropOffAction = new VGAVehiclePlanDropoff(this, destination, maxDropOffTime);
     }
 
 	@Override
@@ -92,6 +90,16 @@ public class TestPlanRequest implements PlanComputationRequest
 	@Override
 	public String toString() {
 		return String.format("Demand %s", id);
+	}
+
+	@Override
+	public VGAVehiclePlanPickup getPickUpAction() {
+		return pickUpAction;
+	}
+
+	@Override
+	public VGAVehiclePlanDropoff getDropOffAction() {
+		return dropOffAction;
 	}
 
 	

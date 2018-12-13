@@ -24,6 +24,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTask;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTaskType;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.VGAGroupGenerator;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.VGAILPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
@@ -148,6 +149,12 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		startTime = (int) Math.round(VehicleGroupAssignmentSolver.getTimeProvider().getCurrentSimTime() / 1000.0);
 		LOGGER.info("Generating groups for vehicles.");
 		planCount = 0;
+		
+		// global groups
+		LOGGER.info("Generating global groups");
+		Set<Set<PlanComputationRequest>> globalFeasibleGroups 
+				= vGAGroupGenerator.generateGlobalGroups(waitingRequests, startTime);
+		LOGGER.info("{} global groups generated", globalFeasibleGroups.size());
 		
 		// groups for driving vehicls
         for (VGAVehicle vehicle : ProgressBar.wrap(drivingVehicles, "Generating groups for vehicles")) {

@@ -27,4 +27,6 @@ public abstract class OptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> {
 	public abstract Plan<V> getOptimalVehiclePlanForGroup(V vehicle, LinkedHashSet<PlanComputationRequest> requests, 
 			int startTime, boolean ignoreTime);
 	
+	public abstract boolean groupFeasible(LinkedHashSet<PlanComputationRequest> requests, 
+			int startTime, int vehicleCapacity);
 }

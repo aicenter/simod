@@ -67,7 +67,6 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 		
 		// global stats
 		int onBoardCount = vehicle.getRequestsOnBoard().size();
-		
 		int endTime = startTime;
 		SimulationNode lastPosition = vehicle.getPosition();
 		int totalDiscomfort = 0;
@@ -226,5 +225,146 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 		}
 
         return new Plan((int) startTime, (int) endTime, (int) bestPlanCost, bestPlanActions, vehicle);
+    }
+	
+	@Override
+	public boolean groupFeasible(LinkedHashSet<PlanComputationRequest> requests, 
+			int startTime, int vehicleCapacity){
+		
+		// prepare possible actions
+		PlanActionData[] availableActions = new PlanActionData[requests.size() * 2];
+		int counter = 0;
+		for (PlanComputationRequest request: requests) {
+			availableActions[counter] = new PlanActionData(request.getPickUpAction(), counter, true);
+			counter++;
+			availableActions[counter] = new PlanActionData(request.getDropOffAction(), counter, false);
+			counter++;
+		}
+		
+		// plan
+		PlanActionData[] plan = new PlanActionData[availableActions.length];
+		
+		// indexes
+		int planPositionIndex = 0;
+		int actionIndex = 0;
+		
+		// global stats
+		int onBoardCount = 0;
+		int endTime = startTime;
+		SimulationNode lastPosition = null;
+		
+		while(true){
+			boolean goDeeper = false;
+			boolean infeasibleDueTime = false;
+			PlanActionData newActionData = availableActions[actionIndex];
+			
+			// check if action is not in the plan already
+			if(newActionData.isOpen() && !newActionData.isUsed()){
+				VGAVehiclePlanAction newAction = newActionData.getAction();
+			
+				/**
+				 * Feasibility checks
+				 */
+				// free capacity check
+				if(newAction instanceof VGAVehiclePlanDropoff || onBoardCount < vehicleCapacity){
+
+					// max pick up / drop off time check
+					int duration;
+					if(planPositionIndex > 0){
+						duration = (int) (MathUtils.getTravelTimeProvider().getExpectedTravelTime(
+								lastPosition, newAction.getPosition()) / 1000.0);
+					}
+					else{
+						duration = 0;
+					}
+
+					boolean allActionsFeasible = true;
+					for (int i = 0; i < availableActions.length; i++) {
+						PlanActionData actionData = availableActions[i];
+						if(!actionData.isUsed()){
+							if((newAction instanceof VGAVehiclePlanPickup 
+								&& newAction.getRequest().getMaxPickupTime() < endTime + duration)
+							|| (newAction instanceof VGAVehiclePlanDropoff 
+								&& (newAction.getRequest().getMaxDropoffTime() < endTime + duration))){
+								allActionsFeasible = false;
+								break;
+							}
+						}
+					}
+					
+					if(allActionsFeasible){
+						// completion check
+						if(planPositionIndex == plan.length - 1){
+							return true;
+						}
+						// go deeper
+						else{
+							// we add new action to plan
+							newActionData.setDurationFromPreviousAction(duration);
+							endTime += duration;
+							lastPosition = newAction.getPosition();
+							if(newAction instanceof VGAVehiclePlanDropoff){
+								PlanComputationRequest request = newAction.getRequest();
+								int discomfort = endTime - request.getOriginTime() - request.getMinTravelTime();
+								newActionData.setDiscomfort(discomfort);
+							}
+							else{
+								onBoardCount++;
+								availableActions[actionIndex + 1].setOpen(true);
+							}
+							plan[planPositionIndex] = newActionData;
+							newActionData.setUsed(true);
+							
+							planPositionIndex++;
+							actionIndex = 0;
+							goDeeper = true;
+						}	
+					}
+					else{
+						infeasibleDueTime = true;
+					}
+				}
+			}
+			
+			// current don't go deeper (we wont continue to next action)
+			if(!goDeeper){
+				
+				// last action - we have to go back
+				if(actionIndex == availableActions.length - 1 || infeasibleDueTime){
+					int boundIndex = availableActions.length - 1;
+					while((actionIndex >= boundIndex || infeasibleDueTime) && planPositionIndex > 0){
+						// we remove the last action from plan
+						PlanActionData lastActionData = plan[--planPositionIndex];
+						actionIndex = lastActionData.getActionIndex() + 1;
+						endTime -= lastActionData.getDurationFromPreviousAction();
+						if(planPositionIndex > 0){
+							lastPosition = plan[planPositionIndex - 1].getAction().getPosition();
+						}
+						else{
+							lastPosition = null;
+						}
+						if(lastActionData.getAction() instanceof VGAVehiclePlanPickup){
+							onBoardCount--;
+							availableActions[actionIndex].setOpen(false);
+						}
+						lastActionData.setUsed(false);
+						
+						infeasibleDueTime = false;
+						boundIndex = availableActions.length;
+					}
+					
+					// end condition - nothing left to search for
+					if((actionIndex == boundIndex || infeasibleDueTime) && planPositionIndex == 0){
+						break;
+					}
+				}
+				// try next action
+				else{
+					actionIndex++;
+				}
+			}
+		}
+
+        return false;
     }
 }

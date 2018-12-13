@@ -146,9 +146,9 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 							else{
 								newCurrentGroups.add(new GroupData(newGroupToCheck, actions, groupData.onboardRequestLock));
 							}
-	//                        if(groups.size() > 50){
-	//                            return groups;
-	//                        }
+//	                        if(groups.size() > 50){
+//	                            return groups;
+//	                        }
 						}
 					}
                 }
@@ -160,7 +160,7 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 //			if(currentGroupSize >= 2){
 //				break;
 //			}
-        }
+			}
 
 //		LOGGER.debug("Groups generated, total number of groups is {}", groups.size());
 		

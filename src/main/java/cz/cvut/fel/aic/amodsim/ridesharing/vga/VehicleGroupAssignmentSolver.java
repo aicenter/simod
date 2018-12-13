@@ -323,7 +323,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		List<String> record = new ArrayList<>(5);
 		record.add(Integer.toString(startTime));
 		record.add(vehicle.getRidesharingVehicle().getId());
-		record.add(Long.toString(totalTimeNano));
+		record.add(Long.toString(Math.round(totalTimeNano / 1000000)));
 		record.add(Integer.toString(vehicle.getRequestsOnBoard().size()));
 		
 		int actionCount = 13;
@@ -345,7 +345,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	private void logRecords() {
 		try {
             CsvWriter writer = new CsvWriter(
-                    Common.getFileWriter(config.amodsim.ridesharing.vga.groupGeneratorLogFilepath));
+                    Common.getFileWriter(config.amodsim.ridesharing.vga.groupGeneratorLogFilepath, true));
             for (List<String> record : logRecords) {
                 writer.writeLine(record.toArray(new String[0]));
             }

@@ -35,7 +35,7 @@ public class VGAGroupGeneratorTest {
 		
 		PlanCostComputation planCostComputation = new PlanCostComputation(amodsimConfig);
 		
-		groupGenerator = new VGAGroupGenerator(amodsimConfig, planCostComputation);
+//		groupGenerator = new VGAGroupGenerator(planCostComputation, amodsimConfig);
 	}
 	
 	

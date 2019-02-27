@@ -11,7 +11,7 @@ import cz.cvut.fel.aic.amodsim.init.EventInitializer;
 import cz.cvut.fel.aic.amodsim.init.StatisticInitializer;
 import cz.cvut.fel.aic.amodsim.io.RebalancingLoader;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
-import cz.cvut.fel.aic.amodsim.rebalancing.ReactiveRebalancing;
+//import cz.cvut.fel.aic.amodsim.rebalancing.ReactiveRebalancing;
 import cz.cvut.fel.aic.amodsim.statistics.Statistics;
 import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
 

@@ -26,7 +26,6 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.VGAGroupGenerator;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.VGAILPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
 import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEventContent;
@@ -55,8 +54,6 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
     private final VisioPositionUtil positionUtil;
 	
 	private final VGAGroupGenerator vGAGroupGenerator;
-	
-	private final VGAILPSolver vGAILPSolver;
 	
 	private final GurobiSolver gurobiSolver;
 	
@@ -88,14 +85,12 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
     public VehicleGroupAssignmentSolver(TravelTimeProvider travelTimeProvider, TravelCostProvider travelCostProvider,
 			OnDemandVehicleStorage vehicleStorage, VisioPositionUtil positionUtil, AmodsimConfig config, 
 			TimeProvider timeProvider, VGAGroupGenerator vGAGroupGenerator, 
-			VGARequest.VGARequestFactory vGARequestFactory, TypedSimulation eventProcessor,
-			VGAILPSolver vGAILPSolver, GurobiSolver gurobiSolver, 
+			VGARequest.VGARequestFactory vGARequestFactory, TypedSimulation eventProcessor, GurobiSolver gurobiSolver, 
 			OnDemandvehicleStationStorage onDemandvehicleStationStorage) {
         super(vehicleStorage, travelTimeProvider, travelCostProvider);
         this.positionUtil = positionUtil;
         this.config = config;
 		this.vGAGroupGenerator = vGAGroupGenerator;
-		this.vGAILPSolver = vGAILPSolver;
 		this.gurobiSolver = gurobiSolver;
 		this.vGARequestFactory = vGARequestFactory;
 		this.eventProcessor = eventProcessor;
@@ -149,12 +144,12 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		startTime = (int) Math.round(VehicleGroupAssignmentSolver.getTimeProvider().getCurrentSimTime() / 1000.0);
 		LOGGER.info("Generating groups for vehicles.");
 		planCount = 0;
-		
-		// global groups
-		LOGGER.info("Generating global groups");
-		Set<Set<PlanComputationRequest>> globalFeasibleGroups 
-				= vGAGroupGenerator.generateGlobalGroups(waitingRequests, startTime);
-		LOGGER.info("{} global groups generated", globalFeasibleGroups.size());
+//		
+//		// global groups
+//		LOGGER.info("Generating global groups");
+//		Set<Set<PlanComputationRequest>> globalFeasibleGroups 
+//				= vGAGroupGenerator.generateGlobalGroups(waitingRequests, startTime);
+//		LOGGER.info("{} global groups generated", globalFeasibleGroups.size());
 		
 		// groups for driving vehicls
         for (VGAVehicle vehicle : ProgressBar.wrap(drivingVehicles, "Generating groups for vehicles")) {

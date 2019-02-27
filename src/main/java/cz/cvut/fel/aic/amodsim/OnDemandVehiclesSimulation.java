@@ -3,7 +3,7 @@
 package cz.cvut.fel.aic.amodsim;
 
 import com.google.inject.Injector;
-import cz.cvut.fel.aic.agentpolis.simmodel.mapInitialization.MapInitializer;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;

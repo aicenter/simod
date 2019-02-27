@@ -76,7 +76,7 @@ public class EventInitializer {
         
         for (TimeTrip<SimulationNode> trip : trips) {
             long startTime = trip.getStartTime() - amodsimConfig.amodsim.startTime;
-            if(startTime < 1 || startTime > agentpolisConfig.simulationDurationInMillis){
+            if(startTime < 1 || startTime > agentpolisConfig.simulationDurationInS * 1000){
                 continue;
             }
             
@@ -98,7 +98,7 @@ public class EventInitializer {
         }
         for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
             long startTime = rebalancingTrip.getStartTime() - amodsimConfig.amodsim.startTime;
-            if(startTime < 1 || startTime > agentpolisConfig.simulationDurationInMillis){
+            if(startTime < 1 || startTime > agentpolisConfig.simulationDurationInS * 1000){
                 continue;
             }
             eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 

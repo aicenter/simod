@@ -19,3 +19,6 @@ nb-configuration.xml
 /src/main/java/cz/agents/amodsim/LocalConfig.java
 
 maptiles/
+
+# Python
+*.egg-info/

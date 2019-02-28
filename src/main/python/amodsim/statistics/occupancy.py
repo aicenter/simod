@@ -1,5 +1,5 @@
 
-from amodsim.init import config, roadmaptools_config
+from amodsim.init import config
 
 from tqdm import tqdm
 import numpy as np

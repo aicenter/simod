@@ -4,7 +4,7 @@ import json
 import numpy as np
 
 from amodsim.utils import col_to_percent, to_percetnt
-from amod.scripts.printer import print_table
+from roadmaptools.printer import print_table
 
 
 json_file = open(config.amodsim.statistics.result_file_path, 'r')

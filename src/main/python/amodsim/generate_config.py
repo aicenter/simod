@@ -1,5 +1,5 @@
 from fconfig import configuration
-from rsp.config.rsp_config import RoadmaptoolsConfig
+from roadmaptools.config.roadmaptools_config import RoadmaptoolsConfig
 
 # configuration.generate_config(r"C:\Workspaces\AIC\amod-to-agentpolis\src\main\resources\cz\cvut\fel\aic\amodsim\config/config.cfg")
 

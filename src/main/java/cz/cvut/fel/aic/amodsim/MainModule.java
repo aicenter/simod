@@ -27,11 +27,12 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactory;
+import cz.cvut.fel.aic.amodsim.rebalancing.RebalancingOnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.RidesharingOnDemandVehicleFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanBuilderOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
 import cz.cvut.fel.aic.geographtools.TransportMode;
 
@@ -75,19 +76,33 @@ public class MainModule extends StandardAgentPolisModule{
         if(amodsimConfig.amodsim.ridesharing.on){
 			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 			bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
-			bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
 			bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
 //			bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
-			install(new FactoryModuleBuilder().implement(VGARequest.class, VGARequest.class)
-				.build(VGARequest.VGARequestFactory.class));
-			bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);
-//			bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
+			
+			switch(amodsimConfig.amodsim.ridesharing.method){
+				case "insertion-heuristic":
+					bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
+					break;
+				case "vga":
+					bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
+					install(new FactoryModuleBuilder().implement(VGARequest.class, VGARequest.class)
+						.build(VGARequest.VGARequestFactory.class));
+					bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);
+		//			bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
+					break;
+			}
+
         }
         else{
            bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
         }
         install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
             .build(DemandAgentFactory.class));
+		
+		if(amodsimConfig.amodsim.amodsimRebalancing.on){
+			install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, RebalancingOnDemandVehicleStation.class)
+				.build(RebalancingOnDemandVehicleStation.OnDemandVehicleStationFactory.class));
+		}
     } 
     
 }

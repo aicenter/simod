@@ -230,7 +230,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     
     
     public interface OnDemandVehicleStationFactory {
-        public OnDemandVehicleStation create(String id, Node node, int initialVehicleCount);
+        public OnDemandVehicleStation create(String id, SimulationNode node, int initialVehicleCount);
     }
     
     
@@ -265,4 +265,5 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         }
 
     }
+	
 }

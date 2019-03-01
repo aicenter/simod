@@ -11,7 +11,7 @@ import cz.cvut.fel.aic.amodsim.init.EventInitializer;
 import cz.cvut.fel.aic.amodsim.init.StatisticInitializer;
 import cz.cvut.fel.aic.amodsim.io.RebalancingLoader;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
-//import cz.cvut.fel.aic.amodsim.rebalancing.ReactiveRebalancing;
+import cz.cvut.fel.aic.amodsim.rebalancing.ReactiveRebalancing;
 import cz.cvut.fel.aic.amodsim.statistics.Statistics;
 import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
 
@@ -52,7 +52,7 @@ public class OnDemandVehiclesSimulation {
 			
 			if(config.amodsim.amodsimRebalancing.on){
 				rebalancingLoader.load(new File(config.rebalancing.policyFilePath), true);
-//				injector.getInstance(ReactiveRebalancing.class).start();
+				injector.getInstance(ReactiveRebalancing.class).start();
 				injector.getInstance(EventInitializer.class).initialize(
                     tripTransform.loadTripsFromTxt(new File(config.amodsim.tripsPath)), null);
 			}

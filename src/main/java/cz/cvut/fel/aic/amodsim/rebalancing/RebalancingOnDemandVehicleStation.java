@@ -5,6 +5,7 @@
  */
 package cz.cvut.fel.aic.amodsim.rebalancing;
 
+import com.google.inject.Inject;
 import cz.cvut.fel.aic.amodsim.entity.*;
 import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
@@ -33,7 +34,7 @@ public class RebalancingOnDemandVehicleStation extends OnDemandVehicleStation{
 	
 	
     
-
+	@Inject
     public RebalancingOnDemandVehicleStation(AmodsimConfig config, EventProcessor eventProcessor, 
             OnDemandVehicleFactorySpec onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
             OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 
@@ -47,6 +48,6 @@ public class RebalancingOnDemandVehicleStation extends OnDemandVehicleStation{
     }
     
     public interface RebalancingOnDemandVehicleStationFactory {
-        public RebalancingOnDemandVehicleStation create(String id, Node node, int initialVehicleCount);
+        public RebalancingOnDemandVehicleStation create(String id, SimulationNode node, int initialVehicleCount);
     }
 }

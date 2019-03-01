@@ -11,6 +11,7 @@ import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.amodsim.CsvWriter;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.io.Common;
@@ -24,7 +25,6 @@ import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTask;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTaskType;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.VGAGroupGenerator;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
 import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEvent;
@@ -171,10 +171,14 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 				OnDemandVehicle onDemandVehicle = nearestStation.getVehicle(index);
 				VGAVehicle vGAVehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(onDemandVehicle.getId());
-				LinkedHashSet<VGARequest> set = new LinkedHashSet<>(1);
-				set.add(request);
+				
+				// just the one request can be assign to waiting vehicle
+//				LinkedHashSet<VGARequest> set = new LinkedHashSet<>(1);
+//				set.add(request);
 
-				computeGroupsForVehicle(vGAVehicle, set);
+				// all waiting request can be assigned to the waiting vehicle
+				computeGroupsForVehicle(vGAVehicle, waitingRequests);
+				
 				CollectionUtil.incrementMapValue(usedVehiclesPerStation, nearestStation, 1);
 			}
 			
@@ -203,6 +207,9 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
         VGAVehicle.resetMapping();
 		
 		logRecords();
+		
+		// check if all driving vehicles have a plan
+		checkPlanMapComplete(planMap);
 		
         return planMap;
     }
@@ -355,6 +362,20 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
         } catch (IOException ex) {
             LOGGER.error(null, ex);
         }
+	}
+
+	private void checkPlanMapComplete(Map<RideSharingOnDemandVehicle, DriverPlan> planMap) {
+		for(OnDemandVehicle onDemandVehicle: vehicleStorage){
+			if(onDemandVehicle.getState() != OnDemandVehicleState.WAITING){
+				if(!planMap.containsKey(onDemandVehicle)){
+					try {
+						throw new Exception("Driving vehicle is not replanned:" + onDemandVehicle);
+					} catch (Exception ex) {
+						Logger.getLogger(VehicleGroupAssignmentSolver.class.getName()).log(Level.SEVERE, null, ex);
+					}
+				}
+			}
+		}
 	}
 
 }

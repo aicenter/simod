@@ -152,7 +152,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 //		LOGGER.info("{} global groups generated", globalFeasibleGroups.size());
 		
 		// groups for driving vehicls
-        for (VGAVehicle vehicle : ProgressBar.wrap(drivingVehicles, "Generating groups for vehicles")) {
+        for (VGAVehicle vehicle : ProgressBar.wrap(drivingVehicles, "Generating groups for driving vehicles")) {
 			computeGroupsForVehicle(vehicle, waitingRequests);
         }
 		
@@ -160,7 +160,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		if(!onDemandvehicleStationStorage.isEmpty()){
 			Map<OnDemandVehicleStation,Integer> usedVehiclesPerStation = new HashMap<>();
 			int insufficientCacityCount = 0;
-			for(VGARequest request: waitingRequests){
+			for(VGARequest request: ProgressBar.wrap(waitingRequests, "Generating groups for vehicles in station")){
 				OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(request.getFrom());
 				int index = usedVehiclesPerStation.containsKey(nearestStation) 
 						? usedVehiclesPerStation.get(nearestStation) : 0;

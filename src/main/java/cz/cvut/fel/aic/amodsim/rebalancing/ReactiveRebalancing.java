@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import me.tongfei.progressbar.ProgressBar;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -73,6 +74,7 @@ public class ReactiveRebalancing implements Routine{
 		} catch (GRBException ex) {
 			Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
 		}
+		LOGGER.info("Reactive rebalancing initialized.");
 	}
 	
 	public void start(){
@@ -225,7 +227,9 @@ public class ReactiveRebalancing implements Routine{
 	}
 
 	private void computeDistancesBetweenStations() {
-		for(OnDemandVehicleStation stationFrom: onDemandvehicleStationStorage){
+		for(OnDemandVehicleStation stationFrom: 
+				ProgressBar.wrap(onDemandvehicleStationStorage, "Computing distances between stations")){
+//		for(OnDemandVehicleStation stationFrom: onDemandvehicleStationStorage){
 			Map<OnDemandVehicleStation,Double> mapFromStation = new HashMap<>();
 			distancesBetweenStations.put(stationFrom, mapFromStation);
 			for(OnDemandVehicleStation stationTo: onDemandvehicleStationStorage){
@@ -234,6 +238,7 @@ public class ReactiveRebalancing implements Routine{
 							stationFrom.getPosition(), stationTo.getPosition());
 					mapFromStation.put(stationTo, distance);
 				}
+//				LOGGER.info("Computing distance from station {} to station {}", stationFrom, stationTo);
 			}
 		}
 	}

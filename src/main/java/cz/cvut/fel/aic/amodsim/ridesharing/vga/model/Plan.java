@@ -6,9 +6,6 @@
 
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.model;
 
-import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
-import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTask;
-import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTaskType;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,25 +74,8 @@ public class Plan<V extends IOptimalPlanVehicle>{
 		this.vehicle = vehicle;
 	}
 
-//	public DriverPlan toDriverPlan() {
-//		List<DriverPlanTask> tasks = new ArrayList<>(actions.size() + 1);
-//		tasks.add(new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, 
-//				vehicle.getPosition()));
-//		for(VGAVehiclePlanAction action: actions){
-//			DriverPlanTaskType taskType;
-//			if(action instanceof VGAVehiclePlanPickup){
-//				taskType = DriverPlanTaskType.PICKUP;
-//			}
-//			else{
-//				taskType = DriverPlanTaskType.DROPOFF;
-//			}
-//			DriverPlanTask task = new DriverPlanTask(
-//					taskType, action.getRequest().getDemandAgent(), action.getPosition());
-//			tasks.add(task);
-//		}
-//		DriverPlan driverPlan = new DriverPlan(tasks, endTime - startTime);
-//		
-//		return driverPlan;
-//	}
 
+	public Plan duplicateForVehicle(V vehicle){
+		return new Plan(startTime, endTime, cost, actions, vehicle);
+	}
 }

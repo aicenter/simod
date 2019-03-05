@@ -160,6 +160,10 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		if(!onDemandvehicleStationStorage.isEmpty()){
 			Map<OnDemandVehicleStation,Integer> usedVehiclesPerStation = new HashMap<>();
 			int insufficientCacityCount = 0;
+			
+			// dictionary - all vehicles from a station have the same feasible groups
+			Map<OnDemandVehicleStation,List<Plan>> plansFromStation = new HashMap<>();
+			
 			for(VGARequest request: ProgressBar.wrap(waitingRequests, "Generating groups for vehicles in station")){
 				OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(request.getFrom());
 				int index = usedVehiclesPerStation.containsKey(nearestStation) 
@@ -171,13 +175,22 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 				OnDemandVehicle onDemandVehicle = nearestStation.getVehicle(index);
 				VGAVehicle vGAVehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(onDemandVehicle.getId());
-				
-				// just the one request can be assign to waiting vehicle
-//				LinkedHashSet<VGARequest> set = new LinkedHashSet<>(1);
-//				set.add(request);
 
-				// all waiting request can be assigned to the waiting vehicle
-				computeGroupsForVehicle(vGAVehicle, waitingRequests);
+				if(plansFromStation.containsKey(nearestStation)){
+					List<Plan> feasibleGroupPlansFromStation = plansFromStation.get(nearestStation);
+					List<Plan> feasibleGroupPlans = new ArrayList<>(feasibleGroupPlansFromStation.size());
+					for (Plan feasibleGroupPlan : feasibleGroupPlansFromStation) {
+						feasibleGroupPlans.add(feasibleGroupPlan.duplicateForVehicle(vGAVehicle));
+					}
+					VehiclePlanList vehiclePlanList = new VehiclePlanList(vGAVehicle, feasibleGroupPlans);
+					feasiblePlans.add(vehiclePlanList);
+					planCount += feasibleGroupPlans.size();
+				}
+				else{
+					// all waiting request can be assigned to the waiting vehicle
+					List<Plan> feasibleGroupPlans = computeGroupsForVehicle(vGAVehicle, waitingRequests);
+					plansFromStation.put(nearestStation, feasibleGroupPlans);
+				}
 				
 				CollectionUtil.incrementMapValue(usedVehiclesPerStation, nearestStation, 1);
 			}
@@ -206,7 +219,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
         VGAVehicle.resetMapping();
 		
-		logRecords();
+//		logRecords();
 		
 		// check if all driving vehicles have a plan
 		checkPlanMapComplete(planMap);
@@ -298,7 +311,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		return driverPlan;
 	}
 
-	private void computeGroupsForVehicle(VGAVehicle vehicle, LinkedHashSet<VGARequest> waitingRequests) {
+	private List<Plan> computeGroupsForVehicle(VGAVehicle vehicle, LinkedHashSet<VGARequest> waitingRequests) {
 		long startTimeNano = System.nanoTime();
 		List<Plan> feasibleGroupPlans = 
 					vGAGroupGenerator.generateGroupsForVehicle(vehicle, waitingRequests, startTime);
@@ -309,7 +322,9 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		planCount += feasibleGroupPlans.size();
 		
 		// log
-		logPlansPerVehicle(vehicle, feasibleGroupPlans, totalTimeNano);
+//		logPlansPerVehicle(vehicle, feasibleGroupPlans, totalTimeNano);
+		
+		return feasibleGroupPlans;
 	}
 
 	private void printGroupStats(List<VehiclePlanList> feasiblePlans) {

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -32,6 +33,8 @@ import java.util.Set;
  */
 @Singleton
 public class RidesharingDispatcher extends StationsDispatcher implements Routine{
+	
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RidesharingDispatcher.class);
 	
 	private final DARPSolver solver;
 	
@@ -76,6 +79,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	}
 	
 	protected void replan(){
+		int droppedDemandsThisBatch = 0;
 		long startTime = System.nanoTime();
 		Map<RideSharingOnDemandVehicle,DriverPlan> newPlans = solver.solve(requestQueue);
 		long totalTime = System.nanoTime() - startTime;
@@ -83,9 +87,9 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		
 
 		// dropped demand check
-		Set<DemandAgent> demands = new HashSet();			
+		Set<DemandAgent> demandsToDrop = new HashSet();			
 		for(OnDemandRequest request: requestQueue){
-			demands.add(request.getDemandAgent());
+			demandsToDrop.add(request.getDemandAgent());
 		}
 
 		for(Entry<RideSharingOnDemandVehicle,DriverPlan> entry: newPlans.entrySet()){
@@ -94,18 +98,22 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 
 			// dropped demand check
 			for(DriverPlanTask task: plan){
-				demands.remove(task.getDemandAgent());
+				demandsToDrop.remove(task.getDemandAgent());
 			}
 
 			vehicle.replan(plan);
 		}
 
-		for(DemandAgent demandAgent: demands){
+		for(DemandAgent demandAgent: demandsToDrop){
 			demandAgent.setDropped(true);
 			numberOfDemandsDropped++;
+			droppedDemandsThisBatch++;
 		}
 		
 		requestQueue = new LinkedList<>();
+		
+		LOGGER.info("Demands dropped in this batch: {}", droppedDemandsThisBatch);
+		LOGGER.info("Total dropped demands count: {}", numberOfDemandsDropped);
 	}
 
 	@Override

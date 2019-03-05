@@ -83,10 +83,12 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.config = config;
     }
-    
-    
-    
 
+	@Override
+	public String toString() {
+		return getId();
+	}
+	
     @Override
     public EntityType getType() {
         return DemandSimulationEntityType.ON_DEMAND_VEHICLE_STATION;

@@ -16,14 +16,15 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanPickup;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VehiclePlanList;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VirtualVehicle;
 import gurobi.GRB;
 import gurobi.GRBEnv;
 import gurobi.GRBException;
 import gurobi.GRBLinExpr;
 import gurobi.GRBModel;
 import gurobi.GRBVar;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,7 @@ public class GurobiSolver {
 		iteration = 1;
 	}
 	
-	public Map<VGAVehicle, Plan<VGAVehicle>> assignOptimallyFeasiblePlans(
+	public List<Plan<IOptimalPlanVehicle>> assignOptimallyFeasiblePlans(
 			List<VehiclePlanList> feasiblePlans, LinkedHashSet<VGARequest> requests) {
 		
 		try {
@@ -74,7 +75,7 @@ public class GurobiSolver {
 			
 			
 			// map for solution processing
-			Map<GRBVar,Plan<VGAVehicle>> variablePlanMap = new HashMap<>();
+			Map<GRBVar,Plan<IOptimalPlanVehicle>> variablePlanMap = new HashMap<>();
 			
 			// map for request constraint generation
 			Map<VGARequest,List<GRBVar>> requestVariableMap = new HashMap<>();
@@ -83,10 +84,10 @@ public class GurobiSolver {
 			for (VehiclePlanList vehicleEntry : feasiblePlans) {
 				
 				GRBLinExpr vehicleConstraint = new GRBLinExpr();
-				String vehicleId = vehicleEntry.vGAVehicle.getRidesharingVehicle().getId();
+				String vehicleId = vehicleEntry.optimalPlanVehicle.getId();
 				
 				int groupCounter = 0;
-				for (Plan<VGAVehicle> plan : vehicleEntry.feasibleGroupPlans) {
+				for (Plan<IOptimalPlanVehicle> plan : vehicleEntry.feasibleGroupPlans) {
 					
 					// variables
 					String newVarName = String.format("vehicle: %s, group: %s", 
@@ -114,7 +115,19 @@ public class GurobiSolver {
 				}
 				
 				String vehicleConstraintName = String.format("One plan per vehicle - vehicle %s", vehicleId);
-				model.addConstr(vehicleConstraint, GRB.EQUAL, 1.0, vehicleConstraintName);
+				
+				/* Adding constraint 1 into model */
+				
+				// normal vehicles 
+				if(vehicleEntry.optimalPlanVehicle instanceof VGAVehicle){
+					model.addConstr(vehicleConstraint, GRB.EQUAL, 1.0, vehicleConstraintName);
+				}
+				// virtual vehicles
+				else{
+					int limit = ((VirtualVehicle) vehicleEntry.optimalPlanVehicle).getCapacity();
+					model.addConstr(vehicleConstraint, GRB.LESS_EQUAL, limit, vehicleConstraintName);
+				}
+				
 				
 				vehicleCounter++;
 			}
@@ -168,15 +181,16 @@ public class GurobiSolver {
 			
 			LOGGER.info("Objective function value: {}", model.get(GRB.DoubleAttr.ObjVal));
 			
-			// create output from solution
-			Map<VGAVehicle, Plan<VGAVehicle>> optimalPlans = new LinkedHashMap<>();
 			
-			for (Map.Entry<GRBVar, Plan<VGAVehicle>> entry : variablePlanMap.entrySet()) {
+			// create output from solution
+			List<Plan<IOptimalPlanVehicle>> optimalPlans = new ArrayList<>();
+			
+			for (Map.Entry<GRBVar, Plan<IOptimalPlanVehicle>> entry : variablePlanMap.entrySet()) {
 				GRBVar variable = entry.getKey();
-				Plan<VGAVehicle> plan = entry.getValue();
+				Plan<IOptimalPlanVehicle> plan = entry.getValue();
 				
 				if(variable.get(GRB.DoubleAttr.X) == 1.0){
-					optimalPlans.put(plan.getVehicle(), plan);
+					optimalPlans.add(plan);
 				}
 			}
 			

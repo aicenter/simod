@@ -62,6 +62,11 @@ public class VGAVehicle implements IOptimalPlanVehicle{
 	public int getCapacity() {
 		return onDemandVehicle.getCapacity();
 	}
+
+	@Override
+	public String getId() {
+		return "VGA vehicle " + onDemandVehicle.getId();
+	}
 	
 	
 

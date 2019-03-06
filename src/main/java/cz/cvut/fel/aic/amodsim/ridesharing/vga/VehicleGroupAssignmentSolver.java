@@ -24,6 +24,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTask;
 import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTaskType;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.VGAGroupGenerator;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
@@ -166,6 +167,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			
 			for(VGARequest request: ProgressBar.wrap(waitingRequests, "Generating groups for vehicles in station")){
 				OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(request.getFrom());
+				
+				// check if there is not a lack of vehicles in the station
 				int index = usedVehiclesPerStation.containsKey(nearestStation) 
 						? usedVehiclesPerStation.get(nearestStation) : 0;
 				if(index >= nearestStation.getParkedVehiclesCount()){
@@ -173,26 +176,38 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 					continue;
 				}
 
-				OnDemandVehicle onDemandVehicle = nearestStation.getVehicle(index);
-				VGAVehicle vGAVehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(onDemandVehicle.getId());
-
-				if(plansFromStation.containsKey(nearestStation)){
-					List<Plan> feasibleGroupPlansFromStation = plansFromStation.get(nearestStation);
-					List<Plan> feasibleGroupPlans = new ArrayList<>(feasibleGroupPlansFromStation.size());
-					for (Plan feasibleGroupPlan : feasibleGroupPlansFromStation) {
-						feasibleGroupPlans.add(feasibleGroupPlan.duplicateForVehicle(vGAVehicle));
-					}
-					VehiclePlanList vehiclePlanList = new VehiclePlanList(vGAVehicle, feasibleGroupPlans);
-					feasiblePlans.add(vehiclePlanList);
-					planCount += feasibleGroupPlans.size();
-				}
-				else{
+				// add all feasible plans from station if not computed yet
+				if(!plansFromStation.containsKey(nearestStation)){
+					OnDemandVehicle onDemandVehicle = nearestStation.getVehicle(0);
+					VGAVehicle vGAVehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(onDemandVehicle.getId());
+					
 					// all waiting request can be assigned to the waiting vehicle
-					List<Plan> feasibleGroupPlans = computeGroupsForVehicle(vGAVehicle, waitingRequests);
+					List<Plan> feasibleGroupPlans = 
+						vGAGroupGenerator.generateGroupsForVehicle(vGAVehicle, waitingRequests, startTime);
 					plansFromStation.put(nearestStation, feasibleGroupPlans);
 				}
-				
+
 				CollectionUtil.incrementMapValue(usedVehiclesPerStation, nearestStation, 1);
+			}
+			
+			// generating virtual vehicle plans
+			for (Map.Entry<OnDemandVehicleStation, Integer> entry : usedVehiclesPerStation.entrySet()) {
+				OnDemandVehicleStation station = entry.getKey();
+				Integer usedVehiclesCount = entry.getValue();
+
+				List<Plan> feasibleGroupPlansFromStation = plansFromStation.get(station);
+				int capacity = feasibleGroupPlansFromStation.get(0).getVehicle().getCapacity();
+
+				VirtualVehicle virtualVehicle = new VirtualVehicle(station, capacity, usedVehiclesCount);
+
+				List<Plan> feasibleGroupPlans = new ArrayList<>(feasibleGroupPlansFromStation.size());
+				for (Plan feasibleGroupPlan : feasibleGroupPlansFromStation) {
+					feasibleGroupPlans.add(feasibleGroupPlan.duplicateForVehicle(virtualVehicle));
+				}
+
+				VehiclePlanList vehiclePlanList = new VehiclePlanList(virtualVehicle, feasibleGroupPlans);
+				feasiblePlans.add(vehiclePlanList);
+				planCount += feasibleGroupPlans.size();
 			}
 			
 			if(insufficientCacityCount > 0){
@@ -207,14 +222,38 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 
         //Using an ILP solver to optimally assign a group to each vehicle
-        Map<VGAVehicle,Plan<VGAVehicle>> optimalPlans 
+        List<Plan<IOptimalPlanVehicle>> optimalPlans 
 				= gurobiSolver.assignOptimallyFeasiblePlans(feasiblePlans, activeRequests);
 
-        //Filling the output with converted plans
-        for(Map.Entry<VGAVehicle,Plan<VGAVehicle>> entry : optimalPlans.entrySet()) {
-            if(entry.getKey().getRidesharingVehicle() != null) {
-                planMap.put(entry.getKey().getRidesharingVehicle(), toDriverPlan(entry.getValue()));
-            }
+		
+        /* Filling the output with converted plans */
+		
+		// for virtual vehicles
+		Map<OnDemandVehicleStation,Integer> usedVehiclesPerStation = new HashMap<>();
+		
+        for(Plan<IOptimalPlanVehicle> plan : optimalPlans) {
+			DriverPlan driverPlan = toDriverPlan(plan);
+			
+			// normal vehicles (driving vehicles)
+			if(plan.getVehicle() instanceof VGAVehicle){
+				VGAVehicle vGAVehicle = (VGAVehicle) plan.getVehicle();
+				planMap.put(vGAVehicle.getRidesharingVehicle(), driverPlan);
+			}
+			
+			// virtual vehicles
+			else{
+				VirtualVehicle virtualVehicle = (VirtualVehicle) plan.getVehicle();
+
+				OnDemandVehicleStation nearestStation = virtualVehicle.getStation();
+				int index = usedVehiclesPerStation.containsKey(nearestStation) 
+						? usedVehiclesPerStation.get(nearestStation) : 0;
+
+				OnDemandVehicle onDemandVehicle = nearestStation.getVehicle(index);
+				VGAVehicle vGAVehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(onDemandVehicle.getId());
+				planMap.put(vGAVehicle.getRidesharingVehicle(), driverPlan);
+				
+				CollectionUtil.incrementMapValue(usedVehiclesPerStation, nearestStation, 1);
+			}
         }
 
         VGAVehicle.resetMapping();
@@ -290,7 +329,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		return filteredVehiclesForPlanning;
 	}
 
-	private DriverPlan toDriverPlan(Plan<VGAVehicle> plan) {
+	private DriverPlan toDriverPlan(Plan<IOptimalPlanVehicle> plan) {
 		List<DriverPlanTask> tasks = new ArrayList<>(plan.getActions().size() + 1);
 		tasks.add(new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, 
 				plan.getVehicle().getPosition()));

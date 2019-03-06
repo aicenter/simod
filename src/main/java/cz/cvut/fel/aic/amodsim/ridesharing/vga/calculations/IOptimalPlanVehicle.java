@@ -20,4 +20,5 @@ public interface IOptimalPlanVehicle {
 
 	public int getCapacity();
 	
+	public String getId();
 }

@@ -6,6 +6,7 @@
 
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.model;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import java.util.List;
 
 /**
@@ -13,12 +14,12 @@ import java.util.List;
  * @author F.I.D.O.
  */
 public class VehiclePlanList {
-	public final VGAVehicle vGAVehicle;
+	public final IOptimalPlanVehicle optimalPlanVehicle;
 	
 	public final List<Plan> feasibleGroupPlans;
 
-	public VehiclePlanList(VGAVehicle vGAVehicle, List<Plan> feasibleGroupPlans) {
-		this.vGAVehicle = vGAVehicle;
+	public VehiclePlanList(IOptimalPlanVehicle vGAVehicle, List<Plan> feasibleGroupPlans) {
+		this.optimalPlanVehicle = vGAVehicle;
 		this.feasibleGroupPlans = feasibleGroupPlans;
 	}
 	

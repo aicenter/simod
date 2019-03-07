@@ -8,10 +8,11 @@ package cz.agents.amodsim.ridesharing.vga.mock;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanComputationRequest;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanDropoff;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanPickup;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
 
 /**
  *
@@ -27,9 +28,9 @@ public class TestPlanRequest implements PlanComputationRequest
 	
 	private final int id;
 	
-	private final VGAVehiclePlanPickup pickUpAction;
+	private final PlanActionPickup pickUpAction;
 	
-	private final VGAVehiclePlanDropoff dropOffAction;
+	private final PlanActionDropoff dropOffAction;
 	
 	
 	@Override
@@ -63,8 +64,9 @@ public class TestPlanRequest implements PlanComputationRequest
 		
         minTravelTime = (int) Math.round(
 				MathUtils.getTravelTimeProvider().getExpectedTravelTime(origin, destination) / 1000.0);
-        int maxProlongation = (int) Math.round(
-				amodsimConfig.amodsim.ridesharing.vga.maximumRelativeDiscomfort * minTravelTime);
+//        int maxProlongation = (int) Math.round(
+//				amodsimConfig.amodsim.ridesharing.vga.maximumRelativeDiscomfort * minTravelTime);
+		int maxProlongation = amodsimConfig.amodsim.ridesharing.maxProlongationInSeconds;
 		
 		int maxPickUpTime = originTime + maxProlongation;
 		int maxDropOffTime = originTime + minTravelTime + maxProlongation;
@@ -73,8 +75,8 @@ public class TestPlanRequest implements PlanComputationRequest
 		this.originTime = originTime;
 		this.id = id;
 		
-		pickUpAction = new VGAVehiclePlanPickup(this, origin, maxPickUpTime);
-		dropOffAction = new VGAVehiclePlanDropoff(this, destination, maxDropOffTime);
+		pickUpAction = new PlanActionPickup(this, origin, maxPickUpTime);
+		dropOffAction = new PlanActionDropoff(this, destination, maxDropOffTime);
     }
 
 	@Override
@@ -93,13 +95,18 @@ public class TestPlanRequest implements PlanComputationRequest
 	}
 
 	@Override
-	public VGAVehiclePlanPickup getPickUpAction() {
+	public PlanActionPickup getPickUpAction() {
 		return pickUpAction;
 	}
 
 	@Override
-	public VGAVehiclePlanDropoff getDropOffAction() {
+	public PlanActionDropoff getDropOffAction() {
 		return dropOffAction;
+	}
+
+	@Override
+	public DemandAgent getDemandAgent() {
+		return null;
 	}
 
 	

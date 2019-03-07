@@ -34,8 +34,8 @@ public class WeightTestWeight1 {
 		Injector injector = scenario.getInjector();
 		
 		// config
-		scenario.config.amodsim.ridesharing.vga.weightParameter = 1.0;
-		scenario.config.amodsim.ridesharing.vga.maximumRelativeDiscomfort = 3.0;
+		scenario.config.amodsim.ridesharing.weightParameter = 1.0;
+		scenario.config.amodsim.ridesharing.maximumRelativeDiscomfort = 3.0;
 		
 		// set roadgraph - grid 5x4
         Graph<SimulationNode, SimulationEdge> graph 

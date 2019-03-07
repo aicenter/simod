@@ -7,7 +7,6 @@ package cz.cvut.fel.aic.amodsim.ridesharing;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.ticker.PeriodicTicker;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.ticker.Routine;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
@@ -15,8 +14,10 @@ import cz.cvut.fel.aic.amodsim.DemandData;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
-import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
-import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTask;
+import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
+import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.PlanActionCurrentPosition;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.geographtools.Node;
 import java.util.HashSet;
@@ -61,8 +62,8 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		this.solver = solver;
 		requestQueue = new LinkedList<>();
 		darpSolverComputationalTimes = new LinkedList<>();
-		if(config.amodsim.ridesharing.vga.batchPeriod != 0){
-			ticker.registerRoutine(this, config.amodsim.ridesharing.vga.batchPeriod * 1000);
+		if(config.amodsim.ridesharing.batchPeriod != 0){
+			ticker.registerRoutine(this, config.amodsim.ridesharing.batchPeriod * 1000);
 		}
 	}
 
@@ -73,7 +74,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	protected void serveDemand(Node startNode, DemandData demandData) {
 		OnDemandRequest newRequest = new OnDemandRequest(demandData.demandAgent, demandData.locations.get(1));
 		requestQueue.add(newRequest);
-		if(config.amodsim.ridesharing.vga.batchPeriod == 0){
+		if(config.amodsim.ridesharing.batchPeriod == 0){
 			replan();
 		}
 	}
@@ -97,8 +98,10 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 			DriverPlan plan = entry.getValue();
 
 			// dropped demand check
-			for(DriverPlanTask task: plan){
-				demandsToDrop.remove(task.getDemandAgent());
+			for(PlanAction task: plan){
+				if(!(task instanceof PlanActionCurrentPosition)){
+					demandsToDrop.remove(((PlanRequestAction) task).getRequest().getDemandAgent());
+				}	
 			}
 
 			vehicle.replan(plan);

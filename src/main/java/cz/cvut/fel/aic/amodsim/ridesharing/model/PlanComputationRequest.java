@@ -3,11 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
+package cz.cvut.fel.aic.amodsim.ridesharing.model;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanDropoff;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanPickup;
+import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 
 /**
  *
@@ -32,7 +31,9 @@ public interface PlanComputationRequest {
 	
 	public boolean isOnboard();
 	
-	public VGAVehiclePlanPickup getPickUpAction();
+	public PlanActionPickup getPickUpAction();
 	
-	public VGAVehiclePlanDropoff getDropOffAction();
+	public PlanActionDropoff getDropOffAction();
+	
+	public DemandAgent getDemandAgent();
 }

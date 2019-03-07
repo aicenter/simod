@@ -1,14 +1,13 @@
-package cz.cvut.fel.aic.amodsim.ridesharing.vga.model;
+package cz.cvut.fel.aic.amodsim.ridesharing.vga.planBuilder;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
-import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
-import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTask;
-import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlanTaskType;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 
 import java.util.*;
 
@@ -25,11 +24,13 @@ public class VGAVehiclePlan {
     private final Set<PlanComputationRequest> requests;
     private final Set<PlanComputationRequest> waitingRequests;
     private final Set<PlanComputationRequest> onboardRequests;
-    private final List<VGAVehiclePlanAction> actions;
+    private final List<PlanRequestAction> actions;
+	
+	private final double startTime;
 	
 	private double endTime;
 	
-	private double startTime;
+	
 	
 	
 	
@@ -58,16 +59,17 @@ public class VGAVehiclePlan {
         this.waitingRequests = new LinkedHashSet<>(vehiclePlan.waitingRequests);
     }
 
-    public void add(VGAVehiclePlanAction action) {
+    public void add(PlanRequestAction action) {
         recomputeTime(action.getPosition());
 		actions.add(action);
-        if(action instanceof VGAVehiclePlanPickup){
+        if(action instanceof PlanActionPickup){
             waitingRequests.remove(action.getRequest());
             onboardRequests.add(action.getRequest());
-        } else if (action instanceof VGAVehiclePlanDropoff) {
-            discomfort += getCurrentTime() - action.request.getOriginTime() -
-                    MathUtils.getTravelTimeProvider().getExpectedTravelTime(
-							action.getRequest().getFrom(), action.getRequest().getTo()) / 1000.0;
+        } else if (action instanceof PlanActionDropoff) {
+//            discomfort += getCurrentTime() - action.request.getOriginTime() -
+//                    MathUtils.getTravelTimeProvider().getExpectedTravelTime(
+//							action.getRequest().getFrom(), action.getRequest().getTo()) / 1000.0;
+			discomfort += getCurrentTime() - action.request.getOriginTime() - action.request.getMinTravelTime();
             onboardRequests.remove(action.getRequest());
         }
     }
@@ -90,46 +92,15 @@ public class VGAVehiclePlan {
           return endTime;
     }
 
-    
-
-//    public DriverPlan toDriverPlan(){
-//        if(vgaVehicle == null) { return null; }
-//
-//        List<DriverPlanTask> tasks = new ArrayList<>();
-//
-//        tasks.add(new DriverPlanTask(DriverPlanTaskType.CURRENT_POSITION, null, vgaVehicle.getPosition()));
-//        for(VGAVehiclePlanAction action : actions){
-//            if(action instanceof VGAVehiclePlanPickup) {
-//                tasks.add(new DriverPlanTask(DriverPlanTaskType.PICKUP, action.getRequest().getDemandAgent(), 
-//						action.getRequest().from));
-//            } else if (action instanceof VGAVehiclePlanDropoff) {
-//                tasks.add(new DriverPlanTask(DriverPlanTaskType.DROPOFF, action.getRequest().getDemandAgent(), 
-//						action.getRequest().to));
-//            }
-//        }
-//
-//        return new DriverPlan(tasks, (long) (getCurrentTime() * 1000));
-//    }
-	
 	public boolean vehicleHasFreeCapacity(){
 		return onboardRequests.size() < vgaVehicle.getCapacity();
 	}
-
-//    public double getDropoffTimeSum() {
-//        double sum = 0;
-//        for(VGAVehiclePlanAction action : actions) {
-//            if(action instanceof VGAVehiclePlanDropoff){
-//                sum += action.getTime();
-//            }
-//        }
-//        return sum;
-//    }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        for(VGAVehiclePlanAction action : actions){
+        for(PlanRequestAction action : actions){
             sb.append(action.toString());
         }
 
@@ -156,7 +127,7 @@ public class VGAVehiclePlan {
 
     public Set<PlanComputationRequest> getOnboardRequests() { return onboardRequests; }
 
-    public List<VGAVehiclePlanAction> getActions() { return actions; }
+    public List<PlanRequestAction> getActions() { return actions; }
 
 	private void updateAccordingToRequests() {
 		for(PlanComputationRequest request: requests){
@@ -169,10 +140,5 @@ public class VGAVehiclePlan {
 			}
 		}
 	}
-
-    public enum CostType {
-        STANDARD,
-        SUM_OF_DROPOFF_TIMES
-    }
 
 }

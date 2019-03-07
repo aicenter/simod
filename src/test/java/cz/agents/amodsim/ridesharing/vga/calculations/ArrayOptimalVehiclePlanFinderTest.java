@@ -19,13 +19,12 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.io.File;
 import java.util.LinkedHashSet;
-import java.util.Set;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -54,8 +53,8 @@ public class ArrayOptimalVehiclePlanFinderTest {
         injector = agentPolisInitializer.initialize();
 		
 		// config changes
-		config.amodsim.ridesharing.vga.batchPeriod = 0;
-		config.amodsim.ridesharing.vga.maximumRelativeDiscomfort = 2.1;
+		config.amodsim.ridesharing.batchPeriod = 0;
+		config.amodsim.ridesharing.maximumRelativeDiscomfort = 2.1;
 		
 		MathUtils.setTravelTimeProvider(injector.getInstance(TravelTimeProvider.class));
 		arrayOptimalVehiclePlanFinder = injector.getInstance(ArrayOptimalVehiclePlanFinder.class);

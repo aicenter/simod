@@ -1,5 +1,6 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;

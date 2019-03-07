@@ -30,10 +30,10 @@ import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactory;
 import cz.cvut.fel.aic.amodsim.rebalancing.RebalancingOnDemandVehicleStation;
-import cz.cvut.fel.aic.amodsim.ridesharing.plan.RidesharingOnDemandVehicleFactory;
+import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingOnDemandVehicleFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.geographtools.TransportMode;
 
 import java.io.File;
@@ -85,8 +85,8 @@ public class MainModule extends StandardAgentPolisModule{
 					break;
 				case "vga":
 					bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
-					install(new FactoryModuleBuilder().implement(VGARequest.class, VGARequest.class)
-						.build(VGARequest.VGARequestFactory.class));
+					install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
+						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
 					bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);
 		//			bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
 					break;

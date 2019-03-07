@@ -1,4 +1,4 @@
-package cz.cvut.fel.aic.amodsim.ridesharing.plan;
+package cz.cvut.fel.aic.amodsim.ridesharing;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

@@ -5,8 +5,10 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -17,10 +19,10 @@ import java.util.List;
  */
 public abstract class OptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> {
 	
-	protected final PlanCostComputation planCostComputation;
+	protected final StandardPlanCostProvider planCostComputation;
 	
 	
-    public OptimalVehiclePlanFinder(PlanCostComputation planCostComputation) {
+    public OptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation) {
 		this.planCostComputation = planCostComputation;
 	}
 	

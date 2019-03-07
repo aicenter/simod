@@ -8,7 +8,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.vga.model;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import java.util.LinkedHashSet;
 
 /**

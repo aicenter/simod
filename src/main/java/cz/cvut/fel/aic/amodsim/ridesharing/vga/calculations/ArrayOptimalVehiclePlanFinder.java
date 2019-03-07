@@ -6,14 +6,16 @@
 
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.PlanActionData;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanAction;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanDropoff;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanPickup;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -27,7 +29,7 @@ import java.util.List;
 public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extends OptimalVehiclePlanFinder<V>{
 
 	@Inject
-	public ArrayOptimalVehiclePlanFinder(PlanCostComputation planCostComputation) {
+	public ArrayOptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation) {
 		super(planCostComputation);
 	}
 	
@@ -58,7 +60,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 		PlanActionData[] plan = new PlanActionData[availableActions.length];
 		
 		// best plan
-		VGAVehiclePlanAction[] bestPlan = null;
+		PlanRequestAction[] bestPlan = null;
 		int bestPlanCost = Integer.MAX_VALUE;
 		
 		// indexes
@@ -78,13 +80,13 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 			
 			// check if action is not in the plan already
 			if(newActionData.isOpen() && !newActionData.isUsed()){
-				VGAVehiclePlanAction newAction = newActionData.getAction();
+				PlanRequestAction newAction = newActionData.getAction();
 			
 				/**
 				 * Feasibility checks
 				 */
 				// free capacity check
-				if(newAction instanceof VGAVehiclePlanDropoff || onBoardCount < vehicle.getCapacity()){
+				if(newAction instanceof PlanActionDropoff || onBoardCount < vehicle.getCapacity()){
 
 					// max pick up / drop off time check
 					int duration = (int) (MathUtils.getTravelTimeProvider().getExpectedTravelTime(
@@ -99,9 +101,9 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 					for (int i = 0; i < availableActions.length; i++) {
 						PlanActionData actionData = availableActions[i];
 						if(!actionData.isUsed()){
-							if((newAction instanceof VGAVehiclePlanPickup 
+							if((newAction instanceof PlanActionPickup 
 								&& newAction.getRequest().getMaxPickupTime() < endTime + duration)
-							|| (newAction instanceof VGAVehiclePlanDropoff 
+							|| (newAction instanceof PlanActionDropoff 
 								&& (newAction.getRequest().getMaxDropoffTime() < endTime + duration && !ignoreTime))){
 								allActionsFeasible = false;
 								break;
@@ -129,7 +131,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 
 								// save best plan
 								if(bestPlan == null){
-									bestPlan = new VGAVehiclePlanAction[availableActions.length];
+									bestPlan = new PlanRequestAction[availableActions.length];
 								}
 								
 								// actions from previous steps
@@ -147,7 +149,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 							newActionData.setDurationFromPreviousAction(duration);
 							endTime += duration;
 							lastPosition = newAction.getPosition();
-							if(newAction instanceof VGAVehiclePlanDropoff){
+							if(newAction instanceof PlanActionDropoff){
 								PlanComputationRequest request = newAction.getRequest();
 								int discomfort = endTime - request.getOriginTime() - request.getMinTravelTime();
 								newActionData.setDiscomfort(discomfort);
@@ -188,7 +190,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 						else{
 							lastPosition = vehicle.getPosition();
 						}
-						if(lastActionData.getAction() instanceof VGAVehiclePlanDropoff){
+						if(lastActionData.getAction() instanceof PlanActionDropoff){
 							totalDiscomfort -= lastActionData.getDiscomfort();
 						}
 						else{
@@ -218,7 +220,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 		}
 		
 		// convert to Plan
-		List<VGAVehiclePlanAction> bestPlanActions = new ArrayList<>(bestPlan.length);
+		List<PlanRequestAction> bestPlanActions = new ArrayList<>(bestPlan.length);
 		for (int i = 0; i < bestPlan.length; i++) {
 			bestPlanActions.add(bestPlan[i]);
 			
@@ -260,13 +262,13 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 			
 			// check if action is not in the plan already
 			if(newActionData.isOpen() && !newActionData.isUsed()){
-				VGAVehiclePlanAction newAction = newActionData.getAction();
+				PlanRequestAction newAction = newActionData.getAction();
 			
 				/**
 				 * Feasibility checks
 				 */
 				// free capacity check
-				if(newAction instanceof VGAVehiclePlanDropoff || onBoardCount < vehicleCapacity){
+				if(newAction instanceof PlanActionDropoff || onBoardCount < vehicleCapacity){
 
 					// max pick up / drop off time check
 					int duration;
@@ -282,9 +284,9 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 					for (int i = 0; i < availableActions.length; i++) {
 						PlanActionData actionData = availableActions[i];
 						if(!actionData.isUsed()){
-							if((newAction instanceof VGAVehiclePlanPickup 
+							if((newAction instanceof PlanActionPickup 
 								&& newAction.getRequest().getMaxPickupTime() < endTime + duration)
-							|| (newAction instanceof VGAVehiclePlanDropoff 
+							|| (newAction instanceof PlanActionDropoff 
 								&& (newAction.getRequest().getMaxDropoffTime() < endTime + duration))){
 								allActionsFeasible = false;
 								break;
@@ -303,7 +305,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 							newActionData.setDurationFromPreviousAction(duration);
 							endTime += duration;
 							lastPosition = newAction.getPosition();
-							if(newAction instanceof VGAVehiclePlanDropoff){
+							if(newAction instanceof PlanActionDropoff){
 								PlanComputationRequest request = newAction.getRequest();
 								int discomfort = endTime - request.getOriginTime() - request.getMinTravelTime();
 								newActionData.setDiscomfort(discomfort);
@@ -343,7 +345,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 						else{
 							lastPosition = null;
 						}
-						if(lastActionData.getAction() instanceof VGAVehiclePlanPickup){
+						if(lastActionData.getAction() instanceof PlanActionPickup){
 							onBoardCount--;
 							availableActions[actionIndex].setOpen(false);
 						}

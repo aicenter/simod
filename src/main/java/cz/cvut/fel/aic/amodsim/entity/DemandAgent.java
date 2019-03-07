@@ -62,7 +62,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     
     private SimulationNode lastFromPosition;
 	
-	private long scheduledPickupDelay;
+//	private long scheduledPickupDelay;
 	
 	private long realPickupTime = 0;
 	
@@ -80,13 +80,13 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
         return simpleId;
     }
 
-	public void setScheduledPickupDelay(long scheduledPickupDelay) {
-		this.scheduledPickupDelay = scheduledPickupDelay;
-	}
-
-	public long getScheduledPickupDelay() {
-		return scheduledPickupDelay;
-	}
+//	public void setScheduledPickupDelay(long scheduledPickupDelay) {
+//		this.scheduledPickupDelay = scheduledPickupDelay;
+//	}
+//
+//	public long getScheduledPickupDelay() {
+//		return scheduledPickupDelay;
+//	}
 
 	public long getRealPickupTime() {
 		return realPickupTime;

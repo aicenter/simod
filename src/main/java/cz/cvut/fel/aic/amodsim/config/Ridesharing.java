@@ -1,29 +1,42 @@
 package cz.cvut.fel.aic.amodsim.config;
 
 import java.lang.Boolean;
+import java.lang.Double;
 import java.lang.Integer;
 import java.lang.String;
 import java.util.Map;
 
 public class Ridesharing {
+  public String discomfortConstrain;
+
+  public Integer maxDirectSpeedEstimationKmh;
+
   public Vga vga;
+
+  public Integer batchPeriod;
 
   public String method;
 
-  public Integer maxSpeedEstimation;
+  public Double maximumRelativeDiscomfort;
+
+  public Integer maxProlongationInSeconds;
+
+  public Double weightParameter;
 
   public Integer vehicleCapacity;
-
-  public Integer maxWaitTime;
 
   public Boolean on;
 
   public Ridesharing(Map ridesharing) {
+    this.discomfortConstrain = (String) ridesharing.get("discomfort_constrain");
+    this.maxDirectSpeedEstimationKmh = (Integer) ridesharing.get("max_direct_speed_estimation_kmh");
     this.vga = new Vga((Map) ridesharing.get("vga"));
+    this.batchPeriod = (Integer) ridesharing.get("batch_period");
     this.method = (String) ridesharing.get("method");
-    this.maxSpeedEstimation = (Integer) ridesharing.get("max_speed_estimation");
+    this.maximumRelativeDiscomfort = (Double) ridesharing.get("maximum_relative_discomfort");
+    this.maxProlongationInSeconds = (Integer) ridesharing.get("max_prolongation_in_seconds");
+    this.weightParameter = (Double) ridesharing.get("weight_parameter");
     this.vehicleCapacity = (Integer) ridesharing.get("vehicle_capacity");
-    this.maxWaitTime = (Integer) ridesharing.get("max_wait_time");
     this.on = (Boolean) ridesharing.get("on");
   }
 }

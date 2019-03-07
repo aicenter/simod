@@ -1,4 +1,4 @@
-package cz.cvut.fel.aic.amodsim.ridesharing.vga.model;
+package cz.cvut.fel.aic.amodsim.ridesharing.model;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -6,10 +6,9 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanComputationRequest;
 
 
-public class VGARequest implements PlanComputationRequest{
+public class DefaultPlanComputationRequest implements PlanComputationRequest{
 	
 	public final int id;
 	
@@ -17,9 +16,9 @@ public class VGARequest implements PlanComputationRequest{
 
     private final DemandAgent demandAgent;
 	
-	private final VGAVehiclePlanPickup pickUpAction;
+	private final PlanActionPickup pickUpAction;
 	
-	private final VGAVehiclePlanDropoff dropOffAction;
+	private final PlanActionDropoff dropOffAction;
 	
 	private final int minTravelTime;
 	
@@ -31,12 +30,12 @@ public class VGARequest implements PlanComputationRequest{
 	
 	
 	@Override
-	public VGAVehiclePlanPickup getPickUpAction() {
+	public PlanActionPickup getPickUpAction() {
 		return pickUpAction;
 	}
 
 	@Override
-	public VGAVehiclePlanDropoff getDropOffAction() {
+	public PlanActionDropoff getDropOffAction() {
 		return dropOffAction;
 	}
 
@@ -49,19 +48,31 @@ public class VGARequest implements PlanComputationRequest{
 		this.onboard = onboard;
 	}
 	
+	@Override
+	public DemandAgent getDemandAgent() { 
+		return demandAgent; 
+	}
 	
 
 
 	@Inject
-    private VGARequest(@Assisted int id, AmodsimConfig amodsimConfig, @Assisted("origin") SimulationNode origin, 
+    private DefaultPlanComputationRequest(@Assisted int id, 
+			AmodsimConfig amodsimConfig, @Assisted("origin") SimulationNode origin, 
 			@Assisted("destination") SimulationNode destination, @Assisted DemandAgent demandAgent){
 		this.id = id;
 		
 		originTime = (int) Math.round(demandAgent.getDemandTime() / 1000.0);
         minTravelTime = (int) Math.round(
 				MathUtils.getTravelTimeProvider().getExpectedTravelTime(origin, destination) / 1000.0);
-        int maxProlongation = (int) Math.round(
-				amodsimConfig.amodsim.ridesharing.vga.maximumRelativeDiscomfort * minTravelTime);
+		
+		int maxProlongation;
+		if(amodsimConfig.amodsim.ridesharing.discomfortConstrain.equals("absolute")){
+			maxProlongation = amodsimConfig.amodsim.ridesharing.maxProlongationInSeconds;
+		}
+		else{
+			maxProlongation = (int) Math.round(
+				amodsimConfig.amodsim.ridesharing.maximumRelativeDiscomfort * minTravelTime);
+		}		
 		
 		int maxPickUpTime = originTime + maxProlongation;
 		int maxDropOffTime = originTime + minTravelTime + maxProlongation;
@@ -69,20 +80,20 @@ public class VGARequest implements PlanComputationRequest{
         this.demandAgent = demandAgent;
 		onboard = false;
 		
-		pickUpAction = new VGAVehiclePlanPickup(this, origin, maxPickUpTime);
-		dropOffAction = new VGAVehiclePlanDropoff(this, destination, maxDropOffTime);
+		pickUpAction = new PlanActionPickup(this, origin, maxPickUpTime);
+		dropOffAction = new PlanActionDropoff(this, destination, maxDropOffTime);
     }
 
     public int getOriginTime() { 
 		return originTime; 
 	}
 
-    public DemandAgent getDemandAgent() { return demandAgent; }
+    
 
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof VGARequest)) return false;
-        return demandAgent.toString().equals(((VGARequest) obj).demandAgent.toString());
+        if(!(obj instanceof DefaultPlanComputationRequest)) return false;
+        return demandAgent.toString().equals(((DefaultPlanComputationRequest) obj).demandAgent.toString());
     }
 
     @Override
@@ -122,8 +133,8 @@ public class VGARequest implements PlanComputationRequest{
 	
 	
 	
-	public interface VGARequestFactory {
-        public VGARequest create(int id, @Assisted("origin") SimulationNode origin, 
+	public interface DefaultPlanComputationRequestFactory {
+        public DefaultPlanComputationRequest create(int id, @Assisted("origin") SimulationNode origin, 
 				@Assisted("destination") SimulationNode destination, DemandAgent demandAgent);
     }
 

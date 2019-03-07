@@ -35,7 +35,7 @@ public class BatchTest {
 		Injector injector = scenario.getInjector();
 		
 		// set batch time
-		injector.getInstance(AmodsimConfig.class).amodsim.ridesharing.vga.batchPeriod = 10;
+		injector.getInstance(AmodsimConfig.class).amodsim.ridesharing.batchPeriod = 10;
 		
 		// set roadgraph
         Graph<SimulationNode, SimulationEdge> graph 

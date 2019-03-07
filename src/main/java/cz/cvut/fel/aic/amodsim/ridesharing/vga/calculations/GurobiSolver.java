@@ -7,14 +7,15 @@ package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
 //import gurobi.*;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.CollectionUtil;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehicle;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanAction;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanPickup;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VehiclePlanList;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VirtualVehicle;
 import gurobi.GRB;
@@ -43,7 +44,7 @@ public class GurobiSolver {
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GurobiSolver.class);
 	
 	
-	private final PlanCostComputation planCostComputation;
+	private final StandardPlanCostProvider planCostComputation;
 	
 	private GRBEnv env;
 
@@ -54,7 +55,7 @@ public class GurobiSolver {
 	
 	
 	@Inject
-    public GurobiSolver(PlanCostComputation planCostComputation) {
+    public GurobiSolver(StandardPlanCostProvider planCostComputation) {
 		this.planCostComputation = planCostComputation;
 		env = null;
 		try {
@@ -66,7 +67,7 @@ public class GurobiSolver {
 	}
 	
 	public List<Plan<IOptimalPlanVehicle>> assignOptimallyFeasiblePlans(
-			List<VehiclePlanList> feasiblePlans, LinkedHashSet<VGARequest> requests) {
+			List<VehiclePlanList> feasiblePlans, LinkedHashSet<DefaultPlanComputationRequest> requests) {
 		
 		try {
 			// solver init
@@ -78,7 +79,7 @@ public class GurobiSolver {
 			Map<GRBVar,Plan<IOptimalPlanVehicle>> variablePlanMap = new HashMap<>();
 			
 			// map for request constraint generation
-			Map<VGARequest,List<GRBVar>> requestVariableMap = new HashMap<>();
+			Map<DefaultPlanComputationRequest,List<GRBVar>> requestVariableMap = new HashMap<>();
 			
 			int vehicleCounter = 0;
 			for (VehiclePlanList vehicleEntry : feasiblePlans) {
@@ -103,11 +104,11 @@ public class GurobiSolver {
 					vehicleConstraint.addTerm(1.0, newVar);
 					
 					// filling map for constraint 2 
-					for (VGAVehiclePlanAction action: plan.getActions()) {
+					for (PlanRequestAction action: plan.getActions()) {
 						
 						// add variable once to each request list
-						if(action instanceof VGAVehiclePlanPickup){
-							CollectionUtil.addToListInMap(requestVariableMap, (VGARequest) action.getRequest(), newVar);
+						if(action instanceof PlanActionPickup){
+							CollectionUtil.addToListInMap(requestVariableMap, (DefaultPlanComputationRequest) action.getRequest(), newVar);
 						}
 					}
 					
@@ -134,7 +135,7 @@ public class GurobiSolver {
 			
 			// dropping variables generation (y_r)
 			int requestCounter = 0;
-			for (VGARequest request : requests) {
+			for (DefaultPlanComputationRequest request : requests) {
 				
 				// variables
 				String newVarName = String.format("droping request %s", request.id);
@@ -151,8 +152,8 @@ public class GurobiSolver {
 			
 			// constraint 2 - exactly one plan for each request
 			requestCounter = 0;
-			for (Map.Entry<VGARequest, List<GRBVar>> entry : requestVariableMap.entrySet()) {
-				VGARequest request = entry.getKey();
+			for (Map.Entry<DefaultPlanComputationRequest, List<GRBVar>> entry : requestVariableMap.entrySet()) {
+				DefaultPlanComputationRequest request = entry.getKey();
 				List<GRBVar> planVariableList = entry.getValue();
 				
 				GRBLinExpr requestConstraint = new GRBLinExpr();

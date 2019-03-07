@@ -8,10 +8,8 @@ package cz.agents.amodsim.ridesharing.vga.mock;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanComputationRequest;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 /**
  *
@@ -46,6 +44,11 @@ public class TestOptimalPlanVehicle implements IOptimalPlanVehicle{
 	@Override
 	public int getCapacity() {
 		return capacity;
+	}
+
+	@Override
+	public String getId() {
+		return "TestOptimalPlanVehicle";
 	}
 
 }

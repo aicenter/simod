@@ -6,6 +6,7 @@
 
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.model;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class Plan<V extends IOptimalPlanVehicle>{
 
 	private final int cost;
 	
-	private final List<VGAVehiclePlanAction> actions;
+	private final List<PlanRequestAction> actions;
 	
 	private final V vehicle;
 	
@@ -31,7 +32,7 @@ public class Plan<V extends IOptimalPlanVehicle>{
 		return cost;
 	}
 
-	public List<VGAVehiclePlanAction> getActions() {
+	public List<PlanRequestAction> getActions() {
 		return actions;
 	}
 
@@ -66,7 +67,7 @@ public class Plan<V extends IOptimalPlanVehicle>{
 	
 	
 	
-	public Plan(int startTime, int endTime, int cost, List<VGAVehiclePlanAction> actions, V vehicle) {
+	public Plan(int startTime, int endTime, int cost, List<PlanRequestAction> actions, V vehicle) {
 		this.startTime = startTime;
 		this.endTime = endTime;
 		this.cost = cost;

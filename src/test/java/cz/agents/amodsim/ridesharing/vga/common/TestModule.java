@@ -32,12 +32,11 @@ import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.EuclideanTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.plan.RidesharingOnDemandVehicleFactory;
+import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingOnDemandVehicleFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.PlanBuilderOptimalVehiclePlanFinder;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import java.io.File;
 
 /**
@@ -70,8 +69,8 @@ public class TestModule extends StandardAgentPolisModule{
 		bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
 		bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
 		bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
-		install(new FactoryModuleBuilder().implement(VGARequest.class, VGARequest.class)
-				.build(VGARequest.VGARequestFactory.class));
+		install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
+				.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
 		bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);
 //		bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
 	}

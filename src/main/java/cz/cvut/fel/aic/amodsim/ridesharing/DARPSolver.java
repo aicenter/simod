@@ -1,6 +1,8 @@
 package cz.cvut.fel.aic.amodsim.ridesharing;
 
-import cz.cvut.fel.aic.amodsim.ridesharing.plan.DriverPlan;
+import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import java.util.List;
 import java.util.Map;
@@ -15,17 +17,20 @@ public abstract class DARPSolver {
 	
 	protected final TravelTimeProvider travelTimeProvider;
 	
-	protected final TravelCostProvider travelCostProvider;
+	protected final PlanCostProvider planCostProvider;
+	
+	protected final DefaultPlanComputationRequestFactory requestFactory;
 
 	
 	
 	
 	
 	public DARPSolver(OnDemandVehicleStorage vehicleStorage, TravelTimeProvider travelTimeProvider,
-			TravelCostProvider travelCostProvider) {
+			PlanCostProvider travelCostProvider, DefaultPlanComputationRequestFactory requestFactory) {
 		this.vehicleStorage = vehicleStorage;
 		this.travelTimeProvider = travelTimeProvider;
-		this.travelCostProvider = travelCostProvider;
+		this.planCostProvider = travelCostProvider;
+		this.requestFactory = requestFactory;
 	}
 	
 	

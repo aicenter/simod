@@ -6,13 +6,15 @@
 
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.model;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
+
 /**
  *
  * @author F.I.D.O.
  */
 public class PlanActionData{
 		
-	private final VGAVehiclePlanAction action;
+	private final PlanRequestAction action;
 
 	private final int actionIndex;
 
@@ -26,7 +28,7 @@ public class PlanActionData{
 
 	
 	
-	public VGAVehiclePlanAction getAction() {
+	public PlanRequestAction getAction() {
 		return action;
 	}
 
@@ -68,7 +70,7 @@ public class PlanActionData{
 	
 	
 
-	public PlanActionData(VGAVehiclePlanAction action, int actionIndex, boolean open) {
+	public PlanActionData(PlanRequestAction action, int actionIndex, boolean open) {
 		this.action = action;
 		this.actionIndex = actionIndex;
 		this.open = open;

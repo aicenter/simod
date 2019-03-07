@@ -92,7 +92,13 @@ public class ReactiveRebalancing implements Routine{
 		sendOrders(transfers);
 		LOGGER.info("Reactive Rebalancing - finished");
 	}
-
+	
+	
+	/**
+	 * Computes a car transfer to/from each station as optimalCarCountWithBuffer - carCount. Negative compensation
+	 * means car transfer from station, while positive compensation means car transfer to station.
+	 * @return Compensations for each station.
+	 */
 	private Map<OnDemandVehicleStation, Integer> computeCompensations() {
 		Map<OnDemandVehicleStation, Integer> compensations = new HashMap<>();
 		
@@ -107,7 +113,7 @@ public class ReactiveRebalancing implements Routine{
 			if(carCount > optimalCarCount){
 				int optimalCarCountWithBuffer = optimalCarCount + buffer;
 				if(carCount > optimalCarCountWithBuffer){
-					compensation = optimalCarCountWithBuffer- carCount;
+					compensation = optimalCarCountWithBuffer - carCount;
 				}
 			}
 			else{
@@ -185,37 +191,43 @@ public class ReactiveRebalancing implements Routine{
 				OnDemandVehicleStation stationTo = compensationTo.getKey();
 	
 				GRBLinExpr toFlowSumConstraint = new GRBLinExpr();
-				for(GRBVar variable: toFlowVars.get(stationTo)){
-					toFlowSumConstraint.addTerm(1, variable);
+				if(toFlowVars.containsKey(stationTo)){
+					for(GRBVar variable: toFlowVars.get(stationTo)){
+						toFlowSumConstraint.addTerm(1, variable);
+					}
 				}
 				String toFlowSumConstraintName
 						= String.format("Constarint - sum of flows to station %s", stationTo.getId());
 				model.addConstr(toFlowSumConstraint, GRB.EQUAL, amountTo, toFlowSumConstraintName);
 			}
 		}
-			
 		
-		// objective function
-		for(Entry<GRBVar,Double> varCost: varCosts.entrySet()){
-			objetive.addTerm(varCost.getValue(), varCost.getKey());
-		}
-		
-		// solving
-		model.setObjective(objetive, GRB.MINIMIZE);
-		LOGGER.info("solving start");
-		model.optimize();
-		LOGGER.info("solving finished");
-
-		LOGGER.info("Objective function value: {}", model.get(GRB.DoubleAttr.ObjVal));
-		
-		// create output from solution
 		List<Transfer> transfers = new LinkedList<>();
-		for (Entry<GRBVar, Transfer> entry : variablesToTransfer.entrySet()) {
-			GRBVar flow = entry.getKey();
-			Transfer transfer = entry.getValue();
-			
-			transfer.amount = (int) flow.get(GRB.DoubleAttr.X);
-			transfers.add(transfer);
+		
+		// rebalancing only make sense when there are some possible transfers
+		if(!varCosts.isEmpty()){
+			// objective function
+			for(Entry<GRBVar,Double> varCost: varCosts.entrySet()){
+				objetive.addTerm(varCost.getValue(), varCost.getKey());
+			}
+
+			// solving
+			model.setObjective(objetive, GRB.MINIMIZE);
+			LOGGER.info("solving start");
+			model.optimize();
+			LOGGER.info("solving finished");
+
+			LOGGER.info("Objective function value: {}", model.get(GRB.DoubleAttr.ObjVal));
+
+			// create output from solution
+
+			for (Entry<GRBVar, Transfer> entry : variablesToTransfer.entrySet()) {
+				GRBVar flow = entry.getKey();
+				Transfer transfer = entry.getValue();
+
+				transfer.amount = (int) flow.get(GRB.DoubleAttr.X);
+				transfers.add(transfer);
+			}
 		}
 		
 		return transfers;

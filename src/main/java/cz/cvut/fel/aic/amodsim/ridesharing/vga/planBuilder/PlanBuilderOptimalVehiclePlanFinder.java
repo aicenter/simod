@@ -4,16 +4,19 @@
  * and open the template in the editor.
  */
 
-package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
+package cz.cvut.fel.aic.amodsim.ridesharing.vga.planBuilder;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGARequest;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlan;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanAction;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanDropoff;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehiclePlanPickup;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +31,7 @@ import java.util.Stack;
 public class PlanBuilderOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extends OptimalVehiclePlanFinder<V>{
 
 	@Inject
-	public PlanBuilderOptimalVehiclePlanFinder(PlanCostComputation planCostComputation) {
+	public PlanBuilderOptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation) {
 		super(planCostComputation);
 	}
 
@@ -97,7 +100,7 @@ public class PlanBuilderOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> 
 		}
 		
         // convert to Plan
-		List<VGAVehiclePlanAction> bestPlanActions = bestPlan.getActions();
+		List<PlanRequestAction> bestPlanActions = bestPlan.getActions();
 		
         return new Plan((int) startTime, (int) bestPlan.getCurrentTime(), (int) upperBound, bestPlanActions, vehicle);
 	}

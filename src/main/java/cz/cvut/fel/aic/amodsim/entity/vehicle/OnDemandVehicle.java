@@ -324,6 +324,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	}
 
     public void startRebalancing(OnDemandVehicleStation targetStation) {
+		parkedIn.releaseVehicle(this);
         state = OnDemandVehicleState.REBALANCING;
         currentRebalancingId = rebalancingIdGenerator.getId();
         eventProcessor.addEvent(OnDemandVehicleEvent.START_REBALANCING, null, null, 

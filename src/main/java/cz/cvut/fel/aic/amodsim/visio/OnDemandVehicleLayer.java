@@ -6,14 +6,11 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
-import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
-import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VehicleLayer;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 import java.awt.Color;
-import javax.vecmath.Point2d;
 
 /**
  *
@@ -54,7 +51,7 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
     @Override
     protected boolean skipDrawing(PhysicalTransportVehicle vehicle) {
         OnDemandVehicle onDemandVehicle = (OnDemandVehicle) vehicle.getDriver();
-        
+		
         if(onDemandVehicle.getParkedIn() != null){
             return true;
         }

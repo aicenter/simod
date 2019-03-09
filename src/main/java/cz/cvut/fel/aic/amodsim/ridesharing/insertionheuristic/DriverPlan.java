@@ -41,4 +41,8 @@ public class DriverPlan implements Iterable<PlanAction>{
 	public PlanAction getNextTask(){
 		return plan.get(1);
 	}
+	
+	public void taskCompleted(){
+		plan.remove(1);
+	}
 }

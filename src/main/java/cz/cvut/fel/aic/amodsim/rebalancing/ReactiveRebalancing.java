@@ -41,6 +41,8 @@ public class ReactiveRebalancing implements Routine{
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ReactiveRebalancing.class);
 	
+	private static final double NON_RABALANCING_COST = 100000000;
+	
 	
 	private final PeriodicTicker ticker;
 	
@@ -87,8 +89,10 @@ public class ReactiveRebalancing implements Routine{
 	@Override
 	public void doRoutine() {
 		LOGGER.info("Reactive Rebalancing - start");
-		Map<OnDemandVehicleStation,Integer> compensations = computeCompensations();
+		double averageFullness = computeAverageFullness();
+		Map<OnDemandVehicleStation,Integer> compensations = computeCompensations(averageFullness);
 		List<Transfer> transfers = computeTransfers(compensations);
+		logTransferes(transfers);
 		sendOrders(transfers);
 		LOGGER.info("Reactive Rebalancing - finished");
 	}
@@ -99,27 +103,28 @@ public class ReactiveRebalancing implements Routine{
 	 * means car transfer from station, while positive compensation means car transfer to station.
 	 * @return Compensations for each station.
 	 */
-	private Map<OnDemandVehicleStation, Integer> computeCompensations() {
+	private Map<OnDemandVehicleStation, Integer> computeCompensations(double averageFullness) {
 		Map<OnDemandVehicleStation, Integer> compensations = new HashMap<>();
 		
 		for(OnDemandVehicleStation station: onDemandvehicleStationStorage){
 			RebalancingOnDemandVehicleStation rebalancingStation = (RebalancingOnDemandVehicleStation) station;
 			int carCount = station.getParkedVehiclesCount();
 			int optimalCarCount = rebalancingStation.getOptimalCarCount();
+			int targetCarCount = (int) Math.round(averageFullness * optimalCarCount);
 			
 			int buffer = (int) (config.amodsim.amodsimRebalancing.buffer * optimalCarCount);
 			
 			int compensation = 0;
-			if(carCount > optimalCarCount){
-				int optimalCarCountWithBuffer = optimalCarCount + buffer;
-				if(carCount > optimalCarCountWithBuffer){
-					compensation = optimalCarCountWithBuffer - carCount;
+			if(carCount > targetCarCount){
+				int targetCarCountWithBuffer = targetCarCount + buffer;
+				if(carCount > targetCarCountWithBuffer){
+					compensation = targetCarCountWithBuffer - carCount;
 				}
 			}
 			else{
-				int optimalCarCountWithBuffer = optimalCarCount - buffer;
-				if(carCount < optimalCarCountWithBuffer){
-					compensation = optimalCarCountWithBuffer- carCount;
+				int targetCarCountWithBuffer = targetCarCount - buffer;
+				if(carCount < targetCarCountWithBuffer){
+					compensation = targetCarCountWithBuffer- carCount;
 				}
 			}
 			
@@ -149,8 +154,11 @@ public class ReactiveRebalancing implements Routine{
 				OnDemandVehicleStation stationFrom = compensationFrom.getKey();
 				int fromFlow = compensationFrom.getValue();
 
+				// we filter unly station with out flow (to many vehicles)
 				if(fromFlow < 0){
 					int amountFrom = Math.abs(fromFlow);
+					
+					// standard variables
 					for(Entry<OnDemandVehicleStation, Integer> compensationTo: compensations.entrySet()){
 						int amountTo = compensationTo.getValue();
 						if(amountTo > 0){
@@ -172,6 +180,12 @@ public class ReactiveRebalancing implements Routine{
 							variablesToTransfer.put(flow, new Transfer(stationFrom, stationTo));
 						}
 					}
+					
+					// empty out flow variables
+					String flowName = String.format("empty flow from %s", stationFrom.getId());
+					GRBVar emptyFlowFrom = model.addVar(0, amountFrom, 0, GRB.INTEGER, flowName);
+					fromFlowVars.add(emptyFlowFrom);
+					varCosts.put(emptyFlowFrom, NON_RABALANCING_COST);
 
 					// from flow sum constraint
 					GRBLinExpr fromFlowSumConstraint = new GRBLinExpr();
@@ -184,53 +198,68 @@ public class ReactiveRebalancing implements Routine{
 				}
 			}
 		
-		// to flow sum constraints
-		for(Entry<OnDemandVehicleStation, Integer> compensationTo: compensations.entrySet()){
-			int amountTo = compensationTo.getValue();
-			if(amountTo > 0){
-				OnDemandVehicleStation stationTo = compensationTo.getKey();
-	
-				GRBLinExpr toFlowSumConstraint = new GRBLinExpr();
-				if(toFlowVars.containsKey(stationTo)){
-					for(GRBVar variable: toFlowVars.get(stationTo)){
-						toFlowSumConstraint.addTerm(1, variable);
+			// to flow sum constraints
+			for(Entry<OnDemandVehicleStation, Integer> compensationTo: compensations.entrySet()){
+				int amountTo = compensationTo.getValue();
+				if(amountTo > 0){
+					OnDemandVehicleStation stationTo = compensationTo.getKey();
+
+					GRBLinExpr toFlowSumConstraint = new GRBLinExpr();
+					if(toFlowVars.containsKey(stationTo)){
+
+						// empty in flow variables
+						String flowName = String.format("empty flow to %s", stationTo.getId());
+						GRBVar emptyFlowTo = model.addVar(0, amountTo, 0, GRB.INTEGER, flowName);
+						toFlowSumConstraint.addTerm(1, emptyFlowTo);
+						varCosts.put(emptyFlowTo, NON_RABALANCING_COST);
+
+						for(GRBVar variable: toFlowVars.get(stationTo)){
+							toFlowSumConstraint.addTerm(1, variable);
+						}
+					}
+					String toFlowSumConstraintName
+							= String.format("Constarint - sum of flows to station %s", stationTo.getId());
+					model.addConstr(toFlowSumConstraint, GRB.EQUAL, amountTo, toFlowSumConstraintName);
+				}
+			}
+		
+			List<Transfer> transfers = new LinkedList<>();
+		
+			// rebalancing only make sense when there are some possible transfers
+			if(!varCosts.isEmpty()){
+
+				// objective function
+				for(Entry<GRBVar,Double> varCost: varCosts.entrySet()){
+					objetive.addTerm(varCost.getValue(), varCost.getKey());
+				}
+
+				// solving
+				model.setObjective(objetive, GRB.MINIMIZE);
+				LOGGER.info("solving start");
+				model.optimize();
+				LOGGER.info("solving finished");
+
+				// feasibility check
+				if(model.get(GRB.IntAttr.Status) == GRB.OPTIMAL){
+
+					LOGGER.info("Objective function value: {}", model.get(GRB.DoubleAttr.ObjVal));
+
+					// create output from solution
+
+					for (Entry<GRBVar, Transfer> entry : variablesToTransfer.entrySet()) {
+						GRBVar flow = entry.getKey();
+						Transfer transfer = entry.getValue();
+
+						transfer.amount = (int) flow.get(GRB.DoubleAttr.X);
+						transfers.add(transfer);
 					}
 				}
-				String toFlowSumConstraintName
-						= String.format("Constarint - sum of flows to station %s", stationTo.getId());
-				model.addConstr(toFlowSumConstraint, GRB.EQUAL, amountTo, toFlowSumConstraintName);
+				else{
+					LOGGER.info("Solution Infeasible");
+				}
 			}
-		}
 		
-		List<Transfer> transfers = new LinkedList<>();
-		
-		// rebalancing only make sense when there are some possible transfers
-		if(!varCosts.isEmpty()){
-			// objective function
-			for(Entry<GRBVar,Double> varCost: varCosts.entrySet()){
-				objetive.addTerm(varCost.getValue(), varCost.getKey());
-			}
-
-			// solving
-			model.setObjective(objetive, GRB.MINIMIZE);
-			LOGGER.info("solving start");
-			model.optimize();
-			LOGGER.info("solving finished");
-
-			LOGGER.info("Objective function value: {}", model.get(GRB.DoubleAttr.ObjVal));
-
-			// create output from solution
-
-			for (Entry<GRBVar, Transfer> entry : variablesToTransfer.entrySet()) {
-				GRBVar flow = entry.getKey();
-				Transfer transfer = entry.getValue();
-
-				transfer.amount = (int) flow.get(GRB.DoubleAttr.X);
-				transfers.add(transfer);
-			}
-		}
-		
-		return transfers;
+			return transfers;
 		} catch (GRBException ex) {
 			Logger.getLogger(ReactiveRebalancing.class.getName()).log(Level.SEVERE, null, ex);
 		}
@@ -256,11 +285,47 @@ public class ReactiveRebalancing implements Routine{
 	}
 
 	private void sendOrders(List<Transfer> transfers) {
+//		for(Transfer transfer: transfers){
+//			for(int i = 0; i < transfer.amount; i++){
+//				stationsDispatcher.rebalance(transfer.from, transfer.to);
+//			}
+//		}
 		for(Transfer transfer: transfers){
-			for(int i = 0; i < transfer.amount; i++){
-				stationsDispatcher.rebalance(transfer.from, transfer.to);
+			if(transfer.amount > 0){
+				stationsDispatcher.createBulkDelaydRebalancing(transfer.from, transfer.to, transfer.amount, 
+					config.amodsim.amodsimRebalancing.period * 1000);	
 			}
 		}
+	}
+
+	private double computeAverageFullness() {
+		double fullnessSum = 0;
+		for(OnDemandVehicleStation station: onDemandvehicleStationStorage){
+			RebalancingOnDemandVehicleStation rebalancingStation = (RebalancingOnDemandVehicleStation) station;
+			int carCount = station.getParkedVehiclesCount();
+			int optimalCarCount = rebalancingStation.getOptimalCarCount();
+			fullnessSum += (double) carCount / optimalCarCount;
+		}
+		
+		return fullnessSum / onDemandvehicleStationStorage.size();
+	}
+
+	private void logTransferes(List<Transfer> transfers) {
+		boolean used = false;
+		StringBuilder sb = new StringBuilder();
+		for (Transfer transfer : transfers) {
+			if(transfer.amount > 0){
+				sb.append(String.format("%s cars rom %s to %s\n", transfer.amount, transfer.from, transfer.to));
+				used = true;
+			}
+		}
+		if(used){
+			sb.insert(0, "Computed transfers:\n");
+		}
+		else{
+			sb.append("No transfers");
+		}
+		LOGGER.info(sb.toString());
 	}
 	
 }

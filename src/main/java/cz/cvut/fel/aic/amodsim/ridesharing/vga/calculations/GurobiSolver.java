@@ -173,8 +173,8 @@ public class GurobiSolver {
 			
 			/* MODEL CONFIG AND RUN */
 			
-			// solution can be 0.1% worse than the optimal solution
-			model.set(GRB.DoubleParam.MIPGap, 0.001);
+			// solution can be 1% worse than the optimal solution
+			model.set(GRB.DoubleParam.MIPGap, 0.01);
 			
 			LOGGER.info("solving start");
 			model.optimize();

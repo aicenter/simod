@@ -78,6 +78,9 @@ public class MainModule extends StandardAgentPolisModule{
 			bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
 			bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
 //			bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
+			bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
+			install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
+						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
 			
 			switch(amodsimConfig.amodsim.ridesharing.method){
 				case "insertion-heuristic":
@@ -85,8 +88,6 @@ public class MainModule extends StandardAgentPolisModule{
 					break;
 				case "vga":
 					bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
-					install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
-						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
 					bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);
 		//			bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
 					break;

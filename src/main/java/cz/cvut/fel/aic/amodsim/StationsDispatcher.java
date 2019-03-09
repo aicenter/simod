@@ -8,11 +8,9 @@ package cz.cvut.fel.aic.amodsim;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.name.Named;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
-import com.vividsolutions.jts.geom.Coordinate;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandlerAdapter;
@@ -20,11 +18,6 @@ import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Node;
-import cz.cvut.fel.aic.geographtools.util.NearestElementUtil;
-import cz.cvut.fel.aic.geographtools.util.NearestElementUtil.SerializableIntFunction;
-import cz.cvut.fel.aic.geographtools.util.NearestElementUtilPair;
-import cz.cvut.fel.aic.geographtools.util.Transformer;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -129,6 +122,30 @@ public class StationsDispatcher extends EventHandlerAdapter{
         if(!success){
             rebalancingDropped++;
         }
+	}
+	
+	public void createBulkDelaydRebalancing(OnDemandVehicleStation from, OnDemandVehicleStation to, int amount, 
+			int rebalancingIterval){
+		createBulkDelaydRebalancing(from, to, amount, rebalancingIterval, 0);
+	}
+	
+	public void createBulkDelaydRebalancing(OnDemandVehicleStation from, OnDemandVehicleStation to, int amount, 
+			int rebalancingIterval, long inititalDelay){
+		
+		// event delay can't be zero
+		if(inititalDelay == 0){
+			inititalDelay = 1;
+		}
+		
+		int intervalBetweenCars = rebalancingIterval / amount;
+		long finalStartDelay = inititalDelay;
+
+		for (int l = 0; l < amount; l++) {
+			TimeTrip<OnDemandVehicleStation> rebalancingTrip = new TimeTrip<>(from, to, finalStartDelay);
+			eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, this, 
+						null, rebalancingTrip, finalStartDelay);
+			finalStartDelay += intervalBetweenCars;
+		}
 	}
 
     private int getNumberOfstations() {

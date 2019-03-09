@@ -5,7 +5,7 @@ import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
+import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 
 
 public class DefaultPlanComputationRequest implements PlanComputationRequest{
@@ -56,14 +56,14 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 
 
 	@Inject
-    private DefaultPlanComputationRequest(@Assisted int id, 
+    private DefaultPlanComputationRequest(TravelTimeProvider travelTimeProvider, @Assisted int id, 
 			AmodsimConfig amodsimConfig, @Assisted("origin") SimulationNode origin, 
 			@Assisted("destination") SimulationNode destination, @Assisted DemandAgent demandAgent){
 		this.id = id;
 		
 		originTime = (int) Math.round(demandAgent.getDemandTime() / 1000.0);
         minTravelTime = (int) Math.round(
-				MathUtils.getTravelTimeProvider().getExpectedTravelTime(origin, destination) / 1000.0);
+				travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
 		
 		int maxProlongation;
 		if(amodsimConfig.amodsim.ridesharing.discomfortConstrain.equals("absolute")){

@@ -125,7 +125,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
         targetStation = onDemandVehicleStationsCentral.getNearestStation(getPosition());
 		
 		if(getPosition().equals(targetStation.getPosition())){
-			finishDrivingToStation(((PlanActionDropoff) currentTask).getRequest().getDemandAgent());
+			finishDrivingToStation(((PlanRequestAction) currentTask).getRequest().getDemandAgent());
 		}
 		else{
 			currentTrip = tripsUtil.createTrip(getPosition().id, 
@@ -150,7 +150,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 					dropOffAndContinue();
 					break;
 				case DRIVING_TO_STATION:
-					finishDrivingToStation(((PlanActionDropoff) currentTask).getRequest().getDemandAgent());
+					finishDrivingToStation(((PlanRequestAction) currentTask).getRequest().getDemandAgent());
 					break;
 				case REBALANCING:
 					finishRebalancing();
@@ -174,7 +174,6 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			currentTask = currentPlan.getNextTask();
 			if(parkedIn != null){
 				parkedIn.releaseVehicle(this);
-				parkedIn = null;
 				leavingStationEvent();
 			}
 			if(currentTask instanceof PlanActionPickup){
@@ -198,6 +197,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
         eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
                 new PickupEventContent(timeProvider.getCurrentSimTime(), 
                         demandAgent.getSimpleId(), getId(), 0));
+		currentPlan.taskCompleted();
 		driveToNextTask();
 	}
 
@@ -210,7 +210,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
         eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
                 new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
                         demandAgent.getSimpleId(), getId()));
-
+		currentPlan.taskCompleted();
 		driveToNextTask();
 	}
 

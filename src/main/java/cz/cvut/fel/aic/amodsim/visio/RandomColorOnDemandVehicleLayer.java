@@ -2,8 +2,6 @@ package cz.cvut.fel.aic.amodsim.visio;
 
 
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
-import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
-import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;

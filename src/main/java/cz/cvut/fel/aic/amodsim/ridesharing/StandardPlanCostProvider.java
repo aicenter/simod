@@ -23,7 +23,7 @@ public class StandardPlanCostProvider implements PlanCostProvider{
 
 	@Inject
 	public StandardPlanCostProvider(AmodsimConfig config) {
-		weight_parameter = config.amodsim.ridesharing.weightParameter;
+		weight_parameter = config.ridesharing.weightParameter;
 	}
 	
 	public double calculatePlanCost(VGAVehiclePlan plan) {

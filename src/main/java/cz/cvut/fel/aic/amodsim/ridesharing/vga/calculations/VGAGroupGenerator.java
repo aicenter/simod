@@ -32,7 +32,7 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 	@Inject
     public VGAGroupGenerator(OptimalVehiclePlanFinder optimalVehiclePlanFinder, AmodsimConfig config) {
 		this.optimalVehiclePlanFinder = optimalVehiclePlanFinder;
-		vehicleCapacityForGlobalGroupGeneration = config.amodsim.ridesharing.vehicleCapacity;
+		vehicleCapacityForGlobalGroupGeneration = config.ridesharing.vehicleCapacity;
 	}
 
     public List<Plan> generateGroupsForVehicle(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime) {

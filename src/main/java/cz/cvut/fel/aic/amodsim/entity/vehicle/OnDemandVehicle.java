@@ -176,7 +176,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         this.config = config;
         
         vehicle = new PhysicalTransportVehicle(vehicleId + " - vehicle", 
-                DemandSimulationEntityType.VEHICLE, LENGTH, config.amodsim.ridesharing.vehicleCapacity, 
+                DemandSimulationEntityType.VEHICLE, LENGTH, config.ridesharing.vehicleCapacity, 
 				EGraphType.HIGHWAY, startPosition, 
                 config.vehicleSpeedInMeters);
         

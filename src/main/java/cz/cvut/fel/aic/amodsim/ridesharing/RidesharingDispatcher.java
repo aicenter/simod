@@ -62,8 +62,8 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		this.solver = solver;
 		requestQueue = new LinkedList<>();
 		darpSolverComputationalTimes = new LinkedList<>();
-		if(config.amodsim.ridesharing.batchPeriod != 0){
-			ticker.registerRoutine(this, config.amodsim.ridesharing.batchPeriod * 1000);
+		if(config.ridesharing.batchPeriod != 0){
+			ticker.registerRoutine(this, config.ridesharing.batchPeriod * 1000);
 		}
 	}
 
@@ -74,7 +74,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	protected void serveDemand(Node startNode, DemandData demandData) {
 		OnDemandRequest newRequest = new OnDemandRequest(demandData.demandAgent, demandData.locations.get(1));
 		requestQueue.add(newRequest);
-		if(config.amodsim.ridesharing.batchPeriod == 0){
+		if(config.ridesharing.batchPeriod == 0){
 			replan();
 		}
 	}

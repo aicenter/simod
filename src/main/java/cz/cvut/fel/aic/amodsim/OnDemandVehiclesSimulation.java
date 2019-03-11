@@ -46,20 +46,20 @@ public class OnDemandVehiclesSimulation {
 
 //        List<TimeTrip<Long>> osmNodesList;
         try {
-//            osmNodesList = TripTransform.jsonToTrips(new File(config.amodsim.preprocessedTrips), Long.class);
+//            osmNodesList = TripTransform.jsonToTrips(new File(config.preprocessedTrips), Long.class);
             TripTransform tripTransform = injector.getInstance(TripTransform.class);
 			RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
 			
-			if(config.amodsim.amodsimRebalancing.on){
-				rebalancingLoader.load(new File(config.rebalancing.policyFilePath), true);
+			if(config.rebalancing.on){
+				rebalancingLoader.load(new File(config.rebalancing.external.policyFilePath), true);
 				injector.getInstance(ReactiveRebalancing.class).start();
 				injector.getInstance(EventInitializer.class).initialize(
-                    tripTransform.loadTripsFromTxt(new File(config.amodsim.tripsPath)), null);
+                    tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
 			}
 			else{
-				rebalancingLoader.load(new File(config.rebalancing.policyFilePath), true);
+				rebalancingLoader.load(new File(config.rebalancing.external.policyFilePath), true);
 				injector.getInstance(EventInitializer.class).initialize(
-                    tripTransform.loadTripsFromTxt(new File(config.amodsim.tripsPath)),
+                    tripTransform.loadTripsFromTxt(new File(config.tripsPath)),
                     rebalancingLoader.getRebalancingTrips());
 			}
 
@@ -72,7 +72,7 @@ public class OnDemandVehiclesSimulation {
             // start it up
             creator.startSimulation();
 
-            if (config.amodsim.useTripCache) {
+            if (config.useTripCache) {
                 injector.getInstance(TripsUtilCached.class).saveNewTrips();
             }
             injector.getInstance(Statistics.class).simulationFinished();

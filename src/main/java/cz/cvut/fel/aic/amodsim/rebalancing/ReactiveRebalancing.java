@@ -81,7 +81,7 @@ public class ReactiveRebalancing implements Routine{
 	
 	public void start(){
 		computeDistancesBetweenStations();
-		ticker.registerRoutine(this, config.amodsim.amodsimRebalancing.period * 1000);	
+		ticker.registerRoutine(this, config.rebalancing.period * 1000);	
 	}
 	
 	
@@ -112,7 +112,7 @@ public class ReactiveRebalancing implements Routine{
 			int optimalCarCount = rebalancingStation.getOptimalCarCount();
 			int targetCarCount = (int) Math.round(averageFullness * optimalCarCount);
 			
-			int buffer = (int) (config.amodsim.amodsimRebalancing.buffer * optimalCarCount);
+			int buffer = (int) (config.rebalancing.buffer * optimalCarCount);
 			
 			int compensation = 0;
 			if(carCount > targetCarCount){
@@ -293,7 +293,7 @@ public class ReactiveRebalancing implements Routine{
 		for(Transfer transfer: transfers){
 			if(transfer.amount > 0){
 				stationsDispatcher.createBulkDelaydRebalancing(transfer.from, transfer.to, transfer.amount, 
-					config.amodsim.amodsimRebalancing.period * 1000);	
+					config.rebalancing.period * 1000);	
 			}
 		}
 	}

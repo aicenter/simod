@@ -54,9 +54,9 @@ public class VGASystemTestScenario {
         injector = agentPolisInitializer.initialize();
 		
 		// config changes
-		config.amodsim.ridesharing.batchPeriod = 0;
-		config.amodsim.ridesharing.maximumRelativeDiscomfort = 2.0;
-		config.amodsim.ridesharing.discomfortConstrain = "relative";
+		config.ridesharing.batchPeriod = 0;
+		config.ridesharing.maximumRelativeDiscomfort = 2.0;
+		config.ridesharing.discomfortConstrain = "relative";
 	}
 	
 	

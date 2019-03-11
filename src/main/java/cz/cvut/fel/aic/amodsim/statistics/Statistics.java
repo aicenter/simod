@@ -112,7 +112,7 @@ public class Statistics extends AliteEntity implements EventHandler{
         tripDistances = new LinkedList<>();
 		vehicleOccupancy = new LinkedList<>();
         transitWriter = new CsvWriter(
-                    Common.getFileWriter(config.amodsim.statistics.transitStatisticFilePath));
+                    Common.getFileWriter(config.statistics.transitStatisticFilePath));
         for(OnDemandVehicleState onDemandVehicleState : OnDemandVehicleState.values()){
             allEdgesLoadHistoryPerState.put(onDemandVehicleState, new LinkedList<>());
         }
@@ -167,7 +167,7 @@ public class Statistics extends AliteEntity implements EventHandler{
         tickCount++;
         measure();
         eventProcessor.addEvent(StatisticEvent.TICK, this, null, null,
-                config.amodsim.statistics.statisticIntervalMilis);
+                config.statistics.statisticIntervalMilis);
     }
 
     private void measure() {
@@ -189,7 +189,7 @@ public class Statistics extends AliteEntity implements EventHandler{
         ObjectMapper mapper = new ObjectMapper();
 		
         try {
-            mapper.writeValue(new File(config.amodsim.statistics.resultFilePath), result);
+            mapper.writeValue(new File(config.statistics.resultFilePath), result);
         } catch (IOException ex) {
             LOGGER.error(null, ex);
         }
@@ -235,8 +235,8 @@ public class Statistics extends AliteEntity implements EventHandler{
     private void countEdgeLoadForInterval() {
         EdgesLoadByState allEdgesLoad = allEdgesLoadProvider.get();
         
-        if(tickCount % (config.amodsim.statistics.allEdgesLoadIntervalMilis 
-				/ config.amodsim.statistics.statisticIntervalMilis) == 0){
+        if(tickCount % (config.statistics.allEdgesLoadIntervalMilis 
+				/ config.statistics.statisticIntervalMilis) == 0){
             allEdgesLoadHistory.add(allEdgesLoad.getLoadPerEdge());
             for (Map.Entry<OnDemandVehicleState,HashMap<Integer, Integer>> stateEntry 
                     : allEdgesLoad.getEdgeLoadsPerState().entrySet()) {
@@ -301,7 +301,7 @@ public class Statistics extends AliteEntity implements EventHandler{
         }
 		
         try {
-            mapper.writeValue(new File(config.amodsim.statistics.allEdgesLoadHistoryFilePath), outputMap);
+            mapper.writeValue(new File(config.statistics.allEdgesLoadHistoryFilePath), outputMap);
         } catch (IOException ex) {
             LOGGER.error(null, ex);
         }
@@ -323,7 +323,7 @@ public class Statistics extends AliteEntity implements EventHandler{
     private void saveDistances() {
         try {
             CsvWriter writer = new CsvWriter(
-                    Common.getFileWriter(config.amodsim.statistics.tripDistancesFilePath));
+                    Common.getFileWriter(config.statistics.tripDistancesFilePath));
             for (Integer distance : tripDistances) {
                 writer.writeLine(Integer.toString(distance));
             }
@@ -336,7 +336,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 	private void saveOccupancies() {
         try {
             CsvWriter writer = new CsvWriter(
-                    Common.getFileWriter(config.amodsim.statistics.occupanciesFilePath));
+                    Common.getFileWriter(config.statistics.occupanciesFilePath));
 			int period = 0;
             for (Map<String,Integer> occupanciesInPeriod: vehicleOccupancy) {
 				for(Map.Entry<String,Integer> entry: occupanciesInPeriod.entrySet()){
@@ -354,7 +354,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 		List<Long> times = ((RidesharingDispatcher) dispatcher).getDarpSolverComputationalTimes();
         try {
 			CsvWriter writer = new CsvWriter(
-                    Common.getFileWriter(config.amodsim.statistics.darpSolverComputationalTimesFilePath));
+                    Common.getFileWriter(config.statistics.darpSolverComputationalTimesFilePath));
             for (Long time : times) {
                 writer.writeLine(Long.toString(time));
             }
@@ -368,7 +368,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 	private void saveServiceStatistics() {
         try {
             CsvWriter writer = new CsvWriter(
-                    Common.getFileWriter(config.amodsim.statistics.serviceFilePath));
+                    Common.getFileWriter(config.statistics.serviceFilePath));
             for (DemandServiceStatistic demandServiceStatistic: demandServiceStatistics) {
 				writer.writeLine(Long.toString(demandServiceStatistic.getDemandTime()), 
 						demandServiceStatistic.getDemandId(), demandServiceStatistic.getVehicleId(), 
@@ -393,22 +393,22 @@ public class Statistics extends AliteEntity implements EventHandler{
             String filepath = null;
             switch(onDemandVehicleEvent){
                 case LEAVE_STATION:
-                    filepath = config.amodsim.statistics.onDemandVehicleStatistic.leaveStationFilePath;
+                    filepath = config.statistics.onDemandVehicleStatistic.leaveStationFilePath;
                     break;
                 case PICKUP:
-                    filepath = config.amodsim.statistics.onDemandVehicleStatistic.pickupFilePath;
+                    filepath = config.statistics.onDemandVehicleStatistic.pickupFilePath;
                     break;
                 case DROP_OFF:
-                    filepath = config.amodsim.statistics.onDemandVehicleStatistic.dropOffFilePath;
+                    filepath = config.statistics.onDemandVehicleStatistic.dropOffFilePath;
                     break;
                 case REACH_NEAREST_STATION:
-                    filepath = config.amodsim.statistics.onDemandVehicleStatistic.reachNearestStationFilePath;
+                    filepath = config.statistics.onDemandVehicleStatistic.reachNearestStationFilePath;
                     break;
                 case START_REBALANCING:
-                    filepath = config.amodsim.statistics.onDemandVehicleStatistic.startRebalancingFilePath;
+                    filepath = config.statistics.onDemandVehicleStatistic.startRebalancingFilePath;
                     break;
                 case FINISH_REBALANCING:
-                    filepath = config.amodsim.statistics.onDemandVehicleStatistic.finishRebalancingFilePath;
+                    filepath = config.statistics.onDemandVehicleStatistic.finishRebalancingFilePath;
                     break;
             }
             

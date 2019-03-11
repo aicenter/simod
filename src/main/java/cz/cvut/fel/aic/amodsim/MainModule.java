@@ -65,7 +65,7 @@ public class MainModule extends StandardAgentPolisModule{
         bind(EntityStorage.class).to(VehicleStorage.class);
 		bind(MapInitializer.class).to(GeojsonMapInitializer.class);
         
-        if(amodsimConfig.amodsim.useTripCache){
+        if(amodsimConfig.useTripCache){
             bind(TripsUtil.class).to(TripsUtilCached.class);
         }
         bind(DemandLayer.class).to(DemandLayerWithJitter.class);
@@ -73,7 +73,7 @@ public class MainModule extends StandardAgentPolisModule{
 //        bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
         bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 
-        if(amodsimConfig.amodsim.ridesharing.on){
+        if(amodsimConfig.ridesharing.on){
 			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 			bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
 			bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
@@ -82,7 +82,7 @@ public class MainModule extends StandardAgentPolisModule{
 			install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
 						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
 			
-			switch(amodsimConfig.amodsim.ridesharing.method){
+			switch(amodsimConfig.ridesharing.method){
 				case "insertion-heuristic":
 					bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
 					break;
@@ -100,7 +100,7 @@ public class MainModule extends StandardAgentPolisModule{
         install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
             .build(DemandAgentFactory.class));
 		
-		if(amodsimConfig.amodsim.amodsimRebalancing.on){
+		if(amodsimConfig.rebalancing.on){
 			install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, RebalancingOnDemandVehicleStation.class)
 				.build(RebalancingOnDemandVehicleStation.OnDemandVehicleStationFactory.class));
 		}

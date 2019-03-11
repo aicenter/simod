@@ -75,7 +75,7 @@ public class EventInitializer {
         Random random = new Random(RANDOM_SEED);
         
         for (TimeTrip<SimulationNode> trip : trips) {
-            long startTime = trip.getStartTime() - amodsimConfig.amodsim.startTime;
+            long startTime = trip.getStartTime() - amodsimConfig.startTime;
 			
 			// trip have to start at least 1ms after start of the simulation and no later then last ms of the simulation
             if(startTime < 1 || startTime > agentpolisConfig.simulationDurationInMillis){
@@ -100,7 +100,7 @@ public class EventInitializer {
         }
 		if(rebalancingTrips != null){
 			for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
-				long startTime = rebalancingTrip.getStartTime() - amodsimConfig.amodsim.startTime;
+				long startTime = rebalancingTrip.getStartTime() - amodsimConfig.startTime;
 				if(startTime < 1 || startTime > agentpolisConfig.simulationDurationInMillis){
 					continue;
 				}

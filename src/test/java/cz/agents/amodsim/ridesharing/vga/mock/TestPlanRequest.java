@@ -65,8 +65,8 @@ public class TestPlanRequest implements PlanComputationRequest
         minTravelTime = (int) Math.round(
 				MathUtils.getTravelTimeProvider().getExpectedTravelTime(origin, destination) / 1000.0);
 //        int maxProlongation = (int) Math.round(
-//				amodsimConfig.amodsim.ridesharing.vga.maximumRelativeDiscomfort * minTravelTime);
-		int maxProlongation = amodsimConfig.amodsim.ridesharing.maxProlongationInSeconds;
+//				amodsimconfig.ridesharing.vga.maximumRelativeDiscomfort * minTravelTime);
+		int maxProlongation = amodsimConfig.ridesharing.maxProlongationInSeconds;
 		
 		int maxPickUpTime = originTime + maxProlongation;
 		int maxDropOffTime = originTime + minTravelTime + maxProlongation;

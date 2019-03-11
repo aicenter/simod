@@ -34,7 +34,7 @@ public class CapacityTest {
 		Injector injector = scenario.getInjector();
 		
 		// config
-		scenario.config.amodsim.ridesharing.vehicleCapacity = 1;
+		scenario.config.ridesharing.vehicleCapacity = 1;
 		
 		// set roadgraph
         Graph<SimulationNode, SimulationEdge> graph 

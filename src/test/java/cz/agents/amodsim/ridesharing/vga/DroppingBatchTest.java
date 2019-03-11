@@ -35,8 +35,8 @@ public class DroppingBatchTest {
 		Injector injector = scenario.getInjector();
 		
 		// set batch time
-		injector.getInstance(AmodsimConfig.class).amodsim.ridesharing.batchPeriod = 10;
-		injector.getInstance(AmodsimConfig.class).amodsim.ridesharing.maximumRelativeDiscomfort = 0.8;
+		injector.getInstance(AmodsimConfig.class).ridesharing.batchPeriod = 10;
+		injector.getInstance(AmodsimConfig.class).ridesharing.maximumRelativeDiscomfort = 0.8;
 		
 		// set roadgraph
         Graph<SimulationNode, SimulationEdge> graph 

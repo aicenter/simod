@@ -70,13 +70,13 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		this.timeProvider = timeProvider;
 		
 		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
-		maxDistance = (double) config.amodsim.ridesharing.maxProlongationInSeconds 
-				* config.amodsim.ridesharing.maxDirectSpeedEstimationKmh / 3600 * 1000;
+		maxDistance = (double) config.ridesharing.maxProlongationInSeconds 
+				* config.ridesharing.maxDirectSpeedEstimationKmh / 3600 * 1000;
 		maxDistanceSquared = maxDistance * maxDistance;
 		
 		// the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the
 		// vehicle to be considered to serve the request
-		maxDelayTime = config.amodsim.ridesharing.maxProlongationInSeconds  * 1000;
+		maxDelayTime = config.ridesharing.maxProlongationInSeconds  * 1000;
 	}
 
 	@Override

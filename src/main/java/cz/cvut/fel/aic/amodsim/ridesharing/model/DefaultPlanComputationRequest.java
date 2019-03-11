@@ -66,12 +66,12 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 				travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
 		
 		int maxProlongation;
-		if(amodsimConfig.amodsim.ridesharing.discomfortConstrain.equals("absolute")){
-			maxProlongation = amodsimConfig.amodsim.ridesharing.maxProlongationInSeconds;
+		if(amodsimConfig.ridesharing.discomfortConstrain.equals("absolute")){
+			maxProlongation = amodsimConfig.ridesharing.maxProlongationInSeconds;
 		}
 		else{
 			maxProlongation = (int) Math.round(
-				amodsimConfig.amodsim.ridesharing.maximumRelativeDiscomfort * minTravelTime);
+				amodsimConfig.ridesharing.maximumRelativeDiscomfort * minTravelTime);
 		}		
 		
 		int maxPickUpTime = originTime + maxProlongation;

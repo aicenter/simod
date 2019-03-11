@@ -131,11 +131,11 @@ public class TripsUtilCached extends TripsUtil {
     }
 
     private File getCacheFolder(AmodsimConfig amodConfig, AgentpolisConfig agentpolisConfig) {
-        String filename = amodConfig.amodsim.tripCacheFile;
+        String filename = amodConfig.tripCacheFile;
         String edgesFilename = agentpolisConfig.mapEdgesFilepath;
         String checksum = MD5ChecksumGenerator.getGraphChecksum(new File(edgesFilename));
         filename += checksum;
-        if(amodConfig.amodsim.simplifyGraph){
+        if(amodConfig.simplifyGraph){
             filename += "-simplified";
         }
         return new File(filename);

@@ -39,7 +39,7 @@ public class EuclideanTravelTimeProvider implements TravelTimeProvider{
 	public EuclideanTravelTimeProvider(PositionUtil positionUtil, AmodsimConfig config) {
 		this.positionUtil = positionUtil;
 		this.config = config;
-		travelSpeedEstimatePerSecond = config.amodsim.ridesharing.maxDirectSpeedEstimationKmh / 3.6;
+		travelSpeedEstimatePerSecond = config.ridesharing.maxDirectSpeedEstimationKmh / 3.6;
 	}
 	
 	

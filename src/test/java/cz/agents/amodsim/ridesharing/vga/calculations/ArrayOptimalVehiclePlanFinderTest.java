@@ -53,8 +53,8 @@ public class ArrayOptimalVehiclePlanFinderTest {
         injector = agentPolisInitializer.initialize();
 		
 		// config changes
-		config.amodsim.ridesharing.batchPeriod = 0;
-		config.amodsim.ridesharing.maximumRelativeDiscomfort = 2.1;
+		config.ridesharing.batchPeriod = 0;
+		config.ridesharing.maximumRelativeDiscomfort = 2.1;
 		
 		MathUtils.setTravelTimeProvider(injector.getInstance(TravelTimeProvider.class));
 		arrayOptimalVehiclePlanFinder = injector.getInstance(ArrayOptimalVehiclePlanFinder.class);
@@ -83,7 +83,7 @@ public class ArrayOptimalVehiclePlanFinderTest {
 		// prepare test vehicle
 		SimulationNode position = graph.getNode(16);
 		TestOptimalPlanVehicle vehicle = new TestOptimalPlanVehicle(onBoardRequests, position, 
-				config.amodsim.ridesharing.vehicleCapacity);
+				config.ridesharing.vehicleCapacity);
 		
 		Plan plan = arrayOptimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, requests, 8, false);
 		
@@ -113,7 +113,7 @@ public class ArrayOptimalVehiclePlanFinderTest {
 		// prepare test vehicle
 		SimulationNode position = graph.getNode(16);
 		TestOptimalPlanVehicle vehicle = new TestOptimalPlanVehicle(onBoardRequests, position, 
-				config.amodsim.ridesharing.vehicleCapacity);
+				config.ridesharing.vehicleCapacity);
 		
 		Plan plan = arrayOptimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, requests, 8, false);
 		

@@ -3,40 +3,21 @@ package cz.cvut.fel.aic.amodsim.config;
 import java.lang.Boolean;
 import java.lang.Double;
 import java.lang.Integer;
-import java.lang.String;
 import java.util.Map;
 
 public class Rebalancing {
-  public Integer maxWaitInQueue;
+  public External external;
 
-  public Boolean loadShapes;
+  public Integer period;
 
-  public String filePath;
+  public Double buffer;
 
-  public Double vehCoef;
-
-  public Boolean useSmoothedDemand;
-
-  public String policyFilePath;
-
-  public String method;
-
-  public Integer timestep;
-
-  public Integer vehicleLimit;
-
-  public String type;
+  public Boolean on;
 
   public Rebalancing(Map rebalancing) {
-    this.maxWaitInQueue = (Integer) rebalancing.get("max_wait_in_queue");
-    this.loadShapes = (Boolean) rebalancing.get("load_shapes");
-    this.filePath = (String) rebalancing.get("file_path");
-    this.vehCoef = (Double) rebalancing.get("veh_coef");
-    this.useSmoothedDemand = (Boolean) rebalancing.get("use_smoothed_demand");
-    this.policyFilePath = (String) rebalancing.get("policy_file_path");
-    this.method = (String) rebalancing.get("method");
-    this.timestep = (Integer) rebalancing.get("timestep");
-    this.vehicleLimit = (Integer) rebalancing.get("vehicle_limit");
-    this.type = (String) rebalancing.get("type");
+    this.external = new External((Map) rebalancing.get("external"));
+    this.period = (Integer) rebalancing.get("period");
+    this.buffer = (Double) rebalancing.get("buffer");
+    this.on = (Boolean) rebalancing.get("on");
   }
 }

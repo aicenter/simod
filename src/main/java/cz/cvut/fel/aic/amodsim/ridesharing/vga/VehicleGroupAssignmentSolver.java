@@ -396,7 +396,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	private void logRecords() {
 		try {
             CsvWriter writer = new CsvWriter(
-                    Common.getFileWriter(config.amodsim.ridesharing.vga.groupGeneratorLogFilepath, true));
+                    Common.getFileWriter(config.ridesharing.vga.groupGeneratorLogFilepath, true));
             for (List<String> record : logRecords) {
                 writer.writeLine(record.toArray(new String[0]));
             }

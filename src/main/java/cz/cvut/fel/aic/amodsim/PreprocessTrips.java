@@ -37,8 +37,8 @@ public class PreprocessTrips {
 //        AmodsimConfig config = Configuration.load(new AmodsimConfig());
         
 //        try {
-//            tripTransform.tripsFromTxtToJson(new File(config.amodsim.tripsPath), new File(config.mapFilePath), 
-//                    config.srid, new File(config.amodsim.preprocessedTrips));
+//            tripTransform.tripsFromTxtToJson(new File(config.tripsPath), new File(config.mapFilePath), 
+//                    config.srid, new File(config.preprocessedTrips));
 //        } catch (IOException ex) {
 //            LOGGER.error(null, ex);
 //        }

@@ -1,5 +1,6 @@
 package cz.cvut.fel.aic.amodsim.config;
 
+import java.lang.Boolean;
 import java.lang.Double;
 import java.lang.Integer;
 import java.lang.String;
@@ -9,71 +10,59 @@ import ninja.fido.config.GeneratedConfig;
 public class AmodsimConfig implements GeneratedConfig {
   public Double vehicleSpeedInMeters;
 
+  public Boolean useTripCache;
+
   public String experimentName;
 
   public String tripsFilename;
 
-  public Images images;
+  public String edgePairsFilePath;
 
-  public Shapefiles shapefiles;
-
-  public Stations stations;
-
-  public Analysis analysis;
+  public String tripCacheFile;
 
   public String mapDir;
 
-  public String pythonExperimentDir;
+  public Integer startTime;
 
-  public Integer srid;
+  public String tripsPath;
 
   public String amodsimExperimentDir;
 
   public String amodsimDataDir;
 
+  public String edgesFilePath;
+
   public Double tripsMultiplier;
 
-  public Double criticalDensity;
+  public Boolean simplifyGraph;
 
-  public String pythonDataDir;
-
-  public String tripsFilePath;
-
-  public Integer tripsLimit;
-
-  public Db db;
-
-  public TutmProjectionCentre tutmProjectionCentre;
-
-  public Amodsim amodsim;
+  public Ridesharing ridesharing;
 
   public Rebalancing rebalancing;
+
+  public Statistics statistics;
 
   public AmodsimConfig() {
   }
 
   public AmodsimConfig fill(Map amodsimConfig) {
     this.vehicleSpeedInMeters = (Double) amodsimConfig.get("vehicle_speed_in_meters");
+    this.useTripCache = (Boolean) amodsimConfig.get("use_trip_cache");
     this.experimentName = (String) amodsimConfig.get("experiment_name");
     this.tripsFilename = (String) amodsimConfig.get("trips_filename");
-    this.images = new Images((Map) amodsimConfig.get("images"));
-    this.shapefiles = new Shapefiles((Map) amodsimConfig.get("shapefiles"));
-    this.stations = new Stations((Map) amodsimConfig.get("stations"));
-    this.analysis = new Analysis((Map) amodsimConfig.get("analysis"));
+    this.edgePairsFilePath = (String) amodsimConfig.get("edge_pairs_file_path");
+    this.tripCacheFile = (String) amodsimConfig.get("trip_cache_file");
     this.mapDir = (String) amodsimConfig.get("map_dir");
-    this.pythonExperimentDir = (String) amodsimConfig.get("python_experiment_dir");
-    this.srid = (Integer) amodsimConfig.get("srid");
+    this.startTime = (Integer) amodsimConfig.get("start_time");
+    this.tripsPath = (String) amodsimConfig.get("trips_path");
     this.amodsimExperimentDir = (String) amodsimConfig.get("amodsim_experiment_dir");
     this.amodsimDataDir = (String) amodsimConfig.get("amodsim_data_dir");
+    this.edgesFilePath = (String) amodsimConfig.get("edges_file_path");
     this.tripsMultiplier = (Double) amodsimConfig.get("trips_multiplier");
-    this.criticalDensity = (Double) amodsimConfig.get("critical_density");
-    this.pythonDataDir = (String) amodsimConfig.get("python_data_dir");
-    this.tripsFilePath = (String) amodsimConfig.get("trips_file_path");
-    this.tripsLimit = (Integer) amodsimConfig.get("trips_limit");
-    this.db = new Db((Map) amodsimConfig.get("db"));
-    this.tutmProjectionCentre = new TutmProjectionCentre((Map) amodsimConfig.get("tutm_projection_centre"));
-    this.amodsim = new Amodsim((Map) amodsimConfig.get("amodsim"));
+    this.simplifyGraph = (Boolean) amodsimConfig.get("simplify_graph");
+    this.ridesharing = new Ridesharing((Map) amodsimConfig.get("ridesharing"));
     this.rebalancing = new Rebalancing((Map) amodsimConfig.get("rebalancing"));
+    this.statistics = new Statistics((Map) amodsimConfig.get("statistics"));
     return this;
   }
 }

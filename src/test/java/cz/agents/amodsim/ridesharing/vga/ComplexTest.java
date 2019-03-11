@@ -34,7 +34,7 @@ public class ComplexTest {
 		Injector injector = scenario.getInjector();
 		
 		// config
-		scenario.config.amodsim.ridesharing.maximumRelativeDiscomfort = 3.0;
+		scenario.config.ridesharing.maximumRelativeDiscomfort = 3.0;
 		
 		// set roadgraph - grid 5x4
         Graph<SimulationNode, SimulationEdge> graph 

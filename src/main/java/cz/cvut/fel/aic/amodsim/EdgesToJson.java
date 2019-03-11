@@ -36,8 +36,8 @@ public class EdgesToJson {
 // TODO - modify OsmUtilTo Support new MapInitializer
         Graph<SimulationNode, SimulationEdge> roadGraph 
                 = OsmUtil.getSimulationGraph(mapInitializer);
-        String modifier = config.amodsim.simplifyGraph ? "-simplified" : "";
-        OsmUtil.edgesToJson(roadGraph, new File(config.amodsim.edgesFilePath + modifier + ".json"));
-        OsmUtil.edgePairsToJson(roadGraph, new File(config.amodsim.edgePairsFilePath + modifier + ".json"));
+        String modifier = config.simplifyGraph ? "-simplified" : "";
+        OsmUtil.edgesToJson(roadGraph, new File(config.edgesFilePath + modifier + ".json"));
+        OsmUtil.edgePairsToJson(roadGraph, new File(config.edgePairsFilePath + modifier + ".json"));
     }
 }

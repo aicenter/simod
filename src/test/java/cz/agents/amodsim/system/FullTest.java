@@ -18,9 +18,9 @@ public class FullTest {
       /*  AmodsimConfig config = Configuration.load(new AmodsimConfig());
         
         //config overwrite
-        config.amodsim.simulationDurationInMillis = duration;
-        config.amodsim.startTime = startTime;
-//        config.amodsim.showVisio = true;
+        config.simulationDurationInMillis = duration;
+        config.startTime = startTime;
+//        config.showVisio = true;
         Common.setTestResultsDir(config, "test");
         
         // Guice configuration
@@ -35,7 +35,7 @@ public class FullTest {
 
         List<TimeTrip<Long>> osmNodesList;
         try {
-            osmNodesList = TripTransform.jsonToTrips(new File(config.amodsim.preprocessedTrips), Long.class);
+            osmNodesList = TripTransform.jsonToTrips(new File(config.preprocessedTrips), Long.class);
             RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
             rebalancingLoader.load(new File(config.rebalancing.policyFilePath));
 

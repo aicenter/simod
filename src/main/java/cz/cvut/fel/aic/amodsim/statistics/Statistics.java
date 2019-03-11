@@ -5,6 +5,8 @@
  */
 package cz.cvut.fel.aic.amodsim.statistics;
 
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.agentpolis.simmodel.eventType.Transit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;

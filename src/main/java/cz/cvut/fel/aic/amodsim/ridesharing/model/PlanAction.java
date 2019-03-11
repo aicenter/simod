@@ -12,7 +12,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
  * @author david
  */
 public class PlanAction {
-	private final SimulationNode location;
+	protected final SimulationNode location;
 	
 	
 		

@@ -10,9 +10,15 @@ import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.CollectionUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.ticker.PeriodicTicker;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.ticker.Routine;
+import cz.cvut.fel.aic.alite.common.event.Event;
+import cz.cvut.fel.aic.alite.common.event.EventHandler;
+import cz.cvut.fel.aic.alite.common.event.EventProcessor;
+import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
+import cz.cvut.fel.aic.amodsim.event.RebalancingEventContent;
 import cz.cvut.fel.aic.amodsim.ridesharing.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
@@ -37,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * @author David Fiedler
  */
 @Singleton
-public class ReactiveRebalancing implements Routine{
+public class ReactiveRebalancing implements Routine, EventHandler{
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ReactiveRebalancing.class);
 	
@@ -56,18 +62,28 @@ public class ReactiveRebalancing implements Routine{
 	
 	private final StationsDispatcher stationsDispatcher;
 	
+	private final Map<OnDemandVehicleStation,Integer> rebalancingOnWay;
+	
+	private final TypedSimulation eventProcessor;
+
 	private GRBEnv env;
+
 
 	@Inject
 	public ReactiveRebalancing(PeriodicTicker ticker, AmodsimConfig config, 
 			OnDemandvehicleStationStorage onDemandvehicleStationStorage, 
-			AstarTravelTimeProvider astarTravelTimeProvider, StationsDispatcher stationsDispatcher) {
+			AstarTravelTimeProvider astarTravelTimeProvider, StationsDispatcher stationsDispatcher, 
+			TypedSimulation eventProcessor) {
 		this.ticker = ticker;
 		this.config = config;
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
 		this.astarTravelTimeProvider = astarTravelTimeProvider;
 		this.stationsDispatcher = stationsDispatcher;
+		this.eventProcessor = eventProcessor;
 		distancesBetweenStations = new HashMap<>();
+		rebalancingOnWay = new HashMap<>();
+		
+		setEventHandeling();
 		
 		// gurobi environment init
 		env = null;
@@ -109,6 +125,9 @@ public class ReactiveRebalancing implements Routine{
 		for(OnDemandVehicleStation station: onDemandvehicleStationStorage){
 			RebalancingOnDemandVehicleStation rebalancingStation = (RebalancingOnDemandVehicleStation) station;
 			int carCount = station.getParkedVehiclesCount();
+			int rebalancingOnWayToStation = rebalancingOnWay.containsKey(rebalancingStation) 
+					? rebalancingOnWay.get(rebalancingStation) : 0;
+			carCount += rebalancingOnWayToStation;
 			int optimalCarCount = rebalancingStation.getOptimalCarCount();
 			int targetCarCount = (int) Math.round(averageFullness * optimalCarCount);
 			
@@ -326,6 +345,33 @@ public class ReactiveRebalancing implements Routine{
 			sb.append("No transfers");
 		}
 		LOGGER.info(sb.toString());
+	}
+
+	@Override
+	public EventProcessor getEventProcessor() {
+		return eventProcessor;
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		OnDemandVehicleEvent eventType = (OnDemandVehicleEvent) event.getType();
+		RebalancingEventContent eventContent = (RebalancingEventContent) event.getContent();
+		
+		OnDemandVehicleStation stationTo = eventContent.to;
+		
+		if(eventType == OnDemandVehicleEvent.START_REBALANCING){
+			CollectionUtil.incrementMapValue(rebalancingOnWay, stationTo, 1);
+		}
+		else if(eventType == OnDemandVehicleEvent.FINISH_REBALANCING){
+			CollectionUtil.incrementMapValue(rebalancingOnWay, stationTo, -1);
+		}
+	}
+	
+	private void setEventHandeling() {
+		List<Enum> typesToHandle = new LinkedList<>();
+		typesToHandle.add(OnDemandVehicleEvent.START_REBALANCING);
+		typesToHandle.add(OnDemandVehicleEvent.FINISH_REBALANCING);
+		eventProcessor.addEventHandler(this, typesToHandle);
 	}
 	
 }

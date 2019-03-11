@@ -5,6 +5,8 @@
  */
 package cz.cvut.fel.aic.amodsim.statistics;
 
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
+
 /**
  *
  * @author fido

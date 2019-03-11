@@ -3,22 +3,22 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.agents.amodsim.ridesharing.vga.common;
+package cz.agents.amodsim.ridesharing;
 
-import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEvent;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 
 /**
  *
  * @author David Fiedler
  */
-public class VGAEventData {
-	final String onDemandVehicleId;
+public class RidesharingEventData {
+	public final String onDemandVehicleId;
 	
-	final int demandId;
+	public final int demandId;
 	
-	final OnDemandVehicleEvent eventType;
+	public final OnDemandVehicleEvent eventType;
 
-	public VGAEventData(String onDemandVehicleId, int demandId, OnDemandVehicleEvent eventType) {
+	public RidesharingEventData(String onDemandVehicleId, int demandId, OnDemandVehicleEvent eventType) {
 		this.onDemandVehicleId = onDemandVehicleId;
 		this.demandId = demandId;
 		this.eventType = eventType;

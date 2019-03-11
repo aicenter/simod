@@ -6,7 +6,7 @@
 package cz.agents.amodsim.ridesharing.vga;
 
 import com.google.inject.Injector;
-import cz.agents.amodsim.ridesharing.vga.common.VGAEventData;
+import cz.agents.amodsim.ridesharing.RidesharingEventData;
 import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestScenario;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.Utils;
@@ -15,7 +15,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.SimpleMapInitializer;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
-import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEvent;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.util.LinkedList;
@@ -52,9 +52,9 @@ public class DroppingBatchTest {
 		vehicalInitPositions.add(graph.getNode(0));
 		
 		// expected events
-		List<VGAEventData> expectedEvents = new LinkedList<>();
-		expectedEvents.add(new VGAEventData("0", 1, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new VGAEventData("0", 1, OnDemandVehicleEvent.DROP_OFF));
+		List<RidesharingEventData> expectedEvents = new LinkedList<>();
+		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.PICKUP));
+		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.DROP_OFF));
         
         scenario.run(graph, trips, vehicalInitPositions, expectedEvents);
     }

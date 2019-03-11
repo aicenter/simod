@@ -13,6 +13,15 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
  * @author fiedlda1
  */
 public interface TravelTimeProvider {
+	
+	/**
+	 * Get expected travel time in milliseconds,
+	 * @param entity Entity to compute the time for. Warning, this is currently not implemented, calling this method 
+	 * is identical to call getExpectedTravelTime(SimulationNode positionA, SimulationNode positionB)
+	 * @param positionA From position.
+	 * @param positionB To position.
+	 * @return Expected travel time in milliseconds.
+	 */
 	public double getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB);
 	
 	/**

@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.agents.amodsim.ridesharing.vga.common;
+package cz.agents.amodsim.ridesharing.insertionheuristic.common;
 
-import cz.agents.amodsim.ridesharing.EventOrderStorage;
 import cz.agents.amodsim.ridesharing.RidesharingEventData;
 import com.google.inject.Injector;
+import cz.agents.amodsim.ridesharing.EventOrderStorage;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
@@ -33,7 +33,7 @@ import org.junit.Assert;
  *
  * @author David Fiedler
  */
-public class VGASystemTestScenario {
+public class InsertionHeuristicSystemTestScenario {
 	
 	public final AmodsimConfig config;
 	
@@ -45,7 +45,7 @@ public class VGASystemTestScenario {
 	
 	
 
-	public VGASystemTestScenario() {
+	public InsertionHeuristicSystemTestScenario() {
 		config = new AmodsimConfig();
         
         File localConfigFile = null;

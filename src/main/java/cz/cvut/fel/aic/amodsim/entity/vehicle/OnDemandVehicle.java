@@ -31,8 +31,8 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
-import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEvent;
-import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEventContent;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.statistics.PickupEventContent;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.DelayData;
 import cz.cvut.fel.aic.geographtools.Node;
@@ -41,6 +41,7 @@ import java.util.List;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.amodsim.event.RebalancingEventContent;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 import java.util.ArrayList;
 
@@ -324,12 +325,13 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	}
 
     public void startRebalancing(OnDemandVehicleStation targetStation) {
+		eventProcessor.addEvent(OnDemandVehicleEvent.START_REBALANCING, null, null, 
+                new RebalancingEventContent(timeProvider.getCurrentSimTime(), currentRebalancingId, 
+						getId(), getParkedIn(), targetStation));
+		
 		parkedIn.releaseVehicle(this);
         state = OnDemandVehicleState.REBALANCING;
         currentRebalancingId = rebalancingIdGenerator.getId();
-        eventProcessor.addEvent(OnDemandVehicleEvent.START_REBALANCING, null, null, 
-                new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-                       currentRebalancingId, getId()));
         
         currentTrip = tripsUtil.createTrip(getPosition().id, 
                 targetStation.getPosition().getId(), vehicle);
@@ -338,9 +340,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
         completeTrip = currentTrip.clone();
         
         this.targetStation = targetStation;
-        
-//        driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
-//        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+		
         driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
     }
 
@@ -441,10 +441,10 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
     }
 
 	protected void finishRebalancing() {
-		eventProcessor.addEvent(OnDemandVehicleEvent.FINISH_REBALANCING, null, null, 
-                    new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-                        currentRebalancingId, getId()));
 		waitInStation();
+		eventProcessor.addEvent(OnDemandVehicleEvent.FINISH_REBALANCING, null, null, 
+                    new RebalancingEventContent(timeProvider.getCurrentSimTime(), 
+                        currentRebalancingId, getId(), null, parkedIn));
 	}
 
 	protected void finishDrivingToStation(DemandAgent demandAgent) {

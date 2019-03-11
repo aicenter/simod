@@ -3,17 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.agents.amodsim.ridesharing.vga;
+package cz.agents.amodsim.ridesharing.insertionheuristic;
 
 import com.google.inject.Injector;
 import cz.agents.amodsim.ridesharing.RidesharingEventData;
+import cz.agents.amodsim.ridesharing.insertionheuristic.common.InsertionHeuristicSystemTestScenario;
 import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestScenario;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.Utils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.SimpleMapInitializer;
-import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.geographtools.Graph;
@@ -26,25 +26,21 @@ import org.junit.Test;
  *
  * @author David Fiedler
  */
-public class BatchTest {
+public class SimpleRidesharingTest {
 	
 	@Test
     public void run() throws Throwable{
 		// bootstrap Guice
-		VGASystemTestScenario scenario = new VGASystemTestScenario();
+		InsertionHeuristicSystemTestScenario scenario = new InsertionHeuristicSystemTestScenario();
 		Injector injector = scenario.getInjector();
-		
-		// set batch time
-		injector.getInstance(AmodsimConfig.class).ridesharing.batchPeriod = 10;
 		
 		// set roadgraph
         Graph<SimulationNode, SimulationEdge> graph 
 				= Utils.getGridGraph(5, injector.getInstance(Transformer.class), 1);
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
-		// trips
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(graph.getNode(1), graph.getNode(3), 8000));
+		trips.add(new TimeTrip<>(graph.getNode(1), graph.getNode(3), 1000));
 		trips.add(new TimeTrip<>(graph.getNode(2), graph.getNode(4), 1000));
 		
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
@@ -52,15 +48,15 @@ public class BatchTest {
 		
 		// expected events
 		List<RidesharingEventData> expectedEvents = new LinkedList<>();
-		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.PICKUP));
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.PICKUP));
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.DROP_OFF));
         
         scenario.run(graph, trips, vehicalInitPositions, expectedEvents);
     }
 	
 	public static void main(String[] args) {
-        VisualTests.runVisualTest(BatchTest.class);
+        VisualTests.runVisualTest(SimpleRidesharingTest.class);
     }
 }

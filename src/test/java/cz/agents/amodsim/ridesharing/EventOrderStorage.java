@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cz.agents.amodsim.ridesharing.vga.common;
+package cz.agents.amodsim.ridesharing;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.typed.AliteEntity;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
-import cz.cvut.fel.aic.amodsim.statistics.OnDemandVehicleEvent;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import java.util.LinkedList;
 import java.util.List;
 

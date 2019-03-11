@@ -4,6 +4,12 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 
 public class PlanActionPickup extends PlanRequestAction {
 
+	/**
+	 * Pickup action.
+	 * @param request Request
+	 * @param node Position where action takes place.
+	 * @param maxTime Time constraint in seconds.
+	 */
 	public PlanActionPickup(PlanComputationRequest request, SimulationNode node, int maxTime) {
 		super(request, node, maxTime);
 	}
@@ -12,7 +18,7 @@ public class PlanActionPickup extends PlanRequestAction {
 
     @Override
     public String toString() {
-        return "    Pick up  " + request.toString() + System.getProperty("line.separator");
+        return String.format("Pick up demand %s at node %s", request.getDemandAgent().getId(), location.id);
     }
 
 

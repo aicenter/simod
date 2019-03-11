@@ -7,14 +7,19 @@ public abstract class PlanRequestAction extends PlanAction{
     public final PlanComputationRequest request;
 	
 	
-	
+	/**
+	 * Time constraint in seconds
+	 */
 	private final int maxTime;
 	
 	public PlanComputationRequest getRequest() { 
 		return request; 
 	}
 
-
+	/**
+	 * Getter for max time.
+	 * @return Time constraint in seconds
+	 */
 	public int getMaxTime() {
 		return maxTime;
 	}

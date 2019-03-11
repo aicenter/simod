@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import me.tongfei.progressbar.ProgressBar;
 
 /**
  *
@@ -86,7 +87,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		
 		planMap = new HashMap<>();
 		
-		for(OnDemandRequest request: requests){
+		for(OnDemandRequest request: ProgressBar.wrap(requests, "Processing new requests")){
 			double minCostIncrement = Double.MAX_VALUE;
 			DriverPlan bestPlan = null;
 			RideSharingOnDemandVehicle servingVehicle = null;
@@ -232,8 +233,9 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		return new PlanData(bestPlan, minCostIncrement);
 	}
 
-	private DriverPlan insertIntoPlan(DriverPlan currentPlan, int pickupOptionIndex, int dropoffOptionIndex, 
-			RideSharingOnDemandVehicle vehicle, PlanComputationRequest planComputationRequest) {
+	private DriverPlan insertIntoPlan(final DriverPlan currentPlan, final int pickupOptionIndex, 
+			final int dropoffOptionIndex, final RideSharingOnDemandVehicle vehicle, 
+			final PlanComputationRequest planComputationRequest) {
 		List<PlanAction> newPlanTasks = new LinkedList<>();
 		int newPlanDiscomfort = 0;
 		int newPlanTravelTime = 0;
@@ -272,7 +274,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 				
 				// discomfort increment
 				PlanComputationRequest newRequest = ((PlanActionDropoff) newTask).getRequest();
-				newPlanDiscomfort += newPlanTravelTime - newRequest.getOriginTime() - newRequest.getMinTravelTime();
+				newPlanDiscomfort += newPlanTravelTime - newRequest.getMinTravelTime();
 			}
 			else if(newTask instanceof PlanActionPickup){
 				// capacity check
@@ -283,12 +285,12 @@ public class InsertionHeuristicSolver extends DARPSolver{
 			}
 			
 			/* check max time for all unfinished demands */
-			long curentTaskTime = timeProvider.getCurrentSimTime() + newPlanTravelTime;
+			long curentTaskTimeInSeconds = (timeProvider.getCurrentSimTime() + newPlanTravelTime) / 1000;
 			for(int index = indexInOldPlan; index < currentPlan.getLength(); index++){
 				PlanAction remainingAction = currentPlan.plan.get(index);
 				if(!(remainingAction instanceof PlanActionCurrentPosition)){
 					PlanRequestAction remainingRequestAction = (PlanRequestAction) remainingAction;
-					if(remainingRequestAction.getMaxTime() < curentTaskTime){
+					if(remainingRequestAction.getMaxTime() < curentTaskTimeInSeconds){
 						return null;
 					}
 				}

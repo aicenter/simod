@@ -12,6 +12,9 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 	
 	public final int id;
 	
+	/**
+	 * Request origin time in seconds.
+	 */
     private final int originTime;
 
     private final DemandAgent demandAgent;
@@ -20,6 +23,9 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 	
 	private final PlanActionDropoff dropOffAction;
 	
+	/**
+	 * Min travel time in seconds
+	 */
 	private final int minTravelTime;
 	
 
@@ -84,6 +90,7 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 		dropOffAction = new PlanActionDropoff(this, destination, maxDropOffTime);
     }
 
+	@Override
     public int getOriginTime() { 
 		return originTime; 
 	}

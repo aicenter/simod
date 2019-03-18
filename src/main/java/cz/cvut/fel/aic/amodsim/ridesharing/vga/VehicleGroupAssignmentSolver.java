@@ -120,7 +120,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
         Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new LinkedHashMap<>();
 
 		LOGGER.info("Total vehicle count: " + vgaVehicles.size());
-		List<VGAVehicle> drivingVehicles = excludeParkedVehicles(vgaVehicles);
+		List<VGAVehicle> drivingVehicles = filterVehicles(vgaVehicles);
 
         // Converting requests and adding them to collections
         for (OnDemandRequest request : requests) {
@@ -315,12 +315,12 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 	}
 
-	private List<VGAVehicle> excludeParkedVehicles(List<VGAVehicle> vehiclesForPlanning) {
+	private List<VGAVehicle> filterVehicles(List<VGAVehicle> vehiclesForPlanning) {
 		List<VGAVehicle> filteredVehiclesForPlanning = new LinkedList<>();
 		for (VGAVehicle vGAVehicle : vehiclesForPlanning) {
 			OnDemandVehicle vehicle = vGAVehicle.getRidesharingVehicle();
 			OnDemandVehicleStation parkedIn = vehicle.getParkedIn();
-			if(parkedIn == null){
+			if(parkedIn == null && vehicle.getState() != OnDemandVehicleState.REBALANCING){
 				filteredVehiclesForPlanning.add(vGAVehicle);
 			}
 		}

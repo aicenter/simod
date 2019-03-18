@@ -226,7 +226,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		return currentTrip;
 	}
 
-	boolean hasFreeCapacity() {
+	public boolean hasFreeCapacity() {
 		return getFreeCapacity() > 0;
 	}
 

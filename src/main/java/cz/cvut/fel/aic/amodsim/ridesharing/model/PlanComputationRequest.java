@@ -21,8 +21,16 @@ public interface PlanComputationRequest {
 	
 	public int getMaxDropoffTime();
 	
+	/**
+	 * Returns request origin time in seconds.
+	 * @return Request origin time in seconds.
+	 */
 	public int getOriginTime();
 	
+	/**
+	 * Returns min travel time in seconds.
+	 * @return Min travel time in seconds.
+	 */
 	public int getMinTravelTime();
 	
 	public SimulationNode getFrom();

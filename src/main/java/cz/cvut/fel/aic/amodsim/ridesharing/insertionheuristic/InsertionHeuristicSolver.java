@@ -1,14 +1,18 @@
-package cz.cvut.fel.aic.amodsim.ridesharing;
+package cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic;
 
 import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
-import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
-import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.PlanActionCurrentPosition;
+import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
+import cz.cvut.fel.aic.amodsim.ridesharing.EuclideanTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.OnDemandRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.PlanCostProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
+import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
@@ -237,8 +241,14 @@ public class InsertionHeuristicSolver extends DARPSolver{
 			final int dropoffOptionIndex, final RideSharingOnDemandVehicle vehicle, 
 			final PlanComputationRequest planComputationRequest) {
 		List<PlanAction> newPlanTasks = new LinkedList<>();
-		int newPlanDiscomfort = 0;
+		
+		
+		// travel time of the new plan in milliseconds
 		int newPlanTravelTime = 0;
+		
+		// discomfort of the new plan in milliseconds
+		int newPlanDiscomfort = 0;
+		
 		PlanAction previousTask = null;
 		int indexInOldPlan = -1;
 		
@@ -274,7 +284,9 @@ public class InsertionHeuristicSolver extends DARPSolver{
 				
 				// discomfort increment
 				PlanComputationRequest newRequest = ((PlanActionDropoff) newTask).getRequest();
-				newPlanDiscomfort += newPlanTravelTime - newRequest.getMinTravelTime();
+				long taskExecutionTime = timeProvider.getCurrentSimTime() + newPlanTravelTime;
+				newPlanDiscomfort += taskExecutionTime - newRequest.getOriginTime() * 1000 
+						- newRequest.getMinTravelTime() * 1000;
 			}
 			else if(newTask instanceof PlanActionPickup){
 				// capacity check

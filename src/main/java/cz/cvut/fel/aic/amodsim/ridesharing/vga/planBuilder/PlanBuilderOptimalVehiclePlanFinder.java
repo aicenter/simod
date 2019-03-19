@@ -10,11 +10,9 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
 import java.util.LinkedHashSet;
@@ -31,14 +29,14 @@ import java.util.Stack;
 public class PlanBuilderOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extends OptimalVehiclePlanFinder<V>{
 
 	@Inject
-	public PlanBuilderOptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation) {
-		super(planCostComputation);
+	public PlanBuilderOptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation, AmodsimConfig config) {
+		super(planCostComputation, config);
 	}
 
 	
 	
 	@Override
-	public Plan<V> getOptimalVehiclePlanForGroup(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime,
+	public Plan<V> computeOptimalVehiclePlanForGroup(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime,
 			boolean ignoreTime) {
 		Stack<VGAVehiclePlan> toCheck = new Stack<>();
 		

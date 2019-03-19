@@ -11,6 +11,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.PlanActionData;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
@@ -28,14 +29,15 @@ import java.util.List;
 @Singleton
 public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extends OptimalVehiclePlanFinder<V>{
 
+
 	@Inject
-	public ArrayOptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation) {
-		super(planCostComputation);
+	public ArrayOptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation, AmodsimConfig config) {
+		super(planCostComputation, config);
 	}
 	
 	
 	@Override
-	public Plan<V> getOptimalVehiclePlanForGroup(V vehicle, LinkedHashSet<PlanComputationRequest> requests, 
+	public Plan<V> computeOptimalVehiclePlanForGroup(V vehicle, LinkedHashSet<PlanComputationRequest> requests, 
 			int startTime, boolean ignoreTime){
 		
 		// prepare possible actions

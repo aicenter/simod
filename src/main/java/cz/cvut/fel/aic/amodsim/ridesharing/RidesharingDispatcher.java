@@ -18,8 +18,10 @@ import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.PlanActionCurrentPosition;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
+import cz.cvut.fel.aic.amodsim.statistics.Statistics;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.geographtools.Node;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,16 +41,15 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	
 	private final DARPSolver solver;
 	
+	private final List darpSolverComputationalTimes;
+	
 	
 	private List<OnDemandRequest> requestQueue;
-	
-	
-	private final List<Long> darpSolverComputationalTimes;
 
 	
 	
 	
-	public List<Long> getDarpSolverComputationalTimes() {
+	public List getDarpSolverComputationalTimes() {
 		return darpSolverComputationalTimes;
 	}
 	
@@ -61,7 +62,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		super(onDemandvehicleStationStorage, eventProcessor, config);
 		this.solver = solver;
 		requestQueue = new LinkedList<>();
-		darpSolverComputationalTimes = new LinkedList<>();
+		darpSolverComputationalTimes = new ArrayList();
 		if(config.ridesharing.batchPeriod != 0){
 			ticker.registerRoutine(this, config.ridesharing.batchPeriod * 1000);
 		}

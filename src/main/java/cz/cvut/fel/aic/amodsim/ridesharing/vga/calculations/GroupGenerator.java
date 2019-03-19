@@ -3,7 +3,6 @@ package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
 import java.util.ArrayList;
@@ -13,29 +12,71 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.Stack;
 import org.slf4j.LoggerFactory;
 
 
 
 @Singleton
-public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
+public class GroupGenerator<V extends IOptimalPlanVehicle> {
 	
-	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(VGAGroupGenerator.class);
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GroupGenerator.class);
+	
+	private static final int GROUP_STATS_SIZE_BUFFER = 0;
+	
+	private static final int MILLION = 1000000;
 
 	
 	private final OptimalVehiclePlanFinder optimalVehiclePlanFinder;
 	
-	private final int vehicleCapacityForGlobalGroupGeneration;
+	private final int vehicleCapacity;
+	
+	private final boolean recordTime;
+	
+	
+	private int[] groupCounts;
+	
+	private int[] groupCountsPlanExists;
+	
+	private int[] computationalTimes;
+	
+	private int[] computationalTimesPlanExists;
+
+	public int[] getGroupCounts() {
+		return groupCounts;
+	}
+
+	public int[] getGroupCountsPlanExists() {
+		return groupCountsPlanExists;
+	}
+
+	public int[] getComputationalTimes() {
+		return computationalTimes;
+	}
+
+	public int[] getComputationalTimesPlanExists() {
+		return computationalTimesPlanExists;
+	}
+	
+	
 	
 
 	@Inject
-    public VGAGroupGenerator(OptimalVehiclePlanFinder optimalVehiclePlanFinder, AmodsimConfig config) {
+    public GroupGenerator(OptimalVehiclePlanFinder optimalVehiclePlanFinder, AmodsimConfig config) {
 		this.optimalVehiclePlanFinder = optimalVehiclePlanFinder;
-		vehicleCapacityForGlobalGroupGeneration = config.ridesharing.vehicleCapacity;
+		vehicleCapacity = config.ridesharing.vehicleCapacity;
+		recordTime = config.ridesharing.vga.logPlanComputationalTime;
 	}
 
     public List<Plan> generateGroupsForVehicle(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime) {
+		
+		// statistics
+		if(recordTime){
+			groupCounts = new int[vehicleCapacity + GROUP_STATS_SIZE_BUFFER];
+			groupCountsPlanExists = new int[vehicleCapacity + GROUP_STATS_SIZE_BUFFER];
+			computationalTimes = new int[vehicleCapacity + GROUP_STATS_SIZE_BUFFER];
+			computationalTimesPlanExists = new int[vehicleCapacity + GROUP_STATS_SIZE_BUFFER];
+		}
+		
 		// F_v^{k - 1} - groupes for request adding
 		Set<GroupData> currentGroups = new LinkedHashSet<>();
 		
@@ -47,17 +88,33 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 
 		Set<PlanComputationRequest> onBoardRequestLock = null;
 		if(vehicle.getRequestsOnBoard().isEmpty()){
+			
 			// BASE PLAN - for each empty vehicle, an EMPTY PLAN is valid
-			groupPlans.add(new Plan((int) startTime, vehicle));
+			Plan emptyPlan = new Plan((int) startTime, vehicle);
+			groupPlans.add(emptyPlan);
 		}
 		else{
 			// BASE PLAN - for non-empty vehicles, we add a base plan that serves all onboard vehicles
 			LinkedHashSet<PlanComputationRequest> group = vehicle.getRequestsOnBoard();
 			onBoardRequestLock = group;
 			
+			long startTimeNano = 0;
+			if(recordTime){
+				groupCounts[group.size() - 1]++;
+				groupCountsPlanExists[group.size() - 1]++;
+				startTimeNano = System.nanoTime();
+			}
+			
 			// currently, the time window has to be ignored, because the planner underestimates the cost
-			Plan plan = optimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, group, startTime, true);
-			groupPlans.add(plan);
+			Plan initialPlan 
+					= optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(vehicle, group, startTime, true);
+			groupPlans.add(initialPlan);
+			
+			if(recordTime){
+				long computationDurationNano = startTimeNano - System.nanoTime();
+				computationalTimes[group.size() - 1] += computationDurationNano / MILLION;
+				computationalTimesPlanExists[group.size() - 1] += computationDurationNano / MILLION;	
+			}
 	
 			for (PlanComputationRequest request : group) {
 				Set<PlanComputationRequest> singleRequestGroup = new HashSet<>(1);
@@ -71,14 +128,31 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 			LinkedHashSet<PlanComputationRequest> group = new LinkedHashSet<>();
 			group.add(request);
 
-			Plan plan;
-			if((plan = optimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, group, startTime, false)) != null) {
+			long startTimeNano = 0;
+			if(recordTime){
+				groupCounts[group.size() - 1]++;
+				startTimeNano = System.nanoTime();
+			}
+			
+			Plan plan = optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(vehicle, group, startTime, false);
+			if(plan != null) {
 				feasibleRequests.add(request);
 				currentGroups.add(new GroupData(group, onBoardRequestLock));
 				//if the vehicle is empty, feasible requests are feasible plans and are used as base groups
 				if(vehicle.getRequestsOnBoard().isEmpty()){
 					groupPlans.add(plan);
 				}			
+			}
+			
+			if(recordTime){
+				long computationDurationNano = startTimeNano - System.nanoTime();
+				int timeInMs = (int) (computationDurationNano / MILLION);
+				if(plan != null){
+					groupCountsPlanExists[group.size() - 1]++;
+					computationalTimesPlanExists[group.size() - 1] += timeInMs;
+				}
+						
+				computationalTimes[group.size() - 1] += timeInMs;	
 			}
 		}
 		
@@ -119,8 +193,14 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 					
 					if(checkFeasibility){
 
-						Plan plan;
-						if((plan = optimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, newGroupToCheck, startTime, false)) != null) {
+						long startTimeNano = 0;
+						if(recordTime){
+							groupCounts[newGroupToCheck.size() - 1]++;
+							startTimeNano = System.nanoTime();
+						}
+						
+						Plan plan = optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(vehicle, newGroupToCheck, startTime, false);
+						if(plan != null) {
 			
 							if(groupData.onboardRequestLock == null || newGroupToCheck.containsAll(groupData.onboardRequestLock)){
 								newCurrentGroups.add(new GroupData(newGroupToCheck));
@@ -132,6 +212,17 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 //	                        if(groups.size() > 50){
 //	                            return groups;
 //	                        }
+						}
+						
+						if(recordTime){
+							long computationDurationNano = startTimeNano - System.nanoTime();
+							int timeInMs = (int) (computationDurationNano / MILLION);
+							if(plan != null){
+								groupCountsPlanExists[newGroupToCheck.size() - 1]++;
+								computationalTimesPlanExists[newGroupToCheck.size() - 1] += timeInMs;
+							}
+
+							computationalTimes[newGroupToCheck.size() - 1] += timeInMs;	
 						}
 					}
                 }
@@ -168,7 +259,7 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 			LinkedHashSet<PlanComputationRequest> group = new LinkedHashSet<>();
 			group.add(request);
 
-			if(optimalVehiclePlanFinder.groupFeasible(group, startTime, vehicleCapacityForGlobalGroupGeneration)) {
+			if(optimalVehiclePlanFinder.groupFeasible(group, startTime, vehicleCapacity)) {
 				feasibleRequests.add(request);
 				currentGroups.add(group);
 				feasibleGroups.add(group);		
@@ -212,7 +303,7 @@ public class VGAGroupGenerator<V extends IOptimalPlanVehicle> {
 					
 					if(checkFeasibility){
 
-						if(optimalVehiclePlanFinder.groupFeasible(newGroupToCheck, startTime, vehicleCapacityForGlobalGroupGeneration)) {
+						if(optimalVehiclePlanFinder.groupFeasible(newGroupToCheck, startTime, vehicleCapacity)) {
 							newCurrentGroups.add(newGroupToCheck);
 							feasibleGroups.add(newGroupToCheck);
 

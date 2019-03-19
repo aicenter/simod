@@ -5,12 +5,11 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import java.util.LinkedHashSet;
-import java.util.List;
 
 /**
  *
@@ -21,13 +20,16 @@ public abstract class OptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> {
 	
 	protected final StandardPlanCostProvider planCostComputation;
 	
+	private final boolean recordTime;
 	
-    public OptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation) {
+	
+    public OptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation, AmodsimConfig config) {
 		this.planCostComputation = planCostComputation;
+		recordTime = config.ridesharing.vga.logPlanComputationalTime;
 	}
 	
-	public abstract Plan<V> getOptimalVehiclePlanForGroup(V vehicle, LinkedHashSet<PlanComputationRequest> requests, 
-			int startTime, boolean ignoreTime);
+	public abstract Plan<V> computeOptimalVehiclePlanForGroup(V vehicle, 
+			LinkedHashSet<PlanComputationRequest> requests, int startTime, boolean ignoreTime);
 	
 	public abstract boolean groupFeasible(LinkedHashSet<PlanComputationRequest> requests, 
 			int startTime, int vehicleCapacity);

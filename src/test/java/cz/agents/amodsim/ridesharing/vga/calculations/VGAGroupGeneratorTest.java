@@ -11,7 +11,7 @@ import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestScenario;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.VGAGroupGenerator;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GroupGenerator;
 import ninja.fido.config.Configuration;
 import org.junit.BeforeClass;
 
@@ -21,7 +21,7 @@ import org.junit.BeforeClass;
  */
 public class VGAGroupGeneratorTest {
 	
-	private VGAGroupGenerator groupGenerator;
+	private GroupGenerator groupGenerator;
 	
 	@BeforeClass
 	public void prepare(){

@@ -85,7 +85,7 @@ public class ArrayOptimalVehiclePlanFinderTest {
 		TestOptimalPlanVehicle vehicle = new TestOptimalPlanVehicle(onBoardRequests, position, 
 				config.ridesharing.vehicleCapacity);
 		
-		Plan plan = arrayOptimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, requests, 8, false);
+		Plan plan = arrayOptimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(vehicle, requests, 8, false);
 		
 		Assert.assertNull(plan);
 	}
@@ -115,7 +115,7 @@ public class ArrayOptimalVehiclePlanFinderTest {
 		TestOptimalPlanVehicle vehicle = new TestOptimalPlanVehicle(onBoardRequests, position, 
 				config.ridesharing.vehicleCapacity);
 		
-		Plan plan = arrayOptimalVehiclePlanFinder.getOptimalVehiclePlanForGroup(vehicle, requests, 8, false);
+		Plan plan = arrayOptimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(vehicle, requests, 8, false);
 		
 		Assert.assertNull(plan);
 	}

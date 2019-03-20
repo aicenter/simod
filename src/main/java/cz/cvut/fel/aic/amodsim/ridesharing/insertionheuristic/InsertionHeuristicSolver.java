@@ -1,8 +1,10 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
+import cz.cvut.fel.aic.agentpolis.utils.Benchmark;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
@@ -19,6 +21,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
+import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStatsIH;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,6 +34,7 @@ import me.tongfei.progressbar.ProgressBar;
  *
  * @author F.I.D.O.
  */
+@Singleton
 public class InsertionHeuristicSolver extends DARPSolver{
 	
 	private static final int INFO_PERIOD = 1000;
@@ -60,6 +64,12 @@ public class InsertionHeuristicSolver extends DARPSolver{
 	private long vehiclePlanningAllCallCount = 0;
 	
 	private Map<RideSharingOnDemandVehicle, DriverPlan> planMap;
+	
+	private int failFastTime;
+	
+	private int insertionHeuristicTime;
+	
+	private int debugFailTime;
 	
 	
 	
@@ -91,56 +101,22 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		
 		planMap = new HashMap<>();
 		
+		// statistics
+		failFastTime = 0;
+		insertionHeuristicTime = 0;
+		debugFailTime = 0;
+		
 		for(OnDemandRequest request: ProgressBar.wrap(requests, "Processing new requests")){
-			double minCostIncrement = Double.MAX_VALUE;
-			DriverPlan bestPlan = null;
-			RideSharingOnDemandVehicle servingVehicle = null;
-
-			long iterationStartTime = System.nanoTime();
 			
-			// plan request creation 
-			PlanComputationRequest planComputationRequest = requestFactory.create(0, request.getPosition(), 
-					request.getTargetLocation(), request.getDemandAgent());
+			PlanData bestPlanData = Benchmark.measureTime(() -> computeBestPlanForRequest(request));
+			insertionHeuristicTime += Benchmark.getDurationMsInt();
 
-			for(AgentPolisEntity tVvehicle: vehicleStorage.getEntitiesForIteration()){
-
-				RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
-				if(canServeRequest(vehicle, request)){
-					vehiclePlanningAllCallCount++;
-
-					PlanData newPlanData = getOptimalPlan(vehicle, planComputationRequest);
-					if(newPlanData != null && newPlanData.increment < minCostIncrement){
-						minCostIncrement = newPlanData.increment;
-						bestPlan = newPlanData.plan;
-						servingVehicle = vehicle;
-					}
-				}
-			}
-
-			iterationTime += System.nanoTime() - iterationStartTime;
-
-			if(bestPlan != null){
-				planMap.put(servingVehicle, bestPlan);
-
-//				// compute scheduled pickup delay
-//				DriverPlanTask previousTask = null;
-//				long currentDelay = 0;
-//				for(DriverPlanTask task: bestPlan){
-//					if(previousTask !=  null){
-//						currentDelay += travelTimeProvider.getTravelTime(servingVehicle, previousTask.getLocation(), 
-//								task.getLocation());
-//					}
-//
-//					if(task.demandAgent == request.getDemandAgent()){
-//						request.getDemandAgent().setScheduledPickupDelay(currentDelay);
-//						break;
-//					}
-//
-//					previousTask = task;
-//				}
+			if(bestPlanData != null){
+				planMap.put(bestPlanData.vehicle, bestPlanData.plan);
 			}
 			else{
-				debugFail(request);
+				Benchmark.measureTime(() ->	debugFail(request));
+				debugFailTime += Benchmark.getDurationMs();
 			}
 		}
 		
@@ -159,6 +135,9 @@ public class InsertionHeuristicSolver extends DARPSolver{
 			sb.append("Traveltime call count: ").append(((EuclideanTravelTimeProvider) travelTimeProvider).getCallCount()).append("\n");
 			System.out.println(sb.toString());
 		}
+		
+		logRidesharingStats(requests);
+		
 		return planMap;
 	}
 	
@@ -234,7 +213,7 @@ public class InsertionHeuristicSolver extends DARPSolver{
 				}
 			}
 		}
-		return new PlanData(bestPlan, minCostIncrement);
+		return new PlanData(vehicle, bestPlan, minCostIncrement);
 	}
 
 	private DriverPlan insertIntoPlan(final DriverPlan currentPlan, final int pickupOptionIndex, 
@@ -374,18 +353,57 @@ public class InsertionHeuristicSolver extends DARPSolver{
 		
 		return String.format(" (%02d:%02d:%02d:%d)", hour, minute, second, millis);
 	}
+
+	private void logRidesharingStats(List<OnDemandRequest> requests) {
+		ridesharingStats.add(new RidesharingBatchStatsIH(failFastTime, insertionHeuristicTime, debugFailTime, 
+				requests.size()));
+	}
+
+	private PlanData computeBestPlanForRequest(OnDemandRequest request) {
+		double minCostIncrement = Double.MAX_VALUE;
+		PlanData bestPlan = null;
+		RideSharingOnDemandVehicle servingVehicle = null;
+
+		long iterationStartTime = System.nanoTime();
+
+		// plan request creation 
+		PlanComputationRequest planComputationRequest = requestFactory.create(0, request.getPosition(), 
+				request.getTargetLocation(), request.getDemandAgent());
+
+		for(AgentPolisEntity tVvehicle: vehicleStorage.getEntitiesForIteration()){
+
+			RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
+
+			// fail fast
+			if(canServeRequest(vehicle, request)){
+				vehiclePlanningAllCallCount++;
+
+				PlanData newPlanData = getOptimalPlan(vehicle, planComputationRequest);
+				if(newPlanData != null && newPlanData.increment < minCostIncrement){
+					minCostIncrement = newPlanData.increment;
+					bestPlan = newPlanData;
+					servingVehicle = vehicle;
+				}
+			}
+		}
+
+		iterationTime += System.nanoTime() - iterationStartTime;
+		
+		return bestPlan;
+	}
 	
 	private class PlanData{
 		final DriverPlan plan;
 		
 		final double increment;
+		
+		final RideSharingOnDemandVehicle vehicle;
 
-		public PlanData(DriverPlan plan, double increment) {
+		public PlanData(RideSharingOnDemandVehicle vehicle, DriverPlan plan, double increment) {
+			this.vehicle = vehicle;
 			this.plan = plan;
 			this.increment = increment;
 		}
-		
-		
 	}
 	
 }

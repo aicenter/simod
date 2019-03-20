@@ -409,12 +409,11 @@ public class Statistics extends AliteEntity implements EventHandler{
             CsvWriter writer = new CsvWriter(
                     Common.getFileWriter(config.statistics.ridesharingFilePath));
 			
-			
+			// header line
 			if(config.ridesharing.method.equals("vga")){
 				
 				RidesharingBatchStatsVGA firstStat = (RidesharingBatchStatsVGA) dARPSolver.getRidesharingStats().get(0);
 				
-				// header line
 				List<String> writerLine = new ArrayList(Arrays.asList("Batch", "New Request Count", "Active Request Count", 
 						"Group Generation Time", "Solver Time"));
 				
@@ -427,6 +426,10 @@ public class Statistics extends AliteEntity implements EventHandler{
 					writerLine.add(String.format("%s Feasible Groups Total Time", i + 1));
 				}
 				writer.writeLine(writerLine.toArray(new String[0]));
+			}
+			else{				
+				writer.writeLine("Batch", "New Request Count", "Fail Fast Time", "Insertion Heuristic Time", 
+						"Log Fail Time");
 			}
 			
 			int batch = 0;
@@ -456,10 +459,9 @@ public class Statistics extends AliteEntity implements EventHandler{
 				else{
 					RidesharingBatchStatsIH vgaStat = (RidesharingBatchStatsIH) ridesharingStat;
 					
-					writer.writeLine(Integer.toString(batch), Integer.toString(vgaStat.newRequestCount));
-					writer.writeLine(Integer.toString(batch), Integer.toString(vgaStat.failFastTime));
-					writer.writeLine(Integer.toString(batch), Integer.toString(vgaStat.ihTime));
-					writer.writeLine(Integer.toString(batch), Integer.toString(vgaStat.logFailTime));
+					writer.writeLine(Integer.toString(batch), Integer.toString(vgaStat.newRequestCount), 
+							Integer.toString(vgaStat.failFastTime), Integer.toString(vgaStat.ihTime),
+							Integer.toString(vgaStat.logFailTime));
 				}
 				batch++;
             }

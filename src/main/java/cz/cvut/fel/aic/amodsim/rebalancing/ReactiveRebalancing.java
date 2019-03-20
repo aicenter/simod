@@ -285,22 +285,10 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 		
 		return null;
 	}
-
+	
 	private void computeDistancesBetweenStations() {
-		for(OnDemandVehicleStation stationFrom: 
-				ProgressBar.wrap(onDemandvehicleStationStorage, "Computing distances between stations")){
-//		for(OnDemandVehicleStation stationFrom: onDemandvehicleStationStorage){
-			Map<OnDemandVehicleStation,Double> mapFromStation = new HashMap<>();
-			distancesBetweenStations.put(stationFrom, mapFromStation);
-			for(OnDemandVehicleStation stationTo: onDemandvehicleStationStorage){
-				if(stationFrom != stationTo){
-					double distance = astarTravelTimeProvider.getExpectedTravelTime(
-							stationFrom.getPosition(), stationTo.getPosition());
-					mapFromStation.put(stationTo, distance);
-				}
-//				LOGGER.info("Computing distance from station {} to station {}", stationFrom, stationTo);
-			}
-		}
+		ProgressBar.wrap(onDemandvehicleStationStorage.stream().parallel(), "Computing distances between stations")
+				.forEach(station -> computeDistancesFromStation(station));
 	}
 
 	private void sendOrders(List<Transfer> transfers) {
@@ -372,6 +360,19 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 		typesToHandle.add(OnDemandVehicleEvent.START_REBALANCING);
 		typesToHandle.add(OnDemandVehicleEvent.FINISH_REBALANCING);
 		eventProcessor.addEventHandler(this, typesToHandle);
+	}
+
+	private void computeDistancesFromStation(OnDemandVehicleStation stationFrom) {
+		Map<OnDemandVehicleStation,Double> mapFromStation = new HashMap<>();
+		distancesBetweenStations.put(stationFrom, mapFromStation);
+		for(OnDemandVehicleStation stationTo: onDemandvehicleStationStorage){
+			if(stationFrom != stationTo){
+				double distance = astarTravelTimeProvider.getExpectedTravelTime(
+						stationFrom.getPosition(), stationTo.getPosition());
+				mapFromStation.put(stationTo, distance);
+			}
+//				LOGGER.info("Computing distance from station {} to station {}", stationFrom, stationTo);
+		}
 	}
 	
 }

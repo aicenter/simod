@@ -33,6 +33,7 @@ import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStatsVGA;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -401,12 +402,36 @@ public class Statistics extends AliteEntity implements EventHandler{
     }
 	
 	private void saveRidesharingStatistics() {
+		if(dARPSolver.getRidesharingStats().size() < 1){
+			return;
+		}
         try {
             CsvWriter writer = new CsvWriter(
                     Common.getFileWriter(config.statistics.ridesharingFilePath));
+			
+			
+			if(config.ridesharing.method.equals("vga")){
+				
+				RidesharingBatchStatsVGA firstStat = (RidesharingBatchStatsVGA) dARPSolver.getRidesharingStats().get(0);
+				
+				// header line
+				List<String> writerLine = new ArrayList(Arrays.asList("Batch", "New Request Count", "Active Request Count", 
+						"Group Generation Time", "Solver Time"));
+				
+				for(int i = 0; i < firstStat.groupSizeData.length; i++){
+					writerLine.add(String.format("%s Groups Count", i + 1));
+					writerLine.add(String.format("%s Groups Total Time", i + 1));
+				}
+				for(int i = 0; i < firstStat.groupSizeData.length; i++){
+					writerLine.add(String.format("%s Feasible Groups Count", i + 1));
+					writerLine.add(String.format("%s Feasible Groups Total Time", i + 1));
+				}
+				writer.writeLine(writerLine.toArray(new String[0]));
+			}
+			
 			int batch = 0;
             for (RidesharingBatchStats ridesharingStat: dARPSolver.getRidesharingStats()) {
-				if(config.ridesharing.method.equals("vga")){
+				if(config.ridesharing.method.equals("vga")){	
 					RidesharingBatchStatsVGA vgaStat = (RidesharingBatchStatsVGA) ridesharingStat;
 					
 					List<String> writerLine = new ArrayList<>();

@@ -101,6 +101,14 @@ public class Statistics extends AliteEntity implements EventHandler{
     private double averageKmRebalancing;
     
     private int numberOfVehicles;
+	
+	private long totalDistanceWithPassenger;
+	
+	private long totalDistanceToStartLocation;
+	
+	private long totalDistanceToStation;
+	
+	private long totalDistanceRebalancing;
     
     
     
@@ -200,7 +208,8 @@ public class Statistics extends AliteEntity implements EventHandler{
                 onDemandVehicleStationsCentral.getNumberOfDemandsNotServedFromNearestStation(), 
                 onDemandVehicleStationsCentral.getNumberOfDemandsDropped(), 
                 onDemandVehicleStationsCentral.getDemandsCount(), numberOfVehicles,
-                onDemandVehicleStationsCentral.getNumberOfRebalancingDropped());
+                onDemandVehicleStationsCentral.getNumberOfRebalancingDropped(), totalDistanceWithPassenger,
+		totalDistanceToStartLocation, totalDistanceToStation, totalDistanceRebalancing);
         
         ObjectMapper mapper = new ObjectMapper();
 		
@@ -288,25 +297,25 @@ public class Statistics extends AliteEntity implements EventHandler{
     }
 
     private void countAveragesFromAgents() {
-        long metersWithPassengerSum = 0;
-        long metersToStartLocationSum = 0;
-        long metersToStationSum = 0;
-        long metersRebalancingSum = 0;
+        totalDistanceWithPassenger = 0;
+        totalDistanceToStartLocation = 0;
+        totalDistanceToStation = 0;
+        totalDistanceRebalancing = 0;
         
         
         for (OnDemandVehicle onDemandVehicle : onDemandVehicleStorage) {
-            metersWithPassengerSum += onDemandVehicle.getMetersWithPassenger();
-            metersToStartLocationSum += onDemandVehicle.getMetersToStartLocation();
-            metersToStationSum += onDemandVehicle.getMetersToStation();
-            metersRebalancingSum += onDemandVehicle.getMetersRebalancing();
+            totalDistanceWithPassenger += onDemandVehicle.getMetersWithPassenger();
+            totalDistanceToStartLocation += onDemandVehicle.getMetersToStartLocation();
+            totalDistanceToStation += onDemandVehicle.getMetersToStation();
+            totalDistanceRebalancing += onDemandVehicle.getMetersRebalancing();
         }
         
         numberOfVehicles = onDemandVehicleStorage.getEntities().size();
         
-        averageKmWithPassenger = (double) metersWithPassengerSum / numberOfVehicles / 1000;
-        averageKmToStartLocation = (double) metersToStartLocationSum / numberOfVehicles / 1000;
-        averageKmToStation = (double) metersToStationSum / numberOfVehicles / 1000;
-        averageKmRebalancing = (double) metersRebalancingSum / numberOfVehicles / 1000;
+        averageKmWithPassenger = (double) totalDistanceWithPassenger / numberOfVehicles / 1000;
+        averageKmToStartLocation = (double) totalDistanceToStartLocation / numberOfVehicles / 1000;
+        averageKmToStation = (double) totalDistanceToStation / numberOfVehicles / 1000;
+        averageKmRebalancing = (double) totalDistanceRebalancing / numberOfVehicles / 1000;
     }
 
     private void saveAllEdgesLoadHistory() {

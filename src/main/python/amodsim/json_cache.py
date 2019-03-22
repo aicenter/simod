@@ -2,7 +2,7 @@ import os
 import json
 import pickle
 
-from scripts.printer import print_info
+from roadmaptools.printer import print_info
 
 
 def load_json_file(filepath):

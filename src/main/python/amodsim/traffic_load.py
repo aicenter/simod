@@ -1,6 +1,6 @@
 from pandas.io.formats.format import return_docstring
 
-from amodsim.init import config, roadmaptools_config
+from amodsim.init import config
 
 import json
 import matplotlib
@@ -9,7 +9,7 @@ import roadmaptools.inout
 from enum import Enum
 from matplotlib import cm
 
-from scripts.printer import print_info
+from roadmaptools.printer import print_info
 from amodsim.json_cache import load_json_file
 
 CRITICAL_DENSITY = config.critical_density
@@ -26,7 +26,7 @@ WINDOW_END = config.analysis.chosen_window_end
 color_map = cm.get_cmap('gist_heat')
 
 
-def load_all_edges_load_history(filepath = config.amodsim.statistics.all_edges_load_history_file_path):
+def load_all_edges_load_history(filepath = config.statistics.all_edges_load_history_file_path):
 	print_info("Loading edge load history from: " + filepath)
 
 	loads = json.load(open(filepath, 'r'))
@@ -59,10 +59,10 @@ def get_total_load_sum(filepath):
 
 def load_edges():
 	print_info("loading edges")
-	modifier = "-simplified" if config.amodsim.simplify_graph else ""
+	modifier = "-simplified" if config.simplify_graph else ""
 	# json_file = open(config.amodsim.edges_file_path + modifier + ".json", 'r')
 	# return json.loads(json_file.read())
-	return roadmaptools.inout.load_json(config.amodsim.edges_file_path + modifier + ".json")
+	return roadmaptools.inout.load_json(config.edges_file_path + modifier + ".json")
 
 def load_edge_pairs():
 	print_info("loading edge pairs")

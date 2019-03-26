@@ -24,8 +24,8 @@ def to_percent(y, position):
         return s + '%'
 
 
-results = roadmaptools.inout.load_json(config.amodsim.statistics.result_file_path)
-data = np.genfromtxt(config.amodsim.statistics.occupancies_file_path, delimiter=',')
+results = roadmaptools.inout.load_json(config.statistics.result_file_path)
+data = np.genfromtxt(config.statistics.occupancies_file_path, delimiter=',')
 
 occupancy_col = data[:,2]
 

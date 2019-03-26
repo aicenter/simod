@@ -6,12 +6,14 @@ from amodsim.config.statistics import Statistics
 from amodsim.config.analysis import Analysis
 from amodsim.config.images import Images
 from amodsim.config.comparison import Comparison
+from amodsim.config.agentpolis import Agentpolis
 import roadmaptools.config.roadmaptools_config
 from roadmaptools.config.roadmaptools_config import RoadmaptoolsConfig
 
 class AmodsimConfig(Config):
     def __init__(self, properties: dict=None):
         self.data_dir = properties.get("data_dir")
+        self.map_dir = properties.get("map_dir")
         self.experiments_dir = properties.get("experiments_dir")
         self.experiment_name = properties.get("experiment_name")
         self.experiment_dir = properties.get("experiment_dir")
@@ -24,6 +26,7 @@ class AmodsimConfig(Config):
         self.analysis = Analysis(properties.get("analysis"))
         self.images = Images(properties.get("images"))
         self.comparison = Comparison(properties.get("comparison"))
+        self.agentpolis = Agentpolis(properties.get("agentpolis"))
         self.roadmaptools = RoadmaptoolsConfig(properties.get("roadmaptools"))
         roadmaptools.config.roadmaptools_config.config = self.roadmaptools
 

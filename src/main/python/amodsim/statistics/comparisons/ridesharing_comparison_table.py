@@ -2,7 +2,7 @@ from amodsim.init import config
 
 import numpy as np
 import roadmaptools.inout
-import amodsim.traffic_load as traffic_load
+import statistics.model.traffic_load as traffic_load
 import amodsim.statistics.model.transit as transit
 import amodsim.statistics.model.edges as edges
 

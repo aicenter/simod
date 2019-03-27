@@ -1,5 +1,5 @@
 
-from amodsim.traffic_load import get_total_load_sum
+from statistics.model.traffic_load import get_total_load_sum
 
 
 def print_load_history(path):

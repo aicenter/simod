@@ -26,7 +26,8 @@ WINDOW_END = config.analysis.chosen_window_end
 color_map = cm.get_cmap('gist_heat')
 
 
-def load_all_edges_load_history(filepath = config.statistics.all_edges_load_history_file_path):
+def load_all_edges_load_history(experiment_dir: str):
+	filepath = experiment_dir + config.statistics.all_edges_load_history_file_name
 	print_info("Loading edge load history from: " + filepath)
 
 	loads = json.load(open(filepath, 'r'))
@@ -57,19 +58,8 @@ def get_total_load_sum(filepath):
 	return total_load, total_load_in_window
 
 
-def load_edges():
-	print_info("loading edges")
-	modifier = "-simplified" if config.simplify_graph else ""
-	# json_file = open(config.amodsim.edges_file_path + modifier + ".json", 'r')
-	# return json.loads(json_file.read())
-	return roadmaptools.inout.load_json(config.edges_file_path + modifier + ".json")
 
-def load_edge_pairs():
-	print_info("loading edge pairs")
-	modifier = "-simplified" if config.amodsim.simplify_graph else ""
-	# jsonFile = open(config.amodsim.edge_pairs_file_path + modifier + ".json", 'r')
-	# return json.loads(jsonFile.read())
-	return roadmaptools.inout.load_json(config.amodsim.edge_pairs_file_path + modifier + ".json")
+
 
 
 # def load_all_edges_load_history():

@@ -1,16 +1,13 @@
 from amodsim.init import config
 
-import json
 import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib.collections as collections
-import sys
 from matplotlib import rcParams
 
 from roadmaptools.printer import print_info, print_table
-from amodsim.traffic_load import WINDOW_START, WINDOW_END, WINDOW_LENGTH, VehiclePhase
+from statistics.model.traffic_load import WINDOW_START, WINDOW_END, WINDOW_LENGTH, VehiclePhase
 from amodsim.utils import to_percetnt, col_to_percent
-import amodsim.traffic_load as traffic_load
+import statistics.model.traffic_load as traffic_load
 
 
 HISTOGRAM_SAMPLES = 16

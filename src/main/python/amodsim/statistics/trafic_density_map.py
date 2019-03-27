@@ -1,17 +1,13 @@
-from amodsim.init import config, roadmaptools_config
+from amodsim.init import config
 
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
-import matplotlib.dates as dates
-import json
-import os
 import itertools
 import numpy as np
+import amodsim.statistics.model.traffic_load as traffic_load
 
+from roadmaptools.printer import print_info
+from amodsim.statistics.model.traffic_load import TrafficDensityLevel, WINDOW_END as CHOSEN_WINDOW_END, WINDOW_START as CHOSEN_WINDOW_START
 
-from scripts.printer import print_info
-from amodsim.traffic_load import TrafficDensityLevel, WINDOW_END as CHOSEN_WINDOW_END, WINDOW_START as CHOSEN_WINDOW_START
-import amodsim.traffic_load as traffic_load
 
 
 SHIFT_DISTANCE = 30

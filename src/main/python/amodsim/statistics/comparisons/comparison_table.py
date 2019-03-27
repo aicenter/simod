@@ -1,15 +1,13 @@
-from amodsim.init import config, roadmaptools_config
+from amodsim.init import config
 
-import json
 import numpy as np
 import roadmaptools.inout
-import amodsim.traffic_load as traffic_load
+import statistics.model.traffic_load as traffic_load
 
-from typing import List, Tuple
-from amodsim.utils import col_to_percent, to_percetnt
+from typing import List
 from scripts.printer import print_table
-from amodsim.traffic_load import VehiclePhase
-from amodsim.statistics.traffic_density_histogram import TrafficDensityHistogram, CONGESTION_INDEX
+from statistics.model.traffic_load import VehiclePhase
+from amodsim.statistics.traffic_density_histogram import TrafficDensityHistogram
 
 
 def compute_stats(result: List, histogram: TrafficDensityHistogram, load) -> List:

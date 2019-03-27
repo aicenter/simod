@@ -5,7 +5,7 @@ Customized colorbars
 
 This example shows how to build colorbars without an attached mappable.
 '''
-from amodsim.traffic_load import TrafficDensityLevel, CRITICAL_DENSITY
+from statistics.model.traffic_load import TrafficDensityLevel, CRITICAL_DENSITY
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl

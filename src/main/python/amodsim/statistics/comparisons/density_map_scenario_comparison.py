@@ -1,37 +1,38 @@
 
-from amodsim.init import config, roadmaptools_config
+from amodsim.init import config
 
 import matplotlib.pyplot as plt
 import numpy as np
-import amodsim.traffic_load as traffic_load
+import amodsim.statistics.model.traffic_load as traffic_load
+import amodsim.statistics.model.edges as edges
 import amodsim.statistics.trafic_density_map as trafic_density_map
 
 from roadmaptools.printer import print_info
 
 
-edgePairs = traffic_load.load_edge_pairs()
+edgePairs = edges.load_edge_pairs()
 
-loads_capacity_1 = traffic_load.load_all_edges_load_history(config.analysis.edge_load_ridesharing_off_filepath)
-
-loads_capacity_5 = traffic_load.load_all_edges_load_history(config.analysis.edge_load_ridesharing_on_filepath)
+loads_1 = traffic_load.load_all_edges_load_history(config.comparison.experiment_1_dir)
+loads_2 = traffic_load.load_all_edges_load_history(config.comparison.experiment_2_dir)
+loads_3 = traffic_load.load_all_edges_load_history(config.comparison.experiment_3_dir)
 
 fig, axis = \
 		plt.subplots(1, 3, sharex=True, sharey=True, subplot_kw={"adjustable": 'box', "aspect": 1.0}, figsize=(12, 3))
 
 np.vectorize(trafic_density_map.set_axis_params)(axis)
 
-axis[0].set_xlabel("a) Present situation")
-axis[1].set_xlabel("b) MoD system deployed")
-axis[2].set_xlabel("c) MoD system with ridesharing")
+axis[0].set_xlabel("a) No Ridesharing")
+axis[1].set_xlabel("b) Insertion Heuristic")
+axis[2].set_xlabel("c) VGA")
 
-print_info("Plotting present sitution load")
-trafic_density_map.plot_edges_optimized(edgePairs, axis[0], loads_capacity_1["DRIVING_TO_TARGET_LOCATION"])
+print_info("Plotting No Ridesharing load")
+trafic_density_map.plot_edges_optimized(edgePairs, axis[0], loads_1["ALL"])
 
-print_info("Plotting MoD load")
-trafic_density_map.plot_edges_optimized(edgePairs, axis[1], loads_capacity_1["ALL"])
+print_info("Plotting Insertion Heuristic load")
+trafic_density_map.plot_edges_optimized(edgePairs, axis[1], loads_2["ALL"])
 
-print_info("Plotting MoD with ridesharing load")
-trafic_density_map.plot_edges_optimized(edgePairs, axis[2], loads_capacity_5["ALL"])
+print_info("Plotting VGA load")
+trafic_density_map.plot_edges_optimized(edgePairs, axis[2], loads_3["ALL"])
 
 # zoom
 plt.axis([14308000, 14578000, 49970000, 50186000])

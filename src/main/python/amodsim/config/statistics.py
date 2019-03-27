@@ -9,6 +9,7 @@ class Statistics:
         self.occupancies_file_path = properties.get("occupancies_file_path")
         self.service_file_name = properties.get("service_file_name")
         self.transit_file_name = properties.get("transit_file_name")
+        self.ridesharing_stats_file_name = properties.get("ridesharing_stats_file_name")
 
 
         pass

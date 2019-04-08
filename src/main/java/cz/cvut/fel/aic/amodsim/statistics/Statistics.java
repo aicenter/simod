@@ -421,16 +421,23 @@ public class Statistics extends AliteEntity implements EventHandler{
 			// header line
 			if(config.ridesharing.method.equals("vga")){
 				
-				RidesharingBatchStatsVGA firstStat = (RidesharingBatchStatsVGA) dARPSolver.getRidesharingStats().get(0);
+				RidesharingBatchStatsVGA longestGroupStat 
+						= (RidesharingBatchStatsVGA) dARPSolver.getRidesharingStats().get(0);
+				for(RidesharingBatchStats stat: dARPSolver.getRidesharingStats()){
+					RidesharingBatchStatsVGA statVga = (RidesharingBatchStatsVGA) stat;
+					if(statVga.groupSizeData.length > longestGroupStat.groupSizeData.length){
+						longestGroupStat = statVga;
+					}
+				}
 				
 				List<String> writerLine = new ArrayList(Arrays.asList("Batch", "New Request Count", "Active Request Count", 
 						"Group Generation Time", "Solver Time"));
 				
-				for(int i = 0; i < firstStat.groupSizeData.length; i++){
+				for(int i = 0; i < longestGroupStat.groupSizeData.length; i++){
 					writerLine.add(String.format("%s Groups Count", i + 1));
 					writerLine.add(String.format("%s Groups Total Time", i + 1));
 				}
-				for(int i = 0; i < firstStat.groupSizeData.length; i++){
+				for(int i = 0; i < longestGroupStat.groupSizeData.length; i++){
 					writerLine.add(String.format("%s Feasible Groups Count", i + 1));
 					writerLine.add(String.format("%s Feasible Groups Total Time", i + 1));
 				}

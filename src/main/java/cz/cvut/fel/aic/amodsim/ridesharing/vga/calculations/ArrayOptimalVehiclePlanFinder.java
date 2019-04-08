@@ -156,6 +156,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 								int discomfort = endTime - request.getOriginTime() - request.getMinTravelTime();
 								newActionData.setDiscomfort(discomfort);
 								totalDiscomfort += discomfort;
+								onBoardCount--;
 							}
 							else{
 								onBoardCount++;
@@ -194,6 +195,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 						}
 						if(lastActionData.getAction() instanceof PlanActionDropoff){
 							totalDiscomfort -= lastActionData.getDiscomfort();
+							onBoardCount++;
 						}
 						else{
 							onBoardCount--;

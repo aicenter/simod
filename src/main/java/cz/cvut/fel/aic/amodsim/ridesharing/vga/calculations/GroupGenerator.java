@@ -4,6 +4,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.utils.Benchmark;
+import cz.cvut.fel.aic.agentpolis.utils.FlexArray;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
 import java.util.ArrayList;
@@ -21,11 +22,9 @@ import org.slf4j.LoggerFactory;
 public class GroupGenerator<V extends IOptimalPlanVehicle> {
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GroupGenerator.class);
-	
-	private static final int GROUP_STATS_SIZE_BUFFER = 1;
 
-	
-	public final int maxestimatedGroupSize;
+
+
 	
 	private final OptimalVehiclePlanFinder optimalVehiclePlanFinder;
 	
@@ -34,27 +33,27 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 	private final boolean recordTime;
 	
 	
-	private int[] groupCounts;
+	private FlexArray groupCounts;
 	
-	private int[] groupCountsPlanExists;
+	private FlexArray groupCountsPlanExists;
 	
-	private int[] computationalTimes;
+	private FlexArray computationalTimes;
 	
-	private int[] computationalTimesPlanExists;
+	private FlexArray computationalTimesPlanExists;
 
-	public int[] getGroupCounts() {
+	public FlexArray getGroupCounts() {
 		return groupCounts;
 	}
 
-	public int[] getGroupCountsPlanExists() {
+	public FlexArray getGroupCountsPlanExists() {
 		return groupCountsPlanExists;
 	}
 
-	public int[] getComputationalTimes() {
+	public FlexArray getComputationalTimes() {
 		return computationalTimes;
 	}
 
-	public int[] getComputationalTimesPlanExists() {
+	public FlexArray getComputationalTimesPlanExists() {
 		return computationalTimesPlanExists;
 	}
 	
@@ -66,17 +65,17 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		this.optimalVehiclePlanFinder = optimalVehiclePlanFinder;
 		vehicleCapacity = config.ridesharing.vehicleCapacity;
 		recordTime = config.ridesharing.vga.logPlanComputationalTime;
-		maxestimatedGroupSize = vehicleCapacity + GROUP_STATS_SIZE_BUFFER;
 	}
 
     public List<Plan> generateGroupsForVehicle(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime) {
 		
 		// statistics
 		if(recordTime){
-			groupCounts = new int[maxestimatedGroupSize];
-			groupCountsPlanExists = new int[maxestimatedGroupSize];
-			computationalTimes = new int[maxestimatedGroupSize];
-			computationalTimesPlanExists = new int[maxestimatedGroupSize];
+			int size = vehicle.getRequestsOnBoard().size() + 1;
+			groupCounts = new FlexArray(size);
+			groupCountsPlanExists = new FlexArray(size);
+			computationalTimes = new FlexArray(size);
+			computationalTimesPlanExists = new FlexArray(size);
 		}
 		
 		// F_v^{k - 1} - groupes for request adding
@@ -103,12 +102,12 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 			// currently, the time window has to be ignored, because the planner underestimates the cost
 			Plan initialPlan;
 			if(recordTime){
-				groupCounts[group.size() - 1]++;
-				groupCountsPlanExists[group.size() - 1]++;
+				groupCounts.increment(group.size() - 1);
+				groupCountsPlanExists.increment(group.size() - 1);
 				initialPlan = Benchmark.measureTime(() -> 
 						optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(vehicle, group, startTime, true));
-				computationalTimes[group.size() - 1] += Benchmark.getDurationMsInt();
-				computationalTimesPlanExists[group.size() - 1] += Benchmark.getDurationMsInt();
+				computationalTimes.increment(group.size() - 1, Benchmark.getDurationMsInt());
+				computationalTimesPlanExists.increment(group.size() - 1, Benchmark.getDurationMsInt());
 			}
 			else{
 				initialPlan 
@@ -131,15 +130,15 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 
 			Plan plan;
 			if(recordTime){
-				groupCounts[group.size() - 1]++;
+				groupCounts.increment(group.size() - 1);
 				plan = Benchmark.measureTime(() -> 
 						optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(vehicle, group, startTime, false));
 				int timeInMs = Benchmark.getDurationMsInt();
 				if(plan != null){
-					groupCountsPlanExists[group.size() - 1]++;
-					computationalTimesPlanExists[group.size() - 1] += timeInMs;
+					groupCountsPlanExists.increment(group.size() - 1);
+					computationalTimesPlanExists.increment(group.size() - 1, timeInMs);
 				}			
-				computationalTimes[group.size() - 1] += timeInMs;
+				computationalTimes.increment(group.size() - 1, timeInMs);
 			}
 			else{
 				plan = optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(vehicle, group, startTime, false);
@@ -195,16 +194,16 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 						Plan plan ;
 						
 						if(recordTime){
-							groupCounts[newGroupToCheck.size() - 1]++;
+							groupCounts.increment(newGroupToCheck.size() - 1);
 							plan = Benchmark.measureTime(() -> 
 									optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
 											vehicle, newGroupToCheck, startTime, false));
 							int timeInMs = Benchmark.getDurationMsInt();
 							if(plan != null){
-								groupCountsPlanExists[newGroupToCheck.size() - 1]++;
-								computationalTimesPlanExists[newGroupToCheck.size() - 1] += timeInMs;
+								groupCountsPlanExists.increment(newGroupToCheck.size() - 1);
+								computationalTimesPlanExists.increment(newGroupToCheck.size() - 1, timeInMs);
 							}
-							computationalTimes[newGroupToCheck.size() - 1] += timeInMs;	
+							computationalTimes.increment(newGroupToCheck.size() - 1, timeInMs);
 						}
 						else{
 							plan = optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(

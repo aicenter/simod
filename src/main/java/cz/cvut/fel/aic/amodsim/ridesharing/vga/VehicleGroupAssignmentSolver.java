@@ -7,8 +7,8 @@ import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.CollectionUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.agentpolis.utils.ArrayUtil;
 import cz.cvut.fel.aic.agentpolis.utils.Benchmark;
+import cz.cvut.fel.aic.agentpolis.utils.FlexArray;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
@@ -97,13 +97,13 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	
 	private int newRequestCount;
 	
-	private int[] groupCounts;
+	private FlexArray groupCounts;
 	
-	private int[] groupCountsPlanExists;
+	private FlexArray groupCountsPlanExists;
 	
-	private int[] computationalTimes;
+	private FlexArray computationalTimes;
 	
-	private int[] computationalTimesPlanExists;
+	private FlexArray computationalTimesPlanExists;
 
 	
 	
@@ -137,10 +137,10 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		// statistic vars
 		newRequestCount = requests.size();
 		if(config.ridesharing.vga.logPlanComputationalTime){
-			groupCounts = new int[groupGenerator.maxestimatedGroupSize];
-			groupCountsPlanExists = new int[groupGenerator.maxestimatedGroupSize];
-			computationalTimes = new int[groupGenerator.maxestimatedGroupSize];
-			computationalTimesPlanExists = new int[groupGenerator.maxestimatedGroupSize];
+			groupCounts = new FlexArray();
+			groupCountsPlanExists =new  FlexArray();
+			computationalTimes = new FlexArray();
+			computationalTimesPlanExists = new FlexArray();
 		}
 		
 		logRecords = new ArrayList<>();
@@ -333,11 +333,10 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 	private void logPlansPerVehicle(VGAVehicle vehicle, List<Plan> feasibleGroupPlans, long totalTimeNano) {
 		// group generator statistic addition
-		ArrayUtil.addArraysInPlace(groupCounts, groupGenerator.getGroupCounts());
-		ArrayUtil.addArraysInPlace(groupCountsPlanExists, groupGenerator.getGroupCountsPlanExists());
-		ArrayUtil.addArraysInPlace(computationalTimes, groupGenerator.getComputationalTimes());
-		ArrayUtil.addArraysInPlace(computationalTimesPlanExists, 
-				groupGenerator.getComputationalTimesPlanExists());	
+		groupCounts.addArrayInPlace(groupGenerator.getGroupCounts());
+		groupCountsPlanExists.addArrayInPlace(groupGenerator.getGroupCountsPlanExists());
+		computationalTimes.addArrayInPlace(groupGenerator.getComputationalTimes());
+		computationalTimesPlanExists.addArrayInPlace(groupGenerator.getComputationalTimesPlanExists());	
 		
 		List<String> record = new ArrayList<>(5);
 		record.add(Integer.toString(startTime));
@@ -345,8 +344,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		record.add(Long.toString(Math.round(totalTimeNano / MILLION)));
 		record.add(Integer.toString(vehicle.getRequestsOnBoard().size()));
 		
-		int actionCount = 13;
-		int[] counts = new int[actionCount];
+		int maxActionCount = groupCountsPlanExists.size() * 2 + 1;
+		int[] counts = new int[maxActionCount];
 		for (int i = 0; i < counts.length; i++) {
 			counts[i] = 0;
 			
@@ -366,12 +365,12 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 	private void logRecords() {
 		
-		GroupSizeData[] groupSizeDataForAllGroupSizes = new GroupSizeData[groupGenerator.getGroupCounts().length];
-		GroupSizeData[] groupSizeDataForAllGroupSizesPlanExists = new GroupSizeData[groupGenerator.getGroupCounts().length];
-		for(int i = 0; i < groupGenerator.getGroupCounts().length; i++){
-			groupSizeDataForAllGroupSizes[i] = new GroupSizeData(computationalTimes[i], groupCounts[i]);
+		GroupSizeData[] groupSizeDataForAllGroupSizes = new GroupSizeData[groupGenerator.getGroupCounts().size()];
+		GroupSizeData[] groupSizeDataForAllGroupSizesPlanExists = new GroupSizeData[groupGenerator.getGroupCounts().size()];
+		for(int i = 0; i < groupGenerator.getGroupCounts().size(); i++){
+			groupSizeDataForAllGroupSizes[i] = new GroupSizeData(computationalTimes.get(i), groupCounts.get(i));
 			groupSizeDataForAllGroupSizesPlanExists[i] = new GroupSizeData(
-					computationalTimesPlanExists[i], groupCountsPlanExists[i]);
+					computationalTimesPlanExists.get(i), groupCountsPlanExists.get(i));
 		}
 		
 		// batch records

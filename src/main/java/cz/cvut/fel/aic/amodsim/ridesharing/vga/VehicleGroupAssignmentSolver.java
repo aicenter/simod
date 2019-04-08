@@ -218,7 +218,9 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
         VGAVehicle.resetMapping();
 		
-		logRecords();
+		if(config.ridesharing.vga.logPlanComputationalTime){
+			logRecords();
+		}
 		
 		// check if all driving vehicles have a plan
 		checkPlanMapComplete(planMap);
@@ -306,7 +308,9 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 					groupGenerator.generateGroupsForVehicle(vehicle, waitingRequests, startTime));
 		
 		// log
-		logPlansPerVehicle(vehicle, feasibleGroupPlans, Benchmark.durationNano);
+		if(config.ridesharing.vga.logPlanComputationalTime){
+			logPlansPerVehicle(vehicle, feasibleGroupPlans, Benchmark.durationNano);
+		}
 		
 		return feasibleGroupPlans;
 	}

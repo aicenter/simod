@@ -8,6 +8,7 @@ package cz.agents.amodsim.ridesharing.vga.common;
 import cz.agents.amodsim.ridesharing.EventOrderStorage;
 import cz.agents.amodsim.ridesharing.RidesharingEventData;
 import com.google.inject.Injector;
+import cz.agents.amodsim.ridesharing.RidesharingTestEnvironment;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
@@ -33,12 +34,13 @@ import org.junit.Assert;
  *
  * @author David Fiedler
  */
-public class VGASystemTestScenario {
+public class VGASystemTestScenario implements RidesharingTestEnvironment{
 	
 	public final AmodsimConfig config;
 	
 	private final Injector injector;
 
+	@Override
 	public Injector getInjector() {
 		return injector;
 	}
@@ -65,6 +67,7 @@ public class VGASystemTestScenario {
 	
 	
 	
+	@Override
 	public void run(Graph<SimulationNode, SimulationEdge> graph, List<TimeTrip<SimulationNode>> trips,
 			List<SimulationNode> vehicalInitPositions, List<RidesharingEventData> expectedEvents) throws Throwable{
 
@@ -107,6 +110,11 @@ public class VGASystemTestScenario {
 			Assert.assertEquals(expectedEvent.eventType, event.getType());
 		}
     }
+
+	@Override
+	public AmodsimConfig getConfig() {
+		return config;
+	}
 	
 	
 }

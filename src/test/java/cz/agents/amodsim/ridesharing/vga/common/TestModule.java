@@ -30,9 +30,11 @@ import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.EuclideanTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher;
 import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingOnDemandVehicleFactory;
+import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
@@ -69,6 +71,7 @@ public class TestModule extends StandardAgentPolisModule{
 		bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
 		bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
 		bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
+		bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
 		install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
 				.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
 		bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);

@@ -5,9 +5,9 @@ import numpy as np
 from matplotlib import rcParams
 
 from roadmaptools.printer import print_info, print_table
-from statistics.model.traffic_load import WINDOW_START, WINDOW_END, WINDOW_LENGTH, VehiclePhase
+from amodsim.statistics.model.traffic_load import WINDOW_START, WINDOW_END, WINDOW_LENGTH, VehiclePhase
 from amodsim.utils import to_percetnt, col_to_percent
-import statistics.model.traffic_load as traffic_load
+import amodsim.statistics.model.traffic_load as traffic_load
 
 
 HISTOGRAM_SAMPLES = 16

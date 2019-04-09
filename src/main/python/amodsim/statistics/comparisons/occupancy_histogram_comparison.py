@@ -2,17 +2,17 @@ from amodsim.init import config
 
 import numpy as np
 import matplotlib.pyplot as plt
+import datetime
 import roadmaptools.inout
 import amodsim.statistics.model.occupancy as occupancy
 
+from matplotlib.ticker import FuncFormatter
 
-# occupancies
-# occupancies_1 = roadmaptools.inout.load_csv(
-# 	config.comparison.experiment_1_dir + config.statistics.occupancies_file_name, delimiter=',')
-# occupancies_2 = roadmaptools.inout.load_csv(
-# 	config.comparison.experiment_2_dir + config.statistics.occupancies_file_name, delimiter=',')
-# occupancies_3 = roadmaptools.inout.load_csv(
-# 	config.comparison.experiment_3_dir + config.statistics.occupancies_file_name, delimiter=',')
+
+def format_time(minutes: int, position) -> str:
+	# return str(datetime.timedelta(minutes=minutes))
+	return str(int(round(minutes / 60)))
+
 
 data_1 = occupancy.load(config.comparison.experiment_1_dir)
 data_2 = occupancy.load(config.comparison.experiment_2_dir)
@@ -28,12 +28,19 @@ occupancies_in_window_3 = occupancy.get_occupancies(data_3, True)
 
 bins = np.arange(-0.5, 6.5, 1)
 
+
 fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))
 axes.hist([occupancies_1, occupancies_2, occupancies_3], bins, label=['No Ridesharing', 'Insertion Heuristic', 'VGA'])
+axes.yaxis.set_ticks(np.arange(0, 1200001, 120000))
+axes.yaxis.set_major_formatter(FuncFormatter(format_time))
+axes.set_ylabel("vehicle hours")
 
 fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))
 axes.hist([occupancies_in_window_1, occupancies_in_window_2, occupancies_in_window_3], bins,
 		  label=['No Ridesharing', 'Insertion Heuristic', 'VGA'])
+axes.yaxis.set_ticks(np.arange(0, 840001, 120000))
+axes.yaxis.set_major_formatter(FuncFormatter(format_time))
+axes.set_ylabel("vehicle hours")
 
 plt.legend(loc='upper right')
 

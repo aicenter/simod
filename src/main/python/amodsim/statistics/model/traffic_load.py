@@ -26,8 +26,7 @@ WINDOW_END = config.analysis.chosen_window_end
 color_map = cm.get_cmap('gist_heat')
 
 
-def load_all_edges_load_history(experiment_dir: str):
-	filepath = experiment_dir + config.statistics.all_edges_load_history_file_name
+def load_all_edges_load_history(filepath: str):
 	print_info("Loading edge load history from: " + filepath)
 
 	loads = json.load(open(filepath, 'r'))
@@ -58,10 +57,6 @@ def get_total_load_sum(filepath):
 	return total_load, total_load_in_window
 
 
-
-
-
-
 # def load_all_edges_load_history():
 #     print_info("loading edge load history")
 #     json_file = open(config.agentpolis.statistics.all_edges_load_history_file_path, 'r')
@@ -72,15 +67,6 @@ def get_total_load_sum(filepath):
 #             for edge_name in timestep:
 #                 timestep[edge_name] *= config.analysis.trips_multiplier
 #     return loads
-
-
-def load_edges_mapped_by_id():
-	edges = load_edges()
-	edges_mapped_by_id = {}
-	for edge in edges:
-		edges_mapped_by_id[edge["id"]] = edge
-
-	return edges_mapped_by_id
 
 
 def get_normalized_load(load, length, lane_count):

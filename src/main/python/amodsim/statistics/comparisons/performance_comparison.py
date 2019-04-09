@@ -16,6 +16,9 @@ axes.plot(vga_stats['Batch'], (vga_stats['Group Generation Time'] + vga_stats['S
 
 axes.legend(['No Ridesharing', 'Insertion Heuristic', 'VGA'])
 
+axes.set_xlabel("batch")
+axes.set_ylabel("computational time [s]")
+
 plt.savefig(config.images.ridesharing_performance_comparison, bbox_inches='tight', transparent=True)
 
 plt.show()

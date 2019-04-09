@@ -21,6 +21,8 @@ class AmodsimConfig(Config):
         self.simplify_graph = properties.get("simplify_graph")
         self.edges_file_path = properties.get("edges_file_path")
         self.edge_pairs_file_path = properties.get("edge_pairs_file_path")
+        self.trips_filename = properties.get("trips_filename")
+        self.trips_path = properties.get("trips_path")
 
         self.statistics = Statistics(properties.get("statistics"))
         self.analysis = Analysis(properties.get("analysis"))

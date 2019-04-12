@@ -375,8 +375,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		
 		// batch records
 		RidesharingBatchStatsVGA batchStatsVGA = new RidesharingBatchStatsVGA(activeRequests.size(), 
-				groupGenerationTime, solverTime, groupSizeDataForAllGroupSizes, groupSizeDataForAllGroupSizesPlanExists,
-				newRequestCount);
+				groupGenerationTime, solverTime, gurobiSolver.getGap(), groupSizeDataForAllGroupSizes, 
+				groupSizeDataForAllGroupSizesPlanExists, newRequestCount);
 		ridesharingStats.add(batchStatsVGA);
 		
 		// per vehicle records

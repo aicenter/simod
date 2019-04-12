@@ -51,6 +51,14 @@ public class GurobiSolver {
 	
 	int iteration;
 	
+	double gap;
+
+	
+	
+	
+	public double getGap() {
+		return gap;
+	}
 	
 	
 	
@@ -173,8 +181,11 @@ public class GurobiSolver {
 			
 			/* MODEL CONFIG AND RUN */
 			
-			// solution can be 1% worse than the optimal solution
-			model.set(GRB.DoubleParam.MIPGap, 0.01);
+//			// solution can be 1% worse than the optimal solution
+//			model.set(GRB.DoubleParam.MIPGap, 0.01);
+		
+			// 2 min limit
+			model.set(GRB.DoubleParam.TimeLimit, 120);
 			
 			LOGGER.info("solving start");
 			model.optimize();
@@ -194,6 +205,8 @@ public class GurobiSolver {
 					optimalPlans.add(plan);
 				}
 			}
+			
+			gap = model.get(GRB.DoubleAttr.MIPGap);
 			
 			model.dispose();
 			

@@ -5,8 +5,6 @@
  */
 package cz.cvut.fel.aic.amodsim.statistics.content;
 
-import java.util.Map;
-
 /**
  *
  * @author david
@@ -18,16 +16,19 @@ public class RidesharingBatchStatsVGA extends RidesharingBatchStats{
 	
 	public final int solverTime;
 	
+	public final double gap;
+	
 	public final GroupSizeData[] groupSizeData;
 	
 	public final GroupSizeData[] groupSizeDataPlanExists;
 
-	public RidesharingBatchStatsVGA(int activeRequestCount, int groupGenerationTime, int solverTime, 
+	public RidesharingBatchStatsVGA(int activeRequestCount, int groupGenerationTime, int solverTime,  double gap,
 			GroupSizeData[] groupSizeData, GroupSizeData[] groupSizeDataPlanExists, int newRequestCount) {
 		super(newRequestCount);
 		this.activeRequestCount = activeRequestCount;
 		this.groupGenerationTime = groupGenerationTime;
 		this.solverTime = solverTime;
+		this.gap = gap;
 		this.groupSizeData = groupSizeData;
 		this.groupSizeDataPlanExists = groupSizeDataPlanExists;
 	}

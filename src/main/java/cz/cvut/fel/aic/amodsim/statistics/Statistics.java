@@ -431,7 +431,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 				}
 				
 				List<String> writerLine = new ArrayList(Arrays.asList("Batch", "New Request Count", "Active Request Count", 
-						"Group Generation Time", "Solver Time"));
+						"Group Generation Time", "Solver Time", "Solver gap"));
 				
 				for(int i = 0; i < longestGroupStat.groupSizeData.length; i++){
 					writerLine.add(String.format("%s Groups Count", i + 1));
@@ -459,6 +459,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 					writerLine.add(Integer.toString(vgaStat.activeRequestCount));
 					writerLine.add(Integer.toString(vgaStat.groupGenerationTime));
 					writerLine.add(Integer.toString(vgaStat.solverTime));
+					writerLine.add(Double.toString(vgaStat.gap));
 					
 					for(int i = 0; i < vgaStat.groupSizeData.length; i++){
 						writerLine.add(Integer.toString(vgaStat.groupSizeData[i].groupCount));

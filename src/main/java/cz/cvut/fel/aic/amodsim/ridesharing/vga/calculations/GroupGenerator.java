@@ -32,6 +32,8 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 	
 	private final boolean recordTime;
 	
+	private final int maxGroupSize;
+	
 	
 	private FlexArray groupCounts;
 	
@@ -65,6 +67,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		this.optimalVehiclePlanFinder = optimalVehiclePlanFinder;
 		vehicleCapacity = config.ridesharing.vehicleCapacity;
 		recordTime = config.ridesharing.vga.logPlanComputationalTime;
+		maxGroupSize = config.ridesharing.vga.maxGroupSize;
 	}
 
     public List<Plan> generateGroupsForVehicle(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime) {
@@ -157,7 +160,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		
 		// generate other groups
 		int currentGroupSize = 1;
-        while(!currentGroups.isEmpty()) {
+        while(!currentGroups.isEmpty() && (maxGroupSize == 0 || currentGroupSize < maxGroupSize)) {
 
 			// current groups for the next iteration
             Set<GroupData> newCurrentGroups = new LinkedHashSet<>();
@@ -229,14 +232,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 
             currentGroups = newCurrentGroups;
 			currentGroupSize++;
-//			LOGGER.debug("{} groups of the size {} generated", currentGroups.size(), currentGroupSize);
-//			if(currentGroupSize >= 2){
-//				break;
-//			}
-			}
-
-//		LOGGER.debug("Groups generated, total number of groups is {}", groups.size());
-		
+		}
         return groupPlans;
     }
 	

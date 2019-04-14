@@ -67,6 +67,9 @@ results_insertion_heuristic\
 results_vga \
 	= roadmaptools.inout.load_json(config.comparison.experiment_3_dir + config.statistics.result_file_name)
 
+results_vga_group_limit \
+	= roadmaptools.inout.load_json(config.comparison.experiment_4_dir + config.statistics.result_file_name)
+
 # traffic load
 loads_no_ridesharing = traffic_load.load_all_edges_load_history(
 	config.comparison.experiment_1_dir + config.statistics.all_edges_load_history_file_name)
@@ -74,6 +77,8 @@ loads_insertion_heuristic = traffic_load.load_all_edges_load_history(
 	config.comparison.experiment_2_dir + config.statistics.all_edges_load_history_file_name)
 loads_vga = traffic_load.load_all_edges_load_history(
 	config.comparison.experiment_3_dir + config.statistics.all_edges_load_history_file_name)
+loads_vga_group_limit = traffic_load.load_all_edges_load_history(
+	config.comparison.experiment_4_dir + config.statistics.all_edges_load_history_file_name)
 
 histogram = TrafficDensityHistogram(edge_object_data)
 
@@ -84,6 +89,8 @@ occupancies_2 = roadmaptools.inout.load_csv(
 	config.comparison.experiment_2_dir + config.statistics.occupancies_file_name, delimiter=',')
 occupancies_3 = roadmaptools.inout.load_csv(
 	config.comparison.experiment_3_dir + config.statistics.occupancies_file_name, delimiter=',')
+occupancies_4 = roadmaptools.inout.load_csv(
+	config.comparison.experiment_4_dir + config.statistics.occupancies_file_name, delimiter=',')
 
 
 # compute data for output from result
@@ -94,15 +101,17 @@ insertion_heuristic_data\
 					config.comparison.experiment_2_dir, edge_data)
 vga_data = compute_stats(results_vga, histogram, loads_vga["ALL"], occupancies_3, config.comparison.experiment_3_dir,
 						 edge_data)
+vga_limited_data = compute_stats(results_vga_group_limit, histogram, loads_vga_group_limit["ALL"], occupancies_4, config.comparison.experiment_4_dir,
+						 edge_data)
 
-output_table = np.array([["X", "NO RIDESHARING", "INSERTION HEURISTIC", "VGA"],
-						 ["Total veh. dist. traveled (km)", no_ridesharing_data[0], insertion_heuristic_data[0], vga_data[0]],
-						 ["avg. density", no_ridesharing_data[1], insertion_heuristic_data[1], vga_data[1]],
-						 ["cong. segments count", no_ridesharing_data[2], insertion_heuristic_data[2], vga_data[2]],
-						 ["dropped demand count", no_ridesharing_data[3], insertion_heuristic_data[3], vga_data[3]],
-						 ["half congested edges", no_ridesharing_data[4], insertion_heuristic_data[4], vga_data[4]],
-						 ["used car count", no_ridesharing_data[5], insertion_heuristic_data[5], vga_data[5]],
-						 ["avg. comp. time", no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6]]])
+output_table = np.array([["X", "NO RIDESHARING", "INSERTION HEURISTIC", "VGA", "VGA limited"],
+						 ["Total veh. dist. traveled (km)", no_ridesharing_data[0], insertion_heuristic_data[0], vga_data[0], vga_limited_data[0]],
+						 ["avg. density", no_ridesharing_data[1], insertion_heuristic_data[1], vga_data[1], vga_limited_data[1]],
+						 ["cong. segments count", no_ridesharing_data[2], insertion_heuristic_data[2], vga_data[2], vga_limited_data[2]],
+						 ["dropped demand count", no_ridesharing_data[3], insertion_heuristic_data[3], vga_data[3], vga_limited_data[3]],
+						 ["half congested edges", no_ridesharing_data[4], insertion_heuristic_data[4], vga_data[4], vga_limited_data[4]],
+						 ["used car count", no_ridesharing_data[5], insertion_heuristic_data[5], vga_data[5], vga_limited_data[5]],
+						 ["avg. comp. time", no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6], vga_limited_data[6]]])
 
 # console results
 print("COMPARISON:")
@@ -112,28 +121,34 @@ print_table(output_table)
 
 # latex table
 print("Latex code:")
-print(r"\begin{tabular}{|c|c|c|c|}")
+print(r"\begin{tabular}{|c|c|c|c|c|}")
 print(r"\hline")
-print(" & No Ridesharing & Insertion Heuristic & VGA")
+print(" & No Ridesharing & IH & VGA & VGA lim")
 print(r"\tabularnewline")
 print(r"\hline")
 print(r"\hline")
-print("Total veh. dist. traveled (km) & {} & {} & {}".format(round(no_ridesharing_data[0], 1), round(insertion_heuristic_data[0], 1), round(vga_data[0], 1)))
+print("Total veh. dist. (km) & {} & {} & {} & {}".format(round(no_ridesharing_data[0], 1),
+	round(insertion_heuristic_data[0], 1), round(vga_data[0], 1), round(vga_limited_data[0], 1)))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Avg. density (veh/km) & {} & {} & {}".format(round(no_ridesharing_data[1], 4), round(insertion_heuristic_data[1], 4), round(vga_data[1], 4)))
+print("Avg. density (veh/km) & {} & {} & {} & {}".format(round(no_ridesharing_data[1], 4),
+	 round(insertion_heuristic_data[1], 4), round(vga_data[1], 4), round(vga_limited_data[1], 4)))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Congested segments & {} & {} & {}".format(no_ridesharing_data[2], insertion_heuristic_data[2], vga_data[2]))
+print("Congested seg. & {} & {} & {} & {}".format(no_ridesharing_data[2], insertion_heuristic_data[2], vga_data[2],
+	vga_limited_data[2] ))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Heavily loaded segments & {} & {} & {}".format(round(no_ridesharing_data[4], 1), round(insertion_heuristic_data[4], 1), round(vga_data[4], 1)))
+print("Heavily loaded seg. & {} & {} & {} & {}".format(round(no_ridesharing_data[4], 1),
+	round(insertion_heuristic_data[4], 1), round(vga_data[4], 1), round(vga_limited_data[4], 1)))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Used Vehicles & {} & {} & {}".format(no_ridesharing_data[5], insertion_heuristic_data[5], vga_data[5]))
+print("Used Vehicles & {} & {} & {} & {}".format(no_ridesharing_data[5], insertion_heuristic_data[5], vga_data[5],
+	vga_data[5]))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Avg. comp. time & {} & {} & {}".format(no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6]))
+print("Avg. comp. time & {} & {} & {} & {}".format(no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6],
+	vga_data[6]))
 print(r"\tabularnewline")
 print(r"\hline")
 print(r"\end{tabular}")

@@ -34,6 +34,8 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 	
 	private final int maxGroupSize;
 	
+	private final long groupGenerationTimeLimit;
+	
 	
 	private FlexArray groupCounts;
 	
@@ -68,9 +70,13 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		vehicleCapacity = config.ridesharing.vehicleCapacity;
 		recordTime = config.ridesharing.vga.logPlanComputationalTime;
 		maxGroupSize = config.ridesharing.vga.maxGroupSize;
+		groupGenerationTimeLimit = config.ridesharing.vga.groupGenerationTimeLimit * 1000;
 	}
 
     public List<Plan> generateGroupsForVehicle(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime) {
+		
+		long group_generation_start_time = System.nanoTime();
+		boolean stop = false;
 		
 		// statistics
 		if(recordTime){
@@ -160,7 +166,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		
 		// generate other groups
 		int currentGroupSize = 1;
-        while(!currentGroups.isEmpty() && (maxGroupSize == 0 || currentGroupSize < maxGroupSize)) {
+        while(!currentGroups.isEmpty() && (maxGroupSize == 0 || currentGroupSize < maxGroupSize) && !stop) {
 
 			// current groups for the next iteration
             Set<GroupData> newCurrentGroups = new LinkedHashSet<>();
@@ -196,6 +202,14 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 
 						Plan plan ;
 						
+						if(groupGenerationTimeLimit > 0){
+							long currentDuration = System.nanoTime() - group_generation_start_time;
+							if(currentDuration > groupGenerationTimeLimit){
+								stop = true;
+								break;
+							}
+						}
+						
 						if(recordTime){
 							groupCounts.increment(newGroupToCheck.size() - 1);
 							plan = Benchmark.measureTime(() -> 
@@ -228,6 +242,9 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 						}
 					}
                 }
+				if(stop){
+					break;
+				}
             }
 
             currentGroups = newCurrentGroups;

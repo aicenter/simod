@@ -13,9 +13,9 @@ HISTOGRAM_SAMPLES = 96
 
 
 def format_timestamps(tick, tick_index):
-    hours, rem = divmod(tick_index * tick_interval, HISTOGRAM_SAMPLES / HOURS_IN_DAY)
-    minutes = rem * MINUTES_IN_HOUR / (HISTOGRAM_SAMPLES / HOURS_IN_DAY)
-    return "{:0>2}:{:0>2}".format(int(hours), int(minutes))
+	hours, rem = divmod(tick_index * tick_interval, HISTOGRAM_SAMPLES / HOURS_IN_DAY)
+	minutes = rem * MINUTES_IN_HOUR / (HISTOGRAM_SAMPLES / HOURS_IN_DAY)
+	return "{:0>2}:{:0>2}".format(int(hours), int(minutes))
 
 
 trips_data = trips.load()

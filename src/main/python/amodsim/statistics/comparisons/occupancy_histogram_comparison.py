@@ -32,20 +32,28 @@ occupancies_in_window_4 = occupancy.get_occupancies(data_4, True)
 
 bins = np.arange(-0.5, 6.5, 1)
 
+hatches = ['\\\\', '//', '++', '**']
+
 
 fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))
-axes.hist([occupancies_1, occupancies_2, occupancies_3, occupancies_4], bins,
+_n, _bins, patches = axes.hist([occupancies_1, occupancies_2, occupancies_3, occupancies_4], bins,
 		  label=['No Ridesharing', 'Insertion Heuristic', 'VGA', 'VGA limited'])
 axes.yaxis.set_ticks(np.arange(0, 1200001, 120000))
 axes.yaxis.set_major_formatter(FuncFormatter(format_time))
 axes.set_ylabel("vehicle hours")
 
+for patch_set, hatch in zip(patches, hatches):
+	plt.setp(patch_set, hatch=hatch)
+
 fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))
-axes.hist([occupancies_in_window_1, occupancies_in_window_2, occupancies_in_window_3, occupancies_in_window_4], bins,
+_n, _bins, patches = axes.hist([occupancies_in_window_1, occupancies_in_window_2, occupancies_in_window_3, occupancies_in_window_4], bins,
 		  label=['No Ridesharing', 'Insertion Heuristic', 'VGA', 'VGA limited'])
 axes.yaxis.set_ticks(np.arange(0, 840001, 120000))
 axes.yaxis.set_major_formatter(FuncFormatter(format_time))
 axes.set_ylabel("vehicle hours")
+
+for patch_set, hatch in zip(patches, hatches):
+	plt.setp(patch_set, hatch=hatch)
 
 plt.legend(loc='upper right')
 

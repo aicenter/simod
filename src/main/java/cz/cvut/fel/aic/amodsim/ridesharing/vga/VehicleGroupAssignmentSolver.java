@@ -369,6 +369,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		GroupSizeData[] groupSizeDataForAllGroupSizesPlanExists = new GroupSizeData[groupCounts.size()];
 		for(int i = 0; i < groupCounts.size(); i++){
 			groupSizeDataForAllGroupSizes[i] = new GroupSizeData(computationalTimes.get(i), groupCounts.get(i));
+		}
+		for(int i = 0; i < groupCountsPlanExists.size(); i++){
 			groupSizeDataForAllGroupSizesPlanExists[i] = new GroupSizeData(
 					computationalTimesPlanExists.get(i), groupCountsPlanExists.get(i));
 		}

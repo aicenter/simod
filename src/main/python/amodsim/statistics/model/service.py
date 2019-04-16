@@ -15,9 +15,11 @@ def load_dataframe(experiment_dir: str) -> DataFrame:
 	return service_data
 
 
-def get_delays(service: DataFrame, window_only: bool = False) -> DataFrame:
+def get_delays(service: DataFrame, window_only: bool = False, in_minutes: int = True) -> DataFrame:
 	if window_only:
 		start_demand_time = config.analysis.chosen_window_start * MILLISECONDS_IN_DENSITY_PERIOD
 		service = service[service["demand_time"] >= start_demand_time]
 	delays = service["dropoff_time"] - service["demand_time"] - service["min_possible_delay"]
-	return delays / 60000
+	if in_minutes:
+		delays = delays / 60000
+	return delays

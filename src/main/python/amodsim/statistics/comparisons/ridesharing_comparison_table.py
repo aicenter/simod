@@ -6,6 +6,7 @@ import amodsim.statistics.model.traffic_load as traffic_load
 import amodsim.statistics.model.transit as transit
 import amodsim.statistics.model.edges as edges
 import amodsim.statistics.model.ridesharing as ridesharing
+import amodsim.statistics.model.service as service
 
 from typing import List, Dict, Iterable
 from pandas import DataFrame
@@ -49,8 +50,13 @@ def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, occuop
 	else:
 		avg_time = performance_data['Group Generation Time'].mean() + performance_data['Solver Time'].mean()
 	avg_time = int(round(avg_time))
+
+	# delay
+	service_stat = service.load_dataframe(experiment_dir)
+	delays_window = service.get_delays(service_stat, True)
+
 	return [km_total_window, average_density_in_time_window_non_empty_edges, congested_count_in_time_window,
-		   dropped_demand_count, half_congested_count_in_time_window, len(used_cars), avg_time]
+		   dropped_demand_count, half_congested_count_in_time_window, len(used_cars), avg_time, delays_window.mean()]
 
 
 # result data load
@@ -92,7 +98,6 @@ occupancies_3 = roadmaptools.inout.load_csv(
 occupancies_4 = roadmaptools.inout.load_csv(
 	config.comparison.experiment_4_dir + config.statistics.occupancies_file_name, delimiter=',')
 
-
 # compute data for output from result
 no_ridesharing_data = compute_stats(results_ridesharing_off, histogram, loads_no_ridesharing["ALL"], occupancies_1,
 									config.comparison.experiment_1_dir, edge_data)
@@ -111,6 +116,7 @@ output_table = np.array([["X", "NO RIDESHARING", "INSERTION HEURISTIC", "VGA", "
 						 ["dropped demand count", no_ridesharing_data[3], insertion_heuristic_data[3], vga_data[3], vga_limited_data[3]],
 						 ["half congested edges", no_ridesharing_data[4], insertion_heuristic_data[4], vga_data[4], vga_limited_data[4]],
 						 ["used car count", no_ridesharing_data[5], insertion_heuristic_data[5], vga_data[5], vga_limited_data[5]],
+						 ["avg. delay", no_ridesharing_data[7], insertion_heuristic_data[7], vga_data[7], vga_limited_data[7]],
 						 ["avg. comp. time", no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6], vga_limited_data[6]]])
 
 # console results
@@ -145,6 +151,10 @@ print(r"\tabularnewline")
 print(r"\hline")
 print("Used Vehicles & {} & {} & {} & {}".format(no_ridesharing_data[5], insertion_heuristic_data[5], vga_data[5],
 	vga_data[5]))
+print(r"\tabularnewline")
+print(r"\hline")
+print("Avg. delay & {} & {} & {} & {}".format(no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6],
+	vga_data[6]))
 print(r"\tabularnewline")
 print(r"\hline")
 print("Avg. comp. time & {} & {} & {} & {}".format(no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6],

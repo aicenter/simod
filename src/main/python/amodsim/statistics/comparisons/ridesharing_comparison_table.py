@@ -24,7 +24,7 @@ def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, occuop
 
 	# km_total = int(round(avg_km_total * result["numberOfVehicles"]))
 	km_total = transit.get_total_distance(transit_data, edge_data) / 1000
-	km_total_window = transit.get_total_distance(transit_data, edge_data, True) / 1000
+	km_total_window = int(round(transit.get_total_distance(transit_data, edge_data, True) / 1000))
 
 	# average density
 	average_density_list_total_future = histogram.get_average_density_list(load)
@@ -49,14 +49,15 @@ def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, occuop
 		avg_time = performance_data['Insertion Heuristic Time'].mean()
 	else:
 		avg_time = performance_data['Group Generation Time'].mean() + performance_data['Solver Time'].mean()
-	avg_time = int(round(avg_time))
+	avg_time = int(round(avg_time / 1000))
 
 	# delay
 	service_stat = service.load_dataframe(experiment_dir)
-	delays_window = service.get_delays(service_stat, True)
+	delays_window = service.get_delays(service_stat, True, False)
+	mean_delay = int(round(delays_window.mean() / 1000))
 
 	return [km_total_window, average_density_in_time_window_non_empty_edges, congested_count_in_time_window,
-		   dropped_demand_count, half_congested_count_in_time_window, len(used_cars), avg_time, delays_window.mean()]
+		   dropped_demand_count, half_congested_count_in_time_window, len(used_cars), avg_time, mean_delay]
 
 
 # result data load
@@ -127,38 +128,38 @@ print_table(output_table)
 
 # latex table
 print("Latex code:")
-print(r"\begin{tabular}{|c|c|c|c|c|}")
+print(r"\begin{tabular}{|l|r|r|r|r|}")
 print(r"\hline")
-print(" & No Ridesharing & IH & VGA & VGA lim")
+print(r" & \thead{No Ridesh.} & \thead{IH} & \thead{VGA} & \thead{VGA lim}")
 print(r"\tabularnewline")
 print(r"\hline")
 print(r"\hline")
-print("Total veh. dist. (km) & {} & {} & {} & {}".format(round(no_ridesharing_data[0], 1),
-	round(insertion_heuristic_data[0], 1), round(vga_data[0], 1), round(vga_limited_data[0], 1)))
+print("Total veh. dist. (km) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(no_ridesharing_data[0],
+	insertion_heuristic_data[0], vga_data[0], vga_limited_data[0]))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Avg. density (veh/km) & {} & {} & {} & {}".format(round(no_ridesharing_data[1], 4),
+print("Avg. density (veh/km) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(round(no_ridesharing_data[1], 4),
 	 round(insertion_heuristic_data[1], 4), round(vga_data[1], 4), round(vga_limited_data[1], 4)))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Congested seg. & {} & {} & {} & {}".format(no_ridesharing_data[2], insertion_heuristic_data[2], vga_data[2],
+print("Congested seg. & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(no_ridesharing_data[2], insertion_heuristic_data[2], vga_data[2],
 	vga_limited_data[2] ))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Heavily loaded seg. & {} & {} & {} & {}".format(round(no_ridesharing_data[4], 1),
+print("Heavily loaded seg.  & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(round(no_ridesharing_data[4], 1),
 	round(insertion_heuristic_data[4], 1), round(vga_data[4], 1), round(vga_limited_data[4], 1)))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Used Vehicles & {} & {} & {} & {}".format(no_ridesharing_data[5], insertion_heuristic_data[5], vga_data[5],
-	vga_data[5]))
+print("Used Vehicles  & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(no_ridesharing_data[5], insertion_heuristic_data[5], vga_data[5],
+	vga_limited_data[5]))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Avg. delay & {} & {} & {} & {}".format(no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6],
-	vga_data[6]))
+print("Avg. delay (s) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(no_ridesharing_data[7], insertion_heuristic_data[7], vga_data[7],
+	vga_limited_data[7]))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Avg. comp. time & {} & {} & {} & {}".format(no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6],
-	vga_data[6]))
+print("Avg. comp. time (s)  & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6],
+	vga_limited_data[6]))
 print(r"\tabularnewline")
 print(r"\hline")
 print(r"\end{tabular}")

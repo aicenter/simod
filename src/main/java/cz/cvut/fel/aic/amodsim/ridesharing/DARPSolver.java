@@ -1,6 +1,5 @@
 package cz.cvut.fel.aic.amodsim.ridesharing;
 
-import com.google.inject.Singleton;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
 import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStats;

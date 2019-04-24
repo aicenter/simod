@@ -72,7 +72,7 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 				travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
 		
 		int maxProlongation;
-		if(amodsimConfig.ridesharing.discomfortConstrain.equals("absolute")){
+		if(amodsimConfig.ridesharing.discomfortConstraint.equals("absolute")){
 			maxProlongation = amodsimConfig.ridesharing.maxProlongationInSeconds;
 		}
 		else{

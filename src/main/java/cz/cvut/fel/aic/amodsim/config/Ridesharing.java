@@ -7,8 +7,6 @@ import java.lang.String;
 import java.util.Map;
 
 public class Ridesharing {
-  public String discomfortConstrain;
-
   public Integer maxDirectSpeedEstimationKmh;
 
   public Vga vga;
@@ -16,6 +14,10 @@ public class Ridesharing {
   public Integer batchPeriod;
 
   public String method;
+
+  public InsertionHeuristic insertionHeuristic;
+
+  public String discomfortConstraint;
 
   public Double maximumRelativeDiscomfort;
 
@@ -28,11 +30,12 @@ public class Ridesharing {
   public Boolean on;
 
   public Ridesharing(Map ridesharing) {
-    this.discomfortConstrain = (String) ridesharing.get("discomfort_constrain");
     this.maxDirectSpeedEstimationKmh = (Integer) ridesharing.get("max_direct_speed_estimation_kmh");
     this.vga = new Vga((Map) ridesharing.get("vga"));
     this.batchPeriod = (Integer) ridesharing.get("batch_period");
     this.method = (String) ridesharing.get("method");
+    this.insertionHeuristic = new InsertionHeuristic((Map) ridesharing.get("insertion_heuristic"));
+    this.discomfortConstraint = (String) ridesharing.get("discomfort_constraint");
     this.maximumRelativeDiscomfort = (Double) ridesharing.get("maximum_relative_discomfort");
     this.maxProlongationInSeconds = (Integer) ridesharing.get("max_prolongation_in_seconds");
     this.weightParameter = (Double) ridesharing.get("weight_parameter");

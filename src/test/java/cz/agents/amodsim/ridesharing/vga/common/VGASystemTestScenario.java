@@ -60,7 +60,7 @@ public class VGASystemTestScenario implements RidesharingTestEnvironment{
 		// config changes
 		config.ridesharing.batchPeriod = 0;
 		config.ridesharing.maximumRelativeDiscomfort = 2.0;
-		config.ridesharing.discomfortConstrain = "relative";
+		config.ridesharing.discomfortConstraint = "relative";
 	}
 	
 	

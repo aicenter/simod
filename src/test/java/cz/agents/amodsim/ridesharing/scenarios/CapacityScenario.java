@@ -18,27 +18,30 @@ import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.util.LinkedList;
 import java.util.List;
-import org.junit.Test;
 
 /**
  *
- * @author LocalAdmin
+ * @author David Fiedler
  */
-public class Dropping {
+public class CapacityScenario {
 	
-	@Test
     public void run(RidesharingTestEnvironment testEnvironment) throws Throwable{
 		// bootstrap Guice
 		Injector injector = testEnvironment.getInjector();
 		
+		// config
+		testEnvironment.getConfig().ridesharing.vehicleCapacity = 1;
+		testEnvironment.getConfig().ridesharing.discomfortConstraint = "relative";
+		testEnvironment.getConfig().ridesharing.maximumRelativeDiscomfort = 0.6;
+		
 		// set roadgraph
         Graph<SimulationNode, SimulationEdge> graph 
-				= Utils.getGridGraph(10, injector.getInstance(Transformer.class), 1);
+				= Utils.getGridGraph(5, injector.getInstance(Transformer.class), 1);
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
 		trips.add(new TimeTrip<>(graph.getNode(1), graph.getNode(3), 1000));
-		trips.add(new TimeTrip<>(graph.getNode(9), graph.getNode(8), 2000));
+		trips.add(new TimeTrip<>(graph.getNode(2), graph.getNode(4), 1000));
 		
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
 		vehicalInitPositions.add(graph.getNode(0));
@@ -47,7 +50,7 @@ public class Dropping {
 		List<RidesharingEventData> expectedEvents = new LinkedList<>();
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.PICKUP));
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DROP_OFF));
-        
         testEnvironment.run(graph, trips, vehicalInitPositions, expectedEvents);
     }
+
 }

@@ -34,7 +34,7 @@ import org.junit.Assert;
  *
  * @author David Fiedler
  */
-public class InsertionHeuristicSystemTestScenario implements RidesharingTestEnvironment{
+public class InsertionHeuristicTestEnvironment implements RidesharingTestEnvironment{
 	
 	public final AmodsimConfig config;
 	
@@ -47,7 +47,7 @@ public class InsertionHeuristicSystemTestScenario implements RidesharingTestEnvi
 	
 	
 
-	public InsertionHeuristicSystemTestScenario() {
+	public InsertionHeuristicTestEnvironment() {
 		config = new AmodsimConfig();
         
         File localConfigFile = null;
@@ -60,7 +60,7 @@ public class InsertionHeuristicSystemTestScenario implements RidesharingTestEnvi
 		// config changes
 		config.ridesharing.batchPeriod = 0;
 		config.ridesharing.maximumRelativeDiscomfort = 2.0;
-		config.ridesharing.discomfortConstrain = "relative";
+		config.ridesharing.discomfortConstraint = "relative";
 	}
 	
 	
@@ -99,15 +99,23 @@ public class InsertionHeuristicSystemTestScenario implements RidesharingTestEnvi
 		// TESTING EVENT ORDER
 		List<Event> realEvents = eventOrderStorage.getOnDemandVehicleEvents();
 		
-		Assert.assertEquals(realEvents.size(), expectedEvents.size());
+		Assert.assertEquals("Event count", expectedEvents.size(), realEvents.size());
 		Iterator<RidesharingEventData> expectedEventsIterator = expectedEvents.iterator();
+		counter = 1;
 		for(Event event: realEvents){
 			RidesharingEventData expectedEvent = expectedEventsIterator.next();
 			OnDemandVehicleEventContent eventContent = (OnDemandVehicleEventContent) event.getContent();
 			
-			Assert.assertEquals(expectedEvent.onDemandVehicleId, eventContent.getOnDemandVehicleId());
-			Assert.assertEquals(expectedEvent.demandId, eventContent.getDemandId());
-			Assert.assertEquals(expectedEvent.eventType, event.getType());
+			Assert.assertEquals(
+					String.format("%s. event vehicle", counter), 
+					expectedEvent.onDemandVehicleId, eventContent.getOnDemandVehicleId());
+			Assert.assertEquals(
+					String.format("%s. event demand", counter),
+					expectedEvent.demandId, eventContent.getDemandId());
+			Assert.assertEquals(
+					String.format("%s. event type", counter),
+					expectedEvent.eventType, event.getType());
+			counter++;
 		}
     }
 

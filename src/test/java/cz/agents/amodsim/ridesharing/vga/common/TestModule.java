@@ -20,6 +20,7 @@ package cz.agents.amodsim.ridesharing.vga.common;
 
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
@@ -28,6 +29,7 @@ import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
+import cz.cvut.fel.aic.amodsim.ridesharing.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.EuclideanTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.PlanCostProvider;
@@ -55,6 +57,7 @@ public class TestModule extends StandardAgentPolisModule{
         agentpolisConfig.showVisio = VisualTests.SHOW_VISIO;
 		amodsimConfig.startTime = 0;
 		amodsimConfig.tripsMultiplier = 1.0;
+		agentpolisConfig.simulationDurationInMillis = 120000;
     }
 
 	
@@ -70,7 +73,8 @@ public class TestModule extends StandardAgentPolisModule{
 		bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 		bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
 		bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
-		bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
+//		bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
+		bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
 		bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
 		install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
 				.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));

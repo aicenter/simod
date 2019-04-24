@@ -12,47 +12,59 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.Utils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.SimpleMapInitializer;
-import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.util.LinkedList;
 import java.util.List;
+import org.junit.Test;
 
 /**
  *
  * @author David Fiedler
  */
-public class DroppingBatch {
+public class ComplexScenario {
 	
+	@Test
     public void run(RidesharingTestEnvironment testEnvironment) throws Throwable{
 		// bootstrap Guice
 		Injector injector = testEnvironment.getInjector();
 		
-		// set batch time
-		injector.getInstance(AmodsimConfig.class).ridesharing.batchPeriod = 10;
-		injector.getInstance(AmodsimConfig.class).ridesharing.maximumRelativeDiscomfort = 0.8;
+		// config
+		testEnvironment.getConfig().ridesharing.maximumRelativeDiscomfort = 3.0;
 		
-		// set roadgraph
+		// set roadgraph - grid 5x4
         Graph<SimulationNode, SimulationEdge> graph 
-				= Utils.getGridGraph(20, injector.getInstance(Transformer.class), 1);
+				= Utils.getGridGraph(5, injector.getInstance(Transformer.class), 4);
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
-		// trips
+		// demand trips
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(graph.getNode(1), graph.getNode(3), 8000));
-		trips.add(new TimeTrip<>(graph.getNode(19), graph.getNode(0), 1000));
+		trips.add(new TimeTrip<>(graph.getNode(17), graph.getNode(3), 1000));
+		trips.add(new TimeTrip<>(graph.getNode(16), graph.getNode(14), 3000));
+		trips.add(new TimeTrip<>(graph.getNode(5), graph.getNode(10), 4000));
+		trips.add(new TimeTrip<>(graph.getNode(12), graph.getNode(9), 7000));
+		trips.add(new TimeTrip<>(graph.getNode(11), graph.getNode(0), 8000));
 		
+		// vehicles
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
+		vehicalInitPositions.add(graph.getNode(15));
 		vehicalInitPositions.add(graph.getNode(0));
 		
 		// expected events
 		List<RidesharingEventData> expectedEvents = new LinkedList<>();
 		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.PICKUP));
+		expectedEvents.add(new RidesharingEventData("1", 2, OnDemandVehicleEvent.PICKUP));
+		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.PICKUP));
+		expectedEvents.add(new RidesharingEventData("1", 2, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new RidesharingEventData("0", 3, OnDemandVehicleEvent.PICKUP));
+		expectedEvents.add(new RidesharingEventData("1", 4, OnDemandVehicleEvent.PICKUP));
 		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new RidesharingEventData("0", 3, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new RidesharingEventData("1", 4, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DROP_OFF));
         
         testEnvironment.run(graph, trips, vehicalInitPositions, expectedEvents);
     }
-
 }

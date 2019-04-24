@@ -5,7 +5,7 @@
  */
 package cz.agents.amodsim.ridesharing.vga;
 
-import cz.agents.amodsim.ridesharing.scenarios.Dropping;
+import cz.agents.amodsim.ridesharing.scenarios.DroppingScenario;
 import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestScenario;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import org.junit.Test;
@@ -18,7 +18,7 @@ public class DroppingTest {
 	
 	@Test
     public void run() throws Throwable{
-		new Dropping().run(new VGASystemTestScenario());
+		new DroppingScenario().run(new VGASystemTestScenario());
     }
 	
 	public static void main(String[] args) {

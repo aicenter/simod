@@ -67,7 +67,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	
 
 	
-    private final Map<Integer,DefaultPlanComputationRequest> requestsMapBydemandAgents;
+    private final Map<Integer,DefaultPlanComputationRequest> requestsMapByDemandAgents;
 	
 	private final Map<String,VGAVehicle> vgaVehiclesMapBydemandOnDemandVehicles;
 	
@@ -123,7 +123,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
 		waitingRequests = new LinkedHashSet<>();
 		activeRequests = new LinkedHashSet<>();
-		requestsMapBydemandAgents = new HashMap<>();
+		requestsMapByDemandAgents = new HashMap<>();
 		vgaVehiclesMapBydemandOnDemandVehicles = new HashMap<>();
         VehicleGroupAssignmentSolver.timeProvider = timeProvider;
         MathUtils.setTravelTimeProvider(travelTimeProvider);
@@ -165,7 +165,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 					request.getTargetLocation(), request.getDemandAgent());
             waitingRequests.add(newRequest);
 			activeRequests.add(newRequest);
-			requestsMapBydemandAgents.put(newRequest.getDemandAgent().getSimpleId(), newRequest);
+			requestsMapByDemandAgents.put(newRequest.getDemandAgent().getSimpleId(), newRequest);
         }
 		
 		LOGGER.info("No. of new requests: " + requests.size());
@@ -241,7 +241,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	public void handleEvent(Event event) {
 		OnDemandVehicleEvent eventType = (OnDemandVehicleEvent) event.getType();
 		OnDemandVehicleEventContent eventContent = (OnDemandVehicleEventContent) event.getContent();
-		DefaultPlanComputationRequest request = requestsMapBydemandAgents.get(eventContent.getDemandId());
+		DefaultPlanComputationRequest request = requestsMapByDemandAgents.get(eventContent.getDemandId());
 		VGAVehicle vehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(eventContent.getOnDemandVehicleId());
 		if(eventType == OnDemandVehicleEvent.PICKUP){
 			vehicle.addRequestOnBoard(request);

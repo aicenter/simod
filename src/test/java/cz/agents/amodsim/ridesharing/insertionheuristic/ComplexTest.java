@@ -5,8 +5,8 @@
  */
 package cz.agents.amodsim.ridesharing.insertionheuristic;
 
-import cz.agents.amodsim.ridesharing.insertionheuristic.common.InsertionHeuristicSystemTestScenario;
-import cz.agents.amodsim.ridesharing.scenarios.Complex;
+import cz.agents.amodsim.ridesharing.insertionheuristic.common.InsertionHeuristicTestEnvironment;
+import cz.agents.amodsim.ridesharing.scenarios.ComplexScenario;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ public class ComplexTest {
 	
 	@Test
     public void run() throws Throwable{
-		new Complex().run(new InsertionHeuristicSystemTestScenario());
+		new ComplexScenario().run(new InsertionHeuristicTestEnvironment());
     }
 	
 	public static void main(String[] args) {

@@ -5,8 +5,8 @@
  */
 package cz.agents.amodsim.ridesharing.insertionheuristic;
 
-import cz.agents.amodsim.ridesharing.insertionheuristic.common.InsertionHeuristicSystemTestScenario;
-import cz.agents.amodsim.ridesharing.scenarios.Batch;
+import cz.agents.amodsim.ridesharing.insertionheuristic.common.InsertionHeuristicTestEnvironment;
+import cz.agents.amodsim.ridesharing.scenarios.BatchScenario;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ public class BatchTest {
 	
 	@Test
     public void run() throws Throwable{
-		new Batch().run(new InsertionHeuristicSystemTestScenario());
+		new BatchScenario().run(new InsertionHeuristicTestEnvironment());
     }
 	
 	public static void main(String[] args) {

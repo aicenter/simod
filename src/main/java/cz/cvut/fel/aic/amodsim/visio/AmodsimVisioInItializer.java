@@ -33,7 +33,9 @@ import java.awt.Color;
 @Singleton
 public class AmodsimVisioInItializer extends DefaultVisioInitializer{
     
-    private final OnDemandVehicleLayer onDemandVehicleLayer;
+    //private final OnDemandVehicleLayer onDemandVehicleLayer;
+    
+    private final DriveAgentLayer driveAgentLayer;
     
     private final TrafficDensityLayer trafficDensityLayer;
     
@@ -43,7 +45,7 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
     
     private final OnDemandVehicleStationsLayer onDemandVehicleStationsLayer;
 	
-	private final OnDemandVehiclePlanLayer onDemandVehiclePlanLayer;
+    private final OnDemandVehiclePlanLayer onDemandVehiclePlanLayer;
     
     protected final HighwayLayer highwayLayer;
     
@@ -55,23 +57,23 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
     
     private final MapTilesLayer mapTilesLayer;
 	
-	private final LayerManagementLayer layerManagementLayer;
-			
-	private final VehicleHighlightingLayer vehicleHighlightingLayer;
+    private final LayerManagementLayer layerManagementLayer;
 
-	private final ScreenRecordingLayer screenRecordingLayer;
+    private final VehicleHighlightingLayer vehicleHighlightingLayer;
 
-	private final ScreenCaputreLayer screenCaputreLayer;
+    private final ScreenRecordingLayer screenRecordingLayer;
 
-	private final SimpleBackgroundLayer simpleBackgroundLayer;
+    private final ScreenCaputreLayer screenCaputreLayer;
+
+    private final SimpleBackgroundLayer simpleBackgroundLayer;
 
     
     @Inject
     public AmodsimVisioInItializer(Simulation simulation, PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork,
                                    HighwayNetwork highwayNetwork, TramwayNetwork tramwayNetwork, MetrowayNetwork metrowayNetwork,
-                                   RailwayNetwork railwayNetwork, AgentStorage agentStorage,
+                                   RailwayNetwork railwayNetwork, AgentStorage agentStorage, DriveAgentLayer driveAgentLayer,
                                    VehicleStorage vehicleStorage, AllNetworkNodes allNetworkNodes,
-                                   SimulationCreator simulationCreator, OnDemandVehicleLayer onDemandVehicleLayer,
+                                   SimulationCreator simulationCreator, //OnDemandVehicleLayer onDemandVehicleLayer,
                                    TrafficDensityLayer trafficDensityLayer, NodeIdLayer nodeIdLayer,
                                    OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, DemandLayer demandLayer,
                                    OnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer,
@@ -82,28 +84,30 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
                                    ScreenCaputreLayer screenCaputreLayer, SimpleBackgroundLayer simpleBackgroundLayer) {
         super(simulation, pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork,
                 simulationControlLayer, gridLayer, config);
-        this.onDemandVehicleLayer = onDemandVehicleLayer;
+        //this.onDemandVehicleLayer = onDemandVehicleLayer;
+        this.driveAgentLayer = driveAgentLayer;
         this.trafficDensityLayer = trafficDensityLayer;
         this.nodeIdLayer = nodeIdLayer;
         this.onDemandVehicleStationsLayer = onDemandVehicleStationsLayer;
         this.demandLayer = demandLayer;
-		this.onDemandVehiclePlanLayer = onDemandVehiclePlanLayer;
+	this.onDemandVehiclePlanLayer = onDemandVehiclePlanLayer;
         this.highwayLayer = highwayLayer;
         this.bufferedHighwayLayer = bufferedHighwayLayer;
         this.trafficDensityByDirectionLayer = trafficDensityByDirectionLayer;
         this.mapTilesLayer = mapTilesLayer;
         this.backgroundLayer = ColorLayer.create(Color.white);
-		this.layerManagementLayer = layerManagementLayer;
-		this.vehicleHighlightingLayer = vehicleHighlightingLayer;
-		this.screenRecordingLayer = screenRecordingLayer;
-		this.screenCaputreLayer = screenCaputreLayer;
-		this.simpleBackgroundLayer = simpleBackgroundLayer;
+        this.layerManagementLayer = layerManagementLayer;
+        this.vehicleHighlightingLayer = vehicleHighlightingLayer;
+        this.screenRecordingLayer = screenRecordingLayer;
+        this.screenCaputreLayer = screenCaputreLayer;
+        this.simpleBackgroundLayer = simpleBackgroundLayer;
     }
 
     @Override
     protected void initEntityLayers(Simulation simulation) {
-        VisManager.registerLayer(layerManagementLayer.createManageableLayer("Stations", onDemandVehicleStationsLayer));
-        VisManager.registerLayer(layerManagementLayer.createManageableLayer("Vehicles", onDemandVehicleLayer));
+        //VisManager.registerLayer(layerManagementLayer.createManageableLayer("Stations", onDemandVehicleStationsLayer));
+        //VisManager.registerLayer(layerManagementLayer.createManageableLayer("Vehicles", onDemandVehicleLayer));
+        VisManager.registerLayer(layerManagementLayer.createManageableLayer(driveAgentLayer.getLayerDescription(), driveAgentLayer));
         VisManager.registerLayer(layerManagementLayer.createManageableLayer("Passangers", demandLayer));
 		VisManager.registerLayer(onDemandVehiclePlanLayer);
     }
@@ -120,7 +124,8 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 		VisManager.registerLayer(vehicleHighlightingLayer);
 		VisManager.registerLayer(screenRecordingLayer);
 		VisManager.registerLayer(screenCaputreLayer);
-		vehicleHighlightingLayer.setVehicleLayer(onDemandVehicleLayer);
+		//vehicleHighlightingLayer.setVehicleLayer(onDemandVehicleLayer);
+		//vehicleHighlightingLayer.setVehicleLayer(driveAgentLayer);
         VisManager.registerLayer(nodeIdLayer);
     }
 

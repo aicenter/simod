@@ -30,6 +30,8 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
+import cz.cvut.fel.aic.amodsim.entity.DriveAgent;
+import cz.cvut.fel.aic.amodsim.entity.DriveAgent.DriveAgentFactory;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.EuclideanTravelTimeProvider;
@@ -81,7 +83,7 @@ public class MainModule extends StandardAgentPolisModule{
         bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
 //        bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 
-        if(amodsimConfig.amodsim.ridesharing.on){
+        /*if(amodsimConfig.amodsim.ridesharing.on){
 			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 			bind(OnDemandVehicleStationsCentral.class).to(RidesharingStationsCentral.class);
 			bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
@@ -89,15 +91,17 @@ public class MainModule extends StandardAgentPolisModule{
         }
         else{
            bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
-        }
-        install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
-            .build(DemandAgentFactory.class));
+        }*/
+        //install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
+        //    .build(DemandAgentFactory.class));
+        install(new FactoryModuleBuilder().implement(DriveAgent.class, DriveAgent.class)
+           .build(DriveAgentFactory.class));
     }
     
     @Provides
-	@Singleton
-	Map<Long,SimulationNode> provideNodesMappedByNodeSourceIds(
-            HighwayNetwork highwayNetwork, AllNetworkNodes allNetworkNodes) {
+    @Singleton
+    Map<Long,SimulationNode> provideNodesMappedByNodeSourceIds(
+        HighwayNetwork highwayNetwork, AllNetworkNodes allNetworkNodes) {
         Map<Long,Integer> nodeIdsMappedByNodeSourceIds = highwayNetwork.getNetwork().createSourceIdToNodeIdMap();
         Map<Long,SimulationNode> nodesMappedByNodeSourceIds = new HashMap<>();
         
@@ -108,7 +112,7 @@ public class MainModule extends StandardAgentPolisModule{
         }
         
 		return nodesMappedByNodeSourceIds;
-	}
+    }
     
     
 }

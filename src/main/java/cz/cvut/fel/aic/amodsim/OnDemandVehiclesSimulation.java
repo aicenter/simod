@@ -44,17 +44,17 @@ public class OnDemandVehiclesSimulation {
         creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
 
 //        List<TimeTrip<Long>> osmNodesList;
-        try {
+        //try {
 //            osmNodesList = TripTransform.jsonToTrips(new File(config.amodsim.preprocessedTrips), Long.class);
             TripTransform tripTransform = injector.getInstance(TripTransform.class);
-            RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
-            rebalancingLoader.load(new File(config.rebalancing.policyFilePath));
+            //RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
+            //rebalancingLoader.load(new File(config.rebalancing.policyFilePath));
 
             //  injector.getInstance(EntityInitializer.class).initialize(rebalancingLoader.getOnDemandVehicleStations());
 
             injector.getInstance(EventInitializer.class).initialize(
-                    tripTransform.loadTripsFromTxt(new File(config.amodsim.tripsPath)),
-                    rebalancingLoader.getRebalancingTrips());
+                    tripTransform.loadTripsFromTxt(new File(config.amodsim.tripsPath)));
+                   //ebalancingLoader.getRebalancingTrips());
 
             injector.getInstance(StatisticInitializer.class).initialize();
 
@@ -66,9 +66,9 @@ public class OnDemandVehiclesSimulation {
             }
             injector.getInstance(Statistics.class).simulationFinished();
 
-        } catch (IOException ex) {
+        /*} catch (IOException ex) {
             LOGGER.error(null, ex);
-        }
+        }*/
 
     }
 }

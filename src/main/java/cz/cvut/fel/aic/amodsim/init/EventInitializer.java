@@ -9,6 +9,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.CongestedDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
@@ -21,6 +24,9 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandlerAdapter;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.entity.DriveAgent;
+import cz.cvut.fel.aic.amodsim.entity.DriveAgent.DriveAgentFactory;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -48,7 +54,7 @@ public class EventInitializer {
 
     private final DemandEventHandler demandEventHandler;
     
-    private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
+    //private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
     private final AmodsimConfig amodsimConfig;
     
@@ -60,18 +66,19 @@ public class EventInitializer {
     
     @Inject
     public EventInitializer(EventProcessor eventProcessor, 
-            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, AmodsimConfig config, 
+            AmodsimConfig config, 
             DemandEventHandler demandEventHandler, AgentpolisConfig agentpolisConfig) {
         this.eventProcessor = eventProcessor;
         this.demandEventHandler = demandEventHandler;
-        this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
+        //this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.amodsimConfig = config;
         this.agentpolisConfig = agentpolisConfig;
         eventCount = 0;
     }
     
     
-    public void initialize(List<TimeTrip<SimulationNode>> trips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips){
+    //public void initialize(List<TimeTrip<SimulationNode>> trips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips){
+    public void initialize(List<TimeTrip<SimulationNode>> trips){
         Random random = new Random(RANDOM_SEED);
         
         for (TimeTrip<SimulationNode> trip : trips) {
@@ -96,48 +103,44 @@ public class EventInitializer {
                 }
             }
         }
-        for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
+        /*for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
             long startTime = rebalancingTrip.getStartTime() - amodsimConfig.amodsim.startTime;
             if(startTime < 1 || startTime > agentpolisConfig.simulationDurationInS * 1000){
                 continue;
             }
             eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 
                     null, rebalancingTrip, startTime);
-        }
+        }*/
     }
     
     
     
     
-    public static class DemandEventHandler extends EventHandlerAdapter{
-		
-		private final IdGenerator demandIdGenerator;
- 
-        private final DemandAgentFactory demandAgentFactory;
-        
-        
-        
+    public static class DemandEventHandler extends EventHandlerAdapter {		
+	private final IdGenerator demandIdGenerator; 
+        private final DriveAgentFactory driveAgentFactory;    
+        private final CongestedDriveFactory driveFactory;
         
         @Inject
-        public DemandEventHandler(IdGenerator demandIdGenerator, DemandAgentFactory demandAgentFactory,
-                SimulationCreator simulationCreator) {
+        public DemandEventHandler(IdGenerator demandIdGenerator, DriveAgentFactory driveAgentFactory,
+                SimulationCreator simulationCreator, CongestedDriveFactory driveFactory) {
             this.demandIdGenerator = demandIdGenerator;
-            this.demandAgentFactory = demandAgentFactory;
+            this.driveAgentFactory = driveAgentFactory;
+            this.driveFactory = driveFactory;
         }
 
-        
-		
-		
-
-		@Override
-		public void handleEvent(Event event) {
-			TimeTrip<SimulationNode> trip = (TimeTrip<SimulationNode>) event.getContent();
-            
+        @Override
+        public void handleEvent(Event event) {
+            TimeTrip<SimulationNode> trip = (TimeTrip<SimulationNode>) event.getContent();
             int id = demandIdGenerator.getId();
-			
-			DemandAgent demandAgent = demandAgentFactory.create("Demand " + Integer.toString(id), id, trip);
+            LinkedList nodes = trip.getLocations();
+            SimulationNode startNode = (SimulationNode) nodes.get(0);
+            SimulationNode finishNode = (SimulationNode) nodes.get(1);
             
-            demandAgent.born();
-		}
-	}    
+            
+            DriveAgent driveAgent = driveAgentFactory.create("Drive agent " + Integer.toString(id), id, startNode);
+            driveAgent.born();
+            driveFactory.create(driveAgent, driveAgent.getVehicle(), finishNode).run();
+        }
+    }    
 }

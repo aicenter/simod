@@ -1,6 +1,6 @@
 from pandas.io.formats.format import return_docstring
 
-from amodsim.init import config, roadmaptools_config
+from amodsim.init import config
 
 import json
 import matplotlib
@@ -9,7 +9,7 @@ import roadmaptools.inout
 from enum import Enum
 from matplotlib import cm
 
-from scripts.printer import print_info
+from roadmaptools.printer import print_info
 from amodsim.json_cache import load_json_file
 
 CRITICAL_DENSITY = config.critical_density
@@ -62,7 +62,8 @@ def load_edges():
 	modifier = "-simplified" if config.amodsim.simplify_graph else ""
 	# json_file = open(config.amodsim.edges_file_path + modifier + ".json", 'r')
 	# return json.loads(json_file.read())
-	return roadmaptools.inout.load_json(config.amodsim.edges_file_path + modifier + ".json")
+	#return roadmaptools.inout.load_json(config.amodsim.edges_file_path + modifier + ".json")
+	return roadmaptools.inout.load_json('C:\\Users\\User\\Desktop\\thesis\\useful_stuff\\amodsim_config\\maps_superblock\\edges_superblock.geojson')
 
 def load_edge_pairs():
 	print_info("loading edge pairs")
@@ -87,8 +88,11 @@ def load_edge_pairs():
 def load_edges_mapped_by_id():
 	edges = load_edges()
 	edges_mapped_by_id = {}
-	for edge in edges:
-		edges_mapped_by_id[edge["id"]] = edge
+	for edge in edges["features"]:
+	#	edges_mapped_by_id[int(edge['properties']['id'])] = edge
+	#for edge in edges:
+	#	edges_mapped_by_id[edge["id"]] = edge
+		edges_mapped_by_id[edge['properties']['id']] = edge
 
 	return edges_mapped_by_id
 

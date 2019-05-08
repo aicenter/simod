@@ -23,6 +23,7 @@ import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.amodsim.CsvWriter;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.io.Common;
+import cz.cvut.fel.aic.amodsim.storage.DriveAgentStorage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -46,9 +47,11 @@ public class Statistics extends AliteEntity implements EventHandler{
     
     private final LinkedList<Double> averageEdgeLoad;
     
-    private final Provider<EdgesLoadByState> allEdgesLoadProvider;
+    private final Provider<DriveAgentEdgesLoadByState> allEdgesLoadProvider;
     
     private final OnDemandVehicleStorage onDemandVehicleStorage;
+    
+    private final DriveAgentStorage driveAgentStorage;
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
@@ -70,8 +73,7 @@ public class Statistics extends AliteEntity implements EventHandler{
     
     private final LinkedList<Integer> tripDistances;
 	
-	private final List<Map<String,Integer>> vehicleOccupancy;
-   
+    private final List<Map<String,Integer>> vehicleOccupancy;   
     
     private long tickCount;
     
@@ -91,12 +93,14 @@ public class Statistics extends AliteEntity implements EventHandler{
     
     
     @Inject
-    public Statistics(TypedSimulation eventProcessor, Provider<EdgesLoadByState> allEdgesLoadProvider, 
+    public Statistics(TypedSimulation eventProcessor, Provider<DriveAgentEdgesLoadByState> allEdgesLoadProvider, 
             OnDemandVehicleStorage onDemandVehicleStorage, 
+            DriveAgentStorage driveAgentStorage, 
             OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, AmodsimConfig config) throws IOException {
         this.eventProcessor = eventProcessor;
         this.allEdgesLoadProvider = allEdgesLoadProvider;
         this.onDemandVehicleStorage = onDemandVehicleStorage;
+        this.driveAgentStorage = driveAgentStorage;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.config = config;
         allEdgesLoadHistory = new LinkedList<>();
@@ -137,9 +141,9 @@ public class Statistics extends AliteEntity implements EventHandler{
                 case TICK:
                     handleTick();
                     break;
-				case DEMAND_DROPPED_OFF:
-					handleDemandDropoff((DemandServiceStatistic) event.getContent());
-					break;
+                case DEMAND_DROPPED_OFF:
+                    handleDemandDropoff((DemandServiceStatistic) event.getContent());
+                    break;
             }
         }
         else if(event.getType() instanceof OnDemandVehicleEvent){
@@ -226,7 +230,8 @@ public class Statistics extends AliteEntity implements EventHandler{
 
     @Inject
     private void countEdgeLoadForInterval() {
-        EdgesLoadByState allEdgesLoad = allEdgesLoadProvider.get();
+        //EdgesLoadByState allEdgesLoad = allEdgesLoadProvider.get();
+        DriveAgentEdgesLoadByState allEdgesLoad = allEdgesLoadProvider.get();
         
         if(tickCount % (config.amodsim.statistics.allEdgesLoadIntervalMilis 
 				/ config.amodsim.statistics.statisticIntervalMilis) == 0){
@@ -275,7 +280,8 @@ public class Statistics extends AliteEntity implements EventHandler{
             metersRebalancingSum += onDemandVehicle.getMetersRebalancing();
         }
         
-        numberOfVehicles = onDemandVehicleStorage.getEntities().size();
+        //numberOfVehicles = onDemandVehicleStorage.getEntities().size();
+        numberOfVehicles = driveAgentStorage.getEntities().size();
         
         averageKmWithPassenger = (double) metersWithPassengerSum / numberOfVehicles / 1000;
         averageKmToStartLocation = (double) metersToStartLocationSum / numberOfVehicles / 1000;

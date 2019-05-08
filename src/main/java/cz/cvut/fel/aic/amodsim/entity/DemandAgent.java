@@ -41,11 +41,11 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     
     private final int simpleId;
 	
-	private final TimeTrip<SimulationNode> trip;
+    private final TimeTrip<SimulationNode> trip;
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
 	
-	private final boolean precomputedPaths;
+    private final boolean precomputedPaths;
     
     private final EventProcessor eventProcessor;
     
@@ -55,11 +55,10 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     
     private final StandardTimeProvider timeProvider;
 	
-	private final Statistics statistics;
+    private final Statistics statistics;
 	
-	private final TripsUtil tripsUtil;
-    
-    
+    private final TripsUtil tripsUtil;
+        
     private DemandAgentState state;
     
     private OnDemandVehicle vehicle;
@@ -72,39 +71,34 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     
     private SimulationNode lastFromPosition;
 	
-	private long scheduledPickupDelay;
+    private long scheduledPickupDelay;
 	
-	private long realPickupTime = 0;
+    private long realPickupTime = 0;
 	
-	private long minDemandServiceDuration;
+    private long minDemandServiceDuration;
 	
-	// only to save compuatational time it|s 
-//	private long currentServiceDuration;
-	
-	private boolean dropped;
-
-    
+    private boolean dropped;
     
     
     public int getSimpleId() {
         return simpleId;
     }
 
-	public void setScheduledPickupDelay(long scheduledPickupDelay) {
-		this.scheduledPickupDelay = scheduledPickupDelay;
-	}
+    public void setScheduledPickupDelay(long scheduledPickupDelay) {
+        this.scheduledPickupDelay = scheduledPickupDelay;
+    }
 
-	public long getScheduledPickupDelay() {
-		return scheduledPickupDelay;
-	}
+    public long getScheduledPickupDelay() {
+        return scheduledPickupDelay;
+    }
 
-	public long getRealPickupTime() {
-		return realPickupTime;
-	}
+    public long getRealPickupTime() {
+        return realPickupTime;
+    }
 
-	public long getDemandTime() {
-		return demandTime;
-	}
+    public long getDemandTime() {
+        return demandTime;
+    }
 
     public DemandAgentState getState() {
         return state;
@@ -118,55 +112,47 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
         return onDemandVehicle;
     }
 
-	public long getMinDemandServiceDuration() {
-		return minDemandServiceDuration;
-	}
+    public long getMinDemandServiceDuration() {
+        return minDemandServiceDuration;
+    }
 
-	public void setDropped(boolean dropped) {
-		this.dropped = dropped;
-	}
+    public void setDropped(boolean dropped) {
+        this.dropped = dropped;
+    }
 
-	public boolean isDropped() {
-		return dropped;
-	}
-	
-	
-
-    
-    
+    public boolean isDropped() {
+        return dropped;
+    }   
     
     @Inject
-	public DemandAgent(OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
-            DemandStorage demandStorage, Map<Long,SimulationNode> nodesMappedByNodeSourceIds, 
-			StandardTimeProvider timeProvider, Statistics statistics, TripsUtil tripsUtil,
-            @Named("precomputedPaths") boolean precomputedPaths, @Assisted String agentId, @Assisted int id,
-            @Assisted TimeTrip<SimulationNode> trip) {
-		super(agentId, trip.getLocations().get(0));
+    public DemandAgent(OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
+        DemandStorage demandStorage, Map<Long,SimulationNode> nodesMappedByNodeSourceIds, 
+        StandardTimeProvider timeProvider, Statistics statistics, TripsUtil tripsUtil,
+        @Named("precomputedPaths") boolean precomputedPaths, @Assisted String agentId, @Assisted int id,
+        @Assisted TimeTrip<SimulationNode> trip) {
+        super(agentId, trip.getLocations().get(0));
         this.simpleId = id;
-		this.trip = trip;
-		this.precomputedPaths = precomputedPaths;
+        this.trip = trip;
+        this.precomputedPaths = precomputedPaths;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.eventProcessor = eventProcessor;
         this.demandStorage = demandStorage;
         this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
         this.timeProvider = timeProvider;
-		this.statistics = statistics;
-		this.tripsUtil = tripsUtil;
+        this.statistics = statistics;
+        this.tripsUtil = tripsUtil;
         state = DemandAgentState.WAITING;
-		dropped = false;
-	}
+        dropped = false;
+    }   
 
-    
-    
-
-	@Override
-	public void born() {
+    @Override
+    public void born() {
         demandStorage.addEntity(this);
-		eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.DEMAND, onDemandVehicleStationsCentral, null, 
+        eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.DEMAND, onDemandVehicleStationsCentral, null, 
                 new DemandData(trip.getLocations(), this));
         demandTime = timeProvider.getCurrentSimTime();
-		computeMinServiceDuration();
-	}
+        computeMinServiceDuration();
+    }
 
     @Override
     public void die() {
@@ -205,8 +191,8 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 
     public void tripStarted(OnDemandVehicle vehicle) {
         state = DemandAgentState.DRIVING;
-		realPickupTime = timeProvider.getCurrentSimTime();
-		this.vehicle = vehicle;
+        realPickupTime = timeProvider.getCurrentSimTime();
+        this.vehicle = vehicle;
     }
 
     @Override
@@ -229,14 +215,11 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
         this.lastFromPosition = lastFromPosition;
     }
 
-	private void computeMinServiceDuration() {
-		Trip<SimulationNode> minTrip = tripsUtil.createTrip(getPosition().id, trip.getLocations().getLast().id);
-		minDemandServiceDuration = (long) (tripsUtil.getTripDurationInSeconds(minTrip) * 1000);
-	}
-
-    
-    
-    
+    private void computeMinServiceDuration() {
+        Trip<SimulationNode> minTrip = tripsUtil.createTrip(getPosition().id, trip.getLocations().getLast().id);
+        minDemandServiceDuration = (long) (tripsUtil.getTripDurationInSeconds(minTrip) * 1000);
+    }
+   
     public interface DemandAgentFactory {
         public DemandAgent create(String agentId, int id, TimeTrip<SimulationNode> osmNodeTrip);
     }

@@ -1,5 +1,5 @@
 
-from amodsim.init import config, roadmaptools_config
+from amodsim.init import config
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -57,17 +57,13 @@ centers = [x + (hist_step / 2) for x in bins[0:HISTOGRAM_SAMPLES]]
 colors = np.asarray(list(map(traffic_load.get_color_from_normalized_load, np.copy(bins))))
 
 
-# curent histogram
-average_density_list_total_current = histogram.get_average_density_list(loads_capacity_1[VehiclePhase.DRIVING_TO_TARGET_LOCATION.name])
-hist = histogram.plot_state(axis[0], average_density_list_total_current, hist_step, bins, centers, colors)
-
-# MoD histogram
+# Current situation histogram
 average_density_list_total_future = histogram.get_average_density_list(loads_capacity_1["ALL"])
-hist_total = histogram.plot_state(axis[1], average_density_list_total_future, hist_step, bins, centers, colors)
+hist_total = histogram.plot_state(axis[0], average_density_list_total_future, hist_step, bins, centers, colors)
 
-# MoD histogram
+# Superblock adaptation histogram
 average_density_list_mod_ridesharing = histogram.get_average_density_list(loads_capacity_5["ALL"])
-hist_mod_ridesharing = histogram.plot_state(axis[2], average_density_list_mod_ridesharing, hist_step, bins, centers, colors)
+hist_mod_ridesharing = histogram.plot_state(axis[1], average_density_list_mod_ridesharing, hist_step, bins, centers, colors)
 
 plt.savefig(config.images.traffic_density_histogram_comparison, bbox_inches='tight', transparent=True)
 
@@ -83,29 +79,21 @@ axis[0][0].set_ylabel("edge count")
 axis[1][0].set_ylabel("edge count")
 
 
-# curent histogram
-average_density_list_total_current = histogram.get_average_density_list(loads_capacity_1[VehiclePhase.DRIVING_TO_TARGET_LOCATION.name])
-hist = histogram.plot_state(axis[0][0], average_density_list_total_current, hist_step, bins, centers, colors)
-
 # MoD histogram
 average_density_list_total_future = histogram.get_average_density_list(loads_capacity_1["ALL"])
-hist_total = histogram.plot_state(axis[0][1], average_density_list_total_future, hist_step, bins, centers, colors)
+hist_total = histogram.plot_state(axis[0][0], average_density_list_total_future, hist_step, bins, centers, colors)
 
 # MoD histogram
 average_density_list_mod_ridesharing = histogram.get_average_density_list(loads_capacity_5["ALL"])
-hist_mod_ridesharing = histogram.plot_state(axis[0][2], average_density_list_mod_ridesharing, hist_step, bins, centers, colors)
-
-# curent histogram
-average_density_list_total_current = histogram.get_average_density_list(loads_capacity_1[VehiclePhase.DRIVING_TO_TARGET_LOCATION.name])
-hist = histogram.plot_state(axis[1][0], average_density_list_total_current, hist_step, bins, centers, colors)
+hist_mod_ridesharing = histogram.plot_state(axis[0][1], average_density_list_mod_ridesharing, hist_step, bins, centers, colors)
 
 # MoD histogram
 average_density_list_total_future = histogram.get_average_density_list(loads_capacity_1["ALL"])
-hist_total = histogram.plot_state(axis[1][1], average_density_list_total_future, hist_step, bins, centers, colors)
+hist_total = histogram.plot_state(axis[1][0], average_density_list_total_future, hist_step, bins, centers, colors)
 
 # MoD histogram
 average_density_list_mod_ridesharing = histogram.get_average_density_list(loads_capacity_5["ALL"])
-hist_mod_ridesharing = histogram.plot_state(axis[1][2], average_density_list_mod_ridesharing, hist_step, bins, centers, colors)
+hist_mod_ridesharing = histogram.plot_state(axis[1][1], average_density_list_mod_ridesharing, hist_step, bins, centers, colors)
 
 plt.savefig(config.images.traffic_density_histogram_comparison_alt, bbox_inches='tight', transparent=True)
 

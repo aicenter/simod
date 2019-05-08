@@ -1,4 +1,4 @@
-from amodsim.init import config, roadmaptools_config
+from amodsim.init import config
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -9,7 +9,7 @@ import itertools
 import numpy as np
 
 
-from scripts.printer import print_info
+from roadmaptools.printer import print_info
 from amodsim.traffic_load import TrafficDensityLevel, WINDOW_END as CHOSEN_WINDOW_END, WINDOW_START as CHOSEN_WINDOW_START
 import amodsim.traffic_load as traffic_load
 
@@ -195,7 +195,7 @@ def plot_main_map():
 	print_info("plotting all load")
 	plot_edges_optimized(pairs, axis[0][0], loads["ALL"])
 
-	print_info("plotting to start location load")
+	"""print_info("plotting to start location load")
 	plot_edges_optimized(pairs, axis[0][1], loads["DRIVING_TO_START_LOCATION"])
 
 	print_info("plotting to target location load")
@@ -205,7 +205,7 @@ def plot_main_map():
 	plot_edges_optimized(pairs, axis[1][0], loads["DRIVING_TO_STATION"])
 
 	print_info("plotting rebalancing load")
-	plot_edges_optimized(pairs, axis[1][1], loads["REBALANCING"])
+	plot_edges_optimized(pairs, axis[1][1], loads["REBALANCING"])"""
 
 	print_info("plotting new congestion")
 	plot_edges_optimized(pairs, axis[1][2], loads["ALL"], color_func=new_congestion_level)

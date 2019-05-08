@@ -35,7 +35,7 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
     
     //private final OnDemandVehicleLayer onDemandVehicleLayer;
     
-    private final DriveAgentLayer driveAgentLayer;
+    private final PrivateVehicleAgentLayer driveAgentLayer;
     
     private final TrafficDensityLayer trafficDensityLayer;
     
@@ -71,7 +71,7 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
     @Inject
     public AmodsimVisioInItializer(Simulation simulation, PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork,
                                    HighwayNetwork highwayNetwork, TramwayNetwork tramwayNetwork, MetrowayNetwork metrowayNetwork,
-                                   RailwayNetwork railwayNetwork, AgentStorage agentStorage, DriveAgentLayer driveAgentLayer,
+                                   RailwayNetwork railwayNetwork, AgentStorage agentStorage, PrivateVehicleAgentLayer driveAgentLayer,
                                    VehicleStorage vehicleStorage, AllNetworkNodes allNetworkNodes,
                                    SimulationCreator simulationCreator, //OnDemandVehicleLayer onDemandVehicleLayer,
                                    TrafficDensityLayer trafficDensityLayer, NodeIdLayer nodeIdLayer,

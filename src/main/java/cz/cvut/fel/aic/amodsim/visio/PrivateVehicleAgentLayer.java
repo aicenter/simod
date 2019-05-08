@@ -10,7 +10,7 @@ import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VehicleLayer;
-import cz.cvut.fel.aic.amodsim.entity.DriveAgent;
+import cz.cvut.fel.aic.amodsim.entity.PrivateVehicleAgent;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 import java.awt.Color;
 
@@ -18,7 +18,7 @@ import java.awt.Color;
  *
  * @author praveale
  */
-public class DriveAgentLayer extends VehicleLayer<PhysicalTransportVehicle>{
+public class PrivateVehicleAgentLayer extends VehicleLayer<PhysicalTransportVehicle>{
 	
     private static final int STATIC_WIDTH = 7;
 
@@ -36,7 +36,7 @@ public class DriveAgentLayer extends VehicleLayer<PhysicalTransportVehicle>{
     
 	
     @Inject
-    public DriveAgentLayer(PhysicalTransportVehicleStorage physicalTransportVehicleStorage, AgentpolisConfig agentpolisConfig) {
+    public PrivateVehicleAgentLayer(PhysicalTransportVehicleStorage physicalTransportVehicleStorage, AgentpolisConfig agentpolisConfig) {
         super(physicalTransportVehicleStorage, agentpolisConfig);
     }
 
@@ -49,9 +49,9 @@ public class DriveAgentLayer extends VehicleLayer<PhysicalTransportVehicle>{
 
     /*@Override
     protected boolean skipDrawing(PhysicalTransportVehicle vehicle) {
-        DriveAgent DriveAgent = (DriveAgent) vehicle.getDriver();
+        PrivateVehicleAgent PrivateVehicleAgent = (PrivateVehicleAgent) vehicle.getDriver();
         
-        if(DriveAgent.getState() == DriveAgentState.WAITING){
+        if(PrivateVehicleAgent.getState() == DriveAgentState.WAITING){
             return true;
         }
         else{
@@ -81,13 +81,13 @@ public class DriveAgentLayer extends VehicleLayer<PhysicalTransportVehicle>{
 
     @Override
     protected Color getEntityDrawColor(PhysicalTransportVehicle vehicle) {
-        DriveAgent driveAgent = (DriveAgent) vehicle.getDriver();
-        /*if (DriveAgent.getVehicleId().equals(this.highlightedVehicleID)) {
+        PrivateVehicleAgent driveAgent = (PrivateVehicleAgent) vehicle.getDriver();
+        /*if (PrivateVehicleAgent.getVehicleId().equals(this.highlightedVehicleID)) {
             return HIGHLIGHTED_COLOR;
 
         }
 
-        switch(DriveAgent.getState()){
+        switch(PrivateVehicleAgent.getState()){
            case REBALANCING:
                return REBALANCING_COLOR;
            default:

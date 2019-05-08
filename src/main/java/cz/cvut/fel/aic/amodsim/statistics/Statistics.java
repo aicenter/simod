@@ -23,7 +23,7 @@ import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.amodsim.CsvWriter;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.io.Common;
-import cz.cvut.fel.aic.amodsim.storage.DriveAgentStorage;
+import cz.cvut.fel.aic.amodsim.storage.PrivateVehicleAgentStorage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -47,11 +47,11 @@ public class Statistics extends AliteEntity implements EventHandler{
     
     private final LinkedList<Double> averageEdgeLoad;
     
-    private final Provider<DriveAgentEdgesLoadByState> allEdgesLoadProvider;
+    private final Provider<PrivateVehicleAgentEdgesLoadByState> allEdgesLoadProvider;
     
     private final OnDemandVehicleStorage onDemandVehicleStorage;
     
-    private final DriveAgentStorage driveAgentStorage;
+    private final PrivateVehicleAgentStorage driveAgentStorage;
     
     private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
     
@@ -93,9 +93,9 @@ public class Statistics extends AliteEntity implements EventHandler{
     
     
     @Inject
-    public Statistics(TypedSimulation eventProcessor, Provider<DriveAgentEdgesLoadByState> allEdgesLoadProvider, 
+    public Statistics(TypedSimulation eventProcessor, Provider<PrivateVehicleAgentEdgesLoadByState> allEdgesLoadProvider, 
             OnDemandVehicleStorage onDemandVehicleStorage, 
-            DriveAgentStorage driveAgentStorage, 
+            PrivateVehicleAgentStorage driveAgentStorage, 
             OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, AmodsimConfig config) throws IOException {
         this.eventProcessor = eventProcessor;
         this.allEdgesLoadProvider = allEdgesLoadProvider;
@@ -231,7 +231,7 @@ public class Statistics extends AliteEntity implements EventHandler{
     @Inject
     private void countEdgeLoadForInterval() {
         //EdgesLoadByState allEdgesLoad = allEdgesLoadProvider.get();
-        DriveAgentEdgesLoadByState allEdgesLoad = allEdgesLoadProvider.get();
+        PrivateVehicleAgentEdgesLoadByState allEdgesLoad = allEdgesLoadProvider.get();
         
         if(tickCount % (config.amodsim.statistics.allEdgesLoadIntervalMilis 
 				/ config.amodsim.statistics.statisticIntervalMilis) == 0){

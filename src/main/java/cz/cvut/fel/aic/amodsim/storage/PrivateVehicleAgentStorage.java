@@ -3,16 +3,16 @@ package cz.cvut.fel.aic.amodsim.storage;
 
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage;
-import cz.cvut.fel.aic.amodsim.entity.DriveAgent;
+import cz.cvut.fel.aic.amodsim.entity.PrivateVehicleAgent;
 
 /**
  *
  * @author praveale
  */
 @Singleton
-public class DriveAgentStorage extends EntityStorage<DriveAgent>{
+public class PrivateVehicleAgentStorage extends EntityStorage<PrivateVehicleAgent>{
     
-    public DriveAgentStorage() {
+    public PrivateVehicleAgentStorage() {
         super();
     }
     

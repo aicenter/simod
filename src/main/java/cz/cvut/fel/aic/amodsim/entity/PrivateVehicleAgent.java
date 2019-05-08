@@ -25,10 +25,9 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.DemandSimulationEntityType;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import cz.cvut.fel.aic.amodsim.statistics.DemandServiceStatistic;
 import cz.cvut.fel.aic.amodsim.statistics.StatisticEvent;
-import cz.cvut.fel.aic.amodsim.storage.DriveAgentStorage;
+import cz.cvut.fel.aic.amodsim.storage.PrivateVehicleAgentStorage;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Node;
 import java.util.List;
@@ -37,7 +36,7 @@ import java.util.List;
  *
  * @author praveale
  */
-public class DriveAgent extends Agent implements Driver<PhysicalTransportVehicle> {
+public class PrivateVehicleAgent extends Agent implements Driver<PhysicalTransportVehicle> {
 
     private DelayData delayData;
 
@@ -49,7 +48,7 @@ public class DriveAgent extends Agent implements Driver<PhysicalTransportVehicle
     
     private final PhysicalTransportVehicleStorage vehicleStorage;
     
-    private final DriveAgentStorage driveAgentStorage;
+    private final PrivateVehicleAgentStorage driveAgentStorage;
     
     private static final double LENGTH = 4;  
     
@@ -86,10 +85,10 @@ public class DriveAgent extends Agent implements Driver<PhysicalTransportVehicle
     private long minDemandServiceDuration;    
 
     @Inject
-    public DriveAgent(PhysicalTransportVehicleStorage vehicleStorage, TripsUtil tripsUtil,
+    public PrivateVehicleAgent(PhysicalTransportVehicleStorage vehicleStorage, TripsUtil tripsUtil,
             PhysicalVehicleDriveFactory driveFactory, PositionUtil positionUtil, EventProcessor eventProcessor,
             StandardTimeProvider timeProvider, @Named("precomputedPaths") boolean precomputedPaths, 
-            AmodsimConfig config, @Assisted String vehicleId, DriveAgentStorage driveAgentStorage,
+            AmodsimConfig config, @Assisted String vehicleId, PrivateVehicleAgentStorage driveAgentStorage,
             @Assisted SimulationNode startPosition) {
         super(vehicleId + " - autonomus agent", startPosition);
         this.startNode = startPosition;
@@ -121,8 +120,7 @@ public class DriveAgent extends Agent implements Driver<PhysicalTransportVehicle
     @Override
     public void die() {
         vehicleStorage.removeEntity(drivenCar);
-        driveAgentStorage.removeEntity(this);
-        
+        driveAgentStorage.removeEntity(this);        
     }
 
     @Override
@@ -195,7 +193,7 @@ public class DriveAgent extends Agent implements Driver<PhysicalTransportVehicle
     }
         
     public interface DriveAgentFactory {
-        public DriveAgent create(String agentId, int id, SimulationNode startNode);
+        public PrivateVehicleAgent create(String agentId, int id, SimulationNode startNode);
     } 
     
     private void computeMinServiceDuration() {
@@ -203,6 +201,9 @@ public class DriveAgent extends Agent implements Driver<PhysicalTransportVehicle
         minDemandServiceDuration = (long) (tripsUtil.getTripDurationInSeconds(minTrip) * 1000);
     }
     
+    /**
+     * Method computes if the current vehicle position is in Holesovice district
+     */
     private boolean isInsideArea() {
         Trip<SimulationNode> trip = tripsUtil.createTrip(startNode.id, getPosition().id);
         for (SimulationNode node : trip.getLocations()) {

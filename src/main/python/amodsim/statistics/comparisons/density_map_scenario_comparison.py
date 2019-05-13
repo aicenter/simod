@@ -17,7 +17,7 @@ loads_capacity_1 = traffic_load.load_all_edges_load_history(config.analysis.edge
 loads_capacity_5 = traffic_load.load_all_edges_load_history(config.analysis.edge_load_ridesharing_on_filepath)
 
 fig, axis = \
-		plt.subplots(1, 3, sharex=True, sharey=True, subplot_kw={"adjustable": 'box', "aspect": 1.0}, figsize=(120, 30))
+		plt.subplots(1, 2, sharex=True, sharey=True, subplot_kw={"adjustable": 'box', "aspect": 1.0}, figsize=(75, 30))
 
 np.vectorize(trafic_density_map.set_axis_params)(axis)
 

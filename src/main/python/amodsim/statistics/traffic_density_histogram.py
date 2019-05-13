@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.collections as collections
 import sys
+import itertools
 from matplotlib import rcParams
 
 from roadmaptools.printer import print_info, print_table
@@ -93,30 +94,64 @@ class TrafficDensityHistogram:
 
         return length_avg, lane_count_avg
 
-    def get_average_density_list(self, load):
+    def get_average_density_list(self, load, edge_pairs, only_selected_area = False):
         edge_id_set = self.get_all_edge_ids_for_window(load, WINDOW_START, WINDOW_END)
-        average_density_list = np.zeros(len(edge_id_set))
+        average_density_list = []
 
         print_info("counting average load")
 
         i = 0
-        for edge_id in edge_id_set:
-            w = WINDOW_START
-            sum = 0
-            edge = self.edges[edge_id]
-            while w <= WINDOW_END:
-                if edge_id in load[w]:
-                    sum += traffic_load.get_normalized_load(load[w][edge_id], edge["length"], edge["laneCount"])
-                w += 1
-            average_density_list[i] = sum / WINDOW_LENGTH
-            i += 1
+        for pair in itertools.islice(edge_pairs, 0, 100000000):
+            edge1 = pair["edge1"]
+            id1 = str(edge1["id"])
+
+            if only_selected_area:
+                if (((edge1["from"]["lonE6"] / 1E6 < 14.45981) and (edge1["from"]["lonE6"] / 1E6 > 14.44041)) and
+                        ((edge1["from"]["latE6"] / 1E6 < 50.11200) and (edge1["from"]["latE6"] / 1E6 > 50.09640))) or \
+                        (((edge1["to"]["lonE6"] / 1E6 < 14.45981) and (edge1["to"]["lonE6"] / 1E6 > 14.44041)) and
+                        ((edge1["to"]["latE6"] / 1E6 < 50.11200) and (edge1["to"]["latE6"] / 1E6 > 50.09640))):
+                    loads_sum = self.get_loads_sum_for_window(load, id1, edge1)
+                    average_density_list.append(loads_sum / WINDOW_LENGTH)
+                    i += 1
+            else:
+                loads_sum = self.get_loads_sum_for_window(load, id1, edge1)
+                average_density_list.append(loads_sum / WINDOW_LENGTH)
+                i += 1
+
+            if pair["edge2"]:
+                edge2 = pair["edge2"];
+                id2 = str(edge2["id"])
+
+                if only_selected_area:
+                    if (((edge2["from"]["lonE6"] / 1E6 < 14.45981) and (edge2["from"]["lonE6"] / 1E6 > 14.44041)) and
+                        ((edge2["from"]["latE6"] / 1E6 < 50.11200) and (edge2["from"]["latE6"] / 1E6 > 50.09640))) or \
+                            (((edge2["to"]["lonE6"] / 1E6 < 14.45981) and (edge2["to"]["lonE6"] / 1E6 > 14.44041)) and
+                             ((edge2["to"]["latE6"] / 1E6 < 50.11200) and (edge2["to"]["latE6"] / 1E6 > 50.09640))):
+                        loads_sum = self.get_loads_sum_for_window(load, id2, edge2)
+                        average_density_list.append(loads_sum / WINDOW_LENGTH)
+                        i += 1
+                else:
+                    loads_sum = self.get_loads_sum_for_window(load, id2, edge2)
+                    average_density_list.append(loads_sum / WINDOW_LENGTH)
+                    i += 1
 
         del edge_id_set
         del load
 
         # average_density_list_filtered = average_density_list[np.nonzero(average_density_list)]
-        average_density_list_filtered = average_density_list[average_density_list > LOW_THRESHOLD]
-        return average_density_list_filtered
+        # average_density_list_filtered = average_density_list[average_density_list > LOW_THRESHOLD]
+        return average_density_list
+
+    @staticmethod
+    def get_loads_sum_for_window(load, edge_id, edge):
+        w = WINDOW_START
+        loads_sum = 0
+        while w <= WINDOW_END:
+            if edge_id in load[w]:
+                loads_sum += traffic_load.get_normalized_load(load[w][edge_id], edge["length"], edge["laneCount"])
+            w += 1
+        return loads_sum
+
 
     def get_average_density_by_phase(self, loads):
         edge_id_set = self.get_all_edge_ids_for_window(loads["ALL"], WINDOW_START, WINDOW_END)

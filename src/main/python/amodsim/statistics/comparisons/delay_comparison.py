@@ -29,7 +29,7 @@ delays_2 = service.get_delays(service_2)
 delays_window_1 = service.get_delays(service_1, True)
 delays_window_2 = service.get_delays(service_2, True)
 
-bins = np.arange(-0.5, 15.5, 0.5)
+bins = np.arange(-0.5, 15.5, 1)
 
 #fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))
 fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))

@@ -36,30 +36,30 @@ public class TimeTrip<L> extends Trip<L>{
 		this.startTime = startTime;
 		this.endTime = endTime;
 	}
-    
-    public TimeTrip(LinkedList<L> locations, long startTime){
+	
+	public TimeTrip(LinkedList<L> locations, long startTime){
 		this(locations, startTime, 0);
 	}
-    
-    public TimeTrip(L startLocation, L endLocation, long startTime){
-        super(startLocation, endLocation);
+	
+	public TimeTrip(L startLocation, L endLocation, long startTime){
+		super(startLocation, endLocation);
 		this.startTime = startTime;
 		this.endTime = 0;
 	}
 
-    @Override
-    @JsonIgnore
-    public L getAndRemoveFirstLocation() {
-        return super.getAndRemoveFirstLocation();
-    }
+	@Override
+	@JsonIgnore
+	public L getAndRemoveFirstLocation() {
+		return super.getAndRemoveFirstLocation();
+	}
 
-    @JsonIgnore
-    @Override
-    public boolean isEmpty() {
-        return super.isEmpty(); 
-    }
-    
-    
-    
-    
+	@JsonIgnore
+	@Override
+	public boolean isEmpty() {
+		return super.isEmpty(); 
+	}
+	
+	
+	
+	
 }

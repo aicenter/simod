@@ -19,24 +19,24 @@ import java.io.File;
  * @author fido
  */
 public class EdgesToJson {
-    
-    public static void main(String[] args) {
-        
-        AmodsimConfig config = new AmodsimConfig();
-        
-        File localConfigFile = args.length > 0 ? new File(args[0]) : null;
-        
-        Injector injector = new AgentPolisInitializer(new MainModule(config, localConfigFile)).initialize();
-        
-        MapInitializer mapInitializer = injector.getInstance(MapInitializer.class);
+	
+	public static void main(String[] args) {
+		
+		AmodsimConfig config = new AmodsimConfig();
+		
+		File localConfigFile = args.length > 0 ? new File(args[0]) : null;
+		
+		Injector injector = new AgentPolisInitializer(new MainModule(config, localConfigFile)).initialize();
+		
+		MapInitializer mapInitializer = injector.getInstance(MapInitializer.class);
 
-//        Graph<RoadNode, RoadEdge> roadGraph = OsmUtil.getHigwayGraph(new File(config.mapFilePath), config.srid);
+//		Graph<RoadNode, RoadEdge> roadGraph = OsmUtil.getHigwayGraph(new File(config.mapFilePath), config.srid);
 
 // TODO - modify OsmUtilTo Support new MapInitializer
-        Graph<SimulationNode, SimulationEdge> roadGraph 
-                = OsmUtil.getSimulationGraph(mapInitializer);
-        String modifier = config.simplifyGraph ? "-simplified" : "";
-        OsmUtil.edgesToJson(roadGraph, new File(config.edgesFilePath + modifier + ".json"));
-        OsmUtil.edgePairsToJson(roadGraph, new File(config.edgePairsFilePath + modifier + ".json"));
-    }
+		Graph<SimulationNode, SimulationEdge> roadGraph 
+				= OsmUtil.getSimulationGraph(mapInitializer);
+		String modifier = config.simplifyGraph ? "-simplified" : "";
+		OsmUtil.edgesToJson(roadGraph, new File(config.edgesFilePath + modifier + ".json"));
+		OsmUtil.edgePairsToJson(roadGraph, new File(config.edgePairsFilePath + modifier + ".json"));
+	}
 }

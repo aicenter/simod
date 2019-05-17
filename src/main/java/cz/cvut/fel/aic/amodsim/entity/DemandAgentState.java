@@ -10,6 +10,6 @@ package cz.cvut.fel.aic.amodsim.entity;
  * @author fido
  */
 public enum DemandAgentState {
-    WAITING,
-    DRIVING
+	WAITING,
+	DRIVING
 }

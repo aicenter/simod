@@ -40,7 +40,7 @@ import java.util.LinkedList;
  */
 public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
-    private final VisioPositionUtil positionUtil;
+	private final VisioPositionUtil positionUtil;
 	
 	private DriverPlan currentPlan;
 	
@@ -53,24 +53,24 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	}
 	
 	
-    
-    
-    @Inject
-    public RideSharingOnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
-            TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
-            PhysicalVehicleDriveFactory driveActivityFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor, 
-            StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, 
+	
+	
+	@Inject
+	public RideSharingOnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
+			TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
+			PhysicalVehicleDriveFactory driveActivityFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor, 
+			StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, 
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
-        super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
-                driveActivityFactory, positionUtil, eventProcessor, timeProvider, rebalancingIdGenerator, config, 
+		super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
+				driveActivityFactory, positionUtil, eventProcessor, timeProvider, rebalancingIdGenerator, config, 
 				vehicleId, startPosition);
-        this.positionUtil = positionUtil;
+		this.positionUtil = positionUtil;
 		
 //		empty plan
 		LinkedList<PlanAction> plan = new LinkedList<>();
 		plan.add(new PlanActionCurrentPosition(getPosition()));
 		currentPlan = new DriverPlan(plan, 0, 0);
-    }
+	}
 
 	@Override
 	public void handleEvent(Event event) {
@@ -95,34 +95,34 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		}
 	}
 
-    @Override
-    protected void driveToDemandStartLocation() {
+	@Override
+	protected void driveToDemandStartLocation() {
 		state = OnDemandVehicleState.DRIVING_TO_START_LOCATION;
-        if(getPosition().id == currentTask.getPosition().id){
+		if(getPosition().id == currentTask.getPosition().id){
 			pickupAndContinue();
 		}
 		else{
 			currentTrip = tripsUtil.createTrip(getPosition().id, currentTask.getPosition().id, vehicle);
 			driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
 		}
-    }
+	}
 
-    @Override
-    protected void driveToTargetLocation() {
+	@Override
+	protected void driveToTargetLocation() {
 		state = OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION;
-        if(getPosition().id == currentTask.getPosition().id){
+		if(getPosition().id == currentTask.getPosition().id){
 			dropOffAndContinue();
 		}
 		else{
 			currentTrip = tripsUtil.createTrip(getPosition().id, currentTask.getPosition().id, vehicle);
 			driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
 		}
-    }
+	}
 
-    @Override
-    protected void driveToNearestStation() {
+	@Override
+	protected void driveToNearestStation() {
 		state = OnDemandVehicleState.DRIVING_TO_STATION;
-        targetStation = onDemandVehicleStationsCentral.getNearestStation(getPosition());
+		targetStation = onDemandVehicleStationsCentral.getNearestStation(getPosition());
 		
 		if(getPosition().equals(targetStation.getPosition())){
 			finishDrivingToStation(((PlanRequestAction) currentTask).getRequest().getDemandAgent());
@@ -132,10 +132,10 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 					targetStation.getPosition().getId(), vehicle);
 			driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
 		}
-    }
+	}
 
-    @Override
-    public void finishedDriving(boolean wasStopped) {
+	@Override
+	public void finishedDriving(boolean wasStopped) {
 		logTraveledDistance(wasStopped);
 		
 		if(wasStopped){
@@ -157,7 +157,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 					break;
 			}
 		}
-    }
+	}
 
 	private void driveToNextTask() {
 		if(currentPlan.getLength() == 1){
@@ -188,15 +188,15 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	private void pickupAndContinue() {
 		DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
 		demandAgent.tripStarted(this);
-        vehicle.pickUp(demandAgent);
+		vehicle.pickUp(demandAgent);
 		
 		// statistics TODO demand tirp?
 //		demandTrip = tripsUtil.createTrip(currentTask.getDemandAgent().getPosition().id,
 //				currentTask.getLocation().id, vehicle);
 		// demand trip length 0 - need to find out where the statistic is used, does it make sense with rebalancing?
-        eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
-                new PickupEventContent(timeProvider.getCurrentSimTime(), 
-                        demandAgent.getSimpleId(), getId(), 0));
+		eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
+				new PickupEventContent(timeProvider.getCurrentSimTime(), 
+						demandAgent.getSimpleId(), getId(), 0));
 		currentPlan.taskCompleted();
 		driveToNextTask();
 	}
@@ -204,12 +204,12 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	private void dropOffAndContinue() {
 		DemandAgent demandAgent = ((PlanActionDropoff) currentTask).getRequest().getDemandAgent();
 		demandAgent.tripEnded();
-        vehicle.dropOff(demandAgent);
+		vehicle.dropOff(demandAgent);
 		
 		// statistics
-        eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
-                new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-                        demandAgent.getSimpleId(), getId()));
+		eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
+				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
+						demandAgent.getSimpleId(), getId()));
 		currentPlan.taskCompleted();
 		driveToNextTask();
 	}
@@ -217,8 +217,8 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	@Override
 	protected void leavingStationEvent() {
 		eventProcessor.addEvent(OnDemandVehicleEvent.LEAVE_STATION, null, null, 
-                new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-                        ((PlanRequestAction) currentTask).getRequest().getDemandAgent().getSimpleId(), getId()));
+				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
+						((PlanRequestAction) currentTask).getRequest().getDemandAgent().getSimpleId(), getId()));
 	}
 	
 	@Override

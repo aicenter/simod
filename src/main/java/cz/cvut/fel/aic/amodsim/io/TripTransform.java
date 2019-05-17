@@ -38,30 +38,30 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 public class TripTransform {
-    
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TripTransform.class);
-    
+	
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TripTransform.class);
+	
 //	private PathPlanner pathPlanner;
-    
-    private int zeroLenghtTripsCount = 0;
-    
-    private int sameStartAndTargetInDataCount = 0;
-    
-    private final Graph<SimulationNode,SimulationEdge> highwayGraph;
-    
-    private final NearestElementUtils nearestElementUtils;
-    
+	
+	private int zeroLenghtTripsCount = 0;
+	
+	private int sameStartAndTargetInDataCount = 0;
+	
+	private final Graph<SimulationNode,SimulationEdge> highwayGraph;
+	
+	private final NearestElementUtils nearestElementUtils;
+	
 
-    @Inject
-    public TripTransform(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils) {
-        this.highwayGraph = highwayNetwork.getNetwork();
-        this.nearestElementUtils = nearestElementUtils;
-    }
-    
-    
-    
-    
-    
+	@Inject
+	public TripTransform(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils) {
+		this.highwayGraph = highwayNetwork.getNetwork();
+		this.nearestElementUtils = nearestElementUtils;
+	}
+	
+	
+	
+	
+	
 	
 //	public List<TimeTrip<Long>> gpsTripsToOsmNodeTrips(List<TimeTrip<GPSLocation>> gpsTrips, 
 //			File osmFile, int srid){
@@ -70,7 +70,7 @@ public class TripTransform {
 	
 //	public List<TimeTrip<Long>> gpsTripsToOsmNodeTrips(List<TimeTrip<GPSLocation>> gpsTrips, 
 //			File osmFile, int srid, boolean completedTrips){
-//        Graph<SimulationNode, SimulationEdge> highwayGraph = OsmUtil.getHigwayGraph(osmFile,srid);
+//		Graph<SimulationNode, SimulationEdge> highwayGraph = OsmUtil.getHigwayGraph(osmFile,srid);
 //
 //		List<NearestElementUtilPair<Coordinate, SimulationNode>> pairs = new ArrayList<>();
 //		
@@ -89,9 +89,9 @@ public class TripTransform {
 //		for (TimeTrip<GPSLocation> trip : gpsTrips) {
 //			processGpsTrip(trip, nearestElementUtil, osmNodeTrips, completedTrips);
 //		}
-//        
-//        System.out.println("Number of trips with same source and destination: " + sameStartAndTargetInDataCount);
-//        System.out.println(zeroLenghtTripsCount + " trips with zero lenght discarded");
+//		
+//		System.out.println("Number of trips with same source and destination: " + sameStartAndTargetInDataCount);
+//		System.out.println(zeroLenghtTripsCount + " trips with zero lenght discarded");
 //		
 //		return osmNodeTrips;
 //	}
@@ -109,83 +109,83 @@ public class TripTransform {
 		return mapper.readValue(inputFile, typeFactory.constructCollectionType(
 				List.class, typeFactory.constructParametricType(TimeTrip.class, locationType)));
 	}
-    
-    public List<TimeTrip<SimulationNode>> loadTripsFromTxt(File inputFile){
-        List<TimeTrip<GPSLocation>> gpsTrips = new LinkedList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-               String[] parts = line.split(" ");
-               GPSLocation startLocation
-                       = new GPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, 0);
-               GPSLocation targetLocation
-                       = new GPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, 0);
-               
-               if(startLocation.equals(targetLocation)){
-                   sameStartAndTargetInDataCount++;
-               }
-               else{
-                    gpsTrips.add(new TimeTrip<>(startLocation, targetLocation, 
-                       Long.parseLong(parts[0].split("\\.")[0])));
-               }
-            }
-        } catch (IOException ex) {
-            LOGGER.error(null, ex);
-        }
-        
-        List<TimeTrip<SimulationNode>> trips = new ArrayList<>();
+	
+	public List<TimeTrip<SimulationNode>> loadTripsFromTxt(File inputFile){
+		List<TimeTrip<GPSLocation>> gpsTrips = new LinkedList<>();
+		try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+			   String[] parts = line.split(" ");
+			   GPSLocation startLocation
+					   = new GPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, 0);
+			   GPSLocation targetLocation
+					   = new GPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, 0);
+			   
+			   if(startLocation.equals(targetLocation)){
+				   sameStartAndTargetInDataCount++;
+			   }
+			   else{
+					gpsTrips.add(new TimeTrip<>(startLocation, targetLocation, 
+					   Long.parseLong(parts[0].split("\\.")[0])));
+			   }
+			}
+		} catch (IOException ex) {
+			LOGGER.error(null, ex);
+		}
+		
+		List<TimeTrip<SimulationNode>> trips = new ArrayList<>();
 
-        for (TimeTrip<GPSLocation> trip : ProgressBar.wrap(gpsTrips, "Process GPS trip: ")) {
-                processGpsTrip(trip, trips);
-        }
-        
-        LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);
-        LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
+		for (TimeTrip<GPSLocation> trip : ProgressBar.wrap(gpsTrips, "Process GPS trip: ")) {
+				processGpsTrip(trip, trips);
+		}
+		
+		LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);
+		LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
 		
 		return trips; 
-    }
-    
-    private void processGpsTrip(TimeTrip<GPSLocation> gpsTrip, List<TimeTrip<SimulationNode>>trips) {
+	}
+	
+	private void processGpsTrip(TimeTrip<GPSLocation> gpsTrip, List<TimeTrip<SimulationNode>>trips) {
 		List<GPSLocation> locations = gpsTrip.getLocations();
 		SimulationNode startNode = nearestElementUtils.getNearestElement(locations.get(0), EGraphType.HIGHWAY);
-        SimulationNode targetNode = nearestElementUtils.getNearestElement(locations.get(locations.size() - 1), EGraphType.HIGHWAY);
+		SimulationNode targetNode = nearestElementUtils.getNearestElement(locations.get(locations.size() - 1), EGraphType.HIGHWAY);
 	
 		if(startNode != targetNode){
-            LinkedList<SimulationNode> nodesList = new LinkedList<>();
-            nodesList.add(startNode);
-            nodesList.add(targetNode);
-            trips.add(new TimeTrip<>(nodesList, gpsTrip.getStartTime(), gpsTrip.getEndTime()));
-        }   
-        else{
-            zeroLenghtTripsCount++;
-        }
-    }
-    
-//    public void tripsFromTxtToJson(File inputFile, File osmFile, int srid, File outputFile) throws IOException{
-//        List<TimeTrip<GPSLocation>> gpsTrips = new LinkedList<>();
-//        try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
-//            String line;
-//            while ((line = br.readLine()) != null) {
-//               String[] parts = line.split(" ");
-//               GPSLocation startLocation
-//                       = new GPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, 0);
-//               GPSLocation targetLocation
-//                       = new GPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, 0);
-//               
-//               if(startLocation.equals(targetLocation)){
-//                   sameStartAndTargetInDataCount++;
-//               }
-//               else{
-//                    gpsTrips.add(new TimeTrip<>(startLocation, targetLocation, 
-//                       Long.parseLong(parts[0].split("\\.")[0])));
-//               }
-//            }
-//        } catch (IOException ex) {
-//            LOGGER.error(null, ex);
-//        }
+			LinkedList<SimulationNode> nodesList = new LinkedList<>();
+			nodesList.add(startNode);
+			nodesList.add(targetNode);
+			trips.add(new TimeTrip<>(nodesList, gpsTrip.getStartTime(), gpsTrip.getEndTime()));
+		}   
+		else{
+			zeroLenghtTripsCount++;
+		}
+	}
+	
+//	public void tripsFromTxtToJson(File inputFile, File osmFile, int srid, File outputFile) throws IOException{
+//		List<TimeTrip<GPSLocation>> gpsTrips = new LinkedList<>();
+//		try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
+//			String line;
+//			while ((line = br.readLine()) != null) {
+//			   String[] parts = line.split(" ");
+//			   GPSLocation startLocation
+//					   = new GPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, 0);
+//			   GPSLocation targetLocation
+//					   = new GPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, 0);
+//			   
+//			   if(startLocation.equals(targetLocation)){
+//				   sameStartAndTargetInDataCount++;
+//			   }
+//			   else{
+//					gpsTrips.add(new TimeTrip<>(startLocation, targetLocation, 
+//					   Long.parseLong(parts[0].split("\\.")[0])));
+//			   }
+//			}
+//		} catch (IOException ex) {
+//			LOGGER.error(null, ex);
+//		}
 //
-//        tripsToJson(gpsTripsToOsmNodeTrips(gpsTrips, osmFile, srid, false), outputFile); 
-//    }
+//		tripsToJson(gpsTripsToOsmNodeTrips(gpsTrips, osmFile, srid, false), outputFile); 
+//	}
 
 //	private void processGpsTrip(TimeTrip<GPSLocation> trip, NearestElementUtil<RoadNode> nearestElementUtil, 
 //			ArrayList<TimeTrip<Long>> osmNodeTrips, boolean completedTrips) {
@@ -212,11 +212,11 @@ public class TripTransform {
 //			}
 //		}
 //		if(osmNodesList.size() > 1){
-//            osmNodeTrips.add(new TimeTrip<>(osmNodesList, trip.getStartTime(), trip.getEndTime()));
-//        }   
-//        else{
-//            zeroLenghtTripsCount++;
-//        }
-//    }
+//			osmNodeTrips.add(new TimeTrip<>(osmNodesList, trip.getStartTime(), trip.getEndTime()));
+//		}   
+//		else{
+//			zeroLenghtTripsCount++;
+//		}
+//	}
 	
 }

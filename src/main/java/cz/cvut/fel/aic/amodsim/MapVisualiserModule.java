@@ -15,12 +15,12 @@ public class MapVisualiserModule  extends MainModule{
 	private final AmodsimConfig amodsimConfig;
 	
 	public MapVisualiserModule(AmodsimConfig amodsimConfig, File localConfigFile) {
-        super(amodsimConfig, localConfigFile);
-        this.amodsimConfig = amodsimConfig;
-    }
+		super(amodsimConfig, localConfigFile);
+		this.amodsimConfig = amodsimConfig;
+	}
 	
 	@Override
-    protected void bindVisioInitializer() {
-        bind(VisioInitializer.class).to(MapVisualizerVisioInitializer.class);
-    }
+	protected void bindVisioInitializer() {
+		bind(VisioInitializer.class).to(MapVisualizerVisioInitializer.class);
+	}
 }

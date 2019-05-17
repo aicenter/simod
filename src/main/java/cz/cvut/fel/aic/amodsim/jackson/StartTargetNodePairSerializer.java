@@ -18,11 +18,11 @@ import java.io.IOException;
  */
 public class StartTargetNodePairSerializer extends JsonSerializer<StartTargetNodePair>{
 
-    @Override
-    public void serialize(StartTargetNodePair startTargetNodePair, JsonGenerator jg, SerializerProvider sp) 
-            throws IOException, JsonProcessingException {
-        jg.writeFieldName(Integer.toString(startTargetNodePair.getStartNodeId()) + "-"
-                + Integer.toString(startTargetNodePair.getTargetNodeId()));
-    }
-    
+	@Override
+	public void serialize(StartTargetNodePair startTargetNodePair, JsonGenerator jg, SerializerProvider sp) 
+			throws IOException, JsonProcessingException {
+		jg.writeFieldName(Integer.toString(startTargetNodePair.getStartNodeId()) + "-"
+				+ Integer.toString(startTargetNodePair.getTargetNodeId()));
+	}
+	
 }

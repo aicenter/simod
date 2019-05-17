@@ -17,11 +17,11 @@ import org.junit.Test;
 public class Test1Vehicle1Demmand {
 	
 	@Test
-    public void run() throws Throwable{
+	public void run() throws Throwable{
 		new OneVehicleOneDemmand().run(new InsertionHeuristicTestEnvironment());
-    }
+	}
 	
 	public static void main(String[] args) {
-        VisualTests.runVisualTest(Test1Vehicle1Demmand.class);
-    }
+		VisualTests.runVisualTest(Test1Vehicle1Demmand.class);
+	}
 }

@@ -10,10 +10,10 @@ package cz.cvut.fel.aic.amodsim.event;
  * @author fido
  */
 public enum OnDemandVehicleEvent{
-    LEAVE_STATION,
-    PICKUP,
-    DROP_OFF,
-    REACH_NEAREST_STATION,
-    START_REBALANCING,
-    FINISH_REBALANCING
+	LEAVE_STATION,
+	PICKUP,
+	DROP_OFF,
+	REACH_NEAREST_STATION,
+	START_REBALANCING,
+	FINISH_REBALANCING
 }

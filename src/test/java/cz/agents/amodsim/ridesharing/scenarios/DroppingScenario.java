@@ -27,12 +27,12 @@ import org.junit.Test;
 public class DroppingScenario {
 	
 	@Test
-    public void run(RidesharingTestEnvironment testEnvironment) throws Throwable{
+	public void run(RidesharingTestEnvironment testEnvironment) throws Throwable{
 		// bootstrap Guice
 		Injector injector = testEnvironment.getInjector();
 		
 		// set roadgraph
-        Graph<SimulationNode, SimulationEdge> graph 
+		Graph<SimulationNode, SimulationEdge> graph 
 				= Utils.getGridGraph(10, injector.getInstance(Transformer.class), 1);
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
@@ -47,7 +47,7 @@ public class DroppingScenario {
 		List<RidesharingEventData> expectedEvents = new LinkedList<>();
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.PICKUP));
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DROP_OFF));
-        
-        testEnvironment.run(graph, trips, vehicalInitPositions, expectedEvents);
-    }
+		
+		testEnvironment.run(graph, trips, vehicalInitPositions, expectedEvents);
+	}
 }

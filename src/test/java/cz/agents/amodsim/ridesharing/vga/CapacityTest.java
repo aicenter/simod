@@ -17,11 +17,11 @@ import org.junit.Test;
 public class CapacityTest {
 	
 	@Test
-    public void run() throws Throwable{
+	public void run() throws Throwable{
 		new CapacityScenario().run(new VGASystemTestScenario());
-    }
+	}
 	
 	public static void main(String[] args) {
-        VisualTests.runVisualTest(CapacityTest.class);
-    }
+		VisualTests.runVisualTest(CapacityTest.class);
+	}
 }

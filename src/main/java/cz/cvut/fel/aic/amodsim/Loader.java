@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
  */
 public class Loader {
 	
-        private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Loader.class);
-    
+		private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Loader.class);
+	
 //	private Connection connection;
 	
 	private ArrayList<TimeTrip<GPSLocation>> trips;
@@ -87,7 +87,7 @@ public class Loader {
 				locations.add(new GPSLocation(location.get(1), location.get(0), 0, 0));
 			}
 		} catch (IOException ex) {
-                        LOGGER.error(null, ex);
+						LOGGER.error(null, ex);
 		}
 
 		return locations;

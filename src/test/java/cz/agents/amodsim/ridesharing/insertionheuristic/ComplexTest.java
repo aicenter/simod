@@ -17,11 +17,11 @@ import org.junit.Test;
 public class ComplexTest {
 	
 	@Test
-    public void run() throws Throwable{
+	public void run() throws Throwable{
 		new ComplexScenario().run(new InsertionHeuristicTestEnvironment());
-    }
+	}
 	
 	public static void main(String[] args) {
-        VisualTests.runVisualTest(ComplexTest.class);
-    }
+		VisualTests.runVisualTest(ComplexTest.class);
+	}
 }

@@ -14,30 +14,30 @@ import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
  * @author fido
  */
 public class Demand {
-    final DemandAgent demandAgent;
+	final DemandAgent demandAgent;
 
-    final VehicleTrip<TripItem> demandTrip;
+	final VehicleTrip<TripItem> demandTrip;
 
-    public DemandAgent getDemandAgent() {
-        return demandAgent;
-    }
+	public DemandAgent getDemandAgent() {
+		return demandAgent;
+	}
 
-    public VehicleTrip getDemandTrip() {
-        return demandTrip;
-    }
+	public VehicleTrip getDemandTrip() {
+		return demandTrip;
+	}
 
 
 
-    public Demand(DemandAgent demandAgent, VehicleTrip demandTrip) {
-        this.demandAgent = demandAgent;
-        this.demandTrip = demandTrip;
-    }
+	public Demand(DemandAgent demandAgent, VehicleTrip demandTrip) {
+		this.demandAgent = demandAgent;
+		this.demandTrip = demandTrip;
+	}
 
-    public int getStartNodeId(){
-        return demandTrip.getLocations().getFirst().tripPositionByNodeId;
-    }
+	public int getStartNodeId(){
+		return demandTrip.getLocations().getFirst().tripPositionByNodeId;
+	}
 
-    public int getTargetNodeId(){
-        return demandTrip.getLocations().getLast().tripPositionByNodeId;
-    }
+	public int getTargetNodeId(){
+		return demandTrip.getLocations().getLast().tripPositionByNodeId;
+	}
 }

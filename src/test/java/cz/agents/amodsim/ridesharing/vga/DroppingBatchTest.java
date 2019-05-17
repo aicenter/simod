@@ -17,11 +17,11 @@ import org.junit.Test;
 public class DroppingBatchTest {
 	
 	@Test
-    public void run() throws Throwable{
+	public void run() throws Throwable{
 		new DroppingBatchScenario().run(new VGASystemTestScenario());
-    }
+	}
 	
 	public static void main(String[] args) {
-        VisualTests.runVisualTest(DroppingBatchTest.class);
-    }
+		VisualTests.runVisualTest(DroppingBatchTest.class);
+	}
 }

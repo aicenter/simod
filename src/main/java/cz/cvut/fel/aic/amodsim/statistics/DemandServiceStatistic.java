@@ -10,11 +10,11 @@ package cz.cvut.fel.aic.amodsim.statistics;
  * @author fido
  */
 public class DemandServiceStatistic {
-    private final long demandTime;
+	private final long demandTime;
 	
 	private final long pickupTime;
-    
-    private final long dropoffTime;
+	
+	private final long dropoffTime;
 	
 	private final long minPossibleServiceDelay;
 	
@@ -22,13 +22,13 @@ public class DemandServiceStatistic {
 	
 	private final String vehicleId;
 
-    public long getDemandTime() {
-        return demandTime;
-    }
+	public long getDemandTime() {
+		return demandTime;
+	}
 
-    public long getDropoffTime() {
-        return dropoffTime;
-    }
+	public long getDropoffTime() {
+		return dropoffTime;
+	}
 
 	public long getPickupTime() {
 		return pickupTime;
@@ -48,16 +48,16 @@ public class DemandServiceStatistic {
 	
 	
 
-    public DemandServiceStatistic(long demandTime, long pickupTime, long dropoffTime, long minPossibleServiceDelay,
+	public DemandServiceStatistic(long demandTime, long pickupTime, long dropoffTime, long minPossibleServiceDelay,
 			String demandId, 
 			String vehicleId) {
-        this.demandTime = demandTime;
+		this.demandTime = demandTime;
 		this.pickupTime = pickupTime;
-        this.dropoffTime = dropoffTime;
+		this.dropoffTime = dropoffTime;
 		this.minPossibleServiceDelay = minPossibleServiceDelay;
 		this.demandId = demandId;
 		this.vehicleId = vehicleId;
-    }
-    
-    
+	}
+	
+	
 }

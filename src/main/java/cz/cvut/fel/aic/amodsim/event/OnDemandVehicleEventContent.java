@@ -10,19 +10,19 @@ package cz.cvut.fel.aic.amodsim.event;
  * @author fido
  */
 public class OnDemandVehicleEventContent {
-    private final long time;
-    
-    private final int demandId;
+	private final long time;
+	
+	private final int demandId;
 	
 	private final String onDemandVehicleId;
 
-    public long getTime() {
-        return time;
-    }
+	public long getTime() {
+		return time;
+	}
 
-    public int getDemandId() {
-        return demandId;
-    }
+	public int getDemandId() {
+		return demandId;
+	}
 
 	public String getOnDemandVehicleId() {
 		return onDemandVehicleId;

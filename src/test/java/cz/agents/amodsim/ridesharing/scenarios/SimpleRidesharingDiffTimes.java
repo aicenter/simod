@@ -27,12 +27,12 @@ import org.junit.Test;
 public class SimpleRidesharingDiffTimes {
 	
 	@Test
-    public void run(RidesharingTestEnvironment testEnvironment) throws Throwable{
+	public void run(RidesharingTestEnvironment testEnvironment) throws Throwable{
 		// bootstrap Guice
 		Injector injector = testEnvironment.getInjector();
 		
 		// set roadgraph
-        Graph<SimulationNode, SimulationEdge> graph 
+		Graph<SimulationNode, SimulationEdge> graph 
 				= Utils.getGridGraph(5, injector.getInstance(Transformer.class), 1);
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
@@ -49,7 +49,7 @@ public class SimpleRidesharingDiffTimes {
 		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.PICKUP));
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DROP_OFF));
 		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.DROP_OFF));
-        
-        testEnvironment.run(graph, trips, vehicalInitPositions, expectedEvents);
-    }
+		
+		testEnvironment.run(graph, trips, vehicalInitPositions, expectedEvents);
+	}
 }

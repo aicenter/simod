@@ -24,48 +24,48 @@ import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
  * @author fido
  */
 public class TestOnDemandVehicle extends OnDemandVehicle{
-    
-    @Inject
-    public TestOnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage,
-            TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
-            StandardDriveFactory driveActivityFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor, 
-            StandardTimeProvider timeProvider, StatisticControl statisticControl,IdGenerator rebalancingIdGenerator, 
+	
+	@Inject
+	public TestOnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage,
+			TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
+			StandardDriveFactory driveActivityFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor, 
+			StandardTimeProvider timeProvider, StatisticControl statisticControl,IdGenerator rebalancingIdGenerator, 
 			AmodsimConfig config, @Assisted String vehicleId, @Assisted SimulationNode startPosition) {
-        super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, 
+		super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, 
 				eventProcessor, timeProvider, rebalancingIdGenerator, config, vehicleId, startPosition);
 
-    }
+	}
 
-    /*@Override
-    public void finishedDriving() {
-        OnDemandVehicleState stateBeforeActions = state;   
-        
-        // normal actions
-        //super.finishedDriving();
-        
-        if(stateBeforeActions == OnDemandVehicleState.DRIVING_TO_STATION || 
-                (stateBeforeActions == OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION && tripToStation == null)){
-            tripsToStationFinished++;
-            Assert.assertEquals(droppOffCount, tripsToStationFinished);
-            
-            statisticControl.incrementDemandFinishDrivingCounter();
-            
-//            Assert.assertEquals(0, cargo.size());
-        }
-        if(stateBeforeActions == OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION){
-            demandTripsFinished++;
-        }
-        Assert.assertTrue(demandTripsFinished == tripsToStationFinished 
-                || demandTripsFinished == tripsToStationFinished + 1);
-    }*/
+	/*@Override
+	public void finishedDriving() {
+		OnDemandVehicleState stateBeforeActions = state;   
+		
+		// normal actions
+		//super.finishedDriving();
+		
+		if(stateBeforeActions == OnDemandVehicleState.DRIVING_TO_STATION || 
+				(stateBeforeActions == OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION && tripToStation == null)){
+			tripsToStationFinished++;
+			Assert.assertEquals(droppOffCount, tripsToStationFinished);
+			
+			statisticControl.incrementDemandFinishDrivingCounter();
+			
+//			Assert.assertEquals(0, cargo.size());
+		}
+		if(stateBeforeActions == OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION){
+			demandTripsFinished++;
+		}
+		Assert.assertTrue(demandTripsFinished == tripsToStationFinished 
+				|| demandTripsFinished == tripsToStationFinished + 1);
+	}*/
 
-    @Override
-    protected void dropOffDemand() {
-        super.dropOffDemand(); 
-    }
-    
-    
-    
-    
-    
+	@Override
+	protected void dropOffDemand() {
+		super.dropOffDemand(); 
+	}
+	
+	
+	
+	
+	
 }

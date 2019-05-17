@@ -17,26 +17,26 @@ import org.slf4j.LoggerFactory;
  */
 public class PrecomputedDemandSimulation {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PrecomputedDemandSimulation.class);
-    
-    private static File EXPERIMENT_DIR = new File("data/Prague");
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PrecomputedDemandSimulation.class);
+	
+	private static File EXPERIMENT_DIR = new File("data/Prague");
 
-    private static final String INPUT_FILE_PATH = "trips.json";
+	private static final String INPUT_FILE_PATH = "trips.json";
 
 	private static final int SRID = 2065;
 	
 	private static final int START_TIME = 25200000; // 7h
 	
 	public static void main(String[] args) throws MalformedURLException{
-        if (args.length >= 1) {
-            EXPERIMENT_DIR = new File(args[0]);
-        }
-        new PrecomputedDemandSimulation().run();
-    }
+		if (args.length >= 1) {
+			EXPERIMENT_DIR = new File(args[0]);
+		}
+		new PrecomputedDemandSimulation().run();
+	}
 	
 	public void run(){
 		try {
-            List<TimeTrip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(EXPERIMENT_DIR, INPUT_FILE_PATH), Long.class);
+			List<TimeTrip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(EXPERIMENT_DIR, INPUT_FILE_PATH), Long.class);
 
 //			SimpleEnvinromentFactory envinromentFactory = new SimpleEnvinromentFactory(new InfinityDelayingSegmentCapacityDeterminer());
 
@@ -53,7 +53,7 @@ public class PrecomputedDemandSimulation {
 
 	//		creator.addInitModuleFactory(new VehicleDataModelFactory(parameters.vehicleDataModelFile));
 
-	//        creator.addAgentInit(new MyAgentInitFactory());
+	//		creator.addAgentInit(new MyAgentInitFactory());
 	
 //			creator.addInitFactory(new DemendsInitFactory(osmNodesList, creator));
 
@@ -62,13 +62,13 @@ public class PrecomputedDemandSimulation {
 //
 //			// start it up
 //			creator.prepareSimulation(new MyMapInitFactory(SRID));
-//            
-//            creator.startSimulation();
+//			
+//			creator.startSimulation();
 
 			System.exit(0);
 			
 		} catch (IOException ex) {
-                        LOGGER.error(null, ex);
+						LOGGER.error(null, ex);
 		}
 	}
 	

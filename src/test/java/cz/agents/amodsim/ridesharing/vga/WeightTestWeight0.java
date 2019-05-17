@@ -17,11 +17,11 @@ import org.junit.Test;
 public class WeightTestWeight0 {
 	
 	@Test
-    public void run() throws Throwable{
+	public void run() throws Throwable{
 		new Weight0().run(new VGASystemTestScenario());
-    }
+	}
 	
 	public static void main(String[] args) {
-        VisualTests.runVisualTest(WeightTestWeight0.class);
-    }
+		VisualTests.runVisualTest(WeightTestWeight0.class);
+	}
 }

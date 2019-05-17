@@ -14,10 +14,10 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.TripItem;
  * @author fido
  */
 public class JsonTripItem extends TripItem{
-    
-    @JsonCreator
-    public JsonTripItem(@JsonProperty("tripPositionByNodeId") int tripPositionByNodeId) {
-        super(tripPositionByNodeId);
-    }
-    
+	
+	@JsonCreator
+	public JsonTripItem(@JsonProperty("tripPositionByNodeId") int tripPositionByNodeId) {
+		super(tripPositionByNodeId);
+	}
+	
 }

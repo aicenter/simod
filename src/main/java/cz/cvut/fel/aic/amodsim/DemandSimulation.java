@@ -10,5 +10,5 @@ package cz.cvut.fel.aic.amodsim;
  * @author fido
  */
 public class DemandSimulation {
-    
+	
 }

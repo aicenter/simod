@@ -33,21 +33,21 @@ public class RebalancingOnDemandVehicleStation extends OnDemandVehicleStation{
 	}
 	
 	
-    
+	
 	@Inject
-    public RebalancingOnDemandVehicleStation(AmodsimConfig config, EventProcessor eventProcessor, 
-            OnDemandVehicleFactorySpec onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
-            OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 
-            @Assisted String id, @Assisted SimulationNode node, 
-            @Assisted int initialVehicleCount, Transformer transformer, VisioPositionUtil positionUtil, 
-            StationsDispatcher onDemandVehicleStationsCentral) {
-        super(config, eventProcessor, onDemandVehicleFactory, nearestElementUtils, onDemandVehicleStationStorage, 
+	public RebalancingOnDemandVehicleStation(AmodsimConfig config, EventProcessor eventProcessor, 
+			OnDemandVehicleFactorySpec onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
+			OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 
+			@Assisted String id, @Assisted SimulationNode node, 
+			@Assisted int initialVehicleCount, Transformer transformer, VisioPositionUtil positionUtil, 
+			StationsDispatcher onDemandVehicleStationsCentral) {
+		super(config, eventProcessor, onDemandVehicleFactory, nearestElementUtils, onDemandVehicleStationStorage, 
 				onDemandVehicleStorage, id, node, initialVehicleCount, transformer, positionUtil, 
 				onDemandVehicleStationsCentral);
 		this.optimalCarCount = initialVehicleCount;
-    }
-    
-    public interface RebalancingOnDemandVehicleStationFactory {
-        public RebalancingOnDemandVehicleStation create(String id, SimulationNode node, int initialVehicleCount);
-    }
+	}
+	
+	public interface RebalancingOnDemandVehicleStationFactory {
+		public RebalancingOnDemandVehicleStation create(String id, SimulationNode node, int initialVehicleCount);
+	}
 }

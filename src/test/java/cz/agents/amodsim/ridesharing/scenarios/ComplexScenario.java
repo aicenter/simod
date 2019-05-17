@@ -27,7 +27,7 @@ import org.junit.Test;
 public class ComplexScenario {
 	
 	@Test
-    public void run(RidesharingTestEnvironment testEnvironment) throws Throwable{
+	public void run(RidesharingTestEnvironment testEnvironment) throws Throwable{
 		// bootstrap Guice
 		Injector injector = testEnvironment.getInjector();
 		
@@ -35,7 +35,7 @@ public class ComplexScenario {
 		testEnvironment.getConfig().ridesharing.maximumRelativeDiscomfort = 3.0;
 		
 		// set roadgraph - grid 5x4
-        Graph<SimulationNode, SimulationEdge> graph 
+		Graph<SimulationNode, SimulationEdge> graph 
 				= Utils.getGridGraph(5, injector.getInstance(Transformer.class), 4);
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
@@ -64,7 +64,7 @@ public class ComplexScenario {
 		expectedEvents.add(new RidesharingEventData("0", 3, OnDemandVehicleEvent.DROP_OFF));
 		expectedEvents.add(new RidesharingEventData("1", 4, OnDemandVehicleEvent.DROP_OFF));
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DROP_OFF));
-        
-        testEnvironment.run(graph, trips, vehicalInitPositions, expectedEvents);
-    }
+		
+		testEnvironment.run(graph, trips, vehicalInitPositions, expectedEvents);
+	}
 }

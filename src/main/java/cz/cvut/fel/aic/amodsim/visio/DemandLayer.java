@@ -82,11 +82,11 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
 	protected Point2d getEntityPosition(DemandAgent demandAgent) {
 		if(demandAgent.getState() == DemandAgentState.DRIVING){
 			return getDrivingAgentPosition(demandAgent);
-        }
-        else{
-            return getWaitingAgentPosition(demandAgent);
-        }
-    }
+		}
+		else{
+			return getWaitingAgentPosition(demandAgent);
+		}
+	}
 
 	@Override
 	protected Point2d getEntityPositionInTime(DemandAgent demandAgent, long time) {

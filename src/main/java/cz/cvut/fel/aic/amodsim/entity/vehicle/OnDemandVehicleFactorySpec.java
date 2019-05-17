@@ -13,5 +13,5 @@ import cz.cvut.fel.aic.geographtools.Node;
  * @author fido
  */
 public interface OnDemandVehicleFactorySpec {
-    public OnDemandVehicle create(String vehicleId, SimulationNode startPosition);
+	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition);
 }

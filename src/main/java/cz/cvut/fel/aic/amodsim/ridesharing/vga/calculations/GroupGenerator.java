@@ -65,7 +65,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 	
 
 	@Inject
-    public GroupGenerator(OptimalVehiclePlanFinder optimalVehiclePlanFinder, AmodsimConfig config) {
+	public GroupGenerator(OptimalVehiclePlanFinder optimalVehiclePlanFinder, AmodsimConfig config) {
 		this.optimalVehiclePlanFinder = optimalVehiclePlanFinder;
 		vehicleCapacity = config.ridesharing.vehicleCapacity;
 		recordTime = config.ridesharing.vga.logPlanComputationalTime;
@@ -73,7 +73,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		groupGenerationTimeLimit = config.ridesharing.vga.groupGenerationTimeLimit * 1000;
 	}
 
-    public List<Plan> generateGroupsForVehicle(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime) {
+	public List<Plan> generateGroupsForVehicle(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime) {
 		
 		long group_generation_start_time = System.nanoTime();
 		boolean stop = false;
@@ -91,10 +91,10 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		Set<GroupData> currentGroups = new LinkedHashSet<>();
 		
 		// F_v^{1}
-        List<PlanComputationRequest> feasibleRequests = new ArrayList<>();
+		List<PlanComputationRequest> feasibleRequests = new ArrayList<>();
 		
 		// F_v all groups feasible for vehicle with optimal plan already assigned to them - the output
-        List<Plan> groupPlans = new ArrayList<>();
+		List<Plan> groupPlans = new ArrayList<>();
 
 		Set<PlanComputationRequest> onBoardRequestLock = null;
 		if(vehicle.getRequestsOnBoard().isEmpty()){
@@ -166,28 +166,28 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		
 		// generate other groups
 		int currentGroupSize = 1;
-        while(!currentGroups.isEmpty() && (maxGroupSize == 0 || currentGroupSize < maxGroupSize) && !stop) {
+		while(!currentGroups.isEmpty() && (maxGroupSize == 0 || currentGroupSize < maxGroupSize) && !stop) {
 
 			// current groups for the next iteration
-            Set<GroupData> newCurrentGroups = new LinkedHashSet<>();
+			Set<GroupData> newCurrentGroups = new LinkedHashSet<>();
 			
 			// set of groups that were already checked
 			Set<Set<PlanComputationRequest>> currentCheckedGroups = new LinkedHashSet<>();
 
-            for (GroupData groupData : currentGroups) {
-                for (PlanComputationRequest request : feasibleRequests) {
-                    if (groupData.requests.contains(request)){
+			for (GroupData groupData : currentGroups) {
+				for (PlanComputationRequest request : feasibleRequests) {
+					if (groupData.requests.contains(request)){
 						continue;
 					}
 					
 					// G'
-                    LinkedHashSet<PlanComputationRequest> newGroupToCheck = new LinkedHashSet<>(groupData.requests);
-                    newGroupToCheck.add(request);
+					LinkedHashSet<PlanComputationRequest> newGroupToCheck = new LinkedHashSet<>(groupData.requests);
+					newGroupToCheck.add(request);
 					
-                    if (currentCheckedGroups.contains(newGroupToCheck)){
+					if (currentCheckedGroups.contains(newGroupToCheck)){
 						continue;
 					}
-                    currentCheckedGroups.add(newGroupToCheck);
+					currentCheckedGroups.add(newGroupToCheck);
 					
 					// check whether all n-1 subsets are in F_v^{k - 1}
 					boolean checkFeasibility = true;
@@ -236,32 +236,32 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 							else{
 								newCurrentGroups.add(new GroupData(newGroupToCheck, groupData.onboardRequestLock));
 							}
-//	                        if(groups.size() > 50){
-//	                            return groups;
-//	                        }
+//							if(groups.size() > 50){
+//								return groups;
+//							}
 						}
 					}
-                }
+				}
 				if(stop){
 					break;
 				}
-            }
+			}
 
-            currentGroups = newCurrentGroups;
+			currentGroups = newCurrentGroups;
 			currentGroupSize++;
 		}
-        return groupPlans;
-    }
+		return groupPlans;
+	}
 	
 	public Set<Set<PlanComputationRequest>> generateGlobalGroups(LinkedHashSet<PlanComputationRequest> requests, int startTime) {
 		// F_v^{k - 1} - groupes for request adding
 		Set<Set<PlanComputationRequest>> currentGroups = new LinkedHashSet<>();
 		
 		// F_v^{1}
-        List<PlanComputationRequest> feasibleRequests = new ArrayList<>();
+		List<PlanComputationRequest> feasibleRequests = new ArrayList<>();
 		
 		// F_v all groups feasible for vehicle with optimal plan already assigned to them - the output
-        Set<Set<PlanComputationRequest>> feasibleGroups = new HashSet<>();
+		Set<Set<PlanComputationRequest>> feasibleGroups = new HashSet<>();
 		
 		// BASE PLAN - for each empty vehicle, an EMPTY PLAN is valid
 		feasibleGroups.add(new LinkedHashSet<>());
@@ -281,28 +281,28 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		
 		// generate other groups
 		int currentGroupSize = 1;
-        while(!currentGroups.isEmpty()) {
+		while(!currentGroups.isEmpty()) {
 
 			// current groups for the next iteration
-            Set<Set<PlanComputationRequest>> newCurrentGroups = new LinkedHashSet<>();
+			Set<Set<PlanComputationRequest>> newCurrentGroups = new LinkedHashSet<>();
 			
 			// set of groups that were already checked
 			Set<Set<PlanComputationRequest>> currentCheckedGroups = new LinkedHashSet<>();
 
-            for (Set<PlanComputationRequest> group : currentGroups) {
-                for (PlanComputationRequest request : feasibleRequests) {
-                    if (group.contains(request)){
+			for (Set<PlanComputationRequest> group : currentGroups) {
+				for (PlanComputationRequest request : feasibleRequests) {
+					if (group.contains(request)){
 						continue;
 					}
 					
 					// G'
-                    LinkedHashSet<PlanComputationRequest> newGroupToCheck = new LinkedHashSet<>(group);
-                    newGroupToCheck.add(request);
+					LinkedHashSet<PlanComputationRequest> newGroupToCheck = new LinkedHashSet<>(group);
+					newGroupToCheck.add(request);
 					
-                    if (currentCheckedGroups.contains(newGroupToCheck)){
+					if (currentCheckedGroups.contains(newGroupToCheck)){
 						continue;
 					}
-                    currentCheckedGroups.add(newGroupToCheck);
+					currentCheckedGroups.add(newGroupToCheck);
 					
 					// check whether all n-1 subsets are in F_v^{k - 1}
 					boolean checkFeasibility = true;
@@ -319,15 +319,15 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 							newCurrentGroups.add(newGroupToCheck);
 							feasibleGroups.add(newGroupToCheck);
 
-//	                        if(groups.size() > 50){
-//	                            return groups;
-//	                        }
+//							if(groups.size() > 50){
+//								return groups;
+//							}
 						}
 					}
-                }
-            }
+				}
+			}
 
-            currentGroups = newCurrentGroups;
+			currentGroups = newCurrentGroups;
 			currentGroupSize++;
 //			LOGGER.debug("{} groups of the size {} generated", currentGroups.size(), currentGroupSize);
 //			if(currentGroupSize >= 2){
@@ -337,8 +337,8 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 
 //		LOGGER.debug("Groups generated, total number of groups is {}", groups.size());
 		
-        return feasibleGroups;
-    }
+		return feasibleGroups;
+	}
 
 	
 	private class GroupData {

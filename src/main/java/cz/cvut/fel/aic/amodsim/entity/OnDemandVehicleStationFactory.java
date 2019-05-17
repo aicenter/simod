@@ -26,49 +26,49 @@
 //
 //@Singleton
 //public class OnDemandVehicleStationFactory {
-//    
-//    private final AmodsimConfig config;
-//    
-//    private final EventProcessor eventProcessor;
-//    
-//    private final OnDemandVehicleFactorySpec onDemandVehicleFactory;
-//    
-//    private final NearestElementUtils nearestElementUtils;
-//    
-//    private final OnDemandvehicleStationStorage onDemandVehicleStationStorage;
-//    
-//    private final OnDemandVehicleStorage onDemandVehicleStorage;
-//    
-//    private final Transformer transformer;
-//    
-//    private final VisioPositionUtil positionUtil;
-//    
-//    private final StationsDispatcher onDemandVehicleStationsCentral;
+//	
+//	private final AmodsimConfig config;
+//	
+//	private final EventProcessor eventProcessor;
+//	
+//	private final OnDemandVehicleFactorySpec onDemandVehicleFactory;
+//	
+//	private final NearestElementUtils nearestElementUtils;
+//	
+//	private final OnDemandvehicleStationStorage onDemandVehicleStationStorage;
+//	
+//	private final OnDemandVehicleStorage onDemandVehicleStorage;
+//	
+//	private final Transformer transformer;
+//	
+//	private final VisioPositionUtil positionUtil;
+//	
+//	private final StationsDispatcher onDemandVehicleStationsCentral;
 //
-//    @Inject
-//    public OnDemandVehicleStationFactory(AmodsimConfig config, EventProcessor eventProcessor, OnDemandVehicleFactorySpec 
-//            onDemandVehicleFactory, NearestElementUtils nearestElementUtils, OnDemandvehicleStationStorage 
-//                    onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage,
-//                    Transformer transformer, VisioPositionUtil positionUtil, 
-//                    StationsDispatcher onDemandVehicleStationsCentral) {
-//        this.config = config;
-//        this.eventProcessor = eventProcessor;
-//        this.onDemandVehicleFactory = onDemandVehicleFactory;
-//        this.nearestElementUtils = nearestElementUtils;
-//        this.onDemandVehicleStationStorage = onDemandVehicleStationStorage;
-//        this.onDemandVehicleStorage = onDemandVehicleStorage;
-//        this.transformer = transformer;
-//        this.positionUtil = positionUtil;
-//        this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
-//    }
-//    
-//    
-//    
-//    
-//    public OnDemandVehicleStation create(String id, SimulationNode node, int initialVehicleCount){
-//        return new OnDemandVehicleStation(config, eventProcessor, onDemandVehicleFactory, nearestElementUtils,
-//                onDemandVehicleStationStorage, onDemandVehicleStorage, id, node, 
-//                initialVehicleCount, transformer, positionUtil, 
-//                onDemandVehicleStationsCentral);
-//    }
+//	@Inject
+//	public OnDemandVehicleStationFactory(AmodsimConfig config, EventProcessor eventProcessor, OnDemandVehicleFactorySpec 
+//			onDemandVehicleFactory, NearestElementUtils nearestElementUtils, OnDemandvehicleStationStorage 
+//					onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage,
+//					Transformer transformer, VisioPositionUtil positionUtil, 
+//					StationsDispatcher onDemandVehicleStationsCentral) {
+//		this.config = config;
+//		this.eventProcessor = eventProcessor;
+//		this.onDemandVehicleFactory = onDemandVehicleFactory;
+//		this.nearestElementUtils = nearestElementUtils;
+//		this.onDemandVehicleStationStorage = onDemandVehicleStationStorage;
+//		this.onDemandVehicleStorage = onDemandVehicleStorage;
+//		this.transformer = transformer;
+//		this.positionUtil = positionUtil;
+//		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
+//	}
+//	
+//	
+//	
+//	
+//	public OnDemandVehicleStation create(String id, SimulationNode node, int initialVehicleCount){
+//		return new OnDemandVehicleStation(config, eventProcessor, onDemandVehicleFactory, nearestElementUtils,
+//				onDemandVehicleStationStorage, onDemandVehicleStorage, id, node, 
+//				initialVehicleCount, transformer, positionUtil, 
+//				onDemandVehicleStationsCentral);
+//	}
 //}

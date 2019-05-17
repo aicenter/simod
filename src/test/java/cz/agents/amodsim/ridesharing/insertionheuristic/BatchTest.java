@@ -17,11 +17,11 @@ import org.junit.Test;
 public class BatchTest {
 	
 	@Test
-    public void run() throws Throwable{
+	public void run() throws Throwable{
 		new BatchScenario().run(new InsertionHeuristicTestEnvironment());
-    }
+	}
 	
 	public static void main(String[] args) {
-        VisualTests.runVisualTest(BatchTest.class);
-    }
+		VisualTests.runVisualTest(BatchTest.class);
+	}
 }

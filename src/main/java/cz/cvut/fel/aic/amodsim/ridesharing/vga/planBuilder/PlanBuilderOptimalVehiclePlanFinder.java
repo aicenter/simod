@@ -47,35 +47,35 @@ public class PlanBuilderOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> 
 		}
 		
 		VGAVehiclePlan emptyPlan = new VGAVehiclePlan(vehicle, group);
-        toCheck.push(emptyPlan);
+		toCheck.push(emptyPlan);
 
-        double upperBound = Double.POSITIVE_INFINITY;
-        VGAVehiclePlan bestPlan = null;
+		double upperBound = Double.POSITIVE_INFINITY;
+		VGAVehiclePlan bestPlan = null;
 
 		/* In each iteration, we try to add all reamining actions to the plan, one by one. After addition, there 
 		are feasibility tests. If the tests are OK, the new plan is added to queue for check. */
-        while(!toCheck.empty()){
+		while(!toCheck.empty()){
 			
-            VGAVehiclePlan plan = toCheck.pop();
+			VGAVehiclePlan plan = toCheck.pop();
 			
 			// dropoff actions
-            for(PlanComputationRequest request : plan.getOnboardRequests()){
+			for(PlanComputationRequest request : plan.getOnboardRequests()){
 
-                VGAVehiclePlan simplerPlan = new VGAVehiclePlan(plan);
-                simplerPlan.add(request.getDropOffAction());
+				VGAVehiclePlan simplerPlan = new VGAVehiclePlan(plan);
+				simplerPlan.add(request.getDropOffAction());
 
-                if(request.getMaxDropoffTime() > simplerPlan.getCurrentTime() || ignoreTime) {
-                    double currentCost = planCostComputation.calculatePlanCost(simplerPlan);
-                    if (currentCost < upperBound) {
-                        if (simplerPlan.getWaitingRequests().isEmpty() && simplerPlan.getOnboardRequests().isEmpty()) {
-                            upperBound = currentCost;
-                            bestPlan = simplerPlan;
-                        } else {
-                            toCheck.push(simplerPlan);
-                        }
-                    }
-                }
-            }
+				if(request.getMaxDropoffTime() > simplerPlan.getCurrentTime() || ignoreTime) {
+					double currentCost = planCostComputation.calculatePlanCost(simplerPlan);
+					if (currentCost < upperBound) {
+						if (simplerPlan.getWaitingRequests().isEmpty() && simplerPlan.getOnboardRequests().isEmpty()) {
+							upperBound = currentCost;
+							bestPlan = simplerPlan;
+						} else {
+							toCheck.push(simplerPlan);
+						}
+					}
+				}
+			}
 
 			// pickup actions
 			if(plan.vehicleHasFreeCapacity()){
@@ -91,21 +91,21 @@ public class PlanBuilderOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> 
 					}
 				}
 			}
-        }
+		}
 		
 		if(bestPlan == null){
 			return null;
 		}
 		
-        // convert to Plan
+		// convert to Plan
 		List<PlanRequestAction> bestPlanActions = bestPlan.getActions();
 		
-        return new Plan((int) startTime, (int) bestPlan.getCurrentTime(), (int) upperBound, bestPlanActions, vehicle);
+		return new Plan((int) startTime, (int) bestPlan.getCurrentTime(), (int) upperBound, bestPlanActions, vehicle);
 	}
 
-    @Override
-    public boolean groupFeasible(LinkedHashSet<PlanComputationRequest> requests, int startTime, int vehicleCapacity) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+	@Override
+	public boolean groupFeasible(LinkedHashSet<PlanComputationRequest> requests, int startTime, int vehicleCapacity) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
 
 }

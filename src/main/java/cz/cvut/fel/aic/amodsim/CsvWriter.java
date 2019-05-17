@@ -13,54 +13,54 @@ import java.io.Writer;
  * @author fido
  */
 public class CsvWriter {
-    private static final char DEFAULT_SEPARATOR = ',';
-    
-    private final char separator;
-    
-    private final Writer writer;
+	private static final char DEFAULT_SEPARATOR = ',';
+	
+	private final char separator;
+	
+	private final Writer writer;
 
-    public CsvWriter(Writer writer, char separator) {
-        this.separator = separator;
-        this.writer = writer;
-    }
+	public CsvWriter(Writer writer, char separator) {
+		this.separator = separator;
+		this.writer = writer;
+	}
 
-    public CsvWriter(Writer writer) {
-        this(writer, DEFAULT_SEPARATOR);
-    }
-    
-    public void writeLine(String... values) throws IOException {
+	public CsvWriter(Writer writer) {
+		this(writer, DEFAULT_SEPARATOR);
+	}
+	
+	public void writeLine(String... values) throws IOException {
 
-        boolean first = true;
+		boolean first = true;
 
-        StringBuilder stringBuilder = new StringBuilder();
-        for (String value : values) {
-            if (!first) {
-                stringBuilder.append(separator);
-            }
-            
-            stringBuilder.append(replaceQuotes(value));
+		StringBuilder stringBuilder = new StringBuilder();
+		for (String value : values) {
+			if (!first) {
+				stringBuilder.append(separator);
+			}
+			
+			stringBuilder.append(replaceQuotes(value));
 
-            first = false;
-        }
-        stringBuilder.append("\n");
-        writer.append(stringBuilder.toString());
+			first = false;
+		}
+		stringBuilder.append("\n");
+		writer.append(stringBuilder.toString());
 
 
-    }
-    
-    public void close() throws IOException{
-        writer.close();
-    }
+	}
+	
+	public void close() throws IOException{
+		writer.close();
+	}
 
-    private String replaceQuotes(String value) {
-        String result = value;
-        if (result.contains("\"")) {
-            result = result.replace("\"", "\"\"");
-        }
-        return result;
-    }
-    
-    public void flush() throws IOException{
-        writer.flush();
-    }
+	private String replaceQuotes(String value) {
+		String result = value;
+		if (result.contains("\"")) {
+			result = result.replace("\"", "\"\"");
+		}
+		return result;
+	}
+	
+	public void flush() throws IOException{
+		writer.flush();
+	}
 }

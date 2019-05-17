@@ -25,50 +25,50 @@ import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
  */
 @Singleton
 public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
-    
-    protected final TripsUtil tripsUtil;
-    
-    protected final StationsDispatcher onDemandVehicleStationsCentral;
-    
-    protected final PhysicalVehicleDriveFactory driveActivityFactory;
-    
-    protected final VisioPositionUtil positionUtil;
-    
-    protected final EventProcessor eventProcessor;
-    
-    protected final StandardTimeProvider timeProvider;
-    
-    protected final IdGenerator rebalancingIdGenerator;
-    
-    protected final PhysicalTransportVehicleStorage vehicleStorage;
-    
-    protected final AmodsimConfig config;
+	
+	protected final TripsUtil tripsUtil;
+	
+	protected final StationsDispatcher onDemandVehicleStationsCentral;
+	
+	protected final PhysicalVehicleDriveFactory driveActivityFactory;
+	
+	protected final VisioPositionUtil positionUtil;
+	
+	protected final EventProcessor eventProcessor;
+	
+	protected final StandardTimeProvider timeProvider;
+	
+	protected final IdGenerator rebalancingIdGenerator;
+	
+	protected final PhysicalTransportVehicleStorage vehicleStorage;
+	
+	protected final AmodsimConfig config;
 
-    
-    
-    
-    @Inject
-    public OnDemandVehicleFactory(PhysicalTransportVehicleStorage vehicleStorage, 
-            TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
-            PhysicalVehicleDriveFactory driveActivityFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor,
-            StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config) {
-        this.tripsUtil = tripsUtil;
-        this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
-        this.driveActivityFactory = driveActivityFactory;
-        this.positionUtil = positionUtil;
-        this.eventProcessor = eventProcessor;
-        this.timeProvider = timeProvider;
-        this.rebalancingIdGenerator = rebalancingIdGenerator;
-        this.vehicleStorage = vehicleStorage;
-        this.config = config;
-    }
-    
-    
-    
-    @Override
-    public OnDemandVehicle create(String vehicleId, SimulationNode startPosition){
-        return new OnDemandVehicle(vehicleStorage, tripsUtil, 
-                onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, eventProcessor, timeProvider, 
-                rebalancingIdGenerator, config, vehicleId, startPosition);
-    }
+	
+	
+	
+	@Inject
+	public OnDemandVehicleFactory(PhysicalTransportVehicleStorage vehicleStorage, 
+			TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
+			PhysicalVehicleDriveFactory driveActivityFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor,
+			StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config) {
+		this.tripsUtil = tripsUtil;
+		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
+		this.driveActivityFactory = driveActivityFactory;
+		this.positionUtil = positionUtil;
+		this.eventProcessor = eventProcessor;
+		this.timeProvider = timeProvider;
+		this.rebalancingIdGenerator = rebalancingIdGenerator;
+		this.vehicleStorage = vehicleStorage;
+		this.config = config;
+	}
+	
+	
+	
+	@Override
+	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition){
+		return new OnDemandVehicle(vehicleStorage, tripsUtil, 
+				onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, eventProcessor, timeProvider, 
+				rebalancingIdGenerator, config, vehicleId, startPosition);
+	}
 }

@@ -66,7 +66,7 @@ public class VGATestVisioInitializer extends TestVisioInitializer{
 	@Override
 	protected void initEntityLayers(Simulation simulation) {
 		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Vehicles", onDemandVehicleLayer));
-        VisManager.registerLayer(layerManagementLayer.createManageableLayer("Passangers", demandLayer));
+		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Passangers", demandLayer));
 		VisManager.registerLayer(onDemandVehiclePlanLayer);
 	}
 	

@@ -19,28 +19,28 @@ import static org.junit.Assert.assertSame;
  * @author fido
  */
 public class OnDemandVehicleLoad extends EdgesLoadByState{
-    
-    @Inject
-    public OnDemandVehicleLoad(HighwayNetwork highwayNetwork, OnDemandVehicleStorage onDemandVehicleStorage) {
-        super(highwayNetwork, onDemandVehicleStorage);
-    }
+	
+	@Inject
+	public OnDemandVehicleLoad(HighwayNetwork highwayNetwork, OnDemandVehicleStorage onDemandVehicleStorage) {
+		super(highwayNetwork, onDemandVehicleStorage);
+	}
 
-    @Override
-    public void compute() {
-        for (OnDemandVehicle onDemandVehicle : entityStorage) {
-            String entityId = onDemandVehicle.getId();
-            Node currentNode = onDemandVehicle.getPosition();
-            Node targetNode = onDemandVehicle.getTargetNode();
-            if(targetNode != null && !targetNode.equals(currentNode)){
-                int edgeId = network.getEdge(currentNode, targetNode).getUniqueId();
-                countLoadForPosition(entityId, edgeId);
-            }
-            else{
-                assertSame(onDemandVehicle.getState(), OnDemandVehicleState.WAITING);
-            }
-        }
-    }
-    
-    
-    
+	@Override
+	public void compute() {
+		for (OnDemandVehicle onDemandVehicle : entityStorage) {
+			String entityId = onDemandVehicle.getId();
+			Node currentNode = onDemandVehicle.getPosition();
+			Node targetNode = onDemandVehicle.getTargetNode();
+			if(targetNode != null && !targetNode.equals(currentNode)){
+				int edgeId = network.getEdge(currentNode, targetNode).getUniqueId();
+				countLoadForPosition(entityId, edgeId);
+			}
+			else{
+				assertSame(onDemandVehicle.getState(), OnDemandVehicleState.WAITING);
+			}
+		}
+	}
+	
+	
+	
 }

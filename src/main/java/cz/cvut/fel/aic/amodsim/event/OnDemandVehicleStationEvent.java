@@ -10,6 +10,6 @@ package cz.cvut.fel.aic.amodsim.event;
  * @author fido
  */
 public enum OnDemandVehicleStationEvent{
-    TRIP,
-    REBALANCING
+	TRIP,
+	REBALANCING
 }

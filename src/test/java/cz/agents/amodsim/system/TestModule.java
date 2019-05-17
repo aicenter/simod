@@ -18,13 +18,13 @@ import cz.cvut.fel.aic.amodsim.statistics.EdgesLoadByState;
 public class TestModule extends AbstractModule{
 
 
-    @Override
-    protected void configure() {
-        bind(EdgesLoadByState.class).to(OnDemandVehicleLoad.class);
-        
-        install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, TestOnDemandVehicle.class)
-                .build(OnDemandVehicleFactorySpec.class));
-    }
-    
-    
+	@Override
+	protected void configure() {
+		bind(EdgesLoadByState.class).to(OnDemandVehicleLoad.class);
+		
+		install(new FactoryModuleBuilder().implement(OnDemandVehicle.class, TestOnDemandVehicle.class)
+				.build(OnDemandVehicleFactorySpec.class));
+	}
+	
+	
 }

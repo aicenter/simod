@@ -14,9 +14,9 @@ import cz.cvut.fel.aic.amodsim.tripUtil.StartTargetNodePair;
  */
 public class MyModule extends SimpleModule{
 
-    public MyModule() {
-        addKeyDeserializer(StartTargetNodePair.class, new StartTargetNodePairDeserializer());
-        addKeySerializer(StartTargetNodePair.class, new StartTargetNodePairSerializer());
-    }
-    
+	public MyModule() {
+		addKeyDeserializer(StartTargetNodePair.class, new StartTargetNodePairDeserializer());
+		addKeySerializer(StartTargetNodePair.class, new StartTargetNodePairSerializer());
+	}
+	
 }

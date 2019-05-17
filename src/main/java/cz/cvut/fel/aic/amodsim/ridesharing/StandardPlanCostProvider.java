@@ -29,11 +29,11 @@ public class StandardPlanCostProvider implements PlanCostProvider{
 	public double calculatePlanCost(VGAVehiclePlan plan) {
 		return MathUtils.round(weight_parameter * plan.getDiscomfort() 
 					+ (1 - weight_parameter) * plan.getCurrentTime(), 8);
-    }
+	}
 	
 	@Override
 	public int calculatePlanCost(int discomfort, int duration) {
-        return (int) (weight_parameter * discomfort + (1 - weight_parameter) * duration);
-    }
+		return (int) (weight_parameter * discomfort + (1 - weight_parameter) * duration);
+	}
 	
 }

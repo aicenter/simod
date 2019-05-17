@@ -18,11 +18,11 @@ import org.junit.Test;
 public class SimpleRidesharingTestDiffTimes {
 	
 	@Test
-    public void run() throws Throwable{
+	public void run() throws Throwable{
 		new SimpleRidesharingDiffTimes().run(new VGASystemTestScenario());
-    }
+	}
 	
 	public static void main(String[] args) {
-        VisualTests.runVisualTest(SimpleRidesharingTestDiffTimes.class);
-    }
+		VisualTests.runVisualTest(SimpleRidesharingTestDiffTimes.class);
+	}
 }

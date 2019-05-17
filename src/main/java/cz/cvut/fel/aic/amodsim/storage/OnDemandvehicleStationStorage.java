@@ -27,84 +27,84 @@ import java.util.List;
  */
 @Singleton
 public class OnDemandvehicleStationStorage extends EntityStorage<OnDemandVehicleStation>{
-    
-    private NearestElementUtil<OnDemandVehicleStation> nearestElementUtil;
+	
+	private NearestElementUtil<OnDemandVehicleStation> nearestElementUtil;
 	
 	private final Transformer transformer;
 	
 	private int numberOfDemandsNotServedFromNearestStation;
 	
 	public int getNumberOfDemandsNotServedFromNearestStation() {
-        return numberOfDemandsNotServedFromNearestStation;
-    }
+		return numberOfDemandsNotServedFromNearestStation;
+	}
 	
-    @Inject
-    public OnDemandvehicleStationStorage(Transformer transformer) {
-        super();
+	@Inject
+	public OnDemandvehicleStationStorage(Transformer transformer) {
+		super();
 		this.transformer = transformer;
 		numberOfDemandsNotServedFromNearestStation = 0;
-    }
+	}
 	
 	public OnDemandVehicleStation getNearestStation(GPSLocation position){
-        if(nearestElementUtil == null){
-            nearestElementUtil = getNearestElementUtilForStations();
-        }
-        
-        OnDemandVehicleStation nearestStation = nearestElementUtil.getNearestElement(position);
-        return nearestStation;
-    }
+		if(nearestElementUtil == null){
+			nearestElementUtil = getNearestElementUtilForStations();
+		}
+		
+		OnDemandVehicleStation nearestStation = nearestElementUtil.getNearestElement(position);
+		return nearestStation;
+	}
 	
 	public OnDemandVehicleStation getNearestReadyStation(GPSLocation position){
-        if(nearestElementUtil == null){
-            nearestElementUtil = getNearestElementUtilForStations();
-        }
-        
-        OnDemandVehicleStation[] onDemandVehicleStationsSorted 
-                = (OnDemandVehicleStation[]) nearestElementUtil.getKNearestElements(position, 1);
-        
-        OnDemandVehicleStation nearestStation = null;
-        int i = 0;
-        while(i < onDemandVehicleStationsSorted.length){
-            if(!onDemandVehicleStationsSorted[i].isEmpty()){
-                if(i > 0){
-                    numberOfDemandsNotServedFromNearestStation++;
-                }
-                nearestStation = onDemandVehicleStationsSorted[i];
-                break;
-            }
-            i++;
-        }
-        
-        return nearestStation;
-    }
+		if(nearestElementUtil == null){
+			nearestElementUtil = getNearestElementUtilForStations();
+		}
+		
+		OnDemandVehicleStation[] onDemandVehicleStationsSorted 
+				= (OnDemandVehicleStation[]) nearestElementUtil.getKNearestElements(position, 1);
+		
+		OnDemandVehicleStation nearestStation = null;
+		int i = 0;
+		while(i < onDemandVehicleStationsSorted.length){
+			if(!onDemandVehicleStationsSorted[i].isEmpty()){
+				if(i > 0){
+					numberOfDemandsNotServedFromNearestStation++;
+				}
+				nearestStation = onDemandVehicleStationsSorted[i];
+				break;
+			}
+			i++;
+		}
+		
+		return nearestStation;
+	}
 	
 	private NearestElementUtil<OnDemandVehicleStation> getNearestElementUtilForStations() {
-        List<NearestElementUtilPair<Coordinate,OnDemandVehicleStation>> pairs = new ArrayList<>();
-        
-        OnDemandvehicleStationStorage.EntityIterator iterator = new EntityIterator();
+		List<NearestElementUtilPair<Coordinate,OnDemandVehicleStation>> pairs = new ArrayList<>();
 		
-        OnDemandVehicleStation station;
+		OnDemandvehicleStationStorage.EntityIterator iterator = new EntityIterator();
+		
+		OnDemandVehicleStation station;
 		while ((station = iterator.getNextEntity()) != null) {
-            GPSLocation location = station.getPosition();
-            
+			GPSLocation location = station.getPosition();
+			
 			pairs.add(new NearestElementUtilPair<>(new Coordinate(
-                    location.getLongitude(), location.getLatitude(), location.elevation), station));
+					location.getLongitude(), location.getLatitude(), location.elevation), station));
 		}
 		
 		return new NearestElementUtil<>(pairs, transformer, new OnDemandVehicleStationArrayConstructor());
-    }
+	}
 	
 	
 	
 	
 	private static class OnDemandVehicleStationArrayConstructor 
-            implements NearestElementUtil.SerializableIntFunction<OnDemandVehicleStation[]>{
+			implements NearestElementUtil.SerializableIntFunction<OnDemandVehicleStation[]>{
 
-        @Override
-        public OnDemandVehicleStation[] apply(int value) {
-            return new OnDemandVehicleStation[value];
-        }
+		@Override
+		public OnDemandVehicleStation[] apply(int value) {
+			return new OnDemandVehicleStation[value];
+		}
 
-    }
-    
+	}
+	
 }

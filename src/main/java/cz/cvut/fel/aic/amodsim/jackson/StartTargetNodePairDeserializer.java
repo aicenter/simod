@@ -17,13 +17,13 @@ import java.io.IOException;
  */
 class StartTargetNodePairDeserializer extends KeyDeserializer {
 
-    public StartTargetNodePairDeserializer() {
-    }
+	public StartTargetNodePairDeserializer() {
+	}
 
-    @Override
-    public Object deserializeKey(String string, DeserializationContext dc) throws IOException, JsonProcessingException {
-        String[] parts = string.split("-");
-        return new StartTargetNodePair(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
-    }
-    
+	@Override
+	public Object deserializeKey(String string, DeserializationContext dc) throws IOException, JsonProcessingException {
+		String[] parts = string.split("-");
+		return new StartTargetNodePair(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
+	}
+	
 }

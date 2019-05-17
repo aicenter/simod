@@ -62,7 +62,7 @@ public class TestPlanRequest implements PlanComputationRequest
 	public TestPlanRequest(int id, AmodsimConfig amodsimConfig, SimulationNode origin, 
 			SimulationNode destination, int originTime, boolean onboard){
 		
-        minTravelTime = (int) Math.round(
+		minTravelTime = (int) Math.round(
 				MathUtils.getTravelTimeProvider().getExpectedTravelTime(origin, destination) / 1000.0);
 		int maxProlongation = amodsimConfig.ridesharing.maxProlongationInSeconds;
 		
@@ -75,7 +75,7 @@ public class TestPlanRequest implements PlanComputationRequest
 		
 		pickUpAction = new PlanActionPickup(this, origin, maxPickUpTime);
 		dropOffAction = new PlanActionDropoff(this, destination, maxDropOffTime);
-    }
+	}
 
 	@Override
 	public int getOriginTime() {

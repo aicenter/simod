@@ -7,6 +7,6 @@ public class InsertionHeuristic {
   public Boolean recomputeWaitingRequests;
 
   public InsertionHeuristic(Map insertionHeuristic) {
-    this.recomputeWaitingRequests = (Boolean) insertionHeuristic.get("recompute_waiting_requests");
+	this.recomputeWaitingRequests = (Boolean) insertionHeuristic.get("recompute_waiting_requests");
   }
 }

@@ -18,29 +18,29 @@ import java.util.List;
  */
 @Singleton
 public class EntityInitializer {
-    private final OnDemandvehicleStationStorage onDemandVehicleStationStorage;
-    
-    private final NearestElementUtils nearestElementUtils;
+	private final OnDemandvehicleStationStorage onDemandVehicleStationStorage;
+	
+	private final NearestElementUtils nearestElementUtils;
 
-    
-    
-    @Inject
-    public EntityInitializer(OnDemandvehicleStationStorage onDemandVehicleStationStorage, 
-            NearestElementUtils nearestElementUtils) {
-        this.onDemandVehicleStationStorage = onDemandVehicleStationStorage;
-        this.nearestElementUtils = nearestElementUtils;
-    }
+	
+	
+	@Inject
+	public EntityInitializer(OnDemandvehicleStationStorage onDemandVehicleStationStorage, 
+			NearestElementUtils nearestElementUtils) {
+		this.onDemandVehicleStationStorage = onDemandVehicleStationStorage;
+		this.nearestElementUtils = nearestElementUtils;
+	}
 
-    public void initialize(List<OnDemandVehicleStation> onDemandVehicleStations) {
-//        for (OnDemandVehicleStation onDemandVehicleStation : onDemandVehicleStations) {
-//            onDemandVehicleStation.setNearestNode(nearestElementUtils.getNearestElement(
-//                    onDemandVehicleStation.getGpsLocation(), EGraphType.HIGHWAY));
-//            onDemandVehicleStationStorage.addEntity(onDemandVehicleStation);
-//        }
-    }
-    
+	public void initialize(List<OnDemandVehicleStation> onDemandVehicleStations) {
+//		for (OnDemandVehicleStation onDemandVehicleStation : onDemandVehicleStations) {
+//			onDemandVehicleStation.setNearestNode(nearestElementUtils.getNearestElement(
+//					onDemandVehicleStation.getGpsLocation(), EGraphType.HIGHWAY));
+//			onDemandVehicleStationStorage.addEntity(onDemandVehicleStation);
+//		}
+	}
+	
 
-    
-    
-    
+	
+	
+	
 }

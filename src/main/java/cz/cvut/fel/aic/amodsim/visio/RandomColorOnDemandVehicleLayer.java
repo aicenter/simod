@@ -20,41 +20,41 @@ import java.util.Random;
  * @author fido
  */
 public class RandomColorOnDemandVehicleLayer extends OnDemandVehicleLayer{
-    
-    private final Random random;
-    
-    private final HashMap<AgentPolisEntity,Color> agentColors;
-    
-    
-    
-    public RandomColorOnDemandVehicleLayer(PhysicalTransportVehicleStorage physicalTransportVehicleStorage, AgentpolisConfig agentpolisConfig) {
-        super(physicalTransportVehicleStorage, agentpolisConfig);
-        this.random = new Random();
-        agentColors = new HashMap<>();
-    }
+	
+	private final Random random;
+	
+	private final HashMap<AgentPolisEntity,Color> agentColors;
+	
+	
+	
+	public RandomColorOnDemandVehicleLayer(PhysicalTransportVehicleStorage physicalTransportVehicleStorage, AgentpolisConfig agentpolisConfig) {
+		super(physicalTransportVehicleStorage, agentpolisConfig);
+		this.random = new Random();
+		agentColors = new HashMap<>();
+	}
 
-    @Override
-    protected Color getEntityDrawColor(PhysicalTransportVehicle agent) {
-        if(agentColors.containsKey(agent)){
-            return agentColors.get(agent);
-        }
-        else{
-            Color color = getRandomColor();
-            agentColors.put(agent, color);
-            return color;
-        }
-    }
-    
-    
-    
-    
-    
-    private Color getRandomColor(){
+	@Override
+	protected Color getEntityDrawColor(PhysicalTransportVehicle agent) {
+		if(agentColors.containsKey(agent)){
+			return agentColors.get(agent);
+		}
+		else{
+			Color color = getRandomColor();
+			agentColors.put(agent, color);
+			return color;
+		}
+	}
+	
+	
+	
+	
+	
+	private Color getRandomColor(){
 		float r = random.nextFloat();
 		float g = random.nextFloat();
 		float b = random.nextFloat();
 		
 		return new Color(r, g, b);
 	}
-    
+	
 }

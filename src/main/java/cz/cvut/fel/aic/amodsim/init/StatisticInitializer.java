@@ -17,19 +17,19 @@ import cz.cvut.fel.aic.amodsim.statistics.Statistics;
 @Singleton
 public class StatisticInitializer {
 
-    private final Statistics statistics;
+	private final Statistics statistics;
 
-    private final EventProcessor eventProcessor;
-
-
-    @Inject
-    public StatisticInitializer(Statistics statistics, EventProcessor eventProcessor) {
-        this.statistics = statistics;
-        this.eventProcessor = eventProcessor;
-    }
+	private final EventProcessor eventProcessor;
 
 
-    public void initialize() {
-        eventProcessor.addEvent(StatisticEvent.TICK, statistics, null, null);
-    }
+	@Inject
+	public StatisticInitializer(Statistics statistics, EventProcessor eventProcessor) {
+		this.statistics = statistics;
+		this.eventProcessor = eventProcessor;
+	}
+
+
+	public void initialize() {
+		eventProcessor.addEvent(StatisticEvent.TICK, statistics, null, null);
+	}
 }

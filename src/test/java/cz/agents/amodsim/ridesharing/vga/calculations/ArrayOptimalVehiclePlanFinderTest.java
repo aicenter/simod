@@ -44,13 +44,13 @@ public class ArrayOptimalVehiclePlanFinderTest {
 	@BeforeClass
 	public static void prepare(){
 		config = new AmodsimConfig();
-        
-        File localConfigFile = null;
+		
+		File localConfigFile = null;
 
-        // Guice configuration
-        AgentPolisInitializer agentPolisInitializer 
+		// Guice configuration
+		AgentPolisInitializer agentPolisInitializer 
 				= new AgentPolisInitializer(new TestModuleNoVisio(config, localConfigFile));
-        injector = agentPolisInitializer.initialize();
+		injector = agentPolisInitializer.initialize();
 		
 		// config changes
 		config.ridesharing.batchPeriod = 0;
@@ -63,7 +63,7 @@ public class ArrayOptimalVehiclePlanFinderTest {
 	@Test
 	public void testFailCase(){
 		// set roadgraph - grid 5x4
-        Graph<SimulationNode, SimulationEdge> graph 
+		Graph<SimulationNode, SimulationEdge> graph 
 				= Utils.getGridGraph(5, injector.getInstance(Transformer.class), 4);
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
@@ -93,7 +93,7 @@ public class ArrayOptimalVehiclePlanFinderTest {
 	@Test
 	public void testSimpleDifferentTimeCase(){
 		// set roadgraph - grid 5x4
-        Graph<SimulationNode, SimulationEdge> graph 
+		Graph<SimulationNode, SimulationEdge> graph 
 				= Utils.getGridGraph(5, injector.getInstance(Transformer.class), 4);
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		

@@ -31,7 +31,7 @@ public class VGAGroupGeneratorTest {
 		
 		AgentpolisConfig agentpolisConfig = new AgentpolisConfig();
 		AmodsimConfig amodsimConfig = new AmodsimConfig();
-        Configuration.load(agentpolisConfig, amodsimConfig, "agentpolis");
+		Configuration.load(agentpolisConfig, amodsimConfig, "agentpolis");
 		
 		StandardPlanCostProvider planCostComputation = new StandardPlanCostProvider(amodsimConfig);
 		

@@ -16,43 +16,43 @@ import java.util.LinkedList;
  * @author fido
  */
 public class SimpleJsonTrip extends Trip<JsonTripItem>{
-    
-    public static LinkedList<JsonTripItem> getLocationList(int[] locationsArray){
-        LinkedList<JsonTripItem> locationList = new LinkedList<>();
-        for (int i = 0; i < locationsArray.length; i++) {
-            locationList.add(new JsonTripItem(locationsArray[i]));
-        }
-        return locationList;
-    }
-    
-//    @JsonCreator
-//    public SimpleJsonTrip(@JsonProperty("locations") LinkedList<JsonTripItem> locations) {
-//        super(locations);
-//    }
-    
-    public SimpleJsonTrip(LinkedList<JsonTripItem> locations) {
-        super(locations);
-    }
-    
-    @JsonCreator
-    public SimpleJsonTrip(int[] locationsArray) {
-        this(getLocationList(locationsArray));
-    }
-    
-    
+	
+	public static LinkedList<JsonTripItem> getLocationList(int[] locationsArray){
+		LinkedList<JsonTripItem> locationList = new LinkedList<>();
+		for (int i = 0; i < locationsArray.length; i++) {
+			locationList.add(new JsonTripItem(locationsArray[i]));
+		}
+		return locationList;
+	}
+	
+//	@JsonCreator
+//	public SimpleJsonTrip(@JsonProperty("locations") LinkedList<JsonTripItem> locations) {
+//		super(locations);
+//	}
+	
+	public SimpleJsonTrip(LinkedList<JsonTripItem> locations) {
+		super(locations);
+	}
+	
+	@JsonCreator
+	public SimpleJsonTrip(int[] locationsArray) {
+		this(getLocationList(locationsArray));
+	}
+	
+	
 
-    @JsonValue
-    public int[] serialize(){
-        int[] locationsArray = new int[locations.size()];
-        for (int i = 0; i < locationsArray.length; i++) {
-            
-            // this does not work due to some misterious bug in jackson
-//            positions[i] = locations.get(i).tripPositionByNodeId;
+	@JsonValue
+	public int[] serialize(){
+		int[] locationsArray = new int[locations.size()];
+		for (int i = 0; i < locationsArray.length; i++) {
+			
+			// this does not work due to some misterious bug in jackson
+//			positions[i] = locations.get(i).tripPositionByNodeId;
 
-            TripItem tripItem = locations.get(i);
-            locationsArray[i] = tripItem.tripPositionByNodeId;
-        }
-        return locationsArray;
-    }
-    
+			TripItem tripItem = locations.get(i);
+			locationsArray[i] = tripItem.tripPositionByNodeId;
+		}
+		return locationsArray;
+	}
+	
 }

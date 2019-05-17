@@ -16,9 +16,9 @@ import java.util.HashMap;
  */
 @Singleton
 public class DemandStorage extends EntityStorage<DemandAgent>{
-    
-    public DemandStorage() {
-        super();
-    }
-    
+	
+	public DemandStorage() {
+		super();
+	}
+	
 }

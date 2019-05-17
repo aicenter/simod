@@ -32,28 +32,28 @@ import java.awt.Color;
  */
 @Singleton
 public class AmodsimVisioInItializer extends DefaultVisioInitializer{
-    
-    private final OnDemandVehicleLayer onDemandVehicleLayer;
-    
-    private final TrafficDensityLayer trafficDensityLayer;
-    
-    protected final NodeIdLayer nodeIdLayer;
-    
-    private final DemandLayer demandLayer;
-    
-    private final OnDemandVehicleStationsLayer onDemandVehicleStationsLayer;
+	
+	private final OnDemandVehicleLayer onDemandVehicleLayer;
+	
+	private final TrafficDensityLayer trafficDensityLayer;
+	
+	protected final NodeIdLayer nodeIdLayer;
+	
+	private final DemandLayer demandLayer;
+	
+	private final OnDemandVehicleStationsLayer onDemandVehicleStationsLayer;
 	
 	private final OnDemandVehiclePlanLayer onDemandVehiclePlanLayer;
-    
-    protected final HighwayLayer highwayLayer;
-    
-    protected final BufferedHighwayLayer bufferedHighwayLayer;
+	
+	protected final HighwayLayer highwayLayer;
+	
+	protected final BufferedHighwayLayer bufferedHighwayLayer;
 
-    private final TrafficDensityByDirectionLayer trafficDensityByDirectionLayer;
+	private final TrafficDensityByDirectionLayer trafficDensityByDirectionLayer;
 
-    private final VisLayer backgroundLayer;
-    
-    private final MapTilesLayer mapTilesLayer;
+	private final VisLayer backgroundLayer;
+	
+	private final MapTilesLayer mapTilesLayer;
 	
 	private final LayerManagementLayer layerManagementLayer;
 			
@@ -65,73 +65,73 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 
 	private final SimpleBackgroundLayer simpleBackgroundLayer;
 
-    
-    @Inject
-    public AmodsimVisioInItializer(Simulation simulation, PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork,
-                                   HighwayNetwork highwayNetwork, TramwayNetwork tramwayNetwork, MetrowayNetwork metrowayNetwork,
-                                   RailwayNetwork railwayNetwork, AgentStorage agentStorage,
-                                   VehicleStorage vehicleStorage, AllNetworkNodes allNetworkNodes,
-                                   SimulationCreator simulationCreator, OnDemandVehicleLayer onDemandVehicleLayer,
-                                   TrafficDensityLayer trafficDensityLayer, NodeIdLayer nodeIdLayer,
-                                   OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, DemandLayer demandLayer,
-                                   OnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer,
-                                   BufferedHighwayLayer bufferedHighwayLayer, SimulationControlLayer simulationControlLayer,
-                                   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer,
-                                   MapTilesLayer mapTilesLayer, AgentpolisConfig config, LayerManagementLayer layerManagementLayer,
-                                   VehicleHighlightingLayer vehicleHighlightingLayer, ScreenRecordingLayer screenRecordingLayer,
-                                   ScreenCaputreLayer screenCaputreLayer, SimpleBackgroundLayer simpleBackgroundLayer) {
-        super(simulation, pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork,
-                simulationControlLayer, gridLayer, config);
-        this.onDemandVehicleLayer = onDemandVehicleLayer;
-        this.trafficDensityLayer = trafficDensityLayer;
-        this.nodeIdLayer = nodeIdLayer;
-        this.onDemandVehicleStationsLayer = onDemandVehicleStationsLayer;
-        this.demandLayer = demandLayer;
+	
+	@Inject
+	public AmodsimVisioInItializer(Simulation simulation, PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork,
+								   HighwayNetwork highwayNetwork, TramwayNetwork tramwayNetwork, MetrowayNetwork metrowayNetwork,
+								   RailwayNetwork railwayNetwork, AgentStorage agentStorage,
+								   VehicleStorage vehicleStorage, AllNetworkNodes allNetworkNodes,
+								   SimulationCreator simulationCreator, OnDemandVehicleLayer onDemandVehicleLayer,
+								   TrafficDensityLayer trafficDensityLayer, NodeIdLayer nodeIdLayer,
+								   OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, DemandLayer demandLayer,
+								   OnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer,
+								   BufferedHighwayLayer bufferedHighwayLayer, SimulationControlLayer simulationControlLayer,
+								   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer,
+								   MapTilesLayer mapTilesLayer, AgentpolisConfig config, LayerManagementLayer layerManagementLayer,
+								   VehicleHighlightingLayer vehicleHighlightingLayer, ScreenRecordingLayer screenRecordingLayer,
+								   ScreenCaputreLayer screenCaputreLayer, SimpleBackgroundLayer simpleBackgroundLayer) {
+		super(simulation, pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork,
+				simulationControlLayer, gridLayer, config);
+		this.onDemandVehicleLayer = onDemandVehicleLayer;
+		this.trafficDensityLayer = trafficDensityLayer;
+		this.nodeIdLayer = nodeIdLayer;
+		this.onDemandVehicleStationsLayer = onDemandVehicleStationsLayer;
+		this.demandLayer = demandLayer;
 		this.onDemandVehiclePlanLayer = onDemandVehiclePlanLayer;
-        this.highwayLayer = highwayLayer;
-        this.bufferedHighwayLayer = bufferedHighwayLayer;
-        this.trafficDensityByDirectionLayer = trafficDensityByDirectionLayer;
-        this.mapTilesLayer = mapTilesLayer;
-        this.backgroundLayer = ColorLayer.create(Color.white);
+		this.highwayLayer = highwayLayer;
+		this.bufferedHighwayLayer = bufferedHighwayLayer;
+		this.trafficDensityByDirectionLayer = trafficDensityByDirectionLayer;
+		this.mapTilesLayer = mapTilesLayer;
+		this.backgroundLayer = ColorLayer.create(Color.white);
 		this.layerManagementLayer = layerManagementLayer;
 		this.vehicleHighlightingLayer = vehicleHighlightingLayer;
 		this.screenRecordingLayer = screenRecordingLayer;
 		this.screenCaputreLayer = screenCaputreLayer;
 		this.simpleBackgroundLayer = simpleBackgroundLayer;
-    }
+	}
 
-    @Override
-    protected void initEntityLayers(Simulation simulation) {
-        VisManager.registerLayer(layerManagementLayer.createManageableLayer("Stations", onDemandVehicleStationsLayer));
-        VisManager.registerLayer(layerManagementLayer.createManageableLayer("Vehicles", onDemandVehicleLayer));
-        VisManager.registerLayer(layerManagementLayer.createManageableLayer("Passangers", demandLayer));
+	@Override
+	protected void initEntityLayers(Simulation simulation) {
+		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Stations", onDemandVehicleStationsLayer));
+		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Vehicles", onDemandVehicleLayer));
+		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Passangers", demandLayer));
 		VisManager.registerLayer(onDemandVehiclePlanLayer);
-    }
+	}
 
-    @Override
-    protected void initLayersBeforeEntityLayers() {
-//        VisManager.registerLayer(trafficDensityLayer);
-//        VisManager.registerLayer(trafficDensityByDirectionLayer);
-    }
+	@Override
+	protected void initLayersBeforeEntityLayers() {
+//		VisManager.registerLayer(trafficDensityLayer);
+//		VisManager.registerLayer(trafficDensityByDirectionLayer);
+	}
 
-    @Override
-    protected void initLayersAfterEntityLayers() {
+	@Override
+	protected void initLayersAfterEntityLayers() {
 		VisManager.registerLayer(layerManagementLayer);
 		VisManager.registerLayer(vehicleHighlightingLayer);
 		VisManager.registerLayer(screenRecordingLayer);
 		VisManager.registerLayer(screenCaputreLayer);
 		vehicleHighlightingLayer.setVehicleLayer(onDemandVehicleLayer);
-        VisManager.registerLayer(nodeIdLayer);
-    }
+		VisManager.registerLayer(nodeIdLayer);
+	}
 
-    @Override
-    protected void initGraphLayers() {
-//        VisManager.registerLayer(backgroundLayer);
-        VisManager.registerLayer(simpleBackgroundLayer);
-        VisManager.registerLayer(layerManagementLayer.createManageableLayer("Map Tiles", mapTilesLayer));
-//        VisManager.registerLayer(highwayLayer);
-//        VisManager.registerLayer(bufferedHighwayLayer);
-    }
-    
-    
+	@Override
+	protected void initGraphLayers() {
+//		VisManager.registerLayer(backgroundLayer);
+		VisManager.registerLayer(simpleBackgroundLayer);
+		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Map Tiles", mapTilesLayer));
+//		VisManager.registerLayer(highwayLayer);
+//		VisManager.registerLayer(bufferedHighwayLayer);
+	}
+	
+	
 }

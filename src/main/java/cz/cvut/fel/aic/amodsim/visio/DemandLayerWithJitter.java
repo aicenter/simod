@@ -20,64 +20,64 @@ import javax.vecmath.Point2d;
  */
 @Singleton
 public class DemandLayerWithJitter extends DemandLayer{
-    
-    private static final double JITTER_DEVIATION = 8;
-    
-    
-    
-    
-    private final HashMap<DemandAgent,Point2d> jitterCache;
-    
-    private final Random random;
-    
-    
-    
-    
-    @Inject
-    public DemandLayerWithJitter(DemandStorage demandStorage, AgentpolisConfig agentpolisConfig) {
-        super(demandStorage, agentpolisConfig);
-        jitterCache = new HashMap<>();
-        random = new Random();
-    }
+	
+	private static final double JITTER_DEVIATION = 8;
+	
+	
+	
+	
+	private final HashMap<DemandAgent,Point2d> jitterCache;
+	
+	private final Random random;
+	
+	
+	
+	
+	@Inject
+	public DemandLayerWithJitter(DemandStorage demandStorage, AgentpolisConfig agentpolisConfig) {
+		super(demandStorage, agentpolisConfig);
+		jitterCache = new HashMap<>();
+		random = new Random();
+	}
 
-    @Override
-    protected Point2d getWaitingAgentPosition(DemandAgent demandAgent) {
-//        Point2d agentPosition =  positionUtil.getPosition(demandAgent.getPosition()); 
-        Point2d agentJitter;
-        if(jitterCache.containsKey(demandAgent)){
-            agentJitter = jitterCache.get(demandAgent);
-        }
-        else{
-            agentJitter = getJitter();
-            jitterCache.put(demandAgent, agentJitter);
-        }
+	@Override
+	protected Point2d getWaitingAgentPosition(DemandAgent demandAgent) {
+//		Point2d agentPosition =  positionUtil.getPosition(demandAgent.getPosition()); 
+		Point2d agentJitter;
+		if(jitterCache.containsKey(demandAgent)){
+			agentJitter = jitterCache.get(demandAgent);
+		}
+		else{
+			agentJitter = getJitter();
+			jitterCache.put(demandAgent, agentJitter);
+		}
 		
 		Point2d canvasPosition = positionUtil.getCanvasPosition(demandAgent.getPosition());
-        
-        jitte(canvasPosition, agentJitter);
-        
-        return canvasPosition;
-    }
+		
+		jitte(canvasPosition, agentJitter);
+		
+		return canvasPosition;
+	}
 
-    @Override
-    protected Point2d getDrivingAgentPosition(DemandAgent demandAgent) {
-        if(jitterCache.containsKey(demandAgent)){
-            jitterCache.remove(demandAgent);
-        }
-        return super.getDrivingAgentPosition(demandAgent); 
-    }
+	@Override
+	protected Point2d getDrivingAgentPosition(DemandAgent demandAgent) {
+		if(jitterCache.containsKey(demandAgent)){
+			jitterCache.remove(demandAgent);
+		}
+		return super.getDrivingAgentPosition(demandAgent); 
+	}
 
-    private Point2d getJitter() {
-        double jittX = random.nextGaussian();
-        double jittY = random.nextGaussian();
-        
-        return new Point2d(jittX, jittY);
-    }
+	private Point2d getJitter() {
+		double jittX = random.nextGaussian();
+		double jittY = random.nextGaussian();
+		
+		return new Point2d(jittX, jittY);
+	}
 
-    private void jitte(Point2d agentPosition, Point2d agentJitter) {
-        agentPosition.x = agentPosition.x + JITTER_DEVIATION * agentJitter.x;
-        agentPosition.y = agentPosition.y + JITTER_DEVIATION * agentJitter.y;
-    }
-    
-    
+	private void jitte(Point2d agentPosition, Point2d agentJitter) {
+		agentPosition.x = agentPosition.x + JITTER_DEVIATION * agentJitter.x;
+		agentPosition.y = agentPosition.y + JITTER_DEVIATION * agentJitter.y;
+	}
+	
+	
 }

@@ -4,7 +4,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 
 public abstract class PlanRequestAction extends PlanAction{
 
-    public final PlanComputationRequest request;
+	public final PlanComputationRequest request;
 	
 	
 	/**
@@ -26,11 +26,11 @@ public abstract class PlanRequestAction extends PlanAction{
 	
 	
 
-    public PlanRequestAction(PlanComputationRequest request, SimulationNode location, int maxTime) {
+	public PlanRequestAction(PlanComputationRequest request, SimulationNode location, int maxTime) {
 		super(location);
-        this.request = request;
+		this.request = request;
 		this.maxTime = maxTime;
-    }
+	}
 
 
 }

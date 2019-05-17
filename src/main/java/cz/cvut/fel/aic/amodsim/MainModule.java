@@ -46,35 +46,35 @@ import java.util.Set;
  * @author fido
  */
 public class MainModule extends StandardAgentPolisModule{
-    
-    private final AmodsimConfig amodsimConfig;
-    
-    public MainModule(AmodsimConfig amodsimConfig, File localConfigFile) {
-        super(amodsimConfig, localConfigFile, "agentpolis");
-        this.amodsimConfig = amodsimConfig;
-    }
+	
+	private final AmodsimConfig amodsimConfig;
+	
+	public MainModule(AmodsimConfig amodsimConfig, File localConfigFile) {
+		super(amodsimConfig, localConfigFile, "agentpolis");
+		this.amodsimConfig = amodsimConfig;
+	}
 
-    @Override
-    protected void bindVisioInitializer() {
-        bind(VisioInitializer.class).to(AmodsimVisioInItializer.class);
-    }
+	@Override
+	protected void bindVisioInitializer() {
+		bind(VisioInitializer.class).to(AmodsimVisioInItializer.class);
+	}
 
-    @Override
-    protected void configureNext() {      
-        bind(new TypeLiteral<Set<TransportMode>>(){}).toInstance(Sets.immutableEnumSet(TransportMode.CAR));
-        bind(AmodsimConfig.class).toInstance(amodsimConfig);
-        bind(EntityStorage.class).to(VehicleStorage.class);
+	@Override
+	protected void configureNext() {	  
+		bind(new TypeLiteral<Set<TransportMode>>(){}).toInstance(Sets.immutableEnumSet(TransportMode.CAR));
+		bind(AmodsimConfig.class).toInstance(amodsimConfig);
+		bind(EntityStorage.class).to(VehicleStorage.class);
 		bind(MapInitializer.class).to(GeojsonMapInitializer.class);
-        
-        if(amodsimConfig.useTripCache){
-            bind(TripsUtil.class).to(TripsUtilCached.class);
-        }
-//        bind(DemandLayer.class).to(DemandLayerWithJitter.class);
-        
-//        bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
-        bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
+		
+		if(amodsimConfig.useTripCache){
+			bind(TripsUtil.class).to(TripsUtilCached.class);
+		}
+//		bind(DemandLayer.class).to(DemandLayerWithJitter.class);
+		
+//		bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
+		bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 
-        if(amodsimConfig.ridesharing.on){
+		if(amodsimConfig.ridesharing.on){
 			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 			bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
 			bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
@@ -94,17 +94,17 @@ public class MainModule extends StandardAgentPolisModule{
 					break;
 			}
 
-        }
-        else{
-           bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
-        }
-        install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
-            .build(DemandAgentFactory.class));
+		}
+		else{
+		   bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
+		}
+		install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
+			.build(DemandAgentFactory.class));
 		
 		if(amodsimConfig.rebalancing.on){
 			install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, RebalancingOnDemandVehicleStation.class)
 				.build(RebalancingOnDemandVehicleStation.OnDemandVehicleStationFactory.class));
 		}
-    } 
-    
+	} 
+	
 }

@@ -17,11 +17,11 @@ import org.junit.Test;
 public class DroppingTest {
 	
 	@Test
-    public void run() throws Throwable{
+	public void run() throws Throwable{
 		new DroppingScenario().run(new InsertionHeuristicTestEnvironment());
-    }
+	}
 	
 	public static void main(String[] args) {
-        VisualTests.runVisualTest(DroppingTest.class);
-    }
+		VisualTests.runVisualTest(DroppingTest.class);
+	}
 }

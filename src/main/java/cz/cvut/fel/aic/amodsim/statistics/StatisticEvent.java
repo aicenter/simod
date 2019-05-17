@@ -10,7 +10,7 @@ package cz.cvut.fel.aic.amodsim.statistics;
  * @author fido
  */
 public enum StatisticEvent {
-    TICK,
-    VEHICLE_LEFT_STATION_TO_SERVE_DEMAND,
-    DEMAND_DROPPED_OFF
+	TICK,
+	VEHICLE_LEFT_STATION_TO_SERVE_DEMAND,
+	DEMAND_DROPPED_OFF
 }

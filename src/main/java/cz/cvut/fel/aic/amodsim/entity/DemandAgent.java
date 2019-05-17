@@ -32,35 +32,35 @@ import org.slf4j.LoggerFactory;
  * @author F-I-D-O
  */
 public class DemandAgent extends Agent implements EventHandler, TransportableEntity {
-    
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandAgent.class);
-    
-    private final int simpleId;
+	
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandAgent.class);
+	
+	private final int simpleId;
 	
 	private final TimeTrip<SimulationNode> trip;
-    
-    private final StationsDispatcher onDemandVehicleStationsCentral;
-    
-    private final EventProcessor eventProcessor;
-    
-    private final DemandStorage demandStorage;
-    
-    private final StandardTimeProvider timeProvider;
+	
+	private final StationsDispatcher onDemandVehicleStationsCentral;
+	
+	private final EventProcessor eventProcessor;
+	
+	private final DemandStorage demandStorage;
+	
+	private final StandardTimeProvider timeProvider;
 	
 	private final Statistics statistics;
 	
 	private final TripsUtil tripsUtil;
-    
-    
-    private DemandAgentState state;
-    
-    private OnDemandVehicle onDemandVehicle;
-    
-    private long demandTime;
-    
-    private TransportEntity transportEntity;
-    
-    private SimulationNode lastFromPosition;
+	
+	
+	private DemandAgentState state;
+	
+	private OnDemandVehicle onDemandVehicle;
+	
+	private long demandTime;
+	
+	private TransportEntity transportEntity;
+	
+	private SimulationNode lastFromPosition;
 	
 //	private long scheduledPickupDelay;
 	
@@ -73,12 +73,12 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	
 	private boolean dropped;
 
-    
-    
-    
-    public int getSimpleId() {
-        return simpleId;
-    }
+	
+	
+	
+	public int getSimpleId() {
+		return simpleId;
+	}
 
 //	public void setScheduledPickupDelay(long scheduledPickupDelay) {
 //		this.scheduledPickupDelay = scheduledPickupDelay;
@@ -96,17 +96,17 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		return demandTime;
 	}
 
-    public DemandAgentState getState() {
-        return state;
-    }
+	public DemandAgentState getState() {
+		return state;
+	}
 
-    public OnDemandVehicle getVehicle() {
-        return onDemandVehicle;
-    }
+	public OnDemandVehicle getVehicle() {
+		return onDemandVehicle;
+	}
 
-    public OnDemandVehicle getOnDemandVehicle() {
-        return onDemandVehicle;
-    }
+	public OnDemandVehicle getOnDemandVehicle() {
+		return onDemandVehicle;
+	}
 
 	public long getMinDemandServiceDuration() {
 		return minDemandServiceDuration;
@@ -122,109 +122,109 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	
 	
 
-    
-    
-    
-    @Inject
+	
+	
+	
+	@Inject
 	public DemandAgent(StationsDispatcher onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
-            DemandStorage demandStorage, StandardTimeProvider timeProvider, Statistics statistics, TripsUtil tripsUtil,
+			DemandStorage demandStorage, StandardTimeProvider timeProvider, Statistics statistics, TripsUtil tripsUtil,
 			@Assisted String agentId, @Assisted int id, @Assisted TimeTrip<SimulationNode> trip) {
 		super(agentId, trip.getLocations().get(0));
-        this.simpleId = id;
+		this.simpleId = id;
 		this.trip = trip;
-        this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
-        this.eventProcessor = eventProcessor;
-        this.demandStorage = demandStorage;
-        this.timeProvider = timeProvider;
+		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
+		this.eventProcessor = eventProcessor;
+		this.demandStorage = demandStorage;
+		this.timeProvider = timeProvider;
 		this.statistics = statistics;
 		this.tripsUtil = tripsUtil;
-        state = DemandAgentState.WAITING;
+		state = DemandAgentState.WAITING;
 		dropped = false;
 	}
 
-    
-    
+	
+	
 
 	@Override
 	public void born() {
-        demandStorage.addEntity(this);
+		demandStorage.addEntity(this);
 		eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.DEMAND, onDemandVehicleStationsCentral, null, 
-                new DemandData(trip.getLocations(), this));
-        demandTime = timeProvider.getCurrentSimTime();
+				new DemandData(trip.getLocations(), this));
+		demandTime = timeProvider.getCurrentSimTime();
 		computeMinServiceDuration();
 	}
 
-    @Override
-    public void die() {
-        demandStorage.removeEntity(this);
-    }
+	@Override
+	public void die() {
+		demandStorage.removeEntity(this);
+	}
 
-    @Override
-    public EventProcessor getEventProcessor() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+	@Override
+	public EventProcessor getEventProcessor() {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
 
-    @Override
-    public void handleEvent(Event event) {
-        onDemandVehicle = (OnDemandVehicle) event.getContent();
-//        vehicle = onDemandVehicle.getVehicle();
-//        rideAsPassengerActivity.usingVehicleAsPassenger(this.getId(), onDemandVehicle.getVehicleId(), 
-//                onDemandVehicle.getDemandTrip(this), this);
-    }
+	@Override
+	public void handleEvent(Event event) {
+		onDemandVehicle = (OnDemandVehicle) event.getContent();
+//		vehicle = onDemandVehicle.getVehicle();
+//		rideAsPassengerActivity.usingVehicleAsPassenger(this.getId(), onDemandVehicle.getVehicleId(), 
+//				onDemandVehicle.getDemandTrip(this), this);
+	}
 
 
-    public void tripEnded() {
-        if(!getPosition().equals(trip.getLocations().getLast())){
-            try {
-                throw new Exception("Demand not served properly");
-            } catch (Exception ex) {
-                LOGGER.error(null, ex);
-            }
-        }
-        eventProcessor.addEvent(StatisticEvent.DEMAND_DROPPED_OFF, null, null, 
-                new DemandServiceStatistic(demandTime, realPickupTime, timeProvider.getCurrentSimTime(), 
+	public void tripEnded() {
+		if(!getPosition().equals(trip.getLocations().getLast())){
+			try {
+				throw new Exception("Demand not served properly");
+			} catch (Exception ex) {
+				LOGGER.error(null, ex);
+			}
+		}
+		eventProcessor.addEvent(StatisticEvent.DEMAND_DROPPED_OFF, null, null, 
+				new DemandServiceStatistic(demandTime, realPickupTime, timeProvider.getCurrentSimTime(), 
 						minDemandServiceDuration,
 						getId(), onDemandVehicle.getId()));
 		
-        die();
-    }
+		die();
+	}
 
-    public void tripStarted(OnDemandVehicle vehicle) {
-        state = DemandAgentState.DRIVING;
+	public void tripStarted(OnDemandVehicle vehicle) {
+		state = DemandAgentState.DRIVING;
 		realPickupTime = timeProvider.getCurrentSimTime();
 		this.onDemandVehicle = vehicle;
-    }
+	}
 
-    @Override
-    public EntityType getType() {
-        return DemandSimulationEntityType.DEMAND;
-    }
+	@Override
+	public EntityType getType() {
+		return DemandSimulationEntityType.DEMAND;
+	}
 
-    @Override
-    public <T extends TransportEntity> T getTransportingEntity() {
-        return (T) transportEntity;
-    }
+	@Override
+	public <T extends TransportEntity> T getTransportingEntity() {
+		return (T) transportEntity;
+	}
 
-    @Override
-    public <T extends TransportEntity> void setTransportingEntity(T transportingEntity) {
-        this.transportEntity = transportingEntity;
-    }
+	@Override
+	public <T extends TransportEntity> void setTransportingEntity(T transportingEntity) {
+		this.transportEntity = transportingEntity;
+	}
 
-    @Override
-    public void setLastFromPosition(SimulationNode lastFromPosition) {
-        this.lastFromPosition = lastFromPosition;
-    }
+	@Override
+	public void setLastFromPosition(SimulationNode lastFromPosition) {
+		this.lastFromPosition = lastFromPosition;
+	}
 
 	private void computeMinServiceDuration() {
 		Trip<SimulationNode> minTrip = tripsUtil.createTrip(getPosition().id, trip.getLocations().getLast().id);
 		minDemandServiceDuration = (long) (tripsUtil.getTripDurationInSeconds(minTrip) * 1000);
 	}
 
-    
-    
-    
-    public interface DemandAgentFactory {
-        public DemandAgent create(String agentId, int id, TimeTrip<SimulationNode> osmNodeTrip);
-    }
+	
+	
+	
+	public interface DemandAgentFactory {
+		public DemandAgent create(String agentId, int id, TimeTrip<SimulationNode> osmNodeTrip);
+	}
 	
 }

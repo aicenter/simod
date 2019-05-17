@@ -40,91 +40,91 @@ import org.slf4j.LoggerFactory;
  */
 public class OnDemandVehicleStation extends AgentPolisEntity implements EventHandler{
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OnDemandVehicleStation.class);
-    
-    private final ArrayList<OnDemandVehicle> parkedVehicles;
-    
-    private final EventProcessor eventProcessor;
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OnDemandVehicleStation.class);
+	
+	private final ArrayList<OnDemandVehicle> parkedVehicles;
+	
+	private final EventProcessor eventProcessor;
 
-    private final LinkedList<DepartureCard> departureCards;
-    
-    private final Transformer transformer;
-    
-    private final VisioPositionUtil positionUtil;
-    
-    private final StationsDispatcher onDemandVehicleStationsCentral;
-    
-    private final AmodsimConfig config;
+	private final LinkedList<DepartureCard> departureCards;
+	
+	private final Transformer transformer;
+	
+	private final VisioPositionUtil positionUtil;
+	
+	private final StationsDispatcher onDemandVehicleStationsCentral;
+	
+	private final AmodsimConfig config;
 
-    
-    
+	
+	
 
-    public OnDemandVehicleStation(AmodsimConfig config, EventProcessor eventProcessor, 
-            OnDemandVehicleFactorySpec onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
-            OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 
-            @Assisted String id, @Assisted SimulationNode node, 
-            @Assisted int initialVehicleCount, Transformer transformer, VisioPositionUtil positionUtil, 
-            StationsDispatcher onDemandVehicleStationsCentral) {
-        super(id, node);
-        this.eventProcessor = eventProcessor;
-        parkedVehicles = new ArrayList<>();
+	public OnDemandVehicleStation(AmodsimConfig config, EventProcessor eventProcessor, 
+			OnDemandVehicleFactorySpec onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
+			OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 
+			@Assisted String id, @Assisted SimulationNode node, 
+			@Assisted int initialVehicleCount, Transformer transformer, VisioPositionUtil positionUtil, 
+			StationsDispatcher onDemandVehicleStationsCentral) {
+		super(id, node);
+		this.eventProcessor = eventProcessor;
+		parkedVehicles = new ArrayList<>();
 //		initialVehicleCount = 10;
-        for (int i = 0; i < initialVehicleCount; i++) {
+		for (int i = 0; i < initialVehicleCount; i++) {
 			String onDemandVehicelId = String.format("%s-%d", id, i);
 			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, getPosition());
-            parkedVehicles.add(newVehicle);
+			parkedVehicles.add(newVehicle);
 			newVehicle.setParkedIn(this);
 			onDemandVehicleStorage.addEntity(newVehicle);
-        }
-        onDemandVehicleStationStorage.addEntity(this);
-        this.departureCards = new LinkedList<>();
-        this.transformer = transformer;
-        this.positionUtil = positionUtil;
-        this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
-        this.config = config;
-    }
+		}
+		onDemandVehicleStationStorage.addEntity(this);
+		this.departureCards = new LinkedList<>();
+		this.transformer = transformer;
+		this.positionUtil = positionUtil;
+		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
+		this.config = config;
+	}
 
 	@Override
 	public String toString() {
 		return getId();
 	}
 	
-    @Override
-    public EntityType getType() {
-        return DemandSimulationEntityType.ON_DEMAND_VEHICLE_STATION;
-    }
-    
-//    public void setNearestNode(final Node node){
-//        positionInGraph = node;
-//        
-//    }
+	@Override
+	public EntityType getType() {
+		return DemandSimulationEntityType.ON_DEMAND_VEHICLE_STATION;
+	}
+	
+//	public void setNearestNode(final Node node){
+//		positionInGraph = node;
+//		
+//	}
 
-    @Override
-    public EventProcessor getEventProcessor() {
-        return null;
-    }
+	@Override
+	public EventProcessor getEventProcessor() {
+		return null;
+	}
 
-    @Override
-    public void handleEvent(Event event) {
-//        OnDemandVehicleStationEvent eventType = (OnDemandVehicleStationEvent) event.getType();
-//        switch(eventType){
-//            case TRIP:
-//                handleTripRequest((DemandData) event.getContent());
-//                break;
-//        }
-    }
-    
-    public void parkVehicle(OnDemandVehicle onDemandVehicle){
-        if(onDemandVehicle.getPosition() != getPosition()){
-            try {
-                throw new Exception("Vehicle cannot be parked in station, beacause it's not present in the station!");
-            } catch (Exception ex) {
-                LOGGER.error(null, ex);
-            }
-        }
-        parkedVehicles.add(onDemandVehicle);
+	@Override
+	public void handleEvent(Event event) {
+//		OnDemandVehicleStationEvent eventType = (OnDemandVehicleStationEvent) event.getType();
+//		switch(eventType){
+//			case TRIP:
+//				handleTripRequest((DemandData) event.getContent());
+//				break;
+//		}
+	}
+	
+	public void parkVehicle(OnDemandVehicle onDemandVehicle){
+		if(onDemandVehicle.getPosition() != getPosition()){
+			try {
+				throw new Exception("Vehicle cannot be parked in station, beacause it's not present in the station!");
+			} catch (Exception ex) {
+				LOGGER.error(null, ex);
+			}
+		}
+		parkedVehicles.add(onDemandVehicle);
 		onDemandVehicle.setParkedIn(this);
-    }
+	}
 	
 	public void releaseVehicle(OnDemandVehicle vehicle){
 		parkedVehicles.remove(vehicle);
@@ -133,139 +133,139 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 			System.out.println("Station is empty!" + getId());
 		}
 	}
-    
-    public int getParkedVehiclesCount(){
-        return parkedVehicles.size();
-    }
-    
+	
+	public int getParkedVehiclesCount(){
+		return parkedVehicles.size();
+	}
+	
 
-    public void handleTripRequest(DemandData demandData) {
-        Node startLocation = demandData.locations.get(0);
-        Node targetLocation = demandData.locations.get(demandData.locations.size() - 1);
-        
-        // hack for demands that starts and ends in the same position
-        if(startLocation.equals(targetLocation)){
-            try {
-                throw new Exception("Start and target location cannot be the same!");
-            } catch (Exception ex) {
-                LOGGER.error(null, ex);
-            }
-            return;
-        }
-        
-        OnDemandVehicle vehicle = getAndRemoveVehicle();
-        
-        if(vehicle != null){
-            vehicle.setDepartureStation(this);
-            eventProcessor.addEvent(null, vehicle, null, demandData);
-            eventProcessor.addEvent(null, demandData.demandAgent, null, vehicle);
-        }
-        else{
-            try {
-                throw new Exception("Request cannot be handeled - station has not any vehicles available!");
-            } catch (Exception ex) {
-                LOGGER.error(null, ex);
-            }
-        }
-    }
+	public void handleTripRequest(DemandData demandData) {
+		Node startLocation = demandData.locations.get(0);
+		Node targetLocation = demandData.locations.get(demandData.locations.size() - 1);
+		
+		// hack for demands that starts and ends in the same position
+		if(startLocation.equals(targetLocation)){
+			try {
+				throw new Exception("Start and target location cannot be the same!");
+			} catch (Exception ex) {
+				LOGGER.error(null, ex);
+			}
+			return;
+		}
+		
+		OnDemandVehicle vehicle = getAndRemoveVehicle();
+		
+		if(vehicle != null){
+			vehicle.setDepartureStation(this);
+			eventProcessor.addEvent(null, vehicle, null, demandData);
+			eventProcessor.addEvent(null, demandData.demandAgent, null, vehicle);
+		}
+		else{
+			try {
+				throw new Exception("Request cannot be handeled - station has not any vehicles available!");
+			} catch (Exception ex) {
+				LOGGER.error(null, ex);
+			}
+		}
+	}
 
-    public boolean rebalance(OnDemandVehicleStation targetStation) {
-        OnDemandVehicle vehicle = getAndRemoveVehicle();
-        if(vehicle != null){
-            vehicle.startRebalancing(targetStation);
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
-    
-    public boolean isEmpty(){
-        return parkedVehicles.isEmpty();
-    }
+	public boolean rebalance(OnDemandVehicleStation targetStation) {
+		OnDemandVehicle vehicle = getAndRemoveVehicle();
+		if(vehicle != null){
+			vehicle.startRebalancing(targetStation);
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
+	public boolean isEmpty(){
+		return parkedVehicles.isEmpty();
+	}
 
-    private OnDemandVehicle getAndRemoveVehicle() {
-        OnDemandVehicle nearestVehicle;
+	private OnDemandVehicle getAndRemoveVehicle() {
+		OnDemandVehicle nearestVehicle;
 
-        nearestVehicle = parkedVehicles.remove(0);
-        
-        return nearestVehicle;
-    }
+		nearestVehicle = parkedVehicles.remove(0);
+		
+		return nearestVehicle;
+	}
 	
 	public OnDemandVehicle getVehicle(int index){
 		return parkedVehicles.get(index);
 	}
-    
-    private NearestElementUtil<OnDemandVehicle> getNearestElementUtilForVehiclesBeforeDeparture(
-            OnDemandVehicleStation targetStation) {
-        List<NearestElementUtilPair<Coordinate,OnDemandVehicle>> pairs = new ArrayList<>();
-        
+	
+	private NearestElementUtil<OnDemandVehicle> getNearestElementUtilForVehiclesBeforeDeparture(
+			OnDemandVehicleStation targetStation) {
+		List<NearestElementUtilPair<Coordinate,OnDemandVehicle>> pairs = new ArrayList<>();
+		
 		for(DepartureCard departureCard : departureCards) {
-            if(departureCard.getTargetStation() == targetStation){
-                GPSLocation location = departureCard.getDemandVehicle().getPosition();
+			if(departureCard.getTargetStation() == targetStation){
+				GPSLocation location = departureCard.getDemandVehicle().getPosition();
 
-                pairs.add(new NearestElementUtilPair<>(
-                    new Coordinate(location.getLongitude(), location.getLatitude(), location.elevation),
-                        departureCard.getDemandVehicle()));
-            }
+				pairs.add(new NearestElementUtilPair<>(
+					new Coordinate(location.getLongitude(), location.getLatitude(), location.elevation),
+						departureCard.getDemandVehicle()));
+			}
 		}
-        if(pairs.size() > 0){
-            return new NearestElementUtil<>(pairs, transformer, new OnDemandVehicleStation.OnDemandVehicleArrayConstructor());
-        }
-        else{
-            return null;
-        }
-    }
-    
-    public void release(OnDemandVehicle onDemandVehicle){
-        Iterator<DepartureCard> iterator = departureCards.iterator();
-        while(iterator.hasNext()){
-            DepartureCard departureCard = iterator.next();
-            if(departureCard.demandVehicle == onDemandVehicle){
-                iterator.remove();
-                break;
-            }
-        }
-//        departureCards.remove(onDemandVehicle);
-    }
-    
-    
-    
-    public interface OnDemandVehicleStationFactory {
-        public OnDemandVehicleStation create(String id, SimulationNode node, int initialVehicleCount);
-    }
-    
-    
-    private class DepartureCard{
-        private final OnDemandVehicle demandVehicle;
-        
-        private final OnDemandVehicleStation targetStation;
+		if(pairs.size() > 0){
+			return new NearestElementUtil<>(pairs, transformer, new OnDemandVehicleStation.OnDemandVehicleArrayConstructor());
+		}
+		else{
+			return null;
+		}
+	}
+	
+	public void release(OnDemandVehicle onDemandVehicle){
+		Iterator<DepartureCard> iterator = departureCards.iterator();
+		while(iterator.hasNext()){
+			DepartureCard departureCard = iterator.next();
+			if(departureCard.demandVehicle == onDemandVehicle){
+				iterator.remove();
+				break;
+			}
+		}
+//		departureCards.remove(onDemandVehicle);
+	}
+	
+	
+	
+	public interface OnDemandVehicleStationFactory {
+		public OnDemandVehicleStation create(String id, SimulationNode node, int initialVehicleCount);
+	}
+	
+	
+	private class DepartureCard{
+		private final OnDemandVehicle demandVehicle;
+		
+		private final OnDemandVehicleStation targetStation;
 
-        public OnDemandVehicle getDemandVehicle() {
-            return demandVehicle;
-        }
+		public OnDemandVehicle getDemandVehicle() {
+			return demandVehicle;
+		}
 
-        public OnDemandVehicleStation getTargetStation() {
-            return targetStation;
-        }
-        
-        
+		public OnDemandVehicleStation getTargetStation() {
+			return targetStation;
+		}
+		
+		
 
-        public DepartureCard(OnDemandVehicle demandVehicle, OnDemandVehicleStation targetStation) {
-            this.demandVehicle = demandVehicle;
-            this.targetStation = targetStation;
-        }
+		public DepartureCard(OnDemandVehicle demandVehicle, OnDemandVehicleStation targetStation) {
+			this.demandVehicle = demandVehicle;
+			this.targetStation = targetStation;
+		}
 
-    }
-    
-    private static class OnDemandVehicleArrayConstructor 
-            implements NearestElementUtil.SerializableIntFunction<OnDemandVehicle[]>{
+	}
+	
+	private static class OnDemandVehicleArrayConstructor 
+			implements NearestElementUtil.SerializableIntFunction<OnDemandVehicle[]>{
 
-        @Override
-        public OnDemandVehicle[] apply(int value) {
-            return new OnDemandVehicle[value];
-        }
+		@Override
+		public OnDemandVehicle[] apply(int value) {
+			return new OnDemandVehicle[value];
+		}
 
-    }
+	}
 	
 }

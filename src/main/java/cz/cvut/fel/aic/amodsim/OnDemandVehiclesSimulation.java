@@ -25,61 +25,61 @@ import org.slf4j.LoggerFactory;
  */
 public class OnDemandVehiclesSimulation {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OnDemandVehiclesSimulation.class);
-    
-    public static void main(String[] args) throws MalformedURLException {
-        new OnDemandVehiclesSimulation().run(args);
-    }
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OnDemandVehiclesSimulation.class);
+	
+	public static void main(String[] args) throws MalformedURLException {
+		new OnDemandVehiclesSimulation().run(args);
+	}
 
 
-    public void run(String[] args) {
-        AmodsimConfig config = new AmodsimConfig();
-        
-        File localConfigFile = null;
-        if(args.length > 0){
-            localConfigFile = new File(args[0]);
-        }
-        Injector injector = new AgentPolisInitializer(new MainModule(config, localConfigFile)).initialize();
-        SimulationCreator creator = injector.getInstance(SimulationCreator.class);
-        // prepare map, entity storages...
-        creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
+	public void run(String[] args) {
+		AmodsimConfig config = new AmodsimConfig();
+		
+		File localConfigFile = null;
+		if(args.length > 0){
+			localConfigFile = new File(args[0]);
+		}
+		Injector injector = new AgentPolisInitializer(new MainModule(config, localConfigFile)).initialize();
+		SimulationCreator creator = injector.getInstance(SimulationCreator.class);
+		// prepare map, entity storages...
+		creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
 
-//        List<TimeTrip<Long>> osmNodesList;
-        try {
-//            osmNodesList = TripTransform.jsonToTrips(new File(config.preprocessedTrips), Long.class);
-            TripTransform tripTransform = injector.getInstance(TripTransform.class);
+//		List<TimeTrip<Long>> osmNodesList;
+		try {
+//			osmNodesList = TripTransform.jsonToTrips(new File(config.preprocessedTrips), Long.class);
+			TripTransform tripTransform = injector.getInstance(TripTransform.class);
 			RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
 			
 			if(config.rebalancing.on){
 				rebalancingLoader.load(new File(config.rebalancing.external.policyFilePath), true);
 				injector.getInstance(ReactiveRebalancing.class).start();
 				injector.getInstance(EventInitializer.class).initialize(
-                    tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
+					tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
 			}
 			else{
 				rebalancingLoader.load(new File(config.rebalancing.external.policyFilePath), true);
 				injector.getInstance(EventInitializer.class).initialize(
-                    tripTransform.loadTripsFromTxt(new File(config.tripsPath)),
-                    rebalancingLoader.getRebalancingTrips());
+					tripTransform.loadTripsFromTxt(new File(config.tripsPath)),
+					rebalancingLoader.getRebalancingTrips());
 			}
 
-            //  injector.getInstance(EntityInitializer.class).initialize(rebalancingLoader.getOnDemandVehicleStations());
+			//  injector.getInstance(EntityInitializer.class).initialize(rebalancingLoader.getOnDemandVehicleStations());
 
-            
+			
 
-            injector.getInstance(StatisticInitializer.class).initialize();
+			injector.getInstance(StatisticInitializer.class).initialize();
 
-            // start it up
-            creator.startSimulation();
+			// start it up
+			creator.startSimulation();
 
-            if (config.useTripCache) {
-                injector.getInstance(TripsUtilCached.class).saveNewTrips();
-            }
-            injector.getInstance(Statistics.class).simulationFinished();
+			if (config.useTripCache) {
+				injector.getInstance(TripsUtilCached.class).saveNewTrips();
+			}
+			injector.getInstance(Statistics.class).simulationFinished();
 
-        } catch (IOException ex) {
-            LOGGER.error(null, ex);
-        }
+		} catch (IOException ex) {
+			LOGGER.error(null, ex);
+		}
 
-    }
+	}
 }

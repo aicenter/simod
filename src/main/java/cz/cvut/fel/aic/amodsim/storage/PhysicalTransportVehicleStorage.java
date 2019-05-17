@@ -21,5 +21,5 @@ public class PhysicalTransportVehicleStorage extends EntityStorage<PhysicalTrans
 	public PhysicalTransportVehicleStorage() {
 		super();
 	}
-    
+	
 }

@@ -32,120 +32,120 @@ import cz.cvut.fel.aic.agentpolis.simulator.SimulationUtils;
  */
 @Singleton
 public class EventInitializer {
-//    private static final double TRIP_MULTIPLICATION_FACTOR = 2.573;
-//    private static final double TRIP_MULTIPLICATION_FACTOR = 13.63;
-//    private static final double TRIP_MULTIPLICATION_FACTOR = 1.615;
-//    private static final double TRIP_MULTIPLICATION_FACTOR = 3.433;
-    
-    private static final long TRIP_MULTIPLICATION_TIME_SHIFT = 60000;
-    
-    private static final long MAX_EVENTS = 0;
-    
-    private static final int RANDOM_SEED = 1;
-    
-    
-    
-    
-    private final EventProcessor eventProcessor;
+//	private static final double TRIP_MULTIPLICATION_FACTOR = 2.573;
+//	private static final double TRIP_MULTIPLICATION_FACTOR = 13.63;
+//	private static final double TRIP_MULTIPLICATION_FACTOR = 1.615;
+//	private static final double TRIP_MULTIPLICATION_FACTOR = 3.433;
+	
+	private static final long TRIP_MULTIPLICATION_TIME_SHIFT = 60000;
+	
+	private static final long MAX_EVENTS = 0;
+	
+	private static final int RANDOM_SEED = 1;
+	
+	
+	
+	
+	private final EventProcessor eventProcessor;
 
-    private final DemandEventHandler demandEventHandler;
-    
-    private final StationsDispatcher onDemandVehicleStationsCentral;
-    
-    private final AmodsimConfig amodsimConfig;
-    
-    private final AgentpolisConfig agentpolisConfig;
-    
+	private final DemandEventHandler demandEventHandler;
+	
+	private final StationsDispatcher onDemandVehicleStationsCentral;
+	
+	private final AmodsimConfig amodsimConfig;
+	
+	private final AgentpolisConfig agentpolisConfig;
+	
 	private final SimulationUtils simulationUtils;
-    
-    private long eventCount;
-    
-    
-    @Inject
-    public EventInitializer(EventProcessor eventProcessor, 
-            StationsDispatcher onDemandVehicleStationsCentral, AmodsimConfig config, 
-            DemandEventHandler demandEventHandler, AgentpolisConfig agentpolisConfig, SimulationUtils simulationUtils) {
-        this.eventProcessor = eventProcessor;
-        this.demandEventHandler = demandEventHandler;
-        this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
-        this.amodsimConfig = config;
-        this.agentpolisConfig = agentpolisConfig;
+	
+	private long eventCount;
+	
+	
+	@Inject
+	public EventInitializer(EventProcessor eventProcessor, 
+			StationsDispatcher onDemandVehicleStationsCentral, AmodsimConfig config, 
+			DemandEventHandler demandEventHandler, AgentpolisConfig agentpolisConfig, SimulationUtils simulationUtils) {
+		this.eventProcessor = eventProcessor;
+		this.demandEventHandler = demandEventHandler;
+		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
+		this.amodsimConfig = config;
+		this.agentpolisConfig = agentpolisConfig;
 		this.simulationUtils = simulationUtils;
-        eventCount = 0;
-    }
-    
-    
-    public void initialize(List<TimeTrip<SimulationNode>> trips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips){
-        Random random = new Random(RANDOM_SEED);
-        
-        for (TimeTrip<SimulationNode> trip : trips) {
-            long startTime = trip.getStartTime() - amodsimConfig.startTime;
-            // trip have to start at least 1ms after start of the simulation and no later then last
-            if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
+		eventCount = 0;
+	}
+	
+	
+	public void initialize(List<TimeTrip<SimulationNode>> trips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips){
+		Random random = new Random(RANDOM_SEED);
+		
+		for (TimeTrip<SimulationNode> trip : trips) {
+			long startTime = trip.getStartTime() - amodsimConfig.startTime;
+			// trip have to start at least 1ms after start of the simulation and no later then last
+			if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
 
-                continue;
-            }
-            
-            for(int i = 0; i < amodsimConfig.tripsMultiplier; i++){
-                if(i + 1 >= amodsimConfig.tripsMultiplier){
-                    double randomNum = random.nextDouble();
-                    if(randomNum > amodsimConfig.tripsMultiplier - i){
-                        break;
-                    }
-                }
-                
-                startTime = startTime + i * TRIP_MULTIPLICATION_TIME_SHIFT;
-                eventProcessor.addEvent(null, demandEventHandler, null, trip, startTime);
-                eventCount++;
-                if(MAX_EVENTS != 0 && eventCount >= MAX_EVENTS){
-                    return;
-                }
-            }
-        }
+				continue;
+			}
+			
+			for(int i = 0; i < amodsimConfig.tripsMultiplier; i++){
+				if(i + 1 >= amodsimConfig.tripsMultiplier){
+					double randomNum = random.nextDouble();
+					if(randomNum > amodsimConfig.tripsMultiplier - i){
+						break;
+					}
+				}
+				
+				startTime = startTime + i * TRIP_MULTIPLICATION_TIME_SHIFT;
+				eventProcessor.addEvent(null, demandEventHandler, null, trip, startTime);
+				eventCount++;
+				if(MAX_EVENTS != 0 && eventCount >= MAX_EVENTS){
+					return;
+				}
+			}
+		}
 		if(rebalancingTrips != null){
 			for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
 				long startTime = rebalancingTrip.getStartTime() - amodsimConfig.startTime;
-            if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
+			if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
 					continue;
 				}
 				eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 
 						null, rebalancingTrip, startTime);
 			}
 		}
-    }
-    
-    
-    
-    
-    public static class DemandEventHandler extends EventHandlerAdapter{
+	}
+	
+	
+	
+	
+	public static class DemandEventHandler extends EventHandlerAdapter{
 		
 		private final IdGenerator demandIdGenerator;
  
-        private final DemandAgentFactory demandAgentFactory;
-        
-        
-        
-        
-        @Inject
-        public DemandEventHandler(IdGenerator demandIdGenerator, DemandAgentFactory demandAgentFactory,
-                SimulationCreator simulationCreator) {
-            this.demandIdGenerator = demandIdGenerator;
-            this.demandAgentFactory = demandAgentFactory;
-        }
+		private final DemandAgentFactory demandAgentFactory;
+		
+		
+		
+		
+		@Inject
+		public DemandEventHandler(IdGenerator demandIdGenerator, DemandAgentFactory demandAgentFactory,
+				SimulationCreator simulationCreator) {
+			this.demandIdGenerator = demandIdGenerator;
+			this.demandAgentFactory = demandAgentFactory;
+		}
 
-        
+		
 		
 		
 
 		@Override
 		public void handleEvent(Event event) {
 			TimeTrip<SimulationNode> trip = (TimeTrip<SimulationNode>) event.getContent();
-            
-            int id = demandIdGenerator.getId();
+			
+			int id = demandIdGenerator.getId();
 			
 			DemandAgent demandAgent = demandAgentFactory.create("Demand " + Integer.toString(id), id, trip);
-            
-            demandAgent.born();
+			
+			demandAgent.born();
 		}
-	}    
+	}	
 }

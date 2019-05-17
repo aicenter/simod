@@ -23,7 +23,7 @@ public abstract class OptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> {
 	private final boolean recordTime;
 	
 	
-    public OptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation, AmodsimConfig config) {
+	public OptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation, AmodsimConfig config) {
 		this.planCostComputation = planCostComputation;
 		recordTime = config.ridesharing.vga.logPlanComputationalTime;
 	}

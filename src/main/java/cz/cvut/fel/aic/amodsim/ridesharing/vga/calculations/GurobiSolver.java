@@ -63,7 +63,7 @@ public class GurobiSolver {
 	
 	
 	@Inject
-    public GurobiSolver(StandardPlanCostProvider planCostComputation) {
+	public GurobiSolver(StandardPlanCostProvider planCostComputation) {
 		this.planCostComputation = planCostComputation;
 		env = null;
 		try {

@@ -20,40 +20,40 @@ import java.util.HashMap;
  * @author fido
  */
 public class EdgesLoadByState extends AllEdgesLoad<OnDemandVehicle, OnDemandVehicleStorage>{
-    
-    private final HashMap<OnDemandVehicleState,HashMap<Integer,Integer>> edgeLoadsPerState;
-    
-    
-    
+	
+	private final HashMap<OnDemandVehicleState,HashMap<Integer,Integer>> edgeLoadsPerState;
+	
+	
+	
 
-    public HashMap<OnDemandVehicleState, HashMap<Integer, Integer>> getEdgeLoadsPerState() {
-        return edgeLoadsPerState;
-    }
+	public HashMap<OnDemandVehicleState, HashMap<Integer, Integer>> getEdgeLoadsPerState() {
+		return edgeLoadsPerState;
+	}
 
-    
-    
-    
-    @Inject
-    public EdgesLoadByState(HighwayNetwork highwayNetwork, 
-            OnDemandVehicleStorage onDemandVehicleStorage) {
-        super(onDemandVehicleStorage, highwayNetwork);
-        edgeLoadsPerState = new HashMap<>();
-        for(OnDemandVehicleState onDemandVehicleState : OnDemandVehicleState.values()){
-            edgeLoadsPerState.put(onDemandVehicleState, new HashMap<>());
-        }
-    }
+	
+	
+	
+	@Inject
+	public EdgesLoadByState(HighwayNetwork highwayNetwork, 
+			OnDemandVehicleStorage onDemandVehicleStorage) {
+		super(onDemandVehicleStorage, highwayNetwork);
+		edgeLoadsPerState = new HashMap<>();
+		for(OnDemandVehicleState onDemandVehicleState : OnDemandVehicleState.values()){
+			edgeLoadsPerState.put(onDemandVehicleState, new HashMap<>());
+		}
+	}
 
-    
-    
-    
-    
-    @Override
-    protected void countLoadForPosition(String entityId, int edgeId) {
-        super.countLoadForPosition(entityId, edgeId); 
-        
-        OnDemandVehicleState vehicleState = entityStorage.getEntityById(entityId).getState();
-        
-        CollectionUtil.incrementMapValue(edgeLoadsPerState.get(vehicleState), edgeId, 1);
-    }
+	
+	
+	
+	
+	@Override
+	protected void countLoadForPosition(String entityId, int edgeId) {
+		super.countLoadForPosition(entityId, edgeId); 
+		
+		OnDemandVehicleState vehicleState = entityStorage.getEntityById(entityId).getState();
+		
+		CollectionUtil.incrementMapValue(edgeLoadsPerState.get(vehicleState), edgeId, 1);
+	}
 
 }

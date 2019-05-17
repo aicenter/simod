@@ -15,9 +15,9 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 	/**
 	 * Request origin time in seconds.
 	 */
-    private final int originTime;
+	private final int originTime;
 
-    private final DemandAgent demandAgent;
+	private final DemandAgent demandAgent;
 	
 	private final PlanActionPickup pickUpAction;
 	
@@ -62,13 +62,13 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 
 
 	@Inject
-    private DefaultPlanComputationRequest(TravelTimeProvider travelTimeProvider, @Assisted int id, 
+	private DefaultPlanComputationRequest(TravelTimeProvider travelTimeProvider, @Assisted int id, 
 			AmodsimConfig amodsimConfig, @Assisted("origin") SimulationNode origin, 
 			@Assisted("destination") SimulationNode destination, @Assisted DemandAgent demandAgent){
 		this.id = id;
 		
 		originTime = (int) Math.round(demandAgent.getDemandTime() / 1000.0);
-        minTravelTime = (int) Math.round(
+		minTravelTime = (int) Math.round(
 				travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
 		
 		int maxProlongation;
@@ -83,30 +83,30 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 		int maxPickUpTime = originTime + maxProlongation;
 		int maxDropOffTime = originTime + minTravelTime + maxProlongation;
 		
-        this.demandAgent = demandAgent;
+		this.demandAgent = demandAgent;
 		onboard = false;
 		
 		pickUpAction = new PlanActionPickup(this, origin, maxPickUpTime);
 		dropOffAction = new PlanActionDropoff(this, destination, maxDropOffTime);
-    }
+	}
 
 	@Override
-    public int getOriginTime() { 
+	public int getOriginTime() { 
 		return originTime; 
 	}
 
-    
+	
 
-    @Override
-    public boolean equals(Object obj) {
-        if(!(obj instanceof DefaultPlanComputationRequest)) return false;
-        return demandAgent.toString().equals(((DefaultPlanComputationRequest) obj).demandAgent.toString());
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof DefaultPlanComputationRequest)) return false;
+		return demandAgent.toString().equals(((DefaultPlanComputationRequest) obj).demandAgent.toString());
+	}
 
-    @Override
-    public int hashCode() {
-        return demandAgent.hashCode();
-    }
+	@Override
+	public int hashCode() {
+		return demandAgent.hashCode();
+	}
 
 	@Override
 	public String toString() {
@@ -141,8 +141,8 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 	
 	
 	public interface DefaultPlanComputationRequestFactory {
-        public DefaultPlanComputationRequest create(int id, @Assisted("origin") SimulationNode origin, 
+		public DefaultPlanComputationRequest create(int id, @Assisted("origin") SimulationNode origin, 
 				@Assisted("destination") SimulationNode destination, DemandAgent demandAgent);
-    }
+	}
 
 }

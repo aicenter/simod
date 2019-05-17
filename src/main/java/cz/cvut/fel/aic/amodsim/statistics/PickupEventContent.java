@@ -12,18 +12,18 @@ import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
  * @author fido
  */
 public class PickupEventContent extends OnDemandVehicleEventContent{
-    
-    private final int demandTripLength;
+	
+	private final int demandTripLength;
 
-    public int getDemandTripLength() {
-        return demandTripLength;
-    }
-    
-    
-    
-    public PickupEventContent(long time, int demandId, String onDemandVehicleId, int demandTripLength) {
-        super(time, demandId, onDemandVehicleId);
-        this.demandTripLength = demandTripLength;
-    }
-    
+	public int getDemandTripLength() {
+		return demandTripLength;
+	}
+	
+	
+	
+	public PickupEventContent(long time, int demandId, String onDemandVehicleId, int demandTripLength) {
+		super(time, demandId, onDemandVehicleId);
+		this.demandTripLength = demandTripLength;
+	}
+	
 }

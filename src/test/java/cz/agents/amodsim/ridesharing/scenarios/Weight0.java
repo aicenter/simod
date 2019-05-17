@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class Weight0 {
 	
-    public void run(RidesharingTestEnvironment testEnvironment) throws Throwable{
+	public void run(RidesharingTestEnvironment testEnvironment) throws Throwable{
 		// bootstrap Guice
 		Injector injector = testEnvironment.getInjector();
 		
@@ -34,7 +34,7 @@ public class Weight0 {
 		testEnvironment.getConfig().ridesharing.maximumRelativeDiscomfort = 3.0;
 		
 		// set roadgraph - grid 5x4
-        Graph<SimulationNode, SimulationEdge> graph 
+		Graph<SimulationNode, SimulationEdge> graph 
 				= Utils.getGridGraph(4, injector.getInstance(Transformer.class), 2);
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
@@ -54,7 +54,7 @@ public class Weight0 {
 		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.PICKUP));
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DROP_OFF));
 		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.DROP_OFF));
-        
-        testEnvironment.run(graph, trips, vehicalInitPositions, expectedEvents);
-    }
+		
+		testEnvironment.run(graph, trips, vehicalInitPositions, expectedEvents);
+	}
 }

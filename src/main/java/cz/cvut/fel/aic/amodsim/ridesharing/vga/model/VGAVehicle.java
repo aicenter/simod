@@ -11,41 +11,41 @@ import java.util.*;
 
 public class VGAVehicle implements IOptimalPlanVehicle{
 
-    private static Map<OnDemandVehicle, VGAVehicle> agentpolisVehicleToVGA = new LinkedHashMap<>();
+	private static Map<OnDemandVehicle, VGAVehicle> agentpolisVehicleToVGA = new LinkedHashMap<>();
 
-    private final RideSharingOnDemandVehicle onDemandVehicle;
-    private final LinkedHashSet<PlanComputationRequest> requestsOnBoard;
+	private final RideSharingOnDemandVehicle onDemandVehicle;
+	private final LinkedHashSet<PlanComputationRequest> requestsOnBoard;
 
-    private VGAVehicle(RideSharingOnDemandVehicle v) {
-        this.onDemandVehicle = v;
-        requestsOnBoard = new LinkedHashSet<>();
-        agentpolisVehicleToVGA.put(v, this);
-    }
+	private VGAVehicle(RideSharingOnDemandVehicle v) {
+		this.onDemandVehicle = v;
+		requestsOnBoard = new LinkedHashSet<>();
+		agentpolisVehicleToVGA.put(v, this);
+	}
 
-    public static void resetMapping() {
-        agentpolisVehicleToVGA = new LinkedHashMap<>();
-    }
+	public static void resetMapping() {
+		agentpolisVehicleToVGA = new LinkedHashMap<>();
+	}
 
-    public static VGAVehicle newInstance(RideSharingOnDemandVehicle v){
-        return new VGAVehicle(v);
-    }
+	public static VGAVehicle newInstance(RideSharingOnDemandVehicle v){
+		return new VGAVehicle(v);
+	}
 
-    public static VGAVehicle getVGAVehicleByRidesharingOnDemandVehicle( OnDemandVehicle v) {
-        return agentpolisVehicleToVGA.get(v);
-    }
+	public static VGAVehicle getVGAVehicleByRidesharingOnDemandVehicle( OnDemandVehicle v) {
+		return agentpolisVehicleToVGA.get(v);
+	}
 
-    public RideSharingOnDemandVehicle getRidesharingVehicle() { return onDemandVehicle; }
+	public RideSharingOnDemandVehicle getRidesharingVehicle() { return onDemandVehicle; }
 
 	@Override
-    public LinkedHashSet<PlanComputationRequest> getRequestsOnBoard() { 
+	public LinkedHashSet<PlanComputationRequest> getRequestsOnBoard() { 
 		return requestsOnBoard; 
 	}
 
-    public void addRequestOnBoard(DefaultPlanComputationRequest request) { 
+	public void addRequestOnBoard(DefaultPlanComputationRequest request) { 
 		requestsOnBoard.add(request); 
 	}
 
-    public void removeRequestOnBoard(DefaultPlanComputationRequest request) { 
+	public void removeRequestOnBoard(DefaultPlanComputationRequest request) { 
 		requestsOnBoard.remove(request); 
 	}
 

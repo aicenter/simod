@@ -10,9 +10,9 @@ package cz.cvut.fel.aic.amodsim.entity;
  * @author fido
  */
 public enum OnDemandVehicleState {
-    WAITING,
-    DRIVING_TO_START_LOCATION,
-    DRIVING_TO_TARGET_LOCATION,
-    DRIVING_TO_STATION,
-    REBALANCING;
+	WAITING,
+	DRIVING_TO_START_LOCATION,
+	DRIVING_TO_TARGET_LOCATION,
+	DRIVING_TO_STATION,
+	REBALANCING;
 }

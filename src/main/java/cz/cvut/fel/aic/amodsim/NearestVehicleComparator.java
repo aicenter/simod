@@ -23,15 +23,15 @@ public class NearestVehicleComparator implements Comparator<OnDemandVehicle> {
 	
 	private final Point2d from;
 
-    public NearestVehicleComparator(VisioPositionUtil positionUtil, Point2d from) {
-        this.positionUtil = positionUtil;
+	public NearestVehicleComparator(VisioPositionUtil positionUtil, Point2d from) {
+		this.positionUtil = positionUtil;
 		this.from = from;
-    }
+	}
 
-    @Override
-    public int compare(OnDemandVehicle e1, OnDemandVehicle e2) {
-        return Double.compare(
-                positionUtil.getCanvasPositionInterpolated(e1, EGraphType.HIGHWAY).distance(from),
-                positionUtil.getCanvasPositionInterpolated(e2, EGraphType.HIGHWAY).distance(from));
-    }
+	@Override
+	public int compare(OnDemandVehicle e1, OnDemandVehicle e2) {
+		return Double.compare(
+				positionUtil.getCanvasPositionInterpolated(e1, EGraphType.HIGHWAY).distance(from),
+				positionUtil.getCanvasPositionInterpolated(e2, EGraphType.HIGHWAY).distance(from));
+	}
 }

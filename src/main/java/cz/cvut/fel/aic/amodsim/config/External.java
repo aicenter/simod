@@ -7,6 +7,6 @@ public class External {
   public String policyFilePath;
 
   public External(Map external) {
-    this.policyFilePath = (String) external.get("policy_file_path");
+	this.policyFilePath = (String) external.get("policy_file_path");
   }
 }

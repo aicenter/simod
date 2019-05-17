@@ -13,13 +13,13 @@ import java.io.File;
  * @author fido
  */
 public class OsmStatistic {
-    public static void main(String[] args) {
-//        AmodsimConfig config = Configuration.load(new AmodsimConfig());
-        
-//        Graph<SimulationNode, SimulationEdge> highwayGraph = OsmUtil.getHigwayGraph(new File(config.mapFilePath), config.srid);
-        
-//        System.out.println("Edges total: " + highwayGraph.getAllEdges().size());
-//        
-//        System.out.println("Nodes total: " + highwayGraph.getAllNodes().size());
-    }
+	public static void main(String[] args) {
+//		AmodsimConfig config = Configuration.load(new AmodsimConfig());
+		
+//		Graph<SimulationNode, SimulationEdge> highwayGraph = OsmUtil.getHigwayGraph(new File(config.mapFilePath), config.srid);
+		
+//		System.out.println("Edges total: " + highwayGraph.getAllEdges().size());
+//		
+//		System.out.println("Nodes total: " + highwayGraph.getAllNodes().size());
+	}
 }

@@ -14,13 +14,13 @@ import java.io.IOException;
  * @author fido
  */
 public class Common {
-    public static FileWriter getFileWriter(String path, boolean append) throws IOException{
-        File file = new File(path);
-        file.getParentFile().mkdirs();
-        return new FileWriter(file, append);
-    }
+	public static FileWriter getFileWriter(String path, boolean append) throws IOException{
+		File file = new File(path);
+		file.getParentFile().mkdirs();
+		return new FileWriter(file, append);
+	}
 	
 	public static FileWriter getFileWriter(String path) throws IOException{
-        return getFileWriter(path, false);
-    }
+		return getFileWriter(path, false);
+	}
 }

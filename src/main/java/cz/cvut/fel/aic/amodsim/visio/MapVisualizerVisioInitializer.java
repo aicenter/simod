@@ -27,8 +27,8 @@ import java.awt.Color;
 public class MapVisualizerVisioInitializer  extends DefaultVisioInitializer{
 	
 	private final HighwayLayer highwayLayer;
-    
-    private final NodeIdLayer nodeIdLayer;
+	
+	private final NodeIdLayer nodeIdLayer;
 	
 	@Inject
 	public MapVisualizerVisioInitializer(Simulation simulation, PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork,
@@ -42,19 +42,19 @@ public class MapVisualizerVisioInitializer  extends DefaultVisioInitializer{
 	}
 	
 	@Override
-    protected void initGraphLayers() {
-        VisManager.registerLayer(ColorLayer.create(Color.white));
-        super.initGraphLayers();
-        VisManager.registerLayer(highwayLayer);
-    }
+	protected void initGraphLayers() {
+		VisManager.registerLayer(ColorLayer.create(Color.white));
+		super.initGraphLayers();
+		VisManager.registerLayer(highwayLayer);
+	}
 
-    @Override
-    protected void initEntityLayers(Simulation simulation) {
-    }
-    
-    @Override
-    protected void initLayersAfterEntityLayers() {
-        VisManager.registerLayer(nodeIdLayer);
-    }
+	@Override
+	protected void initEntityLayers(Simulation simulation) {
+	}
+	
+	@Override
+	protected void initLayersAfterEntityLayers() {
+		VisManager.registerLayer(nodeIdLayer);
+	}
 	
 }

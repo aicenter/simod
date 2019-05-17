@@ -20,46 +20,46 @@ import org.junit.Assert;
  */
 @Singleton
 public class StatisticControl implements EventHandler {
-    private int demandFinishDrivingCounter;
+	private int demandFinishDrivingCounter;
 
-    private final Statistics statistics;
+	private final Statistics statistics;
 
-    private final StationsDispatcher onDemandVehicleStationsCentral;
+	private final StationsDispatcher onDemandVehicleStationsCentral;
 
-//    private final SimulationCreator simulationCreator;
+//	private final SimulationCreator simulationCreator;
 
 
-    @Inject
-    public StatisticControl(Statistics statistics, StationsDispatcher onDemandVehicleStationsCentral,
-                            SimulationCreator simulationCreator, EventProcessor eventProcessor) {
-        this.statistics = statistics;
-        this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
-        this.demandFinishDrivingCounter = 0;
-        eventProcessor.addEventHandler(this);
-    }
+	@Inject
+	public StatisticControl(Statistics statistics, StationsDispatcher onDemandVehicleStationsCentral,
+							SimulationCreator simulationCreator, EventProcessor eventProcessor) {
+		this.statistics = statistics;
+		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
+		this.demandFinishDrivingCounter = 0;
+		eventProcessor.addEventHandler(this);
+	}
 
-    public void incrementDemandFinishDrivingCounter() {
-        demandFinishDrivingCounter++;
-    }
+	public void incrementDemandFinishDrivingCounter() {
+		demandFinishDrivingCounter++;
+	}
 
-    public void simulationFinished() {
+	public void simulationFinished() {
 
-        // compares demand count in results with demands which really left the station
-        Assert.assertEquals(onDemandVehicleStationsCentral.getDemandsCount(),
-                statistics.getNumberOfVehiclsLeftStationToServeDemand());
+		// compares demand count in results with demands which really left the station
+		Assert.assertEquals(onDemandVehicleStationsCentral.getDemandsCount(),
+				statistics.getNumberOfVehiclsLeftStationToServeDemand());
 
-        // compares demand count in results with demands which MOD vehicle reached target station
-        Assert.assertEquals(onDemandVehicleStationsCentral.getDemandsCount(),
-                demandFinishDrivingCounter);
-    }
+		// compares demand count in results with demands which MOD vehicle reached target station
+		Assert.assertEquals(onDemandVehicleStationsCentral.getDemandsCount(),
+				demandFinishDrivingCounter);
+	}
 
-    @Override
-    public EventProcessor getEventProcessor() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+	@Override
+	public EventProcessor getEventProcessor() {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
 
-    @Override
-    public void handleEvent(Event event) {
-//       if()
-    }
+	@Override
+	public void handleEvent(Event event) {
+//	   if()
+	}
 }

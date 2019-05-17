@@ -49,15 +49,15 @@ public class TestModule extends StandardAgentPolisModule{
 	
 	private final AmodsimConfig amodsimConfig;
 
-    public TestModule(AmodsimConfig amodsimConfig, File localConfigFile) {
-        super(amodsimConfig, localConfigFile, "agentpolis"); 
+	public TestModule(AmodsimConfig amodsimConfig, File localConfigFile) {
+		super(amodsimConfig, localConfigFile, "agentpolis"); 
 		this.amodsimConfig = amodsimConfig;
-        agentpolisConfig.visio.showVisio = VisualTests.SHOW_VISIO;
+		agentpolisConfig.visio.showVisio = VisualTests.SHOW_VISIO;
 		amodsimConfig.startTime = 0;
 		amodsimConfig.tripsMultiplier = 1.0;
 		agentpolisConfig.simulationDuration.days = 0;
 		agentpolisConfig.simulationDuration.seconds = 120;
-    }
+	}
 
 	
 	
@@ -67,7 +67,7 @@ public class TestModule extends StandardAgentPolisModule{
 		super.configureNext();
 		bind(AmodsimConfig.class).toInstance(amodsimConfig);
 		install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
-            .build(DemandAgent.DemandAgentFactory.class));
+			.build(DemandAgent.DemandAgentFactory.class));
 		bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 		bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 		bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
@@ -80,11 +80,11 @@ public class TestModule extends StandardAgentPolisModule{
 		bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);
 //		bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
 	}
-    
+	
 
-    @Override
-    protected void bindVisioInitializer() {
-        bind(VisioInitializer.class).to(VGATestVisioInitializer.class);
-    }
-    
+	@Override
+	protected void bindVisioInitializer() {
+		bind(VisioInitializer.class).to(VGATestVisioInitializer.class);
+	}
+	
 }

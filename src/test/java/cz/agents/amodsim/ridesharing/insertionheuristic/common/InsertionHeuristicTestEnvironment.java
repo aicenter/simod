@@ -49,13 +49,13 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 
 	public InsertionHeuristicTestEnvironment() {
 		config = new AmodsimConfig();
-        
-        File localConfigFile = null;
+		
+		File localConfigFile = null;
 
-        // Guice configuration
-        AgentPolisInitializer agentPolisInitializer 
+		// Guice configuration
+		AgentPolisInitializer agentPolisInitializer 
 				= new AgentPolisInitializer(new TestModule(config, localConfigFile));
-        injector = agentPolisInitializer.initialize();
+		injector = agentPolisInitializer.initialize();
 		
 		// config changes
 		config.ridesharing.batchPeriod = 0;
@@ -71,15 +71,15 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 	public void run(Graph<SimulationNode, SimulationEdge> graph, List<TimeTrip<SimulationNode>> trips,
 			List<SimulationNode> vehicalInitPositions, List<RidesharingEventData> expectedEvents) throws Throwable{
 
-        SimulationCreator creator = injector.getInstance(SimulationCreator.class);
+		SimulationCreator creator = injector.getInstance(SimulationCreator.class);
 
-        // prepare map
+		// prepare map
 		MapInitializer mapInitializer = injector.getInstance(SimpleMapInitializer.class);
 		creator.prepareSimulation(mapInitializer.getMap());
 		
 		// requests
 		injector.getInstance(EventInitializer.class).initialize(trips, new ArrayList<>());
-        
+		
 		// vehicles
 		OnDemandVehicleFactorySpec onDemandVehicleFactory = injector.getInstance(OnDemandVehicleFactorySpec.class);
 		OnDemandVehicleStorage onDemandVehicleStorage = injector.getInstance(OnDemandVehicleStorage.class);
@@ -89,11 +89,11 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, vehiclePosition);
 			onDemandVehicleStorage.addEntity(newVehicle);
 			counter++;
-        }
+		}
 		
 		EventOrderStorage eventOrderStorage = injector.getInstance(EventOrderStorage.class);
-        
-        creator.startSimulation();
+		
+		creator.startSimulation();
 		
 		
 		// TESTING EVENT ORDER
@@ -117,7 +117,7 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 					expectedEvent.eventType, event.getType());
 			counter++;
 		}
-    }
+	}
 
 	@Override
 	public AmodsimConfig getConfig() {

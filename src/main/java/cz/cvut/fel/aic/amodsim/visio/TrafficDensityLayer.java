@@ -31,63 +31,63 @@ import java.awt.geom.Rectangle2D;
  */
 @Singleton
 public class TrafficDensityLayer extends AbstractLayer{
-    
-    private static final int EDGE_WIDTH = 2;
-    
-    private static final double MAX_LOAD = 0.05;
-    
-    
-    
-    
-    
-    private final Provider<AllEdgesLoad<OnDemandVehicle, OnDemandVehicleStorage>> allEdgesLoadProvider;
-    
-    private final Graph<SimulationNode,SimulationEdge> graph;
-    
-    private final ColorMap colorMap;
-    
-    private final VisioPositionUtil positionUtil;
-    
-    
-    
-    
+	
+	private static final int EDGE_WIDTH = 2;
+	
+	private static final double MAX_LOAD = 0.05;
+	
+	
+	
+	
+	
+	private final Provider<AllEdgesLoad<OnDemandVehicle, OnDemandVehicleStorage>> allEdgesLoadProvider;
+	
+	private final Graph<SimulationNode,SimulationEdge> graph;
+	
+	private final ColorMap colorMap;
+	
+	private final VisioPositionUtil positionUtil;
+	
+	
+	
+	
 
-    @Inject
-    public TrafficDensityLayer(HighwayNetwork highwayNetwork, VisioPositionUtil positionUtil, 
-            Provider<AllEdgesLoad<OnDemandVehicle, OnDemandVehicleStorage>> allEdgesLoadProvider) {
-        this.positionUtil = positionUtil;
-        this.allEdgesLoadProvider = allEdgesLoadProvider;
-        graph = highwayNetwork.getNetwork();
-        colorMap = new ColorMap(0, MAX_LOAD, ColorMap.HUE_BLUE_TO_RED);
-    }
-    
-    
-    
-    
+	@Inject
+	public TrafficDensityLayer(HighwayNetwork highwayNetwork, VisioPositionUtil positionUtil, 
+			Provider<AllEdgesLoad<OnDemandVehicle, OnDemandVehicleStorage>> allEdgesLoadProvider) {
+		this.positionUtil = positionUtil;
+		this.allEdgesLoadProvider = allEdgesLoadProvider;
+		graph = highwayNetwork.getNetwork();
+		colorMap = new ColorMap(0, MAX_LOAD, ColorMap.HUE_BLUE_TO_RED);
+	}
+	
+	
+	
+	
    @Override
-    public void paint(Graphics2D canvas) {
-        AllEdgesLoad allEdgesLoad = allEdgesLoadProvider.get();
+	public void paint(Graphics2D canvas) {
+		AllEdgesLoad allEdgesLoad = allEdgesLoadProvider.get();
 
-        canvas.setStroke(new BasicStroke(EDGE_WIDTH));
+		canvas.setStroke(new BasicStroke(EDGE_WIDTH));
 
-        Dimension dim = Vis.getDrawingDimension();
-        Rectangle2D drawingRectangle = new Rectangle(dim);
-        
-        for (SimulationEdge edge : graph.getAllEdges()) {
-            canvas.setColor(getColorForEdge(allEdgesLoad, edge));
-            Point2d from = positionUtil.getCanvasPosition(edge.getFromNode());
-            Point2d to = positionUtil.getCanvasPosition(edge.getToNode());
-            Line2D line2d = new Line2D.Double(from.x, from.y, to.x, to.y);
-            if (line2d.intersects(drawingRectangle)) {
-                canvas.draw(line2d);
-            }
-        }
-    }
+		Dimension dim = Vis.getDrawingDimension();
+		Rectangle2D drawingRectangle = new Rectangle(dim);
+		
+		for (SimulationEdge edge : graph.getAllEdges()) {
+			canvas.setColor(getColorForEdge(allEdgesLoad, edge));
+			Point2d from = positionUtil.getCanvasPosition(edge.getFromNode());
+			Point2d to = positionUtil.getCanvasPosition(edge.getToNode());
+			Line2D line2d = new Line2D.Double(from.x, from.y, to.x, to.y);
+			if (line2d.intersects(drawingRectangle)) {
+				canvas.draw(line2d);
+			}
+		}
+	}
 
-    private Color getColorForEdge(AllEdgesLoad allEdgesLoad, SimulationEdge edge) {
-        int id = edge.getUniqueId();
-        double averageLoad = allEdgesLoad.getLoadPerEdge(id);
-        double loadPerLength = averageLoad / edge.getLength();
-        return colorMap.getColor(loadPerLength);
-    }
+	private Color getColorForEdge(AllEdgesLoad allEdgesLoad, SimulationEdge edge) {
+		int id = edge.getUniqueId();
+		double averageLoad = allEdgesLoad.getLoadPerEdge(id);
+		double loadPerLength = averageLoad / edge.getLength();
+		return colorMap.getColor(loadPerLength);
+	}
 }

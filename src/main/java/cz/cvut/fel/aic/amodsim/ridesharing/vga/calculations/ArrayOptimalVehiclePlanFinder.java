@@ -230,8 +230,8 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 			
 		}
 
-        return new Plan((int) startTime, (int) endTime, (int) bestPlanCost, bestPlanActions, vehicle);
-    }
+		return new Plan((int) startTime, (int) endTime, (int) bestPlanCost, bestPlanActions, vehicle);
+	}
 	
 	@Override
 	public boolean groupFeasible(LinkedHashSet<PlanComputationRequest> requests, 
@@ -371,6 +371,6 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 			}
 		}
 
-        return false;
-    }
+		return false;
+	}
 }

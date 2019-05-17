@@ -51,198 +51,198 @@ import java.util.ArrayList;
  * @author fido
  */
 public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgent,
-        Driver<PhysicalTransportVehicle>{
-    
-    private static final double LENGTH = 4;
-    
-    
-    
-    
-    protected PhysicalTransportVehicle vehicle;
-    
-    protected final TripsUtil tripsUtil;
-    
-    protected final StationsDispatcher onDemandVehicleStationsCentral;
-    
-    protected final PhysicalVehicleDriveFactory driveFactory;
-    
-    private final VisioPositionUtil positionUtil;
-    
-    protected final EventProcessor eventProcessor;
-    
-    protected final StandardTimeProvider timeProvider;
-    
-    private final IdGenerator rebalancingIdGenerator;
-    
-    private final AmodsimConfig config;
-    
-    
-    private List<Node> demandNodes;
-    
-    protected OnDemandVehicleState state;
-    
-    protected OnDemandVehicleStation departureStation;
-    
-    protected OnDemandVehicleStation targetStation;
-    
-    protected VehicleTrip currentTrip;
-    
-    protected VehicleTrip demandTrip;
+		Driver<PhysicalTransportVehicle>{
+	
+	private static final double LENGTH = 4;
+	
+	
+	
+	
+	protected PhysicalTransportVehicle vehicle;
+	
+	protected final TripsUtil tripsUtil;
+	
+	protected final StationsDispatcher onDemandVehicleStationsCentral;
+	
+	protected final PhysicalVehicleDriveFactory driveFactory;
+	
+	private final VisioPositionUtil positionUtil;
+	
+	protected final EventProcessor eventProcessor;
+	
+	protected final StandardTimeProvider timeProvider;
+	
+	private final IdGenerator rebalancingIdGenerator;
+	
+	private final AmodsimConfig config;
+	
+	
+	private List<Node> demandNodes;
+	
+	protected OnDemandVehicleState state;
+	
+	protected OnDemandVehicleStation departureStation;
+	
+	protected OnDemandVehicleStation targetStation;
+	
+	protected VehicleTrip currentTrip;
+	
+	protected VehicleTrip demandTrip;
 	
 	protected VehicleTrip tripToStation;
 	
 	private VehicleTrip completeTrip;
-    
-    protected int metersWithPassenger;
-    
-    protected int metersToStartLocation;
-    
-    protected int metersToStation;
-    
-    private int metersRebalancing;
-    
-    private SimulationNode targetNode;
-    
-    private DelayData delayData;
-    
-    private DemandData currentlyServedDemmand;
-    
-    private int currentRebalancingId;
+	
+	protected int metersWithPassenger;
+	
+	protected int metersToStartLocation;
+	
+	protected int metersToStation;
+	
+	private int metersRebalancing;
+	
+	private SimulationNode targetNode;
+	
+	private DelayData delayData;
+	
+	private DemandData currentlyServedDemmand;
+	
+	private int currentRebalancingId;
 	
 	protected OnDemandVehicleStation parkedIn;
-    
-    
-    
-    public VehicleTrip getCurrentTrips() {
-        return currentTrip;
-    }
+	
+	
+	
+	public VehicleTrip getCurrentTrips() {
+		return currentTrip;
+	}
 
-    public VehicleTrip getDemandTrip(DemandAgent agent) {
-        return demandTrip.clone();
-    }
+	public VehicleTrip getDemandTrip(DemandAgent agent) {
+		return demandTrip.clone();
+	}
 
-    public OnDemandVehicleState getState() {
-        return state;
-    }
+	public OnDemandVehicleState getState() {
+		return state;
+	}
 
-    public int getMetersWithPassenger() {
-        return metersWithPassenger;
-    }
+	public int getMetersWithPassenger() {
+		return metersWithPassenger;
+	}
 
-    public int getMetersToStartLocation() {
-        return metersToStartLocation;
-    }
+	public int getMetersToStartLocation() {
+		return metersToStartLocation;
+	}
 
-    public int getMetersToStation() {
-        return metersToStation;
-    }
+	public int getMetersToStation() {
+		return metersToStation;
+	}
 
-    public int getMetersRebalancing() {
-        return metersRebalancing;
-    }
+	public int getMetersRebalancing() {
+		return metersRebalancing;
+	}
 
 	public OnDemandVehicleStation getParkedIn() {
 		return parkedIn;
 	}
 	
 
-    // remove in future to be more agent-like
-    public void setDepartureStation(OnDemandVehicleStation departureStation) {
-        this.departureStation = departureStation;
-    }
+	// remove in future to be more agent-like
+	public void setDepartureStation(OnDemandVehicleStation departureStation) {
+		this.departureStation = departureStation;
+	}
 
 	public void setParkedIn(OnDemandVehicleStation parkedIn) {
 		this.parkedIn = parkedIn;
 	}
 
 	
-    
-    
-    
-    
-    @Inject
-    public OnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
-            TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
-            PhysicalVehicleDriveFactory driveFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor,
-            StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, 
+	
+	
+	
+	
+	@Inject
+	public OnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
+			TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
+			PhysicalVehicleDriveFactory driveFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor,
+			StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, 
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
-        super(vehicleId, startPosition);
-        this.tripsUtil = tripsUtil;
-        this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
-        this.driveFactory = driveFactory;
-        this.positionUtil = positionUtil;
-        this.eventProcessor = eventProcessor;
-        this.timeProvider = timeProvider;
-        this.rebalancingIdGenerator = rebalancingIdGenerator;
-        this.config = config;
-        
-        vehicle = new PhysicalTransportVehicle(vehicleId + " - vehicle", 
-                DemandSimulationEntityType.VEHICLE, LENGTH, config.ridesharing.vehicleCapacity, 
-				EGraphType.HIGHWAY, startPosition, 
-                config.vehicleSpeedInMeters);
-        
-        vehicleStorage.addEntity(vehicle);
-        vehicle.setDriver(this);
-        state = OnDemandVehicleState.WAITING;
-        
-        metersWithPassenger = 0;
-        metersToStartLocation = 0;
-        metersToStation = 0;
-        metersRebalancing = 0;
-    }
-
-    @Override
-    public EventProcessor getEventProcessor() {
-        return null;
-    }
-    
-    public String getVehicleId(){
-        return vehicle.getId();
-    }
-
-    @Override
-    public void handleEvent(Event event) {
-        currentlyServedDemmand = (DemandData) event.getContent();
-        List<SimulationNode> locations = currentlyServedDemmand.locations;
-        
-        demandNodes = new ArrayList<>();
-        demandNodes.add(locations.get(0));
-        demandNodes.add(locations.get(locations.size() - 1));
+		super(vehicleId, startPosition);
+		this.tripsUtil = tripsUtil;
+		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
+		this.driveFactory = driveFactory;
+		this.positionUtil = positionUtil;
+		this.eventProcessor = eventProcessor;
+		this.timeProvider = timeProvider;
+		this.rebalancingIdGenerator = rebalancingIdGenerator;
+		this.config = config;
 		
-        leavingStationEvent();
-        driveToDemandStartLocation();
-    }
-    
-    public void finishedDriving(boolean wasStopped) {
-        switch(state){
-            case DRIVING_TO_START_LOCATION:
-                driveToTargetLocation();
-                break;
-            case DRIVING_TO_TARGET_LOCATION:
-                dropOffDemand();
-                driveToNearestStation();
-                break;
-            case DRIVING_TO_STATION:
-                finishDrivingToStation(currentlyServedDemmand.demandAgent);
-                break;
-            case REBALANCING:
-				finishRebalancing();
-                break;
-        }
-    }
+		vehicle = new PhysicalTransportVehicle(vehicleId + " - vehicle", 
+				DemandSimulationEntityType.VEHICLE, LENGTH, config.ridesharing.vehicleCapacity, 
+				EGraphType.HIGHWAY, startPosition, 
+				config.vehicleSpeedInMeters);
+		
+		vehicleStorage.addEntity(vehicle);
+		vehicle.setDriver(this);
+		state = OnDemandVehicleState.WAITING;
+		
+		metersWithPassenger = 0;
+		metersToStartLocation = 0;
+		metersToStation = 0;
+		metersRebalancing = 0;
+	}
 
-    protected void driveToDemandStartLocation() {
-        
-        if(getPosition() == demandNodes.get(0)){
+	@Override
+	public EventProcessor getEventProcessor() {
+		return null;
+	}
+	
+	public String getVehicleId(){
+		return vehicle.getId();
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		currentlyServedDemmand = (DemandData) event.getContent();
+		List<SimulationNode> locations = currentlyServedDemmand.locations;
+		
+		demandNodes = new ArrayList<>();
+		demandNodes.add(locations.get(0));
+		demandNodes.add(locations.get(locations.size() - 1));
+		
+		leavingStationEvent();
+		driveToDemandStartLocation();
+	}
+	
+	public void finishedDriving(boolean wasStopped) {
+		switch(state){
+			case DRIVING_TO_START_LOCATION:
+				driveToTargetLocation();
+				break;
+			case DRIVING_TO_TARGET_LOCATION:
+				dropOffDemand();
+				driveToNearestStation();
+				break;
+			case DRIVING_TO_STATION:
+				finishDrivingToStation(currentlyServedDemmand.demandAgent);
+				break;
+			case REBALANCING:
+				finishRebalancing();
+				break;
+		}
+	}
+
+	protected void driveToDemandStartLocation() {
+		
+		if(getPosition() == demandNodes.get(0)){
 			currentTrip = null;
 		}
 		else{
 			currentTrip = tripsUtil.createTrip(getPosition().id, 
-                demandNodes.get(0).getId(), vehicle);
-            metersToStartLocation += positionUtil.getTripLengthInMeters(currentTrip);
+				demandNodes.get(0).getId(), vehicle);
+			metersToStartLocation += positionUtil.getTripLengthInMeters(currentTrip);
 		}
-        demandTrip = tripsUtil.createTrip(demandNodes.get(0).getId(), demandNodes.get(1).getId(), vehicle);
-        metersWithPassenger += positionUtil.getTripLengthInMeters(demandTrip);
+		demandTrip = tripsUtil.createTrip(demandNodes.get(0).getId(), demandNodes.get(1).getId(), vehicle);
+		metersWithPassenger += positionUtil.getTripLengthInMeters(demandTrip);
 		
 		Node demandEndNode = demandNodes.get(demandNodes.size() - 1);
 		
@@ -254,7 +254,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		else{
 			tripToStation = tripsUtil.createTrip(demandEndNode.getId(), 
 					targetStation.getPosition().getId(), vehicle);
-            metersToStation += positionUtil.getTripLengthInMeters(tripToStation);
+			metersToStation += positionUtil.getTripLengthInMeters(tripToStation);
 		}
 		
 		completeTrip = TripsUtil.mergeTripsOld(currentTrip, demandTrip, tripToStation);
@@ -267,45 +267,45 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		state = OnDemandVehicleState.DRIVING_TO_START_LOCATION;
 				
 //		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
-//        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
-        driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
-    }
+//		driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+		driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
+	}
 
-    
+	
 
-    protected void driveToTargetLocation() {
-        state = OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION;
-        pickupDemand();
-        
-        departureStation.release(this);
-        
-        currentTrip = demandTrip;
+	protected void driveToTargetLocation() {
+		state = OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION;
+		pickupDemand();
+		
+		departureStation.release(this);
+		
+		currentTrip = demandTrip;
 				
 //		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
-//        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
-        driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
-        
-    }
+//		driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+		driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
+		
+	}
 
-    protected void driveToNearestStation() {
+	protected void driveToNearestStation() {
 		if(tripToStation == null){
 			waitInStation();
 			return;
 		}
 		
-        state = OnDemandVehicleState.DRIVING_TO_STATION;
+		state = OnDemandVehicleState.DRIVING_TO_STATION;
 
-        currentTrip = tripToStation;  
+		currentTrip = tripToStation;  
 				
 //		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
-//        driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
-        driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
-    }
+//		driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
+		driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
+	}
 
-    protected void waitInStation() {
-        targetStation.parkVehicle(this);
-        park();
-    }
+	protected void waitInStation() {
+		targetStation.parkVehicle(this);
+		park();
+	}
 	
 	protected void park(){
 		state = OnDemandVehicleState.WAITING;
@@ -318,141 +318,141 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	}
 	
 	public Node getDemandTarget(){
-        if(demandNodes != null){
-            return demandNodes.get(demandNodes.size() - 1);
-        }
+		if(demandNodes != null){
+			return demandNodes.get(demandNodes.size() - 1);
+		}
 		return null;
 	}
 
-    public void startRebalancing(OnDemandVehicleStation targetStation) {
+	public void startRebalancing(OnDemandVehicleStation targetStation) {
 		eventProcessor.addEvent(OnDemandVehicleEvent.START_REBALANCING, null, null, 
-                new RebalancingEventContent(timeProvider.getCurrentSimTime(), currentRebalancingId, 
+				new RebalancingEventContent(timeProvider.getCurrentSimTime(), currentRebalancingId, 
 						getId(), getParkedIn(), targetStation));
 		
 		parkedIn.releaseVehicle(this);
-        state = OnDemandVehicleState.REBALANCING;
-        currentRebalancingId = rebalancingIdGenerator.getId();
-        
-        currentTrip = tripsUtil.createTrip(getPosition().id, 
-                targetStation.getPosition().getId(), vehicle);
-        metersRebalancing += positionUtil.getTripLengthInMeters(currentTrip);
-        
-        completeTrip = currentTrip.clone();
-        
-        this.targetStation = targetStation;
+		state = OnDemandVehicleState.REBALANCING;
+		currentRebalancingId = rebalancingIdGenerator.getId();
 		
-        driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
-    }
+		currentTrip = tripsUtil.createTrip(getPosition().id, 
+				targetStation.getPosition().getId(), vehicle);
+		metersRebalancing += positionUtil.getTripLengthInMeters(currentTrip);
+		
+		completeTrip = currentTrip.clone();
+		
+		this.targetStation = targetStation;
+		
+		driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
+	}
 
-    @Override
-    public PhysicalTransportVehicle getVehicle() {
-        return vehicle;
-    }
+	@Override
+	public PhysicalTransportVehicle getVehicle() {
+		return vehicle;
+	}
 
-    @Override
-    public double getVelocity() {
-        return config.vehicleSpeedInMeters;
-    }
+	@Override
+	public double getVelocity() {
+		return config.vehicleSpeedInMeters;
+	}
 	
 	public int getCapacity(){
 		return vehicle.getCapacity();
 	}
 
-//    @Override
-//    public List<AgentPolisEntity> getTransportedEntities() {
-//        return cargo;
-//    }
+//	@Override
+//	public List<AgentPolisEntity> getTransportedEntities() {
+//		return cargo;
+//	}
 
-    @Override
-    public void setTargetNode(SimulationNode targetNode) {
-        this.targetNode = targetNode;
-    }
+	@Override
+	public void setTargetNode(SimulationNode targetNode) {
+		this.targetNode = targetNode;
+	}
 
-    @Override
-    public SimulationNode getTargetNode() {
-        return targetNode;
-    }
+	@Override
+	public SimulationNode getTargetNode() {
+		return targetNode;
+	}
 
-    protected void leavingStationEvent() {
-        eventProcessor.addEvent(OnDemandVehicleEvent.LEAVE_STATION, null, null, 
-                new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-                        currentlyServedDemmand.demandAgent.getSimpleId(), getId()));
-    }
+	protected void leavingStationEvent() {
+		eventProcessor.addEvent(OnDemandVehicleEvent.LEAVE_STATION, null, null, 
+				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
+						currentlyServedDemmand.demandAgent.getSimpleId(), getId()));
+	}
 
-    protected void pickupDemand() {
-        currentlyServedDemmand.demandAgent.tripStarted(this);
-        vehicle.pickUp(currentlyServedDemmand.demandAgent);
-        eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
-                new PickupEventContent(timeProvider.getCurrentSimTime(), 
-                        currentlyServedDemmand.demandAgent.getSimpleId(), getId(),
-                        positionUtil.getTripLengthInMeters(demandTrip)));
-    }
-    
-    protected void dropOffDemand() {
-        currentlyServedDemmand.demandAgent.tripEnded();
-        vehicle.dropOff(currentlyServedDemmand.demandAgent);
-        eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
-                new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-                        currentlyServedDemmand.demandAgent.getSimpleId(), getId()));
-    }
-    
-    // todo - repair path planner and remove this
-    protected Trip<Node> vehicleTripToTrip(VehicleTrip<TripItem> vehicleTrip){
-        LinkedList<Node>  locations = new LinkedList<>();
-        for (TripItem tripItem : vehicleTrip.getLocations()) {
-            locations.add(positionUtil.getNode(tripItem.tripPositionByNodeId));
-        }
-        Trip<Node> trip = new Trip<>(locations);
-        
-        return trip;
-    }
+	protected void pickupDemand() {
+		currentlyServedDemmand.demandAgent.tripStarted(this);
+		vehicle.pickUp(currentlyServedDemmand.demandAgent);
+		eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
+				new PickupEventContent(timeProvider.getCurrentSimTime(), 
+						currentlyServedDemmand.demandAgent.getSimpleId(), getId(),
+						positionUtil.getTripLengthInMeters(demandTrip)));
+	}
+	
+	protected void dropOffDemand() {
+		currentlyServedDemmand.demandAgent.tripEnded();
+		vehicle.dropOff(currentlyServedDemmand.demandAgent);
+		eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
+				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
+						currentlyServedDemmand.demandAgent.getSimpleId(), getId()));
+	}
+	
+	// todo - repair path planner and remove this
+	protected Trip<Node> vehicleTripToTrip(VehicleTrip<TripItem> vehicleTrip){
+		LinkedList<Node>  locations = new LinkedList<>();
+		for (TripItem tripItem : vehicleTrip.getLocations()) {
+			locations.add(positionUtil.getNode(tripItem.tripPositionByNodeId));
+		}
+		Trip<Node> trip = new Trip<>(locations);
+		
+		return trip;
+	}
 
-    @Override
-    protected void onActivityFinish(Activity activity) {
-        super.onActivityFinish(activity);
+	@Override
+	protected void onActivityFinish(Activity activity) {
+		super.onActivityFinish(activity);
 		PhysicalVehicleDrive drive = (PhysicalVehicleDrive) activity;
-        finishedDriving(drive.isStoped());
-    }
+		finishedDriving(drive.isStoped());
+	}
 
-    @Override
-    public EntityType getType() {
-        return DemandSimulationEntityType.ON_DEMAND_VEHICLE;
-    }
+	@Override
+	public EntityType getType() {
+		return DemandSimulationEntityType.ON_DEMAND_VEHICLE;
+	}
 
 
-    @Override
-    public void startDriving(PhysicalTransportVehicle vehicle){
-        this.vehicle = vehicle;
-    }
+	@Override
+	public void startDriving(PhysicalTransportVehicle vehicle){
+		this.vehicle = vehicle;
+	}
 
-    @Override
-    public void setDelayData(DelayData delayData) {
-        this.delayData = delayData;
-    }
+	@Override
+	public void setDelayData(DelayData delayData) {
+		this.delayData = delayData;
+	}
 
-    @Override
-    public DelayData getDelayData() {
-        return delayData;
-    }
+	@Override
+	public DelayData getDelayData() {
+		return delayData;
+	}
 
-    @Override
-    public void endDriving() {
-        
-    }
+	@Override
+	public void endDriving() {
+		
+	}
 
 	protected void finishRebalancing() {
 		waitInStation();
 		eventProcessor.addEvent(OnDemandVehicleEvent.FINISH_REBALANCING, null, null, 
-                    new RebalancingEventContent(timeProvider.getCurrentSimTime(), 
-                        currentRebalancingId, getId(), null, parkedIn));
+					new RebalancingEventContent(timeProvider.getCurrentSimTime(), 
+						currentRebalancingId, getId(), null, parkedIn));
 	}
 
 	protected void finishDrivingToStation(DemandAgent demandAgent) {
 		eventProcessor.addEvent(OnDemandVehicleEvent.REACH_NEAREST_STATION, null, null, 
-                    new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-                        demandAgent.getSimpleId(), getId()));
+					new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
+						demandAgent.getSimpleId(), getId()));
 		waitInStation();
 	}
-    
-    
+	
+	
 }

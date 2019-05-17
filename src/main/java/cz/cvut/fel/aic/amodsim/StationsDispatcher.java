@@ -26,102 +26,102 @@ import java.util.List;
  */
 @Singleton
 public class StationsDispatcher extends EventHandlerAdapter{
-    
-    private final OnDemandvehicleStationStorage onDemandvehicleStationStorage;
-    
-    
-    
-    private final EventProcessor eventProcessor;
+	
+	private final OnDemandvehicleStationStorage onDemandvehicleStationStorage;
+	
+	
+	
+	private final EventProcessor eventProcessor;
 	
 	protected final AmodsimConfig config;
-    
-    
-    
-    
-    protected int numberOfDemandsDropped;
-    
-    private int demandsCount;
-    
-    private int rebalancingDropped;
+	
+	
+	
+	
+	protected int numberOfDemandsDropped;
+	
+	private int demandsCount;
+	
+	private int rebalancingDropped;
 
-    
-    
-    
-    public int getNumberOfDemandsNotServedFromNearestStation() {
-        return onDemandvehicleStationStorage.getNumberOfDemandsNotServedFromNearestStation();
-    }
+	
+	
+	
+	public int getNumberOfDemandsNotServedFromNearestStation() {
+		return onDemandvehicleStationStorage.getNumberOfDemandsNotServedFromNearestStation();
+	}
 
-    public int getNumberOfDemandsDropped() {
-        return numberOfDemandsDropped;
-    }
+	public int getNumberOfDemandsDropped() {
+		return numberOfDemandsDropped;
+	}
 
-    public int getDemandsCount() {
-        return demandsCount;
-    }
+	public int getDemandsCount() {
+		return demandsCount;
+	}
 
-    public int getNumberOfRebalancingDropped() {
-        return rebalancingDropped;
-    }
+	public int getNumberOfRebalancingDropped() {
+		return rebalancingDropped;
+	}
 	
 	public boolean stationsOn(){
 		return !onDemandvehicleStationStorage.isEmpty();
 	}
-    
-    
-    
-    
-    
-    @Inject
-    public StationsDispatcher(OnDemandvehicleStationStorage onDemandvehicleStationStorage,
-            EventProcessor eventProcessor, AmodsimConfig config) {
-        this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
-        this.eventProcessor = eventProcessor;
+	
+	
+	
+	
+	
+	@Inject
+	public StationsDispatcher(OnDemandvehicleStationStorage onDemandvehicleStationStorage,
+			EventProcessor eventProcessor, AmodsimConfig config) {
+		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
+		this.eventProcessor = eventProcessor;
 		this.config = config;
-        numberOfDemandsDropped = 0;
-        demandsCount = 0;
-        rebalancingDropped = 0;
-    }
+		numberOfDemandsDropped = 0;
+		demandsCount = 0;
+		rebalancingDropped = 0;
+	}
 
-    
-    
-    
-    
-    @Override
-    public void handleEvent(Event event) {
-        OnDemandVehicleStationsCentralEvent eventType = (OnDemandVehicleStationsCentralEvent) event.getType();
-        
-        switch(eventType){
-            case DEMAND:
-                processDemand(event);
-                break;
-            case REBALANCING:
-                serveRebalancing(event);
-                break;
-        }
-        
-    }
+	
+	
+	
+	
+	@Override
+	public void handleEvent(Event event) {
+		OnDemandVehicleStationsCentralEvent eventType = (OnDemandVehicleStationsCentralEvent) event.getType();
+		
+		switch(eventType){
+			case DEMAND:
+				processDemand(event);
+				break;
+			case REBALANCING:
+				serveRebalancing(event);
+				break;
+		}
+		
+	}
 
-    private void processDemand(Event event) {
-        demandsCount++;
-        DemandData demandData = (DemandData) event.getContent();
-        List<SimulationNode> locations = demandData.locations;
-        Node startNode = locations.get(0);
+	private void processDemand(Event event) {
+		demandsCount++;
+		DemandData demandData = (DemandData) event.getContent();
+		List<SimulationNode> locations = demandData.locations;
+		Node startNode = locations.get(0);
 		
 		serveDemand(startNode, demandData);
-    }
+	}
 
-    private void serveRebalancing(Event event) {
-        TimeTrip<OnDemandVehicleStation> rebalancingTrip = (TimeTrip<OnDemandVehicleStation>) event.getContent();
-        OnDemandVehicleStation sourceStation = rebalancingTrip.getLocations().peek();
+	private void serveRebalancing(Event event) {
+		TimeTrip<OnDemandVehicleStation> rebalancingTrip = (TimeTrip<OnDemandVehicleStation>) event.getContent();
+		OnDemandVehicleStation sourceStation = rebalancingTrip.getLocations().peek();
 		OnDemandVehicleStation targetStation = rebalancingTrip.getLocations().peekLast();
-        rebalance(sourceStation, targetStation);
-    }
+		rebalance(sourceStation, targetStation);
+	}
 	
 	public void rebalance(OnDemandVehicleStation from, OnDemandVehicleStation to){
 		boolean success = from.rebalance(to);
-        if(!success){
-            rebalancingDropped++;
-        }
+		if(!success){
+			rebalancingDropped++;
+		}
 	}
 	
 	public void createBulkDelaydRebalancing(OnDemandVehicleStation from, OnDemandVehicleStation to, int amount, 
@@ -148,9 +148,9 @@ public class StationsDispatcher extends EventHandlerAdapter{
 		}
 	}
 
-    private int getNumberOfstations() {
-        return onDemandvehicleStationStorage.getEntityIds().size();
-    }
+	private int getNumberOfstations() {
+		return onDemandvehicleStationStorage.getEntityIds().size();
+	}
 
 	protected void serveDemand(Node startNode, DemandData demandData) {
 		OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestReadyStation(startNode); 
@@ -165,12 +165,12 @@ public class StationsDispatcher extends EventHandlerAdapter{
 	public OnDemandVehicleStation getNearestStation(GPSLocation position) {
 		return onDemandvehicleStationStorage.getNearestStation(position);
 	}
-    
-    
-    
-    
-    
+	
+	
+	
+	
+	
 
-    
-    
+	
+	
 }

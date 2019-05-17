@@ -17,11 +17,11 @@ import org.junit.Test;
 public class SimpleRidesharingTest {
 	
 	@Test
-    public void run() throws Throwable{
+	public void run() throws Throwable{
 		new SimpleRidesharing().run(new VGASystemTestScenario());
-    }
+	}
 	
 	public static void main(String[] args) {
-        VisualTests.runVisualTest(SimpleRidesharingTest.class);
-    }
+		VisualTests.runVisualTest(SimpleRidesharingTest.class);
+	}
 }

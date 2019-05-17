@@ -161,18 +161,14 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			}
 		}
 		
-		
-		for(DefaultPlanComputationRequest request: ProgressBar.wrap(planComputationRequests, "Processing new requests")){
-			
-			PlanData bestPlanData = Benchmark.measureTime(() -> computeBestPlanForRequest(request));
-			insertionHeuristicTime += Benchmark.getDurationMsInt();
-
-			if(bestPlanData != null){
-				planMap.put(bestPlanData.vehicle, bestPlanData.plan);
+		if(planComputationRequests.size() > 1){
+			for(DefaultPlanComputationRequest request: ProgressBar.wrap(planComputationRequests, "Processing new requests")){
+				processRequest(request);
 			}
-			else{
-				Benchmark.measureTime(() ->	debugFail(request));
-				debugFailTime += Benchmark.getDurationMs();
+		}
+		else{
+			for(DefaultPlanComputationRequest request: planComputationRequests){
+				processRequest(request);
 			}
 		}
 		
@@ -504,6 +500,19 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		iterationTime += System.nanoTime() - iterationStartTime;
 		
 		return bestPlan;
+	}
+
+	private void processRequest(DefaultPlanComputationRequest request) {
+		PlanData bestPlanData = Benchmark.measureTime(() -> computeBestPlanForRequest(request));
+		insertionHeuristicTime += Benchmark.getDurationMsInt();
+
+		if(bestPlanData != null){
+			planMap.put(bestPlanData.vehicle, bestPlanData.plan);
+		}
+		else{
+			Benchmark.measureTime(() ->	debugFail(request));
+			debugFailTime += Benchmark.getDurationMs();
+		}
 	}
 	
 	private class PlanData{

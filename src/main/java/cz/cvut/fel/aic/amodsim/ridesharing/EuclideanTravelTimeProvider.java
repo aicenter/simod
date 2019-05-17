@@ -10,7 +10,7 @@ import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.MoveUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 
 /**
@@ -39,7 +39,7 @@ public class EuclideanTravelTimeProvider implements TravelTimeProvider{
 	public EuclideanTravelTimeProvider(PositionUtil positionUtil, AmodsimConfig config) {
 		this.positionUtil = positionUtil;
 		this.config = config;
-		travelSpeedEstimatePerSecond = config.amodsim.ridesharing.maxSpeedEstimation / 3.6;
+		travelSpeedEstimatePerSecond = config.ridesharing.maxDirectSpeedEstimationKmh / 3.6;
 	}
 	
 	
@@ -50,6 +50,11 @@ public class EuclideanTravelTimeProvider implements TravelTimeProvider{
 		double distance = positionUtil.getPosition(positionA).distance(positionUtil.getPosition(positionB));
 		long traveltime = MoveUtil.computeDuration(travelSpeedEstimatePerSecond, distance);
 		return traveltime;
+	}
+
+	@Override
+	public double getExpectedTravelTime(SimulationNode positionA, SimulationNode positionB) {
+		return getTravelTime(null, positionA, positionB);
 	}
 	
 }

@@ -39,7 +39,7 @@ public class MapVisualizer {
 
 //        List<TimeTrip<Long>> osmNodesList;
 //        try {
-//            osmNodesList = TripTransform.jsonToTrips(new File(config.amodsim.preprocessedTrips), Long.class);
+//            osmNodesList = TripTransform.jsonToTrips(new File(config.preprocessedTrips), Long.class);
 //            RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
 //            rebalancingLoader.load(new File(config.rebalancing.policyFilePath));
 //

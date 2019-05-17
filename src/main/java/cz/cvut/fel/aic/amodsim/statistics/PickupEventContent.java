@@ -5,6 +5,8 @@
  */
 package cz.cvut.fel.aic.amodsim.statistics;
 
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
+
 /**
  *
  * @author fido
@@ -19,8 +21,8 @@ public class PickupEventContent extends OnDemandVehicleEventContent{
     
     
     
-    public PickupEventContent(long time, int id, int demandTripLength) {
-        super(time, id);
+    public PickupEventContent(long time, int demandId, String onDemandVehicleId, int demandTripLength) {
+        super(time, demandId, onDemandVehicleId);
         this.demandTripLength = demandTripLength;
     }
     

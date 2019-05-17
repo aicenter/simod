@@ -18,8 +18,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+					<source>1.8</source>
+					<target>1.8</target>
                 </configuration>
             </plugin>
 
@@ -36,6 +36,7 @@
                         <exclude>**/Simulation10MinuteTest.java</exclude>
                         <exclude>**/SimulationMinuteTest.java</exclude>
                     </excludes>
+					<trimStackTrace>false</trimStackTrace>
                 </configuration>
             </plugin>
 		</plugins>
@@ -62,6 +63,14 @@
             <artifactId>geographtools</artifactId>
             <version>1.1-SNAPSHOT</version>
         </dependency>
+		<dependency>
+			<groupId>cz.cvut.fel.aic</groupId>
+			<artifactId>agentpolis</artifactId>
+			<version>5.1-SNAPSHOT</version>
+			<classifier>tests</classifier>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
         
         <!--other-->
         <dependency>
@@ -71,7 +80,7 @@
         <dependency>
             <groupId>me.tongfei</groupId>
             <artifactId>progressbar</artifactId>
-            <version>0.7.0</version>
+            <version>0.7.2</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -122,6 +131,27 @@
             <artifactId>guice-assistedinject</artifactId>
             <version>4.1.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.quantego</groupId>
+            <artifactId>clp-java</artifactId>
+            <version>1.16.10</version>
+        </dependency>
+        <dependency>
+            <groupId>com.joptimizer</groupId>
+            <artifactId>joptimizer</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+<!--        <dependency>
+                <groupId>com.google</groupId>
+                <artifactId>ortools</artifactId>
+                <version>1.0</version>
+        </dependency>-->
+        <dependency>
+                <groupId>com.gurobi</groupId>
+                <artifactId>gurobi</artifactId>
+                <version>1.0</version>
+        </dependency>
+			
     </dependencies>
     
     <repositories>

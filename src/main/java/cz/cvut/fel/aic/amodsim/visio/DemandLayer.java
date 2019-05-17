@@ -128,24 +128,6 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
 	}
 
 	@Override
-	protected void drawEntity(DemandAgent demandAgent, Point2d entityPosition, Graphics2D canvas, Dimension dim) {
-		super.drawEntity(demandAgent, entityPosition, canvas, dim);
-		if(demandsWithPrintedInfo.contains(demandAgent)){
-			double radius = getRadius(demandAgent);
-
-			int x1 = (int) (entityPosition.getX() - radius);
-			int y1 = (int) (entityPosition.getY() - radius);
-			int x2 = (int) (entityPosition.getX() + radius);
-			int y2 = (int) (entityPosition.getY() + radius);
-			if (x2 > 0 && x1 < dim.width && y2 > 0 && y1 < dim.height) {
-				VisioUtils.printTextWithBackgroud(canvas, demandAgent.getId(),
-						new Point((int) (x1 + TEXT_MARGIN_BOTTOM), y1 + (y2 - y1) / 2), Color.BLACK,
-						TEXT_BACKGROUND_COLOR);
-			}
-		}
-	}
-
-	@Override
 	protected void drawEntities(List<DemandAgent> demandAgents, Point2d entityPosition, Graphics2D canvas,
 								Dimension dim) {
 		super.drawEntities(demandAgents, entityPosition, canvas, dim);

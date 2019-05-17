@@ -1,16 +1,13 @@
 
-from amodsim.init import config, roadmaptools_config
+from amodsim.init import config
 
 import matplotlib.pyplot as plt
 import numpy as np
-import amodsim.traffic_load as traffic_load
+import statistics.model.traffic_load as traffic_load
 
-from matplotlib import rcParams
 from matplotlib.axes import Axes
-from roadmaptools.printer import print_info
-from amodsim.statistics.traffic_density_histogram import TrafficDensityHistogram, HIGH_THRESHOLD, LOW_THRESHOLD,\
-	HISTOGRAM_SAMPLES
-from amodsim.traffic_load import VehiclePhase
+from amodsim.statistics.traffic_density_histogram import TrafficDensityHistogram, HIGH_THRESHOLD, HISTOGRAM_SAMPLES
+from statistics.model.traffic_load import VehiclePhase
 
 
 def configure_axis(axes: Axes, first_line=True):

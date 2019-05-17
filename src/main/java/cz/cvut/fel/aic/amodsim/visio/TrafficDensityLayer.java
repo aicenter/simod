@@ -12,7 +12,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.load.AllEdgesLoad;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.alite.vis.layer.AbstractLayer;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
@@ -46,14 +46,14 @@ public class TrafficDensityLayer extends AbstractLayer{
     
     private final ColorMap colorMap;
     
-    private final PositionUtil positionUtil;
+    private final VisioPositionUtil positionUtil;
     
     
     
     
 
     @Inject
-    public TrafficDensityLayer(HighwayNetwork highwayNetwork, PositionUtil positionUtil, 
+    public TrafficDensityLayer(HighwayNetwork highwayNetwork, VisioPositionUtil positionUtil, 
             Provider<AllEdgesLoad<OnDemandVehicle, OnDemandVehicleStorage>> allEdgesLoadProvider) {
         this.positionUtil = positionUtil;
         this.allEdgesLoadProvider = allEdgesLoadProvider;

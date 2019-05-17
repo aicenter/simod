@@ -5,11 +5,10 @@ package cz.cvut.fel.aic.amodsim.entity;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.inject.name.Named;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
 import cz.cvut.fel.aic.amodsim.DemandData;
-import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
+import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import cz.cvut.fel.aic.amodsim.storage.DemandStorage;
@@ -18,17 +17,14 @@ import cz.cvut.fel.aic.agentpolis.simmodel.Agent;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.TransportEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.DemandSimulationEntityType;
-import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.statistics.DemandServiceStatistic;
 import cz.cvut.fel.aic.amodsim.statistics.StatisticEvent;
 import cz.cvut.fel.aic.amodsim.statistics.Statistics;
-import java.util.Map;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -43,15 +39,11 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	
 	private final TimeTrip<SimulationNode> trip;
     
-    private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
-	
-	private final boolean precomputedPaths;
+    private final StationsDispatcher onDemandVehicleStationsCentral;
     
     private final EventProcessor eventProcessor;
     
     private final DemandStorage demandStorage;
-    
-    private final Map<Long,SimulationNode> nodesMappedByNodeSourceIds;
     
     private final StandardTimeProvider timeProvider;
 	
@@ -62,8 +54,6 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     
     private DemandAgentState state;
     
-    private OnDemandVehicle vehicle;
-    
     private OnDemandVehicle onDemandVehicle;
     
     private long demandTime;
@@ -72,7 +62,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     
     private SimulationNode lastFromPosition;
 	
-	private long scheduledPickupDelay;
+//	private long scheduledPickupDelay;
 	
 	private long realPickupTime = 0;
 	
@@ -90,13 +80,13 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
         return simpleId;
     }
 
-	public void setScheduledPickupDelay(long scheduledPickupDelay) {
-		this.scheduledPickupDelay = scheduledPickupDelay;
-	}
-
-	public long getScheduledPickupDelay() {
-		return scheduledPickupDelay;
-	}
+//	public void setScheduledPickupDelay(long scheduledPickupDelay) {
+//		this.scheduledPickupDelay = scheduledPickupDelay;
+//	}
+//
+//	public long getScheduledPickupDelay() {
+//		return scheduledPickupDelay;
+//	}
 
 	public long getRealPickupTime() {
 		return realPickupTime;
@@ -111,7 +101,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     }
 
     public OnDemandVehicle getVehicle() {
-        return vehicle;
+        return onDemandVehicle;
     }
 
     public OnDemandVehicle getOnDemandVehicle() {
@@ -136,19 +126,15 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     
     
     @Inject
-	public DemandAgent(OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
-            DemandStorage demandStorage, Map<Long,SimulationNode> nodesMappedByNodeSourceIds, 
-			StandardTimeProvider timeProvider, Statistics statistics, TripsUtil tripsUtil,
-            @Named("precomputedPaths") boolean precomputedPaths, @Assisted String agentId, @Assisted int id,
-            @Assisted TimeTrip<SimulationNode> trip) {
+	public DemandAgent(StationsDispatcher onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
+            DemandStorage demandStorage, StandardTimeProvider timeProvider, Statistics statistics, TripsUtil tripsUtil,
+			@Assisted String agentId, @Assisted int id, @Assisted TimeTrip<SimulationNode> trip) {
 		super(agentId, trip.getLocations().get(0));
         this.simpleId = id;
 		this.trip = trip;
-		this.precomputedPaths = precomputedPaths;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.eventProcessor = eventProcessor;
         this.demandStorage = demandStorage;
-        this.nodesMappedByNodeSourceIds = nodesMappedByNodeSourceIds;
         this.timeProvider = timeProvider;
 		this.statistics = statistics;
 		this.tripsUtil = tripsUtil;
@@ -198,7 +184,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
         eventProcessor.addEvent(StatisticEvent.DEMAND_DROPPED_OFF, null, null, 
                 new DemandServiceStatistic(demandTime, realPickupTime, timeProvider.getCurrentSimTime(), 
 						minDemandServiceDuration,
-						getId(), vehicle.getId()));
+						getId(), onDemandVehicle.getId()));
 		
         die();
     }
@@ -206,7 +192,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
     public void tripStarted(OnDemandVehicle vehicle) {
         state = DemandAgentState.DRIVING;
 		realPickupTime = timeProvider.getCurrentSimTime();
-		this.vehicle = vehicle;
+		this.onDemandVehicle = vehicle;
     }
 
     @Override

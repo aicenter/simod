@@ -9,7 +9,7 @@ import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioUtils;
 import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.alite.vis.layer.AbstractLayer;
@@ -37,7 +37,7 @@ public class OnDemandVehicleStationsLayer extends AbstractLayer{
     
     
     
-    private final PositionUtil postitionUtil;
+    private final VisioPositionUtil postitionUtil;
     
     private final OnDemandvehicleStationStorage onDemandvehicleStationStorage;
 
@@ -45,7 +45,7 @@ public class OnDemandVehicleStationsLayer extends AbstractLayer{
     
     
     @Inject
-    public OnDemandVehicleStationsLayer(PositionUtil postitionUtil, 
+    public OnDemandVehicleStationsLayer(VisioPositionUtil postitionUtil, 
             OnDemandvehicleStationStorage onDemandvehicleStationStorage) {
         this.postitionUtil = postitionUtil;
         this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;

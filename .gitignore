@@ -6,7 +6,7 @@
 
 data
 
-nbactions.xml
+nbactions*.xml
 nb-configuration.xml
 /target/
 /log.txt
@@ -19,6 +19,7 @@ nb-configuration.xml
 /src/main/java/cz/agents/amodsim/LocalConfig.java
 
 maptiles/
+log/
 
 # Python
 *.egg-info/

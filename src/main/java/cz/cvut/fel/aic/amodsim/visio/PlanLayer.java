@@ -10,7 +10,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.TripItem;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.alite.vis.layer.AbstractLayer;
 import cz.cvut.fel.aic.amodsim.NearestVehicleComparator;
@@ -45,13 +45,13 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
 
     protected final OnDemandVehicleStorage entityStorage;
 
-    protected final PositionUtil positionUtil;
+    protected final VisioPositionUtil positionUtil;
 
     protected final ArrayList<E> drawedEntities;
 
 
     @Inject
-    public PlanLayer(OnDemandVehicleStorage entityStorage, PositionUtil positionUtil) {
+    public PlanLayer(OnDemandVehicleStorage entityStorage, VisioPositionUtil positionUtil) {
         this.entityStorage = entityStorage;
         this.positionUtil = positionUtil;
         drawedEntities = new ArrayList<>();

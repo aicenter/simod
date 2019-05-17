@@ -33,6 +33,14 @@ public class Result {
     private final int numberOfVehicles;
     
     private final int numberOfRebalancingDropped;
+	
+	private final long totalDistanceWithPassenger;
+	
+	private final long totalDistanceToStartLocation;
+	
+	private final long totalDistanceToStation;
+	
+	private final long totalDistanceRebalancing;
 
     
     
@@ -85,6 +93,24 @@ public class Result {
     public int getNumberOfRebalancingDropped() {
         return numberOfRebalancingDropped;
     }
+
+	public long getTotalDistanceWithPassenger() {
+		return totalDistanceWithPassenger;
+	}
+
+	public long getTotalDistanceToStartLocation() {
+		return totalDistanceToStartLocation;
+	}
+
+	public long getTotalDistanceToStation() {
+		return totalDistanceToStation;
+	}
+
+	public long getTotalDistanceRebalancing() {
+		return totalDistanceRebalancing;
+	}
+	
+	
     
     
     
@@ -94,7 +120,8 @@ public class Result {
     public Result(long tickCount, double averageLoadTotal, int maxLoad, double averageKmWithPassenger, 
             double averageKmToStartLocation, double averageKmToStation, double averageKmRebalancing,
             int numberOfDemandsNotServedFromNearestStation, int numberOfDemandsDropped, int demandsCount,
-            int numberOfVehicles, int numberOfRebalancingDropped) {
+            int numberOfVehicles, int numberOfRebalancingDropped, long totalDistanceWithPassenger, 
+			long totalDistanceToStartLocation, long totalDistanceToStation, long totalDistanceRebalancing) {
         this.tickCount = tickCount;
         this.averageLoadTotal = averageLoadTotal;
         this.maxLoad = maxLoad;
@@ -107,6 +134,10 @@ public class Result {
         this.demandsCount = demandsCount;
         this.numberOfVehicles = numberOfVehicles;
         this.numberOfRebalancingDropped = numberOfRebalancingDropped;
+		this.totalDistanceWithPassenger = totalDistanceWithPassenger;
+		this.totalDistanceToStartLocation = totalDistanceToStartLocation;
+		this.totalDistanceToStation = totalDistanceToStation;
+		this.totalDistanceRebalancing = totalDistanceRebalancing;
     }
     
     

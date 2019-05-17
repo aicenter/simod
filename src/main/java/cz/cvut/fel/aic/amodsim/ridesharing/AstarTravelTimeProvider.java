@@ -52,10 +52,20 @@ public class AstarTravelTimeProvider implements TravelTimeProvider{
 			
 			SimulationEdge edge = graph.getEdge(fromNode, toNode);
 			
-			totalDuration += MoveUtil.computeDuration(entity, edge);
+			if(entity == null){
+				totalDuration += MoveUtil.computeMinDuration(edge);
+			}
+			else{
+				totalDuration += MoveUtil.computeDuration(entity, edge);
+			}
 			
 			fromNode = toNode;
 		}
 		return totalDuration;
+	}
+
+	@Override
+	public double getExpectedTravelTime(SimulationNode positionA, SimulationNode positionB) {
+		return getTravelTime(null, positionA, positionB);
 	}
 }

@@ -15,30 +15,30 @@ import java.io.File;
 public class Common {
     
     public static void setTestResultsDir(AmodsimConfig config, String testDirName){
-        config.amodsim.statistics.resultFilePath = 
-                appendDir(config.amodsim.statistics.resultFilePath, testDirName); 
-        config.amodsim.statistics.allEdgesLoadHistoryFilePath = 
-                appendDir(config.amodsim.statistics.allEdgesLoadHistoryFilePath, testDirName);
-        config.amodsim.statistics.transitStatisticFilePath = 
-                appendDir(config.amodsim.statistics.transitStatisticFilePath, testDirName);
-        config.amodsim.statistics.tripDistancesFilePath = 
-                appendDir(config.amodsim.statistics.tripDistancesFilePath, testDirName);
+        config.statistics.resultFilePath = 
+                appendDir(config.statistics.resultFilePath, testDirName); 
+        config.statistics.allEdgesLoadHistoryFilePath = 
+                appendDir(config.statistics.allEdgesLoadHistoryFilePath, testDirName);
+        config.statistics.transitStatisticFilePath = 
+                appendDir(config.statistics.transitStatisticFilePath, testDirName);
+        config.statistics.tripDistancesFilePath = 
+                appendDir(config.statistics.tripDistancesFilePath, testDirName);
         
         // on demand vehicle statistics
-        config.amodsim.statistics.onDemandVehicleStatistic.leaveStationFilePath = 
-                insertDir(config.amodsim.statistics.onDemandVehicleStatistic.leaveStationFilePath, testDirName, 2);
-        config.amodsim.statistics.onDemandVehicleStatistic.pickupFilePath = 
-                insertDir(config.amodsim.statistics.onDemandVehicleStatistic.pickupFilePath, testDirName, 2);
-        config.amodsim.statistics.onDemandVehicleStatistic.dropOffFilePath = 
-                insertDir(config.amodsim.statistics.onDemandVehicleStatistic.dropOffFilePath, testDirName, 2);
-        config.amodsim.statistics.onDemandVehicleStatistic.reachNearestStationFilePath = 
-                insertDir(config.amodsim.statistics.onDemandVehicleStatistic.reachNearestStationFilePath,
+        config.statistics.onDemandVehicleStatistic.leaveStationFilePath = 
+                insertDir(config.statistics.onDemandVehicleStatistic.leaveStationFilePath, testDirName, 2);
+        config.statistics.onDemandVehicleStatistic.pickupFilePath = 
+                insertDir(config.statistics.onDemandVehicleStatistic.pickupFilePath, testDirName, 2);
+        config.statistics.onDemandVehicleStatistic.dropOffFilePath = 
+                insertDir(config.statistics.onDemandVehicleStatistic.dropOffFilePath, testDirName, 2);
+        config.statistics.onDemandVehicleStatistic.reachNearestStationFilePath = 
+                insertDir(config.statistics.onDemandVehicleStatistic.reachNearestStationFilePath,
                         testDirName, 2);
-        config.amodsim.statistics.onDemandVehicleStatistic.startRebalancingFilePath = 
-                insertDir(config.amodsim.statistics.onDemandVehicleStatistic.startRebalancingFilePath,
+        config.statistics.onDemandVehicleStatistic.startRebalancingFilePath = 
+                insertDir(config.statistics.onDemandVehicleStatistic.startRebalancingFilePath,
                         testDirName, 2);
-        config.amodsim.statistics.onDemandVehicleStatistic.finishRebalancingFilePath = 
-                insertDir(config.amodsim.statistics.onDemandVehicleStatistic.finishRebalancingFilePath,
+        config.statistics.onDemandVehicleStatistic.finishRebalancingFilePath = 
+                insertDir(config.statistics.onDemandVehicleStatistic.finishRebalancingFilePath,
                         testDirName, 2);
     }
 

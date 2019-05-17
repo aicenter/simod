@@ -11,7 +11,7 @@ import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
-import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
+import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.statistics.Statistics;
 import org.junit.Assert;
 
@@ -24,13 +24,13 @@ public class StatisticControl implements EventHandler {
 
     private final Statistics statistics;
 
-    private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
+    private final StationsDispatcher onDemandVehicleStationsCentral;
 
 //    private final SimulationCreator simulationCreator;
 
 
     @Inject
-    public StatisticControl(Statistics statistics, OnDemandVehicleStationsCentral onDemandVehicleStationsCentral,
+    public StatisticControl(Statistics statistics, StationsDispatcher onDemandVehicleStationsCentral,
                             SimulationCreator simulationCreator, EventProcessor eventProcessor) {
         this.statistics = statistics;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;

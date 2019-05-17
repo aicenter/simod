@@ -10,7 +10,7 @@ import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
+import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent.DemandAgentFactory;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
@@ -50,7 +50,7 @@ public class EventInitializer {
 
     private final DemandEventHandler demandEventHandler;
     
-    private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
+    private final StationsDispatcher onDemandVehicleStationsCentral;
     
     private final AmodsimConfig amodsimConfig;
     
@@ -63,7 +63,7 @@ public class EventInitializer {
     
     @Inject
     public EventInitializer(EventProcessor eventProcessor, 
-            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, AmodsimConfig config, 
+            StationsDispatcher onDemandVehicleStationsCentral, AmodsimConfig config, 
             DemandEventHandler demandEventHandler, AgentpolisConfig agentpolisConfig, SimulationUtils simulationUtils) {
         this.eventProcessor = eventProcessor;
         this.demandEventHandler = demandEventHandler;
@@ -79,8 +79,10 @@ public class EventInitializer {
         Random random = new Random(RANDOM_SEED);
         
         for (TimeTrip<SimulationNode> trip : trips) {
-            long startTime = trip.getStartTime() - amodsimConfig.amodsim.startTime;
+            long startTime = trip.getStartTime() - amodsimConfig.startTime;
+            // trip have to start at least 1ms after start of the simulation and no later then last
             if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
+
                 continue;
             }
             
@@ -100,14 +102,16 @@ public class EventInitializer {
                 }
             }
         }
-        for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
-            long startTime = rebalancingTrip.getStartTime() - amodsimConfig.amodsim.startTime;
+		if(rebalancingTrips != null){
+			for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
+				long startTime = rebalancingTrip.getStartTime() - amodsimConfig.startTime;
             if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
-                continue;
-            }
-            eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 
-                    null, rebalancingTrip, startTime);
-        }
+					continue;
+				}
+				eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 
+						null, rebalancingTrip, startTime);
+			}
+		}
     }
     
     

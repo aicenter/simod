@@ -11,17 +11,16 @@ import com.vividsolutions.jts.geom.Coordinate;
 import cz.cvut.fel.aic.amodsim.DemandData;
 import cz.cvut.fel.aic.amodsim.DemandSimulationEntityType;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
-import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.PositionUtil;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
-import cz.cvut.fel.aic.amodsim.OnDemandVehicleStationsCentral;
+import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
@@ -43,7 +42,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OnDemandVehicleStation.class);
     
-    private final LinkedList<OnDemandVehicle> parkedVehicles;
+    private final ArrayList<OnDemandVehicle> parkedVehicles;
     
     private final EventProcessor eventProcessor;
 
@@ -51,13 +50,12 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     
     private final Transformer transformer;
     
-    private final PositionUtil positionUtil;
+    private final VisioPositionUtil positionUtil;
     
-    private final OnDemandVehicleStationsCentral onDemandVehicleStationsCentral;
+    private final StationsDispatcher onDemandVehicleStationsCentral;
     
     private final AmodsimConfig config;
 
-    
     
     
 
@@ -65,11 +63,11 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             OnDemandVehicleFactorySpec onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
             OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 
             @Assisted String id, @Assisted SimulationNode node, 
-            @Assisted int initialVehicleCount, Transformer transformer, PositionUtil positionUtil, 
-            OnDemandVehicleStationsCentral onDemandVehicleStationsCentral) {
+            @Assisted int initialVehicleCount, Transformer transformer, VisioPositionUtil positionUtil, 
+            StationsDispatcher onDemandVehicleStationsCentral) {
         super(id, node);
         this.eventProcessor = eventProcessor;
-        parkedVehicles = new LinkedList<>();
+        parkedVehicles = new ArrayList<>();
 //		initialVehicleCount = 10;
         for (int i = 0; i < initialVehicleCount; i++) {
 			String onDemandVehicelId = String.format("%s-%d", id, i);
@@ -85,10 +83,12 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.config = config;
     }
-    
-    
-    
 
+	@Override
+	public String toString() {
+		return getId();
+	}
+	
     @Override
     public EntityType getType() {
         return DemandSimulationEntityType.ON_DEMAND_VEHICLE_STATION;
@@ -153,7 +153,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
             return;
         }
         
-        OnDemandVehicle vehicle = getVehicle();
+        OnDemandVehicle vehicle = getAndRemoveVehicle();
         
         if(vehicle != null){
             vehicle.setDepartureStation(this);
@@ -169,10 +169,10 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         }
     }
 
-    public boolean rebalance(TimeTrip<OnDemandVehicleStation> rebalancingTrip) {
-        OnDemandVehicle vehicle = getVehicle();
+    public boolean rebalance(OnDemandVehicleStation targetStation) {
+        OnDemandVehicle vehicle = getAndRemoveVehicle();
         if(vehicle != null){
-            vehicle.startRebalancing(rebalancingTrip.getLocations().getLast());
+            vehicle.startRebalancing(targetStation);
             return true;
         }
         else{
@@ -184,13 +184,17 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         return parkedVehicles.isEmpty();
     }
 
-    private OnDemandVehicle getVehicle() {
+    private OnDemandVehicle getAndRemoveVehicle() {
         OnDemandVehicle nearestVehicle;
 
-        nearestVehicle = parkedVehicles.poll();
+        nearestVehicle = parkedVehicles.remove(0);
         
         return nearestVehicle;
     }
+	
+	public OnDemandVehicle getVehicle(int index){
+		return parkedVehicles.get(index);
+	}
     
     private NearestElementUtil<OnDemandVehicle> getNearestElementUtilForVehiclesBeforeDeparture(
             OnDemandVehicleStation targetStation) {
@@ -228,7 +232,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
     
     
     public interface OnDemandVehicleStationFactory {
-        public OnDemandVehicleStation create(String id, Node node, int initialVehicleCount);
+        public OnDemandVehicleStation create(String id, SimulationNode node, int initialVehicleCount);
     }
     
     
@@ -263,4 +267,5 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
         }
 
     }
+	
 }

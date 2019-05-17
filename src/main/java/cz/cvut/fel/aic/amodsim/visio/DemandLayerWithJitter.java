@@ -10,7 +10,6 @@ import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.storage.DemandStorage;
-import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Random;
 import javax.vecmath.Point2d;
@@ -27,7 +26,7 @@ public class DemandLayerWithJitter extends DemandLayer{
     
     
     
-    private final HashMap<DemandAgent,Point2d> waitingAgentCachedPosition;
+    private final HashMap<DemandAgent,Point2d> jitterCache;
     
     private final Random random;
     
@@ -37,31 +36,33 @@ public class DemandLayerWithJitter extends DemandLayer{
     @Inject
     public DemandLayerWithJitter(DemandStorage demandStorage, AgentpolisConfig agentpolisConfig) {
         super(demandStorage, agentpolisConfig);
-        waitingAgentCachedPosition = new HashMap<>();
+        jitterCache = new HashMap<>();
         random = new Random();
     }
 
     @Override
     protected Point2d getWaitingAgentPosition(DemandAgent demandAgent) {
-        Point2d agentPosition =  positionUtil.getPosition(demandAgent.getPosition()); 
+//        Point2d agentPosition =  positionUtil.getPosition(demandAgent.getPosition()); 
         Point2d agentJitter;
-        if(waitingAgentCachedPosition.containsKey(demandAgent)){
-            agentJitter = waitingAgentCachedPosition.get(demandAgent);
+        if(jitterCache.containsKey(demandAgent)){
+            agentJitter = jitterCache.get(demandAgent);
         }
         else{
             agentJitter = getJitter();
-            waitingAgentCachedPosition.put(demandAgent, agentJitter);
+            jitterCache.put(demandAgent, agentJitter);
         }
+		
+		Point2d canvasPosition = positionUtil.getCanvasPosition(demandAgent.getPosition());
         
-        jitte(agentPosition, agentJitter);
+        jitte(canvasPosition, agentJitter);
         
-        return positionUtil.getCanvasPosition(agentPosition);
+        return canvasPosition;
     }
 
     @Override
     protected Point2d getDrivingAgentPosition(DemandAgent demandAgent) {
-        if(waitingAgentCachedPosition.containsKey(demandAgent)){
-            waitingAgentCachedPosition.remove(demandAgent);
+        if(jitterCache.containsKey(demandAgent)){
+            jitterCache.remove(demandAgent);
         }
         return super.getDrivingAgentPosition(demandAgent); 
     }

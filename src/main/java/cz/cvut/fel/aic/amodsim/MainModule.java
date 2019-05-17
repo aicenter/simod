@@ -5,43 +5,40 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.InsertionHeuristicSolver;
 import com.google.common.collect.Sets;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-import com.google.inject.name.Names;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent.DemandAgentFactory;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
-import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.CongestedDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
+import cz.cvut.fel.aic.amodsim.ridesharing.*;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayer;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayerWithJitter;
 import cz.cvut.fel.aic.amodsim.visio.AmodsimVisioInItializer;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.VehicleStorage;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.AllNetworkNodes;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.GeojsonMapInitializer;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactory;
-import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
-import cz.cvut.fel.aic.amodsim.ridesharing.EuclideanTravelTimeProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.InsertionHeuristicSolver;
-import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingStationsCentral;
-import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.plan.RidesharingOnDemandVehicleFactory;
+import cz.cvut.fel.aic.amodsim.rebalancing.RebalancingOnDemandVehicleStation;
+import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingOnDemandVehicleFactory;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.geographtools.TransportMode;
+
 import java.io.File;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -63,52 +60,51 @@ public class MainModule extends StandardAgentPolisModule{
     }
 
     @Override
-    protected void configureNext() {
-        bindConstant().annotatedWith(Names.named("precomputedPaths")).to(false);
-
-//        bind(File.class).annotatedWith(Names.named("osm File")).toInstance(new File(amodsimConfig.mapFilePath));
-        
+    protected void configureNext() {      
         bind(new TypeLiteral<Set<TransportMode>>(){}).toInstance(Sets.immutableEnumSet(TransportMode.CAR));
         bind(AmodsimConfig.class).toInstance(amodsimConfig);
-
         bind(EntityStorage.class).to(VehicleStorage.class);
+		bind(MapInitializer.class).to(GeojsonMapInitializer.class);
         
-        if(amodsimConfig.amodsim.useTripCache){
+        if(amodsimConfig.useTripCache){
             bind(TripsUtil.class).to(TripsUtilCached.class);
         }
-        bind(DemandLayer.class).to(DemandLayerWithJitter.class);
+//        bind(DemandLayer.class).to(DemandLayerWithJitter.class);
         
-        bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
-//        bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
+//        bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
+        bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 
-        if(amodsimConfig.amodsim.ridesharing.on){
+        if(amodsimConfig.ridesharing.on){
 			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
-			bind(OnDemandVehicleStationsCentral.class).to(RidesharingStationsCentral.class);
-			bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
+			bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
 			bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
+//			bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
+			bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
+			install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
+						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
+			
+			switch(amodsimConfig.ridesharing.method){
+				case "insertion-heuristic":
+					bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
+					break;
+				case "vga":
+					bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
+					bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);
+		//			bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
+					break;
+			}
+
         }
         else{
            bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
         }
         install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
             .build(DemandAgentFactory.class));
-    }
-    
-    @Provides
-	@Singleton
-	Map<Long,SimulationNode> provideNodesMappedByNodeSourceIds(
-            HighwayNetwork highwayNetwork, AllNetworkNodes allNetworkNodes) {
-        Map<Long,Integer> nodeIdsMappedByNodeSourceIds = highwayNetwork.getNetwork().createSourceIdToNodeIdMap();
-        Map<Long,SimulationNode> nodesMappedByNodeSourceIds = new HashMap<>();
-        
-        for (Map.Entry<Long, Integer> entry : nodeIdsMappedByNodeSourceIds.entrySet()) {
-            Long key = entry.getKey();
-            Integer value = entry.getValue();
-            nodesMappedByNodeSourceIds.put(key, allNetworkNodes.getNode(value));
-        }
-        
-		return nodesMappedByNodeSourceIds;
-	}
-    
+		
+		if(amodsimConfig.rebalancing.on){
+			install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, RebalancingOnDemandVehicleStation.class)
+				.build(RebalancingOnDemandVehicleStation.OnDemandVehicleStationFactory.class));
+		}
+    } 
     
 }

@@ -51,7 +51,7 @@ public class TestModule extends StandardAgentPolisModule{
     public TestModule(AmodsimConfig amodsimConfig, File localConfigFile) {
         super(amodsimConfig, localConfigFile, "agentpolis"); 
 		this.amodsimConfig = amodsimConfig;
-        agentpolisConfig.showVisio = VisualTests.SHOW_VISIO;
+        agentpolisConfig.visio.showVisio = VisualTests.SHOW_VISIO;
 		amodsimConfig.startTime = 0;
 		amodsimConfig.tripsMultiplier = 1.0;
 		agentpolisConfig.simulationDuration.days = 0;

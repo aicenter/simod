@@ -18,8 +18,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.vecmath.Point2d;
 
@@ -73,7 +73,7 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
 		return positionUtil.getCanvasPositionInterpolatedForVehicleInTime(demandAgent.getTransportingEntity(), time);
 	}
 
-	protected Point2d getWaitingAgentPosition(DemandAgent demandAgent, Dimension drawingDimension){
+	protected Point2d getWaitingAgentPosition(DemandAgent demandAgent){
 		return positionUtil.getCanvasPosition(demandAgent.getPosition());
 	}
 
@@ -84,7 +84,7 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
 			return getDrivingAgentPosition(demandAgent);
         }
         else{
-            return getWaitingAgentPosition(demandAgent, dim);
+            return getWaitingAgentPosition(demandAgent);
         }
     }
 
@@ -94,7 +94,7 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
 			return getDrivingAgentPositionInTime(demandAgent, time);
 		}
 		else{
-			return getWaitingAgentPosition(demandAgent, dim);
+			return getWaitingAgentPosition(demandAgent);
 		}
 	}
 
@@ -146,7 +146,7 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
 	}
 
 	@Override
-	protected void drawEntities(ArrayList<DemandAgent> demandAgents, Point2d entityPosition, Graphics2D canvas,
+	protected void drawEntities(List<DemandAgent> demandAgents, Point2d entityPosition, Graphics2D canvas,
 								Dimension dim) {
 		super.drawEntities(demandAgents, entityPosition, canvas, dim);
 		if(demandsWithPrintedInfo.contains(demandAgents.get(0))){

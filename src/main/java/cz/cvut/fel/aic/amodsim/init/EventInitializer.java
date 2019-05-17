@@ -24,6 +24,8 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import java.util.List;
 import java.util.Random;
 
+import cz.cvut.fel.aic.agentpolis.simulator.SimulationUtils;
+
 /**
  *
  * @author fido
@@ -54,6 +56,7 @@ public class EventInitializer {
     
     private final AgentpolisConfig agentpolisConfig;
     
+	private final SimulationUtils simulationUtils;
     
     private long eventCount;
     
@@ -61,12 +64,13 @@ public class EventInitializer {
     @Inject
     public EventInitializer(EventProcessor eventProcessor, 
             OnDemandVehicleStationsCentral onDemandVehicleStationsCentral, AmodsimConfig config, 
-            DemandEventHandler demandEventHandler, AgentpolisConfig agentpolisConfig) {
+            DemandEventHandler demandEventHandler, AgentpolisConfig agentpolisConfig, SimulationUtils simulationUtils) {
         this.eventProcessor = eventProcessor;
         this.demandEventHandler = demandEventHandler;
         this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
         this.amodsimConfig = config;
         this.agentpolisConfig = agentpolisConfig;
+		this.simulationUtils = simulationUtils;
         eventCount = 0;
     }
     
@@ -76,7 +80,7 @@ public class EventInitializer {
         
         for (TimeTrip<SimulationNode> trip : trips) {
             long startTime = trip.getStartTime() - amodsimConfig.amodsim.startTime;
-            if(startTime < 1 || startTime > agentpolisConfig.simulationDurationInS * 1000){
+            if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
                 continue;
             }
             
@@ -98,7 +102,7 @@ public class EventInitializer {
         }
         for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
             long startTime = rebalancingTrip.getStartTime() - amodsimConfig.amodsim.startTime;
-            if(startTime < 1 || startTime > agentpolisConfig.simulationDurationInS * 1000){
+            if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
                 continue;
             }
             eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 

@@ -42,7 +42,7 @@ public class DemandLayerWithJitter extends DemandLayer{
     }
 
     @Override
-    protected Point2d getWaitingAgentPosition(DemandAgent demandAgent, Dimension drawingDimension) {
+    protected Point2d getWaitingAgentPosition(DemandAgent demandAgent) {
         Point2d agentPosition =  positionUtil.getPosition(demandAgent.getPosition()); 
         Point2d agentJitter;
         if(waitingAgentCachedPosition.containsKey(demandAgent)){

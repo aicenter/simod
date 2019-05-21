@@ -46,23 +46,23 @@ public class AmodsimConfig implements GeneratedConfig {
   }
 
   public AmodsimConfig fill(Map amodsimConfig) {
-	this.vehicleSpeedInMeters = (Double) amodsimConfig.get("vehicle_speed_in_meters");
-	this.useTripCache = (Boolean) amodsimConfig.get("use_trip_cache");
-	this.experimentName = (String) amodsimConfig.get("experiment_name");
-	this.tripsFilename = (String) amodsimConfig.get("trips_filename");
-	this.edgePairsFilePath = (String) amodsimConfig.get("edge_pairs_file_path");
-	this.tripCacheFile = (String) amodsimConfig.get("trip_cache_file");
-	this.mapDir = (String) amodsimConfig.get("map_dir");
-	this.startTime = (Integer) amodsimConfig.get("start_time");
-	this.tripsPath = (String) amodsimConfig.get("trips_path");
-	this.amodsimExperimentDir = (String) amodsimConfig.get("amodsim_experiment_dir");
-	this.amodsimDataDir = (String) amodsimConfig.get("amodsim_data_dir");
-	this.edgesFilePath = (String) amodsimConfig.get("edges_file_path");
-	this.tripsMultiplier = (Double) amodsimConfig.get("trips_multiplier");
-	this.simplifyGraph = (Boolean) amodsimConfig.get("simplify_graph");
-	this.ridesharing = new Ridesharing((Map) amodsimConfig.get("ridesharing"));
-	this.rebalancing = new Rebalancing((Map) amodsimConfig.get("rebalancing"));
-	this.statistics = new Statistics((Map) amodsimConfig.get("statistics"));
-	return this;
+    this.vehicleSpeedInMeters = (Double) amodsimConfig.get("vehicle_speed_in_meters");
+    this.useTripCache = (Boolean) amodsimConfig.get("use_trip_cache");
+    this.experimentName = (String) amodsimConfig.get("experiment_name");
+    this.tripsFilename = (String) amodsimConfig.get("trips_filename");
+    this.edgePairsFilePath = (String) amodsimConfig.get("edge_pairs_file_path");
+    this.tripCacheFile = (String) amodsimConfig.get("trip_cache_file");
+    this.mapDir = (String) amodsimConfig.get("map_dir");
+    this.startTime = (Integer) amodsimConfig.get("start_time");
+    this.tripsPath = (String) amodsimConfig.get("trips_path");
+    this.amodsimExperimentDir = (String) amodsimConfig.get("amodsim_experiment_dir");
+    this.amodsimDataDir = (String) amodsimConfig.get("amodsim_data_dir");
+    this.edgesFilePath = (String) amodsimConfig.get("edges_file_path");
+    this.tripsMultiplier = (Double) amodsimConfig.get("trips_multiplier");
+    this.simplifyGraph = (Boolean) amodsimConfig.get("simplify_graph");
+    this.ridesharing = new Ridesharing((Map) amodsimConfig.get("ridesharing"));
+    this.rebalancing = new Rebalancing((Map) amodsimConfig.get("rebalancing"));
+    this.statistics = new Statistics((Map) amodsimConfig.get("statistics"));
+    return this;
   }
 }

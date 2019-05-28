@@ -5,7 +5,8 @@ import numpy as np
 from matplotlib import rcParams
 
 from roadmaptools.printer import print_info, print_table
-from amodsim.statistics.model.traffic_load import WINDOW_START, WINDOW_END, WINDOW_LENGTH, VehiclePhase
+from amodsim.statistics.model.traffic_load import WINDOW_START, WINDOW_END, WINDOW_LENGTH
+from amodsim.statistics.model.vehicle_state import VehicleState
 from amodsim.utils import to_percetnt, col_to_percent
 import amodsim.statistics.model.traffic_load as traffic_load
 
@@ -56,7 +57,7 @@ class TrafficDensityHistogram:
 
         hist_per_phase = []
 
-        for phase in VehiclePhase:
+        for phase in VehicleState:
             hist_per_phase.append(np.zeros(len(hist_total)))
 
         for index, density in enumerate(average_density_list_total):
@@ -66,11 +67,11 @@ class TrafficDensityHistogram:
                     target_bin_index = bin_index - 1
                     break
 
-            for phase in VehiclePhase:
+            for phase in VehicleState:
                 hist_per_phase[phase.index][target_bin_index] += average_density_share_by_phase[phase.index][index]
 
         bottom = np.zeros(len(hist_total))
-        for phase in VehiclePhase:
+        for phase in VehicleState:
             axis.bar(centers, hist_per_phase[phase.index], 0.01, hatch=phase.pattern, color=colors, bottom=bottom,
                      edgecolor='lightgrey', label=phase.label, linewidth=0) #color=phase.color
             bottom += hist_per_phase[phase.index]
@@ -125,7 +126,7 @@ class TrafficDensityHistogram:
         i = 0
         for edge_id in edge_id_set:
             edge = edges[edge_id]
-            for phase in VehiclePhase:
+            for phase in VehicleState:
                 w = WINDOW_START
                 sum = 0
                 load = loads[phase.name]
@@ -152,7 +153,7 @@ class TrafficDensityHistogram:
 
         average_density_list_by_phase = []
         colors = []
-        for phase in VehiclePhase:
+        for phase in VehicleState:
             average_density_list = self.get_average_density_list(loads[phase.name])
 
             # for the sum of right outliers
@@ -220,7 +221,7 @@ if __name__ == "__main__":
     axis.axvline(x=config.critical_density, linewidth=3, color='black', linestyle='--', label='critical density')
 
     # curent histogram
-    average_density_list_total_current = histogram.get_average_density_list(loads[VehiclePhase.DRIVING_TO_TARGET_LOCATION.name]);
+    average_density_list_total_current = histogram.get_average_density_list(loads[VehicleState.DRIVING_TO_TARGET_LOCATION.name]);
     hist = histogram.plot_state(axis, average_density_list_total_current, hist_step, bins, centers, colors)
 
     # legend
@@ -290,9 +291,9 @@ if __name__ == "__main__":
     print("Congestion increase: {0}".format(to_percetnt(congestion_increase)))
     print("Share per trip type:")
 
-    output_table = np.empty((len(VehiclePhase), 3), dtype=object)
+    output_table = np.empty((len(VehicleState), 3), dtype=object)
 
-    for phase in VehiclePhase:
+    for phase in VehicleState:
         sum_congested = histogram.get_number_of_congested_edges(hist_per_phase[phase.index], CONGESTION_INDEX)
         share_congested = sum_congested / congested_edges_now
         output_table[phase.index][0] = phase.name

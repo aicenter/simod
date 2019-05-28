@@ -52,7 +52,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 	
 	private final int maxGroupSize;
 	
-	private final long groupGenerationTimeLimit;
+	private final long groupGenerationTimeLimitInNanoseconds;
 	
 	
 	private FlexArray groupCounts;
@@ -88,7 +88,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		vehicleCapacity = config.ridesharing.vehicleCapacity;
 		recordTime = config.ridesharing.vga.logPlanComputationalTime;
 		maxGroupSize = config.ridesharing.vga.maxGroupSize;
-		groupGenerationTimeLimit = config.ridesharing.vga.groupGenerationTimeLimit * 1000;
+		groupGenerationTimeLimitInNanoseconds = config.ridesharing.vga.groupGenerationTimeLimit * 1000;
 	}
 
 	public List<Plan> generateGroupsForVehicle(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime) {
@@ -220,9 +220,9 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 
 						Plan plan ;
 						
-						if(groupGenerationTimeLimit > 0){
+						if(groupGenerationTimeLimitInNanoseconds > 0){
 							long currentDuration = System.nanoTime() - group_generation_start_time;
-							if(currentDuration > groupGenerationTimeLimit){
+							if(currentDuration > groupGenerationTimeLimitInNanoseconds){
 								stop = true;
 								break;
 							}

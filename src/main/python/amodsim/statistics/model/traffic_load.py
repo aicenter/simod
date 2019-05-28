@@ -101,19 +101,6 @@ def color_from_map(value):
 	return tuple([float(np_value) for np_value in color_np_float])
 
 
-class VehiclePhase(Enum):
-	DRIVING_TO_TARGET_LOCATION = (0, "blue", "///", "demand_trips")
-	DRIVING_TO_START_LOCATION = (1, "green", "+++", "pickup_trips")
-	DRIVING_TO_STATION = (2, "black", "\\\\\\", "drop off trips")
-	REBALANCING = (3, "red", "***", "rebalancing trips")
-
-	def __init__(self, index, color, pattern, label):
-		self.color = color
-		self.index = index
-		self.pattern = pattern
-		self.label = label
-
-
 class TrafficDensityLevel(Enum):
 	# CONGESTED = (100, "red")
 	# ALMOST_CONGESTED = (1, "orangered")

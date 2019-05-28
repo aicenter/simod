@@ -86,7 +86,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 	
 	private final LinkedList<DemandServiceStatistic> demandServiceStatistics;
 	
-	private LinkedList<Transit> allTransit;
+	private LinkedList<TransitRecord> allTransit;
 	
 	private final CsvWriter transitWriter;
 	
@@ -188,7 +188,10 @@ public class Statistics extends AliteEntity implements EventHandler{
 			}
 		}
 		else if(event.getType() instanceof DriveEvent){
-			allTransit.add((Transit) event.getContent());
+			Transit transit = (Transit) event.getContent();
+			TransitRecord record = new TransitRecord(transit.getTime(), transit.getId(),
+					((OnDemandVehicle) transit.getAgent()).getState());
+			allTransit.add(record);
 			if(allTransit.size() > TRANSIT_OUTPUT_BATCH_SIZE){
 				saveTransit();
 			}
@@ -350,9 +353,9 @@ public class Statistics extends AliteEntity implements EventHandler{
 	
 	private void saveTransit() {
 		try {
-			for (Transit transit : allTransit) {
-				transitWriter.writeLine(Long.toString(transit.getTime()), Long.toString(transit.getId()), 
-						Integer.toString(transit.getTripId()));
+			for (TransitRecord transit : allTransit) {
+				transitWriter.writeLine(Long.toString(transit.time), Long.toString(transit.osmId), 
+						Integer.toString(transit.vehicleState.ordinal()));
 			}
 			transitWriter.flush();
 			allTransit = new LinkedList<>();

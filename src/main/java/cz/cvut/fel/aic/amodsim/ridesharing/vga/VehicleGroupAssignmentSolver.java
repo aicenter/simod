@@ -223,8 +223,9 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 				VirtualVehicle virtualVehicle = (VirtualVehicle) plan.getVehicle();
 
 				OnDemandVehicleStation nearestStation = virtualVehicle.getStation();
-				int index = usedVehiclesPerStation.containsKey(nearestStation) 
+				int indexFromEnd = usedVehiclesPerStation.containsKey(nearestStation) 
 						? usedVehiclesPerStation.get(nearestStation) : 0;
+				int index = nearestStation.getParkedVehiclesCount() - 1 - indexFromEnd;
 
 				OnDemandVehicle onDemandVehicle = nearestStation.getVehicle(index);
 				VGAVehicle vGAVehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(onDemandVehicle.getId());

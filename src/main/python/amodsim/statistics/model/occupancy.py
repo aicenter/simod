@@ -13,6 +13,11 @@ def load(experiment_dir: str) -> DataFrame:
 	return occupancy_data
 
 
+def filter_window(data: DataFrame) -> DataFrame:
+	tick_start = config.analysis.chosen_window_start * 10
+	return  data[data.tick > tick_start]
+
+
 def get_occupancies(data: DataFrame, window_only: bool = False):
 	if window_only:
 		tick_start = config.analysis.chosen_window_start * 10

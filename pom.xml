@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<artifactId>amodsim</artifactId>
-	<version>1.1</version>
+	<version>1.1.1-SNAPSHOT</version>
 	<name>Amodsim</name>
 	
 	<parent>
@@ -46,6 +46,7 @@
 		<dependency>
 			<groupId>cz.cvut.fel.aic</groupId>
 			<artifactId>agentpolis</artifactId>
+			<version>5.1.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>cz.cvut.fel.aic</groupId>

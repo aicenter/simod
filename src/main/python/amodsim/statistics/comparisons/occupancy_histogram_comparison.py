@@ -67,6 +67,8 @@ plt.legend(loc='upper right')
 
 # plt.savefig(config.images.occupancy_histogram_comparison, bbox_inches='tight', transparent=True)
 
+
+# combined histograms
 data_5 = occupancy.load(config.comparison.experiment_5_dir)
 data_6 = occupancy.load(config.comparison.experiment_6_dir)
 data_7 = occupancy.load(config.comparison.experiment_7_dir)
@@ -96,11 +98,11 @@ axis2.set_xlabel("b) Off-peak")
 configure_subplot(axis1)
 
 _n, _bins, patches = axis1.hist([occupancies_in_window_1, occupancies_in_window_2, occupancies_in_window_3, occupancies_in_window_4,
-	occupancies_in_window_5], bins, label=common.labels)
+	occupancies_in_window_5], bins, label=common.labels, color=common.colors)
 
 axis1.set_ylabel("vehicle hours")
 
-for patch_set, hatch in zip(patches, hatches):
+for patch_set, hatch in zip(patches, common.hatches):
 	plt.setp(patch_set, hatch=hatch)
 
 plt.legend(loc='upper right')
@@ -109,11 +111,11 @@ plt.legend(loc='upper right')
 
 _n, _bins, patches = axis2.hist([occupancies_in_window_6, occupancies_in_window_7,
 	occupancies_in_window_8, occupancies_in_window_9, occupancies_in_window_10], bins,
-								label=common.labels)
+								label=common.labels, color=common.colors)
 
 configure_subplot(axis2)
 
-for patch_set, hatch in zip(patches, hatches):
+for patch_set, hatch in zip(patches, common.hatches):
 	plt.setp(patch_set, hatch=hatch)
 
 plt.legend(loc='upper right')

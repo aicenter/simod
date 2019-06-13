@@ -198,7 +198,7 @@ public class GurobiSolver {
 //			model.set(GRB.DoubleParam.MIPGap, 0.01);
 		
 			// 2 min limit
-			model.set(GRB.DoubleParam.TimeLimit, 120);
+			model.set(GRB.DoubleParam.TimeLimit, 60);
 			
 			LOGGER.info("solving start");
 			model.optimize();

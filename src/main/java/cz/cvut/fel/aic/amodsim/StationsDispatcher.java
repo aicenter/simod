@@ -28,6 +28,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandlerAdapter;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
+import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Node;
@@ -44,7 +45,7 @@ public class StationsDispatcher extends EventHandlerAdapter{
 	
 	
 	
-	private final EventProcessor eventProcessor;
+	protected final TypedSimulation eventProcessor;
 	
 	protected final AmodsimConfig config;
 	
@@ -86,7 +87,7 @@ public class StationsDispatcher extends EventHandlerAdapter{
 	
 	@Inject
 	public StationsDispatcher(OnDemandvehicleStationStorage onDemandvehicleStationStorage,
-			EventProcessor eventProcessor, AmodsimConfig config) {
+			TypedSimulation eventProcessor, AmodsimConfig config) {
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
 		this.eventProcessor = eventProcessor;
 		this.config = config;

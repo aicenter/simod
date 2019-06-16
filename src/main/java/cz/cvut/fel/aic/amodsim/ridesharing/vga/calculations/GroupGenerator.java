@@ -23,8 +23,11 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.utils.Benchmark;
 import cz.cvut.fel.aic.agentpolis.utils.FlexArray;
+import cz.cvut.fel.aic.amodsim.CsvWriter;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.io.Common;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -32,6 +35,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 
 
@@ -41,6 +46,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GroupGenerator.class);
 
+	private static final int GROUP_RECORDS_BATCH_SIZE = 10_000;
 
 
 	
@@ -54,6 +60,8 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 	
 	private final long groupGenerationTimeLimitInNanoseconds;
 	
+	private CsvWriter groupRecordWriter = null;
+	
 	
 	private FlexArray groupCounts;
 	
@@ -62,6 +70,9 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 	private FlexArray computationalTimes;
 	
 	private FlexArray computationalTimesPlanExists;
+	
+	private List<String[]> groupRecords;
+	private final Boolean exportGroupData;
 
 	public FlexArray getGroupCounts() {
 		return groupCounts;
@@ -89,6 +100,16 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		recordTime = config.ridesharing.vga.logPlanComputationalTime;
 		maxGroupSize = config.ridesharing.vga.maxGroupSize;
 		groupGenerationTimeLimitInNanoseconds = config.ridesharing.vga.groupGenerationTimeLimit * 1000;
+		exportGroupData = config.ridesharing.vga.exportGroupData;
+		if(exportGroupData){
+			try {
+				groupRecordWriter =  new CsvWriter(
+						Common.getFileWriter(config.statistics.groupDataFilePath));
+			} catch (IOException ex) {
+				Logger.getLogger(GroupGenerator.class.getName()).log(Level.SEVERE, null, ex);
+			}
+			groupRecords = new ArrayList(GROUP_RECORDS_BATCH_SIZE);
+		}
 	}
 
 	public List<Plan> generateGroupsForVehicle(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime) {
@@ -170,6 +191,10 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 			else{
 				plan = optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(vehicle, group, startTime, false);
 			}
+			
+			if(exportGroupData){
+				saveGroupData(vehicle, group, plan != null);
+			}
 
 			if(plan != null) {
 				feasibleRequests.add(request);
@@ -243,6 +268,10 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 						else{
 							plan = optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
 									vehicle, newGroupToCheck, startTime, false);
+						}
+						
+						if(exportGroupData){
+							saveGroupData(vehicle, newGroupToCheck, plan != null);
 						}
 
 						if(plan != null) {
@@ -358,6 +387,30 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		return feasibleGroups;
 	}
 
+	private void saveGroupData(V vehicle, LinkedHashSet<PlanComputationRequest> group, boolean feasible) {
+		int size = group.size() * 6 + 4;
+		String[] record = new String[size];
+		record[0] = Boolean.toString(feasible);
+		record[1] = Integer.toString(vehicle.getRequestsOnBoard().size());
+		record[1] = Integer.toString(vehicle.getPosition().latE6);
+		record[1] = Integer.toString(vehicle.getPosition().lonE6);
+		
+		int index = 4;
+		for(PlanComputationRequest planComputationRequest: group){
+			record[index++] = Integer.toString(planComputationRequest.getPickUpAction().getPosition().latE6);
+			record[index++] = Integer.toString(planComputationRequest.getPickUpAction().getPosition().lonE6);
+			record[index++] = Integer.toString(planComputationRequest.getPickUpAction().getMaxTime());
+			record[index++] = Integer.toString(planComputationRequest.getDropOffAction().getPosition().latE6);
+			record[index++] = Integer.toString(planComputationRequest.getDropOffAction().getPosition().lonE6);
+			record[index++] = Integer.toString(planComputationRequest.getDropOffAction().getMaxTime());
+		}
+		groupRecords.add(record);
+		if(groupRecords.size() == GROUP_RECORDS_BATCH_SIZE){
+			exportGroupData();
+			groupRecords = new ArrayList<>();
+		}
+	}
+
 	
 	private class GroupData {
 		private final Set<PlanComputationRequest> requests;
@@ -415,5 +468,15 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		return subsets;
 	}
 		
-
+	private void exportGroupData() {
+		try {
+			for (String[] groupRecord : groupRecords) {
+				groupRecordWriter.writeLine(groupRecord);
+			}
+			groupRecordWriter.flush();
+			groupRecords = new ArrayList<>(GROUP_RECORDS_BATCH_SIZE);
+		} catch (IOException ex) {
+			LOGGER.error(null, ex);
+		}
+	}
 }

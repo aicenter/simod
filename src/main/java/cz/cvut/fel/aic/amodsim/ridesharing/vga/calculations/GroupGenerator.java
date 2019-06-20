@@ -193,7 +193,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 			}
 			
 			if(exportGroupData){
-				saveGroupData(vehicle, group, plan != null);
+				saveGroupData(vehicle, startTime, group, plan != null);
 			}
 
 			if(plan != null) {
@@ -271,7 +271,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 						}
 						
 						if(exportGroupData){
-							saveGroupData(vehicle, newGroupToCheck, plan != null);
+							saveGroupData(vehicle, startTime, newGroupToCheck, plan != null);
 						}
 
 						if(plan != null) {
@@ -387,22 +387,22 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		return feasibleGroups;
 	}
 
-	private void saveGroupData(V vehicle, LinkedHashSet<PlanComputationRequest> group, boolean feasible) {
+	private void saveGroupData(V vehicle, int startTime, LinkedHashSet<PlanComputationRequest> group, boolean feasible) {
 		int size = group.size() * 6 + 4;
 		String[] record = new String[size];
 		record[0] = Boolean.toString(feasible);
 		record[1] = Integer.toString(vehicle.getRequestsOnBoard().size());
-		record[1] = Integer.toString(vehicle.getPosition().latE6);
-		record[1] = Integer.toString(vehicle.getPosition().lonE6);
+		record[2] = Integer.toString(vehicle.getPosition().latE6);
+		record[3] = Integer.toString(vehicle.getPosition().lonE6);
 		
 		int index = 4;
 		for(PlanComputationRequest planComputationRequest: group){
 			record[index++] = Integer.toString(planComputationRequest.getPickUpAction().getPosition().latE6);
 			record[index++] = Integer.toString(planComputationRequest.getPickUpAction().getPosition().lonE6);
-			record[index++] = Integer.toString(planComputationRequest.getPickUpAction().getMaxTime());
+			record[index++] = Integer.toString(planComputationRequest.getPickUpAction().getMaxTime() - startTime);
 			record[index++] = Integer.toString(planComputationRequest.getDropOffAction().getPosition().latE6);
 			record[index++] = Integer.toString(planComputationRequest.getDropOffAction().getPosition().lonE6);
-			record[index++] = Integer.toString(planComputationRequest.getDropOffAction().getMaxTime());
+			record[index++] = Integer.toString(planComputationRequest.getDropOffAction().getMaxTime() - startTime);
 		}
 		groupRecords.add(record);
 		if(groupRecords.size() == GROUP_RECORDS_BATCH_SIZE){

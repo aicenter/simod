@@ -5,8 +5,8 @@ from enum import Enum
 class Experiment(Enum):
 	PRESENT_STATE = (0, "grey", "ooo", "Present State")
 	NO_RIDESHARING = (1, "red", "+++", "No Ridesharing")
-	IH = (2, "blue", "///", "Insertion Heuristic")
-	VGA = (3, "green", "\\\\\\", "VGA")
+	IH = (2, "green", "///", "Insertion Heuristic")
+	VGA = (3, "blue", "\\\\\\", "VGA")
 	VGA_LIMITED = (4, "orange", "***", "VGA Limited")
 
 	def __init__(self, index, color, pattern, label):

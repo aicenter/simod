@@ -16,7 +16,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.SimpleMapInitializer;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;

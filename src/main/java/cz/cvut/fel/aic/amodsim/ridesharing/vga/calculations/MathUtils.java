@@ -18,7 +18,7 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
-import cz.cvut.fel.aic.amodsim.ridesharing.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

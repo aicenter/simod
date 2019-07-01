@@ -18,6 +18,8 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.EuclideanTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.InsertionHeuristicSolver;
 import com.google.common.collect.Sets;
 import com.google.inject.TypeLiteral;

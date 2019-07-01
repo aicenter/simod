@@ -39,7 +39,7 @@ service_8 = service.load_dataframe(config.comparison.experiment_8_dir)
 delays_2 = service.get_delays(service_1)
 delays_3 = service.get_delays(service_2)
 delays_4 = service.get_delays(service_3)
-delays_5 = service.get_delays(service_3)
+delays_5 = service.get_delays(service_4)
 delays_1 = pd.Series(0, index=np.arange(len(delays_2)))
 
 delays_window_2 = service.get_delays(service_1, True)

@@ -62,6 +62,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.PlanActionCurrentPosition;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GroupGeneratorv2;
 import cz.cvut.fel.aic.amodsim.statistics.content.GroupSizeData;
 import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStatsVGA;
 
@@ -79,7 +80,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 	private final AmodsimConfig config;
 	
-	private final GroupGenerator groupGenerator;
+	private final GroupGeneratorv2 groupGenerator;
 	
 	private final GurobiSolver gurobiSolver;
 	
@@ -129,7 +130,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	@Inject
 	public VehicleGroupAssignmentSolver(TravelTimeProvider travelTimeProvider, PlanCostProvider travelCostProvider,
 			OnDemandVehicleStorage vehicleStorage, AmodsimConfig config, 
-			TimeProvider timeProvider, GroupGenerator vGAGroupGenerator, 
+			TimeProvider timeProvider, GroupGeneratorv2 vGAGroupGenerator, 
 			DefaultPlanComputationRequestFactory requestFactory, TypedSimulation eventProcessor, 
 			GurobiSolver gurobiSolver, 
 			OnDemandvehicleStationStorage onDemandvehicleStationStorage) {
@@ -324,7 +325,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	private List<Plan> computeGroupsForVehicle(VGAVehicle vehicle, 
 			LinkedHashSet<DefaultPlanComputationRequest> waitingRequests) {
 		List<Plan> feasibleGroupPlans = Benchmark.measureTime(() ->
-					groupGenerator.generateGroupsForVehicle(vehicle, waitingRequests, startTime));
+					groupGenerator.generateGroupsForVehiclePermutationCheck(vehicle, waitingRequests, startTime));
 		
 		// log
 		if(config.ridesharing.vga.logPlanComputationalTime){
@@ -385,7 +386,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	private void logRecords() {
 		
 		GroupSizeData[] groupSizeDataForAllGroupSizes = new GroupSizeData[groupCounts.size()];
-		GroupSizeData[] groupSizeDataForAllGroupSizesPlanExists = new GroupSizeData[groupCounts.size()];
+		GroupSizeData[] groupSizeDataForAllGroupSizesPlanExists = new GroupSizeData[groupCountsPlanExists.size()];
 		for(int i = 0; i < groupCounts.size(); i++){
 			groupSizeDataForAllGroupSizes[i] = new GroupSizeData(computationalTimes.get(i), groupCounts.get(i));
 		}

@@ -70,6 +70,11 @@
 		</dependency>
 		
 		<!--other-->
+                <dependency>
+                        <groupId>org.ojalgo</groupId>
+                        <artifactId>ojalgo</artifactId>
+                        <version>47.2.0</version>
+                </dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>

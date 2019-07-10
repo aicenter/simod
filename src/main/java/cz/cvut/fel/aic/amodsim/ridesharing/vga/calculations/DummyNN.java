@@ -15,7 +15,7 @@ import java.util.Set;
 public class DummyNN implements NN{
  
     @Override
-    public void setProbability(Set gd, IOptimalPlanVehicle vehicle) {
+    public void setProbability(Set gd, IOptimalPlanVehicle vehicle, int groupSize) {
         Random rd = new Random();
         for (GroupData newGroupToCheck : (Set<GroupData>) gd) {
             newGroupToCheck.setFeasible(rd.nextFloat());

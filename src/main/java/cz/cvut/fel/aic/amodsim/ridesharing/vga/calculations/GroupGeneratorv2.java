@@ -195,97 +195,177 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 		// generate other groups
 		int currentGroupSize = 1;
 		while(!currentGroups.isEmpty() && (maxGroupSize == 0 || currentGroupSize < maxGroupSize) && !stop) {
-
 			// current groups for the next iteration
 			Set<GroupData> newCurrentGroups = new LinkedHashSet<>();
+			
 			// set of groups that were already checked
-			Set<Set<PlanComputationRequest>> currentCheckedGroups = new LinkedHashSet<>();			
-			// set of groups for NN
-			Set<GroupData> groupsForNN = new LinkedHashSet<>();
-			for (GroupData groupData : currentGroups) {
-				for (PlanComputationRequest request : feasibleRequests) {
-					if (groupData.getRequests().contains(request)){
-						continue;
-					}
-					
-					// G'
-					LinkedHashSet<PlanComputationRequest> newGroupToCheck = new LinkedHashSet<>(groupData.getRequests());
-					newGroupToCheck.add(request);
-					
-					if (currentCheckedGroups.contains(newGroupToCheck)){
-						continue;
-					}
-					currentCheckedGroups.add(newGroupToCheck);
-                    boolean checkFeasibility = true;
-					for(Set<PlanComputationRequest> subset: getAllNMinus1Subsets(newGroupToCheck)){
-						if(!currentGroups.contains(new GroupData(subset, null))){
-							checkFeasibility = false;
-							break;
-						}
-					}
-					
-					if(checkFeasibility){                   
-                        GroupData gd = new GroupData(newGroupToCheck, groupData.getOnboardRequestLock());
-                        groupsForNN.add(gd);
-                    }
-				}
-				if(stop){
-					break;
-				}
-			}
-            nn.setProbability(groupsForNN, vehicle);
-            // NN alghorithm
-			for (GroupData newGroupToCheck : groupsForNN) {
-                if(newGroupToCheck.getFeasible() < 0.5) continue;
-                Plan plan ;
+			Set<Set<PlanComputationRequest>> currentCheckedGroups = new LinkedHashSet<>();
+            if(currentGroupSize == 1){
+                for (GroupData groupData : currentGroups) {
+                    for (PlanComputationRequest request : feasibleRequests) {
+                        if (groupData.getRequests().contains(request)){
+                            continue;
+                        }
 
-                if(groupGenerationTimeLimitInNanoseconds > 0){
-                    long currentDuration = System.nanoTime() - group_generation_start_time;
-                    if(currentDuration > groupGenerationTimeLimitInNanoseconds){
-                        stop = true;
+                        // G'
+                        LinkedHashSet<PlanComputationRequest> newGroupToCheck = new LinkedHashSet<>(groupData.getRequests());
+                        newGroupToCheck.add(request);
+
+                        if (currentCheckedGroups.contains(newGroupToCheck)){
+                            continue;
+                        }
+                        currentCheckedGroups.add(newGroupToCheck);
+
+                        // check whether all n-1 subsets are in F_v^{k - 1}
+                        boolean checkFeasibility = true;
+                        for(Set<PlanComputationRequest> subset: getAllNMinus1Subsets(newGroupToCheck)){
+                            if(!currentGroups.contains(new GroupData(subset, null))){
+                                checkFeasibility = false;
+                                break;
+                            }
+                        }
+
+                        if(checkFeasibility){
+
+                            Plan plan ;
+
+                            if(groupGenerationTimeLimitInNanoseconds > 0){
+                                long currentDuration = System.nanoTime() - group_generation_start_time;
+                                if(currentDuration > groupGenerationTimeLimitInNanoseconds){
+                                    stop = true;
+                                    break;
+                                }
+                            }
+
+                            if(recordTime){
+                                groupCounts.increment(newGroupToCheck.size() - 1);
+                                plan = Benchmark.measureTime(() -> 
+                                        optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
+                                                vehicle, newGroupToCheck, startTime, false));
+                                int timeInMs = Benchmark.getDurationMsInt();
+                                if(plan != null){
+                                    groupCountsPlanExists.increment(newGroupToCheck.size() - 1);
+                                    computationalTimesPlanExists.increment(newGroupToCheck.size() - 1, timeInMs);
+                                }
+                                computationalTimes.increment(newGroupToCheck.size() - 1, timeInMs);
+                            }
+                            else{
+                                plan = optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
+                                        vehicle, newGroupToCheck, startTime, false);
+                            }
+
+                            if(exportGroupData){
+                                saveGroupData(vehicle, startTime, newGroupToCheck, plan != null);
+                            }
+
+                            if(plan != null) {
+
+                                if(groupData.getOnboardRequestLock() == null || newGroupToCheck.containsAll(groupData.getOnboardRequestLock())){
+                                    newCurrentGroups.add(new GroupData(newGroupToCheck));
+                                    groupPlans.add(plan);
+                                }
+                                else{
+                                    newCurrentGroups.add(new GroupData(newGroupToCheck, groupData.getOnboardRequestLock()));
+                                }
+    //							if(groups.size() > 50){
+    //								return groups;
+    //							}
+                            }
+                        }
+                    }
+                    if(stop){
                         break;
                     }
                 }
+            }
+            else{
+                Set<GroupData> groupsForNN = new LinkedHashSet<>();
+                for (GroupData groupData : currentGroups) {
+                    for (PlanComputationRequest request : feasibleRequests) {
+                        if (groupData.getRequests().contains(request)){
+                            continue;
+                        }
 
-                if(recordTime){
-                    groupCounts.increment(newGroupToCheck.getRequests().size() - 1);
-                    plan = Benchmark.measureTime(() -> 
-                            optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
-                                    vehicle, (LinkedHashSet) newGroupToCheck.getRequests(), startTime, false));
-                    int timeInMs = Benchmark.getDurationMsInt();
-                    if(plan != null){
-                        groupCountsPlanExists.increment(newGroupToCheck.getRequests().size() - 1);
-                        computationalTimesPlanExists.increment(newGroupToCheck.getRequests().size() - 1, timeInMs);
+                        // G'
+                        LinkedHashSet<PlanComputationRequest> newGroupToCheck = new LinkedHashSet<>(groupData.getRequests());
+                        newGroupToCheck.add(request);
+
+                        if (currentCheckedGroups.contains(newGroupToCheck)){
+                            continue;
+                        }
+                        currentCheckedGroups.add(newGroupToCheck);
+                        boolean checkFeasibility = true;
+                        for(Set<PlanComputationRequest> subset: getAllNMinus1Subsets(newGroupToCheck)){
+                            if(!currentGroups.contains(new GroupData(subset, null))){
+                                checkFeasibility = false;
+                                break;
+                            }
+                        }
+
+                        if(checkFeasibility){                   
+                            GroupData gd = new GroupData(newGroupToCheck, groupData.getOnboardRequestLock());
+                            groupsForNN.add(gd);
+                        }
                     }
-                    computationalTimes.increment(newGroupToCheck.getRequests().size() - 1, timeInMs);
+                    if(stop){
+                        break;
+                    }
                 }
-                else{
-                    plan = optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
-                            vehicle,(LinkedHashSet) newGroupToCheck.getRequests(), startTime, false);
-                }
+                if(!groupsForNN.isEmpty()){
+                    nn.setProbability(groupsForNN, vehicle, currentGroupSize);
+                }         
+                // NN alghorithm
+                for (GroupData newGroupToCheck : groupsForNN) {
+                    if(newGroupToCheck.getFeasible() < 0.5) continue;
+                    Plan plan ;
 
-                if(exportGroupData){
-                    saveGroupData(vehicle, startTime,(LinkedHashSet) newGroupToCheck.getRequests(), plan != null);
-                }
+                    if(groupGenerationTimeLimitInNanoseconds > 0){
+                        long currentDuration = System.nanoTime() - group_generation_start_time;
+                        if(currentDuration > groupGenerationTimeLimitInNanoseconds){
+                            stop = true;
+                            break;
+                        }
+                    }
 
-                if(plan != null) {
-
-                    if(newGroupToCheck.getOnboardRequestLock() == null || newGroupToCheck.getRequests().containsAll(newGroupToCheck.getOnboardRequestLock())){
-                        newCurrentGroups.add(new GroupData(newGroupToCheck.getRequests()));
-                        groupPlans.add(plan);
+                    if(recordTime){
+                        groupCounts.increment(newGroupToCheck.getRequests().size() - 1);
+                        plan = Benchmark.measureTime(() -> 
+                                optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
+                                        vehicle, (LinkedHashSet) newGroupToCheck.getRequests(), startTime, false));
+                        int timeInMs = Benchmark.getDurationMsInt();
+                        if(plan != null){
+                            groupCountsPlanExists.increment(newGroupToCheck.getRequests().size() - 1);
+                            computationalTimesPlanExists.increment(newGroupToCheck.getRequests().size() - 1, timeInMs);
+                        }
+                        computationalTimes.increment(newGroupToCheck.getRequests().size() - 1, timeInMs);
                     }
                     else{
-                        newCurrentGroups.add(new GroupData(newGroupToCheck.getRequests(), newGroupToCheck.getOnboardRequestLock()));
+                        plan = optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
+                                vehicle,(LinkedHashSet) newGroupToCheck.getRequests(), startTime, false);
                     }
-//							if(groups.size() > 50){
-//								return groups;
-//							}
-				}
-				if(stop){
-					break;
-				}
-			}
 
+                    if(exportGroupData){
+                        saveGroupData(vehicle, startTime,(LinkedHashSet) newGroupToCheck.getRequests(), plan != null);
+                    }
+
+                    if(plan != null) {
+
+                        if(newGroupToCheck.getOnboardRequestLock() == null || newGroupToCheck.getRequests().containsAll(newGroupToCheck.getOnboardRequestLock())){
+                            newCurrentGroups.add(new GroupData(newGroupToCheck.getRequests()));
+                            groupPlans.add(plan);
+                        }
+                        else{
+                            newCurrentGroups.add(new GroupData(newGroupToCheck.getRequests(), newGroupToCheck.getOnboardRequestLock()));
+                        }
+    //							if(groups.size() > 50){
+    //								return groups;
+    //							}
+                    }
+                    if(stop){
+                        break;
+                    }
+                }
+            }
 			currentGroups = newCurrentGroups;
 			currentGroupSize++;
 		}
@@ -417,7 +497,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 					break;
 				}
 			}
-            nn.setProbability(groupsForNN, vehicle);
+            nn.setProbability(groupsForNN, vehicle, currentGroupSize);
             // NN alghorithm
 			for (GroupData newGroupToCheck : groupsForNN) {
                 if(newGroupToCheck.getFeasible() < 0.5) continue;

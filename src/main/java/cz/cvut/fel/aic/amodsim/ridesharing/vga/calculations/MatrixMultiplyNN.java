@@ -15,13 +15,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.PrimitiveIterator;
-import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.ojalgo.function.BinaryFunction;
+import org.ojalgo.function.UnaryFunction;
 import org.ojalgo.function.aggregator.Aggregator;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
@@ -32,8 +33,7 @@ import org.ojalgo.matrix.store.PrimitiveDenseStore;
  * @author matal
  */
 public class MatrixMultiplyNN implements NN {   
-    private final PrimitiveDenseStore W1[], W2[], W3[], W4[];
-    private final PrimitiveDenseStore b1[], b2[], b3[], b4[];
+    private final PrimitiveDenseStore W[][], b[][];
     private final double mu[][];
     private final double sigma[][];
     PhysicalStore.Factory<Double, PrimitiveDenseStore> storeFactory;
@@ -41,30 +41,24 @@ public class MatrixMultiplyNN implements NN {
         storeFactory = PrimitiveDenseStore.FACTORY;
         mu = new double[5][];
         sigma = new double[5][];
-        W1 = new PrimitiveDenseStore[5];
-        W2 = new PrimitiveDenseStore[5];
-        W3 = new PrimitiveDenseStore[5];
-        W4 = new PrimitiveDenseStore[5];
-        b1 = new PrimitiveDenseStore[5];
-        b2 = new PrimitiveDenseStore[5];
-        b3 = new PrimitiveDenseStore[5];
-        b4 = new PrimitiveDenseStore[5];
+        W = new PrimitiveDenseStore[5][4];
+        b = new PrimitiveDenseStore[5][4];
         for (int i = 3; i < 8; i++) {
             loadJSON(i);
-            //loadNPZ(i);
+            loadNPZ(i);
         }
         
     }
     
     @Override
     public void setProbability(Set gd, IOptimalPlanVehicle vehicle, int groupSize) {
-        Random rd = new Random();
         PrimitiveDenseStore matrixX = fillMatrixX(gd,vehicle,groupSize);
-        compute(matrixX, groupSize+1);
+        matrixX = compute(matrixX, groupSize+1);
         System.out.println(matrixX);
-        
+        int i = 0;
         for (GroupData newGroupToCheck : (Set<GroupData>) gd) {
-            newGroupToCheck.setFeasible(rd.nextFloat());
+            newGroupToCheck.setFeasible(matrixX.get(i));
+            i++;
         }
     }
     private PrimitiveDenseStore fillMatrixX(Set gd, IOptimalPlanVehicle vehicle, int groupSize){
@@ -113,19 +107,20 @@ public class MatrixMultiplyNN implements NN {
                     fileInputStream.skipBytes(Integer.rotateLeft(skip, 24)+1);
                     switch(value){
                         case '1':
-                            readMatrix(fileInputStream, 3+6*(groupSize), 1024, W1[groupSize-3]);
+                            W[groupSize-3][0] = readMatrix(fileInputStream, 3+6*(groupSize), 1024);
+                            
                             counter++;
                             break;
                         case '2':
-                            readMatrix(fileInputStream, 1024, 512, W2[groupSize-3]);
+                            W[groupSize-3][1] = readMatrix(fileInputStream, 1024, 512);
                             counter++;
                             break;
                         case '3':
-                            readMatrix(fileInputStream, 512, 256, W3[groupSize-3]);
+                            W[groupSize-3][2] = readMatrix(fileInputStream, 512, 256);
                             counter++;
                             break;
                         case '4':
-                            readMatrix(fileInputStream, 256, 1, W4[groupSize-3]);
+                            W[groupSize-3][3] = readMatrix(fileInputStream, 256, 1);
                             counter++;
                             break;
                     }
@@ -139,19 +134,19 @@ public class MatrixMultiplyNN implements NN {
                     fileInputStream.skipBytes(Integer.rotateLeft(skip, 24)+1);
                     switch(value){
                         case '1':
-                            readMatrix(fileInputStream, 1, 1024, b1[groupSize-3]);
+                            b[groupSize-3][0] = readMatrix(fileInputStream, 1, 1024);
                             counter++;
                             break;
                         case '2':
-                            readMatrix(fileInputStream, 1, 512, b2[groupSize-3]);
+                            b[groupSize-3][1] = readMatrix(fileInputStream, 1, 512);
                             counter++;
                             break;
                         case '3':
-                            readMatrix(fileInputStream, 1, 256, b3[groupSize-3]);
+                            b[groupSize-3][2] = readMatrix(fileInputStream, 1, 256);
                             counter++;
                             break;
                         case '4':
-                            readMatrix(fileInputStream, 1, 1, b4[groupSize-3]);
+                            b[groupSize-3][3] = readMatrix(fileInputStream, 1, 1);
                             counter++;
                             break;
                     }
@@ -170,20 +165,20 @@ public class MatrixMultiplyNN implements NN {
         }
         System.err.println("model loaded.");
     }
-    private void readMatrix(LittleEndianDataInputStream  fileInputStream, int rows, int columns, PrimitiveDenseStore m){
+    private PrimitiveDenseStore readMatrix(LittleEndianDataInputStream  fileInputStream, int rows, int columns){
         
         
         double[][] data = new double[rows][columns];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
+        for (int i = 0; i < columns; i++) {
+            for (int j = 0; j < rows; j++) {
                 try {
-                    data[i][j] = fileInputStream.readFloat();
+                    data[j][i] = fileInputStream.readFloat();                  
                 } catch (IOException ex) {
                     Logger.getLogger(MatrixMultiplyNN.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }
-        m = storeFactory.rows(data);
+        return storeFactory.rows(data);
     }
 
         private void loadJSON(int groupSize) {
@@ -217,13 +212,31 @@ public class MatrixMultiplyNN implements NN {
                 sigma_data[pos] = (Double) current.get("sigma");       
     }
 
-    private void compute(PrimitiveDenseStore Y, int groupSize) {
-        /*for (int i = 1; i < 5; i++) {
-            Y = Y.multiply(W1[groupSize-3]);
-            Y.add(b1[groupSize-3]); //find solution
-            Y = Y.;
+    private PrimitiveDenseStore compute(PrimitiveDenseStore X, int groupSize) {
+        BinaryFunction<Double> modifier = storeFactory.function().add();
+        UnaryFunction<Double> modifier2 = storeFactory.function().max().second(0);
+        UnaryFunction<Double> exp = storeFactory.function().exp();
+        UnaryFunction<Double> divide_one = storeFactory.function().divide().first(1);
+        UnaryFunction<Double> modifier3 = 
+                storeFactory.function().negate()
+                        .andThen(exp)
+                        .andThen(modifier.second(1))                      
+                        .andThen(divide_one);
+        for (int i = 0; i < 4; i++) {
+            PrimitiveDenseStore Y = storeFactory.makeZero(X.countRows(), W[groupSize-3][i].countColumns()); //due to ... representation
+            X.multiply(W[groupSize-3][i],Y);
+            Y.modifyMatchingInRows(modifier, b[groupSize-3][i]);
+
+            if(i != 3){          
+                Y.modifyAll(modifier2);
+            }else{
+                //
+                Y.modifyAll(modifier3);                
+            }
+
+            X = Y.copy();
         }
-        MatrixStore m;*/
+        return X;
     }
     private class DoubleIterator implements Iterator{
         private double[] values;

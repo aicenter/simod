@@ -47,7 +47,8 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 	
 	private CsvWriter groupRecordWriter = null;
 	
-	
+	private int false_count;
+    private int true_count;
 	private FlexArray groupCounts;
 	
 	private FlexArray groupCountsPlanExists;
@@ -96,6 +97,8 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 			groupRecords = new ArrayList(GROUP_RECORDS_BATCH_SIZE);
 		}
         nn = new MatrixMultiplyNN();
+        false_count = 0;
+        true_count = 0;
 	}
 	public List<Plan> generateGroupsForVehiclePermutationCheck(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime) {
 		
@@ -316,7 +319,13 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                 }         
                 // NN alghorithm
                 for (GroupData newGroupToCheck : groupsForNN) {
-                    if(newGroupToCheck.getFeasible() < 0.5) continue;
+                    if(newGroupToCheck.getFeasible() < 0.5){
+                        //System.out.println("False: "+false_count++);
+                        continue;
+                    }/*else{
+                        System.out.println("True: "+true_count++);
+                    }*/
+                    
                     Plan plan ;
 
                     if(groupGenerationTimeLimitInNanoseconds > 0){

@@ -17,8 +17,11 @@ public class DummyNN implements NN{
     @Override
     public void setProbability(Set gd, IOptimalPlanVehicle vehicle, int groupSize) {
         Random rd = new Random();
+        double ar[] = {0.4, 0.8, 0.8};
+        int i = 0;
         for (GroupData newGroupToCheck : (Set<GroupData>) gd) {
-            newGroupToCheck.setFeasible(rd.nextFloat());
+            newGroupToCheck.setFeasible(ar[i%3]);
+            i++;
         }
     }
 }

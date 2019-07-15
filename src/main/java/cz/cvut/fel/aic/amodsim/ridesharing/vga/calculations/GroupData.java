@@ -17,7 +17,7 @@ public class GroupData {
     private final Set<PlanComputationRequest> requests;
 
     private final Set<PlanComputationRequest> onboardRequestLock;
-    private double feasible;
+    private Double feasible;
     public GroupData(Set<PlanComputationRequest> requests) {
         this(requests, null);
     }
@@ -26,6 +26,7 @@ public class GroupData {
             Set<PlanComputationRequest> onboardRequestLock) {
         this.requests = requests;
         this.onboardRequestLock = onboardRequestLock;
+        this.feasible = null;
     }
 
     @Override
@@ -61,7 +62,7 @@ public class GroupData {
         return onboardRequestLock;
     }
 
-    public double getFeasible() {
+    public Double getFeasible() {
         return feasible;
     }
 

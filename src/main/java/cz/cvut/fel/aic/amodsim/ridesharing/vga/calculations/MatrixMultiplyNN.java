@@ -1,12 +1,24 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2019 Czech Technical University in Prague.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
 import com.google.common.io.LittleEndianDataInputStream;
-import org.ojalgo.matrix.PrimitiveMatrix;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,8 +26,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.PrimitiveIterator;
-import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,8 +34,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.ojalgo.function.BinaryFunction;
 import org.ojalgo.function.UnaryFunction;
-import org.ojalgo.function.aggregator.Aggregator;
-import org.ojalgo.matrix.store.ElementsSupplier;
 import org.ojalgo.matrix.store.MatrixStore;
 import org.ojalgo.matrix.store.PhysicalStore;
 import org.ojalgo.matrix.store.PrimitiveDenseStore;
@@ -38,35 +46,35 @@ public class MatrixMultiplyNN implements NN {
     private final MatrixStore W[][], b[][];
     private final double mu[][];
     private final double sigma[][];
-    PhysicalStore.Factory<Double, PrimitiveDenseStore> storeFactory;
+    private final PhysicalStore.Factory<Double, PrimitiveDenseStore> storeFactory;
     public MatrixMultiplyNN() {
-        storeFactory = PrimitiveDenseStore.FACTORY;
-        mu = new double[5][];
-        sigma = new double[5][];
         W = new MatrixStore[5][4];
         b = new MatrixStore[5][4];
+        mu = new double[5][];
+        sigma = new double[5][];
+        storeFactory = PrimitiveDenseStore.FACTORY;
+        //groups of range 3-7
         for (int i = 3; i < 8; i++) {
-            loadJSON(i);
-            loadNPZ(i);
+            loadJSON(i); //read mean and standard deviation for each attribute
+            loadNPZ(i); //read NN model
         }
         
     }
     
     @Override
     public void setProbability(Set gd, IOptimalPlanVehicle vehicle, int groupSize) {
-        MatrixStore matrixX = fillMatrixX(gd,vehicle,groupSize);
+        MatrixStore matrixX = fillWithStandardizedData(gd,vehicle,groupSize+1);
         matrixX = compute(matrixX, groupSize+1);
-        //System.out.println(matrixX);
         int i = 0;
         for (GroupData newGroupToCheck : (Set<GroupData>) gd) {
             newGroupToCheck.setFeasible((Double)matrixX.get(i));
             i++;
         }
     }
-    private MatrixStore fillMatrixX(Set gd, IOptimalPlanVehicle vehicle, int groupSize){
-        Double[][] data = new Double[gd.size()][3+6*(groupSize+1)];
-        DoubleIterator curr_mu = new DoubleIterator(mu[groupSize-2]);
-        DoubleIterator curr_sigma = new DoubleIterator(sigma[groupSize-2]);
+    private MatrixStore fillWithStandardizedData(Set gd, IOptimalPlanVehicle vehicle, int groupSize){
+        Double[][] data = new Double[gd.size()][3+6*(groupSize)];
+        DoubleIterator curr_mu = new DoubleIterator(mu[groupSize-3]);
+        DoubleIterator curr_sigma = new DoubleIterator(sigma[groupSize-3]);
         double car_onboard = (vehicle.getRequestsOnBoard().size() - curr_mu.next())/curr_sigma.next();
         double car_lat = (vehicle.getPosition().latE6 - curr_mu.next())/curr_sigma.next();
         double car_lon = (vehicle.getPosition().lonE6- curr_mu.next())/curr_sigma.next();
@@ -91,7 +99,7 @@ public class MatrixMultiplyNN implements NN {
         return storeFactory.rows(data);
     }
     private void loadNPZ(int groupSize){
-        System.err.print("Loading model for group size "+groupSize+"....");
+        System.out.print("Loading model for group size "+groupSize+"....");
         String fileName = "data//NN_models//model_"+ groupSize +"//model.npz";
         File file = new File(fileName);
         try {        
@@ -165,11 +173,10 @@ public class MatrixMultiplyNN implements NN {
         } catch (IOException ex) {
             Logger.getLogger(MatrixMultiplyNN.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.err.println("model loaded.");
+        System.out.println("model loaded.");
     }
     private MatrixStore readMatrix(LittleEndianDataInputStream  fileInputStream, int rows, int columns){
-        
-        
+        //load transpose matrix, couse of fortran order implementation
         double[][] data = new double[rows][columns];
         for (int i = 0; i < columns; i++) {
             for (int j = 0; j < rows; j++) {

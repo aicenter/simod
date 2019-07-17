@@ -37,4 +37,8 @@ public class DummyNN implements NN{
             i++;
         }
     }
+    @Override
+    public void setProbability(Set gd, int groupSize) {
+        this.setProbability(gd, null, groupSize);
+    }
 }

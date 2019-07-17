@@ -15,18 +15,25 @@ import java.util.Set;
  */
 public class GroupData {
     private final Set<PlanComputationRequest> requests;
-
+    private final IOptimalPlanVehicle vehicle;
     private final Set<PlanComputationRequest> onboardRequestLock;
     private Double feasible;
     public GroupData(Set<PlanComputationRequest> requests) {
-        this(requests, null);
+        this(requests, null, null);
     }
-
+    public GroupData(Set<PlanComputationRequest> requests, IOptimalPlanVehicle vehicle) {
+        this(requests, null, vehicle);
+    }
     public GroupData(Set<PlanComputationRequest> requests, 
             Set<PlanComputationRequest> onboardRequestLock) {
+        this(requests, onboardRequestLock, null);
+    }
+    public GroupData(Set<PlanComputationRequest> requests, 
+            Set<PlanComputationRequest> onboardRequestLock, IOptimalPlanVehicle vehicle) {
         this.requests = requests;
         this.onboardRequestLock = onboardRequestLock;
         this.feasible = null;
+        this.vehicle = vehicle;
     }
 
     @Override
@@ -68,6 +75,10 @@ public class GroupData {
 
     public void setFeasible(double feasible) {
         this.feasible = feasible;
+    }
+
+    public IOptimalPlanVehicle getVehicle() {
+        return vehicle;
     }
 
 

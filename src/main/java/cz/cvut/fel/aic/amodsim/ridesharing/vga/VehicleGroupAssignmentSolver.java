@@ -334,7 +334,18 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		
 		return feasibleGroupPlans;
 	}
-
+	private Map<VGAVehicle,List<Plan>> computeGroupsForVehicles(List<VGAVehicle> vehicles, 
+			LinkedHashSet<DefaultPlanComputationRequest> waitingRequests) {
+		Map<VGAVehicle,List<Plan>> feasibleGroupPlans = Benchmark.measureTime(() ->
+					groupGenerator.generateGroupsForVehiclePermutationCheck(vehicles, waitingRequests, startTime));
+		
+		// log
+		if(config.ridesharing.vga.logPlanComputationalTime){
+			logPlansPerVehicles(vehicles, feasibleGroupPlans, Benchmark.durationNano);
+		}
+		
+		return feasibleGroupPlans;
+	}
 	private void printGroupStats(List<VehiclePlanList> feasiblePlans) {
 		Map<Integer,Integer> stats = new HashMap();
 		for (VehiclePlanList feasiblePlan : feasiblePlans) {
@@ -350,7 +361,39 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			LOGGER.info("{} groups of size {}", count, size);
 		}
 	}
+	private void logPlansPerVehicles(List<VGAVehicle> vehicles, Map<VGAVehicle,List<Plan>> feasibleGroupPlans, long totalTimeNano) {
+                for (VGAVehicle vehicle : vehicles){
+                    // group generator statistic addition
+                    groupCounts.addArrayInPlace(groupGenerator.getGroupCounts());
+                    groupCountsPlanExists.addArrayInPlace(groupGenerator.getGroupCountsPlanExists());
+                    computationalTimes.addArrayInPlace(groupGenerator.getComputationalTimes());
+                    computationalTimesPlanExists.addArrayInPlace(groupGenerator.getComputationalTimesPlanExists());	
 
+                    List<String> record = new ArrayList<>(5);
+                    record.add(Integer.toString(startTime));
+                    record.add(vehicle.getRidesharingVehicle().getId());
+                    record.add(Long.toString(Math.round(totalTimeNano / MILLION)));
+                    record.add(Integer.toString(vehicle.getRequestsOnBoard().size()));
+
+                    int maxActionCount = groupCountsPlanExists.size() * 2 + 1;
+                    int[] counts = new int[maxActionCount];
+                    for (int i = 0; i < counts.length; i++) {
+                            counts[i] = 0;
+
+                    }
+                    for (Plan feasibleGroupPlan : feasibleGroupPlans.get(vehicle)) {
+                            counts[feasibleGroupPlan.getActions().size()]++;
+
+                            // global group stats
+                            int groupSize = feasibleGroupPlan.getActions().size() / 2;
+                    }
+                    for (int i = 0; i < counts.length; i++) {
+                            record.add(Integer.toString(counts[i]));
+
+                    }
+                    logRecords.add(record);
+                }
+	}
 	private void logPlansPerVehicle(VGAVehicle vehicle, List<Plan> feasibleGroupPlans, long totalTimeNano) {
 		// group generator statistic addition
 		groupCounts.addArrayInPlace(groupGenerator.getGroupCounts());
@@ -441,13 +484,20 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 //		LOGGER.info("{} global groups generated", globalFeasibleGroups.size());
 		
 		// groups for driving vehicls
-		for (VGAVehicle vehicle : ProgressBar.wrap(drivingVehicles, "Generating groups for driving vehicles")) {
+		/*for (VGAVehicle vehicle : ProgressBar.wrap(drivingVehicles, "Generating groups for driving vehicles")) {
 			List<Plan> feasibleGroupPlans = computeGroupsForVehicle(vehicle, waitingRequests);
 			VehiclePlanList vehiclePlanList = new VehiclePlanList(vehicle, feasibleGroupPlans);
 			feasiblePlans.add(vehiclePlanList);
 			planCount += feasibleGroupPlans.size();
-		}
-		
+		}*/
+		Map<VGAVehicle,List<Plan>> groupPlans = computeGroupsForVehicles(drivingVehicles, waitingRequests);
+                for (Map.Entry<VGAVehicle,List<Plan>> entry : groupPlans.entrySet()) {
+                    feasiblePlans.add(new VehiclePlanList(entry.getKey(), entry.getValue()));
+                    planCount += entry.getValue().size();
+                }
+			
+			
+					
 		// groups for vehicles in the station
 		if(!onDemandvehicleStationStorage.isEmpty()){
 			Map<OnDemandVehicleStation,Integer> usedVehiclesPerStation = new HashMap<>();

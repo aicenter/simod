@@ -26,4 +26,5 @@ import java.util.Set;
  */
 public interface NN<V extends IOptimalPlanVehicle> {
     public void setProbability(Set<GroupData> gd, V vehicle, int groupSize);
+    public void setProbability(Set gd, int groupSize);
 }

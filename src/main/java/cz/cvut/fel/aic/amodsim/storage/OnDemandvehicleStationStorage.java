@@ -21,18 +21,15 @@ package cz.cvut.fel.aic.amodsim.storage;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-//import com.vividsolutions.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Coordinate;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage;
-import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.util.NearestElementUtil;
 import cz.cvut.fel.aic.geographtools.util.NearestElementUtilPair;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import org.locationtech.jts.geom.Coordinate;
 
 /*
  * To change this license header, choose License Headers in Project Properties.

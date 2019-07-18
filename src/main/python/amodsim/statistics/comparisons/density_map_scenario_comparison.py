@@ -8,7 +8,7 @@ import amodsim.statistics.model.edges as edges
 import amodsim.statistics.trafic_density_map as trafic_density_map
 
 from roadmaptools.printer import print_info
-from amodsim.statistics.model.traffic_load import VehiclePhase
+from amodsim.statistics.model.vehicle_state import VehicleState
 
 
 edgePairs = edges.load_edge_pairs()
@@ -30,10 +30,10 @@ axis[0].set_xlabel("a) Present State")
 axis[1].set_xlabel("b) No Ridesharing")
 axis[2].set_xlabel("c) Insertion Heuristic")
 axis[3].set_xlabel("d) VGA")
-axis[4].set_xlabel("e) VGA limited")
+axis[4].set_xlabel("e) VGA runtime-limited")
 
 print_info("Plotting Present State load")
-trafic_density_map.plot_edges_optimized(edgePairs, axis[0], loads_1[VehiclePhase.DRIVING_TO_TARGET_LOCATION.name])
+trafic_density_map.plot_edges_optimized(edgePairs, axis[0], loads_1[VehicleState.DRIVING_TO_TARGET_LOCATION.name])
 
 print_info("Plotting No Ridesharing load")
 trafic_density_map.plot_edges_optimized(edgePairs, axis[1], loads_1["ALL"])

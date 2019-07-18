@@ -18,7 +18,6 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
-import cern.colt.matrix.linalg.Algebra;
 import com.google.common.io.LittleEndianDataInputStream;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import java.io.File;

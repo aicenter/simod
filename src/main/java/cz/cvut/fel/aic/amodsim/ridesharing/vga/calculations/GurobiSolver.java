@@ -29,6 +29,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VehiclePlanList;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VirtualVehicle;
 import gurobi.GRB;
@@ -88,7 +89,7 @@ public class GurobiSolver {
 	}
 	
 	public List<Plan<IOptimalPlanVehicle>> assignOptimallyFeasiblePlans(
-			List<VehiclePlanList> feasiblePlans, LinkedHashSet<DefaultPlanComputationRequest> requests) {
+			List<VehiclePlanList> feasiblePlans, LinkedHashSet<PlanComputationRequest> requests) {
 		
 		try {
 			// solver init
@@ -100,7 +101,7 @@ public class GurobiSolver {
 			Map<GRBVar,Plan<IOptimalPlanVehicle>> variablePlanMap = new HashMap<>();
 			
 			// map for request constraint generation
-			Map<DefaultPlanComputationRequest,List<GRBVar>> requestVariableMap = new HashMap<>();
+			Map<PlanComputationRequest,List<GRBVar>> requestVariableMap = new HashMap<>();
 			
 			int vehicleCounter = 0;
 			for (VehiclePlanList vehicleEntry : feasiblePlans) {
@@ -156,10 +157,10 @@ public class GurobiSolver {
 			
 			// dropping variables generation (y_r)
 			int requestCounter = 0;
-			for (DefaultPlanComputationRequest request : requests) {
+			for (PlanComputationRequest request : requests) {
 				
 				// variables
-				String newVarName = String.format("droping request %s", request.id);
+				String newVarName = String.format("droping request %s", request.getId());
 				GRBVar newVar = model.addVar(0.0, 1.0, 0.0, GRB.BINARY, newVarName);
 				
 				// objective
@@ -173,8 +174,8 @@ public class GurobiSolver {
 			
 			// constraint 2 - exactly one plan for each request
 			requestCounter = 0;
-			for (Map.Entry<DefaultPlanComputationRequest, List<GRBVar>> entry : requestVariableMap.entrySet()) {
-				DefaultPlanComputationRequest request = entry.getKey();
+			for (Map.Entry<PlanComputationRequest, List<GRBVar>> entry : requestVariableMap.entrySet()) {
+				PlanComputationRequest request = entry.getKey();
 				List<GRBVar> planVariableList = entry.getValue();
 				
 				GRBLinExpr requestConstraint = new GRBLinExpr();
@@ -183,7 +184,7 @@ public class GurobiSolver {
 					requestConstraint.addTerm(1.0, planVariable);
 				}
 				
-				String requestConstraintName = String.format("One plan per request - request %s", request.id);
+				String requestConstraintName = String.format("One plan per request - request %s", request.getId());
 				model.addConstr(requestConstraint, GRB.EQUAL, 1.0, requestConstraintName);
 				
 				requestCounter++;
@@ -198,7 +199,7 @@ public class GurobiSolver {
 //			model.set(GRB.DoubleParam.MIPGap, 0.01);
 		
 			// 2 min limit
-			model.set(GRB.DoubleParam.TimeLimit, 60);
+			model.set(GRB.DoubleParam.TimeLimit, 20);
 			
 			LOGGER.info("solving start");
 			model.optimize();

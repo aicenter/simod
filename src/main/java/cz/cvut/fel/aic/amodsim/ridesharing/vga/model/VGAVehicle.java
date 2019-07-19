@@ -59,11 +59,11 @@ public class VGAVehicle implements IOptimalPlanVehicle{
 		return requestsOnBoard; 
 	}
 
-	public void addRequestOnBoard(DefaultPlanComputationRequest request) { 
+	public void addRequestOnBoard(PlanComputationRequest request) { 
 		requestsOnBoard.add(request); 
 	}
 
-	public void removeRequestOnBoard(DefaultPlanComputationRequest request) { 
+	public void removeRequestOnBoard(PlanComputationRequest request) { 
 		requestsOnBoard.remove(request); 
 	}
 

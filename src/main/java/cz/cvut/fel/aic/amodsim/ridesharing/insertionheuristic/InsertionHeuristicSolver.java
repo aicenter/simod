@@ -32,14 +32,11 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
-import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.EuclideanTravelTimeProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.OnDemandRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
@@ -48,14 +45,11 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStatsIH;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import me.tongfei.progressbar.ProgressBar;
 
 /**
@@ -80,10 +74,6 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	private final TimeProvider timeProvider;
 	
 	private final TypedSimulation eventProcessor;
-	
-	private List<DefaultPlanComputationRequest> planComputationRequests;
-	
-	private final Map<Integer,DefaultPlanComputationRequest> requestsMapByDemandAgents;
 	
 	
 	
@@ -120,9 +110,6 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		this.timeProvider = timeProvider;
 		this.eventProcessor = eventProcessor;
 		
-		planComputationRequests = new ArrayList<>();
-		requestsMapByDemandAgents = new HashMap<>();
-		
 		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
 		maxDistance = (double) config.ridesharing.maxProlongationInSeconds 
 				* config.ridesharing.maxDirectSpeedEstimationKmh / 3600 * 1000;
@@ -136,7 +123,8 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	}
 
 	@Override
-	public Map<RideSharingOnDemandVehicle, DriverPlan> solve(final List<OnDemandRequest> requests) {
+	public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<PlanComputationRequest> newRequests, 
+			List<PlanComputationRequest> waitingRequests) {
 		callCount++;
 		long startTime = System.nanoTime();
 		
@@ -147,23 +135,10 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		insertionHeuristicTime = 0;
 		debugFailTime = 0;
 		
-		// dicsard requests from previous batch if recomputing is off
-		if(!config.ridesharing.insertionHeuristic.recomputeWaitingRequests){
-			planComputationRequests = new ArrayList<>();
-		}
+		List<PlanComputationRequest> requests = config.ridesharing.insertionHeuristic.recomputeWaitingRequests 
+				? waitingRequests : newRequests;
 		
-		for(OnDemandRequest request: requests){
-			// plan request creation
-			DefaultPlanComputationRequest planComputationRequest = requestFactory.create(0, request.getPosition(), 
-				request.getTargetLocation(), request.getDemandAgent());
-			planComputationRequests.add(planComputationRequest);
-			
-			if(config.ridesharing.insertionHeuristic.recomputeWaitingRequests){
-				requestsMapByDemandAgents.put(request.getDemandAgent().getSimpleId(), planComputationRequest);
-			}
-		}
-		
-		// discard current plans
+		// discard current plans if the recomputing is on
 		if(config.ridesharing.insertionHeuristic.recomputeWaitingRequests){
 			for(AgentPolisEntity tVvehicle: vehicleStorage.getEntitiesForIteration()){
 				RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
@@ -179,13 +154,13 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			}
 		}
 		
-		if(planComputationRequests.size() > 1){
-			for(DefaultPlanComputationRequest request: ProgressBar.wrap(planComputationRequests, "Processing new requests")){
+		if(requests.size() > 1){
+			for(PlanComputationRequest request: ProgressBar.wrap(requests, "Processing new requests")){
 				processRequest(request);
 			}
 		}
 		else{
-			for(DefaultPlanComputationRequest request: planComputationRequests){
+			for(PlanComputationRequest request: requests){
 				processRequest(request);
 			}
 		}
@@ -206,25 +181,14 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			System.out.println(sb.toString());
 		}
 		
-		logRidesharingStats(requests);
+		logRidesharingStats(newRequests);
 		
 		return planMap;
 	}
 	
 	@Override
 	public void handleEvent(Event event) {
-		if(config.ridesharing.insertionHeuristic.recomputeWaitingRequests){
-			OnDemandVehicleEventContent eventContent = (OnDemandVehicleEventContent) event.getContent();
-			DefaultPlanComputationRequest request = requestsMapByDemandAgents.get(eventContent.getDemandId());
-			request.setOnboard(true);
-			if(!planComputationRequests.remove(request)){
-				try {
-					throw new Exception("Request picked up twice");
-				} catch (Exception ex) {
-					Logger.getLogger(InsertionHeuristicSolver.class.getName()).log(Level.SEVERE, null, ex);
-				}
-			}
-		}
+
 	}
 	
 	@Override
@@ -239,7 +203,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		eventProcessor.addEventHandler(this, typesToHandle);
 	}
 	
-	private boolean canServeRequest(RideSharingOnDemandVehicle vehicle, DefaultPlanComputationRequest request){
+	private boolean canServeRequest(RideSharingOnDemandVehicle vehicle, PlanComputationRequest request){
 		canServeRequestCallCount++;
 		
 		// do not mess with rebalancing
@@ -427,7 +391,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		return new DriverPlan(newPlanTasks, newPlanTravelTime, newPlanCost);
 	}
 
-	private void debugFail(DefaultPlanComputationRequest request) {
+	private void debugFail(PlanComputationRequest request) {
 		boolean freeVehicle = false;
 		double bestCartesianDistance = Double.MAX_VALUE;
 		double bestTravelTimne = Double.MAX_VALUE;
@@ -484,12 +448,12 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		return String.format(" (%02d:%02d:%02d:%d)", hour, minute, second, millis);
 	}
 
-	private void logRidesharingStats(List<OnDemandRequest> requests) {
+	private void logRidesharingStats(List<PlanComputationRequest> requests) {
 		ridesharingStats.add(new RidesharingBatchStatsIH(failFastTime, insertionHeuristicTime, debugFailTime, 
 				requests.size()));
 	}
 
-	private PlanData computeBestPlanForRequest(DefaultPlanComputationRequest request) {
+	private PlanData computeBestPlanForRequest(PlanComputationRequest request) {
 		double minCostIncrement = Double.MAX_VALUE;
 		PlanData bestPlan = null;
 		RideSharingOnDemandVehicle servingVehicle = null;
@@ -520,7 +484,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		return bestPlan;
 	}
 
-	private void processRequest(DefaultPlanComputationRequest request) {
+	private void processRequest(PlanComputationRequest request) {
 		PlanData bestPlanData = Benchmark.measureTime(() -> computeBestPlanForRequest(request));
 		insertionHeuristicTime += Benchmark.getDurationMsInt();
 

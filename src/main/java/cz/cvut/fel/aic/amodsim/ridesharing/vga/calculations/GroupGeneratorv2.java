@@ -136,7 +136,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 		}
         nn = new MatrixMultiplyNN();
 	}
-	public List<Plan> generateGroupsForVehicleClean(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime) {
+	public List<Plan> generateGroupsForVehicleClean(V vehicle, Iterable<PlanComputationRequest> requests, int startTime) {
 		
 		long group_generation_start_time = System.nanoTime();
 		boolean stop = false;
@@ -408,7 +408,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 		}
 		return groupPlans;
 	}
-	public List<Plan> generateGroupsForVehicleNN(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime) {
+	public List<Plan> generateGroupsForVehicleNN(V vehicle, Iterable<PlanComputationRequest> requests, int startTime) {
 		
 		long group_generation_start_time = System.nanoTime();
 		boolean stop = false;
@@ -1100,7 +1100,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 			LOGGER.error(null, ex);
 		}
 	}    
-    public Map<V,List<Plan>> generateGroupsForVehicleClean(List<V> vehicles, LinkedHashSet<DefaultPlanComputationRequest> requests, int startTime) {
+    public Map<V,List<Plan>> generateGroupsForVehicleClean(List<V> vehicles, Iterable<DefaultPlanComputationRequest> requests, int startTime) {
             //group generation time limit is not here
 
             // statistics
@@ -1384,7 +1384,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
             }
         return groupPlans;
     }
-    public Map<V,List<Plan>> generateGroupsForVehicleNN(List<V> vehicles, LinkedHashSet<DefaultPlanComputationRequest> requests, int startTime) {
+    public Map<V,List<Plan>> generateGroupsForVehicleNN(List<V> vehicles, Iterable<DefaultPlanComputationRequest> requests, int startTime) {
             //group generation time limit is not here
 
             // statistics

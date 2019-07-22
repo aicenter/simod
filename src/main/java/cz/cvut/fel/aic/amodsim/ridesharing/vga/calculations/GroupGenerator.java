@@ -112,7 +112,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		}
 	}
 
-	public List<Plan> generateGroupsForVehicle(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime) {
+	public List<Plan> generateGroupsForVehicle(V vehicle, Iterable<PlanComputationRequest> requests, int startTime) {
 		
 		long group_generation_start_time = System.nanoTime();
 		boolean stop = false;

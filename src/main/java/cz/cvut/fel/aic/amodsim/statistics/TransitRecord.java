@@ -6,6 +6,7 @@
 package cz.cvut.fel.aic.amodsim.statistics;
 
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
+import java.math.BigInteger;
 
 /**
  *
@@ -14,13 +15,13 @@ import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 class TransitRecord {
 	public final long time;
 	
-	public final long osmId;
+	public final BigInteger staticId;
 	
 	public final OnDemandVehicleState vehicleState;
 
-	public TransitRecord(long time, long osmId, OnDemandVehicleState vehicleState) {
+	public TransitRecord(long time, BigInteger staticId, OnDemandVehicleState vehicleState) {
 		this.time = time;
-		this.osmId = osmId;
+		this.staticId = staticId;
 		this.vehicleState = vehicleState;
 	}
 	

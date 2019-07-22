@@ -21,6 +21,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStats;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import java.util.ArrayList;
@@ -42,12 +43,20 @@ public abstract class DARPSolver {
 	protected final DefaultPlanComputationRequestFactory requestFactory;
 	
 	protected final List<RidesharingBatchStats> ridesharingStats;
+	
+	
+	protected RidesharingDispatcher ridesharingDispatcher;
 
+	
+	
+	
 	public List<RidesharingBatchStats> getRidesharingStats() {
 		return ridesharingStats;
 	}
 	
-	
+	public void setDispatcher(RidesharingDispatcher ridesharingDispatcher){
+		this.ridesharingDispatcher = ridesharingDispatcher;
+	}
 
 	
 	
@@ -65,5 +74,6 @@ public abstract class DARPSolver {
 	
 	
 	
-	public abstract Map<RideSharingOnDemandVehicle,DriverPlan> solve(List<OnDemandRequest> requests);
+	public abstract Map<RideSharingOnDemandVehicle,DriverPlan> solve(List<PlanComputationRequest> newRequests,
+			List<PlanComputationRequest> waitingRequests);
 }

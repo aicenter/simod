@@ -53,16 +53,15 @@ public class VGAVehiclePlan {
 	
 	
 
-	public VGAVehiclePlan(IOptimalPlanVehicle vgaVehicle, Set<PlanComputationRequest> group){
+	public VGAVehiclePlan(IOptimalPlanVehicle vgaVehicle, Set<PlanComputationRequest> group, double startTime){
 		this.vgaVehicle = vgaVehicle;
 		this.discomfort = 0;
 		this.actions = new ArrayList<>();
 		this.requests = new LinkedHashSet<>(group);
 		this.waitingRequests = new LinkedHashSet<>();
 		this.onboardRequests = new LinkedHashSet<>();
+		this.startTime = startTime;
 		updateAccordingToRequests();
-		
-		startTime = VehicleGroupAssignmentSolver.getTimeProvider().getCurrentSimTime() / 1000.0;
 		endTime = startTime;
 	}
 

@@ -18,12 +18,10 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.vga;
 
-import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.utils.Benchmark;
 import cz.cvut.fel.aic.agentpolis.utils.CollectionUtil;
 import cz.cvut.fel.aic.agentpolis.utils.FlexArray;
@@ -38,7 +36,6 @@ import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.io.Common;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
-import cz.cvut.fel.aic.amodsim.ridesharing.OnDemandRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
@@ -62,6 +59,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.PlanActionCurrentPosition;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GroupGeneratorv2;
 import cz.cvut.fel.aic.amodsim.statistics.content.GroupSizeData;
 import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStatsVGA;
@@ -74,9 +72,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	private static final int MILLION = 1000000;
 	
 	
-	private final LinkedHashSet<DefaultPlanComputationRequest> waitingRequests;
-	
-	private final LinkedHashSet<DefaultPlanComputationRequest> activeRequests;
+	private final LinkedHashSet<PlanComputationRequest> activeRequests;
 
 	private final AmodsimConfig config;
 	
@@ -86,29 +82,24 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	
 
 	
-	private final Map<Integer,DefaultPlanComputationRequest> requestsMapByDemandAgents;
-	
 	private final Map<String,VGAVehicle> vgaVehiclesMapBydemandOnDemandVehicles;
 	
 	private final TypedSimulation eventProcessor;
 	
 	private final OnDemandvehicleStationStorage onDemandvehicleStationStorage;
+
+	private final TimeProvider timeProvider;
+	
 	
 	private List<VGAVehicle> vgaVehicles;
-
-	private static TimeProvider timeProvider;
 	
-	private int requestCounter;
+	private int startTime;
 	
-	int startTime;
+	private int planCount;
 	
-	int planCount;
+	private List<VehiclePlanList> feasiblePlans;
 	
-	List<VehiclePlanList> feasiblePlans;
-	
-	List<List<String>> logRecords;
-	
-	// statistic vars
+	private List<List<String>> logRecords;
 	
 	private int groupGenerationTime;
 			
@@ -140,21 +131,19 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		this.gurobiSolver = gurobiSolver;
 		this.eventProcessor = eventProcessor;
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
-		waitingRequests = new LinkedHashSet<>();
+		this.timeProvider = timeProvider;
 		activeRequests = new LinkedHashSet<>();
-		requestsMapByDemandAgents = new HashMap<>();
 		vgaVehiclesMapBydemandOnDemandVehicles = new HashMap<>();
-		VehicleGroupAssignmentSolver.timeProvider = timeProvider;
 		MathUtils.setTravelTimeProvider(travelTimeProvider);
 		setEventHandeling();
-		requestCounter = 0;
 	}
 
 	@Override
-	public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<OnDemandRequest> requests) {
+	public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<PlanComputationRequest> newRequests, 
+			List<PlanComputationRequest> waitingRequests) {
 		
 		// statistic vars
-		newRequestCount = requests.size();
+		newRequestCount = newRequests.size();
 		if(config.ridesharing.vga.logPlanComputationalTime){
 			groupCounts = new FlexArray();
 			groupCountsPlanExists =new  FlexArray();
@@ -169,32 +158,20 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			initVehicles();
 		}
 
-		LOGGER.info("Current sim time is: " + timeProvider.getCurrentSimTime() / 1000.0);
-		
-
-		Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new LinkedHashMap<>();
-
 		LOGGER.info("Total vehicle count: " + vgaVehicles.size());
 		List<VGAVehicle> drivingVehicles = filterVehicles(vgaVehicles);
 
-		// Converting requests and adding them to collections
-		for (OnDemandRequest request : requests) {
-			SimulationNode requestStartPosition = request.getDemandAgent().getPosition();
-			DefaultPlanComputationRequest newRequest = requestFactory.create(requestCounter++, requestStartPosition, 
-					request.getTargetLocation(), request.getDemandAgent());
-			waitingRequests.add(newRequest);
+		// active requests update
+		for (PlanComputationRequest newRequest : newRequests) {
 			activeRequests.add(newRequest);
-			requestsMapByDemandAgents.put(newRequest.getDemandAgent().getSimpleId(), newRequest);
 		}
 		
-		LOGGER.info("No. of new requests: " + requests.size());
-		LOGGER.info("No. of waiting requests: {}", waitingRequests.size());
 		LOGGER.info("No. of active requests: {}", activeRequests.size());
 		LOGGER.info("Number of vehicles used for planning: {}", drivingVehicles.size() + 1 * waitingRequests.size());
 
 
 		/* Generating feasible plans for each vehicle */
-		Benchmark.measureTime(() -> generateGroups(drivingVehicles));	
+		Benchmark.measureTime(() -> generateGroups(drivingVehicles, waitingRequests));	
 		groupGenerationTime = Benchmark.getDurationMsInt();
 		
 		
@@ -210,6 +187,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		// for virtual vehicles
 		Map<OnDemandVehicleStation,Integer> usedVehiclesPerStation = new HashMap<>();
 		
+		Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new LinkedHashMap<>();
 		for(Plan<IOptimalPlanVehicle> plan : optimalPlans) {
 			DriverPlan driverPlan = toDriverPlan(plan);
 			
@@ -248,10 +226,6 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		return planMap;
 	}
 
-	public static TimeProvider getTimeProvider() {
-		return timeProvider;
-	}
-
 	@Override
 	public EventProcessor getEventProcessor() {
 		return eventProcessor;
@@ -261,18 +235,10 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	public void handleEvent(Event event) {
 		OnDemandVehicleEvent eventType = (OnDemandVehicleEvent) event.getType();
 		OnDemandVehicleEventContent eventContent = (OnDemandVehicleEventContent) event.getContent();
-		DefaultPlanComputationRequest request = requestsMapByDemandAgents.get(eventContent.getDemandId());
+		PlanComputationRequest request = ridesharingDispatcher.getRequest(eventContent.getDemandId());
 		VGAVehicle vehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(eventContent.getOnDemandVehicleId());
 		if(eventType == OnDemandVehicleEvent.PICKUP){
 			vehicle.addRequestOnBoard(request);
-			if(!waitingRequests.remove(request)){
-				try {
-					throw new Exception("Request picked up twice");
-				} catch (Exception ex) {
-					Logger.getLogger(VehicleGroupAssignmentSolver.class.getName()).log(Level.SEVERE, null, ex);
-				}
-			};
-			request.setOnboard(true);
 		}
 		else if(eventType == OnDemandVehicleEvent.DROP_OFF){
 			vehicle.removeRequestOnBoard(request);
@@ -322,8 +288,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		return driverPlan;
 	}
 
-	private List<Plan> computeGroupsForVehicle(VGAVehicle vehicle, 
-			LinkedHashSet<DefaultPlanComputationRequest> waitingRequests) {
+	private List<Plan> computeGroupsForVehicle(VGAVehicle vehicle, Iterable<PlanComputationRequest> waitingRequests) {
 		List<Plan> feasibleGroupPlans = Benchmark.measureTime(() ->
 					groupGenerator.generateGroupsForVehicleNN(vehicle, waitingRequests, startTime));
 		
@@ -335,7 +300,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		return feasibleGroupPlans;
 	}
 	private Map<VGAVehicle,List<Plan>> computeGroupsForVehicles(List<VGAVehicle> vehicles, 
-			LinkedHashSet<DefaultPlanComputationRequest> waitingRequests) {
+			Iterable<PlanComputationRequest> waitingRequests) {
 		Map<VGAVehicle,List<Plan>> feasibleGroupPlans = Benchmark.measureTime(() ->
 					groupGenerator.generateGroupsForVehicleNN(vehicles, waitingRequests, startTime));
 		
@@ -477,9 +442,9 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 	}
 
-	private void generateGroups(List<VGAVehicle> drivingVehicles) {
+	private void generateGroups(List<VGAVehicle> drivingVehicles, List<PlanComputationRequest> waitingRequests) {
 		feasiblePlans = new ArrayList<>(drivingVehicles.size());
-		startTime = (int) Math.round(VehicleGroupAssignmentSolver.getTimeProvider().getCurrentSimTime() / 1000.0);
+		startTime = (int) Math.round(timeProvider.getCurrentSimTime() / 1000.0);
 		LOGGER.info("Generating groups for vehicles.");
 		planCount = 0;
 		
@@ -512,7 +477,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			// dictionary - all vehicles from a station have the same feasible groups
 			Map<OnDemandVehicleStation,List<Plan>> plansFromStation = new HashMap<>();
 			
-			for(DefaultPlanComputationRequest request: ProgressBar.wrap(waitingRequests, "Generating groups for vehicles in station")){
+			for(PlanComputationRequest request: ProgressBar.wrap(waitingRequests, "Generating groups for vehicles in station")){
 				OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(request.getFrom());
 				
 				// check if there is not a lack of vehicles in the station

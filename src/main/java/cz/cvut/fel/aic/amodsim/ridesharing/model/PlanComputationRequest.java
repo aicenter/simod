@@ -30,8 +30,16 @@ public interface PlanComputationRequest {
 	@Override
 	public boolean equals(Object obj);
 	
+	/**
+	 * Returns max pickup time in seconds.
+	 * @return max pickup time in seconds.
+	 */
 	public int getMaxPickupTime();
 	
+	/**
+	 * Returns max dropoff time in seconds.
+	 * @return max dropoff time in seconds.
+	 */
 	public int getMaxDropoffTime();
 	
 	/**
@@ -57,4 +65,8 @@ public interface PlanComputationRequest {
 	public PlanActionDropoff getDropOffAction();
 	
 	public DemandAgent getDemandAgent();
+	
+	public int getId();
+	
+	public void setOnboard(boolean onboard);
 }

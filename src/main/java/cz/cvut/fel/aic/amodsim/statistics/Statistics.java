@@ -354,7 +354,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 	private void saveTransit() {
 		try {
 			for (TransitRecord transit : allTransit) {
-				transitWriter.writeLine(Long.toString(transit.time), Long.toString(transit.osmId), 
+				transitWriter.writeLine(Long.toString(transit.time), transit.staticId.toString(), 
 						Integer.toString(transit.vehicleState.ordinal()));
 			}
 			transitWriter.flush();

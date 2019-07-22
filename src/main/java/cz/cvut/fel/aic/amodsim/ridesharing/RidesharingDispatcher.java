@@ -22,24 +22,40 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.ticker.PeriodicTicker;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.ticker.Routine;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.alite.common.event.Event;
+import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
+import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.amodsim.DemandData;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.PlanActionCurrentPosition;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.geographtools.Node;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -47,16 +63,29 @@ import org.slf4j.LoggerFactory;
  * @author fiedlda1
  */
 @Singleton
-public class RidesharingDispatcher extends StationsDispatcher implements Routine{
+public class RidesharingDispatcher extends StationsDispatcher implements Routine, EventHandler{
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RidesharingDispatcher.class);
+	
+	
+	private final TimeProvider timeProvider;
+	
+	protected final DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory;
 	
 	private final DARPSolver solver;
 	
 	private final List darpSolverComputationalTimes;
 	
+	private final LinkedHashSet<PlanComputationRequest> waitingRequests;
 	
-	private List<OnDemandRequest> requestQueue;
+	private final Map<Integer,PlanComputationRequest> requestsMapByDemandAgents;
+	
+	
+	private List<PlanComputationRequest> newRequests;
+	
+	private int requestCounter;
+	
+	
 
 	
 	
@@ -70,14 +99,24 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	
 	@Inject
 	public RidesharingDispatcher(OnDemandvehicleStationStorage onDemandvehicleStationStorage, 
-			EventProcessor eventProcessor, AmodsimConfig config, DARPSolver solver, PeriodicTicker ticker) {
+			TypedSimulation eventProcessor, AmodsimConfig config, DARPSolver solver, PeriodicTicker ticker,
+			DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory, 
+			TimeProvider timeProvider) {
 		super(onDemandvehicleStationStorage, eventProcessor, config);
+		this.timeProvider = timeProvider;
 		this.solver = solver;
-		requestQueue = new LinkedList<>();
+		this.requestFactory = requestFactory;
+		newRequests = new ArrayList<>();
+		waitingRequests = new LinkedHashSet<>();
 		darpSolverComputationalTimes = new ArrayList();
+		requestsMapByDemandAgents = new HashMap<>();
+		requestCounter = 0;
 		if(config.ridesharing.batchPeriod != 0){
 			ticker.registerRoutine(this, config.ridesharing.batchPeriod * 1000);
 		}
+		setEventHandeling();
+		
+		solver.setDispatcher(this);
 	}
 
 	
@@ -85,8 +124,13 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	
 	@Override
 	protected void serveDemand(Node startNode, DemandData demandData) {
-		OnDemandRequest newRequest = new OnDemandRequest(demandData.demandAgent, demandData.locations.get(1));
-		requestQueue.add(newRequest);
+		SimulationNode requestStartPosition = demandData.locations.get(0);
+		DefaultPlanComputationRequest newRequest = requestFactory.create(requestCounter++, requestStartPosition, 
+				demandData.locations.get(1), demandData.demandAgent);
+		waitingRequests.add(newRequest);
+		newRequests.add(newRequest);
+		requestsMapByDemandAgents.put(newRequest.getDemandAgent().getSimpleId(), newRequest);
+		
 		if(config.ridesharing.batchPeriod == 0){
 			replan();
 		}
@@ -94,47 +138,82 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	
 	protected void replan(){
 		int droppedDemandsThisBatch = 0;
+		
+		// logger info
+		int currentTimeSec = (int) Math.round(timeProvider.getCurrentSimTime() / 1000.0);
+		LOGGER.info("Current sim time is: {} seconds", currentTimeSec);
+		LOGGER.info("No. of new requests: {}", newRequests.size());
+		LOGGER.info("No. of waiting requests: {}", waitingRequests.size());
+		
+		// dropping demands that waits too long
+		Iterator<PlanComputationRequest> waitingRequestIterator = waitingRequests.iterator();
+		while(waitingRequestIterator.hasNext()){
+			PlanComputationRequest request = waitingRequestIterator.next();
+			if(request.getMaxPickupTime() < currentTimeSec){
+				request.getDemandAgent().setDropped(true);
+				numberOfDemandsDropped++;
+				droppedDemandsThisBatch++;
+				waitingRequestIterator.remove();
+			}
+		}		
+		LOGGER.info("Demands dropped in this batch: {}", droppedDemandsThisBatch);
+		LOGGER.info("Total dropped demands count: {}", numberOfDemandsDropped);
+		
+		// DARP solving
 		long startTime = System.nanoTime();
-		Map<RideSharingOnDemandVehicle,DriverPlan> newPlans = solver.solve(requestQueue);
+		Map<RideSharingOnDemandVehicle,DriverPlan> newPlans 
+				= solver.solve(newRequests, new ArrayList<>(waitingRequests));
 		long totalTime = System.nanoTime() - startTime;
 		darpSolverComputationalTimes.add(totalTime);
-		
 
-		// dropped demand check
-		Set<DemandAgent> demandsToDrop = new HashSet();			
-		for(OnDemandRequest request: requestQueue){
-			demandsToDrop.add(request.getDemandAgent());
-		}
-
+		// executing new plans
 		for(Entry<RideSharingOnDemandVehicle,DriverPlan> entry: newPlans.entrySet()){
 			RideSharingOnDemandVehicle vehicle = entry.getKey();
 			DriverPlan plan = entry.getValue();
-
-			// dropped demand check
-			for(PlanAction task: plan){
-				if(!(task instanceof PlanActionCurrentPosition)){
-					demandsToDrop.remove(((PlanRequestAction) task).getRequest().getDemandAgent());
-				}	
-			}
-
 			vehicle.replan(plan);
 		}
 
-		for(DemandAgent demandAgent: demandsToDrop){
-			demandAgent.setDropped(true);
-			numberOfDemandsDropped++;
-			droppedDemandsThisBatch++;
-		}
-		
-		requestQueue = new LinkedList<>();
-		
-		LOGGER.info("Demands dropped in this batch: {}", droppedDemandsThisBatch);
-		LOGGER.info("Total dropped demands count: {}", numberOfDemandsDropped);
+		// reseting new request for next iteration
+		newRequests = new LinkedList<>();
 	}
 
 	@Override
 	public void doRoutine() {
 		replan();
+	}
+	
+	@Override
+	public void handleEvent(Event event) {
+		// dispatcher common events
+		if(event.getType() instanceof OnDemandVehicleStationsCentralEvent){
+			super.handleEvent(event);
+		}
+		// pickup event
+		else{
+			OnDemandVehicleEvent eventType = (OnDemandVehicleEvent) event.getType();
+			if(eventType == OnDemandVehicleEvent.PICKUP){
+				OnDemandVehicleEventContent eventContent = (OnDemandVehicleEventContent) event.getContent();
+				PlanComputationRequest request = requestsMapByDemandAgents.get(eventContent.getDemandId());
+				if(!waitingRequests.remove(request)){
+					try {
+						throw new Exception("Request picked up twice");
+					} catch (Exception ex) {
+						Logger.getLogger(VehicleGroupAssignmentSolver.class.getName()).log(Level.SEVERE, null, ex);
+					}
+				};
+				request.setOnboard(true);
+			}
+		}
+	}
+	
+	public PlanComputationRequest getRequest(int demandId){
+		return requestsMapByDemandAgents.get(demandId);
+	}
+	
+	private void setEventHandeling() {
+		List<Enum> typesToHandle = new LinkedList<>();
+		typesToHandle.add(OnDemandVehicleEvent.PICKUP);
+		eventProcessor.addEventHandler(this, typesToHandle);
 	}
 	
 }

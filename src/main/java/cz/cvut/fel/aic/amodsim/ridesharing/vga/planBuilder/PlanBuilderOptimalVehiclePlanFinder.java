@@ -48,8 +48,8 @@ public class PlanBuilderOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> 
 	
 	
 	@Override
-	public Plan<V> computeOptimalVehiclePlanForGroup(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime,
-			boolean ignoreTime) {
+	public Plan<V> computeOptimalVehiclePlanForGroup(V vehicle, LinkedHashSet<PlanComputationRequest> requests, 
+			int startTime, boolean ignoreTime) {
 		Stack<VGAVehiclePlan> toCheck = new Stack<>();
 		
 		// group reconstruction
@@ -58,7 +58,7 @@ public class PlanBuilderOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> 
 			group.add(request);
 		}
 		
-		VGAVehiclePlan emptyPlan = new VGAVehiclePlan(vehicle, group);
+		VGAVehiclePlan emptyPlan = new VGAVehiclePlan(vehicle, group, startTime);
 		toCheck.push(emptyPlan);
 
 		double upperBound = Double.POSITIVE_INFINITY;

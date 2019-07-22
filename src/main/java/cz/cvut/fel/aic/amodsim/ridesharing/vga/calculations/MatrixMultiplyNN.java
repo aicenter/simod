@@ -45,15 +45,15 @@ import org.ojalgo.matrix.store.PrimitiveDenseStore;
  * @author matal
  */
 public class MatrixMultiplyNN implements NN {   
-    private final PrimitiveMatrix W[][], b[][];
+    private final MatrixStore W[][], b[][];
     private final double mu[][];
     private final double sigma[][];
     private final PhysicalStore.Factory<Double, PrimitiveDenseStore> storeFactory;
             PrimitiveMatrix.Factory matrixFactory =
                 PrimitiveMatrix.FACTORY;
     public MatrixMultiplyNN() {
-        W = new PrimitiveMatrix[5][4];
-        b = new PrimitiveMatrix[5][4];
+        W = new MatrixStore[5][4];
+        b = new MatrixStore[5][4];
         mu = new double[5][];
         sigma = new double[5][];
         storeFactory = PrimitiveDenseStore.FACTORY;
@@ -67,25 +67,25 @@ public class MatrixMultiplyNN implements NN {
     
     @Override
     public void setProbability(Set gd, IOptimalPlanVehicle vehicle, int groupSize) {
-        PrimitiveMatrix matrixX = fillWithStandardizedData(gd,vehicle,groupSize+1);
+        MatrixStore matrixX = fillWithStandardizedData(gd,vehicle,groupSize+1);
         matrixX = compute(matrixX, groupSize+1);
         int i = 0;
         for (GroupData newGroupToCheck : (Set<GroupData>) gd) {
-            newGroupToCheck.setFeasible(matrixX.get(i));
+            newGroupToCheck.setFeasible((Double)matrixX.get(i));
             i++;
         }
     }
     @Override
     public void setProbability(Set gd, int groupSize) {
-        PrimitiveMatrix matrixX = fillWithStandardizedData(gd,groupSize+1);
+        MatrixStore matrixX = fillWithStandardizedData(gd,groupSize+1);
         matrixX = compute(matrixX, groupSize+1);
         int i = 0;
         for (GroupData newGroupToCheck : (Set<GroupData>) gd) {
-            newGroupToCheck.setFeasible(matrixX.get(i));
+            newGroupToCheck.setFeasible((Double)matrixX.get(i));
             i++;
         }
     }
-    private PrimitiveMatrix fillWithStandardizedData(Set gd, IOptimalPlanVehicle vehicle, int groupSize){
+    private MatrixStore fillWithStandardizedData(Set gd, IOptimalPlanVehicle vehicle, int groupSize){
         Double[][] data = new Double[gd.size()][3+6*(groupSize)];
         DoubleIterator curr_mu = new DoubleIterator(mu[groupSize-3]);
         DoubleIterator curr_sigma = new DoubleIterator(sigma[groupSize-3]);
@@ -110,9 +110,9 @@ public class MatrixMultiplyNN implements NN {
             }
             k++;
         }
-        return matrixFactory.rows(data);
+        return storeFactory.rows(data);
     }
-    private PrimitiveMatrix fillWithStandardizedData(Set gd, int groupSize){
+    private MatrixStore fillWithStandardizedData(Set gd, int groupSize){
         Double[][] data = new Double[gd.size()][3+6*(groupSize)];
         DoubleIterator curr_mu = new DoubleIterator(mu[groupSize-3]);
         DoubleIterator curr_sigma = new DoubleIterator(sigma[groupSize-3]);
@@ -134,7 +134,7 @@ public class MatrixMultiplyNN implements NN {
             }
             k++;
         }
-        return matrixFactory.rows(data);
+        return storeFactory.rows(data);
     }
     private void loadNPZ(int groupSize){
         System.out.print("Loading model for group size "+groupSize+"....");
@@ -213,7 +213,7 @@ public class MatrixMultiplyNN implements NN {
         }
         System.out.println("model loaded.");
     }
-    private PrimitiveMatrix readMatrix(LittleEndianDataInputStream  fileInputStream, int rows, int columns){
+    private MatrixStore readMatrix(LittleEndianDataInputStream  fileInputStream, int rows, int columns){
         //load transpose matrix, couse of fortran order implementation
         double[][] data = new double[rows][columns];
         for (int i = 0; i < columns; i++) {
@@ -225,7 +225,7 @@ public class MatrixMultiplyNN implements NN {
                 }
             }
         }
-        return matrixFactory.rows(data);
+        return storeFactory.rows(data);
     }
 
         private void loadJSON(int groupSize) {
@@ -259,7 +259,7 @@ public class MatrixMultiplyNN implements NN {
                 sigma_data[pos] = (Double) current.get("sigma");       
     }
 
-    private PrimitiveMatrix compute(PrimitiveMatrix X, int groupSize) {
+    private MatrixStore compute(MatrixStore X, int groupSize) {
         BinaryFunction<Double> modifier = storeFactory.function().add();
         UnaryFunction<Double> modifier2 = storeFactory.function().max().second(0);
         UnaryFunction<Double> exp = storeFactory.function().exp();
@@ -272,8 +272,8 @@ public class MatrixMultiplyNN implements NN {
         for (int i = 0; i < 4; i++) {
             PrimitiveDenseStore Y = storeFactory.makeZero(X.countRows(), W[groupSize-3][i].countColumns());
             //ElementsSupplier<Double> Y = W[groupSize-3][i].premultiply(X);
-            //X.multiply(W[groupSize-3][i],Y);
-            X.multiply(W[groupSize-3][i]).supplyTo(Y);
+            X.multiply(W[groupSize-3][i], Y);
+            //X.multiply(W[groupSize-3][i]).supplyTo(Y);
             //Y = Y.operateOnColumns(modifier, b[groupSize-3][i]);
             Y.modifyMatchingInRows(modifier, b[groupSize-3][i]);
 
@@ -284,9 +284,9 @@ public class MatrixMultiplyNN implements NN {
                 //Y = Y.operateOnAll(modifier3);
                 Y.modifyAll(modifier3);                
             }
-            //X = Y.get();
+            X = Y;
             
-            X = matrixFactory.copy(Y);
+            //X = matrixFactory.copy(Y);
         }
         return X;
     }

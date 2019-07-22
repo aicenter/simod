@@ -325,7 +325,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	private List<Plan> computeGroupsForVehicle(VGAVehicle vehicle, 
 			LinkedHashSet<DefaultPlanComputationRequest> waitingRequests) {
 		List<Plan> feasibleGroupPlans = Benchmark.measureTime(() ->
-					groupGenerator.generateGroupsForVehiclePermutationCheck(vehicle, waitingRequests, startTime));
+					groupGenerator.generateGroupsForVehicleNN(vehicle, waitingRequests, startTime));
 		
 		// log
 		if(config.ridesharing.vga.logPlanComputationalTime){
@@ -337,13 +337,15 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	private Map<VGAVehicle,List<Plan>> computeGroupsForVehicles(List<VGAVehicle> vehicles, 
 			LinkedHashSet<DefaultPlanComputationRequest> waitingRequests) {
 		Map<VGAVehicle,List<Plan>> feasibleGroupPlans = Benchmark.measureTime(() ->
-					groupGenerator.generateGroupsForVehiclePermutationCheck(vehicles, waitingRequests, startTime));
+					groupGenerator.generateGroupsForVehicleNN(vehicles, waitingRequests, startTime));
 		
 		// log
-		if(config.ridesharing.vga.logPlanComputationalTime){
-			logPlansPerVehicles(vehicles, feasibleGroupPlans, Benchmark.durationNano);
-		}
-		
+        /*if(config.ridesharing.vga.logPlanComputationalTime){
+            for (Map.Entry<VGAVehicle,List<Plan>> entry : feasibleGroupPlans.entrySet()) {
+                logPlansPerVehicle(entry.getKey(), entry.getValue(), Benchmark.durationNano);
+            }
+        }*/
+		logPlansPerVehicles(vehicles, feasibleGroupPlans, Benchmark.durationNano);
 		return feasibleGroupPlans;
 	}
 	private void printGroupStats(List<VehiclePlanList> feasiblePlans) {
@@ -362,12 +364,16 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 	}
 	private void logPlansPerVehicles(List<VGAVehicle> vehicles, Map<VGAVehicle,List<Plan>> feasibleGroupPlans, long totalTimeNano) {
+                Map<VGAVehicle, FlexArray> groupCount = groupGenerator.getGroupCountPerVehicle();
+                Map<VGAVehicle, FlexArray> groupCountsPlanExist = groupGenerator.getGroupCountsPlanExistPerVehicle();
+                Map<VGAVehicle, FlexArray> computationalTime = groupGenerator.getComputationalTimePerVehicle();
+                Map<VGAVehicle, FlexArray> computationalTimesPlanExist = groupGenerator.getComputationalTimesPlanExistPerVehicle();
                 for (VGAVehicle vehicle : vehicles){
                     // group generator statistic addition
-                    groupCounts.addArrayInPlace(groupGenerator.getGroupCounts());
-                    groupCountsPlanExists.addArrayInPlace(groupGenerator.getGroupCountsPlanExists());
-                    computationalTimes.addArrayInPlace(groupGenerator.getComputationalTimes());
-                    computationalTimesPlanExists.addArrayInPlace(groupGenerator.getComputationalTimesPlanExists());	
+                    groupCounts.addArrayInPlace(groupCount.get(vehicle));
+                    groupCountsPlanExists.addArrayInPlace(groupCountsPlanExist.get(vehicle));
+                    computationalTimes.addArrayInPlace(computationalTime.get(vehicle));
+                    computationalTimesPlanExists.addArrayInPlace(computationalTimesPlanExist.get(vehicle));	
 
                     List<String> record = new ArrayList<>(5);
                     record.add(Integer.toString(startTime));

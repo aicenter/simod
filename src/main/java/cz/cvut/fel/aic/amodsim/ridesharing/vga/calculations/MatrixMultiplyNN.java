@@ -90,8 +90,8 @@ public class MatrixMultiplyNN implements NN {
         DoubleIterator curr_mu = new DoubleIterator(mu[groupSize-3]);
         DoubleIterator curr_sigma = new DoubleIterator(sigma[groupSize-3]);
         double car_onboard = (vehicle.getRequestsOnBoard().size() - curr_mu.next())/curr_sigma.next();
-        double car_lat = (vehicle.getPosition().latE6 - curr_mu.next())/curr_sigma.next();
-        double car_lon = (vehicle.getPosition().lonE6- curr_mu.next())/curr_sigma.next();
+        double car_lat = (vehicle.getPosition().getLatE6() - curr_mu.next())/curr_sigma.next();
+        double car_lon = (vehicle.getPosition().getLonE6()- curr_mu.next())/curr_sigma.next();
         int k = 0;
         for (GroupData newGroupToCheck : (Set<GroupData>) gd) {
             int j = 0;
@@ -101,11 +101,11 @@ public class MatrixMultiplyNN implements NN {
             data[k][j++] = car_lat;
             data[k][j++] = car_lon;                       
             for (PlanComputationRequest rq : newGroupToCheck.getRequests()) {
-                data[k][j++] = (rq.getFrom().latE6- curr_mu.next())/curr_sigma.next();
-                data[k][j++] = (rq.getFrom().lonE6- curr_mu.next())/curr_sigma.next();
+                data[k][j++] = (rq.getFrom().getLatE6()- curr_mu.next())/curr_sigma.next();
+                data[k][j++] = (rq.getFrom().getLonE6()- curr_mu.next())/curr_sigma.next();
                 data[k][j++] = (rq.getMaxPickupTime()- curr_mu.next())/curr_sigma.next();
-                data[k][j++] = (rq.getTo().latE6- curr_mu.next())/curr_sigma.next();
-                data[k][j++] = (rq.getTo().lonE6- curr_mu.next())/curr_sigma.next();
+                data[k][j++] = (rq.getTo().getLatE6()- curr_mu.next())/curr_sigma.next();
+                data[k][j++] = (rq.getTo().getLonE6()- curr_mu.next())/curr_sigma.next();
                 data[k][j++] = (rq.getMaxDropoffTime()- curr_mu.next())/curr_sigma.next();
             }
             k++;
@@ -122,14 +122,14 @@ public class MatrixMultiplyNN implements NN {
             curr_mu.reset(0);
             curr_sigma.reset(0);
             data[k][j++] = (newGroupToCheck.getVehicle().getRequestsOnBoard().size() - curr_mu.next())/curr_sigma.next();
-            data[k][j++] = (newGroupToCheck.getVehicle().getPosition().latE6 - curr_mu.next())/curr_sigma.next();
-            data[k][j++] = (newGroupToCheck.getVehicle().getPosition().lonE6- curr_mu.next())/curr_sigma.next();                      
+            data[k][j++] = (newGroupToCheck.getVehicle().getPosition().getLatE6() - curr_mu.next())/curr_sigma.next();
+            data[k][j++] = (newGroupToCheck.getVehicle().getPosition().getLonE6()- curr_mu.next())/curr_sigma.next();                      
             for (PlanComputationRequest rq : newGroupToCheck.getRequests()) {
-                data[k][j++] = (rq.getFrom().latE6- curr_mu.next())/curr_sigma.next();
-                data[k][j++] = (rq.getFrom().lonE6- curr_mu.next())/curr_sigma.next();
+                data[k][j++] = (rq.getFrom().getLatE6()- curr_mu.next())/curr_sigma.next();
+                data[k][j++] = (rq.getFrom().getLonE6()- curr_mu.next())/curr_sigma.next();
                 data[k][j++] = (rq.getMaxPickupTime()- curr_mu.next())/curr_sigma.next();
-                data[k][j++] = (rq.getTo().latE6- curr_mu.next())/curr_sigma.next();
-                data[k][j++] = (rq.getTo().lonE6- curr_mu.next())/curr_sigma.next();
+                data[k][j++] = (rq.getTo().getLatE6()- curr_mu.next())/curr_sigma.next();
+                data[k][j++] = (rq.getTo().getLonE6()- curr_mu.next())/curr_sigma.next();
                 data[k][j++] = (rq.getMaxDropoffTime()- curr_mu.next())/curr_sigma.next();
             }
             k++;

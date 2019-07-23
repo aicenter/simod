@@ -18,10 +18,10 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 public class TestRequest implements PlanComputationRequest{
     private int maxPickupTime;
     private int maxDropoffTime;
-    private SimulationNode from;
-    private SimulationNode to;
+    private TestSimulationNode from;
+    private TestSimulationNode to;
 
-    public TestRequest(SimulationNode from, int maxPickupTime, SimulationNode to , int maxDropoffTime) {
+    public TestRequest(TestSimulationNode from, int maxPickupTime, TestSimulationNode to , int maxDropoffTime) {
         this.maxPickupTime = maxPickupTime;
         this.maxDropoffTime = maxDropoffTime;
         this.from = from;
@@ -49,12 +49,12 @@ public class TestRequest implements PlanComputationRequest{
     }
 
     @Override
-    public SimulationNode getFrom() {
+    public TestSimulationNode getFrom() {
         return from;
     }
 
     @Override
-    public SimulationNode getTo() {
+    public TestSimulationNode getTo() {
         return to;
     }
 
@@ -75,6 +75,16 @@ public class TestRequest implements PlanComputationRequest{
 
     @Override
     public DemandAgent getDemandAgent() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getId() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setOnboard(boolean onboard) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

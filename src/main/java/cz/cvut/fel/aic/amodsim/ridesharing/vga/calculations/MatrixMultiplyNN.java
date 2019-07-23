@@ -138,7 +138,7 @@ public class MatrixMultiplyNN implements NN {
     }
     private void loadNPZ(int groupSize){
         System.out.print("Loading model for group size "+groupSize+"....");
-        String fileName = "data//NN_models//model_"+ groupSize +"//model.npz";
+        String fileName = "NN_models//model_"+ groupSize +"//model.npz";
         File file = new File(fileName);
         try {        
             LittleEndianDataInputStream  fileInputStream = new LittleEndianDataInputStream(new FileInputStream(file));
@@ -229,7 +229,7 @@ public class MatrixMultiplyNN implements NN {
     }
 
         private void loadJSON(int groupSize) {
-        String fileName = "data//NN_models//model_"+ groupSize +"//model_pre.json";
+        String fileName = "NN_models//model_"+ groupSize +"//model_pre.json";
         File file = new File(fileName);        
         try (FileReader fr = new FileReader(file)) {
             JSONParser parser = new JSONParser();

@@ -1,0 +1,154 @@
+2019-07-24 09:46:00:496 DEBUG main ninja.fido.config.ConfigDataLoader.loadConfigData(ConfigDataLoader.java:86) vehicle_speed_in_meters: 40.0
+use_trip_cache: true
+experiment_name: test
+trips_filename: trips
+agentpolis.show_stacked_entities: true
+congestion_model.random_seed: 117
+congestion_model.max_flow_per_lane: 7.0
+congestion_model.batch_size: 20
+congestion_model.fundamental_diagram_delay: false
+congestion_model.default_crossroad_driving_lanes: 3
+agentpolis.log4j_xml_dir: 
+agentpolis.srid: 32633
+agentpolis.path_to_save_recordings: 
+visio.show_stacked_entities: true
+visio.min_zoom_to_show_stack_entities_count: 0.1
+visio.min_entity_zoom: 3.0
+visio.show_visio: false
+agentpolis.map_nodes_filepath: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/maps/nodes.geojson
+simulation_duration.hours: 0
+simulation_duration.seconds: 0
+simulation_duration.minutes: 2
+simulation_duration.days: 0
+agentpolis.path_to_serialized_graph: data/serialized/graph
+agentpolis.path_to_map_tiles: maptiles
+agentpolis.osm_tile_server: cartodb-basemaps-c.global.ssl.fastly.net/light_all
+agentpolis.map_edges_filepath: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/maps/edges.geojson
+agentpolis.skip_simulation: false
+distance_matrix_filepath: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/dm.csv
+experiments_dir: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/
+edge_pairs_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/edge_pairs
+trip_cache_file: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/trip_cache
+map_dir: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/maps/
+start_time: 37800000
+trips_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/trips.txt
+amodsim_experiment_dir: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/
+amodsim_data_dir: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/
+edges_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/edges
+trips_multiplier: 3.433
+trips_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/trips
+simplify_graph: true
+ridesharing.max_direct_speed_estimation_kmh: 25
+ridesharing.vga.log_plan_computational_time: true
+ridesharing.vga.max_group_size: 0
+ridesharing.vga.group_generation_time_limit: 0
+ridesharing.vga.export_group_data: false
+ridesharing.vga.group_generator_log_filepath: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/group_generation_log.csv
+ridesharing.batch_period: 30
+ridesharing.method: vga
+ridesharing.insertion_heuristic.recompute_waiting_requests: false
+ridesharing.discomfort_constraint: absolute
+ridesharing.maximum_relative_discomfort: 0.2
+ridesharing.max_prolongation_in_seconds: 240
+ridesharing.weight_parameter: 1.0
+ridesharing.vehicle_capacity: 5
+ridesharing.on: true
+rebalancing.external.policy_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/policy.json
+rebalancing.period: 600
+rebalancing.buffer: 0.2
+rebalancing.on: true
+statistics.result_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/result.json
+statistics.occupancies_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/vehicle_occupancy.csv
+statistics.ridesharing_file_name: ridesharing.csv
+statistics.statistic_interval_milis: 60000
+statistics.group_data_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/group_data.csv
+statistics.transit_statistic_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/transit.csv
+statistics.all_edges_load_history_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/allEdgesLoadHistory.json
+statistics.on_demand_vehicle_statistic.leave_station_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/on_demand_vehicle_statistic/leave_station.csv
+statistics.on_demand_vehicle_statistic.reach_nearest_station_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/on_demand_vehicle_statistic/reach_nearest_station.csv
+statistics.on_demand_vehicle_statistic.pickup_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/on_demand_vehicle_statistic/pickup.csv
+statistics.on_demand_vehicle_statistic.drop_off_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/on_demand_vehicle_statistic/drop_off.csv
+statistics.on_demand_vehicle_statistic.finish_rebalancing_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/on_demand_vehicle_statistic/finish_rebalancing.csv
+statistics.on_demand_vehicle_statistic.dir_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/on_demand_vehicle_statistic/
+statistics.on_demand_vehicle_statistic.start_rebalancing_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/on_demand_vehicle_statistic/start_rebalancing.csv
+statistics.result_file_name: result.json
+statistics.all_edges_load_interval_milis: 600000
+statistics.trip_distances_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/demand_trip_lengths.csv
+statistics.occupancies_file_name: vehicle_occupancy.csv
+statistics.darp_solver_computational_times_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/darp_times.csv
+statistics.group_data_filename: group_data.csv
+statistics.all_edges_load_history_file_name: allEdgesLoadHistory.json
+statistics.service_file_name: service.csv
+statistics.service_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/service.csv
+statistics.ridesharing_file_path: C:/Users/matal/ownCloud/Shared/VGA-NN-Boost/amod-data/experiments/ridesharing.csv
+
+2019-07-24 09:46:05:261  INFO main cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer.getMap(MapInitializer.java:59) Graphs imported, highway graph details: Graph [#nodes=28126, #edges=67184]
+2019-07-24 09:46:05:261 DEBUG main cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator.prepareSimulation(SimulationCreator.java:65) Using seed 0.
+2019-07-24 09:46:05:261  INFO main cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator.prepareSimulation(SimulationCreator.java:69) >>> CREATING MAP
+2019-07-24 09:46:05:261  INFO main cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator.initEnvironment(SimulationCreator.java:102) Creating instance of environment...
+2019-07-24 09:46:05:277  INFO main cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator.initEnvironment(SimulationCreator.java:105) Done.
+2019-07-24 09:46:06:214  INFO main cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached.loadTripCache(TripsUtilCached.java:135) Loading cache start
+2019-07-24 09:46:06:339  INFO main cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached.loadTripCache(TripsUtilCached.java:141) Loading cache finished - 377 trips loaded
+2019-07-24 09:46:06:339  WARN main cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider.<init>(StandardTimeProvider.java:73) Init day is not day start (00:00). It will be set to the start of the day.
+2019-07-24 09:46:06:386  INFO main cz.cvut.fel.aic.agentpolis.siminfrastructure.ticker.PeriodicTicker.registerRoutine(PeriodicTicker.java:63) class cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher registered to run with period of 30000 ms
+2019-07-24 09:46:07:230  INFO main cz.cvut.fel.aic.amodsim.rebalancing.ReactiveRebalancing.<init>(ReactiveRebalancing.java:108) Reactive rebalancing initialized.
+2019-07-24 09:46:20:682  INFO main cz.cvut.fel.aic.agentpolis.siminfrastructure.ticker.PeriodicTicker.registerRoutine(PeriodicTicker.java:63) class cz.cvut.fel.aic.amodsim.rebalancing.ReactiveRebalancing registered to run with period of 600000 ms
+2019-07-24 09:46:24:495  INFO main cz.cvut.fel.aic.amodsim.io.TripTransform.loadTripsFromTxt(TripTransform.java:149) Number of trips with same source and destination: 0
+2019-07-24 09:46:24:495  INFO main cz.cvut.fel.aic.amodsim.io.TripTransform.loadTripsFromTxt(TripTransform.java:150) 229 trips with zero lenght discarded
+2019-07-24 09:46:24:588  INFO main cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator.startSimulation(SimulationCreator.java:87) Simulation initalized. (46 ms)
+2019-07-24 09:46:25:432  INFO main cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher.replan(RidesharingDispatcher.java:144) Current sim time is: 30 seconds
+2019-07-24 09:46:25:432  INFO main cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher.replan(RidesharingDispatcher.java:145) No. of new requests: 75
+2019-07-24 09:46:25:432  INFO main cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher.replan(RidesharingDispatcher.java:146) No. of waiting requests: 75
+2019-07-24 09:46:25:432  INFO main cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher.replan(RidesharingDispatcher.java:159) Demands dropped in this batch: 0
+2019-07-24 09:46:25:432  INFO main cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher.replan(RidesharingDispatcher.java:160) Total dropped demands count: 0
+2019-07-24 09:46:25:495  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.solve(VehicleGroupAssignmentSolver.java:160) Total vehicle count: 51951
+2019-07-24 09:46:25:510  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.solve(VehicleGroupAssignmentSolver.java:168) No. of active requests: 75
+2019-07-24 09:46:25:510  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.solve(VehicleGroupAssignmentSolver.java:169) Number of vehicles used for planning: 75
+2019-07-24 09:46:25:510  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.generateGroups(VehicleGroupAssignmentSolver.java:398) Generating groups for vehicles.
+2019-07-24 09:46:26:562  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.generateGroups(VehicleGroupAssignmentSolver.java:474) 156 groups generated
+2019-07-24 09:46:26:562  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.printGroupStats(VehicleGroupAssignmentSolver.java:314) 31 groups of size 0
+2019-07-24 09:46:26:562  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.printGroupStats(VehicleGroupAssignmentSolver.java:314) 89 groups of size 1
+2019-07-24 09:46:26:562  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.printGroupStats(VehicleGroupAssignmentSolver.java:314) 19 groups of size 2
+2019-07-24 09:46:26:562  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.printGroupStats(VehicleGroupAssignmentSolver.java:314) 11 groups of size 3
+2019-07-24 09:46:26:562  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.printGroupStats(VehicleGroupAssignmentSolver.java:314) 5 groups of size 4
+2019-07-24 09:46:26:562  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.printGroupStats(VehicleGroupAssignmentSolver.java:314) 1 groups of size 5
+2019-07-24 09:46:26:578  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver.assignOptimallyFeasiblePlans(GurobiSolver.java:213) solving start
+2019-07-24 09:46:26:593  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver.assignOptimallyFeasiblePlans(GurobiSolver.java:215) solving finished
+2019-07-24 09:46:26:593  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver.assignOptimallyFeasiblePlans(GurobiSolver.java:217) Objective function value: 67546.0
+2019-07-24 09:46:27:593  INFO main cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher.replan(RidesharingDispatcher.java:144) Current sim time is: 60 seconds
+2019-07-24 09:46:27:593  INFO main cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher.replan(RidesharingDispatcher.java:145) No. of new requests: 67
+2019-07-24 09:46:27:593  INFO main cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher.replan(RidesharingDispatcher.java:146) No. of waiting requests: 131
+2019-07-24 09:46:27:593  INFO main cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher.replan(RidesharingDispatcher.java:159) Demands dropped in this batch: 0
+2019-07-24 09:46:27:593  INFO main cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher.replan(RidesharingDispatcher.java:160) Total dropped demands count: 0
+2019-07-24 09:46:27:593  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.solve(VehicleGroupAssignmentSolver.java:160) Total vehicle count: 51951
+2019-07-24 09:46:27:593  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.solve(VehicleGroupAssignmentSolver.java:168) No. of active requests: 142
+2019-07-24 09:46:27:593  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.solve(VehicleGroupAssignmentSolver.java:169) Number of vehicles used for planning: 200
+2019-07-24 09:46:27:593  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.generateGroups(VehicleGroupAssignmentSolver.java:398) Generating groups for vehicles.
+2019-07-24 09:46:29:653  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.generateGroups(VehicleGroupAssignmentSolver.java:474) 750 groups generated
+2019-07-24 09:46:29:653  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.printGroupStats(VehicleGroupAssignmentSolver.java:314) 104 groups of size 0
+2019-07-24 09:46:29:653  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.printGroupStats(VehicleGroupAssignmentSolver.java:314) 496 groups of size 1
+2019-07-24 09:46:29:653  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.printGroupStats(VehicleGroupAssignmentSolver.java:314) 130 groups of size 2
+2019-07-24 09:46:29:653  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.printGroupStats(VehicleGroupAssignmentSolver.java:314) 20 groups of size 3
+2019-07-24 09:46:29:669  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver.assignOptimallyFeasiblePlans(GurobiSolver.java:213) solving start
+2019-07-24 09:46:29:684  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver.assignOptimallyFeasiblePlans(GurobiSolver.java:215) solving finished
+2019-07-24 09:46:29:684  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver.assignOptimallyFeasiblePlans(GurobiSolver.java:217) Objective function value: 225699.0
+2019-07-24 09:46:31:559  INFO main cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher.replan(RidesharingDispatcher.java:144) Current sim time is: 90 seconds
+2019-07-24 09:46:31:559  INFO main cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher.replan(RidesharingDispatcher.java:145) No. of new requests: 159
+2019-07-24 09:46:31:559  INFO main cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher.replan(RidesharingDispatcher.java:146) No. of waiting requests: 267
+2019-07-24 09:46:31:559  INFO main cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher.replan(RidesharingDispatcher.java:159) Demands dropped in this batch: 0
+2019-07-24 09:46:31:559  INFO main cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher.replan(RidesharingDispatcher.java:160) Total dropped demands count: 0
+2019-07-24 09:46:31:559  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.solve(VehicleGroupAssignmentSolver.java:160) Total vehicle count: 51951
+2019-07-24 09:46:31:575  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.solve(VehicleGroupAssignmentSolver.java:168) No. of active requests: 301
+2019-07-24 09:46:31:575  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.solve(VehicleGroupAssignmentSolver.java:169) Number of vehicles used for planning: 399
+2019-07-24 09:46:31:575  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.generateGroups(VehicleGroupAssignmentSolver.java:398) Generating groups for vehicles.
+2019-07-24 09:46:33:622  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.generateGroups(VehicleGroupAssignmentSolver.java:474) 2457 groups generated
+2019-07-24 09:46:33:622  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.printGroupStats(VehicleGroupAssignmentSolver.java:314) 167 groups of size 0
+2019-07-24 09:46:33:622  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.printGroupStats(VehicleGroupAssignmentSolver.java:314) 1474 groups of size 1
+2019-07-24 09:46:33:622  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.printGroupStats(VehicleGroupAssignmentSolver.java:314) 589 groups of size 2
+2019-07-24 09:46:33:622  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.printGroupStats(VehicleGroupAssignmentSolver.java:314) 152 groups of size 3
+2019-07-24 09:46:33:622  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.printGroupStats(VehicleGroupAssignmentSolver.java:314) 69 groups of size 4
+2019-07-24 09:46:33:622  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver.printGroupStats(VehicleGroupAssignmentSolver.java:314) 6 groups of size 5
+2019-07-24 09:46:33:684  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver.assignOptimallyFeasiblePlans(GurobiSolver.java:213) solving start
+2019-07-24 09:46:33:731  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver.assignOptimallyFeasiblePlans(GurobiSolver.java:215) solving finished
+2019-07-24 09:46:33:731  INFO main cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver.assignOptimallyFeasiblePlans(GurobiSolver.java:217) Objective function value: 581645.0
+2019-07-24 09:46:35:934  INFO main cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator.startSimulation(SimulationCreator.java:91) Simulation finished: (11346 ms)

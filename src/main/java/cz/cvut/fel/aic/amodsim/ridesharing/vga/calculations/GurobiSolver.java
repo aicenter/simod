@@ -24,6 +24,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.utils.CollectionUtil;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehicle;
@@ -77,11 +78,11 @@ public class GurobiSolver {
 	
 	
 	@Inject
-	public GurobiSolver(StandardPlanCostProvider planCostComputation) {
+	public GurobiSolver(StandardPlanCostProvider planCostComputation, AmodsimConfig config) {
 		this.planCostComputation = planCostComputation;
-		env = null;
-		try {
-			env = new GRBEnv("mip.log");
+		env = null;           
+		try {                       
+			env = new GRBEnv(config.amodsimExperimentDir +"/log/mip.log");
 		} catch (GRBException ex) {
 			Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
 		}

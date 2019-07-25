@@ -311,7 +311,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
                 logPlansPerVehicle(entry.getKey(), entry.getValue(), Benchmark.durationNano);
             }
         }*/
-                if(!vehicles.isEmpty()){
+                if(config.ridesharing.vga.logPlanComputationalTime && !vehicles.isEmpty()){
                     logPlansPerVehicles(vehicles, feasibleGroupPlans, Benchmark.durationNano/vehicles.size());
                 }
 		return feasibleGroupPlans;

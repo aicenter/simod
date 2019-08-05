@@ -24,6 +24,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.utils.CollectionUtil;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehicle;
@@ -60,6 +61,8 @@ public class GurobiSolver {
 	
 	private final StandardPlanCostProvider planCostComputation;
 	
+	private final int timeLimit;
+	
 	private GRBEnv env;
 
 	
@@ -77,15 +80,19 @@ public class GurobiSolver {
 	
 	
 	@Inject
-	public GurobiSolver(StandardPlanCostProvider planCostComputation) {
+	public GurobiSolver(StandardPlanCostProvider planCostComputation, AmodsimConfig config) {
 		this.planCostComputation = planCostComputation;
+		iteration = 1;
+		timeLimit = config.ridesharing.vga.solverTimeLimit;
+		
+		// env init
 		env = null;
 		try {
 			env = new GRBEnv("mip.log");
 		} catch (GRBException ex) {
 			Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
 		}
-		iteration = 1;
+		
 	}
 	
 	public List<Plan<IOptimalPlanVehicle>> assignOptimallyFeasiblePlans(
@@ -199,7 +206,7 @@ public class GurobiSolver {
 //			model.set(GRB.DoubleParam.MIPGap, 0.01);
 		
 			// 2 min limit
-			model.set(GRB.DoubleParam.TimeLimit, 20);
+			model.set(GRB.DoubleParam.TimeLimit, timeLimit);
 			
 			LOGGER.info("solving start");
 			model.optimize();

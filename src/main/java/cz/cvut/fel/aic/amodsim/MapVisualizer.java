@@ -24,6 +24,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.Map
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.init.StationsInitializer;
 import java.io.File;
 
 import java.net.MalformedURLException;
@@ -52,27 +53,12 @@ public class MapVisualizer {
 
 		// prepare map, entity storages...
 		creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
-
-//		List<TimeTrip<Long>> osmNodesList;
-//		try {
-//			osmNodesList = TripTransform.jsonToTrips(new File(config.preprocessedTrips), Long.class);
-//			RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
-//			rebalancingLoader.load(new File(config.rebalancing.policyFilePath));
-//
-//			//  injector.getInstance(EntityInitializer.class).initialize(rebalancingLoader.getOnDemandVehicleStations());
-//
-//			injector.getInstance(EventInitializer.class).initialize(osmNodesList,
-//					rebalancingLoader.getRebalancingTrips(), config);
-//
-//			injector.getInstance(StatisticInitializer.class).initialize();
-
-			// start it up
-			creator.startSimulation();
 		
-//		} catch (IOException ex) {
-//			LOGGER.error(null, ex);
-//		}
-	   
+		// load stations
+		injector.getInstance(StationsInitializer.class).loadStations();
+
+
+		creator.startSimulation();
 
 	}
 }

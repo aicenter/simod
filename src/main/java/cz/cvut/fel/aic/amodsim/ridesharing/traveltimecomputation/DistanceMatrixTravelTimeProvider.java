@@ -79,10 +79,9 @@ public class DistanceMatrixTravelTimeProvider implements TravelTimeProvider{
 
 	@Override
 	public double getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
-		callCount++;
-		double distance = distanceMatrix[positionA.getIndex()][positionB.getIndex()];
-		long traveltime = MoveUtil.computeDuration(travelSpeedEstimatePerSecond, distance);
-		return traveltime;
+		callCount++;		
+		int durationInMilliseconds = distanceMatrix[positionA.getIndex()][positionB.getIndex()];
+		return durationInMilliseconds;
 	}
 
 	@Override

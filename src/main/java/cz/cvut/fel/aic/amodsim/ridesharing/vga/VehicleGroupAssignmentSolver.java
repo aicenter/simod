@@ -143,6 +143,9 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			List<PlanComputationRequest> waitingRequests) {
 		
 		// statistic vars
+        groupGenerator.false_count = 0;
+        groupGenerator.true_count = 0;
+        groupGenerator.nn_time = 0;
 		newRequestCount = newRequests.size();
 		if(config.ridesharing.vga.logPlanComputationalTime){
 			groupCounts = new FlexArray();
@@ -222,8 +225,6 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		
 		// check if all driving vehicles have a plan
 		checkPlanMapComplete(planMap);
-		System.err.println("False: " + groupGenerator.false_count);
-                System.err.println("True: " + groupGenerator.true_count);
 		return planMap;
 	}
 
@@ -425,6 +426,26 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			for (List<String> record : logRecords) {
 				writer.writeLine(record.toArray(new String[0]));
 			}
+			writer.close();
+		} catch (IOException ex) {
+			LOGGER.error(null, ex);
+		}
+        // log number of feasible and infeasible groups and computation time of NN
+		try {
+            CsvWriter writer;
+            if(ridesharingStats.size() == 1){
+			writer = new CsvWriter(
+					Common.getFileWriter(config.amodsimExperimentDir + "/NN_logs.csv", false));                
+            }
+            else{
+			writer = new CsvWriter(
+					Common.getFileWriter(config.amodsimExperimentDir + "/NN_logs.csv", true));                
+            }
+
+            writer.writeLine(new String[] {Integer.toString(groupGenerator.false_count),
+                Integer.toString(groupGenerator.true_count),
+                Integer.toString(groupGenerator.nn_time),
+                Integer.toString(groupGenerationTime - groupGenerator.nn_time)});
 			writer.close();
 		} catch (IOException ex) {
 			LOGGER.error(null, ex);

@@ -50,7 +50,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 
 	private static final int GROUP_RECORDS_BATCH_SIZE = 10_000;
 
-        private final NN nn;
+    private final NN nn;
 	
 	private final OptimalVehiclePlanFinder optimalVehiclePlanFinder;
 	
@@ -61,7 +61,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 	private final int maxGroupSize;
 	
 	private final long groupGenerationTimeLimitInNanoseconds;
-	public int true_count, false_count;
+	public int true_count, false_count, nn_time;
 	private CsvWriter groupRecordWriter = null;
 	
 	private FlexArray groupCounts;
@@ -135,6 +135,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 			groupRecords = new ArrayList(GROUP_RECORDS_BATCH_SIZE);
 		}
         nn = new MatrixMultiplyNN();
+        nn_time = 0;
         true_count = 0;
         false_count = 0;
 	}
@@ -1346,7 +1347,6 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 
                             if(recordTime){
                                 groupCountPerVehicle.get(newGroupToCheck.getVehicle()).increment(newGroupToCheck.getRequests().size() - 1);
-                                true_count++;
                                 plan = Benchmark.measureTime(() -> 
                                         optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
                                                 newGroupToCheck.getVehicle(), (LinkedHashSet) newGroupToCheck.getRequests(), startTime, false));
@@ -1358,7 +1358,6 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                                 computationalTimePerVehicle.get(newGroupToCheck.getVehicle()).increment(newGroupToCheck.getRequests().size() - 1, timeInMs);
                             }
                             else{
-                                true_count++;
                                 plan = optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
                                         newGroupToCheck.getVehicle(),(LinkedHashSet) newGroupToCheck.getRequests(), startTime, false);
                             }
@@ -1583,7 +1582,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                         }                       
                     }
                     else{
-                        Set<GroupData> groupsForNN = new LinkedHashSet<>();
+                        final Set<GroupData> groupsForNN = new LinkedHashSet<>();
                         
                         for (V vehicle : vehicles) {
                             // current groups for the next iteration
@@ -1625,19 +1624,22 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                         }
                         if(!groupsForNN.isEmpty()){
                             end = false;
-                            nn.setProbability(groupsForNN, currentGroupSize);
+                            final int h = currentGroupSize;
+                            Benchmark.measureTime(() -> nn.setProbability(groupsForNN, h));
+                            nn_time += Benchmark.getDurationMsInt();
                         }   
                         for (GroupData newGroupToCheck : groupsForNN) {
                             if(newGroupToCheck.getFeasible() < 0.5){
+                                false_count++;
                                 continue;
                             }else{
+                                true_count++;
                             }
 
                             Plan plan ;
 
                             if(recordTime){
                                 groupCountPerVehicle.get(newGroupToCheck.getVehicle()).increment(newGroupToCheck.getRequests().size() - 1);
-                                true_count++;
                                 plan = Benchmark.measureTime(() -> 
                                         optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
                                                 newGroupToCheck.getVehicle(), (LinkedHashSet) newGroupToCheck.getRequests(), startTime, false));
@@ -1649,7 +1651,6 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                                 computationalTimePerVehicle.get(newGroupToCheck.getVehicle()).increment(newGroupToCheck.getRequests().size() - 1, timeInMs);
                             }
                             else{
-                                true_count++;
                                 plan = optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
                                         newGroupToCheck.getVehicle(),(LinkedHashSet) newGroupToCheck.getRequests(), startTime, false);
                             }

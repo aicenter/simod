@@ -51,7 +51,7 @@ def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, experi
 	transit_data = transit.load(experiment_dir)
 
 	# km_total = int(round(avg_km_total * result["numberOfVehicles"]))
-	km_total = transit.get_total_distance(transit_data, edge_data) / 1000
+	#km_total = transit.get_total_distance(transit_data, edge_data) / 1000
 	km_total_window = int(round(transit.get_total_distance(transit_data, edge_data, True) / 1000))
 
 	# average density
@@ -99,41 +99,63 @@ edge_data = edges.load_table()
 edge_object_data = edges.load_edges_mapped_by_id()
 
 # result json files
-results_ridesharing_off \
-	= roadmaptools.inout.load_json(config.comparison.experiment_5_dir + config.statistics.result_file_name)
-results_insertion_heuristic\
-	= roadmaptools.inout.load_json(config.comparison.experiment_6_dir + config.statistics.result_file_name)
 results_vga \
+	= roadmaptools.inout.load_json(config.comparison.experiment_5_dir + config.statistics.result_file_name)
+results_vga_limited \
 	= roadmaptools.inout.load_json(config.comparison.experiment_7_dir + config.statistics.result_file_name)
-
-results_vga_group_limit \
+results_vga_second\
+	= roadmaptools.inout.load_json(config.comparison.experiment_6_dir + config.statistics.result_file_name)
+results_vga_second_limited \
 	= roadmaptools.inout.load_json(config.comparison.experiment_8_dir + config.statistics.result_file_name)
 
+results_NN_vga\
+	= roadmaptools.inout.load_json(config.comparison.experiment_1_dir + config.statistics.result_file_name)
+results_NN_vga_limited\
+	= roadmaptools.inout.load_json(config.comparison.experiment_3_dir + config.statistics.result_file_name)
+results_NN_vga_second \
+	= roadmaptools.inout.load_json(config.comparison.experiment_2_dir + config.statistics.result_file_name)
+
+results_NN_vga_second_limited \
+	= roadmaptools.inout.load_json(config.comparison.experiment_4_dir + config.statistics.result_file_name)
 # traffic load
-loads_no_ridesharing = traffic_load.load_all_edges_load_history(
-	config.comparison.experiment_5_dir + config.statistics.all_edges_load_history_file_name)
-loads_insertion_heuristic = traffic_load.load_all_edges_load_history(
-	config.comparison.experiment_6_dir + config.statistics.all_edges_load_history_file_name)
 loads_vga = traffic_load.load_all_edges_load_history(
+	config.comparison.experiment_5_dir + config.statistics.all_edges_load_history_file_name)
+loads_vga_limited = traffic_load.load_all_edges_load_history(
 	config.comparison.experiment_7_dir + config.statistics.all_edges_load_history_file_name)
-loads_vga_group_limit = traffic_load.load_all_edges_load_history(
+loads_vga_second = traffic_load.load_all_edges_load_history(
+	config.comparison.experiment_6_dir + config.statistics.all_edges_load_history_file_name)
+loads_vga_second_limited = traffic_load.load_all_edges_load_history(
 	config.comparison.experiment_8_dir + config.statistics.all_edges_load_history_file_name)
+loads_NN_vga = traffic_load.load_all_edges_load_history(
+	config.comparison.experiment_1_dir + config.statistics.all_edges_load_history_file_name)
+loads_NN_vga_limited = traffic_load.load_all_edges_load_history(
+	config.comparison.experiment_3_dir + config.statistics.all_edges_load_history_file_name)
+loads_NN_vga_second = traffic_load.load_all_edges_load_history(
+	config.comparison.experiment_2_dir + config.statistics.all_edges_load_history_file_name)
+loads_NN_vga_second_limited = traffic_load.load_all_edges_load_history(
+	config.comparison.experiment_4_dir + config.statistics.all_edges_load_history_file_name)
 
 histogram = TrafficDensityHistogram(edge_object_data)
 
 # compute data for output from result
-present_state_data = compute_stats_current_state(config.comparison.experiment_5_dir, results_ridesharing_off, histogram,
-								   loads_no_ridesharing[VehicleState.DRIVING_TO_TARGET_LOCATION.name])
-no_ridesharing_data = compute_stats(results_ridesharing_off, histogram, loads_no_ridesharing["ALL"],
+vga_data = compute_stats(results_vga_limited, histogram, loads_vga["ALL"],
 									config.comparison.experiment_5_dir, edge_data)
-insertion_heuristic_data = compute_stats(results_insertion_heuristic, histogram, loads_insertion_heuristic["ALL"],
+vga_limited_data = compute_stats(results_vga_limited, histogram, loads_vga_limited["ALL"],
+									config.comparison.experiment_7_dir, edge_data)
+vga_second_data = compute_stats(results_vga_second, histogram, loads_vga_second["ALL"],
 					config.comparison.experiment_6_dir, edge_data)
-vga_data = compute_stats(results_vga, histogram, loads_vga["ALL"], config.comparison.experiment_7_dir,
-						 edge_data)
-vga_limited_data = compute_stats(results_vga_group_limit, histogram, loads_vga_group_limit["ALL"],
-								 config.comparison.experiment_8_dir, edge_data)
+vga_second_limited_data = compute_stats(results_vga_second_limited, histogram, loads_vga_second_limited["ALL"],
+					config.comparison.experiment_8_dir, edge_data)
+NN_vga_data = compute_stats(results_NN_vga, histogram, loads_NN_vga["ALL"],
+					config.comparison.experiment_1_dir, edge_data)
+NN_vga_limited_data = compute_stats(results_NN_vga_limited, histogram, loads_NN_vga_limited["ALL"],
+					config.comparison.experiment_3_dir, edge_data)
+NN_vga_second_data = compute_stats(results_NN_vga_second, histogram, loads_NN_vga_second["ALL"],
+					config.comparison.experiment_2_dir, edge_data)
+NN_vga_second_limited_data = compute_stats(results_NN_vga_second_limited, histogram, loads_NN_vga_second_limited["ALL"],
+					config.comparison.experiment_4_dir, edge_data)
 
-output_table = np.array([["X", "PRESENT STATE", "NO RIDESHARING", "INSERTION HEURISTIC", "VGA", "VGA limited"],
+"""output_table = np.array([["X", "PRESENT STATE", "NO RIDESHARING", "INSERTION HEURISTIC", "VGA", "VGA limited"],
 						 ["Total veh. dist. traveled (km)", present_state_data[0], no_ridesharing_data[0], insertion_heuristic_data[0], vga_data[0], vga_limited_data[0]],
 						 ["avg. density", present_state_data[1], no_ridesharing_data[1], insertion_heuristic_data[1], vga_data[1], vga_limited_data[1]],
 						 ["cong. segments count", present_state_data[2], no_ridesharing_data[2], insertion_heuristic_data[2], vga_data[2], vga_limited_data[2]],
@@ -146,43 +168,87 @@ output_table = np.array([["X", "PRESENT STATE", "NO RIDESHARING", "INSERTION HEU
 # console results
 print("COMPARISON:")
 print()
-print_table(output_table)
+print_table(output_table)"""
 
 
 # latex table
 print("Latex code:")
-print(r"\begin{tabular}{|l|r|r|r|r|r|}")
+print(r"\begin{tabular}{|l|r|r|r|r}")
 print(r"\hline")
-print(r" & \thead{Present} & \thead{No Ridesh.} & \thead{IH} & \thead{VGA} & \thead{VGA lim}")
+print(r" & \thead{1} & \thead{2} & \thead{3} & \thead{4}")
 print(r"\tabularnewline")
 print(r"\hline")
 print(r"\hline")
-print("Total veh. dist. (km) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(present_state_data[0], no_ridesharing_data[0],
-	insertion_heuristic_data[0], vga_data[0], vga_limited_data[0]))
+print("Total veh. dist. (km) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(vga_data[0], vga_second_data[0],
+	vga_limited_data[0], vga_second_limited_data[0]))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Avg. density (veh/km) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}& \\num{{{}}}".format(round(present_state_data[1], 4), round(no_ridesharing_data[1], 4),
-	 round(insertion_heuristic_data[1], 4), round(vga_data[1], 4), round(vga_limited_data[1], 4)))
+print("Avg. density (veh/km) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(round(vga_data[1],4), round(vga_second_data[1], 4),
+	 round(vga_limited_data[1], 4), round(vga_second_limited_data[1], 4)))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Congested seg. & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}& \\num{{{}}}".format(present_state_data[2], no_ridesharing_data[2], insertion_heuristic_data[2], vga_data[2],
-	vga_limited_data[2] ))
+print("Congested seg. (km) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(vga_data[2], vga_second_data[2],
+	vga_limited_data[2], vga_second_limited_data[2]))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Heavily loaded seg.  & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}& \\num{{{}}}".format(round(present_state_data[4], 1), round(no_ridesharing_data[4], 1),
-	round(insertion_heuristic_data[4], 1), round(vga_data[4], 1), round(vga_limited_data[4], 1)))
+print("Dropped demands & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(vga_data[3], vga_second_data[3],
+	vga_limited_data[3], vga_second_limited_data[3]))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Used Vehicles  & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}& \\num{{{}}}".format(present_state_data[5], no_ridesharing_data[5], insertion_heuristic_data[5], vga_data[5],
-	vga_limited_data[5]))
+print("Heavily loaded seg.  & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(round(vga_data[4],4), round(vga_second_data[4], 1),
+	round(vga_limited_data[4], 1), round(vga_second_limited_data[4], 1)))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Avg. delay (s) & {} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}& \\num{{{}}}".format("-", no_ridesharing_data[7], insertion_heuristic_data[7], vga_data[7],
-	vga_limited_data[7]))
+print("Used Vehicles & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(vga_data[5],vga_second_data[5],
+	vga_limited_data[5], vga_second_limited_data[5]))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Avg. comp. time (s)  & {} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format("-", no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6],
-	vga_limited_data[6]))
+print("Avg. delay (s) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(vga_data[7], vga_second_data[7],
+	vga_limited_data[7], vga_second_limited_data[7]))
+print(r"\tabularnewline")
+print(r"\hline")
+print("Avg. comp. time (s)   & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(vga_data[6], vga_second_data[6],
+	vga_limited_data[6], vga_second_limited_data[6]))
+print(r"\tabularnewline")
+print(r"\hline")
+print(r"\end{tabular}")
+
+print(r"\begin{tabular}{|l|r|r|r|r}")
+print(r"\hline")
+print(r" & \thead{1} & \thead{2} & \thead{3} & \thead{4}")
+print(r"\tabularnewline")
+print(r"\hline")
+print(r"\hline")
+print("Total veh. dist. (km) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(NN_vga_data[0],
+	NN_vga_second_data[0], NN_vga_limited_data[0], NN_vga_second_limited_data[0]))
+print(r"\tabularnewline")
+print(r"\hline")
+print("Avg. density (veh/km) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(round(NN_vga_data[1], 4),
+	 round(NN_vga_second_data[1], 4), round(NN_vga_limited_data[1], 4), round(NN_vga_second_limited_data[1], 4)))
+print(r"\tabularnewline")
+print(r"\hline")
+print("Congested seg. (km) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(NN_vga_data[2],
+	NN_vga_second_data[2], NN_vga_limited_data[2],NN_vga_second_limited_data[2]))
+print(r"\tabularnewline")
+print(r"\hline")
+print("Dropped demands & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(NN_vga_data[3],
+	NN_vga_second_data[3],NN_vga_limited_data[3], NN_vga_second_limited_data[3]))
+print(r"\tabularnewline")
+print(r"\hline")
+print("Heavily loaded seg. & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(round(NN_vga_data[4], 1),
+	round(NN_vga_second_data[4], 1), round(NN_vga_limited_data[4], 1),round(NN_vga_second_limited_data[4], 1)))
+print(r"\tabularnewline")
+print(r"\hline")
+print("Used Vehicles & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(NN_vga_data[5],
+	NN_vga_second_data[5], NN_vga_limited_data[5], NN_vga_second_limited_data[5]))
+print(r"\tabularnewline")
+print(r"\hline")
+print("Avg. delay (s) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(NN_vga_data[7],
+	NN_vga_second_data[7], NN_vga_limited_data[7], NN_vga_second_limited_data[7]))
+print(r"\tabularnewline")
+print(r"\hline")
+print("Avg. comp. time (s) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(NN_vga_data[6],
+	NN_vga_second_data[6], NN_vga_limited_data[6], NN_vga_second_limited_data[6]))
 print(r"\tabularnewline")
 print(r"\hline")
 print(r"\end{tabular}")

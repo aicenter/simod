@@ -58,11 +58,21 @@ public class StationsInitializer {
 	
 	public void loadStations(){
 		List<Integer> stationIndexes = loadStationIndexes(config.stationPositionFilepath);
+		LOGGER.info("{} Stations indexes loaded from {}", stationIndexes.size(), config.stationPositionFilepath);
+		
 		int counter = 0;
+		int discarded = 0;
 		for(int index: stationIndexes){
 			SimulationNode node = nodesMappedByIndex.getNodeByIndex(index);
-			createStation(node, config.vehiclesPerStation, counter++);
+			if(node == null){
+				LOGGER.info("Station at node with index {} discarded as it is not in the Agentpolis road graph", index);
+				discarded++;
+			}
+			else{
+				createStation(node, config.vehiclesPerStation, counter++);
+			}
 		}
+		LOGGER.info("{} Stations Discarded", discarded);
 	}
 	
 	private List<Integer> loadStationIndexes(String filepath){

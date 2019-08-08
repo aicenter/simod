@@ -196,7 +196,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 				PlanComputationRequest request = requestsMapByDemandAgents.get(eventContent.getDemandId());
 				if(!waitingRequests.remove(request)){
 					try {
-						throw new Exception("Request picked up twice");
+						throw new Exception("Request picked up but it is not present in the waitin request queue!");
 					} catch (Exception ex) {
 						Logger.getLogger(VehicleGroupAssignmentSolver.class.getName()).log(Level.SEVERE, null, ex);
 					}

@@ -24,6 +24,7 @@ import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.init.EventInitializer;
+import cz.cvut.fel.aic.amodsim.init.StationsInitializer;
 import cz.cvut.fel.aic.amodsim.init.StatisticInitializer;
 import cz.cvut.fel.aic.amodsim.io.RebalancingLoader;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
@@ -67,8 +68,14 @@ public class OnDemandVehiclesSimulation {
 			RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
 			
 			if(config.rebalancing.on){
-				rebalancingLoader.load(new File(config.rebalancing.external.policyFilePath), true);
+//				rebalancingLoader.load(new File(config.rebalancing.external.policyFilePath), true);
+				// load stations
+				injector.getInstance(StationsInitializer.class).loadStations();
+				
+				// start rebalancing
 				injector.getInstance(ReactiveRebalancing.class).start();
+				
+				// load trips
 				injector.getInstance(EventInitializer.class).initialize(
 					tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
 			}

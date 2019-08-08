@@ -41,6 +41,8 @@ import cz.cvut.fel.aic.amodsim.DemandSimulationEntityType;
 import cz.cvut.fel.aic.amodsim.statistics.DemandServiceStatistic;
 import cz.cvut.fel.aic.amodsim.statistics.StatisticEvent;
 import cz.cvut.fel.aic.amodsim.statistics.Statistics;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -206,9 +208,19 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	}
 
 	public void tripStarted(OnDemandVehicle vehicle) {
-		state = DemandAgentState.DRIVING;
-		realPickupTime = timeProvider.getCurrentSimTime();
-		this.onDemandVehicle = vehicle;
+		if(state == DemandAgentState.DRIVING){
+			try {
+				throw new Exception(String.format("Demand Agent %s already driving in vehicle %s, it cannot be picked up by"
+						+ "another vehicle %s", this, onDemandVehicle, vehicle));
+			} catch (Exception ex) {
+				Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+		else{
+			state = DemandAgentState.DRIVING;
+			realPickupTime = timeProvider.getCurrentSimTime();
+			this.onDemandVehicle = vehicle;
+		}
 	}
 
 	@Override

@@ -112,7 +112,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		
 		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
 		maxDistance = (double) config.ridesharing.maxProlongationInSeconds 
-				* config.ridesharing.maxDirectSpeedEstimationKmh / 3600 * 1000;
+				* config.vehicleSpeedInMeters;
 		maxDistanceSquared = maxDistance * maxDistance;
 		
 		// the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the
@@ -330,7 +330,48 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 				newPlanTravelTime += travelTimeProvider.getTravelTime(vehicle, previousTask.getPosition(), 
 							newTask.getPosition());
 			}
+			long curentTaskTimeInSeconds = (timeProvider.getCurrentSimTime() + newPlanTravelTime) / 1000;
 			
+			
+			/* check max time for all unfinished demands */
+			
+			int delta = 5;
+			
+			// check max time check for the new action
+			if(newTask instanceof PlanRequestAction){
+				int maxTime = ((PlanRequestAction) newTask).getMaxTime();
+				if(maxTime < curentTaskTimeInSeconds + delta){
+					return null;
+				}
+			}
+			
+			// check max time for actions in the current plan
+			for(int index = indexInOldPlan + 1; index < currentPlan.getLength(); index++){
+				PlanAction remainingAction = currentPlan.plan.get(index);
+				if(!(remainingAction instanceof PlanActionCurrentPosition)){
+					PlanRequestAction remainingRequestAction = (PlanRequestAction) remainingAction;
+					if(remainingRequestAction.getMaxTime() < curentTaskTimeInSeconds + delta){
+						return null;
+					}
+				}
+			}
+			
+			// check max time for pick up action
+			if(newPlanIndex <= pickupOptionIndex){
+				if(planComputationRequest.getPickUpAction().getMaxTime() < curentTaskTimeInSeconds + delta){
+					return null;
+				}
+			}
+			
+			// check max time for drop off action
+			if(newPlanIndex <= dropoffOptionIndex){
+				if(planComputationRequest.getDropOffAction().getMaxTime() < curentTaskTimeInSeconds + delta){
+					return null;
+				}
+			}
+			
+			
+			/* pickup and drop off handeling */
 			if(newTask instanceof PlanActionDropoff){
 				freeCapacity++;
 				
@@ -347,34 +388,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 				}
 				freeCapacity--;
 			}
-			
-			/* check max time for all unfinished demands */
-			long curentTaskTimeInSeconds = (timeProvider.getCurrentSimTime() + newPlanTravelTime) / 1000;
-			
-			// check max time for actions in the current plan
-			for(int index = indexInOldPlan + 1; index < currentPlan.getLength(); index++){
-				PlanAction remainingAction = currentPlan.plan.get(index);
-				if(!(remainingAction instanceof PlanActionCurrentPosition)){
-					PlanRequestAction remainingRequestAction = (PlanRequestAction) remainingAction;
-					if(remainingRequestAction.getMaxTime() < curentTaskTimeInSeconds){
-						return null;
-					}
-				}
-			}
-			
-			// check max time for pick up action
-			if(newPlanIndex <= pickupOptionIndex){
-				if(planComputationRequest.getPickUpAction().getMaxTime() < curentTaskTimeInSeconds){
-					return null;
-				}
-			}
-			
-			// check max time for drop off action
-			if(newPlanIndex <= dropoffOptionIndex){
-				if(planComputationRequest.getDropOffAction().getMaxTime() < curentTaskTimeInSeconds){
-					return null;
-				}
-			}
+
 			
 			// index in old plan if the action was not new
 			if(newPlanIndex != pickupOptionIndex && newPlanIndex != dropoffOptionIndex){
@@ -423,6 +437,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 				}
 			}
 		}	
+		int delta = 5000;
 		String requestId = request.getDemandAgent().getId();
 		if(!freeVehicle){
 			System.out.println("Request " + requestId + ": Cannot serve request - No free vehicle");
@@ -430,7 +445,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		else if(bestCartesianDistance > maxDistance){
 			System.out.println("Request " + requestId + ": Cannot serve request - Too big distance: " + bestCartesianDistance + "m (max distance: " + maxDistance + ")");
 		}
-		else if(bestTravelTimne > maxDelayTime){
+		else if(bestTravelTimne + delta > maxDelayTime){
 			System.out.println("Request " + requestId + ": Cannot serve request - Too big traveltime to startLoaction: " + bestTravelTimne);
 		}
 		else{

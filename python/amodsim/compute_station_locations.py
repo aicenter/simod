@@ -7,6 +7,16 @@ from tqdm import tqdm
 from gurobipy import *
 from roadmaptools.printer import print_info
 
+# max prolongation
+max_traveltime_in_seconds = config.ridesharing.max_prolongation_in_seconds
+
+# we have to take the batch length into account
+max_traveltime_in_seconds -= 30
+
+# max delta between disttance metrix and astar
+max_traveltime_in_seconds -= 5
+
+max_traveltime_in_ms = max_traveltime_in_seconds * 1000
 
 dm_iter = roadmaptools.inout.load_csv(config.distance_matrix_filepath)
 
@@ -20,7 +30,7 @@ dm = np.array(dm_list)
 # dm = np.recfromcsv(config.distance_matrix_filepath)
 del dm_list
 
-max_traveltime_in_ms = config.ridesharing.max_prolongation_in_seconds * 1000
+
 
 max_traveltime_filter = np.empty(dm.shape)
 max_traveltime_filter[:] = max_traveltime_in_ms
@@ -60,10 +70,10 @@ try:
 	m.setObjective(objective, GRB.MINIMIZE)
 
 	# Add constraint:
-	for row_index, _ in tqdm(enumerate(rm), desc="generating constraints"):
+	for column_index, _ in tqdm(enumerate(rm.T), desc="generating constraints"):
 		const = LinExpr()
-		for neighbor_index, neigbor in enumerate(rm[row_index]):
-			const.addTerms([neigbor], [var_list[neighbor_index]])
+		for row_index, from_location in enumerate(rm.T[column_index]):
+			const.addTerms([from_location], [var_list[row_index]])
 		m.addConstr(const, GRB.GREATER_EQUAL, 1, "Row constraint 0")
 
 	# Optimize model

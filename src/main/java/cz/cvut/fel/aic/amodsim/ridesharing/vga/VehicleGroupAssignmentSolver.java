@@ -62,6 +62,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.statistics.content.GroupSizeData;
 import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStatsVGA;
+import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage.NearestType;
 
 @Singleton
 public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHandler{
@@ -173,6 +174,9 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		Benchmark.measureTime(() -> generateGroups(drivingVehicles, waitingRequests));	
 		groupGenerationTime = Benchmark.getDurationMsInt();
 		
+////		TO REMOVE TEST
+//		LinkedHashSet<PlanComputationRequest> newRequestsHashSet = new LinkedHashSet<>(newRequests);
+		
 		
 		/* Using an ILP solver to optimally assign a group to each vehicle */		
 		List<Plan<IOptimalPlanVehicle>> optimalPlans 
@@ -220,7 +224,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 		
 		// check if all driving vehicles have a plan
-		checkPlanMapComplete(planMap);
+//		checkPlanMapComplete(planMap);
 		
 		return planMap;
 	}
@@ -420,8 +424,10 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			// dictionary - all vehicles from a station have the same feasible groups
 			Map<OnDemandVehicleStation,List<Plan>> plansFromStation = new HashMap<>();
 			
-			for(PlanComputationRequest request: ProgressBar.wrap(waitingRequests, "Generating groups for vehicles in station")){
-				OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(request.getFrom());
+			for(PlanComputationRequest request: ProgressBar.wrap(waitingRequests, 
+					"Generating groups for vehicles in station")){
+				OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(
+						request.getFrom(), NearestType.TRAVELTIME_FROM);
 				
 				// check if there is not a lack of vehicles in the station
 				int index = usedVehiclesPerStation.containsKey(nearestStation) 

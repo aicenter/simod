@@ -90,7 +90,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	private final AmodsimConfig config;
 	
 	
-	private List<Node> demandNodes;
+	private List<SimulationNode> demandNodes;
 	
 	protected OnDemandVehicleState state;
 	
@@ -257,7 +257,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		demandTrip = tripsUtil.createTrip(demandNodes.get(0).getId(), demandNodes.get(1).getId(), vehicle);
 		metersWithPassenger += positionUtil.getTripLengthInMeters(demandTrip);
 		
-		Node demandEndNode = demandNodes.get(demandNodes.size() - 1);
+		SimulationNode demandEndNode = demandNodes.get(demandNodes.size() - 1);
 		
 		targetStation = onDemandVehicleStationsCentral.getNearestStation(demandEndNode);
 		

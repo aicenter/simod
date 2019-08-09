@@ -202,16 +202,12 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	}
 
 	private void pickupAndContinue() {
-		DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
-		if(demandAgent.isDropped()){
-			try {
+		try {
+			DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
+			if(demandAgent.isDropped()){
 				throw new Exception(
-						String.format("Demand agent %s cannot be picked up, he is already dropped!", demandAgent));
-			} catch (Exception ex) {
-				Logger.getLogger(RideSharingOnDemandVehicle.class.getName()).log(Level.SEVERE, null, ex);
+					String.format("Demand agent %s cannot be picked up, he is already dropped!", demandAgent));
 			}
-		}
-		else{
 			demandAgent.tripStarted(this);
 			vehicle.pickUp(demandAgent);
 
@@ -224,6 +220,9 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 							demandAgent.getSimpleId(), getId(), 0));
 			currentPlan.taskCompleted();
 			driveToNextTask();
+
+		} catch (Exception ex) {
+			Logger.getLogger(RideSharingOnDemandVehicle.class.getName()).log(Level.SEVERE, null, ex);
 		}
 	}
 

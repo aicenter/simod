@@ -36,6 +36,10 @@ public class VirtualVehicle implements IOptimalPlanVehicle{
 	
 	private final int carLimit;
 
+	public int getCarLimit() {
+		return carLimit;
+	}
+
 	
 	
 	

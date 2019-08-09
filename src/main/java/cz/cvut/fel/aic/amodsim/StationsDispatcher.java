@@ -119,7 +119,7 @@ public class StationsDispatcher extends EventHandlerAdapter{
 		demandsCount++;
 		DemandData demandData = (DemandData) event.getContent();
 		List<SimulationNode> locations = demandData.locations;
-		Node startNode = locations.get(0);
+		SimulationNode startNode = locations.get(0);
 		
 		serveDemand(startNode, demandData);
 	}
@@ -166,7 +166,7 @@ public class StationsDispatcher extends EventHandlerAdapter{
 		return onDemandvehicleStationStorage.getEntityIds().size();
 	}
 
-	protected void serveDemand(Node startNode, DemandData demandData) {
+	protected void serveDemand(SimulationNode startNode, DemandData demandData) {
 		OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestReadyStation(startNode); 
 		if(nearestStation != null){
 			nearestStation.handleTripRequest(demandData);
@@ -176,7 +176,7 @@ public class StationsDispatcher extends EventHandlerAdapter{
 		}
 	}
 
-	public OnDemandVehicleStation getNearestStation(GPSLocation position) {
+	public OnDemandVehicleStation getNearestStation(SimulationNode position) {
 		return onDemandvehicleStationStorage.getNearestStation(position);
 	}
 	

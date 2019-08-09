@@ -25,6 +25,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.utils.CollectionUtil;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.ridesharing.DroppedDemandsAnalyzer;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehicle;
@@ -62,6 +63,8 @@ public class GurobiSolver {
 	private final StandardPlanCostProvider planCostComputation;
 	
 	private final int timeLimit;
+
+	private final DroppedDemandsAnalyzer droppedDemandsAnalyzer;
 	
 	private GRBEnv env;
 
@@ -80,8 +83,10 @@ public class GurobiSolver {
 	
 	
 	@Inject
-	public GurobiSolver(StandardPlanCostProvider planCostComputation, AmodsimConfig config) {
+	public GurobiSolver(StandardPlanCostProvider planCostComputation, AmodsimConfig config, 
+			DroppedDemandsAnalyzer droppedDemandsAnalyzer) {
 		this.planCostComputation = planCostComputation;
+		this.droppedDemandsAnalyzer = droppedDemandsAnalyzer;
 		iteration = 1;
 		timeLimit = config.ridesharing.vga.solverTimeLimit;
 		
@@ -154,7 +159,7 @@ public class GurobiSolver {
 				}
 				// virtual vehicles
 				else{
-					int limit = ((VirtualVehicle) vehicleEntry.optimalPlanVehicle).getCapacity();
+					int limit = ((VirtualVehicle) vehicleEntry.optimalPlanVehicle).getCarLimit();
 					model.addConstr(vehicleConstraint, GRB.LESS_EQUAL, limit, vehicleConstraintName);
 				}
 				
@@ -164,6 +169,7 @@ public class GurobiSolver {
 			
 			// dropping variables generation (y_r)
 			int requestCounter = 0;
+			Map<GRBVar,PlanComputationRequest> droppingVarsMap = new HashMap<>();
 			for (PlanComputationRequest request : requests) {
 				
 				// variables
@@ -171,10 +177,12 @@ public class GurobiSolver {
 				GRBVar newVar = model.addVar(0.0, 1.0, 0.0, GRB.BINARY, newVarName);
 				
 				// objective
-				objetive.addTerm(10000, newVar);
+				objetive.addTerm(100_000, newVar);
 				
 				// filling map for constraint 2 
 				CollectionUtil.addToListInMap(requestVariableMap, request, newVar);
+				
+				droppingVarsMap.put(newVar, request);
 				
 				requestCounter++;
 			}
@@ -205,7 +213,7 @@ public class GurobiSolver {
 //			// solution can be 1% worse than the optimal solution
 //			model.set(GRB.DoubleParam.MIPGap, 0.01);
 		
-			// 2 min limit
+			// time limit
 			model.set(GRB.DoubleParam.TimeLimit, timeLimit);
 			
 			LOGGER.info("solving start");
@@ -226,6 +234,19 @@ public class GurobiSolver {
 					optimalPlans.add(plan);
 				}
 			}
+			
+			// debug dropped demands
+			for (Map.Entry<GRBVar, PlanComputationRequest> entry : droppingVarsMap.entrySet()) {
+				GRBVar variable = entry.getKey();
+				PlanComputationRequest request = entry.getValue();
+				if(variable.get(GRB.DoubleAttr.X) == 1.0){
+					droppedDemandsAnalyzer.debugFail(request);
+					LOGGER.debug("The request was part of {} group plans", requestVariableMap.get(request).size() - 1);
+				}
+			}
+			
+			// debug dropped demands
+			
 			
 			gap = model.get(GRB.DoubleAttr.MIPGap);
 			

@@ -123,7 +123,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	
 	
 	@Override
-	protected void serveDemand(Node startNode, DemandData demandData) {
+	protected void serveDemand(SimulationNode startNode, DemandData demandData) {
 		SimulationNode requestStartPosition = demandData.locations.get(0);
 		DefaultPlanComputationRequest newRequest = requestFactory.create(requestCounter++, requestStartPosition, 
 				demandData.locations.get(1), demandData.demandAgent);
@@ -149,7 +149,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		Iterator<PlanComputationRequest> waitingRequestIterator = waitingRequests.iterator();
 		while(waitingRequestIterator.hasNext()){
 			PlanComputationRequest request = waitingRequestIterator.next();
-			if(request.getMaxPickupTime() < currentTimeSec){
+			if(request.getMaxPickupTime() + 5  < currentTimeSec){
 				request.getDemandAgent().setDropped(true);
 				numberOfDemandsDropped++;
 				droppedDemandsThisBatch++;

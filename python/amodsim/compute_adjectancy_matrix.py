@@ -5,9 +5,9 @@ import roadmaptools.adjectancy
 
 def compute_traveltime_from_edge(edge: dict):
 	"""
-	Computes edge traveltime in miliseconds.
+	Computes edge traveltime in milliseconds.
 	:param edge: edge disctionary as loaded from geojson.
-	:return: Edge traveltime in miliseconds.
+	:return: Edge traveltime in milliseconds.
 	"""
 	distance = edge['properties']['length']
 	velocity = min(compute_traveltime_from_edge.vehicle_velocity, edge['properties']['maxspeed'] / 3.6)

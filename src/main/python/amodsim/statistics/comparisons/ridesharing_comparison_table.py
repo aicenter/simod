@@ -5,6 +5,7 @@ import roadmaptools.inout
 import amodsim.statistics.model.traffic_load as traffic_load
 import amodsim.statistics.model.transit as transit
 import amodsim.statistics.model.edges as edges
+import amodsim.statistics.model.NN as NN
 import amodsim.statistics.model.ridesharing as ridesharing
 import amodsim.statistics.model.service as service
 import amodsim.statistics.model.occupancy as occupancy
@@ -90,6 +91,13 @@ def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, experi
 
 	return [km_total_window, average_density_in_time_window_non_empty_edges, congested_count_in_time_window,
 		   dropped_demand_count, half_congested_count_in_time_window, used_cars_count, avg_time, mean_delay]
+def compute_NN_data(experiment_dir: str) -> List:
+    NN_data = NN.load(experiment_dir)
+    return [NN.get_value_count(NN_data, "false_count"),NN.get_value_count(NN_data, "true_count"),
+            NN.get_value_count(NN_data, "nn_time"),NN.get_value_count(NN_data, "rest_time"),
+            NN.percentage_value_feasible(NN_data, "false_count"),NN.percentage_value_feasible(NN_data, "true_count"),
+            NN.percentage_value_time(NN_data, "nn_time"),NN.percentage_value_time(NN_data, "rest_time")]
+
 
 
 # result data load
@@ -138,7 +146,7 @@ loads_NN_vga_second_limited = traffic_load.load_all_edges_load_history(
 histogram = TrafficDensityHistogram(edge_object_data)
 
 # compute data for output from result
-vga_data = compute_stats(results_vga_limited, histogram, loads_vga["ALL"],
+"""vga_data = compute_stats(results_vga_limited, histogram, loads_vga["ALL"],
 									config.comparison.experiment_5_dir, edge_data)
 vga_limited_data = compute_stats(results_vga_limited, histogram, loads_vga_limited["ALL"],
 									config.comparison.experiment_7_dir, edge_data)
@@ -153,8 +161,8 @@ NN_vga_limited_data = compute_stats(results_NN_vga_limited, histogram, loads_NN_
 NN_vga_second_data = compute_stats(results_NN_vga_second, histogram, loads_NN_vga_second["ALL"],
 					config.comparison.experiment_2_dir, edge_data)
 NN_vga_second_limited_data = compute_stats(results_NN_vga_second_limited, histogram, loads_NN_vga_second_limited["ALL"],
-					config.comparison.experiment_4_dir, edge_data)
-
+					config.comparison.experiment_4_dir, edge_data)"""
+NN_data = compute_NN_data(config.comparison.experiment_1_dir)
 """output_table = np.array([["X", "PRESENT STATE", "NO RIDESHARING", "INSERTION HEURISTIC", "VGA", "VGA limited"],
 						 ["Total veh. dist. traveled (km)", present_state_data[0], no_ridesharing_data[0], insertion_heuristic_data[0], vga_data[0], vga_limited_data[0]],
 						 ["avg. density", present_state_data[1], no_ridesharing_data[1], insertion_heuristic_data[1], vga_data[1], vga_limited_data[1]],
@@ -168,7 +176,7 @@ NN_vga_second_limited_data = compute_stats(results_NN_vga_second_limited, histog
 # console results
 print("COMPARISON:")
 print()
-print_table(output_table)"""
+print_table(output_table)
 
 
 # latex table
@@ -249,6 +257,25 @@ print(r"\tabularnewline")
 print(r"\hline")
 print("Avg. comp. time (s) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(NN_vga_data[6],
 	NN_vga_second_data[6], NN_vga_limited_data[6], NN_vga_second_limited_data[6]))
+print(r"\tabularnewline")
+print(r"\hline")
+print(r"\end{tabular}") """
+print(r"\begin{tabular}{|l|r|}")
+print(r"\hline")
+print(r" & \thead{Total} & \thead{Percentage}")
+print(r"\tabularnewline")
+print(r"\hline")
+print(r"\hline")
+print("False count & \\num{{{}}} & \\num{{{}}}".format(NN_data[0], round(NN_data[4],4)))
+print(r"\tabularnewline")
+print(r"\hline")
+print("True count & \\num{{{}}} & \\num{{{}}}".format(NN_data[1], round(NN_data[5],4)))
+print(r"\tabularnewline")
+print(r"\hline")
+print("Time NN queries & \\num{{{}}} & \\num{{{}}}".format(NN_data[2], round(NN_data[6],4)))
+print(r"\tabularnewline")
+print(r"\hline")
+print("Time rest & \\num{{{}}} & \\num{{{}}}".format(NN_data[3], round(NN_data[7],4)))
 print(r"\tabularnewline")
 print(r"\hline")
 print(r"\end{tabular}")

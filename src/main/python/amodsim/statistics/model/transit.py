@@ -26,5 +26,8 @@ def get_total_distance(transit: DataFrame, edges: DataFrame, window_only: bool =
 	if vehicle_state:
 		transit = transit[transit.vehicle_state == vehicle_state.index]
 
-	data = transit.set_index("edge_id").join(edges.set_index("id"))
+	v = transit.set_index("edge_id")
+	edges["id"] = edges["id"].astype(str)
+	k = edges.set_index("id")
+	data = v.join(k)
 	return data["length"].sum()

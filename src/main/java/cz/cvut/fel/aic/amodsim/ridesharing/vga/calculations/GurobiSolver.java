@@ -28,6 +28,7 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.DroppedDemandsAnalyzer;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
@@ -141,7 +142,7 @@ public class GurobiSolver {
 					for (PlanRequestAction action: plan.getActions()) {
 						
 						// add variable once to each request list
-						if(action instanceof PlanActionPickup){
+						if(action instanceof PlanActionDropoff){
 							CollectionUtil.addToListInMap(requestVariableMap, (DefaultPlanComputationRequest) action.getRequest(), newVar);
 						}
 					}
@@ -171,20 +172,21 @@ public class GurobiSolver {
 			int requestCounter = 0;
 			Map<GRBVar,PlanComputationRequest> droppingVarsMap = new HashMap<>();
 			for (PlanComputationRequest request : requests) {
-				
-				// variables
-				String newVarName = String.format("droping request %s", request.getId());
-				GRBVar newVar = model.addVar(0.0, 1.0, 0.0, GRB.BINARY, newVarName);
-				
-				// objective
-				objetive.addTerm(100_000, newVar);
-				
-				// filling map for constraint 2 
-				CollectionUtil.addToListInMap(requestVariableMap, request, newVar);
-				
-				droppingVarsMap.put(newVar, request);
-				
-				requestCounter++;
+				if(!request.isOnboard()){
+					// variables
+					String newVarName = String.format("droping request %s", request.getId());
+					GRBVar newVar = model.addVar(0.0, 1.0, 0.0, GRB.BINARY, newVarName);
+
+					// objective
+					objetive.addTerm(100_000, newVar);
+
+					// filling map for constraint 2 
+					CollectionUtil.addToListInMap(requestVariableMap, request, newVar);
+
+					droppingVarsMap.put(newVar, request);
+
+					requestCounter++;
+				}
 			}
 			
 			// constraint 2 - exactly one plan for each request

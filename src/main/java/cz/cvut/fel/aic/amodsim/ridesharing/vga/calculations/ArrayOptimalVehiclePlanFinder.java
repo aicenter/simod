@@ -24,6 +24,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.PlanActionData;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
@@ -114,11 +115,12 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 					boolean allActionsFeasible = true;
 					for (int i = 0; i < availableActions.length; i++) {
 						PlanActionData actionData = availableActions[i];
+						PlanRequestAction action = actionData.getAction();
 						if(!actionData.isUsed()){
-							if((newAction instanceof PlanActionPickup 
-								&& newAction.getRequest().getMaxPickupTime() < endTime + duration)
-							|| (newAction instanceof PlanActionDropoff 
-								&& (newAction.getRequest().getMaxDropoffTime() < endTime + duration && !ignoreTime))){
+							if((action instanceof PlanActionPickup 
+								&& action.getRequest().getMaxPickupTime() < endTime + duration)
+							|| (action instanceof PlanActionDropoff 
+								&& (action.getRequest().getMaxDropoffTime() < endTime + duration && !ignoreTime))){
 								allActionsFeasible = false;
 								break;
 							}

@@ -116,7 +116,6 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	private FlexArray computationalTimesPlanExists;
 
 	
-	
 
 	@Inject
 	public VehicleGroupAssignmentSolver(TravelTimeProvider travelTimeProvider, PlanCostProvider travelCostProvider,
@@ -145,7 +144,9 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		// statistic vars
         groupGenerator.false_count = 0;
         groupGenerator.true_count = 0;
-        groupGenerator.nn_time = 0;
+        for (int i = 0; i < groupGenerator.nn_time.length; i++) {
+            groupGenerator.nn_time[i] = 0;
+        }
 		newRequestCount = newRequests.size();
 		if(config.ridesharing.vga.logPlanComputationalTime){
 			groupCounts = new FlexArray();
@@ -222,7 +223,6 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		if(config.ridesharing.vga.logPlanComputationalTime){
 			logRecords();
 		}
-		
 		// check if all driving vehicles have a plan
 		checkPlanMapComplete(planMap);
 		return planMap;
@@ -441,11 +441,18 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			writer = new CsvWriter(
 					Common.getFileWriter(config.amodsimExperimentDir + "/NN_logs.csv", true));                
             }
-
+            int nn_total = groupGenerator.nn_time[0] + groupGenerator.nn_time[1] +
+                    groupGenerator.nn_time[2] + groupGenerator.nn_time[3] +
+                    groupGenerator.nn_time[4];
             writer.writeLine(new String[] {Integer.toString(groupGenerator.false_count),
                 Integer.toString(groupGenerator.true_count),
-                Integer.toString(groupGenerator.nn_time),
-                Integer.toString(groupGenerationTime - groupGenerator.nn_time)});
+                Integer.toString(nn_total),
+                Integer.toString(groupGenerationTime - nn_total),
+            Integer.toString(groupGenerator.nn_time[0]),
+            Integer.toString(groupGenerator.nn_time[1]),
+            Integer.toString(groupGenerator.nn_time[2]),
+            Integer.toString(groupGenerator.nn_time[3]),
+            Integer.toString(groupGenerator.nn_time[4])});
 			writer.close();
 		} catch (IOException ex) {
 			LOGGER.error(null, ex);
@@ -491,7 +498,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
                     planCount += entry.getValue().size();
                 }
 			
-			
+            
 					
 		// groups for vehicles in the station
 		if(!onDemandvehicleStationStorage.isEmpty()){

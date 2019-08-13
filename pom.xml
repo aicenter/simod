@@ -74,10 +74,14 @@
 		
 		<!--other-->
                 <dependency>
-                        <groupId>org.ojalgo</groupId>
-                        <artifactId>ojalgo</artifactId>
-                        <version>47.2.0</version>
-                        <type>jar</type>
+                    <groupId>org.nd4j</groupId>
+                    <artifactId>nd4j-api</artifactId>
+                    <version>1.0.0-beta4</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.nd4j</groupId>
+                    <artifactId>nd4j-native-platform</artifactId>
+                    <version>1.0.0-beta4</version>
                 </dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

@@ -32,31 +32,25 @@ import java.util.logging.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.ojalgo.function.BinaryFunction;
-import org.ojalgo.function.UnaryFunction;
-import org.ojalgo.matrix.PrimitiveMatrix;
-import org.ojalgo.matrix.store.ElementsSupplier;
-import org.ojalgo.matrix.store.MatrixStore;
-import org.ojalgo.matrix.store.PhysicalStore;
-import org.ojalgo.matrix.store.PrimitiveDenseStore;
+import org.nd4j.linalg.api.buffer.DataType;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.ops.transforms.Transforms;
 
 /**
  *
  * @author matal
  */
 public class MatrixMultiplyNN implements NN {   
-    private final MatrixStore W[][], b[][];
+    private final INDArray W[][], b[][];
     private final double mu[][];
     private final double sigma[][];
-    private final PhysicalStore.Factory<Double, PrimitiveDenseStore> storeFactory;
-            PrimitiveMatrix.Factory matrixFactory =
-                PrimitiveMatrix.FACTORY;
     public MatrixMultiplyNN() {
-        W = new MatrixStore[5][4];
-        b = new MatrixStore[5][4];
+        Nd4j.setDefaultDataTypes(DataType.DOUBLE, DataType.DOUBLE);
+        W = new INDArray[5][4];
+        b = new INDArray[5][4];
         mu = new double[5][];
         sigma = new double[5][];
-        storeFactory = PrimitiveDenseStore.FACTORY;
         //groups of range 3-7
         for (int i = 3; i < 8; i++) {
             loadJSON(i); //read mean and standard deviation for each attribute
@@ -67,26 +61,45 @@ public class MatrixMultiplyNN implements NN {
     
     @Override
     public void setProbability(Set gd, IOptimalPlanVehicle vehicle, int groupSize) {
-        MatrixStore matrixX = fillWithStandardizedData(gd,vehicle,groupSize+1);
-        matrixX = compute(matrixX, groupSize+1);
+        INDArray Y = fillWithStandardizedData(gd,vehicle,groupSize+1);
+        //matrixX = compute(matrixX, groupSize+1);
+        for (int i = 0; i < 4; i++) {
+            Y = Y.mmul(W[groupSize-2][i]);
+            Y = Y.addRowVector(b[groupSize-2][i]);           
+            if(i != 3){
+                Y = Transforms.max(Y, 0);
+            }else{
+                Y = Transforms.sigmoid(Y);               
+            }
+        }
         int i = 0;
         for (GroupData newGroupToCheck : (Set<GroupData>) gd) {
-            newGroupToCheck.setFeasible((Double)matrixX.get(i));
+            newGroupToCheck.setFeasible(Y.getDouble(i,0));
             i++;
         }
     }
     @Override
     public void setProbability(Set gd, int groupSize) {
-        MatrixStore matrixX = fillWithStandardizedData(gd,groupSize+1);
-        matrixX = compute(matrixX, groupSize+1);
+        INDArray Y = fillWithStandardizedData(gd,groupSize+1);
+        //matrixX = compute(matrixX, groupSize+1);
+        //INDArray Y = matrixX;
+        for (int i = 0; i < 4; i++) {
+            Y = Y.mmul(W[groupSize-2][i]);
+            Y = Y.addRowVector(b[groupSize-2][i]);           
+            if(i != 3){
+                Y = Transforms.max(Y, 0);
+            }else{
+                Y = Transforms.sigmoid(Y);               
+            }
+        }
         int i = 0;
         for (GroupData newGroupToCheck : (Set<GroupData>) gd) {
-            newGroupToCheck.setFeasible((Double)matrixX.get(i));
+            newGroupToCheck.setFeasible(Y.getDouble(i,0));
             i++;
         }
     }
-    private MatrixStore fillWithStandardizedData(Set gd, IOptimalPlanVehicle vehicle, int groupSize){
-        Double[][] data = new Double[gd.size()][3+6*(groupSize)];
+    private INDArray fillWithStandardizedData(Set gd, IOptimalPlanVehicle vehicle, int groupSize){
+        double[][] data = new double[gd.size()][3+6*(groupSize)];
         DoubleIterator curr_mu = new DoubleIterator(mu[groupSize-3]);
         DoubleIterator curr_sigma = new DoubleIterator(sigma[groupSize-3]);
         double car_onboard = (vehicle.getRequestsOnBoard().size() - curr_mu.next())/curr_sigma.next();
@@ -110,10 +123,10 @@ public class MatrixMultiplyNN implements NN {
             }
             k++;
         }
-        return storeFactory.rows(data);
+        return Nd4j.create(data);
     }
-    private MatrixStore fillWithStandardizedData(Set gd, int groupSize){
-        Double[][] data = new Double[gd.size()][3+6*(groupSize)];
+    private INDArray fillWithStandardizedData(Set gd, int groupSize){
+        double[][] data = new double[gd.size()][3+6*(groupSize)];
         DoubleIterator curr_mu = new DoubleIterator(mu[groupSize-3]);
         DoubleIterator curr_sigma = new DoubleIterator(sigma[groupSize-3]);
         int k = 0;
@@ -134,7 +147,7 @@ public class MatrixMultiplyNN implements NN {
             }
             k++;
         }
-        return storeFactory.rows(data);
+        return Nd4j.create(data);
     }
     private void loadNPZ(int groupSize){
         System.out.print("Loading model for group size "+groupSize+"....");
@@ -213,7 +226,7 @@ public class MatrixMultiplyNN implements NN {
         }
         System.out.println("model loaded.");
     }
-    private MatrixStore readMatrix(LittleEndianDataInputStream  fileInputStream, int rows, int columns){
+    private INDArray readMatrix(LittleEndianDataInputStream  fileInputStream, int rows, int columns){
         //load transpose matrix, couse of fortran order implementation
         double[][] data = new double[rows][columns];
         for (int i = 0; i < columns; i++) {
@@ -225,7 +238,7 @@ public class MatrixMultiplyNN implements NN {
                 }
             }
         }
-        return storeFactory.rows(data);
+        return Nd4j.create(data);
     }
 
         private void loadJSON(int groupSize) {
@@ -259,37 +272,10 @@ public class MatrixMultiplyNN implements NN {
                 sigma_data[pos] = (Double) current.get("sigma");       
     }
 
-    private MatrixStore compute(MatrixStore X, int groupSize) {
-        BinaryFunction<Double> modifier = storeFactory.function().add();
-        UnaryFunction<Double> modifier2 = storeFactory.function().max().second(0);
-        UnaryFunction<Double> exp = storeFactory.function().exp();
-        UnaryFunction<Double> divide_one = storeFactory.function().divide().first(1);
-        UnaryFunction<Double> modifier3 = 
-                storeFactory.function().negate()
-                        .andThen(exp)
-                        .andThen(modifier.second(1))                      
-                        .andThen(divide_one);
-        for (int i = 0; i < 4; i++) {
-            PrimitiveDenseStore Y = storeFactory.makeZero(X.countRows(), W[groupSize-3][i].countColumns());
-            //ElementsSupplier<Double> Y = W[groupSize-3][i].premultiply(X);
-            X.multiply(W[groupSize-3][i], Y);
-            //X.multiply(W[groupSize-3][i]).supplyTo(Y);
-            //Y = Y.operateOnColumns(modifier, b[groupSize-3][i]);
-            Y.modifyMatchingInRows(modifier, b[groupSize-3][i]);
+    /*private INDArray compute(INDArray X, int groupSize) {
 
-            if(i != 3){
-                //Y = Y.operateOnAll(modifier2);
-                Y.modifyAll(modifier2);
-            }else{
-                //Y = Y.operateOnAll(modifier3);
-                Y.modifyAll(modifier3);                
-            }
-            X = Y;
-            
-            //X = matrixFactory.copy(Y);
-        }
-        return X;
-    }
+        return Y;
+    }*/
     private class DoubleIterator implements Iterator{
         private double[] values;
         private int pos;

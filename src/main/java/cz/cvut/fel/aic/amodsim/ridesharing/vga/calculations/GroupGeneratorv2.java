@@ -61,7 +61,8 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 	private final int maxGroupSize;
 	
 	private final long groupGenerationTimeLimitInNanoseconds;
-	public int true_count, false_count, nn_time;
+	public int true_count, false_count;
+    public int nn_time[];
 	private CsvWriter groupRecordWriter = null;
 	
 	private FlexArray groupCounts;
@@ -135,9 +136,12 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 			groupRecords = new ArrayList(GROUP_RECORDS_BATCH_SIZE);
 		}
         nn = new MatrixMultiplyNN();
-        nn_time = 0;
+        nn_time = new int[5];
         true_count = 0;
         false_count = 0;
+        for (int i = 0; i < this.nn_time.length; i++) {
+            this.nn_time[i] = 0;
+        }
 	}
 	public List<Plan> generateGroupsForVehicleClean(V vehicle, Iterable<PlanComputationRequest> requests, int startTime) {
 		
@@ -1626,7 +1630,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                             end = false;
                             final int h = currentGroupSize;
                             Benchmark.measureTime(() -> nn.setProbability(groupsForNN, h));
-                            nn_time += Benchmark.getDurationMsInt();
+                            nn_time[currentGroupSize-2] += Benchmark.getDurationMsInt();
                         }   
                         for (GroupData newGroupToCheck : groupsForNN) {
                             if(newGroupToCheck.getFeasible() < 0.5){
@@ -1680,4 +1684,47 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
             }
         return groupPlans;
     }
+
+ /*   private void export_to_csv(Set<GroupData> groupsForNN) {
+        String[][] data = new String[groupsForNN.size()][4+6*(3)]; //groupSize 3 fixed
+        int k = 0;
+        for (GroupData newGroupToCheck : (Set<GroupData>) groupsForNN) {
+            int j = 0;
+            data[k][j++] = "true";
+            data[k][j++] = Integer.toString(newGroupToCheck.getVehicle().getRequestsOnBoard().size());
+            data[k][j++] = Integer.toString(newGroupToCheck.getVehicle().getPosition().getLatE6());
+            data[k][j++] = Integer.toString(newGroupToCheck.getVehicle().getPosition().getLonE6());                      
+            for (PlanComputationRequest rq : newGroupToCheck.getRequests()) {
+                data[k][j++] = Integer.toString(rq.getFrom().getLatE6());
+                data[k][j++] = Integer.toString(rq.getFrom().getLonE6());
+                data[k][j++] = Integer.toString(rq.getMaxPickupTime());
+                data[k][j++] = Integer.toString(rq.getTo().getLatE6());
+                data[k][j++] = Integer.toString(rq.getTo().getLonE6());
+                data[k][j++] = Integer.toString(rq.getMaxDropoffTime());
+            }
+            k++;
+        }
+        try {
+			CsvWriter writer = new CsvWriter(
+			Common.getFileWriter("C:\\Users\\matal\\Desktop\\exp\\data.csv", false));
+            String s[] = new String[22];
+            int p = 0;
+            s[p++] = "feasible"; s[p++] = "onboard_count"; s[p++] = "lat"; s[p++] = "lon";
+            for (int i = 1; i < 4; i++) {
+                s[p++] = "pickup_" + i + "_lat";
+                s[p++] = "pickup_" + i + "_lon";
+                s[p++] = "pickup_" + i + "_maxtime";
+                s[p++] = "dropoff_" + i + "_lat";
+                s[p++] = "dropoff_" + i + "_lon";
+                s[p++] = "dropoff_" + i + "_maxtime";
+            }
+			writer.writeLine(s);
+            for (int i = 0; i < groupsForNN.size(); i++) {
+               writer.writeLine(data[i]); 
+            }
+			writer.close();
+		} catch (IOException ex) {
+			LOGGER.error(null, ex);
+		}
+    }*/
 }

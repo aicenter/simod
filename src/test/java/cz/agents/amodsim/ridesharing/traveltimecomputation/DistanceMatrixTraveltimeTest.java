@@ -48,7 +48,17 @@ public class DistanceMatrixTraveltimeTest {
 //		{16955, 19314}, 
 //{4657, 17102},
 		//geting sample nodes
-		int[][] indexPairs = {{27, 28}, {28, 29}, {29, 30}, {54, 1187}, {15689, 168}, {22560, 21115}, {26703, 22224}, {23512, 19352}, {18668, 15085},
+		int[][] indexPairs = {{23512, 23499}, {23499, 23508}, {23508, 23510}, {23510, 23518}, {23518, 6398}, 
+			{6398, 23520}, {23520, 19635}, {19635, 19558}, {19558, 19637}, {19637, 23521}, {23521, 23481}, 
+			{23481, 23476}, {23476, 22276}, {22276, 20399}, {20399, 23489}, {23489, 23474}, {23474, 23477}, 
+			{23477, 23464}, {23464, 23465}, {23465, 23482}, {23482, 23470}, {23470, 23471}, {23471, 16440}, 
+			{16440, 16439}, {16439, 16438}, {16438, 23776}, {23776, 23775}, {23775, 23774}, {23774, 21901}, 
+			{21901, 16429}, {16429, 21900}, {21900, 22514}, {22514, 263}, {263, 262}, {262, 12036}, {12036, 12043}, 
+			{12043, 12044}, {12044, 24024}, {24024, 24025}, {24025, 24026}, {24026, 5650}, {5650, 4741}, 
+			{4741, 4891}, {4891, 4892}, {4892, 4893}, {4893, 4894}, {4894, 4888}, {4888, 4889}, {4889, 4890}, 
+			{4890, 7425}, {7425, 7427}, {7427, 24086}, {24086, 4907}, {4907, 4908}, {4908, 4909}, {4909, 19352}, 
+			
+			{27, 28}, {28, 29}, {29, 30}, {54, 1187}, {15689, 168}, {22560, 21115}, {26703, 22224}, {23512, 19352}, {18668, 15085},
 			{4633, 21024}, {22140, 10346}, {15326, 26730}, {2631, 8622}, {9267, 1733}, {20395, 16498}, {4022, 5426},
 			{6867, 24091}, {12518, 27633}, {11423, 26684}, {20612, 10251}, {17653, 5138}, {11941, 13456}, {3368, 11997},
 			{20132, 4090}, {2116, 15599}, {17876, 13775}, {25560, 8009}, {16713, 11898}, {22836, 11618}, {3531, 24351},
@@ -78,10 +88,10 @@ public class DistanceMatrixTraveltimeTest {
 		for(int i = 0; i < indexPairs.length; i++){
 			SimulationNode from = nodePairs[i][0];
 			SimulationNode to = nodePairs[i][1];
-			double distanceAstar = astarTravelTimeProvider.getExpectedTravelTime(from, to);
-			double distanceDm = distanceMatrixTravelTimeProvider.getExpectedTravelTime(from, to);
-			LOGGER.debug("From {} to {}, astar distance: {}, dm distance: {}, difference {}", from, to, distanceAstar, 
-					distanceDm, distanceAstar - distanceDm);
+			double durationAstar = astarTravelTimeProvider.getExpectedTravelTime(from, to);
+			double durationDm = distanceMatrixTravelTimeProvider.getExpectedTravelTime(from, to);
+			LOGGER.debug("From {}(index {}) to {}(index {}), astar distance: {}, dm distance: {}, difference {}", from, 
+					from.getIndex(), to, to.getIndex(), durationAstar, durationDm, durationAstar - durationDm);
 //			Assert.assertEquals(distanceAstar, distanceDm, 19000);
 		}
 			

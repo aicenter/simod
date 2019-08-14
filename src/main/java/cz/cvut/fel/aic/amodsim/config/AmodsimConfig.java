@@ -8,7 +8,7 @@ import java.util.Map;
 import ninja.fido.config.GeneratedConfig;
 
 public class AmodsimConfig implements GeneratedConfig {
-  public Double vehicleSpeedInMeters;
+  public Integer vehicleSpeedInMeters;
 
   public Boolean useTripCache;
 
@@ -52,7 +52,7 @@ public class AmodsimConfig implements GeneratedConfig {
   }
 
   public AmodsimConfig fill(Map amodsimConfig) {
-    this.vehicleSpeedInMeters = (Double) amodsimConfig.get("vehicle_speed_in_meters");
+    this.vehicleSpeedInMeters = (Integer) amodsimConfig.get("vehicle_speed_in_meters");
     this.useTripCache = (Boolean) amodsimConfig.get("use_trip_cache");
     this.experimentName = (String) amodsimConfig.get("experiment_name");
     this.tripsFilename = (String) amodsimConfig.get("trips_filename");

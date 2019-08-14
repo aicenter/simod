@@ -66,7 +66,7 @@ import java.util.ArrayList;
 public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgent,
 		Driver<PhysicalTransportVehicle>{
 	
-	private static final double LENGTH = 4;
+	private static final int LENGTH = 4;
 	
 	
 	
@@ -363,7 +363,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	}
 
 	@Override
-	public double getVelocity() {
+	public int getVelocity() {
 		return config.vehicleSpeedInMeters;
 	}
 	

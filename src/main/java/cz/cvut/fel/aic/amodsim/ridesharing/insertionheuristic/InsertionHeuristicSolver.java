@@ -33,6 +33,7 @@ import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
+import cz.cvut.fel.aic.amodsim.ridesharing.DroppedDemandsAnalyzer;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.EuclideanTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
@@ -75,6 +76,8 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	
 	private final TypedSimulation eventProcessor;
 	
+	private final DroppedDemandsAnalyzer droppedDemandsAnalyzer;
+	
 	
 	
 	private long callCount = 0;
@@ -103,12 +106,13 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	public InsertionHeuristicSolver(TravelTimeProvider travelTimeProvider, PlanCostProvider travelCostProvider, 
 			OnDemandVehicleStorage vehicleStorage, PositionUtil positionUtil,
 			AmodsimConfig config, TimeProvider timeProvider, DefaultPlanComputationRequestFactory requestFactory,
-			TypedSimulation eventProcessor) {
+			TypedSimulation eventProcessor, DroppedDemandsAnalyzer droppedDemandsAnalyzer) {
 		super(vehicleStorage, travelTimeProvider, travelCostProvider, requestFactory);
 		this.positionUtil = positionUtil;
 		this.config = config;
 		this.timeProvider = timeProvider;
 		this.eventProcessor = eventProcessor;
+		this.droppedDemandsAnalyzer = droppedDemandsAnalyzer;
 		
 		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
 		maxDistance = (double) config.ridesharing.maxProlongationInSeconds 
@@ -225,8 +229,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		}
 		
 		// real feasibility check 
-		// TODO compute from interpolated position
-		boolean canServe = travelTimeProvider.getTravelTime(vehicle, vehicle.getPosition(), request.getFrom()) 
+		boolean canServe = travelTimeProvider.getTravelTime(vehicle, request.getFrom()) 
 				< maxDelayTime;
 		
 		return canServe;
@@ -327,8 +330,13 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			
 			// travel time increment
 			if(previousTask != null){
-				newPlanTravelTime += travelTimeProvider.getTravelTime(vehicle, previousTask.getPosition(), 
+				if(previousTask instanceof PlanActionCurrentPosition){
+					newPlanTravelTime += travelTimeProvider.getTravelTime(vehicle, newTask.getPosition());
+				}
+				else{
+					newPlanTravelTime += travelTimeProvider.getTravelTime(vehicle, previousTask.getPosition(), 
 							newTask.getPosition());
+				}
 			}
 			long curentTaskTimeInSeconds = (timeProvider.getCurrentSimTime() + newPlanTravelTime) / 1000;
 			
@@ -405,54 +413,6 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		return new DriverPlan(newPlanTasks, newPlanTravelTime, newPlanCost);
 	}
 
-	private void debugFail(PlanComputationRequest request) {
-		boolean freeVehicle = false;
-		double bestCartesianDistance = Double.MAX_VALUE;
-		double bestTravelTimne = Double.MAX_VALUE;
-		
-		for(OnDemandVehicle tVvehicle: vehicleStorage){
-			RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
-			if(vehicle.hasFreeCapacity()){
-				freeVehicle = true;
-				
-				// cartesian distance check
-				double distance = positionUtil.getPosition(vehicle.getPosition())
-						.distance(positionUtil.getPosition(request.getFrom()));
-
-				if(distance < bestCartesianDistance){
-					bestCartesianDistance = distance;
-				}
-				
-				
-				if(distance < maxDistance){
-						// real feasibility check 
-					// TODO compute from interpolated position
-					double travelTime = 
-							travelTimeProvider.getTravelTime(vehicle, vehicle.getPosition(), request.getFrom());
-
-
-					if(travelTime < bestTravelTimne){
-						bestTravelTimne = travelTime;
-					}
-				}
-			}
-		}	
-		int delta = 5000;
-		String requestId = request.getDemandAgent().getId();
-		if(!freeVehicle){
-			System.out.println("Request " + requestId + ": Cannot serve request - No free vehicle");
-		}
-		else if(bestCartesianDistance > maxDistance){
-			System.out.println("Request " + requestId + ": Cannot serve request - Too big distance: " + bestCartesianDistance + "m (max distance: " + maxDistance + ")");
-		}
-		else if(bestTravelTimne + delta > maxDelayTime){
-			System.out.println("Request " + requestId + ": Cannot serve request - Too big traveltime to startLoaction: " + bestTravelTimne);
-		}
-		else{
-			System.out.println("Request " + requestId + ": Cannot serve request - Some other problem - all nearby vehicle plans infeasible?");
-		}
-	}
-
 	private String readableTime(long nanoTime) {
 		long milisTotal = (long) nanoTime / 1000000;
 		long millis = milisTotal % 1000;
@@ -507,7 +467,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			planMap.put(bestPlanData.vehicle, bestPlanData.plan);
 		}
 		else{
-			Benchmark.measureTime(() ->	debugFail(request));
+			Benchmark.measureTime(() ->	droppedDemandsAnalyzer.debugFail(request));
 			debugFailTime += Benchmark.getDurationMs();
 		}
 	}

@@ -22,6 +22,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
@@ -43,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * @author fiedlda1
  */
 @Singleton
-public class DistanceMatrixTravelTimeProvider implements TravelTimeProvider{
+public class DistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DistanceMatrixTravelTimeProvider.class);
 	
@@ -63,7 +64,8 @@ public class DistanceMatrixTravelTimeProvider implements TravelTimeProvider{
 	
 	
 	@Inject
-	public DistanceMatrixTravelTimeProvider(PositionUtil positionUtil, AmodsimConfig config) {
+	public DistanceMatrixTravelTimeProvider(TimeProvider timeProvider, PositionUtil positionUtil, AmodsimConfig config) {
+		super(timeProvider);
 		this.positionUtil = positionUtil;
 		this.config = config;
 		distanceMatrix = loadDistanceMatrix(config.distanceMatrixFilepath);
@@ -72,15 +74,10 @@ public class DistanceMatrixTravelTimeProvider implements TravelTimeProvider{
 	
 
 	@Override
-	public double getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
+	public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
 		callCount++;		
 		int durationInMilliseconds = distanceMatrix[positionA.getIndex()][positionB.getIndex()];
 		return durationInMilliseconds;
-	}
-
-	@Override
-	public double getExpectedTravelTime(SimulationNode positionA, SimulationNode positionB) {
-		return getTravelTime(null, positionA, positionB);
 	}
 
 	private int[][] loadDistanceMatrix(String distanceMatrixFilepath) {

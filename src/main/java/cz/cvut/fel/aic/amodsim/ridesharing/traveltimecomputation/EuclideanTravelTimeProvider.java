@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.MoveUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
@@ -31,7 +32,7 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
  * @author fiedlda1
  */
 @Singleton
-public class EuclideanTravelTimeProvider implements TravelTimeProvider{
+public class EuclideanTravelTimeProvider extends TravelTimeProvider{
 	
 	private final PositionUtil positionUtil;
 	
@@ -49,7 +50,8 @@ public class EuclideanTravelTimeProvider implements TravelTimeProvider{
 	
 	
 	@Inject
-	public EuclideanTravelTimeProvider(PositionUtil positionUtil, AmodsimConfig config) {
+	public EuclideanTravelTimeProvider(TimeProvider timeProvider, PositionUtil positionUtil, AmodsimConfig config) {
+		super(timeProvider);
 		this.positionUtil = positionUtil;
 		this.config = config;
 		travelSpeedEstimateCmPerSecond = config.vehicleSpeedInMeters * 100;
@@ -58,17 +60,11 @@ public class EuclideanTravelTimeProvider implements TravelTimeProvider{
 	
 
 	@Override
-	public double getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
+	public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
 		callCount++;
 		int distance = (int) Math.round(
 				positionUtil.getPosition(positionA).distance(positionUtil.getPosition(positionB)) * 100);
 		long traveltime = MoveUtil.computeDuration(travelSpeedEstimateCmPerSecond, distance);
 		return traveltime;
-	}
-
-	@Override
-	public double getExpectedTravelTime(SimulationNode positionA, SimulationNode positionB) {
-		return getTravelTime(null, positionA, positionB);
-	}
-	
+	}	
 }

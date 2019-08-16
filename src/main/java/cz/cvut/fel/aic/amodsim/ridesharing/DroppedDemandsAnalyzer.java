@@ -74,10 +74,9 @@ public class DroppedDemandsAnalyzer {
 				
 				
 				if(distance < maxDistance){
-						// real feasibility check 
-					// TODO compute from interpolated position
+					// real feasibility check 
 					double travelTime = 
-							travelTimeProvider.getTravelTime(vehicle, vehicle.getPosition(), request.getFrom());
+							travelTimeProvider.getTravelTime(vehicle, request.getFrom());
 
 
 					if(travelTime < bestTravelTimne){

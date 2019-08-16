@@ -22,6 +22,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.MoveUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
@@ -37,7 +38,7 @@ import java.util.Iterator;
  * @author F.I.D.O.
  */
 @Singleton
-public class AstarTravelTimeProvider implements TravelTimeProvider{
+public class AstarTravelTimeProvider extends TravelTimeProvider{
 	
 	
 	private final TripsUtil tripsUtil;
@@ -47,14 +48,15 @@ public class AstarTravelTimeProvider implements TravelTimeProvider{
 
 	
 	@Inject
-	public AstarTravelTimeProvider(TripsUtil tripsUtil, TransportNetworks transportNetworks) {
+	public AstarTravelTimeProvider(TimeProvider timeProvider, TripsUtil tripsUtil, TransportNetworks transportNetworks) {
+		super(timeProvider);
 		this.tripsUtil = tripsUtil;
 		this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
 	}
 	
 	
 	@Override
-	public double getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB){
+	public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB){
 		
 		if(positionA == positionB){
 			return 0;
@@ -82,8 +84,5 @@ public class AstarTravelTimeProvider implements TravelTimeProvider{
 		return totalDuration;
 	}
 
-	@Override
-	public double getExpectedTravelTime(SimulationNode positionA, SimulationNode positionB) {
-		return getTravelTime(null, positionA, positionB);
-	}
+	
 }

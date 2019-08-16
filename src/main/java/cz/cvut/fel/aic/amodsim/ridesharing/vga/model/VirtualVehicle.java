@@ -18,8 +18,10 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.model;
 
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
+import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import java.util.LinkedHashSet;
@@ -35,6 +37,8 @@ public class VirtualVehicle implements IOptimalPlanVehicle{
 	private final int capacity;
 	
 	private final int carLimit;
+	
+	private final RideSharingOnDemandVehicle exampleVehicle;
 
 	public int getCarLimit() {
 		return carLimit;
@@ -54,6 +58,7 @@ public class VirtualVehicle implements IOptimalPlanVehicle{
 		this.station = station;
 		this.capacity = capacity;
 		this.carLimit = carLimit;
+		exampleVehicle = (RideSharingOnDemandVehicle) station.getVehicle(0);
 	}
 	
 	
@@ -77,6 +82,12 @@ public class VirtualVehicle implements IOptimalPlanVehicle{
 	public String getId() {
 		return "Virtual vehicle for station " + station.getId();
 	}
+
+	@Override
+	public MovingEntity getRealVehicle() {
+		return exampleVehicle;
+	}
+	
 	
 	
 	

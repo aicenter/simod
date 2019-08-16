@@ -25,6 +25,7 @@ import com.google.inject.Singleton;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
 import java.util.LinkedHashSet;
@@ -41,8 +42,9 @@ import java.util.Stack;
 public class PlanBuilderOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extends OptimalVehiclePlanFinder<V>{
 
 	@Inject
-	public PlanBuilderOptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation, AmodsimConfig config) {
-		super(planCostComputation, config);
+	public PlanBuilderOptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation, AmodsimConfig config,
+			TravelTimeProvider travelTimeProvider) {
+		super(planCostComputation, config, travelTimeProvider);
 	}
 
 	
@@ -58,7 +60,7 @@ public class PlanBuilderOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> 
 			group.add(request);
 		}
 		
-		VGAVehiclePlan emptyPlan = new VGAVehiclePlan(vehicle, group, startTime);
+		VGAVehiclePlan emptyPlan = new VGAVehiclePlan(vehicle, group, startTime, travelTimeProvider);
 		toCheck.push(emptyPlan);
 
 		double upperBound = Double.POSITIVE_INFINITY;

@@ -18,6 +18,7 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.model;
 
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
@@ -85,6 +86,11 @@ public class VGAVehicle implements IOptimalPlanVehicle{
 	@Override
 	public String getId() {
 		return "VGA vehicle " + onDemandVehicle.getId();
+	}
+
+	@Override
+	public MovingEntity getRealVehicle() {
+		return getRidesharingVehicle();
 	}
 	
 	

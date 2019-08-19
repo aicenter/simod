@@ -61,8 +61,9 @@ public class MatrixMultiplyNN implements NN {
     
     @Override
     public void setProbability(Set gd, IOptimalPlanVehicle vehicle, int groupSize) {
+        //standartize and convert data to suitable structure
         INDArray Y = fillWithStandardizedData(gd,vehicle,groupSize+1);
-        //matrixX = compute(matrixX, groupSize+1);
+        //compute process
         for (int i = 0; i < 4; i++) {
             Y = Y.mmul(W[groupSize-2][i]);
             Y = Y.addRowVector(b[groupSize-2][i]);           
@@ -72,6 +73,7 @@ public class MatrixMultiplyNN implements NN {
                 Y = Transforms.sigmoid(Y);               
             }
         }
+        //write results to object
         int i = 0;
         for (GroupData newGroupToCheck : (Set<GroupData>) gd) {
             newGroupToCheck.setFeasible(Y.getDouble(i,0));
@@ -80,9 +82,9 @@ public class MatrixMultiplyNN implements NN {
     }
     @Override
     public void setProbability(Set gd, int groupSize) {
+        //standartize and convert data to suitable structure
         INDArray Y = fillWithStandardizedData(gd,groupSize+1);
-        //matrixX = compute(matrixX, groupSize+1);
-        //INDArray Y = matrixX;
+        //compute process
         for (int i = 0; i < 4; i++) {
             Y = Y.mmul(W[groupSize-2][i]);
             Y = Y.addRowVector(b[groupSize-2][i]);           
@@ -92,6 +94,7 @@ public class MatrixMultiplyNN implements NN {
                 Y = Transforms.sigmoid(Y);               
             }
         }
+        //write results to object
         int i = 0;
         for (GroupData newGroupToCheck : (Set<GroupData>) gd) {
             newGroupToCheck.setFeasible(Y.getDouble(i,0));
@@ -227,7 +230,7 @@ public class MatrixMultiplyNN implements NN {
         System.out.println("model loaded.");
     }
     private INDArray readMatrix(LittleEndianDataInputStream  fileInputStream, int rows, int columns){
-        //load transpose matrix, couse of fortran order implementation
+        //load transpose matrix, due to fortran order implementation
         double[][] data = new double[rows][columns];
         for (int i = 0; i < columns; i++) {
             for (int j = 0; j < rows; j++) {
@@ -271,11 +274,6 @@ public class MatrixMultiplyNN implements NN {
                 mu_data[pos] = (Double) current.get("mu");
                 sigma_data[pos] = (Double) current.get("sigma");       
     }
-
-    /*private INDArray compute(INDArray X, int groupSize) {
-
-        return Y;
-    }*/
     private class DoubleIterator implements Iterator{
         private double[] values;
         private int pos;

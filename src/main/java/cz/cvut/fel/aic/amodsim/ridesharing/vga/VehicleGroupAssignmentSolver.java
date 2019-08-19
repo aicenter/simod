@@ -142,11 +142,11 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			List<PlanComputationRequest> waitingRequests) {
 		
 		// statistic vars
-        groupGenerator.false_count = 0;
+        /*groupGenerator.false_count = 0;
         groupGenerator.true_count = 0;
         for (int i = 0; i < groupGenerator.nn_time.length; i++) {
             groupGenerator.nn_time[i] = 0;
-        }
+        }*/
 		newRequestCount = newRequests.size();
 		if(config.ridesharing.vga.logPlanComputationalTime){
 			groupCounts = new FlexArray();
@@ -431,7 +431,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			LOGGER.error(null, ex);
 		}
         // log number of feasible and infeasible groups and computation time of NN
-		try {
+		/*try {
             CsvWriter writer;
             if(ridesharingStats.size() == 1){
 			writer = new CsvWriter(
@@ -456,7 +456,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			writer.close();
 		} catch (IOException ex) {
 			LOGGER.error(null, ex);
-		}
+		}*/
 	}
 
 	private void checkPlanMapComplete(Map<RideSharingOnDemandVehicle, DriverPlan> planMap) {

@@ -142,11 +142,9 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			List<PlanComputationRequest> waitingRequests) {
 		
 		// statistic vars
-        /*groupGenerator.false_count = 0;
+        groupGenerator.false_count = 0;
         groupGenerator.true_count = 0;
-        for (int i = 0; i < groupGenerator.nn_time.length; i++) {
-            groupGenerator.nn_time[i] = 0;
-        }*/
+        groupGenerator.nn_time = 0;
 		newRequestCount = newRequests.size();
 		if(config.ridesharing.vga.logPlanComputationalTime){
 			groupCounts = new FlexArray();

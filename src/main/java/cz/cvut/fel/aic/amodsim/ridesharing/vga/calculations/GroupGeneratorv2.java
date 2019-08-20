@@ -61,8 +61,8 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 	private final int maxGroupSize;
 	
 	private final long groupGenerationTimeLimitInNanoseconds;
-	/*public int true_count, false_count;
-    public int nn_time[];*/
+	public int true_count, false_count;
+        public int nn_time;
 	private CsvWriter groupRecordWriter = null;
 	
 	private FlexArray groupCounts;
@@ -136,12 +136,9 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 			groupRecords = new ArrayList(GROUP_RECORDS_BATCH_SIZE);
 		}
         nn = new MatrixMultiplyNN();
-        /*nn_time = new int[5];
+        nn_time = 0;
         true_count = 0;
         false_count = 0;
-        for (int i = 0; i < this.nn_time.length; i++) {
-            this.nn_time[i] = 0;
-        }*/
 	}
 	public List<Plan> generateGroupsForVehicleClean(V vehicle, Iterable<PlanComputationRequest> requests, int startTime) {
 		
@@ -1628,17 +1625,18 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                         }
                         if(!groupsForNN.isEmpty()){
                             end = false;
-                            //final int h = currentGroupSize;
-                            nn.setProbability(groupsForNN, currentGroupSize);
+                            final int he = currentGroupSize;
+                            Benchmark.measureTime(() -> nn.setProbability(groupsForNN, he));
+                            nn_time += Benchmark.getDurationMsInt();
                             //Benchmark.measureTime(() -> nn.setProbability(groupsForNN, h));
                             //nn_time[currentGroupSize-2] += Benchmark.getDurationMsInt();
                         }   
                         for (GroupData newGroupToCheck : groupsForNN) {
                             if(newGroupToCheck.getFeasible() < 0.5){
-                                //false_count++;
+                                false_count++;
                                 continue;
                             }else{
-                                //true_count++;
+                                true_count++;
                             }
 
                             Plan plan ;

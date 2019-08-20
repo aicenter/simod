@@ -431,7 +431,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			LOGGER.error(null, ex);
 		}
         // log number of feasible and infeasible groups and computation time of NN
-		/*try {
+		try {
             CsvWriter writer;
             if(ridesharingStats.size() == 1){
 			writer = new CsvWriter(
@@ -441,22 +441,14 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			writer = new CsvWriter(
 					Common.getFileWriter(config.amodsimExperimentDir + "/NN_logs.csv", true));                
             }
-            int nn_total = groupGenerator.nn_time[0] + groupGenerator.nn_time[1] +
-                    groupGenerator.nn_time[2] + groupGenerator.nn_time[3] +
-                    groupGenerator.nn_time[4];
             writer.writeLine(new String[] {Integer.toString(groupGenerator.false_count),
                 Integer.toString(groupGenerator.true_count),
-                Integer.toString(nn_total),
-                Integer.toString(groupGenerationTime - nn_total),
-            Integer.toString(groupGenerator.nn_time[0]),
-            Integer.toString(groupGenerator.nn_time[1]),
-            Integer.toString(groupGenerator.nn_time[2]),
-            Integer.toString(groupGenerator.nn_time[3]),
-            Integer.toString(groupGenerator.nn_time[4])});
+                Integer.toString(groupGenerator.nn_time),
+                Integer.toString(groupGenerationTime - groupGenerator.nn_time)});
 			writer.close();
 		} catch (IOException ex) {
 			LOGGER.error(null, ex);
-		}*/
+		}
 	}
 
 	private void checkPlanMapComplete(Map<RideSharingOnDemandVehicle, DriverPlan> planMap) {

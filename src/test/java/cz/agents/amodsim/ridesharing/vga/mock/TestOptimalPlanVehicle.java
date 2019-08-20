@@ -6,6 +6,7 @@
 
 package cz.agents.amodsim.ridesharing.vga.mock;
 
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
@@ -22,11 +23,15 @@ public class TestOptimalPlanVehicle implements IOptimalPlanVehicle{
 	private final SimulationNode position;
 	
 	private final int capacity;
+	
+	private final TestOnDemandVehicle testOnDemandVehicle;
 
-	public TestOptimalPlanVehicle(LinkedHashSet<PlanComputationRequest> requestsOnBoard, SimulationNode position, int capacity) {
+	public TestOptimalPlanVehicle(LinkedHashSet<PlanComputationRequest> requestsOnBoard, SimulationNode position, 
+			int capacity, TestOnDemandVehicle testOnDemandVehicle) {
 		this.requestsOnBoard = requestsOnBoard;
 		this.position = position;
 		this.capacity = capacity;
+		this.testOnDemandVehicle = testOnDemandVehicle;
 	}
 	
 	
@@ -49,6 +54,11 @@ public class TestOptimalPlanVehicle implements IOptimalPlanVehicle{
 	@Override
 	public String getId() {
 		return "TestOptimalPlanVehicle";
+	}
+
+	@Override
+	public MovingEntity getRealVehicle() {
+		return testOnDemandVehicle;
 	}
 
 }

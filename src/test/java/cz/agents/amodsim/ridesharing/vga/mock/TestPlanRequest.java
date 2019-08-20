@@ -13,6 +13,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 
 /**
  *
@@ -60,10 +61,10 @@ public class TestPlanRequest implements PlanComputationRequest
 
 	
 	public TestPlanRequest(int id, AmodsimConfig amodsimConfig, SimulationNode origin, 
-			SimulationNode destination, int originTime, boolean onboard){
+			SimulationNode destination, int originTime, boolean onboard, TravelTimeProvider travelTimeProvider){
 		
 		minTravelTime = (int) Math.round(
-				MathUtils.getTravelTimeProvider().getExpectedTravelTime(origin, destination) / 1000.0);
+				travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
 		int maxProlongation = amodsimConfig.ridesharing.maxProlongationInSeconds;
 		
 		int maxPickUpTime = originTime + maxProlongation;

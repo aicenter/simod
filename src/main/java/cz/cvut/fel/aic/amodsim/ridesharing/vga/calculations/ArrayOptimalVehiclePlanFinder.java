@@ -204,7 +204,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 			if(!goDeeper){
 				
 				// last action - we have to go back
-				if(actionIndex == availableActions.length - 1 || infeasibleDueTime){
+				if(actionIndex == availableActions.length - 1){
 					int boundIndex = availableActions.length - 1;
 					while((actionIndex >= boundIndex || infeasibleDueTime) && planPositionIndex > 0){
 						// we remove the last action from plan
@@ -236,6 +236,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 						break;
 					}
 				}
+				
 				// try next action
 				else{
 					actionIndex++;

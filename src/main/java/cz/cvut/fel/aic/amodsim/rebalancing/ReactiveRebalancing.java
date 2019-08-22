@@ -33,6 +33,7 @@ import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.amodsim.event.RebalancingEventContent;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import gurobi.GRB;
@@ -71,7 +72,7 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 	
 	private final Map<OnDemandVehicleStation, Map<OnDemandVehicleStation, Double>> distancesBetweenStations;
 	
-	private final AstarTravelTimeProvider astarTravelTimeProvider;
+	private final TravelTimeProvider travelTimeProvider;
 	
 	private final StationsDispatcher stationsDispatcher;
 	
@@ -85,12 +86,12 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 	@Inject
 	public ReactiveRebalancing(PeriodicTicker ticker, AmodsimConfig config, 
 			OnDemandvehicleStationStorage onDemandvehicleStationStorage, 
-			AstarTravelTimeProvider astarTravelTimeProvider, StationsDispatcher stationsDispatcher, 
+			TravelTimeProvider travelTimeProvider, StationsDispatcher stationsDispatcher, 
 			TypedSimulation eventProcessor) {
 		this.ticker = ticker;
 		this.config = config;
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
-		this.astarTravelTimeProvider = astarTravelTimeProvider;
+		this.travelTimeProvider = travelTimeProvider;
 		this.stationsDispatcher = stationsDispatcher;
 		this.eventProcessor = eventProcessor;
 		distancesBetweenStations = new HashMap<>();
@@ -380,7 +381,7 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 		distancesBetweenStations.put(stationFrom, mapFromStation);
 		for(OnDemandVehicleStation stationTo: onDemandvehicleStationStorage){
 			if(stationFrom != stationTo){
-				double distance = astarTravelTimeProvider.getExpectedTravelTime(
+				double distance = travelTimeProvider.getExpectedTravelTime(
 						stationFrom.getPosition(), stationTo.getPosition());
 				mapFromStation.put(stationTo, distance);
 			}

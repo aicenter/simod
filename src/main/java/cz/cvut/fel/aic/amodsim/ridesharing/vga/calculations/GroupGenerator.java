@@ -29,6 +29,7 @@ import cz.cvut.fel.aic.amodsim.io.Common;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 
 import java.util.LinkedHashSet;
@@ -112,8 +113,9 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		}
 	}
 
-	public List<Plan> generateGroupsForVehicle(V vehicle, Iterable<PlanComputationRequest> requests, int startTime) {
+	public List<Plan> generateGroupsForVehicle(V vehicle, Collection<PlanComputationRequest> requests, int startTime) {
 		
+		/* STATISTICS */
 		long group_generation_start_time = System.nanoTime();
 		boolean stop = false;
 		
@@ -126,6 +128,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 			computationalTimesPlanExists = new FlexArray(size);
 		}
 		
+		/* COLLECTION INIT */
 		// F_v^{k - 1} - groupes for request adding
 		Set<GroupData> currentGroups = new LinkedHashSet<>();
 		
@@ -135,6 +138,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		// F_v all groups feasible for vehicle with optimal plan already assigned to them - the output
 		List<Plan> groupPlans = new ArrayList<>();
 
+		/* BASE PLAN GENERATION */
 		Set<PlanComputationRequest> onBoardRequestLock = null;
 		if(vehicle.getRequestsOnBoard().isEmpty()){
 			
@@ -164,10 +168,14 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 			
 			groupPlans.add(initialPlan);
 	
+			/* we have to add onboard request to the request, so the feasible requests and current groups of size 1 are 
+			computed from onboard requests in the next step */
 			for (PlanComputationRequest request : group) {
-				Set<PlanComputationRequest> singleRequestGroup = new HashSet<>(1);
-				singleRequestGroup.add(request);
-				currentGroups.add(new GroupData(singleRequestGroup, onBoardRequestLock));
+				requests.add(request);
+				// to current 
+//				Set<PlanComputationRequest> singleRequestGroup = new HashSet<>(1);
+//				singleRequestGroup.add(request);
+//				currentGroups.add(new GroupData(singleRequestGroup, onBoardRequestLock));
 			}
 		}
 		
@@ -234,11 +242,14 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 					
 					// check whether all n-1 subsets are in F_v^{k - 1}
 					boolean checkFeasibility = true;
-					for(Set<PlanComputationRequest> subset: getAllNMinus1Subsets(newGroupToCheck)){
+					Set<PlanComputationRequest> subset = new HashSet<>(newGroupToCheck);
+					for (PlanComputationRequest planComputationRequest : newGroupToCheck) {
+						subset.remove(planComputationRequest);
 						if(!currentGroups.contains(new GroupData(subset, null))){
 							checkFeasibility = false;
 							break;
 						}
+						subset.add(planComputationRequest);
 					}
 					
 					if(checkFeasibility){
@@ -416,6 +427,8 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		private final Set<PlanComputationRequest> requests;
 		
 		private final Set<PlanComputationRequest> onboardRequestLock;
+		
+		private int hash;
 
 		private GroupData(Set<PlanComputationRequest> requests) {
 			this(requests, null);
@@ -425,12 +438,14 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 				Set<PlanComputationRequest> onboardRequestLock) {
 			this.requests = requests;
 			this.onboardRequestLock = onboardRequestLock;
+			hash = 0;
 		}
 
 		@Override
 		public int hashCode() {
-			int hash = 7;
-			hash = 31 * hash + Objects.hashCode(this.requests);
+			if(hash == 0){
+				hash = this.requests.hashCode() % 1_200_000;
+			}
 			return hash;
 		}
 

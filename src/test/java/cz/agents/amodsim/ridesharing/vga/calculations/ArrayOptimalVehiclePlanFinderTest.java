@@ -87,30 +87,26 @@ public class ArrayOptimalVehiclePlanFinderTest {
 		
 		// prepare test requests
 		TestPlanRequest request0 = new TestPlanRequest(
-				668, config, nodesMappedByIndex.getNodeByIndex(6901), nodesMappedByIndex.getNodeByIndex(15140), 72, true,
+				1390, config, nodesMappedByIndex.getNodeByIndex(15982), nodesMappedByIndex.getNodeByIndex(1071), 117, true,
 				travelTimeProvider);
 		TestPlanRequest request1 = new TestPlanRequest(
-				1628, config, nodesMappedByIndex.getNodeByIndex(6901), nodesMappedByIndex.getNodeByIndex(15140), 132, true,
-				travelTimeProvider);
-		TestPlanRequest request2 = new TestPlanRequest(
-				33, config, nodesMappedByIndex.getNodeByIndex(1968), nodesMappedByIndex.getNodeByIndex(21709), 5, false,
+				453, config, nodesMappedByIndex.getNodeByIndex(15982), nodesMappedByIndex.getNodeByIndex(1071), 57, true,
 				travelTimeProvider);
 		LinkedHashSet<PlanComputationRequest> onBoardRequests = new LinkedHashSet<>();
 		onBoardRequests.add(request0);
 		onBoardRequests.add(request1);
 		LinkedHashSet<TestPlanRequest> requests = new LinkedHashSet<>();
-		requests.add(request1);
-		requests.add(request2);
+		requests.add(request0);
 				
 		// prepare test vehicle
-		SimulationNode position = nodesMappedByIndex.getNodeByIndex(6901);
-		DelayData delayData = new DelayData(24235L, 177845L, 33633);
-		SimulationNode targetNode = nodesMappedByIndex.getNodeByIndex(6949);
+		SimulationNode position = nodesMappedByIndex.getNodeByIndex(19027);
+		DelayData delayData = new DelayData(9190L, 207407L, 12765);
+		SimulationNode targetNode = nodesMappedByIndex.getNodeByIndex(6928);
 		TestOnDemandVehicle testOnDemandVehicle = new TestOnDemandVehicle(config, targetNode, delayData, position);
 		TestOptimalPlanVehicle vehicle = new TestOptimalPlanVehicle(onBoardRequests, position, 
 				config.ridesharing.vehicleCapacity, testOnDemandVehicle);
 		
-		Plan plan = arrayOptimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(vehicle, requests, 180, false);
+		Plan plan = arrayOptimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(vehicle, requests, 210, false);
 		
 		Assert.assertNotNull(plan);
 	}

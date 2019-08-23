@@ -47,18 +47,20 @@ public class SetBenchmark {
 	private void run(){
 		
 //		Set<Integer> set = Benchmark.measureTime(() -> this.createIntegerSet());
-		Set<Set<Integer>> set = Benchmark.measureTime(() -> this.createIntegerMultiset());
+		Benchmark benchmark = new Benchmark();
+		Set<Set<Integer>> set = benchmark.measureTime(() -> this.createIntegerMultiset());
 //		Set<GroupData> set = Benchmark.measureTime(() -> this.createGroupDataSet());
 //		Set<BigInteger> set = Benchmark.measureTime(() -> this.createBigIntegerSet());
 		
-		int creationTime = Benchmark.getDurationMsInt();
+		int creationTime = benchmark.getDurationMsInt();
 		
 //		Benchmark.measureTime(() -> this.integerSetTest(set));
-		Benchmark.measureTime(() -> this.integerMultisetTest(set));
+		benchmark = new Benchmark();
+		benchmark.measureTime(() -> this.createIntegerMultiset());
 //		Benchmark.measureTime(() -> this.groupDataTest(set));
 //		Benchmark.measureTime(() -> this.bigIntegerSetTest(set));
 		
-		int time = Benchmark.getDurationMsInt();
+		int time = benchmark.getDurationMsInt();
 		System.out.println(String.format("Creation time in miliseconds: %s", creationTime));
 		System.out.println(String.format("Total time in miliseconds: %s", time));
 		System.out.println(String.format("Ops. per second: %s", callCount / time * 1000));

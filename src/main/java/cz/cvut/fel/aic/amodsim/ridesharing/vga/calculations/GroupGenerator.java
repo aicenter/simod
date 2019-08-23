@@ -156,10 +156,11 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 			if(recordTime){
 				groupCounts.increment(group.size() - 1);
 				groupCountsPlanExists.increment(group.size() - 1);
-				initialPlan = Benchmark.measureTime(() -> 
+				Benchmark benchmark = new Benchmark();
+				initialPlan = benchmark.measureTime(() -> 
 						optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(vehicle, group, startTime, true));
-				computationalTimes.increment(group.size() - 1, Benchmark.getDurationMsInt());
-				computationalTimesPlanExists.increment(group.size() - 1, Benchmark.getDurationMsInt());
+				computationalTimes.increment(group.size() - 1, benchmark.getDurationMsInt());
+				computationalTimesPlanExists.increment(group.size() - 1, benchmark.getDurationMsInt());
 			}
 			else{
 				initialPlan 
@@ -168,28 +169,27 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 			
 			groupPlans.add(initialPlan);
 	
-			/* we have to add onboard request to the request, so the feasible requests and current groups of size 1 are 
-			computed from onboard requests in the next step */
+			/* we have to add onboard request to feasible requests set and to current groups of size 1 */
 			for (PlanComputationRequest request : group) {
-				requests.add(request);
-				// to current 
-//				Set<PlanComputationRequest> singleRequestGroup = new HashSet<>(1);
-//				singleRequestGroup.add(request);
-//				currentGroups.add(new GroupData(singleRequestGroup, onBoardRequestLock));
+				feasibleRequests.add(request);
+				Set<PlanComputationRequest> singleRequestGroup = new HashSet<>(1);
+				singleRequestGroup.add(request);
+				currentGroups.add(new GroupData(singleRequestGroup, onBoardRequestLock));
 			}
 		}
 		
 		// groups of size 1
 		for (PlanComputationRequest request : requests) {
-			LinkedHashSet<PlanComputationRequest> group = new LinkedHashSet<>();
+			LinkedHashSet<PlanComputationRequest> group = new LinkedHashSet<>(1);
 			group.add(request);
 
 			Plan plan;
 			if(recordTime){
 				groupCounts.increment(group.size() - 1);
-				plan = Benchmark.measureTime(() -> 
+				Benchmark benchmark = new Benchmark();
+				plan = benchmark.measureTime(() -> 
 						optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(vehicle, group, startTime, false));
-				int timeInMs = Benchmark.getDurationMsInt();
+				int timeInMs = benchmark.getDurationMsInt();
 				if(plan != null){
 					groupCountsPlanExists.increment(group.size() - 1);
 					computationalTimesPlanExists.increment(group.size() - 1, timeInMs);
@@ -266,10 +266,11 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 						
 						if(recordTime){
 							groupCounts.increment(newGroupToCheck.size() - 1);
-							plan = Benchmark.measureTime(() -> 
+							Benchmark benchmark = new Benchmark();
+							plan = benchmark.measureTime(() -> 
 									optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
 											vehicle, newGroupToCheck, startTime, false));
-							int timeInMs = Benchmark.getDurationMsInt();
+							int timeInMs = benchmark.getDurationMsInt();
 							if(plan != null){
 								groupCountsPlanExists.increment(newGroupToCheck.size() - 1);
 								computationalTimesPlanExists.increment(newGroupToCheck.size() - 1, timeInMs);

@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
 
 
 
-@Singleton
 public class GroupGenerator<V extends IOptimalPlanVehicle> {
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GroupGenerator.class);

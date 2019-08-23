@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.vga;
 
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.utils.Benchmark;
@@ -77,8 +78,6 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 	private final AmodsimConfig config;
 	
-	private final GroupGenerator groupGenerator;
-	
 	private final GurobiSolver gurobiSolver;
 	
 
@@ -91,6 +90,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 	private final TimeProvider timeProvider;
 	
+	private final Provider<GroupGenerator> groupGeneratorProvider;
 	
 	private List<VGAVehicle> vgaVehicles;
 	
@@ -123,18 +123,17 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 	@Inject
 	public VehicleGroupAssignmentSolver(TravelTimeProvider travelTimeProvider, PlanCostProvider travelCostProvider,
-			OnDemandVehicleStorage vehicleStorage, AmodsimConfig config, 
-			TimeProvider timeProvider, GroupGenerator vGAGroupGenerator, 
+			OnDemandVehicleStorage vehicleStorage, AmodsimConfig config, TimeProvider timeProvider, 
 			DefaultPlanComputationRequestFactory requestFactory, TypedSimulation eventProcessor, 
-			GurobiSolver gurobiSolver, 
+			GurobiSolver gurobiSolver, Provider<GroupGenerator> groupGeneratorProvider,
 			OnDemandvehicleStationStorage onDemandvehicleStationStorage) {
 		super(vehicleStorage, travelTimeProvider, travelCostProvider, requestFactory);
 		this.config = config;
-		this.groupGenerator = vGAGroupGenerator;
 		this.gurobiSolver = gurobiSolver;
 		this.eventProcessor = eventProcessor;
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
 		this.timeProvider = timeProvider;
+		this.groupGeneratorProvider = groupGeneratorProvider;
 		activeRequests = new LinkedHashSet<>();
 		vgaVehiclesMapBydemandOnDemandVehicles = new HashMap<>();
 		MathUtils.setTravelTimeProvider(travelTimeProvider);
@@ -299,12 +298,13 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 	private List<Plan> computeGroupsForVehicle(VGAVehicle vehicle, Collection<PlanComputationRequest> waitingRequests) {
 		Benchmark benchmark = new Benchmark();
+		GroupGenerator groupGenerator = groupGeneratorProvider.get();
 		List<Plan> feasibleGroupPlans = benchmark.measureTime(() ->
 					groupGenerator.generateGroupsForVehicle(vehicle, waitingRequests, startTime));
 		
 		// log
 		if(config.ridesharing.vga.logPlanComputationalTime){
-			logPlansPerVehicle(vehicle, feasibleGroupPlans, benchmark.durationNano);
+			logPlansPerVehicle(groupGenerator, vehicle, feasibleGroupPlans, benchmark.durationNano);
 		}
 		
 		return feasibleGroupPlans;
@@ -326,7 +326,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 	}
 
-	private synchronized void logPlansPerVehicle(VGAVehicle vehicle, List<Plan> feasibleGroupPlans, long totalTimeNano) {
+	private synchronized void logPlansPerVehicle(GroupGenerator groupGenerator, VGAVehicle vehicle, 
+			List<Plan> feasibleGroupPlans, long totalTimeNano) {
 		// group generator statistic addition
 		groupCounts.addArrayInPlace(groupGenerator.getGroupCounts());
 		groupCountsPlanExists.addArrayInPlace(groupGenerator.getGroupCountsPlanExists());

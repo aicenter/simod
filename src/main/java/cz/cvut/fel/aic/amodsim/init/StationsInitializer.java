@@ -71,12 +71,14 @@ public class StationsInitializer {
 	}
 	
 	private List<Integer> loadStationIndexes(String filepath){
-		LOGGER.info("Loading distance matrix from: {}", filepath);
+		LOGGER.info("Loading station positions from: {}", filepath);
 		
 		try {
 			Reader reader
 					= new BufferedReader(new InputStreamReader(new FileInputStream(filepath), "utf-8"));	
 			CsvParserSettings settings = new CsvParserSettings();
+			
+			settings.getFormat().setLineSeparator("\r\n");
 
 			//turning off features enabled by default
 			settings.setIgnoreLeadingWhitespaces(false);

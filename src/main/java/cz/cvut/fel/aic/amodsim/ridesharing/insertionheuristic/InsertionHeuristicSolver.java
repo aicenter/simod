@@ -263,7 +263,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 						vehicle, planComputationRequest);
 				if(potentialPlan != null){
 					double costIncrement = potentialPlan.cost - currentPlan.cost;
-					PlanData bestPlanData = new PlanData(vehicle, currentPlan, costIncrement);
+					PlanData bestPlanData = new PlanData(vehicle, potentialPlan, costIncrement);
 					tryUpdateBestPlan(bestPlanData);
 				}
 			}

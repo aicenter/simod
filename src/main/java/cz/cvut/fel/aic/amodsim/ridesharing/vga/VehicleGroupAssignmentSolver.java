@@ -444,7 +444,27 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
             int nn_total = groupGenerator.nn_time[0] + groupGenerator.nn_time[1] +
                     groupGenerator.nn_time[2] + groupGenerator.nn_time[3] +
                     groupGenerator.nn_time[4];
-            writer.writeLine(new String[] {Integer.toString(groupGenerator.false_count),
+            int group_total = 0;
+            List<String> writerLine = new ArrayList<>();
+            writerLine.add(Integer.toString(groupGenerator.false_count));
+            writerLine.add(Integer.toString(groupGenerator.true_count));
+            for(int i = 0; i < 8; i++){
+                if(groupCounts.size() <= i){
+                    writerLine.add("0");
+                }else{
+                    group_total += computationalTimes.get(i);
+                    writerLine.add(Integer.toString(computationalTimes.get(i)));
+                }
+            }
+            for (int i = 0; i < 5; i++) {
+                writerLine.add(Integer.toString(groupGenerator.nn_time[i]));
+            }
+            writerLine.add(Integer.toString(nn_total));
+            writerLine.add(Integer.toString(group_total));
+            writerLine.add(Integer.toString(groupGenerationTime - nn_total - group_total));
+            writerLine.add(Integer.toString(groupGenerationTime));
+            
+            /*writer.writeLine(new String[] {Integer.toString(groupGenerator.false_count),
                 Integer.toString(groupGenerator.true_count),
                 Integer.toString(nn_total),
                 Integer.toString(groupGenerationTime - nn_total),
@@ -452,7 +472,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
             Integer.toString(groupGenerator.nn_time[1]),
             Integer.toString(groupGenerator.nn_time[2]),
             Integer.toString(groupGenerator.nn_time[3]),
-            Integer.toString(groupGenerator.nn_time[4])});
+            Integer.toString(groupGenerator.nn_time[4])});*/
+            writer.writeLine(writerLine.toArray(new String[writerLine.size()]));
 			writer.close();
 		} catch (IOException ex) {
 			LOGGER.error(null, ex);

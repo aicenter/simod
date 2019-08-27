@@ -158,6 +158,8 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		this.tripsUtil = tripsUtil;
 		state = DemandAgentState.WAITING;
 		dropped = false;
+		demandTime = timeProvider.getCurrentSimTime();
+		computeMinServiceDuration();
 	}
 
 	
@@ -168,8 +170,6 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		demandStorage.addEntity(this);
 		eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.DEMAND, onDemandVehicleStationsCentral, null, 
 				new DemandData(trip.getLocations(), this));
-		demandTime = timeProvider.getCurrentSimTime();
-		computeMinServiceDuration();
 	}
 
 	@Override

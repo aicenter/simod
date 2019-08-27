@@ -112,6 +112,10 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
 	@Override
 	protected void driveToDemandStartLocation() {
+		// safety check that prevents request from being picked up twice because of the delayd pickup event
+		if(((PlanActionPickup) currentTask).request.isOnboard()){
+			driveToNextTask();
+		}
 		state = OnDemandVehicleState.DRIVING_TO_START_LOCATION;
 		if(getPosition().id == currentTask.getPosition().id){
 			pickupAndContinue();

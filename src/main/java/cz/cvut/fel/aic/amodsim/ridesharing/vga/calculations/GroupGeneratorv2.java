@@ -196,6 +196,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 			groupPlans.add(initialPlan);
 	
 			for (PlanComputationRequest request : group) {
+                                feasibleRequests.add(request);
 				Set<PlanComputationRequest> singleRequestGroup = new HashSet<>(1);
 				singleRequestGroup.add(request);
 				currentGroups.add(new GroupData(singleRequestGroup, onBoardRequestLock));
@@ -1457,6 +1458,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                         groupPlans.get(vehicle).add(initialPlan);
 
                         for (PlanComputationRequest request : group) {
+                                feasibleRequests.get(vehicle).add(request);
                                 Set<PlanComputationRequest> singleRequestGroup = new HashSet<>(1);
                                 singleRequestGroup.add(request);
                                 currentGroups.get(vehicle).add(new GroupData(singleRequestGroup, group, vehicle));

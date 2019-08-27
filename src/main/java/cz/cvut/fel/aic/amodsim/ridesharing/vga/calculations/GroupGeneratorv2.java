@@ -1537,11 +1537,16 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 
                                     // check whether all n-1 subsets are in F_v^{k - 1}
                                     boolean checkFeasibility = true;
-                                    for(Set<PlanComputationRequest> subset: getAllNMinus1Subsets(newGroupToCheck)){
+                                    //for(Set<PlanComputationRequest> subset: getAllNMinus1Subsets(newGroupToCheck)){
+                                    Set<PlanComputationRequest> subset = new HashSet<>(newGroupToCheck);
+                                    for (PlanComputationRequest planComputationRequest : newGroupToCheck) {
+					subset.remove(planComputationRequest);
+
                                         if(!currentGroups.get(vehicle).contains(new GroupData(subset))){
                                             checkFeasibility = false;
                                             break;
                                         }
+                                        subset.add(planComputationRequest);
                                     }
 
                                     if(checkFeasibility){
@@ -1614,11 +1619,16 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                                     }
                                     currentCheckedGroups.add(newGroupToCheck);
                                     boolean checkFeasibility = true;
-                                    for(Set<PlanComputationRequest> subset: getAllNMinus1Subsets(newGroupToCheck)){
+                                    //for(Set<PlanComputationRequest> subset: getAllNMinus1Subsets(newGroupToCheck)){
+                                    Set<PlanComputationRequest> subset = new HashSet<>(newGroupToCheck);
+                                    for (PlanComputationRequest planComputationRequest : newGroupToCheck) {
+					subset.remove(planComputationRequest);
+
                                         if(!currentGroups.get(vehicle).contains(new GroupData(subset))){
                                             checkFeasibility = false;
                                             break;
                                         }
+                                        subset.add(planComputationRequest);
                                     }
 
                                     if(checkFeasibility){                   

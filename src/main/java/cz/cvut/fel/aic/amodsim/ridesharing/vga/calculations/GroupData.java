@@ -18,6 +18,7 @@ public class GroupData {
     private final IOptimalPlanVehicle vehicle;
     private final Set<PlanComputationRequest> onboardRequestLock;
     private Double feasible;
+    private int hash;
     public GroupData(Set<PlanComputationRequest> requests) {
         this(requests, null, null);
     }
@@ -34,12 +35,14 @@ public class GroupData {
         this.onboardRequestLock = onboardRequestLock;
         this.feasible = null;
         this.vehicle = vehicle;
+        this.hash = 0;
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 31 * hash + Objects.hashCode(this.requests);
+	if(hash == 0){	
+	hash = this.requests.hashCode() % 1_200_000;	
+	}
         return hash;
     }
 

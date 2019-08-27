@@ -302,7 +302,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		return feasibleGroupPlans;
 	}
 	private Map<VGAVehicle,List<Plan>> computeGroupsForVehicles(List<VGAVehicle> vehicles, 
-			Iterable<PlanComputationRequest> waitingRequests) {
+			Collection<PlanComputationRequest> waitingRequests) {
 		Map<VGAVehicle,List<Plan>> feasibleGroupPlans = Benchmark.measureTime(() ->
 					groupGenerator.generateGroupsForVehicleNN(vehicles, waitingRequests, startTime));
 		

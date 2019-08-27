@@ -83,7 +83,7 @@ public class TripsUtilCached extends TripsUtil {
 			loadTripCache();
 		}
 		else{
-			tripCacheFolder.mkdir();
+			tripCacheFolder.mkdirs();
 			cacheFileCounter = 0;
 		}
 		

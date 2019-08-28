@@ -158,8 +158,10 @@ public class TripsUtilCached extends TripsUtil {
 		File outputFile = new File(tripCacheFolder + File.separator + cacheFileCounter + ".json");
 		cacheFileCounter++;
 		try {
-			mapper.writeValue(outputFile, newTrips);
-			newTrips = new HashMap<>();
+                        if(!newTrips.isEmpty()){
+                            mapper.writeValue(outputFile, newTrips);
+                            newTrips = new HashMap<>();
+                        }
 		} catch (IOException ex) {
 			LOGGER.error(null, ex);
 		}

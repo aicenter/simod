@@ -21,6 +21,7 @@ package cz.cvut.fel.aic.amodsim.visio;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
+import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.storage.DemandStorage;
 import java.util.HashMap;
@@ -81,15 +82,22 @@ public class DemandLayerWithJitter extends DemandLayer{
 	}
 
 	private Point2d getJitter() {
-		double jittX = random.nextGaussian();
-		double jittY = random.nextGaussian();
+                double jittX = random.nextGaussian();                    
+                double jittY = random.nextGaussian();                    
 		
-		return new Point2d(jittX, jittY);
+		return new Point2d(jittX, jittY);               
 	}
 
 	private void jitte(Point2d agentPosition, Point2d agentJitter) {
-		agentPosition.x = agentPosition.x + JITTER_DEVIATION * agentJitter.x;
-		agentPosition.y = agentPosition.y + JITTER_DEVIATION * agentJitter.y;
+                double zoom_deviation = 1;
+                double zoom = Vis.getZoomFactor();
+                if(zoom < 0.7){
+                    zoom_deviation = zoom;
+                }else if(zoom < 2){
+                    zoom_deviation = 0.7;
+                }
+		agentPosition.x = agentPosition.x + JITTER_DEVIATION * agentJitter.x * zoom_deviation;
+		agentPosition.y = agentPosition.y + JITTER_DEVIATION * agentJitter.y * zoom_deviation;
 	}
 	
 	

@@ -175,7 +175,6 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		/* Generating feasible plans for each vehicle */
 		Benchmark benchmark = new Benchmark();
 		benchmark.measureTime(() -> generateGroups(drivingVehicles, waitingRequests));	
-		benchmark.measureTime(() -> gurobiSolver.assignOptimallyFeasiblePlans(feasiblePlans, activeRequests));
 		groupGenerationTime = benchmark.getDurationMsInt();
 		
 ////		TO REMOVE TEST
@@ -229,7 +228,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 		
 		// check if all driving vehicles have a plan
-//		checkPlanMapComplete(planMap);
+//		checkPlanMapComplete(planMap, optimalPlans);
 		
 		return planMap;
 	}
@@ -390,14 +389,45 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 	}
 
-	private void checkPlanMapComplete(Map<RideSharingOnDemandVehicle, DriverPlan> planMap) {
+	private void checkPlanMapComplete(Map<RideSharingOnDemandVehicle, DriverPlan> planMap, 
+			List<Plan<IOptimalPlanVehicle>> optimalPlans) {
 		for(OnDemandVehicle onDemandVehicle: vehicleStorage){
-			if(onDemandVehicle.getState() != OnDemandVehicleState.WAITING){
+			if(onDemandVehicle.getState() != OnDemandVehicleState.WAITING 
+			&& onDemandVehicle.getState() != OnDemandVehicleState.REBALANCING){
 				if(!planMap.containsKey(onDemandVehicle)){
 					try {
 						throw new Exception("Driving vehicle is not replanned:" + onDemandVehicle);
 					} catch (Exception ex) {
 						Logger.getLogger(VehicleGroupAssignmentSolver.class.getName()).log(Level.SEVERE, null, ex);
+						VGAVehicle vGAVehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(onDemandVehicle.getId());
+						List<Plan> feasiblePlansForVehicle = null;
+						for(VehiclePlanList vpl: feasiblePlans){
+							if(vpl.optimalPlanVehicle == vGAVehicle){
+								feasiblePlansForVehicle = vpl.feasibleGroupPlans;
+								break;
+							}
+						}
+						if(feasiblePlansForVehicle != null){
+							LOGGER.debug("Vehicle has {} feasible plans", feasiblePlansForVehicle.size());
+							
+							Plan optimalPlan = null;
+							for(Plan p: optimalPlans){
+								if(p.getVehicle() == vGAVehicle){
+									optimalPlan = p;
+								}
+							}
+							if(optimalPlan != null){
+								LOGGER.debug("The optimal plan is: ", optimalPlan);
+							}
+							else{
+								LOGGER.debug("There is no optimal plan for vehicle!");
+							}
+						}
+						else{
+							LOGGER.debug("Vehicle has no feasible plans!");
+						}
+						boolean inOptimalPlans = false;
+								
 					}
 				}
 			}

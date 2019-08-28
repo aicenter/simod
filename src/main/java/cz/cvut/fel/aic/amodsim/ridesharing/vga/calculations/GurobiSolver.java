@@ -43,9 +43,11 @@ import gurobi.GRBModel;
 import gurobi.GRBVar;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
@@ -232,7 +234,7 @@ public class GurobiSolver {
 				GRBVar variable = entry.getKey();
 				Plan<IOptimalPlanVehicle> plan = entry.getValue();
 				
-				if(variable.get(GRB.DoubleAttr.X) == 1.0){
+				if(Math.round(variable.get(GRB.DoubleAttr.X)) == 1){
 					optimalPlans.add(plan);
 				}
 			}
@@ -241,14 +243,14 @@ public class GurobiSolver {
 			for (Map.Entry<GRBVar, PlanComputationRequest> entry : droppingVarsMap.entrySet()) {
 				GRBVar variable = entry.getKey();
 				PlanComputationRequest request = entry.getValue();
-				if(variable.get(GRB.DoubleAttr.X) == 1.0){
+				if(Math.round(variable.get(GRB.DoubleAttr.X)) == 1){
 					droppedDemandsAnalyzer.debugFail(request);
 					LOGGER.debug("The request was part of {} group plans", requestVariableMap.get(request).size() - 1);
 				}
 			}
 			
-			// debug dropped demands
-			
+			// check 1 plan for vehicle
+//			checkOnePlanPerVehicle(feasiblePlans, variablePlanMap);
 			
 			gap = model.get(GRB.DoubleAttr.MIPGap);
 			
@@ -260,5 +262,38 @@ public class GurobiSolver {
 		}
 		
 		return null;
+	}
+
+	private void checkOnePlanPerVehicle(List<VehiclePlanList> feasiblePlans, 
+			Map<GRBVar, Plan<IOptimalPlanVehicle>> variablePlanMap) {
+		Set<VGAVehicle> vGAVehicles = new HashSet<>();
+		for (Map.Entry<GRBVar, Plan<IOptimalPlanVehicle>> entry : variablePlanMap.entrySet()) {
+			try {
+				GRBVar variable = entry.getKey();
+				Plan<IOptimalPlanVehicle> plan = entry.getValue();
+				if(Math.round(variable.get(GRB.DoubleAttr.X)) == 1 && plan.getVehicle() instanceof VGAVehicle){
+					if(vGAVehicles.contains(plan.getVehicle())){
+						try {
+							throw new Exception(String.format("More than one plan per vehicle %s", plan.getVehicle()));
+						} catch (Exception ex) {
+							Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
+						}
+					}
+					vGAVehicles.add((VGAVehicle) plan.getVehicle());
+				}
+			} catch (GRBException ex) {
+				Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+		for (VehiclePlanList vehiclePlanList : feasiblePlans) {
+			if(vehiclePlanList.optimalPlanVehicle instanceof VGAVehicle 
+					&& !vGAVehicles.contains(vehiclePlanList.optimalPlanVehicle)){
+				try {
+						throw new Exception(String.format("No plan per vehicle %s", vehiclePlanList.optimalPlanVehicle));
+					} catch (Exception ex) {
+						Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
+					}
+			}
+		}
 	}
 }

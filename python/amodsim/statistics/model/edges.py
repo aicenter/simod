@@ -8,6 +8,7 @@ from pandas import DataFrame
 from roadmaptools.printer import print_info
 
 cols = ["id", "length"]
+# dtypes = ['int', 'int', 'int']
 # filename = "{}{}.json".format(config.edges_file_path, '-simplified' if config.simplify_graph else {})
 
 
@@ -39,7 +40,7 @@ def load_edge_pairs() -> Union[Dict, List]:
 def load_table() -> DataFrame:
 	# json = roadmaptools.inout.load_json(filename)
 	geojson = roadmaptools.inout.load_geojson(config.agentpolis.map_edges_filepath)
-	data = DataFrame(([int(edge['properties']['id']), int(edge['properties']['length'])] for edge in geojson['features']), columns=cols)
+	data = DataFrame(([str(edge['properties']['id']), int(edge['properties']['length'])] for edge in geojson['features']), columns=cols)
 	return data
 
 

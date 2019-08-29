@@ -86,7 +86,9 @@ public class TripsUtilCached extends TripsUtil {
 			tripCacheFolder.mkdirs();
 			cacheFileCounter = 0;
 		}
-		
+                
+		deleteFiles(new File(amodConfig.amodsimExperimentDir));
+                
 		newTrips = new HashMap<>();
 
 	}
@@ -164,5 +166,17 @@ public class TripsUtilCached extends TripsUtil {
 			LOGGER.error(null, ex);
 		}
 	}
+
+    private void deleteFiles(File folder) {
+        File[] files = folder.listFiles();
+        for (final File fileEntry : files) {
+            if (fileEntry.isDirectory() && !fileEntry.getName().startsWith("trip_cache")) {
+                deleteFiles(fileEntry);
+                fileEntry.delete();
+            } else if(!fileEntry.isDirectory()){
+                fileEntry.delete();
+            }
+        }
+    }
 
 }

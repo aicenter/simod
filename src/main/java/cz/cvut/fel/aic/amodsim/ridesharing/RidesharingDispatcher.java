@@ -32,6 +32,7 @@ import cz.cvut.fel.aic.amodsim.DemandData;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
+import cz.cvut.fel.aic.amodsim.event.DemandEvent;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleStationsCentralEvent;
@@ -42,6 +43,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
+import cz.cvut.fel.aic.amodsim.statistics.PickupEventContent;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.geographtools.Node;
 import java.util.ArrayList;
@@ -154,6 +156,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 				numberOfDemandsDropped++;
 				droppedDemandsThisBatch++;
 				waitingRequestIterator.remove();
+				eventProcessor.addEvent(DemandEvent.LEFT, null, null, request);
 			}
 		}		
 		LOGGER.info("Demands dropped in this batch: {}", droppedDemandsThisBatch);

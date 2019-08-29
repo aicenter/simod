@@ -35,6 +35,7 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.amodsim.event.DemandEvent;
 import cz.cvut.fel.aic.amodsim.io.Common;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
@@ -240,15 +241,21 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 	@Override
 	public void handleEvent(Event event) {
-		OnDemandVehicleEvent eventType = (OnDemandVehicleEvent) event.getType();
-		OnDemandVehicleEventContent eventContent = (OnDemandVehicleEventContent) event.getContent();
-		PlanComputationRequest request = ridesharingDispatcher.getRequest(eventContent.getDemandId());
-		VGAVehicle vehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(eventContent.getOnDemandVehicleId());
-		if(eventType == OnDemandVehicleEvent.PICKUP){
-			vehicle.addRequestOnBoard(request);
+		if(event.getType() instanceof OnDemandVehicleEvent){
+			OnDemandVehicleEvent eventType = (OnDemandVehicleEvent) event.getType();
+			OnDemandVehicleEventContent eventContent = (OnDemandVehicleEventContent) event.getContent();
+			PlanComputationRequest request = ridesharingDispatcher.getRequest(eventContent.getDemandId());
+			VGAVehicle vehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(eventContent.getOnDemandVehicleId());
+			if(eventType == OnDemandVehicleEvent.PICKUP){
+				vehicle.addRequestOnBoard(request);
+			}
+			else if(eventType == OnDemandVehicleEvent.DROP_OFF){
+				vehicle.removeRequestOnBoard(request);
+				activeRequests.remove(request);
+			}
 		}
-		else if(eventType == OnDemandVehicleEvent.DROP_OFF){
-			vehicle.removeRequestOnBoard(request);
+		else if(event.isType(DemandEvent.LEFT)){
+			PlanComputationRequest request = (PlanComputationRequest) event.getContent();
 			activeRequests.remove(request);
 		}
 	}
@@ -259,6 +266,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		List<Enum> typesToHandle = new LinkedList<>();
 		typesToHandle.add(OnDemandVehicleEvent.PICKUP);
 		typesToHandle.add(OnDemandVehicleEvent.DROP_OFF);
+		typesToHandle.add(DemandEvent.LEFT);
 		eventProcessor.addEventHandler(this, typesToHandle);
 	}
 

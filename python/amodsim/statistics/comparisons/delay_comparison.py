@@ -53,7 +53,7 @@ delays_window_9 = service.get_delays(service_7, True)
 delays_window_10 = service.get_delays(service_8, True)
 delays_window_6 = pd.Series(0, index=np.arange(len(delays_window_7)))
 
-bins = np.arange(-0.5, 20.5, 0.5)
+bins = np.arange(-0.5, 5.5, 0.5)
 
 fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))
 # axes.hist([delays_1, delays_2, delays_3], bins, label=['No Ridesharing', 'Insertion Heuristic', 'VGA'], histtype='step',

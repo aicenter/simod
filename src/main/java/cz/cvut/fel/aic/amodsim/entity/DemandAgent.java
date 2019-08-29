@@ -201,8 +201,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		}
 		eventProcessor.addEvent(StatisticEvent.DEMAND_DROPPED_OFF, null, null, 
 				new DemandServiceStatistic(demandTime, realPickupTime, timeProvider.getCurrentSimTime(), 
-						minDemandServiceDuration,
-						getId(), onDemandVehicle.getId()));
+						minDemandServiceDuration, getId(), onDemandVehicle.getId()));
 		
 		die();
 	}
@@ -245,7 +244,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 
 	private void computeMinServiceDuration() {
 		Trip<SimulationNode> minTrip = tripsUtil.createTrip(getPosition().id, trip.getLocations().getLast().id);
-		minDemandServiceDuration = (long) (tripsUtil.getTripDurationInSeconds(minTrip) * 1000);
+		minDemandServiceDuration = tripsUtil.getTripDuration(minTrip);
 	}
 
 	

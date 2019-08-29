@@ -22,7 +22,7 @@ def compute_stats_current_state(experiment_dir: str, result: Dict, histogram: Tr
 	# distance
 	transit_data = transit.load(experiment_dir)
 	km_total_window = int(round(transit.get_total_distance(transit_data, edge_data, True,
-														   VehicleState.DRIVING_TO_TARGET_LOCATION) / 1000))
+														   VehicleState.DRIVING_TO_TARGET_LOCATION) / 1000 / 100))
 
 	# average density
 	average_density_list_total_future = histogram.get_average_density_list(load)
@@ -52,8 +52,8 @@ def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, experi
 	transit_data = transit.load(experiment_dir)
 
 	# km_total = int(round(avg_km_total * result["numberOfVehicles"]))
-	km_total = transit.get_total_distance(transit_data, edge_data) / 1000
-	km_total_window = int(round(transit.get_total_distance(transit_data, edge_data, True) / 1000))
+	km_total = transit.get_total_distance(transit_data, edge_data) / 1000 / 100
+	km_total_window = int(round(transit.get_total_distance(transit_data, edge_data, True) / 1000 / 100))
 
 	# average density
 	average_density_list_total_future = histogram.get_average_density_list(load)

@@ -70,7 +70,7 @@ def get_total_load_sum(filepath):
 
 
 def get_normalized_load(load, length, lane_count):
-	return load / length / lane_count
+	return load / (length / 100) / lane_count
 
 
 def get_color_from_load(load, length, lane_count):

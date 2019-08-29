@@ -19,7 +19,7 @@ def get_delays(service: DataFrame, window_only: bool = False, in_minutes: int = 
 	if window_only:
 		start_demand_time = config.analysis.chosen_window_start * MILLISECONDS_IN_DENSITY_PERIOD
 		service = service[service["demand_time"] >= start_demand_time]
-	delays = service["dropoff_time"] - service["demand_time"] - service["min_possible_delay"]
+	delays = service["dropoff_time"] - service["demand_time"] - service["min_possible_delay"] / 1000 # / 1000 is a tem bugfix, remove in new experiments!
 	if in_minutes:
 		delays = delays / 60000
 	return delays

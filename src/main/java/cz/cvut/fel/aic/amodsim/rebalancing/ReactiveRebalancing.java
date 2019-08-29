@@ -206,11 +206,17 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 							CollectionUtil.addToListInMap(toFlowVars, stationTo, flow);
 
 							// variable costs
-							double cost = distancesBetweenStations.get(stationFrom).get(stationTo);
-							varCosts.put(flow, cost);
+							try{
+								double cost = distancesBetweenStations.get(stationFrom).get(stationTo);
+								varCosts.put(flow, cost);
 
-							// solution mappping
-							variablesToTransfer.put(flow, new Transfer(stationFrom, stationTo));
+								// solution mappping
+								variablesToTransfer.put(flow, new Transfer(stationFrom, stationTo));
+							}
+							catch(NullPointerException ex){
+								LOGGER.debug("Exception when computing cost from {} to {}. Distances: {}", stationFrom, 
+										stationTo, distancesBetweenStations);
+							}
 						}
 					}
 					

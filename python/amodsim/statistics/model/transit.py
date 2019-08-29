@@ -13,7 +13,7 @@ MILLISECONDS_IN_DENSITY_PERIOD = 600000
 
 def load(experiment_dir: str) -> DataFrame:
 	occupancy_data \
-		= pandas.read_csv(experiment_dir + config.statistics.transit_file_name, names=cols)
+		= pandas.read_csv(experiment_dir + config.statistics.transit_file_name, names=cols, dtype={"edge_id": 'str'})
 	return occupancy_data
 
 

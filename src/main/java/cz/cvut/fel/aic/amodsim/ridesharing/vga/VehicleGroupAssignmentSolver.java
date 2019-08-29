@@ -484,7 +484,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			}
 			
 			if(insufficientCapacityCount > 0){
-				LOGGER.info("{} request won't be served from station due to insufficient capacity",
+				LOGGER.info("{} requests won't be served from station due to insufficient capacity",
 						insufficientCapacityCount);
 			}
 		}
@@ -530,18 +530,20 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	private synchronized boolean checkIfComputePlansFromStation(Map<OnDemandVehicleStation,Integer> usedVehiclesPerStation, 
 			OnDemandVehicleStation nearestStation, Map<OnDemandVehicleStation,List<Plan>> plansFromStation){
 		
-		// check if there is not a lack of vehicles in the station
+		
 		int index = usedVehiclesPerStation.containsKey(nearestStation) 
 				? usedVehiclesPerStation.get(nearestStation) : 0;
 		
-		CollectionUtil.incrementMapValue(usedVehiclesPerStation, nearestStation, 1);
 		
-		if(index >= nearestStation.getParkedVehiclesCount()){
+		// check if there is not a lack of vehicles in the station
+		if(index == nearestStation.getParkedVehiclesCount()){
 			insufficientCapacityCount++;
 			return false;
 		}
 		
-		// check if plan is not alreadz computed
+		CollectionUtil.incrementMapValue(usedVehiclesPerStation, nearestStation, 1);
+		
+		// check if plan is not already computed
 		if(plansFromStation.containsKey(nearestStation)){
 			return false;
 		}

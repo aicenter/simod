@@ -1,6 +1,7 @@
 from amodsim.init import config
 
 import numpy as np
+import pandas.errors
 import roadmaptools.inout
 import amodsim.statistics.model.traffic_load as traffic_load
 import amodsim.statistics.model.transit as transit
@@ -11,7 +12,7 @@ import amodsim.statistics.model.occupancy as occupancy
 
 from typing import List, Dict, Iterable
 from pandas import DataFrame
-from roadmaptools.printer import print_table
+from roadmaptools.printer import print_table, print_info
 from amodsim.statistics.traffic_density_histogram import TrafficDensityHistogram
 from amodsim.statistics.model.vehicle_state import VehicleState
 
@@ -76,12 +77,16 @@ def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, experi
 	used_cars_count = len(occupancies_in_window[occupancies_in_window.occupancy > 0].vehicle_id.unique())
 
 	# performance
-	performance_data = ridesharing.load(experiment_dir)
-	if 'Insertion Heuristic Time' in performance_data:
-		avg_time = performance_data['Insertion Heuristic Time'].mean()
-	else:
-		avg_time = performance_data['Group Generation Time'].mean() + performance_data['Solver Time'].mean()
-	avg_time = int(round(avg_time / 1000))
+	try:
+		performance_data = ridesharing.load(experiment_dir)
+		if 'Insertion Heuristic Time' in performance_data:
+			avg_time = performance_data['Insertion Heuristic Time'].mean()
+		else:
+			avg_time = performance_data['Group Generation Time'].mean() + performance_data['Solver Time'].mean()
+		avg_time = int(round(avg_time / 1000))
+	except pandas.errors.EmptyDataError:
+		print_info("Empty ridesharing statistic")
+		avg_time = "-1"
 
 	# delay
 	service_stat = service.load_dataframe(experiment_dir)
@@ -98,40 +103,49 @@ def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, experi
 edge_data = edges.load_table()
 edge_object_data = edges.load_edges_mapped_by_id()
 
+exp_dir_1 = config.comparison.experiment_1_dir
+exp_dir_2 = config.comparison.experiment_2_dir
+exp_dir_3 = config.comparison.experiment_3_dir
+exp_dir_4 = config.comparison.experiment_4_dir
+# exp_dir_1 = config.comparison.experiment_5_dir
+# exp_dir_2 = config.comparison.experiment_6_dir
+# exp_dir_3 = config.comparison.experiment_7_dir
+# exp_dir_4 = config.comparison.experiment_8_dir
+
 # result json files
 results_ridesharing_off \
-	= roadmaptools.inout.load_json(config.comparison.experiment_5_dir + config.statistics.result_file_name)
+	= roadmaptools.inout.load_json(exp_dir_1 + config.statistics.result_file_name)
 results_insertion_heuristic\
-	= roadmaptools.inout.load_json(config.comparison.experiment_6_dir + config.statistics.result_file_name)
+	= roadmaptools.inout.load_json(exp_dir_2 + config.statistics.result_file_name)
 results_vga \
-	= roadmaptools.inout.load_json(config.comparison.experiment_7_dir + config.statistics.result_file_name)
+	= roadmaptools.inout.load_json(exp_dir_3 + config.statistics.result_file_name)
 
 results_vga_group_limit \
-	= roadmaptools.inout.load_json(config.comparison.experiment_8_dir + config.statistics.result_file_name)
+	= roadmaptools.inout.load_json(exp_dir_4 + config.statistics.result_file_name)
 
 # traffic load
 loads_no_ridesharing = traffic_load.load_all_edges_load_history(
-	config.comparison.experiment_5_dir + config.statistics.all_edges_load_history_file_name)
+	exp_dir_1 + config.statistics.all_edges_load_history_file_name)
 loads_insertion_heuristic = traffic_load.load_all_edges_load_history(
-	config.comparison.experiment_6_dir + config.statistics.all_edges_load_history_file_name)
+	exp_dir_2 + config.statistics.all_edges_load_history_file_name)
 loads_vga = traffic_load.load_all_edges_load_history(
-	config.comparison.experiment_7_dir + config.statistics.all_edges_load_history_file_name)
+	exp_dir_3 + config.statistics.all_edges_load_history_file_name)
 loads_vga_group_limit = traffic_load.load_all_edges_load_history(
-	config.comparison.experiment_8_dir + config.statistics.all_edges_load_history_file_name)
+	exp_dir_4 + config.statistics.all_edges_load_history_file_name)
 
 histogram = TrafficDensityHistogram(edge_object_data)
 
 # compute data for output from result
-present_state_data = compute_stats_current_state(config.comparison.experiment_5_dir, results_ridesharing_off, histogram,
+present_state_data = compute_stats_current_state(exp_dir_1, results_ridesharing_off, histogram,
 								   loads_no_ridesharing[VehicleState.DRIVING_TO_TARGET_LOCATION.name])
 no_ridesharing_data = compute_stats(results_ridesharing_off, histogram, loads_no_ridesharing["ALL"],
-									config.comparison.experiment_5_dir, edge_data)
+									exp_dir_1, edge_data)
 insertion_heuristic_data = compute_stats(results_insertion_heuristic, histogram, loads_insertion_heuristic["ALL"],
-					config.comparison.experiment_6_dir, edge_data)
-vga_data = compute_stats(results_vga, histogram, loads_vga["ALL"], config.comparison.experiment_7_dir,
+					exp_dir_2, edge_data)
+vga_data = compute_stats(results_vga, histogram, loads_vga["ALL"], exp_dir_3,
 						 edge_data)
 vga_limited_data = compute_stats(results_vga_group_limit, histogram, loads_vga_group_limit["ALL"],
-								 config.comparison.experiment_8_dir, edge_data)
+								 exp_dir_4, edge_data)
 
 output_table = np.array([["X", "PRESENT STATE", "NO RIDESHARING", "INSERTION HEURISTIC", "VGA", "VGA limited"],
 						 ["Total veh. dist. traveled (km)", present_state_data[0], no_ridesharing_data[0], insertion_heuristic_data[0], vga_data[0], vga_limited_data[0]],

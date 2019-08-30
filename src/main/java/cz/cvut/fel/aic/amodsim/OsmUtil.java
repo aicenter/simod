@@ -28,6 +28,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.Map
 import cz.cvut.fel.aic.geographtools.Graph;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.LinkedList;
 import org.slf4j.LoggerFactory;

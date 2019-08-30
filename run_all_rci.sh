@@ -7,4 +7,4 @@ sbatch --mem=75G -t 1440 -n30 -o /home/fiedlda1/Amodsim/log/vga-sw.log /home/fie
 sbatch --mem=75G -t 600 -n30 -o /home/fiedlda1/Amodsim/log/vga-lim.log /home/fiedlda1/Amodsim/rci_launchers/vga-lim.sh
 sbatch --mem=75G -t 600 -n30 -o /home/fiedlda1/Amodsim/log/vga-lim-sw.log /home/fiedlda1/Amodsim/rci_launchers/vga-lim-sw.sh
 sbatch --mem=75G -t 600 -n30 -o /home/fiedlda1/Amodsim/log/vga-lim-30ms.log /home/fiedlda1/Amodsim/rci_launchers/vga-lim-30ms.sh
-sbatch --mem=75G -t 1440 -n30 -o /home/fiedlda1/Amodsim/log/vga-lim-600ms.log /home/fiedlda1/Amodsim/rci_launchers/vga-lim-600ms.sh
+sbatch --mem=75G -t 1440 -n30 -o /home/fiedlda1/Amodsim/log/vga-lim600ms.log /home/fiedlda1/Amodsim/rci_launchers/vga-lim600ms.sh

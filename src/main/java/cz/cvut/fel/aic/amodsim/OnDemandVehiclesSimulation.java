@@ -33,15 +33,9 @@ import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import cz.cvut.fel.aic.amodsim.rebalancing.ReactiveRebalancing;
 import cz.cvut.fel.aic.amodsim.statistics.Statistics;
 import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
-import java.io.BufferedReader;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -60,14 +54,14 @@ public class OnDemandVehiclesSimulation {
 		AmodsimConfig config = new AmodsimConfig();
 		
 		File localConfigFile = null;
-        String config_path = "\\src\\main\\resources\\cz\\cvut\\fel\\aic\\amodsim\\config\\config.cfg";
 		if(args.length > 0){
-			localConfigFile = new File(args[0]);
-            config_path = args[0];
-		}
-        setLoggerFilePath(config_path);
+                    localConfigFile = new File(args[0]);
+		}               
 		Injector injector = new AgentPolisInitializer(new MainModule(config, localConfigFile)).initialize();
-        SimulationCreator creator = injector.getInstance(SimulationCreator.class);
+                //set logger file path (for merging, must be after cleanup folder in branch feature/clear_exp_folder)
+                setLoggerFilePath(injector.getInstance(AmodsimConfig.class).amodsimExperimentDir);
+                
+                SimulationCreator creator = injector.getInstance(SimulationCreator.class);         
 		// prepare map, entity storages...
 		creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
 
@@ -98,38 +92,11 @@ public class OnDemandVehiclesSimulation {
 		injector.getInstance(Statistics.class).simulationFinished();
 	}
 
-    private void setLoggerFilePath(String config_path) {
-        String experiments_path = "";
-        try {
-            String line;
-            BufferedReader reader = new BufferedReader(new FileReader(config_path));
-            while ((line = reader.readLine()) != null)
-            {
-                String[] parts = line.split(":", 2);
-                if (parts.length >= 2)
-                {
-                    if("amodsim_experiment_dir".equals(parts[0])){
-                        experiments_path = parts[1].substring(2, parts[1].length()-1);
-                        break;
-                    }
-                }
-            }
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(OnDemandVehiclesSimulation.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(OnDemandVehiclesSimulation.class.getName()).log(Level.SEVERE, null, ex);
+        private void setLoggerFilePath(String experiments_path) {         
+                LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+                FileAppender appender =
+                (FileAppender) lc.getLogger("ROOT").getAppender("FILE");
+                appender.setFile(experiments_path+"\\log\\log.txt");
+                appender.start();
         }
-        File file = new File(experiments_path + "log");
-        File[] files = file.listFiles();
-        for (int i = 0; files != null && i < files.length; i++) {
-            files[i].delete();
-        }
-        file.delete();
-        file.mkdir();  
-        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-        FileAppender appender =
-        (FileAppender) lc.getLogger("ROOT").getAppender("FILE");
-        appender.setFile(experiments_path+"\\log\\log.txt");
-        appender.start();
-    }
 }

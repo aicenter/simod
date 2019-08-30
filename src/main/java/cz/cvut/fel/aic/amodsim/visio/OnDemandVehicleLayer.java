@@ -83,7 +83,7 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
 
 	@Override
 	protected float getVehicleLength(PhysicalTransportVehicle vehicle) {
-		return (float) vehicle.getLength();
+		return (float) vehicle.getLengthM();
 	}
 
 	@Override
@@ -93,7 +93,7 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
 
 	@Override
 	protected float getVehicleStaticLength(PhysicalTransportVehicle vehicle) {
-		return (float) vehicle.getLength();
+		return (float) vehicle.getLengthM();
 	}
 
 	@Override

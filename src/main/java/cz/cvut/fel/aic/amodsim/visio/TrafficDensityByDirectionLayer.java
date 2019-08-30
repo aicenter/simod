@@ -151,7 +151,7 @@ public class TrafficDensityByDirectionLayer extends AbstractLayer {
 			Line2D line2d = new Line2D.Double(from.x, from.y, to.x, to.y);
 
 			if (line2d.intersects(drawingRectangle)) {
-				edgeMapping.put(new Edge(edge.getFromNode(), edge.getToNode(), edge.length), edge);
+				edgeMapping.put(new Edge(edge.getFromNode(), edge.getToNode(), edge.getLengthCm()), edge);
 			}
 		}
 	}
@@ -164,7 +164,7 @@ public class TrafficDensityByDirectionLayer extends AbstractLayer {
 		twoWayEdges = new HashMap<>();
 
 		for (Edge edge : edgeMapping.keySet()) {
-			Edge edgeOpposite = new Edge(edge.getToNode(), edge.getFromNode(), edge.length);
+			Edge edgeOpposite = new Edge(edge.getToNode(), edge.getFromNode(), edge.getLengthCm());
 			if (twoWayEdges.containsKey(edgeOpposite)) {
 				twoWayEdges.put(edge, edgeOpposite);
 			} else {
@@ -241,7 +241,7 @@ public class TrafficDensityByDirectionLayer extends AbstractLayer {
 		}
 		if (id == -1) {
 			double averageLoad = allEdgesLoad.getLoadPerEdge(id);
-			double loadPerLength = averageLoad / edge.getLength();
+			double loadPerLength = averageLoad / edge.getLengthCm();
 			return colorMap.getColor(loadPerLength);
 		} else {
 			return Color.gray;

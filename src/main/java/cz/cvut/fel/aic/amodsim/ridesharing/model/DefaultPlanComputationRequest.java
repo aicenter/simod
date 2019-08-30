@@ -24,6 +24,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
+import java.util.Random;
 
 
 public class DefaultPlanComputationRequest implements PlanComputationRequest{
@@ -48,6 +49,8 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 	
 
 	private boolean onboard;
+	
+	private int hash;
 
 	
 	
@@ -88,6 +91,8 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 			@Assisted("destination") SimulationNode destination, @Assisted DemandAgent demandAgent){
 		this.id = id;
 		
+		hash = 0;
+		
 		originTime = (int) Math.round(demandAgent.getDemandTime() / 1000.0);
 		minTravelTime = (int) Math.round(
 				travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
@@ -118,16 +123,33 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 
 	
 
-	@Override
-	public boolean equals(Object obj) {
-		if(!(obj instanceof DefaultPlanComputationRequest)) return false;
-		return demandAgent.toString().equals(((DefaultPlanComputationRequest) obj).demandAgent.toString());
-	}
+//	@Override
+//	public boolean equals(Object obj) {
+//		if(!(obj instanceof DefaultPlanComputationRequest)) return false;
+//		return demandAgent.toString().equals(((DefaultPlanComputationRequest) obj).demandAgent.toString());
+//	}
 
 	@Override
-	public int hashCode() {
-		return demandAgent.hashCode();
+	public boolean equals(Object obj) {
+		return this == obj;
 	}
+
+//	@Override
+//	public int hashCode() {
+//		return demandAgent.getSimpleId();
+//	}
+	@Override
+	public int hashCode() {
+		if(hash == 0){
+			int p = 1_200_007;
+			Random rand = new Random();
+			int a = rand.nextInt(p) + 1;
+			int b = rand.nextInt(p);
+			hash = (int) (((long) a * demandAgent.getSimpleId() + b) % p) % 1_200_000 ;
+		}
+		return hash;
+	}
+	
 
 	@Override
 	public String toString() {

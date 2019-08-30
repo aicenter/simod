@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.vga;
 
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.utils.Benchmark;
@@ -34,6 +35,7 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.amodsim.event.DemandEvent;
 import cz.cvut.fel.aic.amodsim.io.Common;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
@@ -62,6 +64,8 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.statistics.content.GroupSizeData;
 import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStatsVGA;
+import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage.NearestType;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Singleton
 public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHandler{
@@ -75,8 +79,6 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 	private final AmodsimConfig config;
 	
-	private final GroupGenerator groupGenerator;
-	
 	private final GurobiSolver gurobiSolver;
 	
 
@@ -89,6 +91,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 	private final TimeProvider timeProvider;
 	
+	private final Provider<GroupGenerator> groupGeneratorProvider;
 	
 	private List<VGAVehicle> vgaVehicles;
 	
@@ -106,6 +109,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	
 	private int newRequestCount;
 	
+	private int insufficientCapacityCount;
+	
 	private FlexArray groupCounts;
 	
 	private FlexArray groupCountsPlanExists;
@@ -119,18 +124,17 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 	@Inject
 	public VehicleGroupAssignmentSolver(TravelTimeProvider travelTimeProvider, PlanCostProvider travelCostProvider,
-			OnDemandVehicleStorage vehicleStorage, AmodsimConfig config, 
-			TimeProvider timeProvider, GroupGenerator vGAGroupGenerator, 
+			OnDemandVehicleStorage vehicleStorage, AmodsimConfig config, TimeProvider timeProvider, 
 			DefaultPlanComputationRequestFactory requestFactory, TypedSimulation eventProcessor, 
-			GurobiSolver gurobiSolver, 
+			GurobiSolver gurobiSolver, Provider<GroupGenerator> groupGeneratorProvider,
 			OnDemandvehicleStationStorage onDemandvehicleStationStorage) {
 		super(vehicleStorage, travelTimeProvider, travelCostProvider, requestFactory);
 		this.config = config;
-		this.groupGenerator = vGAGroupGenerator;
 		this.gurobiSolver = gurobiSolver;
 		this.eventProcessor = eventProcessor;
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
 		this.timeProvider = timeProvider;
+		this.groupGeneratorProvider = groupGeneratorProvider;
 		activeRequests = new LinkedHashSet<>();
 		vgaVehiclesMapBydemandOnDemandVehicles = new HashMap<>();
 		MathUtils.setTravelTimeProvider(travelTimeProvider);
@@ -170,16 +174,21 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 
 		/* Generating feasible plans for each vehicle */
-		Benchmark.measureTime(() -> generateGroups(drivingVehicles, waitingRequests));	
-		groupGenerationTime = Benchmark.getDurationMsInt();
+		Benchmark benchmark = new Benchmark();
+		benchmark.measureTime(() -> generateGroups(drivingVehicles, waitingRequests));	
+		groupGenerationTime = benchmark.getDurationMsInt();
+		
+////		TO REMOVE TEST
+//		LinkedHashSet<PlanComputationRequest> newRequestsHashSet = new LinkedHashSet<>(newRequests);
 		
 		
-		/* Using an ILP solver to optimally assign a group to each vehicle */		
+		/* Using an ILP solver to optimally assign a group to each vehicle */
+		benchmark = new Benchmark();
 		List<Plan<IOptimalPlanVehicle>> optimalPlans 
-				= Benchmark.measureTime(() -> gurobiSolver.assignOptimallyFeasiblePlans(feasiblePlans, activeRequests));
+				= benchmark.measureTime(() -> gurobiSolver.assignOptimallyFeasiblePlans(feasiblePlans, activeRequests));
 		
 		// ILP solver generation total time 
-		solverTime = Benchmark.getDurationMsInt();
+		solverTime = benchmark.getDurationMsInt();
 
 		/* Filling the output with converted plans */
 		
@@ -220,7 +229,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 		
 		// check if all driving vehicles have a plan
-		checkPlanMapComplete(planMap);
+//		checkPlanMapComplete(planMap, optimalPlans);
 		
 		return planMap;
 	}
@@ -232,15 +241,21 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 	@Override
 	public void handleEvent(Event event) {
-		OnDemandVehicleEvent eventType = (OnDemandVehicleEvent) event.getType();
-		OnDemandVehicleEventContent eventContent = (OnDemandVehicleEventContent) event.getContent();
-		PlanComputationRequest request = ridesharingDispatcher.getRequest(eventContent.getDemandId());
-		VGAVehicle vehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(eventContent.getOnDemandVehicleId());
-		if(eventType == OnDemandVehicleEvent.PICKUP){
-			vehicle.addRequestOnBoard(request);
+		if(event.getType() instanceof OnDemandVehicleEvent){
+			OnDemandVehicleEvent eventType = (OnDemandVehicleEvent) event.getType();
+			OnDemandVehicleEventContent eventContent = (OnDemandVehicleEventContent) event.getContent();
+			PlanComputationRequest request = ridesharingDispatcher.getRequest(eventContent.getDemandId());
+			VGAVehicle vehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(eventContent.getOnDemandVehicleId());
+			if(eventType == OnDemandVehicleEvent.PICKUP){
+				vehicle.addRequestOnBoard(request);
+			}
+			else if(eventType == OnDemandVehicleEvent.DROP_OFF){
+				vehicle.removeRequestOnBoard(request);
+				activeRequests.remove(request);
+			}
 		}
-		else if(eventType == OnDemandVehicleEvent.DROP_OFF){
-			vehicle.removeRequestOnBoard(request);
+		else if(event.isType(DemandEvent.LEFT)){
+			PlanComputationRequest request = (PlanComputationRequest) event.getContent();
 			activeRequests.remove(request);
 		}
 	}
@@ -251,6 +266,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		List<Enum> typesToHandle = new LinkedList<>();
 		typesToHandle.add(OnDemandVehicleEvent.PICKUP);
 		typesToHandle.add(OnDemandVehicleEvent.DROP_OFF);
+		typesToHandle.add(DemandEvent.LEFT);
 		eventProcessor.addEventHandler(this, typesToHandle);
 	}
 
@@ -287,13 +303,15 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		return driverPlan;
 	}
 
-	private List<Plan> computeGroupsForVehicle(VGAVehicle vehicle, Iterable<PlanComputationRequest> waitingRequests) {
-		List<Plan> feasibleGroupPlans = Benchmark.measureTime(() ->
+	private List<Plan> computeGroupsForVehicle(VGAVehicle vehicle, Collection<PlanComputationRequest> waitingRequests) {
+		Benchmark benchmark = new Benchmark();
+		GroupGenerator groupGenerator = groupGeneratorProvider.get();
+		List<Plan> feasibleGroupPlans = benchmark.measureTime(() ->
 					groupGenerator.generateGroupsForVehicle(vehicle, waitingRequests, startTime));
 		
 		// log
 		if(config.ridesharing.vga.logPlanComputationalTime){
-			logPlansPerVehicle(vehicle, feasibleGroupPlans, Benchmark.durationNano);
+			logPlansPerVehicle(groupGenerator, vehicle, feasibleGroupPlans, benchmark.durationNano);
 		}
 		
 		return feasibleGroupPlans;
@@ -315,7 +333,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 	}
 
-	private void logPlansPerVehicle(VGAVehicle vehicle, List<Plan> feasibleGroupPlans, long totalTimeNano) {
+	private synchronized void logPlansPerVehicle(GroupGenerator groupGenerator, VGAVehicle vehicle, 
+			List<Plan> feasibleGroupPlans, long totalTimeNano) {
 		// group generator statistic addition
 		groupCounts.addArrayInPlace(groupGenerator.getGroupCounts());
 		groupCountsPlanExists.addArrayInPlace(groupGenerator.getGroupCountsPlanExists());
@@ -350,7 +369,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	private void logRecords() {
 		
 		GroupSizeData[] groupSizeDataForAllGroupSizes = new GroupSizeData[groupCounts.size()];
-		GroupSizeData[] groupSizeDataForAllGroupSizesPlanExists = new GroupSizeData[groupCounts.size()];
+		GroupSizeData[] groupSizeDataForAllGroupSizesPlanExists = new GroupSizeData[groupCountsPlanExists.size()];
 		for(int i = 0; i < groupCounts.size(); i++){
 			groupSizeDataForAllGroupSizes[i] = new GroupSizeData(computationalTimes.get(i), groupCounts.get(i));
 		}
@@ -378,14 +397,45 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 	}
 
-	private void checkPlanMapComplete(Map<RideSharingOnDemandVehicle, DriverPlan> planMap) {
+	private void checkPlanMapComplete(Map<RideSharingOnDemandVehicle, DriverPlan> planMap, 
+			List<Plan<IOptimalPlanVehicle>> optimalPlans) {
 		for(OnDemandVehicle onDemandVehicle: vehicleStorage){
-			if(onDemandVehicle.getState() != OnDemandVehicleState.WAITING){
+			if(onDemandVehicle.getState() != OnDemandVehicleState.WAITING 
+			&& onDemandVehicle.getState() != OnDemandVehicleState.REBALANCING){
 				if(!planMap.containsKey(onDemandVehicle)){
 					try {
 						throw new Exception("Driving vehicle is not replanned:" + onDemandVehicle);
 					} catch (Exception ex) {
 						Logger.getLogger(VehicleGroupAssignmentSolver.class.getName()).log(Level.SEVERE, null, ex);
+						VGAVehicle vGAVehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(onDemandVehicle.getId());
+						List<Plan> feasiblePlansForVehicle = null;
+						for(VehiclePlanList vpl: feasiblePlans){
+							if(vpl.optimalPlanVehicle == vGAVehicle){
+								feasiblePlansForVehicle = vpl.feasibleGroupPlans;
+								break;
+							}
+						}
+						if(feasiblePlansForVehicle != null){
+							LOGGER.debug("Vehicle has {} feasible plans", feasiblePlansForVehicle.size());
+							
+							Plan optimalPlan = null;
+							for(Plan p: optimalPlans){
+								if(p.getVehicle() == vGAVehicle){
+									optimalPlan = p;
+								}
+							}
+							if(optimalPlan != null){
+								LOGGER.debug("The optimal plan is: ", optimalPlan);
+							}
+							else{
+								LOGGER.debug("There is no optimal plan for vehicle!");
+							}
+						}
+						else{
+							LOGGER.debug("Vehicle has no feasible plans!");
+						}
+						boolean inOptimalPlans = false;
+								
 					}
 				}
 			}
@@ -405,45 +455,21 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 //		LOGGER.info("{} global groups generated", globalFeasibleGroups.size());
 		
 		// groups for driving vehicls
-		for (VGAVehicle vehicle : ProgressBar.wrap(drivingVehicles, "Generating groups for driving vehicles")) {
-			List<Plan> feasibleGroupPlans = computeGroupsForVehicle(vehicle, waitingRequests);
-			VehiclePlanList vehiclePlanList = new VehiclePlanList(vehicle, feasibleGroupPlans);
-			feasiblePlans.add(vehiclePlanList);
-			planCount += feasibleGroupPlans.size();
-		}
+		ProgressBar.wrap(drivingVehicles.stream().parallel(), "Generating groups for driving vehicles")
+				.forEach(vehicle -> computeGroupForDrivingVehicle(vehicle, waitingRequests));
 		
 		// groups for vehicles in the station
 		if(!onDemandvehicleStationStorage.isEmpty()){
 			Map<OnDemandVehicleStation,Integer> usedVehiclesPerStation = new HashMap<>();
-			int insufficientCacityCount = 0;
+			insufficientCapacityCount = 0;
 			
 			// dictionary - all vehicles from a station have the same feasible groups
 			Map<OnDemandVehicleStation,List<Plan>> plansFromStation = new HashMap<>();
 			
-			for(PlanComputationRequest request: ProgressBar.wrap(waitingRequests, "Generating groups for vehicles in station")){
-				OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(request.getFrom());
-				
-				// check if there is not a lack of vehicles in the station
-				int index = usedVehiclesPerStation.containsKey(nearestStation) 
-						? usedVehiclesPerStation.get(nearestStation) : 0;
-				if(index >= nearestStation.getParkedVehiclesCount()){
-					insufficientCacityCount++;
-					continue;
-				}
+			ProgressBar.wrap(waitingRequests.stream().parallel(), "Generating groups for vehicles in station")
+				.forEach(request -> computeGroupForVehicleInStation(request, usedVehiclesPerStation, 
+						plansFromStation, waitingRequests));
 
-				// add all feasible plans from station if not computed yet
-				if(!plansFromStation.containsKey(nearestStation)){
-					OnDemandVehicle onDemandVehicle = nearestStation.getVehicle(0);
-					VGAVehicle vGAVehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(onDemandVehicle.getId());
-					
-					// all waiting request can be assigned to the waiting vehicle
-					List<Plan> feasibleGroupPlans = computeGroupsForVehicle(vGAVehicle, waitingRequests);
-//						groupGenerator.generateGroupsForVehicle(vGAVehicle, waitingRequests, startTime);
-					plansFromStation.put(nearestStation, feasibleGroupPlans);
-				}
-
-				CollectionUtil.incrementMapValue(usedVehiclesPerStation, nearestStation, 1);
-			}
 			
 			// generating virtual vehicle plans
 			for (Map.Entry<OnDemandVehicleStation, Integer> entry : usedVehiclesPerStation.entrySet()) {
@@ -465,9 +491,9 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 				planCount += feasibleGroupPlans.size();
 			}
 			
-			if(insufficientCacityCount > 0){
-				LOGGER.info("{} request won't be served from station due to insufficient capacity",
-						insufficientCacityCount);
+			if(insufficientCapacityCount > 0){
+				LOGGER.info("{} requests won't be served from station due to insufficient capacity",
+						insufficientCapacityCount);
 			}
 		}
 		
@@ -476,5 +502,66 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			printGroupStats(feasiblePlans);
 		}
 	}
+	
+	private void computeGroupForDrivingVehicle(VGAVehicle vehicle, List<PlanComputationRequest> waitingRequests){
+		List<Plan> feasibleGroupPlans = computeGroupsForVehicle(vehicle, waitingRequests);
+		VehiclePlanList vehiclePlanList = new VehiclePlanList(vehicle, feasibleGroupPlans);
+		updatePlans(vehiclePlanList, feasibleGroupPlans);
+	
+//			feasiblePlans.add(vehiclePlanList);
+//			planCount += feasibleGroupPlans.size();
+	}
+	
+	public void computeGroupForVehicleInStation(PlanComputationRequest request, 
+			Map<OnDemandVehicleStation,Integer> usedVehiclesPerStation,
+			Map<OnDemandVehicleStation,List<Plan>> plansFromStation, List<PlanComputationRequest> waitingRequests){
+		OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(
+						request.getFrom(), NearestType.TRAVELTIME_FROM);
+				
+		// add all feasible plans from station if not computed yet
+		if(checkIfComputePlansFromStation(usedVehiclesPerStation, nearestStation, plansFromStation)){
+			OnDemandVehicle onDemandVehicle = nearestStation.getVehicle(0);
+			VGAVehicle vGAVehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(onDemandVehicle.getId());
 
+			// all waiting request can be assigned to the waiting vehicle
+			List<Plan> feasibleGroupPlans = computeGroupsForVehicle(vGAVehicle, waitingRequests);
+//						groupGenerator.generateGroupsForVehicle(vGAVehicle, waitingRequests, startTime);
+			updateGroupPlans(plansFromStation, nearestStation, feasibleGroupPlans);
+		}
+	}
+	
+	private synchronized void updatePlans(VehiclePlanList vehiclePlanList, List<Plan> feasibleGroupPlans){
+		feasiblePlans.add(vehiclePlanList);
+		planCount += feasibleGroupPlans.size();
+	}
+	
+	private synchronized boolean checkIfComputePlansFromStation(Map<OnDemandVehicleStation,Integer> usedVehiclesPerStation, 
+			OnDemandVehicleStation nearestStation, Map<OnDemandVehicleStation,List<Plan>> plansFromStation){
+		
+		
+		int index = usedVehiclesPerStation.containsKey(nearestStation) 
+				? usedVehiclesPerStation.get(nearestStation) : 0;
+		
+		
+		// check if there is not a lack of vehicles in the station
+		if(index == nearestStation.getParkedVehiclesCount()){
+			insufficientCapacityCount++;
+			return false;
+		}
+		
+		CollectionUtil.incrementMapValue(usedVehiclesPerStation, nearestStation, 1);
+		
+		// check if plan is not already computed
+		if(plansFromStation.containsKey(nearestStation)){
+			return false;
+		}
+		
+		plansFromStation.put(nearestStation, null);
+		return true;
+	}
+	
+	private synchronized void updateGroupPlans(Map<OnDemandVehicleStation,List<Plan>> plansFromStation, 
+			OnDemandVehicleStation nearestStation, List<Plan> feasibleGroupPlans){
+		plansFromStation.put(nearestStation, feasibleGroupPlans);
+	}
 }

@@ -25,8 +25,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.utils.CollectionUtil;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.ridesharing.DroppedDemandsAnalyzer;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
@@ -41,9 +43,11 @@ import gurobi.GRBModel;
 import gurobi.GRBVar;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +64,10 @@ public class GurobiSolver {
 	
 	
 	private final StandardPlanCostProvider planCostComputation;
+	
+	private final int timeLimit;
+
+	private final DroppedDemandsAnalyzer droppedDemandsAnalyzer;
 	
 	private GRBEnv env;
 
@@ -78,15 +86,21 @@ public class GurobiSolver {
 	
 	
 	@Inject
-	public GurobiSolver(StandardPlanCostProvider planCostComputation, AmodsimConfig config) {
+	public GurobiSolver(StandardPlanCostProvider planCostComputation, AmodsimConfig config, 
+			DroppedDemandsAnalyzer droppedDemandsAnalyzer) {
 		this.planCostComputation = planCostComputation;
+		this.droppedDemandsAnalyzer = droppedDemandsAnalyzer;
+		iteration = 1;
+		timeLimit = config.ridesharing.vga.solverTimeLimit;
+		
+		// env init
 		env = null;           
 		try {                       
 			env = new GRBEnv(config.amodsimExperimentDir +"/log/mip.log");
 		} catch (GRBException ex) {
 			Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
 		}
-		iteration = 1;
+		
 	}
 	
 	public List<Plan<IOptimalPlanVehicle>> assignOptimallyFeasiblePlans(
@@ -130,7 +144,7 @@ public class GurobiSolver {
 					for (PlanRequestAction action: plan.getActions()) {
 						
 						// add variable once to each request list
-						if(action instanceof PlanActionPickup){
+						if(action instanceof PlanActionDropoff){
 							CollectionUtil.addToListInMap(requestVariableMap, (DefaultPlanComputationRequest) action.getRequest(), newVar);
 						}
 					}
@@ -148,7 +162,7 @@ public class GurobiSolver {
 				}
 				// virtual vehicles
 				else{
-					int limit = ((VirtualVehicle) vehicleEntry.optimalPlanVehicle).getCapacity();
+					int limit = ((VirtualVehicle) vehicleEntry.optimalPlanVehicle).getCarLimit();
 					model.addConstr(vehicleConstraint, GRB.LESS_EQUAL, limit, vehicleConstraintName);
 				}
 				
@@ -158,19 +172,23 @@ public class GurobiSolver {
 			
 			// dropping variables generation (y_r)
 			int requestCounter = 0;
+			Map<GRBVar,PlanComputationRequest> droppingVarsMap = new HashMap<>();
 			for (PlanComputationRequest request : requests) {
-				
-				// variables
-				String newVarName = String.format("droping request %s", request.getId());
-				GRBVar newVar = model.addVar(0.0, 1.0, 0.0, GRB.BINARY, newVarName);
-				
-				// objective
-				objetive.addTerm(10000, newVar);
-				
-				// filling map for constraint 2 
-				CollectionUtil.addToListInMap(requestVariableMap, request, newVar);
-				
-				requestCounter++;
+				if(!request.isOnboard()){
+					// variables
+					String newVarName = String.format("droping request %s", request.getId());
+					GRBVar newVar = model.addVar(0.0, 1.0, 0.0, GRB.BINARY, newVarName);
+
+					// objective
+					objetive.addTerm(100_000, newVar);
+
+					// filling map for constraint 2 
+					CollectionUtil.addToListInMap(requestVariableMap, request, newVar);
+
+					droppingVarsMap.put(newVar, request);
+
+					requestCounter++;
+				}
 			}
 			
 			// constraint 2 - exactly one plan for each request
@@ -199,8 +217,8 @@ public class GurobiSolver {
 //			// solution can be 1% worse than the optimal solution
 //			model.set(GRB.DoubleParam.MIPGap, 0.01);
 		
-			// 2 min limit
-			model.set(GRB.DoubleParam.TimeLimit, 20);
+			// time limit
+			model.set(GRB.DoubleParam.TimeLimit, timeLimit);
 			
 			LOGGER.info("solving start");
 			model.optimize();
@@ -216,10 +234,23 @@ public class GurobiSolver {
 				GRBVar variable = entry.getKey();
 				Plan<IOptimalPlanVehicle> plan = entry.getValue();
 				
-				if(variable.get(GRB.DoubleAttr.X) == 1.0){
+				if(Math.round(variable.get(GRB.DoubleAttr.X)) == 1){
 					optimalPlans.add(plan);
 				}
 			}
+			
+			// debug dropped demands
+			for (Map.Entry<GRBVar, PlanComputationRequest> entry : droppingVarsMap.entrySet()) {
+				GRBVar variable = entry.getKey();
+				PlanComputationRequest request = entry.getValue();
+				if(Math.round(variable.get(GRB.DoubleAttr.X)) == 1){
+					droppedDemandsAnalyzer.debugFail(request);
+					LOGGER.debug("The request was part of {} group plans", requestVariableMap.get(request).size() - 1);
+				}
+			}
+			
+			// check 1 plan for vehicle
+//			checkOnePlanPerVehicle(feasiblePlans, variablePlanMap);
 			
 			gap = model.get(GRB.DoubleAttr.MIPGap);
 			
@@ -231,5 +262,38 @@ public class GurobiSolver {
 		}
 		
 		return null;
+	}
+
+	private void checkOnePlanPerVehicle(List<VehiclePlanList> feasiblePlans, 
+			Map<GRBVar, Plan<IOptimalPlanVehicle>> variablePlanMap) {
+		Set<VGAVehicle> vGAVehicles = new HashSet<>();
+		for (Map.Entry<GRBVar, Plan<IOptimalPlanVehicle>> entry : variablePlanMap.entrySet()) {
+			try {
+				GRBVar variable = entry.getKey();
+				Plan<IOptimalPlanVehicle> plan = entry.getValue();
+				if(Math.round(variable.get(GRB.DoubleAttr.X)) == 1 && plan.getVehicle() instanceof VGAVehicle){
+					if(vGAVehicles.contains(plan.getVehicle())){
+						try {
+							throw new Exception(String.format("More than one plan per vehicle %s", plan.getVehicle()));
+						} catch (Exception ex) {
+							Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
+						}
+					}
+					vGAVehicles.add((VGAVehicle) plan.getVehicle());
+				}
+			} catch (GRBException ex) {
+				Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+		for (VehiclePlanList vehiclePlanList : feasiblePlans) {
+			if(vehiclePlanList.optimalPlanVehicle instanceof VGAVehicle 
+					&& !vGAVehicles.contains(vehiclePlanList.optimalPlanVehicle)){
+				try {
+						throw new Exception(String.format("No plan per vehicle %s", vehiclePlanList.optimalPlanVehicle));
+					} catch (Exception ex) {
+						Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
+					}
+			}
+		}
 	}
 }

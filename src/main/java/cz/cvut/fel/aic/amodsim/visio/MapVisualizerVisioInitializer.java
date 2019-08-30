@@ -30,6 +30,8 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.DefaultVisioInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.GridLayer;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.HighwayLayer;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.LayerManagementLayer;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.MapTilesLayer;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.NodeIdLayer;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.SimulationControlLayer;
 import cz.cvut.fel.aic.alite.simulation.Simulation;
@@ -48,30 +50,45 @@ public class MapVisualizerVisioInitializer  extends DefaultVisioInitializer{
 	
 	private final NodeIdLayer nodeIdLayer;
 	
+	private final LayerManagementLayer layerManagementLayer;
+	
+	private final OnDemandVehicleStationsLayer onDemandVehicleStationsLayer;
+	
+	private final SimpleBackgroundLayer simpleBackgroundLayer;
+	
+	private final MapTilesLayer mapTilesLayer;
+	
 	@Inject
 	public MapVisualizerVisioInitializer(Simulation simulation, PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork,
 			HighwayNetwork highwayNetwork, TramwayNetwork tramwayNetwork, MetrowayNetwork metrowayNetwork, 
 			RailwayNetwork railwayNetwork, SimulationControlLayer simulationControlLayer, GridLayer gridLayer,
-			HighwayLayer highwayLayer, NodeIdLayer nodeIdLayer, AgentpolisConfig config) {
+			HighwayLayer highwayLayer, NodeIdLayer nodeIdLayer, AgentpolisConfig config, 
+			OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, LayerManagementLayer layerManagementLayer,
+			SimpleBackgroundLayer simpleBackgroundLayer, MapTilesLayer mapTilesLayer) {
 		super(simulation, pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork,
 				simulationControlLayer, gridLayer, config);
 		this.highwayLayer = highwayLayer;
 		this.nodeIdLayer = nodeIdLayer;
+		this.layerManagementLayer = layerManagementLayer;
+		this.onDemandVehicleStationsLayer = onDemandVehicleStationsLayer;
+		this.simpleBackgroundLayer = simpleBackgroundLayer;
+		this.mapTilesLayer = mapTilesLayer;
 	}
 	
 	@Override
 	protected void initGraphLayers() {
-		VisManager.registerLayer(ColorLayer.create(Color.white));
-		super.initGraphLayers();
-		VisManager.registerLayer(highwayLayer);
+		VisManager.registerLayer(simpleBackgroundLayer);
+		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Map Tiles", mapTilesLayer));
 	}
 
 	@Override
 	protected void initEntityLayers(Simulation simulation) {
+		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Stations", onDemandVehicleStationsLayer));
 	}
 	
 	@Override
 	protected void initLayersAfterEntityLayers() {
+		VisManager.registerLayer(layerManagementLayer);
 		VisManager.registerLayer(nodeIdLayer);
 	}
 	

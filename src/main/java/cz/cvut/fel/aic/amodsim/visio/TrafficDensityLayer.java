@@ -100,7 +100,7 @@ public class TrafficDensityLayer extends AbstractLayer{
 	private Color getColorForEdge(AllEdgesLoad allEdgesLoad, SimulationEdge edge) {
 		int id = edge.getUniqueId();
 		double averageLoad = allEdgesLoad.getLoadPerEdge(id);
-		double loadPerLength = averageLoad / edge.getLength();
+		double loadPerLength = averageLoad / edge.getLengthCm();
 		return colorMap.getColor(loadPerLength);
 	}
 }

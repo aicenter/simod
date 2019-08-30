@@ -46,6 +46,8 @@ import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.statistics.PickupEventContent;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -110,12 +112,18 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
 	@Override
 	protected void driveToDemandStartLocation() {
+		// safety check that prevents request from being picked up twice because of the delayed pickup event
+		if(((PlanActionPickup) currentTask).request.isOnboard()){
+			currentPlan.taskCompleted();
+			driveToNextTask();
+		}
 		state = OnDemandVehicleState.DRIVING_TO_START_LOCATION;
 		if(getPosition().id == currentTask.getPosition().id){
 			pickupAndContinue();
 		}
 		else{
 			currentTrip = tripsUtil.createTrip(getPosition().id, currentTask.getPosition().id, vehicle);
+			DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
 			driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
 		}
 	}
@@ -199,19 +207,28 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	}
 
 	private void pickupAndContinue() {
-		DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
-		demandAgent.tripStarted(this);
-		vehicle.pickUp(demandAgent);
-		
-		// statistics TODO demand tirp?
-//		demandTrip = tripsUtil.createTrip(currentTask.getDemandAgent().getPosition().id,
-//				currentTask.getLocation().id, vehicle);
-		// demand trip length 0 - need to find out where the statistic is used, does it make sense with rebalancing?
-		eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
-				new PickupEventContent(timeProvider.getCurrentSimTime(), 
-						demandAgent.getSimpleId(), getId(), 0));
-		currentPlan.taskCompleted();
-		driveToNextTask();
+		try {
+			DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
+			if(demandAgent.isDropped()){
+				throw new Exception(
+					String.format("Demand agent %s cannot be picked up, he is already dropped!", demandAgent));
+			}
+			demandAgent.tripStarted(this);
+			vehicle.pickUp(demandAgent);
+
+			// statistics TODO demand tirp?
+	//		demandTrip = tripsUtil.createTrip(currentTask.getDemandAgent().getPosition().id,
+	//				currentTask.getLocation().id, vehicle);
+			// demand trip length 0 - need to find out where the statistic is used, does it make sense with rebalancing?
+			eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
+					new PickupEventContent(timeProvider.getCurrentSimTime(), 
+							demandAgent.getSimpleId(), getId(), 0));
+			currentPlan.taskCompleted();
+			driveToNextTask();
+
+		} catch (Exception ex) {
+			Logger.getLogger(RideSharingOnDemandVehicle.class.getName()).log(Level.SEVERE, null, ex);
+		}
 	}
 
 	private void dropOffAndContinue() {

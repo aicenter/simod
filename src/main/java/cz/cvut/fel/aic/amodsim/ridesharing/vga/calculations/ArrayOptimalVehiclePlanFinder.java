@@ -22,6 +22,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
@@ -29,6 +30,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.PlanActionData;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,12 +41,14 @@ import java.util.List;
  * @param <V>
  */
 @Singleton
-public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extends OptimalVehiclePlanFinder<V>{
+public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> 
+		extends OptimalVehiclePlanFinder<V>{
 
 
 	@Inject
-	public ArrayOptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation, AmodsimConfig config) {
-		super(planCostComputation, config);
+	public ArrayOptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation, AmodsimConfig config,
+			TravelTimeProvider travelTimeProvider) {
+		super(planCostComputation, config, travelTimeProvider);
 	}
 	
 	
@@ -103,8 +107,15 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 				if(newAction instanceof PlanActionDropoff || onBoardCount < vehicle.getCapacity()){
 
 					// max pick up / drop off time check
-					int duration = (int) (MathUtils.getTravelTimeProvider().getExpectedTravelTime(
-							lastPosition, newAction.getPosition()) / 1000.0);		
+					int duration;
+					if(planPositionIndex == 0){
+						duration = (int) (travelTimeProvider.getTravelTime(
+								vehicle.getRealVehicle(), newAction.getPosition()) / 1000.0);
+					}
+					else{
+						duration = (int) (travelTimeProvider.getExpectedTravelTime(
+								lastPosition, newAction.getPosition()) / 1000.0);
+					}
 //					if((newAction instanceof VGAVehiclePlanPickup 
 //							&& newAction.getRequest().getMaxPickupTime() >= endTime + duration)
 //							|| (newAction instanceof VGAVehiclePlanDropoff 
@@ -114,11 +125,12 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 					boolean allActionsFeasible = true;
 					for (int i = 0; i < availableActions.length; i++) {
 						PlanActionData actionData = availableActions[i];
+						PlanRequestAction action = actionData.getAction();
 						if(!actionData.isUsed()){
-							if((newAction instanceof PlanActionPickup 
-								&& newAction.getRequest().getMaxPickupTime() < endTime + duration)
-							|| (newAction instanceof PlanActionDropoff 
-								&& (newAction.getRequest().getMaxDropoffTime() < endTime + duration && !ignoreTime))){
+							if((action instanceof PlanActionPickup 
+								&& action.getRequest().getMaxPickupTime() < endTime + duration)
+							|| (action instanceof PlanActionDropoff 
+								&& (action.getRequest().getMaxDropoffTime() < endTime + duration && !ignoreTime))){
 								allActionsFeasible = false;
 								break;
 							}
@@ -192,7 +204,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 			if(!goDeeper){
 				
 				// last action - we have to go back
-				if(actionIndex == availableActions.length - 1 || infeasibleDueTime){
+				if(actionIndex == availableActions.length - 1){
 					int boundIndex = availableActions.length - 1;
 					while((actionIndex >= boundIndex || infeasibleDueTime) && planPositionIndex > 0){
 						// we remove the last action from plan
@@ -224,6 +236,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 						break;
 					}
 				}
+				
 				// try next action
 				else{
 					actionIndex++;
@@ -289,7 +302,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extend
 					// max pick up / drop off time check
 					int duration;
 					if(planPositionIndex > 0){
-						duration = (int) (MathUtils.getTravelTimeProvider().getExpectedTravelTime(
+						duration = (int) (travelTimeProvider.getExpectedTravelTime(
 								lastPosition, newAction.getPosition()) / 1000.0);
 					}
 					else{

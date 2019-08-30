@@ -26,6 +26,7 @@ import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.init.EventInitializer;
+import cz.cvut.fel.aic.amodsim.init.StationsInitializer;
 import cz.cvut.fel.aic.amodsim.init.StatisticInitializer;
 import cz.cvut.fel.aic.amodsim.io.RebalancingLoader;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
@@ -70,43 +71,31 @@ public class OnDemandVehiclesSimulation {
 		// prepare map, entity storages...
 		creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
 
-//		List<TimeTrip<Long>> osmNodesList;
-		try {
-//			osmNodesList = TripTransform.jsonToTrips(new File(config.preprocessedTrips), Long.class);
-			TripTransform tripTransform = injector.getInstance(TripTransform.class);
-			RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
-			
-			if(config.rebalancing.on){
-				rebalancingLoader.load(new File(config.rebalancing.external.policyFilePath), true);
-				injector.getInstance(ReactiveRebalancing.class).start();
-				injector.getInstance(EventInitializer.class).initialize(
-					tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
-			}
-			else{
-				rebalancingLoader.load(new File(config.rebalancing.external.policyFilePath), true);
-				injector.getInstance(EventInitializer.class).initialize(
-					tripTransform.loadTripsFromTxt(new File(config.tripsPath)),
-					rebalancingLoader.getRebalancingTrips());
-			}
+		TripTransform tripTransform = injector.getInstance(TripTransform.class);
+		RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
 
-			//  injector.getInstance(EntityInitializer.class).initialize(rebalancingLoader.getOnDemandVehicleStations());
+		if(config.rebalancing.on){
+//				rebalancingLoader.load(new File(config.rebalancing.external.policyFilePath), true);
+			// load stations
+			injector.getInstance(StationsInitializer.class).loadStations();
 
-			
+			// start rebalancing
+			injector.getInstance(ReactiveRebalancing.class).start();
 
-			injector.getInstance(StatisticInitializer.class).initialize();
-            
-			// start it up
-			creator.startSimulation();
-
-			if (config.useTripCache) {
-				injector.getInstance(TripsUtilCached.class).saveNewTrips();
-			}
-			injector.getInstance(Statistics.class).simulationFinished();
-
-		} catch (IOException ex) {
-			LOGGER.error(null, ex);
+			// load trips
+			injector.getInstance(EventInitializer.class).initialize(
+				tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
 		}
 
+		injector.getInstance(StatisticInitializer.class).initialize();
+            
+		// start it up
+		creator.startSimulation();
+
+		if (config.useTripCache) {
+			injector.getInstance(TripsUtilCached.class).saveNewTrips();
+		}
+		injector.getInstance(Statistics.class).simulationFinished();
 	}
 
     private void setLoggerFilePath(String config_path) {

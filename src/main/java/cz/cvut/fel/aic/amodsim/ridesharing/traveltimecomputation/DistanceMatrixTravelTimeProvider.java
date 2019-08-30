@@ -20,11 +20,9 @@ package cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.univocity.parsers.common.ParsingContext;
-import com.univocity.parsers.common.processor.AbstractRowProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
-import cz.cvut.fel.aic.agentpolis.simmodel.MoveUtil;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
@@ -46,15 +44,13 @@ import org.slf4j.LoggerFactory;
  * @author fiedlda1
  */
 @Singleton
-public class DistanceMatrixTravelTimeProvider implements TravelTimeProvider{
+public class DistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DistanceMatrixTravelTimeProvider.class);
 	
 	private final PositionUtil positionUtil;
 	
 	private final AmodsimConfig config;
-
-	private final double travelSpeedEstimatePerSecond;
 	
 	private final int[][] distanceMatrix;
 	
@@ -68,26 +64,20 @@ public class DistanceMatrixTravelTimeProvider implements TravelTimeProvider{
 	
 	
 	@Inject
-	public DistanceMatrixTravelTimeProvider(PositionUtil positionUtil, AmodsimConfig config) {
+	public DistanceMatrixTravelTimeProvider(TimeProvider timeProvider, PositionUtil positionUtil, AmodsimConfig config) {
+		super(timeProvider);
 		this.positionUtil = positionUtil;
 		this.config = config;
-		travelSpeedEstimatePerSecond = config.ridesharing.maxDirectSpeedEstimationKmh / 3.6;
 		distanceMatrix = loadDistanceMatrix(config.distanceMatrixFilepath);
 	}
 	
 	
 
 	@Override
-	public double getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
-		callCount++;
-		double distance = distanceMatrix[positionA.getIndex()][positionB.getIndex()];
-		long traveltime = MoveUtil.computeDuration(travelSpeedEstimatePerSecond, distance);
-		return traveltime;
-	}
-
-	@Override
-	public double getExpectedTravelTime(SimulationNode positionA, SimulationNode positionB) {
-		return getTravelTime(null, positionA, positionB);
+	public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
+		callCount++;		
+		int durationInMilliseconds = distanceMatrix[positionA.getIndex()][positionB.getIndex()];
+		return durationInMilliseconds;
 	}
 
 	private int[][] loadDistanceMatrix(String distanceMatrixFilepath) {
@@ -97,7 +87,7 @@ public class DistanceMatrixTravelTimeProvider implements TravelTimeProvider{
 					= new BufferedReader(new InputStreamReader(new FileInputStream(distanceMatrixFilepath), "utf-8"));
 			
 			CsvParserSettings settings = new CsvParserSettings();
-//			settings.getFormat().setLineSeparator("\n");
+			settings.getFormat().setLineSeparator("\r\n");
 
 			//turning off features enabled by default
 			settings.setIgnoreLeadingWhitespaces(false);

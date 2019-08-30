@@ -26,6 +26,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 
 import java.util.*;
 
@@ -46,6 +47,8 @@ public class VGAVehiclePlan {
 	
 	private final double startTime;
 	
+	private final TravelTimeProvider travelTimeProvider;
+	
 	private double endTime;
 	
 	
@@ -53,8 +56,10 @@ public class VGAVehiclePlan {
 	
 	
 
-	public VGAVehiclePlan(IOptimalPlanVehicle vgaVehicle, Set<PlanComputationRequest> group, double startTime){
+	public VGAVehiclePlan(IOptimalPlanVehicle vgaVehicle, Set<PlanComputationRequest> group, double startTime,
+			TravelTimeProvider travelTimeProvider){
 		this.vgaVehicle = vgaVehicle;
+		this.travelTimeProvider = travelTimeProvider;
 		this.discomfort = 0;
 		this.actions = new ArrayList<>();
 		this.requests = new LinkedHashSet<>(group);
@@ -70,6 +75,7 @@ public class VGAVehiclePlan {
 		this.discomfort = vehiclePlan.discomfort;
 		this.startTime = vehiclePlan.startTime;
 		this.endTime = vehiclePlan.endTime;
+		this.travelTimeProvider = vehiclePlan.travelTimeProvider;
 		this.actions = new ArrayList<>(vehiclePlan.actions);
 		this.requests = new LinkedHashSet<>(vehiclePlan.requests);
 		this.onboardRequests = new LinkedHashSet<>(vehiclePlan.onboardRequests);
@@ -92,11 +98,16 @@ public class VGAVehiclePlan {
 	}
 	
 	private void recomputeTime(SimulationNode position) {
-		endTime += MathUtils.getTravelTimeProvider().getExpectedTravelTime(getCurrentPosition(), position) / 1000.0;
+		if(actions.isEmpty()){
+			endTime += travelTimeProvider.getTravelTime(vgaVehicle.getRealVehicle(), position) / 1000.0;
+		}
+		else{
+			endTime += travelTimeProvider.getExpectedTravelTime(getCurrentPosition(), position) / 1000.0;
+		}
 	}
 
 	SimulationNode getCurrentPosition(){
-		if(actions.size() == 0){
+		if(actions.isEmpty()){
 			return vgaVehicle.getPosition();
 		}
 

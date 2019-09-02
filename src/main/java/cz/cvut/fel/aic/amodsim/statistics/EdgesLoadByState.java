@@ -26,6 +26,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.load.All
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 
 /**
@@ -34,12 +35,12 @@ import java.util.HashMap;
  */
 public class EdgesLoadByState extends AllEdgesLoad<OnDemandVehicle, OnDemandVehicleStorage>{
 	
-	private final HashMap<OnDemandVehicleState,HashMap<Integer,Integer>> edgeLoadsPerState;
+	private final HashMap<OnDemandVehicleState,HashMap<BigInteger,Integer>> edgeLoadsPerState;
 	
 	
 	
 
-	public HashMap<OnDemandVehicleState, HashMap<Integer, Integer>> getEdgeLoadsPerState() {
+	public HashMap<OnDemandVehicleState, HashMap<BigInteger, Integer>> getEdgeLoadsPerState() {
 		return edgeLoadsPerState;
 	}
 
@@ -61,7 +62,7 @@ public class EdgesLoadByState extends AllEdgesLoad<OnDemandVehicle, OnDemandVehi
 	
 	
 	@Override
-	protected void countLoadForPosition(String entityId, int edgeId) {
+	protected void countLoadForPosition(String entityId, BigInteger edgeId) {
 		super.countLoadForPosition(entityId, edgeId); 
 		
 		OnDemandVehicleState vehicleState = entityStorage.getEntityById(entityId).getState();

@@ -45,6 +45,7 @@ import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStatsIH;
 import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStatsVGA;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -76,9 +77,9 @@ public class Statistics extends AliteEntity implements EventHandler{
 	
 	private final StationsDispatcher onDemandVehicleStationsCentral;
 	
-	private final LinkedList<HashMap<Integer,Integer>> allEdgesLoadHistory;
+	private final LinkedList<HashMap<BigInteger,Integer>> allEdgesLoadHistory;
 	
-	private final HashMap<OnDemandVehicleState, LinkedList<HashMap<Integer,Integer>>> allEdgesLoadHistoryPerState;
+	private final HashMap<OnDemandVehicleState, LinkedList<HashMap<BigInteger,Integer>>> allEdgesLoadHistoryPerState;
 	
 	private final AmodsimConfig config;
 	
@@ -282,10 +283,10 @@ public class Statistics extends AliteEntity implements EventHandler{
 		if(tickCount % (config.statistics.allEdgesLoadIntervalMilis 
 				/ config.statistics.statisticIntervalMilis) == 0){
 			allEdgesLoadHistory.add(allEdgesLoad.getLoadPerEdge());
-			for (Map.Entry<OnDemandVehicleState,HashMap<Integer, Integer>> stateEntry 
+			for (Map.Entry<OnDemandVehicleState,HashMap<BigInteger, Integer>> stateEntry 
 					: allEdgesLoad.getEdgeLoadsPerState().entrySet()) {
 				OnDemandVehicleState onDemandVehicleState = stateEntry.getKey();
-				HashMap<Integer, Integer> loadPerState = stateEntry.getValue();
+				HashMap<BigInteger, Integer> loadPerState = stateEntry.getValue();
 				allEdgesLoadHistoryPerState.get(onDemandVehicleState).add(loadPerState);
 			}
 			
@@ -339,7 +340,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 		
 		Map<String,Object> outputMap = new HashMap<>();
 		outputMap.put("ALL", allEdgesLoadHistory);
-		for (Map.Entry<OnDemandVehicleState, LinkedList<HashMap<Integer,Integer>>> stateEntry 
+		for (Map.Entry<OnDemandVehicleState, LinkedList<HashMap<BigInteger,Integer>>> stateEntry 
 				: allEdgesLoadHistoryPerState.entrySet()) {
 			outputMap.put(stateEntry.getKey().name(), stateEntry.getValue());
 		}

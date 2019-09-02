@@ -93,8 +93,10 @@ fig.subplots_adjust(wspace=0.05)
 axis1 = axes[0]
 axis2 = axes[1]
 
-axis1.set_xlabel("a) Peak")
-axis2.set_xlabel("b) Off-peak")
+axis1.set_title("a) Peak")
+axis2.set_title("b) Off-peak")
+axis1.set_xlabel("persons per vehicle")
+axis2.set_xlabel("persons per vehicle")
 configure_subplot(axis1)
 
 _n, _bins, patches = axis1.hist([occupancies_in_window_1, occupancies_in_window_2, occupancies_in_window_3, occupancies_in_window_4,

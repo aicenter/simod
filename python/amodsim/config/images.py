@@ -10,6 +10,7 @@ class Images:
         self.delay_histogram_comparison_combined = properties.get("delay_histogram_comparison_combined")
         self.traffic_density_map_comparison = properties.get("traffic_density_map_comparison")
         self.ridesharing_performance_comparison = properties.get("ridesharing_performance_comparison")
+        self.stations = properties.get("stations")
 
 
         pass

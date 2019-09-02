@@ -46,7 +46,7 @@ def plot_edges_optimized(pairs, axis, loads, color_func=None):
 			add_line([edge1["from"]["lonE6"], edge1["from"]["latE6"]], [edge1["to"]["lonE6"], edge1["to"]["latE6"]],
 					  color1)
 		else:
-			edge2 = pair["edge2"];
+			edge2 = pair["edge2"]
 			id2 = str(edge2["id"])
 			color2 = color_func(loads, id=id2, length=edge2["length"], lane_count=edge2["laneCount"])
 			line1 = compute_shift(

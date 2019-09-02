@@ -88,8 +88,11 @@ axis2 = axes[1]
 configure_subplot(axis1)
 configure_subplot(axis2)
 
-axis1.set_xlabel("a) Peak")
-axis2.set_xlabel("b) Off-peak")
+axis1.set_title("a) Peak")
+axis1.set_xlabel("minutes")
+axis1.set_ylabel("customers")
+axis2.set_title("b) Off-peak")
+axis2.set_xlabel("minutes")
 
 _n, _bins, patches = axis1.hist([delays_window_5, delays_window_4, delays_window_3, delays_window_2], bins,
 		  label=common.labels[:0:-1], color=common.colors[:0:-1], histtype='step')

@@ -48,6 +48,8 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehicleP
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.DistanceMatrixTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.visio.DemandLayer;
+import cz.cvut.fel.aic.amodsim.visio.DemandLayerWithJitter;
 import cz.cvut.fel.aic.geographtools.TransportMode;
 
 import java.io.File;
@@ -82,7 +84,7 @@ public class MainModule extends StandardAgentPolisModule{
 		if(amodsimConfig.useTripCache){
 			bind(TripsUtil.class).to(TripsUtilCached.class);
 		}
-//		bind(DemandLayer.class).to(DemandLayerWithJitter.class);
+		bind(DemandLayer.class).to(DemandLayerWithJitter.class);
 		
 //		bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
 		bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);

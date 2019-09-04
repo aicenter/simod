@@ -65,6 +65,8 @@ public class MainModule extends StandardAgentPolisModule{
 	public MainModule(AmodsimConfig amodsimConfig, File localConfigFile) {
 		super(amodsimConfig, localConfigFile, "agentpolis");
 		this.amodsimConfig = amodsimConfig;
+                //clean experiment folder (for merging, must be before setting logger file path in branch feature/saveLogToExperiments)
+                deleteFiles(new File(amodsimConfig.amodsimExperimentDir));
 	}
 
 	@Override
@@ -120,5 +122,17 @@ public class MainModule extends StandardAgentPolisModule{
 				.build(RebalancingOnDemandVehicleStation.OnDemandVehicleStationFactory.class));
 		}
 	} 
-	
+	private void deleteFiles(File folder) {
+            if(folder.exists()){
+                File[] files = folder.listFiles();
+                for (final File fileEntry : files) {
+                    if (fileEntry.isDirectory() && !fileEntry.getName().startsWith("trip_cache")) {
+                        deleteFiles(fileEntry);
+                        fileEntry.delete();
+                    } else if(!fileEntry.isDirectory()){
+                        fileEntry.delete();
+                    }
+                }
+            }
+        }
 }

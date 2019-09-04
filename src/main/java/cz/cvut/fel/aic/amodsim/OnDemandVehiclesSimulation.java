@@ -57,8 +57,6 @@ public class OnDemandVehiclesSimulation {
 			localConfigFile = new File(args[0]);
 		}
 		Injector injector = new AgentPolisInitializer(new MainModule(config, localConfigFile)).initialize();
-                //clean experiment folder (for merging, must be before setting logger file path in branch feature/saveLogToExperiments)
-                deleteFiles(new File(injector.getInstance(AmodsimConfig.class).amodsimExperimentDir));
                 
 		SimulationCreator creator = injector.getInstance(SimulationCreator.class);
 		// prepare map, entity storages...
@@ -90,15 +88,4 @@ public class OnDemandVehiclesSimulation {
 		}
 		injector.getInstance(Statistics.class).simulationFinished();
 	}
-        private void deleteFiles(File folder) {
-            File[] files = folder.listFiles();
-            for (final File fileEntry : files) {
-                if (fileEntry.isDirectory() && !fileEntry.getName().startsWith("trip_cache")) {
-                    deleteFiles(fileEntry);
-                    fileEntry.delete();
-                } else if(!fileEntry.isDirectory()){
-                    fileEntry.delete();
-                }
-            }
-        }
 }

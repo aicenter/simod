@@ -145,17 +145,18 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 			int optimalCarCount = rebalancingStation.getOptimalCarCount();
 			int targetCarCount = (int) Math.round(averageFullness * optimalCarCount);
 			
-			int buffer = (int) (config.rebalancing.buffer * optimalCarCount);
+			int excessBuffer = (int) (config.rebalancing.bufferExcess * optimalCarCount);
+			int shortageBuffer = (int) (config.rebalancing.bufferShortage * optimalCarCount);
 			
 			int compensation = 0;
 			if(carCount > targetCarCount){
-				int targetCarCountWithBuffer = targetCarCount + buffer;
+				int targetCarCountWithBuffer = targetCarCount + excessBuffer;
 				if(carCount > targetCarCountWithBuffer){
 					compensation = targetCarCountWithBuffer - carCount;
 				}
 			}
 			else{
-				int targetCarCountWithBuffer = targetCarCount - buffer;
+				int targetCarCountWithBuffer = targetCarCount - shortageBuffer;
 				if(carCount < targetCarCountWithBuffer){
 					compensation = targetCarCountWithBuffer- carCount;
 				}
@@ -187,7 +188,7 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 				OnDemandVehicleStation stationFrom = compensationFrom.getKey();
 				int fromFlow = compensationFrom.getValue();
 
-				// we filter unly station with out flow (to many vehicles)
+				// we filter only station with out flow (to many vehicles)
 				if(fromFlow < 0){
 					int amountFrom = Math.abs(fromFlow);
 					

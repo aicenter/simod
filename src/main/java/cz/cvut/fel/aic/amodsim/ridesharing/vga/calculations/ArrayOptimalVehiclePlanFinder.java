@@ -34,6 +34,8 @@ import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvi
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -54,7 +56,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 	
 	@Override
 	public Plan<V> computeOptimalVehiclePlanForGroup(V vehicle, LinkedHashSet<PlanComputationRequest> requests, 
-			int startTime, boolean ignoreTime){
+			int startTime, boolean onboardRequestsOnly){
 		
 		// prepare possible actions
 		List<PlanActionData> availableActionsList = new ArrayList(requests.size() * 2);
@@ -116,12 +118,8 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 						duration = (int) (travelTimeProvider.getExpectedTravelTime(
 								lastPosition, newAction.getPosition()) / 1000.0);
 					}
-//					if((newAction instanceof VGAVehiclePlanPickup 
-//							&& newAction.getRequest().getMaxPickupTime() >= endTime + duration)
-//							|| (newAction instanceof VGAVehiclePlanDropoff 
-//							&& (newAction.getRequest().getMaxDropoffTime() >= endTime + duration || ignoreTime))){
 						
-//					 actions feasibility check
+					// actions feasibility check
 					boolean allActionsFeasible = true;
 					for (int i = 0; i < availableActions.length; i++) {
 						PlanActionData actionData = availableActions[i];
@@ -130,7 +128,11 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 							if((action instanceof PlanActionPickup 
 								&& action.getRequest().getMaxPickupTime() < endTime + duration)
 							|| (action instanceof PlanActionDropoff 
-								&& (action.getRequest().getMaxDropoffTime() < endTime + duration && !ignoreTime))){
+								&& (action.getRequest().getMaxDropoffTime() < endTime + duration)
+								// extra 10s for onboard requests
+								&& (!onboardRequestsOnly 
+										|| endTime + duration - action.getRequest().getMaxDropoffTime() > 10)
+									)){
 								allActionsFeasible = false;
 								break;
 							}
@@ -245,6 +247,14 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 		}
 		
 		if(bestPlan == null){
+			if(onboardRequestsOnly){
+				try {
+					throw new Exception(String.format("Previous plan is not feasible for vehicle %s",
+							vehicle));
+				} catch (Exception ex) {
+					Logger.getLogger(ArrayOptimalVehiclePlanFinder.class.getName()).log(Level.SEVERE, null, ex);
+				}
+			}
 			return null;
 		}
 		

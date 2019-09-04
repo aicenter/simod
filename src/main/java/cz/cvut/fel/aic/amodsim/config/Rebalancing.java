@@ -6,15 +6,18 @@ import java.lang.Integer;
 import java.util.Map;
 
 public class Rebalancing {
-  public Integer period;
+  public Double bufferExcess;
 
-  public Double buffer;
+  public Double bufferShortage;
+
+  public Integer period;
 
   public Boolean on;
 
   public Rebalancing(Map rebalancing) {
+    this.bufferExcess = (Double) rebalancing.get("buffer_excess");
+    this.bufferShortage = (Double) rebalancing.get("buffer_shortage");
     this.period = (Integer) rebalancing.get("period");
-    this.buffer = (Double) rebalancing.get("buffer");
     this.on = (Boolean) rebalancing.get("on");
   }
 }

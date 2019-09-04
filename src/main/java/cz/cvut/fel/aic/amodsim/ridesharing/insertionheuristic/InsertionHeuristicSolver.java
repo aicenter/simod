@@ -465,7 +465,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			planMap.put(bestPlan.vehicle, bestPlan.plan);
 		}
 		else{
-			benchmark = new Benchmark();
+        	benchmark = new Benchmark();
 			benchmark.measureTime(() ->	droppedDemandsAnalyzer.debugFail(request));
 			debugFailTime += benchmark.getDurationMs();
 		}

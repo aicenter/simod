@@ -58,9 +58,7 @@ public class OnDemandVehiclesSimulation {
                     localConfigFile = new File(args[0]);
 		}               
 		Injector injector = new AgentPolisInitializer(new MainModule(config, localConfigFile)).initialize();
-                //set logger file path (for merging, must be after cleanup folder in branch feature/clear_exp_folder)
-                setLoggerFilePath(injector.getInstance(AmodsimConfig.class).amodsimExperimentDir);
-                
+                     
                 SimulationCreator creator = injector.getInstance(SimulationCreator.class);         
 		// prepare map, entity storages...
 		creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
@@ -91,12 +89,4 @@ public class OnDemandVehiclesSimulation {
 		}
 		injector.getInstance(Statistics.class).simulationFinished();
 	}
-
-        private void setLoggerFilePath(String experiments_path) {         
-                LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-                FileAppender appender =
-                (FileAppender) lc.getLogger("ROOT").getAppender("FILE");
-                appender.setFile(experiments_path+"\\log\\log.txt");
-                appender.start();
-        }
 }

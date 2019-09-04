@@ -18,6 +18,8 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.core.FileAppender;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.InsertionHeuristicSolver;
 import com.google.common.collect.Sets;
@@ -53,6 +55,7 @@ import cz.cvut.fel.aic.geographtools.TransportMode;
 import java.io.File;
 
 import java.util.Set;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -65,6 +68,8 @@ public class MainModule extends StandardAgentPolisModule{
 	public MainModule(AmodsimConfig amodsimConfig, File localConfigFile) {
 		super(amodsimConfig, localConfigFile, "agentpolis");
 		this.amodsimConfig = amodsimConfig;
+                //set logger file path (for merging, must be after cleanup folder in branch feature/clear_exp_folder)
+                setLoggerFilePath(amodsimConfig.amodsimExperimentDir);
 	}
 
 	@Override
@@ -120,5 +125,13 @@ public class MainModule extends StandardAgentPolisModule{
 				.build(RebalancingOnDemandVehicleStation.OnDemandVehicleStationFactory.class));
 		}
 	} 
+        
+        private void setLoggerFilePath(String experiments_path) {         
+                LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+                FileAppender appender =
+                (FileAppender) lc.getLogger("ROOT").getAppender("FILE");
+                appender.setFile(experiments_path+"\\log\\log.txt");
+                appender.start();
+        }
 	
 }

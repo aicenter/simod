@@ -179,7 +179,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		groupGenerationTime = Benchmark.getDurationMsInt();
 		
 		
-		/* Using an ILP solver to optimally assign a group to each vehicle */		
+		/* Using an ILP solver to optimally assign a group to each vehicle */
+                //feasiblePlans.sort(new MySort());
 		List<Plan<IOptimalPlanVehicle>> optimalPlans 
 				= Benchmark.measureTime(() -> gurobiSolver.assignOptimallyFeasiblePlans(feasiblePlans, activeRequests));
 		
@@ -301,9 +302,9 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		
 		return feasibleGroupPlans;
 	}
-	private Map<VGAVehicle,List<Plan>> computeGroupsForVehicles(List<VGAVehicle> vehicles, 
+	private LinkedHashMap<VGAVehicle,List<Plan>> computeGroupsForVehicles(List<VGAVehicle> vehicles, 
 			Collection<PlanComputationRequest> waitingRequests) {
-		Map<VGAVehicle,List<Plan>> feasibleGroupPlans = Benchmark.measureTime(() ->
+		LinkedHashMap<VGAVehicle,List<Plan>> feasibleGroupPlans = Benchmark.measureTime(() ->
 					groupGenerator.generateGroupsForVehicleClean(vehicles, waitingRequests, startTime));
 		
 		// log
@@ -513,12 +514,11 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			feasiblePlans.add(vehiclePlanList);
 			planCount += feasibleGroupPlans.size();
 		}*/
-		Map<VGAVehicle,List<Plan>> groupPlans = computeGroupsForVehicles(drivingVehicles, waitingRequests);
+		LinkedHashMap<VGAVehicle,List<Plan>> groupPlans = computeGroupsForVehicles(drivingVehicles, waitingRequests);
                 for (Map.Entry<VGAVehicle,List<Plan>> entry : groupPlans.entrySet()) {
                     feasiblePlans.add(new VehiclePlanList(entry.getKey(), entry.getValue()));
                     planCount += entry.getValue().size();
-                }
-			
+                }			
             
 					
 		// groups for vehicles in the station
@@ -554,8 +554,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 				}
 
 				CollectionUtil.incrementMapValue(usedVehiclesPerStation, nearestStation, 1);
-			}
-                        Map<VGAVehicle,List<Plan>> carPlans = computeGroupsForVehicles(vehicles, waitingRequests);
+			} 
+                       LinkedHashMap<VGAVehicle,List<Plan>> carPlans = computeGroupsForVehicles(vehicles, waitingRequests);
                         for (int i = 0; i < stations.size(); i++) {                     
                             plansFromStation.replace(stations.get(i), carPlans.get(vehicles.get(i)));                        
                         }
@@ -591,5 +591,49 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			printGroupStats(feasiblePlans);
 		}
 	}
+private class MySort implements Comparator<VehiclePlanList> 
+{ 
+    // Used for sorting in ascending order of 
+    // roll number 
+    @Override
+    public int compare(VehiclePlanList a, VehiclePlanList b) 
+    {
+        int a_l = 0;
+        int b_l = 0;
+        for (int i = 1; i > 0; i++) {
+            if(a.optimalPlanVehicle.getId().charAt(a.optimalPlanVehicle.getId().length()-i) != ' '){
+                a_l++;
+            }else{
+                break;
+            }
+        }
+        for (int i = 1; i > 0; i++) {
+            if(b.optimalPlanVehicle.getId().charAt(b.optimalPlanVehicle.getId().length()-i) != ' '){
+                b_l++;
+            }else{
+                break;
+            }
+        }
+        if(a_l > b_l){
+            return 1;
+        }else if(a_l < b_l){
+            return -1;
+        }else{
+            int lenght = a_l;
+            for (int i = lenght; i > 0; i--) {
+                if(a.optimalPlanVehicle.getId().charAt(a.optimalPlanVehicle.getId().length()-i) >
+                        b.optimalPlanVehicle.getId().charAt(b.optimalPlanVehicle.getId().length()-i)){
+                    return 1;
+                }else if(a.optimalPlanVehicle.getId().charAt(a.optimalPlanVehicle.getId().length()-i) <
+                        b.optimalPlanVehicle.getId().charAt(b.optimalPlanVehicle.getId().length()-i)){
+                    return -1;
+                }
+            }
+            
+            
+        }
 
+        return 0;
+    } 
+}
 }

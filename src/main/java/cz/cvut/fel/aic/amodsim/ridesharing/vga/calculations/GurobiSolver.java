@@ -23,6 +23,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.utils.CollectionUtil;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
@@ -40,6 +41,7 @@ import gurobi.GRBModel;
 import gurobi.GRBVar;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +59,7 @@ public class GurobiSolver {
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GurobiSolver.class);
 	
-	
+	private final TimeProvider timeProvider;
 	private final StandardPlanCostProvider planCostComputation;
 	
 	private GRBEnv env;
@@ -77,7 +79,7 @@ public class GurobiSolver {
 	
 	
 	@Inject
-	public GurobiSolver(StandardPlanCostProvider planCostComputation) {
+	public GurobiSolver(TimeProvider timeProvider, StandardPlanCostProvider planCostComputation) {
 		this.planCostComputation = planCostComputation;
 		env = null;
 		try {
@@ -86,6 +88,7 @@ public class GurobiSolver {
 			Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
 		}
 		iteration = 1;
+                this.timeProvider = timeProvider;
 	}
 	
 	public List<Plan<IOptimalPlanVehicle>> assignOptimallyFeasiblePlans(
@@ -98,10 +101,10 @@ public class GurobiSolver {
 			
 			
 			// map for solution processing
-			Map<GRBVar,Plan<IOptimalPlanVehicle>> variablePlanMap = new HashMap<>();
+			Map<GRBVar,Plan<IOptimalPlanVehicle>> variablePlanMap = new LinkedHashMap<>();
 			
 			// map for request constraint generation
-			Map<PlanComputationRequest,List<GRBVar>> requestVariableMap = new HashMap<>();
+			Map<PlanComputationRequest,List<GRBVar>> requestVariableMap = new LinkedHashMap<>();
 			
 			int vehicleCounter = 0;
 			for (VehiclePlanList vehicleEntry : feasiblePlans) {
@@ -202,9 +205,10 @@ public class GurobiSolver {
 			model.set(GRB.DoubleParam.TimeLimit, 20);
 			
 			LOGGER.info("solving start");
+                        model.write("C:/Users/matal/Desktop/logs/3-7_others_2/"+(timeProvider.getCurrentSimTime() /1000)+".lp");
 			model.optimize();
 			LOGGER.info("solving finished");
-			
+			model.write("C:/Users/matal/Desktop/logs/3-7_others_2/"+(timeProvider.getCurrentSimTime() /1000)+".sol");
 			LOGGER.info("Objective function value: {}", model.get(GRB.DoubleAttr.ObjVal));
 			
 			

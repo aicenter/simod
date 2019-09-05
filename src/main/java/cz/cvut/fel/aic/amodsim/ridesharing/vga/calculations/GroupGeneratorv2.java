@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -1109,7 +1110,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 			LOGGER.error(null, ex);
 		}
 	}    
-    public Map<V,List<Plan>> generateGroupsForVehicleClean(List<V> vehicles, Collection<DefaultPlanComputationRequest> requests, int startTime) {
+    public LinkedHashMap<V,List<Plan>> generateGroupsForVehicleClean(List<V> vehicles, Collection<DefaultPlanComputationRequest> requests, int startTime) {
             //group generation time limit is not here
 
             // statistics
@@ -1140,7 +1141,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
             
 
             // F_v all groups feasible for vehicle with optimal plan already assigned to them - the output
-            Map<V,List<Plan>> groupPlans = new HashMap<>();
+            LinkedHashMap<V,List<Plan>> groupPlans = new LinkedHashMap<>();
 
             Map<V,Set<PlanComputationRequest>> onBoardRequestLock = new HashMap<>();
             for (V vehicle: vehicles) {

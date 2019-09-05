@@ -205,10 +205,8 @@ public class GurobiSolver {
 			model.set(GRB.DoubleParam.TimeLimit, 20);
 			
 			LOGGER.info("solving start");
-                        model.write("C:/Users/matal/Desktop/logs/3-7_others_2/"+(timeProvider.getCurrentSimTime() /1000)+".lp");
 			model.optimize();
 			LOGGER.info("solving finished");
-			model.write("C:/Users/matal/Desktop/logs/3-7_others_2/"+(timeProvider.getCurrentSimTime() /1000)+".sol");
 			LOGGER.info("Objective function value: {}", model.get(GRB.DoubleAttr.ObjVal));
 			
 			

@@ -1110,7 +1110,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 			LOGGER.error(null, ex);
 		}
 	}    
-    public LinkedHashMap<V,List<Plan>> generateGroupsForVehicleClean(List<V> vehicles, Collection<DefaultPlanComputationRequest> requests, int startTime) {
+    public Map<V,List<Plan>> generateGroupsForVehicleClean(List<V> vehicles, Collection<DefaultPlanComputationRequest> requests, int startTime) {
             //group generation time limit is not here
 
             // statistics
@@ -1141,7 +1141,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
             
 
             // F_v all groups feasible for vehicle with optimal plan already assigned to them - the output
-            LinkedHashMap<V,List<Plan>> groupPlans = new LinkedHashMap<>();
+            Map<V,List<Plan>> groupPlans = new LinkedHashMap<>();
 
             Map<V,Set<PlanComputationRequest>> onBoardRequestLock = new HashMap<>();
             for (V vehicle: vehicles) {

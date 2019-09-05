@@ -1436,7 +1436,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
             
 
             // F_v all groups feasible for vehicle with optimal plan already assigned to them - the output
-            Map<V,List<Plan>> groupPlans = new HashMap<>();
+            Map<V,List<Plan>> groupPlans = new LinkedHashMap<>();
 
             Map<V,Set<PlanComputationRequest>> onBoardRequestLock = new HashMap<>();
             for (V vehicle: vehicles) {

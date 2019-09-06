@@ -86,7 +86,8 @@ public class TripsUtilCached extends TripsUtil {
 			tripCacheFolder.mkdirs();
 			cacheFileCounter = 0;
 		}
-		
+                
+		              
 		newTrips = new HashMap<>();
 
 	}
@@ -164,5 +165,4 @@ public class TripsUtilCached extends TripsUtil {
 			LOGGER.error(null, ex);
 		}
 	}
-
 }

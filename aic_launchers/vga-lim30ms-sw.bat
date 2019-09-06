@@ -1,1 +1,1 @@
-mvn exec:exec -Dexec.executable="java" -Dexec.args="-classpath %%classpath -Xmx60g cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation C:/Workspaces/AIC/amod-to-agentpolis/local_config_files/AIC/vga-lim30ms-sw.cfg" -Dfile.encoding=UTF-8
+mvn exec:exec -Dexec.executable="java" -Dexec.args="-classpath %%classpath -Xmx60g cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation C:/Workspaces/AIC/amod-to-agentpolis/local_config_files/AIC/vga-lim30ms-sw.cfg" -Dfile.encoding=UTF-8 | tee stdout/vga-lim30ms-sw.log

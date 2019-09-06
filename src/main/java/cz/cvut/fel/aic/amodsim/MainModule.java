@@ -70,6 +70,8 @@ public class MainModule extends StandardAgentPolisModule{
 	public MainModule(AmodsimConfig amodsimConfig, File localConfigFile) {
 		super(amodsimConfig, localConfigFile, "agentpolis");
 		this.amodsimConfig = amodsimConfig;
+                //clean experiment folder (for merging, must be before setting logger file path in branch feature/saveLogToExperiments)
+                deleteFiles(new File(amodsimConfig.amodsimExperimentDir));
                 //set logger file path (for merging, must be after cleanup folder in branch feature/clear_exp_folder)
                 setLoggerFilePath(amodsimConfig.amodsimExperimentDir);
 	}
@@ -127,13 +129,26 @@ public class MainModule extends StandardAgentPolisModule{
 				.build(RebalancingOnDemandVehicleStation.OnDemandVehicleStationFactory.class));
 		}
 	} 
-        
-        private void setLoggerFilePath(String experiments_path) {         
-                LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-                FileAppender appender =
-                (FileAppender) lc.getLogger("ROOT").getAppender("FILE");
-                appender.setFile(experiments_path+"\\log\\log.txt");
-                appender.start();
-        }
+	private void deleteFiles(File folder) {
+		if(folder.exists()){
+			File[] files = folder.listFiles();
+			for (final File fileEntry : files) {
+				if (fileEntry.isDirectory() && !fileEntry.getName().startsWith("trip_cache")) {
+					deleteFiles(fileEntry);
+					fileEntry.delete();
+				} else if(!fileEntry.isDirectory()){
+					fileEntry.delete();
+				}
+			}
+		}
+	}
 	
+	private void setLoggerFilePath(String experiments_path) {         
+			LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+			FileAppender appender =
+			(FileAppender) lc.getLogger("ROOT").getAppender("FILE");
+			appender.setFile(experiments_path+"\\log\\log.txt");
+			appender.start();
+	}
+           
 }

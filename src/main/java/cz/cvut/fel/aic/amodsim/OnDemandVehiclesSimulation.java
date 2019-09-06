@@ -18,6 +18,8 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.core.FileAppender;
 import com.google.inject.Injector;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
@@ -33,7 +35,6 @@ import cz.cvut.fel.aic.amodsim.statistics.Statistics;
 import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import org.slf4j.LoggerFactory;
 
@@ -54,10 +55,11 @@ public class OnDemandVehiclesSimulation {
 		
 		File localConfigFile = null;
 		if(args.length > 0){
-			localConfigFile = new File(args[0]);
-		}
+                    localConfigFile = new File(args[0]);
+		}               
 		Injector injector = new AgentPolisInitializer(new MainModule(config, localConfigFile)).initialize();
-		SimulationCreator creator = injector.getInstance(SimulationCreator.class);
+                     
+                SimulationCreator creator = injector.getInstance(SimulationCreator.class);         
 		// prepare map, entity storages...
 		creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
 
@@ -78,7 +80,7 @@ public class OnDemandVehiclesSimulation {
 		}
 
 		injector.getInstance(StatisticInitializer.class).initialize();
-
+            
 		// start it up
 		creator.startSimulation();
 

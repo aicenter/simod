@@ -94,9 +94,9 @@ public class GurobiSolver {
 		timeLimit = config.ridesharing.vga.solverTimeLimit;
 		
 		// env init
-		env = null;
-		try {
-			env = new GRBEnv("mip.log");
+		env = null;           
+		try {                       
+			env = new GRBEnv(config.amodsimExperimentDir +"/log/mip.log");
 		} catch (GRBException ex) {
 			Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
 		}

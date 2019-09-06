@@ -102,7 +102,7 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 		// gurobi environment init
 		env = null;
 		try {
-			env = new GRBEnv("mip-rebalancing.log");
+			env = new GRBEnv(config.amodsimExperimentDir +"/log/mip-rebalancing.log");
 		} catch (GRBException ex) {
 			Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
 		}

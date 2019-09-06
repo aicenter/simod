@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.tongfei.progressbar.ProgressBar;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -61,7 +62,11 @@ import me.tongfei.progressbar.ProgressBar;
 @Singleton
 public class InsertionHeuristicSolver extends DARPSolver implements EventHandler{
 	
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(InsertionHeuristicSolver.class);
+	
 	private static final int INFO_PERIOD = 1000;
+	
+	
 
 	private final PositionUtil positionUtil;
 	
@@ -342,12 +347,10 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			
 			/* check max time for all unfinished demands */
 			
-			int delta = 5;
-			
 			// check max time check for the new action
 			if(newTask instanceof PlanRequestAction){
 				int maxTime = ((PlanRequestAction) newTask).getMaxTime();
-				if(maxTime < curentTaskTimeInSeconds + delta){
+				if(maxTime < curentTaskTimeInSeconds){
 					return null;
 				}
 			}
@@ -357,7 +360,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 				PlanAction remainingAction = currentPlan.plan.get(index);
 				if(!(remainingAction instanceof PlanActionCurrentPosition)){
 					PlanRequestAction remainingRequestAction = (PlanRequestAction) remainingAction;
-					if(remainingRequestAction.getMaxTime() < curentTaskTimeInSeconds + delta){
+					if(remainingRequestAction.getMaxTime() < curentTaskTimeInSeconds){
 						return null;
 					}
 				}
@@ -365,14 +368,14 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			
 			// check max time for pick up action
 			if(newPlanIndex <= pickupOptionIndex){
-				if(planComputationRequest.getPickUpAction().getMaxTime() < curentTaskTimeInSeconds + delta){
+				if(planComputationRequest.getPickUpAction().getMaxTime() < curentTaskTimeInSeconds){
 					return null;
 				}
 			}
 			
 			// check max time for drop off action
 			if(newPlanIndex <= dropoffOptionIndex){
-				if(planComputationRequest.getDropOffAction().getMaxTime() < curentTaskTimeInSeconds + delta){
+				if(planComputationRequest.getDropOffAction().getMaxTime() < curentTaskTimeInSeconds){
 					return null;
 				}
 			}
@@ -465,6 +468,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			planMap.put(bestPlan.vehicle, bestPlan.plan);
 		}
 		else{
+			LOGGER.debug("Request {} cannot be served!", request);
         	benchmark = new Benchmark();
 			benchmark.measureTime(() ->	droppedDemandsAnalyzer.debugFail(request));
 			debugFailTime += benchmark.getDurationMs();

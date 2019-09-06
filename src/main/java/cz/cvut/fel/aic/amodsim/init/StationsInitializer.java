@@ -52,25 +52,26 @@ public class StationsInitializer {
 	
 	
 	public void loadStations(){
-		List<Integer> stationIndexes = loadStationIndexes(config.stationPositionFilepath);
-		LOGGER.info("{} Stations indexes loaded from {}", stationIndexes.size(), config.stationPositionFilepath);
+		List<String[]> stationRows = loadStationRows(config.stationPositionFilepath);
+		LOGGER.info("{} Stations indexes loaded from {}", stationRows.size(), config.stationPositionFilepath);
 		
 		int counter = 0;
 		int discarded = 0;
-		for(int index: stationIndexes){
+		for(String[] row: stationRows){
+			int index = Integer.parseInt(row[0]);
 			SimulationNode node = nodesMappedByIndex.getNodeByIndex(index);
 			if(node == null){
 				LOGGER.info("Station at node with index {} discarded as it is not in the Agentpolis road graph", index);
 				discarded++;
 			}
 			else{
-				createStation(node, config.vehiclesPerStation, counter++);
+				createStation(node, Integer.parseInt(row[1]) + 100, counter++);
 			}
 		}
 		LOGGER.info("{} Stations Discarded", discarded);
 	}
 	
-	private List<Integer> loadStationIndexes(String filepath){
+	private List<String[]> loadStationRows(String filepath){
 		LOGGER.info("Loading station positions from: {}", filepath);
 		
 		try {
@@ -93,13 +94,13 @@ public class StationsInitializer {
 			String[] row;
 			
 			// first row processing
-			List<Integer> stationIndexes = new ArrayList<>();
+			List<String[]> stationRows = new ArrayList<>();
 			while (it.hasNext()) {
 				row = it.next();
-				stationIndexes.add(Integer.parseInt(row[0]));
+				stationRows.add(row);
 			}
 			parser.stopParsing();
-			return stationIndexes;
+			return stationRows;
 		} 
 		catch (FileNotFoundException | UnsupportedEncodingException ex) {
 			Logger.getLogger(DistanceMatrixTravelTimeProvider.class.getName()).log(Level.SEVERE, null, ex);

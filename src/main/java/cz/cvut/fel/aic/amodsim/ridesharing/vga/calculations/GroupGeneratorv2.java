@@ -1606,7 +1606,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                         }                       
                     }
                     else{
-                        final Set<GroupData> groupsForNN = new LinkedHashSet<>();
+                        Set<GroupData> groupsForNN = new LinkedHashSet<>();
                         
                         for (V vehicle : vehicles) {
                             // current groups for the next iteration
@@ -1653,9 +1653,10 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                         }
                         if(!groupsForNN.isEmpty()){
                             end = false;
-                            final int h = currentGroupSize;
+                            /*final int h = currentGroupSize;
                             Benchmark.measureTime(() -> nn.setProbability(groupsForNN, h));
-                            nn_time[currentGroupSize-2] += Benchmark.getDurationMsInt();
+                            nn_time[currentGroupSize-2] += Benchmark.getDurationMsInt();*/
+                            nn.setProbability(groupsForNN, currentGroupSize);
                         }   
                         for (GroupData newGroupToCheck : groupsForNN) {
                             if(newGroupToCheck.getFeasible() < 0.5){

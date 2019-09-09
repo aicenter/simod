@@ -460,7 +460,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		
 		// groups for vehicles in the station
 		if(!onDemandvehicleStationStorage.isEmpty()){
-			Map<OnDemandVehicleStation,Integer> usedVehiclesPerStation = new HashMap<>();
+			Map<OnDemandVehicleStation,Integer> usedVehiclesPerStation = new LinkedHashMap<>();
 			insufficientCapacityCount = 0;
 			
 			// dictionary - all vehicles from a station have the same feasible groups

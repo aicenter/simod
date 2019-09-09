@@ -44,6 +44,7 @@ import gurobi.GRBVar;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -113,10 +114,10 @@ public class GurobiSolver {
 			
 			
 			// map for solution processing
-			Map<GRBVar,Plan<IOptimalPlanVehicle>> variablePlanMap = new HashMap<>();
+			Map<GRBVar,Plan<IOptimalPlanVehicle>> variablePlanMap = new LinkedHashMap<>();
 			
 			// map for request constraint generation
-			Map<PlanComputationRequest,List<GRBVar>> requestVariableMap = new HashMap<>();
+			Map<PlanComputationRequest,List<GRBVar>> requestVariableMap = new LinkedHashMap<>();
 			
 			int vehicleCounter = 0;
 			for (VehiclePlanList vehicleEntry : feasiblePlans) {

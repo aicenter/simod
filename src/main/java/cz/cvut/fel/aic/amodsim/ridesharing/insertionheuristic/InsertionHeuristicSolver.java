@@ -30,6 +30,7 @@ import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
@@ -46,6 +47,8 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStatsIH;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
+import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -84,6 +87,8 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	
 	private final DroppedDemandsAnalyzer droppedDemandsAnalyzer;
 	
+	private final OnDemandvehicleStationStorage onDemandvehicleStationStorage;
+	
 	
 	
 	private long callCount = 0;
@@ -108,6 +113,8 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	
 	private PlanData bestPlan;
 	
+	OnDemandVehicle vehicleFromNearestStation;
+	
 	
 	
 	
@@ -116,13 +123,15 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	public InsertionHeuristicSolver(TravelTimeProvider travelTimeProvider, PlanCostProvider travelCostProvider, 
 			OnDemandVehicleStorage vehicleStorage, PositionUtil positionUtil,
 			AmodsimConfig config, TimeProvider timeProvider, DefaultPlanComputationRequestFactory requestFactory,
-			TypedSimulation eventProcessor, DroppedDemandsAnalyzer droppedDemandsAnalyzer) {
+			TypedSimulation eventProcessor, DroppedDemandsAnalyzer droppedDemandsAnalyzer,
+			OnDemandvehicleStationStorage onDemandvehicleStationStorage) {
 		super(vehicleStorage, travelTimeProvider, travelCostProvider, requestFactory);
 		this.positionUtil = positionUtil;
 		this.config = config;
 		this.timeProvider = timeProvider;
 		this.eventProcessor = eventProcessor;
 		this.droppedDemandsAnalyzer = droppedDemandsAnalyzer;
+		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
 		
 		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
 		maxDistance = (double) config.ridesharing.maxProlongationInSeconds 
@@ -168,14 +177,17 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			}
 		}
 		
-		if(requests.size() > 1){
+		List<OnDemandVehicle> vehiclesForPlanning = getDrivingVehicles();
+		int[] usedVehiclesPerStation = new int[onDemandvehicleStationStorage.size()];
+		
+		if(requests.size() > 10){
 			for(PlanComputationRequest request: ProgressBar.wrap(requests, "Processing new requests")){
-				processRequest(request);
+				processRequest(request, vehiclesForPlanning, usedVehiclesPerStation);
 			}
 		}
 		else{
 			for(PlanComputationRequest request: requests){
-				processRequest(request);
+				processRequest(request, vehiclesForPlanning, usedVehiclesPerStation);
 			}
 		}
 		
@@ -430,13 +442,26 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 				requests.size()));
 	}
 
-	private void computeBestPlanForRequest(PlanComputationRequest request) {
+	private void computeBestPlanForRequest(PlanComputationRequest request, List<OnDemandVehicle> vehiclesForPlanning, int[] usedVehiclesPerStation) {
 		minCostIncrement = Double.MAX_VALUE;
 		bestPlan = null;
+		
+		OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(request.getFrom(), 
+				OnDemandvehicleStationStorage.NearestType.TRAVELTIME_FROM);
+		int indexFromEnd = usedVehiclesPerStation[Integer.parseInt(nearestStation.getId())];
+		int index = nearestStation.getParkedVehiclesCount() - 1 - indexFromEnd;
+		
+		if(index >= 0){
+			vehicleFromNearestStation = nearestStation.getVehicle(index);
+			vehiclesForPlanning.add(vehicleFromNearestStation);
+		}
+		else{
+			LOGGER.warn("Nearest station {} empty for request {}", nearestStation, request);
+		}
 
 		long iterationStartTime = System.nanoTime();
 
-		vehicleStorage.stream().parallel().forEach((tVvehicle) -> processRequestVehicleCombination(request, tVvehicle));
+		vehiclesForPlanning.stream().parallel().forEach((tVvehicle) -> processRequestVehicleCombination(request, tVvehicle));
 
 		iterationTime += System.nanoTime() - iterationStartTime;
 	}
@@ -459,13 +484,21 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		}
 	}
 
-	private void processRequest(PlanComputationRequest request) {
+	private void processRequest(PlanComputationRequest request, List<OnDemandVehicle> vehiclesForPlanning, 
+			int[] usedVehiclesPerStation) {
 		Benchmark benchmark = new Benchmark();
-		benchmark.measureTime(() -> computeBestPlanForRequest(request));
+		benchmark.measureTime(() -> computeBestPlanForRequest(request, vehiclesForPlanning, usedVehiclesPerStation));
 		insertionHeuristicTime += benchmark.getDurationMsInt();
 
 		if(bestPlan != null){
 			planMap.put(bestPlan.vehicle, bestPlan.plan);
+			
+			if(bestPlan.vehicle == vehicleFromNearestStation){
+				usedVehiclesPerStation[Integer.parseInt(vehicleFromNearestStation.getParkedIn().getId())]++;
+			}
+			else{
+				vehiclesForPlanning.remove(vehicleFromNearestStation);
+			}
 		}
 		else{
 			LOGGER.debug("Request {} cannot be served!", request);
@@ -473,6 +506,17 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			benchmark.measureTime(() ->	droppedDemandsAnalyzer.debugFail(request));
 			debugFailTime += benchmark.getDurationMs();
 		}
+	}
+
+	private List<OnDemandVehicle> getDrivingVehicles() {
+		List<OnDemandVehicle> listForPlanning = new ArrayList<>();
+		for(OnDemandVehicle vehicle: vehicleStorage){
+			if(vehicle.getState() != OnDemandVehicleState.WAITING 
+					&& vehicle.getState() != OnDemandVehicleState.REBALANCING){
+				listForPlanning.add(vehicle);
+			}
+		}
+		return listForPlanning;
 	}
 	
 	private class PlanData{

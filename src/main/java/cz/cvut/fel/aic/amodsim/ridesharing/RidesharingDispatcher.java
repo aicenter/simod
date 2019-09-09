@@ -157,6 +157,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 				droppedDemandsThisBatch++;
 				waitingRequestIterator.remove();
 				eventProcessor.addEvent(DemandEvent.LEFT, null, null, request);
+				LOGGER.info("Demand {} dropped", request.getId());
 			}
 		}		
 		LOGGER.info("Demands dropped in this batch: {}", droppedDemandsThisBatch);

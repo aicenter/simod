@@ -12,6 +12,8 @@ import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.statistics.EdgesLoadByState;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Node;
+
+import java.math.BigInteger;
 import static org.junit.Assert.assertSame;
 
 /**
@@ -32,7 +34,7 @@ public class OnDemandVehicleLoad extends EdgesLoadByState{
 			Node currentNode = onDemandVehicle.getPosition();
 			Node targetNode = onDemandVehicle.getTargetNode();
 			if(targetNode != null && !targetNode.equals(currentNode)){
-				int edgeId = network.getEdge(currentNode, targetNode).getUniqueId();
+				BigInteger edgeId = network.getEdge(currentNode, targetNode).getStaticId();
 				countLoadForPosition(entityId, edgeId);
 			}
 			else{

@@ -38,6 +38,7 @@ import javax.vecmath.Point2d;
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -233,13 +234,13 @@ public class TrafficDensityByDirectionLayer extends AbstractLayer {
 	 * @return Color based on load per length(m) or by default gray
 	 */
 	private Color getColorForEdge(AllEdgesLoad allEdgesLoad, SimulationEdge edge) {
-		int id;
+		BigInteger id;
 		try {
-			id = edge.getUniqueId();
+			id = edge.getStaticId();
 		} catch (Exception e) {
-			id = -1;
+			id = BigInteger.valueOf(-1);
 		}
-		if (id == -1) {
+		if (id == BigInteger.valueOf(-1)) {
 			double averageLoad = allEdgesLoad.getLoadPerEdge(id);
 			double loadPerLength = averageLoad / edge.getLengthCm();
 			return colorMap.getColor(loadPerLength);

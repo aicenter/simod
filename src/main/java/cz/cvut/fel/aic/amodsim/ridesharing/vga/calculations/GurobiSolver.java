@@ -104,7 +104,8 @@ public class GurobiSolver {
 	}
 	
 	public List<Plan<IOptimalPlanVehicle>> assignOptimallyFeasiblePlans(
-			List<VehiclePlanList> feasiblePlans, LinkedHashSet<PlanComputationRequest> requests) {
+			List<VehiclePlanList> feasiblePlans, LinkedHashSet<PlanComputationRequest> requests, 
+			int[] usedVehiclesPerStation) {
 		
 		try {
 			// solver init
@@ -244,7 +245,7 @@ public class GurobiSolver {
 				GRBVar variable = entry.getKey();
 				PlanComputationRequest request = entry.getValue();
 				if(Math.round(variable.get(GRB.DoubleAttr.X)) == 1){
-					droppedDemandsAnalyzer.debugFail(request);
+					droppedDemandsAnalyzer.debugFail(request, usedVehiclesPerStation);
 					LOGGER.debug("The request was part of {} group plans", requestVariableMap.get(request).size() - 1);
 				}
 			}

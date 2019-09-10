@@ -503,7 +503,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		else{
 			LOGGER.debug("Request {} cannot be served!", request);
         	benchmark = new Benchmark();
-			benchmark.measureTime(() ->	droppedDemandsAnalyzer.debugFail(request));
+			benchmark.measureTime(() ->	droppedDemandsAnalyzer.debugFail(request, usedVehiclesPerStation));
 			debugFailTime += benchmark.getDurationMs();
 		}
 	}

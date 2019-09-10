@@ -44,7 +44,7 @@ def compute_stats_current_state(experiment_dir: str, result: Dict, histogram: Tr
 
 
 def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, experiment_dir: str,
-				  edge_data: DataFrame) -> List:
+				  edge_data: DataFrame, delay_bugfix: bool = True) -> List:
 	# avg_km_total = result["averageKmWithPassenger"] + result["averageKmToStartLocation"] + result["averageKmToStation"] \
 	# 			   + result["averageKmRebalancing"]
 
@@ -90,7 +90,7 @@ def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, experi
 
 	# delay
 	service_stat = service.load_dataframe(experiment_dir)
-	delays_window = service.get_delays(service_stat, True, False)
+	delays_window = service.get_delays(service_stat, True, False, bugfix=delay_bugfix)
 	mean_delay = int(round(delays_window.mean() / 1000))
 
 	return [km_total_window, average_density_in_time_window_non_empty_edges, congested_count_in_time_window,
@@ -139,11 +139,11 @@ histogram = TrafficDensityHistogram(edge_object_data)
 present_state_data = compute_stats_current_state(exp_dir_1, results_ridesharing_off, histogram,
 								   loads_no_ridesharing[VehicleState.DRIVING_TO_TARGET_LOCATION.name])
 no_ridesharing_data = compute_stats(results_ridesharing_off, histogram, loads_no_ridesharing["ALL"],
-									exp_dir_1, edge_data)
+									exp_dir_1, edge_data, delay_bugfix=False)
 insertion_heuristic_data = compute_stats(results_insertion_heuristic, histogram, loads_insertion_heuristic["ALL"],
-					exp_dir_2, edge_data)
+					exp_dir_2, edge_data, delay_bugfix=False)
 vga_data = compute_stats(results_vga, histogram, loads_vga["ALL"], exp_dir_3,
-						 edge_data)
+						 edge_data, delay_bugfix=False)
 vga_limited_data = compute_stats(results_vga_group_limit, histogram, loads_vga_group_limit["ALL"],
 								 exp_dir_4, edge_data)
 

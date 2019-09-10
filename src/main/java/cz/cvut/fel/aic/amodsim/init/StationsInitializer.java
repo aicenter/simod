@@ -65,7 +65,11 @@ public class StationsInitializer {
 				discarded++;
 			}
 			else{
-				createStation(node, Integer.parseInt(row[1]) + 100, counter++);
+				int initCount = Integer.parseInt(row[1]) + 100;
+				if(initCount < 500){
+					initCount += 100;
+				}
+				createStation(node, initCount, counter++);
 			}
 		}
 		LOGGER.info("{} Stations Discarded", discarded);

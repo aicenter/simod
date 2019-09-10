@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.amodsim;
 
 
 import com.google.inject.Injector;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
@@ -48,6 +49,8 @@ public class MapVisualizer {
 		File localConfigFile = args.length > 0 ? new File(args[0]) : null;
 		
 		Injector injector = new AgentPolisInitializer(new MapVisualiserModule(config, localConfigFile)).initialize();
+		
+		injector.getInstance(AgentpolisConfig.class).visio.showVisio = true;
 
 		SimulationCreator creator = injector.getInstance(SimulationCreator.class);
 

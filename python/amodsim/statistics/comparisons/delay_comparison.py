@@ -50,7 +50,7 @@ delays_window_1 = pd.Series(0, index=np.arange(len(delays_window_2)))
 delays_window_7 = service.get_delays(service_5, True)
 delays_window_8 = service.get_delays(service_6, True)
 delays_window_9 = service.get_delays(service_7, True)
-delays_window_10 = service.get_delays(service_8, True)
+delays_window_10 = service.get_delays(service_8, True, bugfix=False)
 delays_window_6 = pd.Series(0, index=np.arange(len(delays_window_7)))
 
 bins = np.arange(-0.5, 5.5, 0.5)

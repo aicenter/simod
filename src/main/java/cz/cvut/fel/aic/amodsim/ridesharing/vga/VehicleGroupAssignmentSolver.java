@@ -118,6 +118,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	private FlexArray computationalTimes;
 	
 	private FlexArray computationalTimesPlanExists;
+	
+	private int[] usedVehiclesPerStation;
 
 	
 	
@@ -185,7 +187,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		/* Using an ILP solver to optimally assign a group to each vehicle */
 		benchmark = new Benchmark();
 		List<Plan<IOptimalPlanVehicle>> optimalPlans 
-				= benchmark.measureTime(() -> gurobiSolver.assignOptimallyFeasiblePlans(feasiblePlans, activeRequests));
+				= benchmark.measureTime(() -> gurobiSolver.assignOptimallyFeasiblePlans(
+						feasiblePlans, activeRequests, usedVehiclesPerStation));
 		
 		// ILP solver generation total time 
 		solverTime = benchmark.getDurationMsInt();
@@ -460,7 +463,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		
 		// groups for vehicles in the station
 		if(!onDemandvehicleStationStorage.isEmpty()){
-			Map<OnDemandVehicleStation,Integer> usedVehiclesPerStation = new HashMap<>();
+			usedVehiclesPerStation = new int[onDemandvehicleStationStorage.size()];
 			insufficientCapacityCount = 0;
 			
 			// dictionary - all vehicles from a station have the same feasible groups
@@ -472,23 +475,23 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 			
 			// generating virtual vehicle plans
-			for (Map.Entry<OnDemandVehicleStation, Integer> entry : usedVehiclesPerStation.entrySet()) {
-				OnDemandVehicleStation station = entry.getKey();
-				Integer usedVehiclesCount = entry.getValue();
+			for (OnDemandVehicleStation station: onDemandvehicleStationStorage) {
+				Integer usedVehiclesCount = usedVehiclesPerStation[station.getIndex()];
+				if(usedVehiclesCount > 0){
+					List<Plan> feasibleGroupPlansFromStation = plansFromStation.get(station);
+					int capacity = feasibleGroupPlansFromStation.get(0).getVehicle().getCapacity();
 
-				List<Plan> feasibleGroupPlansFromStation = plansFromStation.get(station);
-				int capacity = feasibleGroupPlansFromStation.get(0).getVehicle().getCapacity();
+					VirtualVehicle virtualVehicle = new VirtualVehicle(station, capacity, usedVehiclesCount);
 
-				VirtualVehicle virtualVehicle = new VirtualVehicle(station, capacity, usedVehiclesCount);
+					List<Plan> feasibleGroupPlans = new ArrayList<>(feasibleGroupPlansFromStation.size());
+					for (Plan feasibleGroupPlan : feasibleGroupPlansFromStation) {
+						feasibleGroupPlans.add(feasibleGroupPlan.duplicateForVehicle(virtualVehicle));
+					}
 
-				List<Plan> feasibleGroupPlans = new ArrayList<>(feasibleGroupPlansFromStation.size());
-				for (Plan feasibleGroupPlan : feasibleGroupPlansFromStation) {
-					feasibleGroupPlans.add(feasibleGroupPlan.duplicateForVehicle(virtualVehicle));
+					VehiclePlanList vehiclePlanList = new VehiclePlanList(virtualVehicle, feasibleGroupPlans);
+					feasiblePlans.add(vehiclePlanList);
+					planCount += feasibleGroupPlans.size();
 				}
-
-				VehiclePlanList vehiclePlanList = new VehiclePlanList(virtualVehicle, feasibleGroupPlans);
-				feasiblePlans.add(vehiclePlanList);
-				planCount += feasibleGroupPlans.size();
 			}
 			
 			if(insufficientCapacityCount > 0){
@@ -513,7 +516,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	}
 	
 	public void computeGroupForVehicleInStation(PlanComputationRequest request, 
-			Map<OnDemandVehicleStation,Integer> usedVehiclesPerStation,
+			int[] usedVehiclesPerStation,
 			Map<OnDemandVehicleStation,List<Plan>> plansFromStation, List<PlanComputationRequest> waitingRequests){
 		OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(
 						request.getFrom(), NearestType.TRAVELTIME_FROM);
@@ -535,13 +538,11 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		planCount += feasibleGroupPlans.size();
 	}
 	
-	private synchronized boolean checkIfComputePlansFromStation(Map<OnDemandVehicleStation,Integer> usedVehiclesPerStation, 
+	private synchronized boolean checkIfComputePlansFromStation(int[] usedVehiclesPerStation, 
 			OnDemandVehicleStation nearestStation, Map<OnDemandVehicleStation,List<Plan>> plansFromStation){
 		
 		
-		int index = usedVehiclesPerStation.containsKey(nearestStation) 
-				? usedVehiclesPerStation.get(nearestStation) : 0;
-		
+		int index = usedVehiclesPerStation[nearestStation.getIndex()];
 		
 		// check if there is not a lack of vehicles in the station
 		if(index == nearestStation.getParkedVehiclesCount()){
@@ -549,7 +550,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			return false;
 		}
 		
-		CollectionUtil.incrementMapValue(usedVehiclesPerStation, nearestStation, 1);
+		usedVehiclesPerStation[nearestStation.getIndex()]++;
 		
 		// check if plan is not already computed
 		if(plansFromStation.containsKey(nearestStation)){

@@ -16,6 +16,7 @@ class AmodsimConfig(Config):
         self.data_dir = properties.get("data_dir")
         self.map_dir = properties.get("map_dir")
         self.experiments_dir = properties.get("experiments_dir")
+        self.rci_experiments_dir = properties.get("rci_experiments_dir")
         self.experiment_name = properties.get("experiment_name")
         self.experiment_dir = properties.get("experiment_dir")
         self.critical_density = properties.get("critical_density")

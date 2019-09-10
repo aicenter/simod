@@ -8,7 +8,6 @@ package cz.cvut.fel.aic.amodsim.ridesharing;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
-import cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
@@ -66,7 +65,7 @@ public class DroppedDemandsAnalyzer {
 	
 	
 	
-	public void debugFail(PlanComputationRequest request) {
+	public void debugFail(PlanComputationRequest request, int[] usedVehiclesPerStation) {
 		boolean freeVehicle = false;
 		double bestEuclideanDistance = Double.MAX_VALUE;
 		double bestTravelTimne = Double.MAX_VALUE;
@@ -78,7 +77,7 @@ public class DroppedDemandsAnalyzer {
 				request.getFrom(), OnDemandvehicleStationStorage.NearestType.TRAVELTIME_FROM);
 		double stationDistance;
 		double travelTimeFromStation;
-		if(nearestStation.isEmpty()){
+		if(usedVehiclesPerStation[nearestStation.getIndex()] >= nearestStation.getParkedVehiclesCount()){
 			LOGGER.debug("Cannot serve the request from the nearest station, the nearest station {} is empty!", 
 					nearestStation);
 		}

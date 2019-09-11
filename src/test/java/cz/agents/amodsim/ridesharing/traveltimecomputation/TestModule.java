@@ -61,7 +61,7 @@ public class TestModule extends StandardAgentPolisModule{
 	protected void configureNext() {
 		super.configureNext();
 		bind(AmodsimConfig.class).toInstance(amodsimConfig);
-		bind(MapInitializer.class).to(GeojsonMapInitializer.class);
+		bind(MapInitializer.class).to(TestGeojsonMapInitializer.class);
 	}
 	
 

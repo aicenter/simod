@@ -102,12 +102,20 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	
 	public void replan(DriverPlan plan){
 		currentPlan = plan;
-		if(state != OnDemandVehicleState.WAITING){
-			((PhysicalVehicleDrive) getCurrentTopLevelActivity()).end();
-		}
-		else{
+		// The vehicle now waits, we have to start moving.
+		if(state == OnDemandVehicleState.WAITING ){
 			driveToNextTask();
 		}
+		// The first action in the new plan is the same as the current action, 
+		// so we let the current Drive action continue.
+		else if(plan.getLength() > 1 && currentTask.equals(plan.getNextTask())){
+
+		}
+		// We end the current Drive action and start the execution of the new plan.
+		else{
+			((PhysicalVehicleDrive) getCurrentTopLevelActivity()).end();
+		}
+		
 	}
 
 	@Override

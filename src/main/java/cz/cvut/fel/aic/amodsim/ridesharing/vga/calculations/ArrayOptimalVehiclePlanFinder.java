@@ -25,6 +25,9 @@ import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
+import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.PlanActionData;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
@@ -61,16 +64,41 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 		// prepare possible actions
 		List<PlanActionData> availableActionsList = new ArrayList(requests.size() * 2);
 		int counter = 0;
-		for (PlanComputationRequest request: requests) {
-			if(!request.isOnboard()){
-				availableActionsList.add(new PlanActionData(request.getPickUpAction(), counter, true));
-				counter++;
-				availableActionsList.add(new PlanActionData(request.getDropOffAction(), counter, false));
-				counter++;
+		if(onboardRequestsOnly){
+			RideSharingOnDemandVehicle rVehicle = (RideSharingOnDemandVehicle) vehicle.getRealVehicle();
+			DriverPlan currentPlan = rVehicle.getCurrentPlan();
+			for(PlanAction action: currentPlan.plan){
+				if(action instanceof PlanRequestAction){
+					PlanComputationRequest request = ((PlanRequestAction) action).getRequest();
+					if(!request.isOnboard()){
+						if(action instanceof PlanActionPickup){
+							availableActionsList.add(new PlanActionData((PlanRequestAction) action, counter, true));
+							counter++;
+						}
+						else{
+							availableActionsList.add(new PlanActionData((PlanRequestAction) action, counter, false));
+							counter++;
+						}
+					}
+					else{
+						availableActionsList.add(new PlanActionData((PlanRequestAction) action, counter, true));
+						counter++;
+					}
+				}
 			}
-			else{
-				availableActionsList.add(new PlanActionData(request.getDropOffAction(), counter, true));
-				counter++;
+		}
+		else{
+			for (PlanComputationRequest request: requests) {
+				if(!request.isOnboard()){
+					availableActionsList.add(new PlanActionData(request.getPickUpAction(), counter, true));
+					counter++;
+					availableActionsList.add(new PlanActionData(request.getDropOffAction(), counter, false));
+					counter++;
+				}
+				else{
+					availableActionsList.add(new PlanActionData(request.getDropOffAction(), counter, true));
+					counter++;
+				}
 			}
 		}
 		
@@ -131,7 +159,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 								&& (action.getRequest().getMaxDropoffTime() < endTime + duration)
 								// extra 10s for onboard requests
 								&& (!onboardRequestsOnly 
-										|| endTime + duration - action.getRequest().getMaxDropoffTime() > 10)
+										|| endTime + duration - action.getRequest().getMaxDropoffTime() > 2)
 									)){
 								allActionsFeasible = false;
 								break;
@@ -169,6 +197,10 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 								
 								// current action
 								bestPlan[bestPlan.length - 1] = newAction;
+								
+								if(onboardRequestsOnly){
+									break;
+								}
 							}
 						}
 						// go deeper
@@ -192,7 +224,12 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 							newActionData.setUsed(true);
 							
 							planPositionIndex++;
-							actionIndex = 0;
+							if(onboardRequestsOnly){
+								actionIndex += 1;
+							}
+							else{
+								actionIndex = 0;
+							}
 							goDeeper = true;
 						}	
 					}
@@ -204,6 +241,14 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 			
 			// current don't go deeper (we wont continue to next action)
 			if(!goDeeper){
+				
+				if(onboardRequestsOnly){
+					try {
+						throw new Exception(String.format("Vehicle %s: Last plan is not feasible!", vehicle));
+					} catch (Exception ex) {
+						Logger.getLogger(ArrayOptimalVehiclePlanFinder.class.getName()).log(Level.SEVERE, null, ex);
+					}
+				}
 				
 				// last action - we have to go back
 				if(actionIndex == availableActions.length - 1){

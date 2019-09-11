@@ -19,6 +19,7 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.model;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import java.util.Objects;
 
 public abstract class PlanRequestAction extends PlanAction{
 
@@ -50,5 +51,29 @@ public abstract class PlanRequestAction extends PlanAction{
 		this.maxTime = maxTime;
 	}
 
+	@Override
+	public int hashCode() {
+		int hash = 7;
+		return hash;
+	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final PlanRequestAction other = (PlanRequestAction) obj;
+		if (!Objects.equals(this.request, other.request)) {
+			return false;
+		}
+		return this.getClass().equals(obj.getClass());
+	}
+
+	
 }

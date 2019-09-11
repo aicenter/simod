@@ -25,7 +25,12 @@ import cz.cvut.fel.aic.agentpolis.utils.Benchmark;
 import cz.cvut.fel.aic.agentpolis.utils.FlexArray;
 import cz.cvut.fel.aic.amodsim.CsvWriter;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.io.Common;
+import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
+import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -139,16 +144,24 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 
 		/* BASE PLAN GENERATION */
 		Set<PlanComputationRequest> onBoardRequestLock = null;
+		RideSharingOnDemandVehicle rVehicle = (RideSharingOnDemandVehicle) vehicle.getRealVehicle();
 		if(vehicle.getRequestsOnBoard().isEmpty()){
 			
 			// BASE PLAN - for each empty vehicle, an EMPTY PLAN is valid
 			Plan emptyPlan = new Plan((int) startTime, vehicle);
 			groupPlans.add(emptyPlan);
 		}
-		else{
-			// BASE PLAN - for non-empty vehicles, we add a base plan that serves all onboard vehicles
-			LinkedHashSet<PlanComputationRequest> group = vehicle.getRequestsOnBoard();
-			onBoardRequestLock = group;
+		if(rVehicle.getState() != OnDemandVehicleState.WAITING){
+			// BASE PLAN - for each driving vehicle, we add a base plan the previously assigned plan
+			LinkedHashSet<PlanComputationRequest> onBoardRequests = vehicle.getRequestsOnBoard();
+			onBoardRequestLock = onBoardRequests;
+			DriverPlan currentPlan = rVehicle.getCurrentPlan();
+			LinkedHashSet<PlanComputationRequest> group = new LinkedHashSet<>();
+			for(PlanAction action: currentPlan.plan){
+				if(action instanceof PlanRequestAction){
+					group.add(((PlanRequestAction) action).getRequest());
+				}
+			}
 			
 			// currently, the time window has to be ignored, because the planner underestimates the cost
 			Plan initialPlan;

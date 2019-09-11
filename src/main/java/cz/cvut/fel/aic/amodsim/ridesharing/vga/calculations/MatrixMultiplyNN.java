@@ -74,7 +74,7 @@ public class MatrixMultiplyNN implements NN {
             }
         }
         int i = 0;
-        for (GroupData newGroupToCheck : (Set<GroupData>) gd) {
+        for (GroupData newGroupToCheck : (List<GroupData>) gd) {
             newGroupToCheck.setFeasible(Y.getDouble(i,0));
             i++;
         }
@@ -94,7 +94,7 @@ public class MatrixMultiplyNN implements NN {
             }
         }
         int i = 0;
-        for (GroupData newGroupToCheck : (Set<GroupData>) gd) {
+        for (GroupData newGroupToCheck : (List<GroupData>) gd) {
             newGroupToCheck.setFeasible(Y.getDouble(i,0));
             i++;
         }
@@ -107,7 +107,7 @@ public class MatrixMultiplyNN implements NN {
         double car_lat = (vehicle.getPosition().getLatE6() - curr_mu.next())/curr_sigma.next();
         double car_lon = (vehicle.getPosition().getLonE6()- curr_mu.next())/curr_sigma.next();
         int k = 0;
-        for (GroupData newGroupToCheck : (Set<GroupData>) gd) {
+        for (GroupData newGroupToCheck : (List<GroupData>) gd) {
             int j = 0;
             curr_mu.reset(3);
             curr_sigma.reset(3);
@@ -131,7 +131,7 @@ public class MatrixMultiplyNN implements NN {
         DoubleIterator curr_mu = new DoubleIterator(mu[groupSize-3]);
         DoubleIterator curr_sigma = new DoubleIterator(sigma[groupSize-3]);
         int k = 0;
-        for (GroupData newGroupToCheck : (Set<GroupData>) gd) {
+        for (GroupData newGroupToCheck : (List<GroupData>) gd) {
             int j = 0;
             curr_mu.reset(0);
             curr_sigma.reset(0);

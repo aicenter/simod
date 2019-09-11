@@ -601,7 +601,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                 }
             }
             else{
-                Set<GroupData> groupsForNN = new LinkedHashSet<>();
+                List<GroupData> groupsForNN = new ArrayList<>();
                 for (GroupData groupData : currentGroups) {
                     for (PlanComputationRequest request : feasibleRequests) {
                         if (groupData.getRequests().contains(request)){
@@ -881,7 +881,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                 }
             }else{
                 // set of groups for NN
-                Set<GroupData> groupsForNN = new LinkedHashSet<>();
+                List<GroupData> groupsForNN = new ArrayList<>();
                 for (GroupData groupData : currentGroups) {
                     for (PlanComputationRequest request : feasibleRequests) {
                         if (groupData.getRequests().contains(request)){
@@ -1606,7 +1606,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                         }                       
                     }
                     else{
-                        Set<GroupData> groupsForNN = new LinkedHashSet<>();
+                        List<GroupData> groupsForNN = new ArrayList<>();
                         
                         for (V vehicle : vehicles) {
                             // current groups for the next iteration
@@ -1911,7 +1911,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                         }                       
                     }
                     else{
-                        final Set<GroupData> groupsForNN = new LinkedHashSet<>();
+                        final List<GroupData> groupsForNN = new ArrayList<>();
                         
                         for (V vehicle : vehicles) {
                             // current groups for the next iteration

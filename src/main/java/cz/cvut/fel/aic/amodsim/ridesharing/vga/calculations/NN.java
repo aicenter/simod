@@ -19,6 +19,7 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
 import com.google.inject.Singleton;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -27,6 +28,6 @@ import java.util.Set;
  */
 @Singleton
 public interface NN<V extends IOptimalPlanVehicle> {
-    public void setProbability(Set<GroupData> gd, V vehicle, int groupSize);
-    public void setProbability(Set gd, int groupSize);
+    public void setProbability(List<GroupData> gd, V vehicle, int groupSize);
+    public void setProbability(List gd, int groupSize);
 }

@@ -18,6 +18,7 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -28,7 +29,7 @@ import java.util.Set;
 public class DummyNN implements NN{
  
     @Override
-    public void setProbability(Set gd, IOptimalPlanVehicle vehicle, int groupSize) {
+    public void setProbability(List gd, IOptimalPlanVehicle vehicle, int groupSize) {
         Random rd = new Random();
         double ar[] = {0.4, 0.8, 0.8};
         int i = 0;
@@ -38,7 +39,7 @@ public class DummyNN implements NN{
         }
     }
     @Override
-    public void setProbability(Set gd, int groupSize) {
+    public void setProbability(List gd, int groupSize) {
         this.setProbability(gd, null, groupSize);
     }
 }

@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,7 +61,7 @@ public class MatrixMultiplyNN implements NN {
     }
     
     @Override
-    public void setProbability(Set gd, IOptimalPlanVehicle vehicle, int groupSize) {
+    public void setProbability(List gd, IOptimalPlanVehicle vehicle, int groupSize) {
         INDArray Y = fillWithStandardizedData(gd,vehicle,groupSize+1);
         //matrixX = compute(matrixX, groupSize+1);
         for (int i = 0; i < 4; i++) {
@@ -79,7 +80,7 @@ public class MatrixMultiplyNN implements NN {
         }
     }
     @Override
-    public void setProbability(Set gd, int groupSize) {
+    public void setProbability(List gd, int groupSize) {
         INDArray Y = fillWithStandardizedData(gd,groupSize+1);
         //matrixX = compute(matrixX, groupSize+1);
         //INDArray Y = matrixX;
@@ -98,7 +99,7 @@ public class MatrixMultiplyNN implements NN {
             i++;
         }
     }
-    private INDArray fillWithStandardizedData(Set gd, IOptimalPlanVehicle vehicle, int groupSize){
+    private INDArray fillWithStandardizedData(List gd, IOptimalPlanVehicle vehicle, int groupSize){
         double[][] data = new double[gd.size()][3+6*(groupSize)];
         DoubleIterator curr_mu = new DoubleIterator(mu[groupSize-3]);
         DoubleIterator curr_sigma = new DoubleIterator(sigma[groupSize-3]);
@@ -125,7 +126,7 @@ public class MatrixMultiplyNN implements NN {
         }
         return Nd4j.create(data);
     }
-    private INDArray fillWithStandardizedData(Set gd, int groupSize){
+    private INDArray fillWithStandardizedData(List gd, int groupSize){
         double[][] data = new double[gd.size()][3+6*(groupSize)];
         DoubleIterator curr_mu = new DoubleIterator(mu[groupSize-3]);
         DoubleIterator curr_sigma = new DoubleIterator(sigma[groupSize-3]);

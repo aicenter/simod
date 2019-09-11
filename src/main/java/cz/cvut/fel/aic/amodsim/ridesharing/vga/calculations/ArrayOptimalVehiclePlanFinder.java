@@ -30,13 +30,16 @@ import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.PlanActionData;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.PlanActionDataPickup;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -67,17 +70,22 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 		if(onboardRequestsOnly){
 			RideSharingOnDemandVehicle rVehicle = (RideSharingOnDemandVehicle) vehicle.getRealVehicle();
 			DriverPlan currentPlan = rVehicle.getCurrentPlan();
+			Map<PlanComputationRequest,PlanActionDataPickup> pickupDataMpa = new HashMap<>();
 			for(PlanAction action: currentPlan.plan){
 				if(action instanceof PlanRequestAction){
 					PlanComputationRequest request = ((PlanRequestAction) action).getRequest();
 					if(!request.isOnboard()){
 						if(action instanceof PlanActionPickup){
-							availableActionsList.add(new PlanActionData((PlanRequestAction) action, counter, true));
+							PlanActionDataPickup pickupActionData = new PlanActionDataPickup(request.getPickUpAction(), counter, true);
+							availableActionsList.add(pickupActionData);
 							counter++;
+							pickupDataMpa.put(request, pickupActionData);
 						}
 						else{
-							availableActionsList.add(new PlanActionData((PlanRequestAction) action, counter, false));
+							PlanActionData dropoffActionData = new PlanActionData(request.getDropOffAction(), counter, false);
+							availableActionsList.add(dropoffActionData);
 							counter++;
+							pickupDataMpa.get(request).setDropoffActionData(dropoffActionData);
 						}
 					}
 					else{
@@ -90,10 +98,13 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 		else{
 			for (PlanComputationRequest request: requests) {
 				if(!request.isOnboard()){
-					availableActionsList.add(new PlanActionData(request.getPickUpAction(), counter, true));
+					PlanActionDataPickup pickupActionData = new PlanActionDataPickup(request.getPickUpAction(), counter, true);
+					availableActionsList.add(pickupActionData);
 					counter++;
-					availableActionsList.add(new PlanActionData(request.getDropOffAction(), counter, false));
+					PlanActionData dropoffActionData = new PlanActionData(request.getDropOffAction(), counter, false);
+					availableActionsList.add(dropoffActionData);
 					counter++;
+					pickupActionData.setDropoffActionData(dropoffActionData);
 				}
 				else{
 					availableActionsList.add(new PlanActionData(request.getDropOffAction(), counter, true));
@@ -218,7 +229,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 							}
 							else{
 								onBoardCount++;
-								availableActions[actionIndex + 1].setOpen(true);
+								((PlanActionDataPickup) newActionData).openDropOff(true);
 							}
 							plan[planPositionIndex] = newActionData;
 							newActionData.setUsed(true);
@@ -247,6 +258,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 						throw new Exception(String.format("Vehicle %s: Last plan is not feasible!", vehicle));
 					} catch (Exception ex) {
 						Logger.getLogger(ArrayOptimalVehiclePlanFinder.class.getName()).log(Level.SEVERE, null, ex);
+						return null;
 					}
 				}
 				
@@ -270,7 +282,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 						}
 						else{
 							onBoardCount--;
-							availableActions[actionIndex].setOpen(false);
+							((PlanActionDataPickup) lastActionData).openDropOff(false);
 						}
 						lastActionData.setUsed(false);
 						
@@ -396,7 +408,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 							}
 							else{
 								onBoardCount++;
-								availableActions[actionIndex + 1].setOpen(true);
+								((PlanActionDataPickup) newActionData).openDropOff(true);
 							}
 							plan[planPositionIndex] = newActionData;
 							newActionData.setUsed(true);
@@ -431,7 +443,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 						}
 						if(lastActionData.getAction() instanceof PlanActionPickup){
 							onBoardCount--;
-							availableActions[actionIndex].setOpen(false);
+							((PlanActionDataPickup) lastActionData).openDropOff(false);
 						}
 						lastActionData.setUsed(false);
 						

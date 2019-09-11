@@ -76,7 +76,7 @@ public class PlanActionData{
 		return open;
 	}
 
-	public void setOpen(boolean open) {
+	protected void setOpen(boolean open) {
 		this.open = open;
 	}
 	

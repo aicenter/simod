@@ -151,7 +151,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 			Plan emptyPlan = new Plan((int) startTime, vehicle);
 			groupPlans.add(emptyPlan);
 		}
-		if(rVehicle.getState() != OnDemandVehicleState.WAITING){
+		if(rVehicle.getCurrentPlan().getLength() > 1){
 			// BASE PLAN - for each driving vehicle, we add a base plan the previously assigned plan
 			LinkedHashSet<PlanComputationRequest> onBoardRequests = vehicle.getRequestsOnBoard();
 			onBoardRequestLock = onBoardRequests;

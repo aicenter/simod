@@ -1311,7 +1311,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                         }                       
                     }
                     else{
-                        Set<GroupData> groupsForNN = new LinkedHashSet<>();
+                        List<GroupData> groupsForNN = new ArrayList<>();
                         
                         for (V vehicle : vehicles) {
                             // current groups for the next iteration
@@ -1644,7 +1644,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                                         subset.add(planComputationRequest);
                                     }
 
-                                    if(checkFeasibility){                   
+                                    if(checkFeasibility){      
                                         GroupData gd = new GroupData(newGroupToCheck, groupData.getOnboardRequestLock(), vehicle);
                                         groupsForNN.add(gd);
                                     }

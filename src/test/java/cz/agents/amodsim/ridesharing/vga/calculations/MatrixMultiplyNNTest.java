@@ -8,7 +8,9 @@ package cz.agents.amodsim.ridesharing.vga.calculations;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.*;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehicle;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -19,7 +21,7 @@ import org.junit.Test;
  * @author matal
  */
 public class MatrixMultiplyNNTest {
-    static Set<GroupData> groupsForNN = new LinkedHashSet<>();
+    static List<GroupData> groupsForNN = new ArrayList<>();
     private static NN nn;
     private static IOptimalPlanVehicle vehicle;
     private static double[] correctData = {0.9504464036700224, 0.11001340633826014, 0.9999999999991172};

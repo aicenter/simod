@@ -75,7 +75,8 @@ public class MatrixMultiplyNN implements NN {
         }
         int i = 0;
         for (GroupData newGroupToCheck : (List<GroupData>) gd) {
-            newGroupToCheck.setFeasible(Y.getDouble(i,0));
+            double probability = Y.getDouble(i,0);
+            newGroupToCheck.setFeasible(probability);
             i++;
         }
     }
@@ -95,7 +96,8 @@ public class MatrixMultiplyNN implements NN {
         }
         int i = 0;
         for (GroupData newGroupToCheck : (List<GroupData>) gd) {
-            newGroupToCheck.setFeasible(Y.getDouble(i,0));
+            double probability = Y.getDouble(i,0);
+            newGroupToCheck.setFeasible(probability);
             i++;
         }
     }

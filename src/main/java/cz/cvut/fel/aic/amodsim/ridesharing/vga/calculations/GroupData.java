@@ -17,7 +17,7 @@ public class GroupData {
     private final Set<PlanComputationRequest> requests;
     private final IOptimalPlanVehicle vehicle;
     private final Set<PlanComputationRequest> onboardRequestLock;
-    private Double feasible;
+    private double feasible;
     private int hash;
     public GroupData(Set<PlanComputationRequest> requests) {
         this(requests, null, null);
@@ -33,7 +33,7 @@ public class GroupData {
             Set<PlanComputationRequest> onboardRequestLock, IOptimalPlanVehicle vehicle) {
         this.requests = requests;
         this.onboardRequestLock = onboardRequestLock;
-        this.feasible = null;
+        this.feasible = 0;
         this.vehicle = vehicle;
         this.hash = 0;
     }
@@ -72,7 +72,7 @@ public class GroupData {
         return onboardRequestLock;
     }
 
-    public Double getFeasible() {
+    public double getFeasible() {
         return feasible;
     }
 

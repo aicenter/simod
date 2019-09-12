@@ -6,13 +6,17 @@
 package cz.agents.amodsim.ridesharing.traveltimecomputation;
 
 import com.google.inject.Injector;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.Graphs;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.SimpleMapInitializer;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.AllNetworkNodes;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.NodesMappedByIndex;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.TransportNetworks;
 import cz.cvut.fel.aic.agentpolis.simulator.MapData;
+import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
@@ -40,16 +44,18 @@ public class DistanceMatrixTraveltimeTest {
 		Injector injector = agentPolisInitializer.initialize();
 		
 		// config changes
-		
 		// prepare map
 		MapInitializer mapInitializer = injector.getInstance(MapInitializer.class);
 		MapData mapData = mapInitializer.getMap();
 		injector.getInstance(AllNetworkNodes.class).setAllNetworkNodes(mapData.nodesFromAllGraphs);
 		injector.getInstance(Graphs.class).setGraphs(mapData.graphByType);
                 //Map<Integer, SimulationNode> map = injector.getInstance(AllNetworkNodes.class).getAllNetworkNodes();
-                NodesMappedByIndex nodesMappedByIndex = injector.getInstance(NodesMappedByIndex.class);
                 // travel time providers
-		AstarTravelTimeProvider astarTravelTimeProvider = injector.getInstance(AstarTravelTimeProvider.class);
+                TimeProvider tp = injector.getInstance(TimeProvider.class);
+                TripsUtil tu = injector.getInstance(TripsUtil.class);
+                TransportNetworks tn = injector.getInstance(TransportNetworks.class);
+		AstarTravelTimeProvider astarTravelTimeProvider = new AstarTravelTimeProvider(tp,tu,tn);
+                        //injector.getInstance(AstarTravelTimeProvider.class);
 		/*TestDistanceMatrixTravelTimeProvider distanceMatrixTravelTimeProvider 
 				= injector.getInstance(TestDistanceMatrixTravelTimeProvider.class);
                 

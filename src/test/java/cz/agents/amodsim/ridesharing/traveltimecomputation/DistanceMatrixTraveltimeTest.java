@@ -48,23 +48,23 @@ public class DistanceMatrixTraveltimeTest {
 		MapData mapData = mapInitializer.getMap();
 		injector.getInstance(AllNetworkNodes.class).setAllNetworkNodes(mapData.nodesFromAllGraphs);
 		injector.getInstance(Graphs.class).setGraphs(mapData.graphByType);
-                Map<Integer, SimulationNode> map = injector.getInstance(AllNetworkNodes.class).getAllNetworkNodes();
-                // travel time providers
+        Map<Integer, SimulationNode> map = injector.getInstance(AllNetworkNodes.class).getAllNetworkNodes();
+        // travel time providers
 		AstarTravelTimeProvider astarTravelTimeProvider = 
                         injector.getInstance(AstarTravelTimeProvider.class);
 		TestDistanceMatrixTravelTimeProvider distanceMatrixTravelTimeProvider 
 				= injector.getInstance(TestDistanceMatrixTravelTimeProvider.class);
                 
-                for (int i = 0; i < map.size(); i++) {
-                    SimulationNode from = map.get(i);
-                    for (int j = 0; j < map.size(); j++) {
-                        SimulationNode to = map.get(j);
-                       	double durationAstar = astarTravelTimeProvider.getExpectedTravelTime(from, to);
+        for (int i = 0; i < map.size(); i++) {
+        SimulationNode from = map.get(i);
+        for (int j = 0; j < map.size(); j++) {
+            SimulationNode to = map.get(j);
+            double durationAstar = astarTravelTimeProvider.getExpectedTravelTime(from, to);
 			double durationDm = distanceMatrixTravelTimeProvider.getExpectedTravelTime(from, to);
 			LOGGER.debug("From {}(index {}) to {}(index {}), astar distance: {}, dm distance: {}, difference {}", from, 
 					from.getIndex(), to, to.getIndex(), durationAstar, durationDm, durationAstar - durationDm);
-//			Assert.assertEquals(distanceAstar, distanceDm, 19000);
-                    }
-                }			
+            Assert.assertEquals(durationAstar, durationDm, 1);
+            }
+        }			
 	}				
 }

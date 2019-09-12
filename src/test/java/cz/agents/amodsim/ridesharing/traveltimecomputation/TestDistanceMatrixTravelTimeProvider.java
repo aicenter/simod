@@ -35,11 +35,7 @@ import org.slf4j.LoggerFactory;
 public class TestDistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TestDistanceMatrixTravelTimeProvider.class);
-	
-	private final PositionUtil positionUtil;
-	
-	private final AmodsimConfig config;
-	
+
 	private final int[][] distanceMatrix;
 	
 	private long callCount = 0;
@@ -52,10 +48,8 @@ public class TestDistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 	
 	
 	@Inject
-	public TestDistanceMatrixTravelTimeProvider(TimeProvider timeProvider, PositionUtil positionUtil, AmodsimConfig config) {
+	public TestDistanceMatrixTravelTimeProvider(TimeProvider timeProvider) {
 		super(timeProvider);
-		this.positionUtil = positionUtil;
-		this.config = config;
                 String package_path = "cz/agents/amodsim/ridesharing/traveltimecomputation/";
                 String dmPath = getClass().getClassLoader().getResource(package_path + "dm.csv").getPath();
 		distanceMatrix = loadDistanceMatrix(dmPath);

@@ -39,8 +39,8 @@ public class DistanceMatrixTraveltimeTest {
 	public void test(){
 		AmodsimConfig config = new AmodsimConfig();
 		// Guice configuration
-		AgentPolisInitializer agentPolisInitializer 
-				= new AgentPolisInitializer(new TestModule(config));
+		TestAgentPolisInitializer agentPolisInitializer 
+				= new TestAgentPolisInitializer(new TestModule(config));
 		Injector injector = agentPolisInitializer.initialize();
 		
 		// config changes
@@ -49,26 +49,24 @@ public class DistanceMatrixTraveltimeTest {
 		MapData mapData = mapInitializer.getMap();
 		injector.getInstance(AllNetworkNodes.class).setAllNetworkNodes(mapData.nodesFromAllGraphs);
 		injector.getInstance(Graphs.class).setGraphs(mapData.graphByType);
-                //Map<Integer, SimulationNode> map = injector.getInstance(AllNetworkNodes.class).getAllNetworkNodes();
+               Map<Integer, SimulationNode> map = injector.getInstance(AllNetworkNodes.class).getAllNetworkNodes();
                 // travel time providers
-                TimeProvider tp = injector.getInstance(TimeProvider.class);
-                TripsUtil tu = injector.getInstance(TripsUtil.class);
-                TransportNetworks tn = injector.getInstance(TransportNetworks.class);
-		AstarTravelTimeProvider astarTravelTimeProvider = new AstarTravelTimeProvider(tp,tu,tn);
-                        //injector.getInstance(AstarTravelTimeProvider.class);
-		/*TestDistanceMatrixTravelTimeProvider distanceMatrixTravelTimeProvider 
+
+		AstarTravelTimeProvider astarTravelTimeProvider = 
+                        injector.getInstance(AstarTravelTimeProvider.class);
+		TestDistanceMatrixTravelTimeProvider distanceMatrixTravelTimeProvider 
 				= injector.getInstance(TestDistanceMatrixTravelTimeProvider.class);
                 
                 for (int i = 0; i < map.size(); i++) {
                     SimulationNode from = map.get(i);
                     for (int j = 0; j < map.size(); j++) {
-                        SimulationNode to = map.get(i);
+                        SimulationNode to = map.get(j);
                        	double durationAstar = astarTravelTimeProvider.getExpectedTravelTime(from, to);
 			double durationDm = distanceMatrixTravelTimeProvider.getExpectedTravelTime(from, to);
 			LOGGER.debug("From {}(index {}) to {}(index {}), astar distance: {}, dm distance: {}, difference {}", from, 
 					from.getIndex(), to, to.getIndex(), durationAstar, durationDm, durationAstar - durationDm);
 //			Assert.assertEquals(distanceAstar, distanceDm, 19000);
                     }
-                }	*/		
+                }			
 	}				
 }

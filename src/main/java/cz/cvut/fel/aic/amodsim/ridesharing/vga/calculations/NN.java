@@ -28,6 +28,6 @@ import java.util.Set;
  */
 @Singleton
 public interface NN{
-    public void setProbability(List<GroupData> gd, IOptimalPlanVehicle vehicle, int groupSize);
-    public void setProbability(List<GroupData> gd, int groupSize);
+    public void setProbability(Set<GroupData> gd, IOptimalPlanVehicle vehicle, int groupSize);
+    public void setProbability(Set<GroupData> gd, int groupSize);
 }

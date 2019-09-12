@@ -29,7 +29,7 @@ import java.util.Set;
 public class DummyNN implements NN{
  
     @Override
-    public void setProbability(List gd, IOptimalPlanVehicle vehicle, int groupSize) {
+    public void setProbability(Set gd, IOptimalPlanVehicle vehicle, int groupSize) {
         Random rd = new Random();
         double ar[] = {0.4, 0.8, 0.8};
         int i = 0;
@@ -39,7 +39,7 @@ public class DummyNN implements NN{
         }
     }
     @Override
-    public void setProbability(List gd, int groupSize) {
+    public void setProbability(Set gd, int groupSize) {
         this.setProbability(gd, null, groupSize);
     }
 }

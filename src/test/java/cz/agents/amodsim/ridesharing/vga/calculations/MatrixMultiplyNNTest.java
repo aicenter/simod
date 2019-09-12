@@ -21,7 +21,7 @@ import org.junit.Test;
  * @author matal
  */
 public class MatrixMultiplyNNTest {
-    static List<GroupData> groupsForNN = new ArrayList<>();
+    static Set<GroupData> groupsForNN = new LinkedHashSet<>();
     private static NN nn;
     private static IOptimalPlanVehicle vehicle;
     private static double[] correctData = {0.9504464036700224, 0.11001340633826014, 0.9999999999991172};

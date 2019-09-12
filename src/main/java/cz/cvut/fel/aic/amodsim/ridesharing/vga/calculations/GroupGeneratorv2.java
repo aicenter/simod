@@ -602,7 +602,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                 }
             }
             else{
-                List<GroupData> groupsForNN = new LinkedList<>();
+                Set<GroupData> groupsForNN = new LinkedHashSet<>();
                 for (GroupData groupData : currentGroups) {
                     for (PlanComputationRequest request : feasibleRequests) {
                         if (groupData.getRequests().contains(request)){
@@ -882,7 +882,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                 }
             }else{
                 // set of groups for NN
-                List<GroupData> groupsForNN = new LinkedList<>();
+                Set<GroupData> groupsForNN = new LinkedHashSet<>();
                 for (GroupData groupData : currentGroups) {
                     for (PlanComputationRequest request : feasibleRequests) {
                         if (groupData.getRequests().contains(request)){
@@ -1312,7 +1312,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                         }                       
                     }
                     else{
-                        List<GroupData> groupsForNN = new LinkedList<>();
+                        Set<GroupData> groupsForNN = new LinkedHashSet<>();
                         
                         for (V vehicle : vehicles) {
                             // current groups for the next iteration
@@ -1607,7 +1607,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                         }                       
                     }
                     else{
-                        List<GroupData> groupsForNN = new LinkedList<>();
+                        Set<GroupData> groupsForNN = new LinkedHashSet<>();
                         
                         for (V vehicle : vehicles) {
                             // current groups for the next iteration
@@ -1912,7 +1912,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                         }                       
                     }
                     else{
-                        List<GroupData> groupsForNN = new LinkedList<>(); 
+                        Set<GroupData> groupsForNN = new LinkedHashSet<>(); 
                         
                         for (V vehicle : vehicles) {
                             // current groups for the next iteration

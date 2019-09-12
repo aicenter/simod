@@ -31,7 +31,6 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VehiclePlanList;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VirtualVehicle;
@@ -42,7 +41,7 @@ import gurobi.GRBLinExpr;
 import gurobi.GRBModel;
 import gurobi.GRBVar;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -107,6 +106,8 @@ public class GurobiSolver {
 	public List<Plan<IOptimalPlanVehicle>> assignOptimallyFeasiblePlans(
 			List<VehiclePlanList> feasiblePlans, LinkedHashSet<PlanComputationRequest> requests, 
 			int[] usedVehiclesPerStation) {
+		
+		Collections.sort(feasiblePlans);
 		
 		try {
 			// solver init
@@ -174,7 +175,7 @@ public class GurobiSolver {
 			
 			// dropping variables generation (y_r)
 			int requestCounter = 0;
-			Map<GRBVar,PlanComputationRequest> droppingVarsMap = new HashMap<>();
+			Map<GRBVar,PlanComputationRequest> droppingVarsMap = new LinkedHashMap<>();
 			for (PlanComputationRequest request : requests) {
 				if(!request.isOnboard()){
 					// variables

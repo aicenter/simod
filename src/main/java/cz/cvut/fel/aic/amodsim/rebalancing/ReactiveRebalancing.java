@@ -43,6 +43,7 @@ import gurobi.GRBLinExpr;
 import gurobi.GRBModel;
 import gurobi.GRBVar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -120,7 +121,7 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 	public void doRoutine() {
 		LOGGER.info("Reactive Rebalancing - start");
 		double averageFullness = computeAverageFullness();
-		Map<OnDemandVehicleStation,Integer> compensations = computeCompensations(averageFullness);
+		LinkedHashMap<OnDemandVehicleStation,Integer> compensations = computeCompensations(averageFullness);
 		List<Transfer> transfers = computeTransfers(compensations);
 		logTransferes(transfers);
 		sendOrders(transfers);
@@ -133,8 +134,8 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 	 * means car transfer from station, while positive compensation means car transfer to station.
 	 * @return Compensations for each station.
 	 */
-	private Map<OnDemandVehicleStation, Integer> computeCompensations(double averageFullness) {
-		Map<OnDemandVehicleStation, Integer> compensations = new HashMap<>();
+	private LinkedHashMap<OnDemandVehicleStation, Integer> computeCompensations(double averageFullness) {
+		LinkedHashMap<OnDemandVehicleStation, Integer> compensations = new LinkedHashMap<>();
 		
 		for(OnDemandVehicleStation station: onDemandvehicleStationStorage){
 			RebalancingOnDemandVehicleStation rebalancingStation = (RebalancingOnDemandVehicleStation) station;
@@ -169,7 +170,7 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 		return compensations;
 	}
 
-	private List<Transfer> computeTransfers(Map<OnDemandVehicleStation, Integer> compensations) {
+	private List<Transfer> computeTransfers(LinkedHashMap<OnDemandVehicleStation, Integer> compensations) {
 		
 		try {
 			// solver init
@@ -178,8 +179,8 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 			
 			// dictionaries
 			Map<OnDemandVehicleStation,List<GRBVar>> toFlowVars = new HashMap<>();
-			Map<GRBVar,Double> varCosts = new HashMap<>();
-			Map<GRBVar,Transfer> variablesToTransfer = new HashMap<>();
+			Map<GRBVar,Double> varCosts = new LinkedHashMap<>();
+			Map<GRBVar,Transfer> variablesToTransfer = new LinkedHashMap<>();
 			
 			// variables
 			for(Entry<OnDemandVehicleStation, Integer> compensationFrom: compensations.entrySet()){

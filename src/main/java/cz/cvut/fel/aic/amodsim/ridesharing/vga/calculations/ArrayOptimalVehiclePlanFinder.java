@@ -165,7 +165,9 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 						PlanRequestAction action = actionData.getAction();
 						if(!actionData.isUsed()){
 							if((action instanceof PlanActionPickup 
-								&& action.getRequest().getMaxPickupTime() < endTime + duration)
+								&& action.getRequest().getMaxPickupTime() < endTime + duration
+								&& (!onboardRequestsOnly 
+										|| endTime + duration - action.getRequest().getMaxPickupTime() > 2))
 							|| (action instanceof PlanActionDropoff 
 								&& (action.getRequest().getMaxDropoffTime() < endTime + duration)
 								// extra 10s for onboard requests

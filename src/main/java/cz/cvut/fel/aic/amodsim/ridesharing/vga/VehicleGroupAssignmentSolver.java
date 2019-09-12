@@ -321,7 +321,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	}
 
 	private void printGroupStats(List<VehiclePlanList> feasiblePlans) {
-		Map<Integer,Integer> stats = new HashMap();
+		Map<Integer,Integer> stats = new LinkedHashMap();
 		for (VehiclePlanList feasiblePlan : feasiblePlans) {
 			for (Plan feasibleGroupPlan : feasiblePlan.feasibleGroupPlans) {
 				int size = Math.round(feasibleGroupPlan.getActions().size() / 2);

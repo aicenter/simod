@@ -25,7 +25,7 @@ import java.util.List;
  *
  * @author F.I.D.O.
  */
-public class VehiclePlanList {
+public class VehiclePlanList implements Comparable<VehiclePlanList>{
 	public final IOptimalPlanVehicle optimalPlanVehicle;
 	
 	public final List<Plan> feasibleGroupPlans;
@@ -33,6 +33,11 @@ public class VehiclePlanList {
 	public VehiclePlanList(IOptimalPlanVehicle vGAVehicle, List<Plan> feasibleGroupPlans) {
 		this.optimalPlanVehicle = vGAVehicle;
 		this.feasibleGroupPlans = feasibleGroupPlans;
+	}
+
+	@Override
+	public int compareTo(VehiclePlanList o) {
+		return optimalPlanVehicle.getId().compareTo(o.optimalPlanVehicle.getId());
 	}
 	
 	

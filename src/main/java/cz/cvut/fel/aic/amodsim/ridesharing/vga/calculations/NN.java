@@ -27,7 +27,7 @@ import java.util.Set;
  * @author matal
  */
 @Singleton
-public interface NN<V extends IOptimalPlanVehicle> {
-    public void setProbability(List<GroupData> gd, V vehicle, int groupSize);
-    public void setProbability(List gd, int groupSize);
+public interface NN{
+    public void setProbability(List<GroupData> gd, IOptimalPlanVehicle vehicle, int groupSize);
+    public void setProbability(List<GroupData> gd, int groupSize);
 }

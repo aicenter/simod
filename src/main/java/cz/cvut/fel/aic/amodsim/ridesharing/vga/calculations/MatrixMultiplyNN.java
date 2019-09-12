@@ -61,7 +61,7 @@ public class MatrixMultiplyNN implements NN {
     }
     
     @Override
-    public void setProbability(List gd, IOptimalPlanVehicle vehicle, int groupSize) {
+    public void setProbability(List<GroupData> gd, IOptimalPlanVehicle vehicle, int groupSize) {
         INDArray Y = fillWithStandardizedData(gd,vehicle,groupSize+1);
         //matrixX = compute(matrixX, groupSize+1);
         for (int i = 0; i < 4; i++) {
@@ -74,14 +74,14 @@ public class MatrixMultiplyNN implements NN {
             }
         }
         int i = 0;
-        for (GroupData newGroupToCheck : (List<GroupData>) gd) {
+        for (GroupData newGroupToCheck :  gd) {
             //double probability = Y.getDouble(i,0);
             newGroupToCheck.setFeasible(Y.getDouble(i,0));
             i++;
         }
     }
     @Override
-    public void setProbability(List gd, int groupSize) {
+    public void setProbability(List<GroupData> gd, int groupSize) {
         INDArray Y = fillWithStandardizedData(gd,groupSize+1);
         //matrixX = compute(matrixX, groupSize+1);
         //INDArray Y = matrixX;
@@ -95,7 +95,7 @@ public class MatrixMultiplyNN implements NN {
             }
         }
         int i = 0;
-        for (GroupData newGroupToCheck : (List<GroupData>) gd) {
+        for (GroupData newGroupToCheck : gd) {
             //double probability = Y.getDouble(i,0);
             newGroupToCheck.setFeasible(Y.getDouble(i,0));
             i++;

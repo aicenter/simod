@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -601,7 +602,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                 }
             }
             else{
-                List<GroupData> groupsForNN = new ArrayList<>();
+                List<GroupData> groupsForNN = new LinkedList<>();
                 for (GroupData groupData : currentGroups) {
                     for (PlanComputationRequest request : feasibleRequests) {
                         if (groupData.getRequests().contains(request)){
@@ -881,7 +882,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                 }
             }else{
                 // set of groups for NN
-                List<GroupData> groupsForNN = new ArrayList<>();
+                List<GroupData> groupsForNN = new LinkedList<>();
                 for (GroupData groupData : currentGroups) {
                     for (PlanComputationRequest request : feasibleRequests) {
                         if (groupData.getRequests().contains(request)){
@@ -1311,7 +1312,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                         }                       
                     }
                     else{
-                        List<GroupData> groupsForNN = new ArrayList<>();
+                        List<GroupData> groupsForNN = new LinkedList<>();
                         
                         for (V vehicle : vehicles) {
                             // current groups for the next iteration
@@ -1606,7 +1607,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                         }                       
                     }
                     else{
-                        List<GroupData> groupsForNN = new ArrayList<>();
+                        List<GroupData> groupsForNN = new LinkedList<>();
                         
                         for (V vehicle : vehicles) {
                             // current groups for the next iteration
@@ -1911,7 +1912,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                         }                       
                     }
                     else{
-                        final List<GroupData> groupsForNN = new ArrayList<>();
+                        List<GroupData> groupsForNN = new LinkedList<>(); 
                         
                         for (V vehicle : vehicles) {
                             // current groups for the next iteration

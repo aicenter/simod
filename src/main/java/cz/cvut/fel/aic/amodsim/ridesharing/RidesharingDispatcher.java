@@ -37,7 +37,7 @@ import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
-import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.PlanActionCurrentPosition;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionCurrentPosition;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;

@@ -58,7 +58,7 @@ import java.util.logging.Logger;
 import me.tongfei.progressbar.ProgressBar;
 import org.slf4j.LoggerFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.PlanCostProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.PlanActionCurrentPosition;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionCurrentPosition;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;

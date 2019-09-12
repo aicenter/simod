@@ -18,6 +18,7 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionCurrentPosition;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 import java.util.Iterator;

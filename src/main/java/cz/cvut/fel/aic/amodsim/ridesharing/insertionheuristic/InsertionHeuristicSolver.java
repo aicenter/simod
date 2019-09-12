@@ -18,6 +18,7 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionCurrentPosition;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;

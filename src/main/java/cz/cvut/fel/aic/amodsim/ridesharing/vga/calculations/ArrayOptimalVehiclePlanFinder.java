@@ -67,6 +67,9 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 		// prepare possible actions
 		List<PlanActionData> availableActionsList = new ArrayList(requests.size() * 2);
 		int counter = 0;
+//		if(startTime == 360 && vehicle.getId().equals("VGA vehicle 22-567")){
+//			int a = 1; // TO REMOVE
+//		}
 		if(onboardRequestsOnly){
 			RideSharingOnDemandVehicle rVehicle = (RideSharingOnDemandVehicle) vehicle.getRealVehicle();
 			DriverPlan currentPlan = rVehicle.getCurrentPlan();
@@ -151,7 +154,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 					int duration;
 					if(planPositionIndex == 0){
 						duration = (int) (travelTimeProvider.getTravelTime(
-								vehicle.getRealVehicle(), newAction.getPosition()) / 1000.0);
+								vehicle.getRealVehicle(), newAction.getPosition()) / 1000.0) + 1;
 					}
 					else{
 						duration = (int) (travelTimeProvider.getExpectedTravelTime(
@@ -160,6 +163,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 						
 					// actions feasibility check
 					boolean allActionsFeasible = true;
+					int roundingExtraTime = availableActions.length;
 					for (int i = 0; i < availableActions.length; i++) {
 						PlanActionData actionData = availableActions[i];
 						PlanRequestAction action = actionData.getAction();
@@ -167,14 +171,16 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 							if((action instanceof PlanActionPickup 
 								&& action.getRequest().getMaxPickupTime() < endTime + duration
 								&& (!onboardRequestsOnly 
-										|| endTime + duration - action.getRequest().getMaxPickupTime() > 2))
+										|| action.getRequest().getMaxPickupTime() + roundingExtraTime < endTime + duration))
 							|| (action instanceof PlanActionDropoff 
 								&& (action.getRequest().getMaxDropoffTime() < endTime + duration)
-								// extra 10s for onboard requests
 								&& (!onboardRequestsOnly 
-										|| endTime + duration - action.getRequest().getMaxDropoffTime() > 2)
+										|| action.getRequest().getMaxDropoffTime() + roundingExtraTime < endTime + duration)
 									)){
 								allActionsFeasible = false;
+								if(onboardRequestsOnly){
+									int a = 1;
+								}
 								break;
 							}
 						}

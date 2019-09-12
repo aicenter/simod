@@ -36,7 +36,7 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
-import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.PlanActionCurrentPosition;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionCurrentPosition;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
@@ -103,12 +103,16 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	public void replan(DriverPlan plan){
 		currentPlan = plan;
 		// The vehicle now waits, we have to start moving.
-		if(state == OnDemandVehicleState.WAITING ){
+		if(state == OnDemandVehicleState.WAITING && plan.getLength() > 1){
 			driveToNextTask();
 		}
-		// The first action in the new plan is the same as the current action, 
-		// so we let the current Drive action continue.
-		else if(plan.getLength() > 1 && currentTask.equals(plan.getNextTask())){
+		// SPECIAL CASES - we don't have to do anything and let the current Drive action continue.
+		
+		else if(
+			// The first action in the new plan is the same as the current action 
+			(plan.getLength() > 1 && currentTask != null && currentTask.equals(plan.getNextTask()))
+			// The new plan is empty and the vehicle is waiting or driving to station
+			|| (plan.getLength() == 1 && (state == OnDemandVehicleState.WAITING || state == OnDemandVehicleState.DRIVING_TO_STATION))){
 
 		}
 		// We end the current Drive action and start the execution of the new plan.
@@ -154,7 +158,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		targetStation = onDemandVehicleStationsCentral.getNearestStation(getPosition());
 		
 		if(getPosition().equals(targetStation.getPosition())){
-			finishDrivingToStation(((PlanRequestAction) currentTask).getRequest().getDemandAgent());
+			finishDrivingToStation();
 		}
 		else{
 			currentTrip = tripsUtil.createTrip(getPosition().id, 
@@ -179,7 +183,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 					dropOffAndContinue();
 					break;
 				case DRIVING_TO_STATION:
-					finishDrivingToStation(((PlanRequestAction) currentTask).getRequest().getDemandAgent());
+					finishDrivingToStation();
 					break;
 				case REBALANCING:
 					finishRebalancing();
@@ -190,6 +194,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
 	private void driveToNextTask() {
 		if(currentPlan.getLength() == 1){
+			currentTask = null;
 			if(state != OnDemandVehicleState.WAITING){
 				if(onDemandVehicleStationsCentral.stationsOn()){
 					driveToNearestStation();

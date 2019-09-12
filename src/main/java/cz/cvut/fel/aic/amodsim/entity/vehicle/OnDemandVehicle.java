@@ -236,7 +236,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 				driveToNearestStation();
 				break;
 			case DRIVING_TO_STATION:
-				finishDrivingToStation(currentlyServedDemmand.demandAgent);
+				finishDrivingToStation();
 				break;
 			case REBALANCING:
 				finishRebalancing();
@@ -460,10 +460,10 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 						currentRebalancingId, getId(), null, parkedIn));
 	}
 
-	protected void finishDrivingToStation(DemandAgent demandAgent) {
+	protected void finishDrivingToStation() {
 		eventProcessor.addEvent(OnDemandVehicleEvent.REACH_NEAREST_STATION, null, null, 
 					new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-						demandAgent.getSimpleId(), getId()));
+						-1, getId()));
 		waitInStation();
 	}
 	

@@ -43,15 +43,13 @@ public class DistanceMatrixTraveltimeTest {
 				= new TestAgentPolisInitializer(new TestModule(config));
 		Injector injector = agentPolisInitializer.initialize();
 		
-		// config changes
 		// prepare map
 		MapInitializer mapInitializer = injector.getInstance(MapInitializer.class);
 		MapData mapData = mapInitializer.getMap();
 		injector.getInstance(AllNetworkNodes.class).setAllNetworkNodes(mapData.nodesFromAllGraphs);
 		injector.getInstance(Graphs.class).setGraphs(mapData.graphByType);
-               Map<Integer, SimulationNode> map = injector.getInstance(AllNetworkNodes.class).getAllNetworkNodes();
+                Map<Integer, SimulationNode> map = injector.getInstance(AllNetworkNodes.class).getAllNetworkNodes();
                 // travel time providers
-
 		AstarTravelTimeProvider astarTravelTimeProvider = 
                         injector.getInstance(AstarTravelTimeProvider.class);
 		TestDistanceMatrixTravelTimeProvider distanceMatrixTravelTimeProvider 

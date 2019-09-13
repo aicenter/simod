@@ -32,7 +32,10 @@ public class PlanActionData{
 
 	private boolean used;
 
-	private double durationFromPreviousAction;
+	/**
+	 * Duration from previous action in milliseconds
+	 */
+	private int durationFromPreviousAction;
 
 	private double discomfort;
 
@@ -56,11 +59,11 @@ public class PlanActionData{
 		this.used = used;
 	}
 
-	public double getDurationFromPreviousAction() {
+	public int getDurationFromPreviousAction() {
 		return durationFromPreviousAction;
 	}
 
-	public void setDurationFromPreviousAction(double durationFromPreviousAction) {
+	public void setDurationFromPreviousAction(int durationFromPreviousAction) {
 		this.durationFromPreviousAction = durationFromPreviousAction;
 	}
 

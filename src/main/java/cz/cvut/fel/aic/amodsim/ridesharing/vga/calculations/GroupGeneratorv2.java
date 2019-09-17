@@ -419,7 +419,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 		}
 		return groupPlans;
 	}
-	public List<Plan> generateGroupsForVehicleNN(V vehicle, Iterable<PlanComputationRequest> requests, int startTime) {
+	/*public List<Plan> generateGroupsForVehicleNN(V vehicle, Iterable<PlanComputationRequest> requests, int startTime) {
 		
 		long group_generation_start_time = System.nanoTime();
 		boolean stop = false;
@@ -642,9 +642,9 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                     if(newGroupToCheck.getFeasible() < 0.5){
                         //System.out.println("False: "+false_count++);
                         continue;
-                    }/*else{
+                    }else{
                         System.out.println("True: "+true_count++);
-                    }*/
+                    }
                     
                     Plan plan ;
 
@@ -699,8 +699,8 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 			currentGroupSize++;
 		}
 		return groupPlans;
-	}
-	public List<Plan> generateGroupsForVehicle(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime) {
+	}*/
+	/*public List<Plan> generateGroupsForVehicle(V vehicle, LinkedHashSet<PlanComputationRequest> requests, int startTime) {
 		
 		long group_generation_start_time = System.nanoTime();
 		boolean stop = false;
@@ -974,7 +974,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
 			currentGroupSize++;
 		}
 		return groupPlans;
-	}
+	}*/
 	
 	public Set<Set<PlanComputationRequest>> generateGlobalGroups(LinkedHashSet<PlanComputationRequest> requests, int startTime) {
 		// F_v^{k - 1} - groupes for request adding
@@ -1312,7 +1312,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                         }                       
                     }
                     else{
-                        Set<GroupData> groupsForNN = new LinkedHashSet<>();
+                        List<GroupData> groupsForNN = new ArrayList<>();
                         
                         for (V vehicle : vehicles) {
                             // current groups for the next iteration
@@ -1607,7 +1607,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                         }                       
                     }
                     else{
-                        Set<GroupData> groupsForNN = new LinkedHashSet<>();
+                        List<GroupData> groupsForNN = new ArrayList<>();
                         
                         for (V vehicle : vehicles) {
                             // current groups for the next iteration
@@ -1711,7 +1711,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
             }
         return groupPlans;
     }
-    public Map<V,List<Plan>> generateGroupsForVehicleNNBefore(List<V> vehicles, Iterable<DefaultPlanComputationRequest> requests, int startTime) {
+    /*public Map<V,List<Plan>> generateGroupsForVehicleNNBefore(List<V> vehicles, Iterable<DefaultPlanComputationRequest> requests, int startTime) {
             //group generation time limit is not here
 
             // statistics
@@ -2014,7 +2014,7 @@ public class GroupGeneratorv2<V extends IOptimalPlanVehicle> {
                 }
             }
         return groupPlans;
-    }
+    }*/
 
  /*   private void export_to_csv(Set<GroupData> groupsForNN) {
         String[][] data = new String[groupsForNN.size()][4+6*(3)]; //groupSize 3 fixed

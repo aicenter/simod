@@ -61,7 +61,7 @@ public class MatrixMultiplyNN implements NN {
     }
     
     @Override
-    public void setProbability(Set<GroupData> gd, IOptimalPlanVehicle vehicle, int groupSize) {
+    public void setProbability(List<GroupData> gd, IOptimalPlanVehicle vehicle, int groupSize) {
         INDArray Y = fillWithStandardizedData(gd,vehicle,groupSize+1);
         //matrixX = compute(matrixX, groupSize+1);
         for (int i = 0; i < 4; i++) {
@@ -81,7 +81,7 @@ public class MatrixMultiplyNN implements NN {
         }
     }
     @Override
-    public void setProbability(Set<GroupData> gd, int groupSize) {
+    public void setProbability(List<GroupData> gd, int groupSize) {
         INDArray Y = fillWithStandardizedData(gd,groupSize+1);
         //matrixX = compute(matrixX, groupSize+1);
         //INDArray Y = matrixX;
@@ -101,7 +101,7 @@ public class MatrixMultiplyNN implements NN {
             i++;
         }
     }
-    private INDArray fillWithStandardizedData(Set<GroupData> gd, IOptimalPlanVehicle vehicle, int groupSize){
+    private INDArray fillWithStandardizedData(List<GroupData> gd, IOptimalPlanVehicle vehicle, int groupSize){
         double[][] data = new double[gd.size()][3+6*(groupSize)];
         DoubleIterator curr_mu = new DoubleIterator(mu[groupSize-3]);
         DoubleIterator curr_sigma = new DoubleIterator(sigma[groupSize-3]);
@@ -109,7 +109,7 @@ public class MatrixMultiplyNN implements NN {
         double car_lat = (vehicle.getPosition().getLatE6() - curr_mu.next())/curr_sigma.next();
         double car_lon = (vehicle.getPosition().getLonE6()- curr_mu.next())/curr_sigma.next();
         int k = 0;
-        for (GroupData newGroupToCheck : (List<GroupData>) gd) {
+        for (GroupData newGroupToCheck : gd) {
             int j = 0;
             curr_mu.reset(3);
             curr_sigma.reset(3);
@@ -128,7 +128,7 @@ public class MatrixMultiplyNN implements NN {
         }
         return Nd4j.create(data);
     }
-    private INDArray fillWithStandardizedData(Set<GroupData> gd, int groupSize){
+    private INDArray fillWithStandardizedData(List<GroupData> gd, int groupSize){
         double[][] data = new double[gd.size()][3+6*(groupSize)];
         DoubleIterator curr_mu = new DoubleIterator(mu[groupSize-3]);
         DoubleIterator curr_sigma = new DoubleIterator(sigma[groupSize-3]);

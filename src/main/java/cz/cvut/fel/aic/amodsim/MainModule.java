@@ -130,7 +130,7 @@ public class MainModule extends StandardAgentPolisModule{
                 LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
                 FileAppender appender =
                 (FileAppender) lc.getLogger("ROOT").getAppender("FILE");
-                appender.setFile(experiments_path+"\\log\\log.txt");
+                appender.setFile(experiments_path+"/log/log.txt");
                 appender.start();
         }
 	

@@ -71,7 +71,7 @@ public class TestDistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 					= new BufferedReader(new InputStreamReader(new FileInputStream(distanceMatrixFilepath), "utf-8"));
 			
 			CsvParserSettings settings = new CsvParserSettings();
-			settings.getFormat().setLineSeparator("\r\n");
+			settings.setLineSeparatorDetectionEnabled(true);
 
 			//turning off features enabled by default
 			settings.setIgnoreLeadingWhitespaces(false);

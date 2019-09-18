@@ -66,7 +66,7 @@ import java.util.ArrayList;
 public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgent,
 		Driver<PhysicalTransportVehicle>{
 	
-	private static final double LENGTH = 4;
+	private static final int LENGTH = 4;
 	
 	
 	
@@ -90,7 +90,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	private final AmodsimConfig config;
 	
 	
-	private List<Node> demandNodes;
+	private List<SimulationNode> demandNodes;
 	
 	protected OnDemandVehicleState state;
 	
@@ -236,7 +236,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 				driveToNearestStation();
 				break;
 			case DRIVING_TO_STATION:
-				finishDrivingToStation(currentlyServedDemmand.demandAgent);
+				finishDrivingToStation();
 				break;
 			case REBALANCING:
 				finishRebalancing();
@@ -257,7 +257,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		demandTrip = tripsUtil.createTrip(demandNodes.get(0).getId(), demandNodes.get(1).getId(), vehicle);
 		metersWithPassenger += positionUtil.getTripLengthInMeters(demandTrip);
 		
-		Node demandEndNode = demandNodes.get(demandNodes.size() - 1);
+		SimulationNode demandEndNode = demandNodes.get(demandNodes.size() - 1);
 		
 		targetStation = onDemandVehicleStationsCentral.getNearestStation(demandEndNode);
 		
@@ -363,7 +363,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	}
 
 	@Override
-	public double getVelocity() {
+	public int getVelocity() {
 		return config.vehicleSpeedInMeters;
 	}
 	
@@ -460,10 +460,10 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 						currentRebalancingId, getId(), null, parkedIn));
 	}
 
-	protected void finishDrivingToStation(DemandAgent demandAgent) {
+	protected void finishDrivingToStation() {
 		eventProcessor.addEvent(OnDemandVehicleEvent.REACH_NEAREST_STATION, null, null, 
 					new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-						demandAgent.getSimpleId(), getId()));
+						-1, getId()));
 		waitInStation();
 	}
 	

@@ -196,6 +196,10 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 	public boolean isEmpty(){
 		return parkedVehicles.isEmpty();
 	}
+	
+	public int getIndex(){
+		return Integer.parseInt(getId());
+	}
 
 	private OnDemandVehicle getAndRemoveVehicle() {
 		OnDemandVehicle nearestVehicle;

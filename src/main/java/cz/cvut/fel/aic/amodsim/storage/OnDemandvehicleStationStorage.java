@@ -23,6 +23,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.util.NearestElementUtil;
 import cz.cvut.fel.aic.geographtools.util.NearestElementUtilPair;
@@ -44,24 +46,65 @@ import org.locationtech.jts.geom.Coordinate;
 @Singleton
 public class OnDemandvehicleStationStorage extends EntityStorage<OnDemandVehicleStation>{
 	
+	public enum NearestType{
+		EUCLIDEAN,
+		TRAVELTIME_FROM,
+		TRAVELTIME_TO
+	}
+	
 	private NearestElementUtil<OnDemandVehicleStation> nearestElementUtil;
 	
 	private final Transformer transformer;
 	
 	private int numberOfDemandsNotServedFromNearestStation;
 	
+	private final TravelTimeProvider travelTimeProvider;
+	
 	public int getNumberOfDemandsNotServedFromNearestStation() {
 		return numberOfDemandsNotServedFromNearestStation;
 	}
 	
 	@Inject
-	public OnDemandvehicleStationStorage(Transformer transformer) {
+	public OnDemandvehicleStationStorage(Transformer transformer, TravelTimeProvider travelTimeProvider) {
 		super();
 		this.transformer = transformer;
+		this.travelTimeProvider = travelTimeProvider;
 		numberOfDemandsNotServedFromNearestStation = 0;
 	}
 	
-	public OnDemandVehicleStation getNearestStation(GPSLocation position){
+	public OnDemandVehicleStation getNearestStation(SimulationNode position){
+		return getNearestStation(position, NearestType.EUCLIDEAN);
+	}
+	
+	public OnDemandVehicleStation getNearestStation(SimulationNode position, NearestType type){
+		switch(type){
+			case EUCLIDEAN:
+				return getNearestStationByEuclideanDistance(position);
+			case TRAVELTIME_TO:
+			case TRAVELTIME_FROM:
+				double bestTraveltime = Double.MAX_VALUE;
+				OnDemandVehicleStation bestStation = null;
+				for(OnDemandVehicleStation station: this){
+					SimulationNode stationPosition = station.getPosition();
+					double traveltime;
+					if(type == NearestType.TRAVELTIME_FROM){
+						traveltime = travelTimeProvider.getExpectedTravelTime(stationPosition, position);
+					}
+					else{
+						traveltime = travelTimeProvider.getExpectedTravelTime(position, stationPosition);
+					}
+					if(traveltime < bestTraveltime){
+						bestTraveltime = traveltime;
+						bestStation = station;
+					}
+				}
+				return bestStation;
+			default:
+				return null;
+		}
+	}
+	
+	public OnDemandVehicleStation getNearestStationByEuclideanDistance(SimulationNode position){
 		if(nearestElementUtil == null){
 			nearestElementUtil = getNearestElementUtilForStations();
 		}
@@ -70,7 +113,7 @@ public class OnDemandvehicleStationStorage extends EntityStorage<OnDemandVehicle
 		return nearestStation;
 	}
 	
-	public OnDemandVehicleStation getNearestReadyStation(GPSLocation position){
+	public OnDemandVehicleStation getNearestReadyStation(SimulationNode position){
 		if(nearestElementUtil == null){
 			nearestElementUtil = getNearestElementUtilForStations();
 		}

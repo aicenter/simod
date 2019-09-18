@@ -33,6 +33,7 @@ import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.amodsim.event.RebalancingEventContent;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import gurobi.GRB;
@@ -42,6 +43,7 @@ import gurobi.GRBLinExpr;
 import gurobi.GRBModel;
 import gurobi.GRBVar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +73,7 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 	
 	private final Map<OnDemandVehicleStation, Map<OnDemandVehicleStation, Double>> distancesBetweenStations;
 	
-	private final AstarTravelTimeProvider astarTravelTimeProvider;
+	private final TravelTimeProvider travelTimeProvider;
 	
 	private final StationsDispatcher stationsDispatcher;
 	
@@ -85,12 +87,12 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 	@Inject
 	public ReactiveRebalancing(PeriodicTicker ticker, AmodsimConfig config, 
 			OnDemandvehicleStationStorage onDemandvehicleStationStorage, 
-			AstarTravelTimeProvider astarTravelTimeProvider, StationsDispatcher stationsDispatcher, 
+			TravelTimeProvider travelTimeProvider, StationsDispatcher stationsDispatcher, 
 			TypedSimulation eventProcessor) {
 		this.ticker = ticker;
 		this.config = config;
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
-		this.astarTravelTimeProvider = astarTravelTimeProvider;
+		this.travelTimeProvider = travelTimeProvider;
 		this.stationsDispatcher = stationsDispatcher;
 		this.eventProcessor = eventProcessor;
 		distancesBetweenStations = new HashMap<>();
@@ -101,7 +103,7 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 		// gurobi environment init
 		env = null;
 		try {
-			env = new GRBEnv("mip-rebalancing.log");
+			env = new GRBEnv(config.amodsimExperimentDir +"/log/mip-rebalancing.log");
 		} catch (GRBException ex) {
 			Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
 		}
@@ -119,7 +121,7 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 	public void doRoutine() {
 		LOGGER.info("Reactive Rebalancing - start");
 		double averageFullness = computeAverageFullness();
-		Map<OnDemandVehicleStation,Integer> compensations = computeCompensations(averageFullness);
+		LinkedHashMap<OnDemandVehicleStation,Integer> compensations = computeCompensations(averageFullness);
 		List<Transfer> transfers = computeTransfers(compensations);
 		logTransferes(transfers);
 		sendOrders(transfers);
@@ -132,8 +134,8 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 	 * means car transfer from station, while positive compensation means car transfer to station.
 	 * @return Compensations for each station.
 	 */
-	private Map<OnDemandVehicleStation, Integer> computeCompensations(double averageFullness) {
-		Map<OnDemandVehicleStation, Integer> compensations = new HashMap<>();
+	private LinkedHashMap<OnDemandVehicleStation, Integer> computeCompensations(double averageFullness) {
+		LinkedHashMap<OnDemandVehicleStation, Integer> compensations = new LinkedHashMap<>();
 		
 		for(OnDemandVehicleStation station: onDemandvehicleStationStorage){
 			RebalancingOnDemandVehicleStation rebalancingStation = (RebalancingOnDemandVehicleStation) station;
@@ -144,17 +146,18 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 			int optimalCarCount = rebalancingStation.getOptimalCarCount();
 			int targetCarCount = (int) Math.round(averageFullness * optimalCarCount);
 			
-			int buffer = (int) (config.rebalancing.buffer * optimalCarCount);
+			int excessBuffer = (int) (config.rebalancing.bufferExcess * optimalCarCount);
+			int shortageBuffer = (int) (config.rebalancing.bufferShortage * optimalCarCount);
 			
 			int compensation = 0;
 			if(carCount > targetCarCount){
-				int targetCarCountWithBuffer = targetCarCount + buffer;
+				int targetCarCountWithBuffer = targetCarCount + excessBuffer;
 				if(carCount > targetCarCountWithBuffer){
 					compensation = targetCarCountWithBuffer - carCount;
 				}
 			}
 			else{
-				int targetCarCountWithBuffer = targetCarCount - buffer;
+				int targetCarCountWithBuffer = targetCarCount - shortageBuffer;
 				if(carCount < targetCarCountWithBuffer){
 					compensation = targetCarCountWithBuffer- carCount;
 				}
@@ -167,7 +170,7 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 		return compensations;
 	}
 
-	private List<Transfer> computeTransfers(Map<OnDemandVehicleStation, Integer> compensations) {
+	private List<Transfer> computeTransfers(LinkedHashMap<OnDemandVehicleStation, Integer> compensations) {
 		
 		try {
 			// solver init
@@ -176,8 +179,8 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 			
 			// dictionaries
 			Map<OnDemandVehicleStation,List<GRBVar>> toFlowVars = new HashMap<>();
-			Map<GRBVar,Double> varCosts = new HashMap<>();
-			Map<GRBVar,Transfer> variablesToTransfer = new HashMap<>();
+			Map<GRBVar,Double> varCosts = new LinkedHashMap<>();
+			Map<GRBVar,Transfer> variablesToTransfer = new LinkedHashMap<>();
 			
 			// variables
 			for(Entry<OnDemandVehicleStation, Integer> compensationFrom: compensations.entrySet()){
@@ -186,7 +189,7 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 				OnDemandVehicleStation stationFrom = compensationFrom.getKey();
 				int fromFlow = compensationFrom.getValue();
 
-				// we filter unly station with out flow (to many vehicles)
+				// we filter only station with out flow (to many vehicles)
 				if(fromFlow < 0){
 					int amountFrom = Math.abs(fromFlow);
 					
@@ -205,11 +208,17 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 							CollectionUtil.addToListInMap(toFlowVars, stationTo, flow);
 
 							// variable costs
-							double cost = distancesBetweenStations.get(stationFrom).get(stationTo);
-							varCosts.put(flow, cost);
+							try{
+								double cost = distancesBetweenStations.get(stationFrom).get(stationTo);
+								varCosts.put(flow, cost);
 
-							// solution mappping
-							variablesToTransfer.put(flow, new Transfer(stationFrom, stationTo));
+								// solution mappping
+								variablesToTransfer.put(flow, new Transfer(stationFrom, stationTo));
+							}
+							catch(NullPointerException ex){
+								LOGGER.debug("Exception when computing cost from {} to {}. Distances: {}", stationFrom, 
+										stationTo, distancesBetweenStations);
+							}
 						}
 					}
 					
@@ -380,7 +389,7 @@ public class ReactiveRebalancing implements Routine, EventHandler{
 		distancesBetweenStations.put(stationFrom, mapFromStation);
 		for(OnDemandVehicleStation stationTo: onDemandvehicleStationStorage){
 			if(stationFrom != stationTo){
-				double distance = astarTravelTimeProvider.getExpectedTravelTime(
+				double distance = travelTimeProvider.getExpectedTravelTime(
 						stationFrom.getPosition(), stationTo.getPosition());
 				mapFromStation.put(stationTo, distance);
 			}

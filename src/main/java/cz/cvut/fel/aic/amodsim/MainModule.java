@@ -18,7 +18,8 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.EuclideanTravelTimeProvider;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.core.FileAppender;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.InsertionHeuristicSolver;
 import com.google.common.collect.Sets;
@@ -49,11 +50,14 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehicleP
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.DistanceMatrixTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.visio.DemandLayer;
+import cz.cvut.fel.aic.amodsim.visio.DemandLayerWithJitter;
 import cz.cvut.fel.aic.geographtools.TransportMode;
 
 import java.io.File;
 
 import java.util.Set;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -66,6 +70,10 @@ public class MainModule extends StandardAgentPolisModule{
 	public MainModule(AmodsimConfig amodsimConfig, File localConfigFile) {
 		super(amodsimConfig, localConfigFile, "agentpolis");
 		this.amodsimConfig = amodsimConfig;
+                //clean experiment folder (for merging, must be before setting logger file path in branch feature/saveLogToExperiments)
+                deleteFiles(new File(amodsimConfig.amodsimExperimentDir));
+                //set logger file path (for merging, must be after cleanup folder in branch feature/clear_exp_folder)
+                setLoggerFilePath(amodsimConfig.amodsimExperimentDir);
 	}
 
 	@Override
@@ -83,7 +91,7 @@ public class MainModule extends StandardAgentPolisModule{
 		if(amodsimConfig.useTripCache){
 			bind(TripsUtil.class).to(TripsUtilCached.class);
 		}
-//		bind(DemandLayer.class).to(DemandLayerWithJitter.class);
+		bind(DemandLayer.class).to(DemandLayerWithJitter.class);
 		
 //		bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
 		bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
@@ -91,8 +99,8 @@ public class MainModule extends StandardAgentPolisModule{
 		if(amodsimConfig.ridesharing.on){
 			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 			bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
-//			bind(TravelTimeProvider.class).to(DistanceMatrixTravelTimeProvider.class);
-			bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
+			bind(TravelTimeProvider.class).to(DistanceMatrixTravelTimeProvider.class);
+//			bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
 //			bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
 			bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
 			install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
@@ -121,5 +129,26 @@ public class MainModule extends StandardAgentPolisModule{
 				.build(RebalancingOnDemandVehicleStation.OnDemandVehicleStationFactory.class));
 		}
 	} 
+	private void deleteFiles(File folder) {
+		if(folder.exists()){
+			File[] files = folder.listFiles();
+			for (final File fileEntry : files) {
+				if (fileEntry.isDirectory() && !fileEntry.getName().startsWith("trip_cache")) {
+					deleteFiles(fileEntry);
+					fileEntry.delete();
+				} else if(!fileEntry.isDirectory()){
+					fileEntry.delete();
+				}
+			}
+		}
+	}
 	
+	private void setLoggerFilePath(String experiments_path) {         
+			LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+			FileAppender appender =
+			(FileAppender) lc.getLogger("ROOT").getAppender("FILE");
+			appender.setFile(experiments_path+"\\log\\log.txt");
+			appender.start();
+	}
+           
 }

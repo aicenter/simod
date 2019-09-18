@@ -18,6 +18,7 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import java.util.LinkedHashSet;
@@ -35,4 +36,6 @@ public interface IOptimalPlanVehicle {
 	public int getCapacity();
 	
 	public String getId();
+	
+	public MovingEntity getRealVehicle();
 }

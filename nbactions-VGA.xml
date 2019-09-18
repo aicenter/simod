@@ -10,7 +10,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xmx30g -classpath %classpath cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation C:\Workspaces\AIC\amod-to-agentpolis\local_config_files\fido-AIC.cfg</exec.args>
+                <exec.args>-Xmx45g -classpath %classpath cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation C:\Workspaces\AIC\amod-to-agentpolis\local_config_files\fido-AIC.cfg</exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
         </action>
@@ -24,7 +24,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -Xmx30g -classpath %classpath cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation C:\Workspaces\AIC\amod-to-agentpolis\local_config_files\fido-AIC.cfg</exec.args>
+                <exec.args>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address} -Xmx45g -classpath %classpath cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation C:\Workspaces\AIC\amod-to-agentpolis\local_config_files\fido-AIC.cfg</exec.args>
                 <exec.executable>java</exec.executable>
                 <jpda.listen>true</jpda.listen>
             </properties>
@@ -39,7 +39,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xmx30g -classpath %classpath cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation C:\Workspaces\AIC\amod-to-agentpolis\local_config_files\fido-AIC.cfg</exec.args>
+                <exec.args>-Xmx45g -classpath %classpath cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation C:\Workspaces\AIC\amod-to-agentpolis\local_config_files\fido-AIC.cfg</exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
         </action>

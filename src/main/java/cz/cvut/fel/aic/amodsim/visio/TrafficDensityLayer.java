@@ -37,6 +37,7 @@ import javax.vecmath.Point2d;
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.math.BigInteger;
 
 /**
  *
@@ -98,9 +99,9 @@ public class TrafficDensityLayer extends AbstractLayer{
 	}
 
 	private Color getColorForEdge(AllEdgesLoad allEdgesLoad, SimulationEdge edge) {
-		int id = edge.getUniqueId();
+		BigInteger id = edge.getStaticId();
 		double averageLoad = allEdgesLoad.getLoadPerEdge(id);
-		double loadPerLength = averageLoad / edge.getLength();
+		double loadPerLength = averageLoad / edge.getLengthCm();
 		return colorMap.getColor(loadPerLength);
 	}
 }

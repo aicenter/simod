@@ -28,6 +28,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.Map
 import cz.cvut.fel.aic.geographtools.Graph;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.LinkedList;
 import org.slf4j.LoggerFactory;
@@ -55,10 +56,10 @@ public class OsmUtil {
 		LinkedList<ExportEdge> edges = new LinkedList<>();
 
 		for (SimulationEdge edge : higwayGraph.getAllEdges()) {
-			String id = Integer.toString(edge.getUniqueId());
+			String id = edge.getStaticId().toString();
 			edges.add(new ExportEdge(edge.getFromNode(), edge.getToNode(), 
-					id, edge.getLanesCount(), edge.allowedMaxSpeedInMpS, 
-					edge.getLength()));
+					id, edge.getLanesCount(), edge.getAllowedMaxSpeedInCmPerSecond(), 
+					edge.getLengthCm()));
 		}
 
 		try {
@@ -96,24 +97,24 @@ public class OsmUtil {
 				continue;
 			}
 			
-			processedEdges.add(simEdge1);
-			String id = Integer.toString(simEdge1.getUniqueId());
+			processedEdges.add(simEdge1);                        
+			String id = simEdge1.getStaticId().toString();
 			ExportEdge expEdge1 = new ExportEdge(simEdge1.getFromNode(), 
 					simEdge1.getToNode(), id, 
-					simEdge1.getLanesCount(), simEdge1.allowedMaxSpeedInMpS, 
-					simEdge1.getLength());
+					simEdge1.getLanesCount(), simEdge1.getAllowedMaxSpeedInCmPerSecond(), 
+					simEdge1.getLengthCm());
 			
 			SimulationEdge simEdge2 = higwayGraph.getEdge(simEdge1.getToNode(), simEdge1.getFromNode());
 			if(simEdge2 == null){
 				edgePairs.add(new ExportEdgePair(expEdge1, null));
 			}
 			else{
-				processedEdges.add(simEdge2);
-				id = Integer.toString(simEdge2.getUniqueId());
+				processedEdges.add(simEdge2);                              
+				id = simEdge2.getStaticId().toString();
 				ExportEdge expEdge2 = new ExportEdge(simEdge2.getFromNode(), 
 					simEdge2.getToNode(), id, 
-					simEdge2.getLanesCount(), simEdge2.allowedMaxSpeedInMpS, 
-					simEdge2.getLength());
+					simEdge2.getLanesCount(), simEdge2.getAllowedMaxSpeedInCmPerSecond(), 
+					simEdge2.getLengthCm());
 				edgePairs.add(new ExportEdgePair(expEdge1, expEdge2));
 			}
 		}

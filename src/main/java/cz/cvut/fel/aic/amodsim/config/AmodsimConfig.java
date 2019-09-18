@@ -8,7 +8,7 @@ import java.util.Map;
 import ninja.fido.config.GeneratedConfig;
 
 public class AmodsimConfig implements GeneratedConfig {
-  public Double vehicleSpeedInMeters;
+  public Integer vehicleSpeedInMeters;
 
   public Boolean useTripCache;
 
@@ -36,9 +36,13 @@ public class AmodsimConfig implements GeneratedConfig {
 
   public Double tripsMultiplier;
 
+  public Integer vehiclesPerStation;
+
   public Boolean simplifyGraph;
 
   public Ridesharing ridesharing;
+
+  public String stationPositionFilepath;
 
   public Rebalancing rebalancing;
 
@@ -48,7 +52,7 @@ public class AmodsimConfig implements GeneratedConfig {
   }
 
   public AmodsimConfig fill(Map amodsimConfig) {
-    this.vehicleSpeedInMeters = (Double) amodsimConfig.get("vehicle_speed_in_meters");
+    this.vehicleSpeedInMeters = (Integer) amodsimConfig.get("vehicle_speed_in_meters");
     this.useTripCache = (Boolean) amodsimConfig.get("use_trip_cache");
     this.experimentName = (String) amodsimConfig.get("experiment_name");
     this.tripsFilename = (String) amodsimConfig.get("trips_filename");
@@ -62,8 +66,10 @@ public class AmodsimConfig implements GeneratedConfig {
     this.amodsimDataDir = (String) amodsimConfig.get("amodsim_data_dir");
     this.edgesFilePath = (String) amodsimConfig.get("edges_file_path");
     this.tripsMultiplier = (Double) amodsimConfig.get("trips_multiplier");
+    this.vehiclesPerStation = (Integer) amodsimConfig.get("vehicles_per_station");
     this.simplifyGraph = (Boolean) amodsimConfig.get("simplify_graph");
     this.ridesharing = new Ridesharing((Map) amodsimConfig.get("ridesharing"));
+    this.stationPositionFilepath = (String) amodsimConfig.get("station_position_filepath");
     this.rebalancing = new Rebalancing((Map) amodsimConfig.get("rebalancing"));
     this.statistics = new Statistics((Map) amodsimConfig.get("statistics"));
     return this;

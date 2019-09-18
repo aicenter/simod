@@ -32,16 +32,18 @@ import cz.cvut.fel.aic.amodsim.DemandData;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
+import cz.cvut.fel.aic.amodsim.event.DemandEvent;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
-import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.PlanActionCurrentPosition;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionCurrentPosition;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
+import cz.cvut.fel.aic.amodsim.statistics.PickupEventContent;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.geographtools.Node;
 import java.util.ArrayList;
@@ -123,7 +125,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	
 	
 	@Override
-	protected void serveDemand(Node startNode, DemandData demandData) {
+	protected void serveDemand(SimulationNode startNode, DemandData demandData) {
 		SimulationNode requestStartPosition = demandData.locations.get(0);
 		DefaultPlanComputationRequest newRequest = requestFactory.create(requestCounter++, requestStartPosition, 
 				demandData.locations.get(1), demandData.demandAgent);
@@ -149,11 +151,13 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		Iterator<PlanComputationRequest> waitingRequestIterator = waitingRequests.iterator();
 		while(waitingRequestIterator.hasNext()){
 			PlanComputationRequest request = waitingRequestIterator.next();
-			if(request.getMaxPickupTime() < currentTimeSec){
+			if(request.getMaxPickupTime() + 5  < currentTimeSec){
 				request.getDemandAgent().setDropped(true);
 				numberOfDemandsDropped++;
 				droppedDemandsThisBatch++;
 				waitingRequestIterator.remove();
+				eventProcessor.addEvent(DemandEvent.LEFT, null, null, request);
+				LOGGER.info("Demand {} dropped", request.getId());
 			}
 		}		
 		LOGGER.info("Demands dropped in this batch: {}", droppedDemandsThisBatch);
@@ -196,7 +200,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 				PlanComputationRequest request = requestsMapByDemandAgents.get(eventContent.getDemandId());
 				if(!waitingRequests.remove(request)){
 					try {
-						throw new Exception("Request picked up twice");
+						throw new Exception("Request picked up but it is not present in the waiting request queue!");
 					} catch (Exception ex) {
 						Logger.getLogger(VehicleGroupAssignmentSolver.class.getName()).log(Level.SEVERE, null, ex);
 					}

@@ -29,6 +29,7 @@ public interface PlanComputationRequest {
 
 	@Override
 	public boolean equals(Object obj);
+
 	
 	/**
 	 * Returns max pickup time in seconds.

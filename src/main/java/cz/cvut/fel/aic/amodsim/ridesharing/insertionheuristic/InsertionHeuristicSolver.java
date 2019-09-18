@@ -443,7 +443,8 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 				requests.size()));
 	}
 
-	private void computeBestPlanForRequest(PlanComputationRequest request, List<OnDemandVehicle> vehiclesForPlanning, int[] usedVehiclesPerStation) {
+	private void computeBestPlanForRequest(PlanComputationRequest request, List<OnDemandVehicle> vehiclesForPlanning, 
+			int[] usedVehiclesPerStation) {
 		minCostIncrement = Double.MAX_VALUE;
 		bestPlan = null;
 		

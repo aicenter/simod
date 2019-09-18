@@ -34,26 +34,26 @@ service_4 = service.load_dataframe(config.comparison.experiment_4_dir)
 service_5 = service.load_dataframe(config.comparison.experiment_5_dir)
 service_6 = service.load_dataframe(config.comparison.experiment_6_dir)
 service_7 = service.load_dataframe(config.comparison.experiment_7_dir)
-# service_8 = service.load_dataframe(config.comparison.experiment_8_dir)
+service_8 = service.load_dataframe(config.comparison.experiment_8_dir)
 
 delays_2 = service.get_delays(service_1)
 delays_3 = service.get_delays(service_2)
-delays_4 = service.get_delays(service_3, bugfix=False)
+delays_4 = service.get_delays(service_3)
 delays_5 = service.get_delays(service_4)
 delays_1 = pd.Series(0, index=np.arange(len(delays_2)))
 
-delays_window_2 = service.get_delays(service_1, True, bugfix=False)
-delays_window_3 = service.get_delays(service_2, True, bugfix=False)
-delays_window_4 = service.get_delays(service_3, True, bugfix=False)
+delays_window_2 = service.get_delays(service_1, True)
+delays_window_3 = service.get_delays(service_2, True)
+delays_window_4 = service.get_delays(service_3, True)
 delays_window_5 = service.get_delays(service_4, True)
 delays_window_1 = pd.Series(0, index=np.arange(len(delays_window_2)))
 delays_window_7 = service.get_delays(service_5, True)
 delays_window_8 = service.get_delays(service_6, True)
 delays_window_9 = service.get_delays(service_7, True)
-# delays_window_10 = service.get_delays(service_8, True, bugfix=False)
+delays_window_10 = service.get_delays(service_8, True)
 delays_window_6 = pd.Series(0, index=np.arange(len(delays_window_7)))
 
-bins = np.arange(-0.5, 5.5, 0.5)
+bins = np.arange(-0.49, 5.51, 1)
 
 fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))
 # axes.hist([delays_1, delays_2, delays_3], bins, label=['No Ridesharing', 'Insertion Heuristic', 'VGA'], histtype='step',
@@ -75,6 +75,12 @@ plt.savefig(config.images.delay_histogram_comparison, bbox_inches='tight', trans
 
 
 # combined plots
+
+delays_list = [delays_window_2, delays_window_3, delays_window_4, delays_window_5,  delays_window_7, delays_window_8,
+			   delays_window_9, delays_window_10]
+# rounding
+delays_list = [delays.round(1) for delays in delays_list]
+
 fig, axes = plt.subplots(1, 2, figsize=(8, 3), sharex=True, sharey=True)
 
 # decrease space between subplots
@@ -94,14 +100,16 @@ axis1.set_ylabel("customers")
 axis2.set_title("b) Off-peak")
 axis2.set_xlabel("minutes")
 
-_n, _bins, patches = axis1.hist([delays_window_5, delays_window_4, delays_window_3, delays_window_2], bins,
-		  label=common.labels[:0:-1], color=common.colors[:0:-1], histtype='step')
-# for patch_set, hatch in zip(patches, common.hatches[:0:-1]):
-# 	plt.setp(patch_set, hatch=hatch)
-_n, _bins, patches = axis2.hist([delays_window_10, delays_window_9, delays_window_8, delays_window_7], bins,
-		  label=common.labels[:0:-1], color=common.colors[:0:-1], histtype='step')
-# for patch_set, hatch in zip(patches, common.hatches[:0:-1]):
-# 	plt.setp(patch_set, hatch=hatch)
+_n, _bins, patches = axis1.hist(delays_list[0:4], bins,
+		  label=common.labels[1:], color=common.colors[1:])
+for patch_set, hatch in zip(patches, common.hatches[1:]):
+	plt.setp(patch_set, hatch=hatch)
+
+_n, _bins, patches = axis2.hist(delays_list[4:8], bins,
+		  label=common.labels[1:], color=common.colors[1:])
+for patch_set, hatch in zip(patches, common.hatches[1:]):
+	plt.setp(patch_set, hatch=hatch)
+
 plt.legend(loc='upper right')
 
 plt.savefig(config.images.delay_histogram_comparison_combined, bbox_inches='tight', transparent=True, pad_inches=0.0, dpi=fig.dpi)

@@ -44,7 +44,7 @@ def compute_stats_current_state(experiment_dir: str, result: Dict, histogram: Tr
 
 
 def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, experiment_dir: str,
-				  edge_data: DataFrame, delay_bugfix: bool = True) -> List:
+				  edge_data: DataFrame) -> List:
 	# avg_km_total = result["averageKmWithPassenger"] + result["averageKmToStartLocation"] + result["averageKmToStation"] \
 	# 			   + result["averageKmRebalancing"]
 
@@ -74,7 +74,8 @@ def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, experi
 
 	occuopancies = occupancy.load(experiment_dir)
 	occupancies_in_window = occupancy.filter_window(occuopancies)
-	used_cars_count = len(occupancies_in_window[occupancies_in_window.occupancy > 0].vehicle_id.unique())
+	# used_cars_count = len(occupancies_in_window[occupancies_in_window.occupancy > 0].vehicle_id.unique())
+	used_cars_count = len(occupancies_in_window.vehicle_id.unique())
 
 	# performance
 	try:
@@ -83,15 +84,17 @@ def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, experi
 			avg_time = performance_data['Insertion Heuristic Time'].mean()
 		else:
 			avg_time = performance_data['Group Generation Time'].mean() + performance_data['Solver Time'].mean()
-		avg_time = int(round(avg_time / 1000))
+		# avg_time = int(round(avg_time / 1000))
+		avg_time = int(round(avg_time))
 	except pandas.errors.EmptyDataError:
 		print_info("Empty ridesharing statistic")
 		avg_time = "-1"
 
 	# delay
 	service_stat = service.load_dataframe(experiment_dir)
-	delays_window = service.get_delays(service_stat, True, False, bugfix=delay_bugfix)
+	delays_window = service.get_delays(service_stat, True, False)
 	mean_delay = int(round(delays_window.mean() / 1000))
+	# mean_delay = delays_window.mean()
 
 	return [km_total_window, average_density_in_time_window_non_empty_edges, congested_count_in_time_window,
 		   dropped_demand_count, half_congested_count_in_time_window, used_cars_count, avg_time, mean_delay]
@@ -103,14 +106,14 @@ def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, experi
 edge_data = edges.load_table()
 edge_object_data = edges.load_edges_mapped_by_id()
 
-exp_dir_1 = config.comparison.experiment_1_dir
-exp_dir_2 = config.comparison.experiment_2_dir
-exp_dir_3 = config.comparison.experiment_3_dir
-exp_dir_4 = config.comparison.experiment_4_dir
-# exp_dir_1 = config.comparison.experiment_5_dir
-# exp_dir_2 = config.comparison.experiment_6_dir
-# exp_dir_3 = config.comparison.experiment_7_dir
-# exp_dir_4 = config.comparison.experiment_8_dir
+# exp_dir_1 = config.comparison.experiment_1_dir
+# exp_dir_2 = config.comparison.experiment_2_dir
+# exp_dir_3 = config.comparison.experiment_3_dir
+# exp_dir_4 = config.comparison.experiment_4_dir
+exp_dir_1 = config.comparison.experiment_5_dir
+exp_dir_2 = config.comparison.experiment_6_dir
+exp_dir_3 = config.comparison.experiment_7_dir
+exp_dir_4 = config.comparison.experiment_8_dir
 
 # result json files
 results_ridesharing_off \
@@ -139,11 +142,11 @@ histogram = TrafficDensityHistogram(edge_object_data)
 present_state_data = compute_stats_current_state(exp_dir_1, results_ridesharing_off, histogram,
 								   loads_no_ridesharing[VehicleState.DRIVING_TO_TARGET_LOCATION.name])
 no_ridesharing_data = compute_stats(results_ridesharing_off, histogram, loads_no_ridesharing["ALL"],
-									exp_dir_1, edge_data, delay_bugfix=False)
+									exp_dir_1, edge_data)
 insertion_heuristic_data = compute_stats(results_insertion_heuristic, histogram, loads_insertion_heuristic["ALL"],
-					exp_dir_2, edge_data, delay_bugfix=False)
+					exp_dir_2, edge_data)
 vga_data = compute_stats(results_vga, histogram, loads_vga["ALL"], exp_dir_3,
-						 edge_data, delay_bugfix=False)
+						 edge_data)
 vga_limited_data = compute_stats(results_vga_group_limit, histogram, loads_vga_group_limit["ALL"],
 								 exp_dir_4, edge_data)
 
@@ -195,8 +198,28 @@ print("Avg. delay (s) & {} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}& \\num{{{}}
 	vga_limited_data[7]))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Avg. comp. time (s)  & {} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format("-", no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6],
+print("Avg. comp. time (ms)  & {} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format("-", no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6],
 	vga_limited_data[6]))
 print(r"\tabularnewline")
 print(r"\hline")
 print(r"\end{tabular}")
+
+# To text
+percentage_reduction_compared_to_no_ridesharing \
+	= int(round((no_ridesharing_data[0] - vga_data[0]) / no_ridesharing_data[0] * 100))
+print("We found that ridesharing implemented using VGA method reduces "
+	  "the total distance driven in the system by \\SI{{{}}}{{\\percent}}".format(
+	percentage_reduction_compared_to_no_ridesharing))
+
+percentage_reduction_compared_to_ih \
+	= int(round((insertion_heuristic_data[0] - vga_data[0]) / insertion_heuristic_data[0] * 100))
+print("the assignments computed by VGA method lead to total  \\SI{{{}}}{{\\percent}} "
+	  " reduction in vehicle distance driven.".format(
+	percentage_reduction_compared_to_ih))
+
+delay_reduction \
+	= int(round((insertion_heuristic_data[7] - vga_data[7]) / insertion_heuristic_data[7] * 100))
+print("and the average passenger travel delay is improved by  \\SI{{{}}}{{\\percent}} ".format(
+	delay_reduction))
+
+

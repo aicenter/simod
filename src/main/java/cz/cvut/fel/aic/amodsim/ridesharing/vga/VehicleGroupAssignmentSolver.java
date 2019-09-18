@@ -42,7 +42,6 @@ import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GroupGenerator;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
@@ -60,7 +59,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.PlanActionCurrentP
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GroupGeneratorv2;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GroupGenerator;
 import cz.cvut.fel.aic.amodsim.statistics.content.GroupSizeData;
 import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStatsVGA;
 
@@ -76,7 +75,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 	private final AmodsimConfig config;
 	
-	private final GroupGeneratorv2 groupGenerator;
+	private final GroupGenerator groupGenerator;
 	
 	private final GurobiSolver gurobiSolver;
 	
@@ -120,7 +119,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	@Inject
 	public VehicleGroupAssignmentSolver(TravelTimeProvider travelTimeProvider, PlanCostProvider travelCostProvider,
 			OnDemandVehicleStorage vehicleStorage, AmodsimConfig config, 
-			TimeProvider timeProvider, GroupGeneratorv2 vGAGroupGenerator, 
+			TimeProvider timeProvider, GroupGenerator vGAGroupGenerator, 
 			DefaultPlanComputationRequestFactory requestFactory, TypedSimulation eventProcessor, 
 			GurobiSolver gurobiSolver, 
 			OnDemandvehicleStationStorage onDemandvehicleStationStorage) {
@@ -142,11 +141,11 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			List<PlanComputationRequest> waitingRequests) {
 		
 		// statistic vars
-        groupGenerator.false_count = 0;
-        groupGenerator.true_count = 0;
-        for (int i = 0; i < groupGenerator.nn_time.length; i++) {
-            groupGenerator.nn_time[i] = 0;
-        }
+                groupGenerator.false_count = 0;
+                groupGenerator.true_count = 0;
+                for (int i = 0; i < groupGenerator.nn_time.length; i++) {
+                    groupGenerator.nn_time[i] = 0;
+                }
 		newRequestCount = newRequests.size();
 		if(config.ridesharing.vga.logPlanComputationalTime){
 			groupCounts = new FlexArray();
@@ -290,28 +289,12 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		return driverPlan;
 	}
 
-	/*private List<Plan> computeGroupsForVehicle(VGAVehicle vehicle, Iterable<PlanComputationRequest> waitingRequests) {
-		List<Plan> feasibleGroupPlans = Benchmark.measureTime(() ->
-					groupGenerator.generateGroupsForVehicleNN(vehicle, waitingRequests, startTime));
-		
-		// log
-		if(config.ridesharing.vga.logPlanComputationalTime){
-			logPlansPerVehicle(vehicle, feasibleGroupPlans, Benchmark.durationNano);
-		}
-		
-		return feasibleGroupPlans;
-	}*/
 	private Map<VGAVehicle,List<Plan>> computeGroupsForVehicles(List<VGAVehicle> vehicles, 
 			Collection<PlanComputationRequest> waitingRequests) {
 		Map<VGAVehicle,List<Plan>> feasibleGroupPlans = Benchmark.measureTime(() ->
 					groupGenerator.generateGroupsForVehicleNN(vehicles, waitingRequests, startTime));
 		
 		// log
-        /*if(config.ridesharing.vga.logPlanComputationalTime){
-            for (Map.Entry<VGAVehicle,List<Plan>> entry : feasibleGroupPlans.entrySet()) {
-                logPlansPerVehicle(entry.getKey(), entry.getValue(), Benchmark.durationNano);
-            }
-        }*/
                 if(config.ridesharing.vga.logPlanComputationalTime && !vehicles.isEmpty()){
                     logPlansPerVehicles(vehicles, feasibleGroupPlans, Benchmark.durationNano/vehicles.size());
                 }
@@ -369,37 +352,6 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
                     logRecords.add(record);
                 }
 	}
-	private void logPlansPerVehicle(VGAVehicle vehicle, List<Plan> feasibleGroupPlans, long totalTimeNano) {
-		// group generator statistic addition
-		groupCounts.addArrayInPlace(groupGenerator.getGroupCounts());
-		groupCountsPlanExists.addArrayInPlace(groupGenerator.getGroupCountsPlanExists());
-		computationalTimes.addArrayInPlace(groupGenerator.getComputationalTimes());
-		computationalTimesPlanExists.addArrayInPlace(groupGenerator.getComputationalTimesPlanExists());	
-		
-		List<String> record = new ArrayList<>(5);
-		record.add(Integer.toString(startTime));
-		record.add(vehicle.getRidesharingVehicle().getId());
-		record.add(Long.toString(Math.round(totalTimeNano / MILLION)));
-		record.add(Integer.toString(vehicle.getRequestsOnBoard().size()));
-		
-		int maxActionCount = groupCountsPlanExists.size() * 2 + 1;
-		int[] counts = new int[maxActionCount];
-		for (int i = 0; i < counts.length; i++) {
-			counts[i] = 0;
-			
-		}
-		for (Plan feasibleGroupPlan : feasibleGroupPlans) {
-			counts[feasibleGroupPlan.getActions().size()]++;
-			
-			// global group stats
-			int groupSize = feasibleGroupPlan.getActions().size() / 2;
-		}
-		for (int i = 0; i < counts.length; i++) {
-			record.add(Integer.toString(counts[i]));
-			
-		}
-		logRecords.add(record);
-	}
 
 	private void logRecords() {
 		
@@ -430,54 +382,45 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		} catch (IOException ex) {
 			LOGGER.error(null, ex);
 		}
-        // log number of feasible and infeasible groups and computation time of NN
-		try {
-            CsvWriter writer;
-            if(ridesharingStats.size() == 1){
-			writer = new CsvWriter(
-					Common.getFileWriter(config.amodsimExperimentDir + "/NN_logs.csv", false));                
-            }
-            else{
-			writer = new CsvWriter(
-					Common.getFileWriter(config.amodsimExperimentDir + "/NN_logs.csv", true));                
-            }
-            int nn_total = groupGenerator.nn_time[0] + groupGenerator.nn_time[1] +
-                    groupGenerator.nn_time[2] + groupGenerator.nn_time[3] +
-                    groupGenerator.nn_time[4];
-            int group_total = 0;
-            List<String> writerLine = new ArrayList<>();
-            writerLine.add(Integer.toString(groupGenerator.false_count));
-            writerLine.add(Integer.toString(groupGenerator.true_count));
-            for(int i = 0; i < 8; i++){
-                if(groupCounts.size() <= i){
-                    writerLine.add("0");
-                }else{
-                    group_total += computationalTimes.get(i);
-                    writerLine.add(Integer.toString(computationalTimes.get(i)));
+            // log number of feasible and infeasible groups and computation time of NN
+            try {
+                CsvWriter writer;
+                if(ridesharingStats.size() == 1){
+                    writer = new CsvWriter(
+                        Common.getFileWriter(config.amodsimExperimentDir + "/NN_logs.csv", false));                
                 }
-            }
-            for (int i = 0; i < 5; i++) {
-                writerLine.add(Integer.toString(groupGenerator.nn_time[i]));
-            }
-            writerLine.add(Integer.toString(nn_total));
-            writerLine.add(Integer.toString(group_total));
-            writerLine.add(Integer.toString(groupGenerationTime - nn_total - group_total));
-            writerLine.add(Integer.toString(groupGenerationTime));
-            
-            /*writer.writeLine(new String[] {Integer.toString(groupGenerator.false_count),
-                Integer.toString(groupGenerator.true_count),
-                Integer.toString(nn_total),
-                Integer.toString(groupGenerationTime - nn_total),
-            Integer.toString(groupGenerator.nn_time[0]),
-            Integer.toString(groupGenerator.nn_time[1]),
-            Integer.toString(groupGenerator.nn_time[2]),
-            Integer.toString(groupGenerator.nn_time[3]),
-            Integer.toString(groupGenerator.nn_time[4])});*/
-            writer.writeLine(writerLine.toArray(new String[writerLine.size()]));
-			writer.close();
-		} catch (IOException ex) {
+                else{
+                    writer = new CsvWriter(
+                        Common.getFileWriter(config.amodsimExperimentDir + "/NN_logs.csv", true));                
+                }
+                int nn_total = groupGenerator.nn_time[0] + groupGenerator.nn_time[1] +
+                        groupGenerator.nn_time[2] + groupGenerator.nn_time[3] +
+                        groupGenerator.nn_time[4];
+                int group_total = 0;
+                List<String> writerLine = new ArrayList<>();
+                writerLine.add(Integer.toString(groupGenerator.false_count));
+                writerLine.add(Integer.toString(groupGenerator.true_count));
+                for(int i = 0; i < 8; i++){
+                    if(groupCounts.size() <= i){
+                        writerLine.add("0");
+                    }else{
+                        group_total += computationalTimes.get(i);
+                        writerLine.add(Integer.toString(computationalTimes.get(i)));
+                    }
+                }
+                for (int i = 0; i < 5; i++) {
+                    writerLine.add(Integer.toString(groupGenerator.nn_time[i]));
+                }
+                writerLine.add(Integer.toString(nn_total));
+                writerLine.add(Integer.toString(group_total));
+                writerLine.add(Integer.toString(groupGenerationTime - nn_total - group_total));
+                writerLine.add(Integer.toString(groupGenerationTime));
+                
+                writer.writeLine(writerLine.toArray(new String[writerLine.size()]));
+                writer.close();
+            } catch (IOException ex) {
 			LOGGER.error(null, ex);
-		}
+            }
 	}
 
 	private void checkPlanMapComplete(Map<RideSharingOnDemandVehicle, DriverPlan> planMap) {
@@ -507,12 +450,6 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 //		LOGGER.info("{} global groups generated", globalFeasibleGroups.size());
 		
 		// groups for driving vehicls
-		/*for (VGAVehicle vehicle : ProgressBar.wrap(drivingVehicles, "Generating groups for driving vehicles")) {
-			List<Plan> feasibleGroupPlans = computeGroupsForVehicle(vehicle, waitingRequests);
-			VehiclePlanList vehiclePlanList = new VehiclePlanList(vehicle, feasibleGroupPlans);
-			feasiblePlans.add(vehiclePlanList);
-			planCount += feasibleGroupPlans.size();
-		}*/
 		Map<VGAVehicle,List<Plan>> groupPlans = computeGroupsForVehicles(drivingVehicles, waitingRequests);
                 for (Map.Entry<VGAVehicle,List<Plan>> entry : groupPlans.entrySet()) {
                     feasiblePlans.add(new VehiclePlanList(entry.getKey(), entry.getValue()));
@@ -546,15 +483,13 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 					VGAVehicle vGAVehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(onDemandVehicle.getId());
 					vehicles.add(vGAVehicle);
                                         stations.add(nearestStation);
-					// all waiting request can be assigned to the waiting vehicle
-					//List<Plan> feasibleGroupPlans = computeGroupsForVehicle(vGAVehicle, waitingRequests);
-//						groupGenerator.generateGroupsForVehicle(vGAVehicle, waitingRequests, startTime);
+
 					plansFromStation.put(nearestStation, null);
 				}
 
 				CollectionUtil.incrementMapValue(usedVehiclesPerStation, nearestStation, 1);
 			} 
-                       Map<VGAVehicle,List<Plan>> carPlans = computeGroupsForVehicles(vehicles, waitingRequests);
+                        Map<VGAVehicle,List<Plan>> carPlans = computeGroupsForVehicles(vehicles, waitingRequests);
                         for (int i = 0; i < stations.size(); i++) {                     
                             plansFromStation.replace(stations.get(i), carPlans.get(vehicles.get(i)));                        
                         }

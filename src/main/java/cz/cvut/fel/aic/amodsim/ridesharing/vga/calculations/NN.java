@@ -20,7 +20,6 @@ package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
 import com.google.inject.Singleton;
 import java.util.List;
-import java.util.Set;
 
 /**
  *

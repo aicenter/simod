@@ -20,7 +20,6 @@ package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 /**
  *
@@ -30,7 +29,6 @@ public class DummyNN implements NN{
  
     @Override
     public void setProbability(List gd, IOptimalPlanVehicle vehicle, int groupSize) {
-        Random rd = new Random();
         double ar[] = {0.4, 0.8, 0.8};
         int i = 0;
         for (GroupData newGroupToCheck : (List<GroupData>) gd) {

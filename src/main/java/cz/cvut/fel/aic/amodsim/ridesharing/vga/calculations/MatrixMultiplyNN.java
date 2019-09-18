@@ -27,7 +27,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.simple.JSONObject;
@@ -63,7 +62,7 @@ public class MatrixMultiplyNN implements NN {
     @Override
     public void setProbability(List<GroupData> gd, IOptimalPlanVehicle vehicle, int groupSize) {
         INDArray Y = fillWithStandardizedData(gd,vehicle,groupSize+1);
-        //matrixX = compute(matrixX, groupSize+1);
+        //compute
         for (int i = 0; i < 4; i++) {
             Y = Y.mmul(W[groupSize-2][i]);
             Y = Y.addRowVector(b[groupSize-2][i]);           
@@ -75,7 +74,6 @@ public class MatrixMultiplyNN implements NN {
         }
         int i = 0;
         for (GroupData newGroupToCheck :  gd) {
-            //double probability = Y.getDouble(i,0);
             newGroupToCheck.setFeasible(Y.getDouble(i,0));
             i++;
         }
@@ -83,8 +81,7 @@ public class MatrixMultiplyNN implements NN {
     @Override
     public void setProbability(List<GroupData> gd, int groupSize) {
         INDArray Y = fillWithStandardizedData(gd,groupSize+1);
-        //matrixX = compute(matrixX, groupSize+1);
-        //INDArray Y = matrixX;
+        //compute
         for (int i = 0; i < 4; i++) {
             Y = Y.mmul(W[groupSize-2][i]);
             Y = Y.addRowVector(b[groupSize-2][i]);           
@@ -96,7 +93,6 @@ public class MatrixMultiplyNN implements NN {
         }
         int i = 0;
         for (GroupData newGroupToCheck : gd) {
-            //double probability = Y.getDouble(i,0);
             newGroupToCheck.setFeasible(Y.getDouble(i,0));
             i++;
         }
@@ -275,12 +271,8 @@ public class MatrixMultiplyNN implements NN {
                 sigma_data[pos] = (Double) current.get("sigma");       
     }
 
-    /*private INDArray compute(INDArray X, int groupSize) {
-
-        return Y;
-    }*/
     private class DoubleIterator implements Iterator{
-        private double[] values;
+        private final double[] values;
         private int pos;
         public DoubleIterator(double[] values) {
             this.values = values;

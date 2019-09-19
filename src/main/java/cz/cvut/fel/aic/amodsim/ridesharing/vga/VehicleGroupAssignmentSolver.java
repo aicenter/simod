@@ -91,7 +91,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 	private final TimeProvider timeProvider;
 	
-	private final Provider<GroupGenerator> groupGeneratorProvider;
+	//private final Provider<GroupGenerator> groupGeneratorProvider;
+        private GroupGenerator groupGenerator;
 	
 	private List<VGAVehicle> vgaVehicles;
 	
@@ -127,7 +128,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	public VehicleGroupAssignmentSolver(TravelTimeProvider travelTimeProvider, PlanCostProvider travelCostProvider,
 			OnDemandVehicleStorage vehicleStorage, AmodsimConfig config, TimeProvider timeProvider, 
 			DefaultPlanComputationRequestFactory requestFactory, TypedSimulation eventProcessor, 
-			GurobiSolver gurobiSolver, Provider<GroupGenerator> groupGeneratorProvider,
+			GurobiSolver gurobiSolver, GroupGenerator groupGenerator,
 			OnDemandvehicleStationStorage onDemandvehicleStationStorage) {
 		super(vehicleStorage, travelTimeProvider, travelCostProvider, requestFactory);
 		this.config = config;
@@ -135,7 +136,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		this.eventProcessor = eventProcessor;
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
 		this.timeProvider = timeProvider;
-		this.groupGeneratorProvider = groupGeneratorProvider;
+		this.groupGenerator = groupGenerator;
 		activeRequests = new LinkedHashSet<>();
 		vgaVehiclesMapBydemandOnDemandVehicles = new HashMap<>();
 		MathUtils.setTravelTimeProvider(travelTimeProvider);
@@ -147,7 +148,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			List<PlanComputationRequest> waitingRequests) {
 		
 		// statistic vars
-                GroupGenerator groupGenerator = groupGeneratorProvider.get();
+                //GroupGenerator groupGenerator = groupGeneratorProvider.get();
                 groupGenerator.false_count = 0;
                 groupGenerator.true_count = 0;
                 for (int i = 0; i < groupGenerator.nn_time.length; i++) {
@@ -312,9 +313,9 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	private Map<VGAVehicle,List<Plan>> computeGroupsForVehicles(List<VGAVehicle> vehicles, 
 			Collection<PlanComputationRequest> waitingRequests) {
                 Benchmark benchmark = new Benchmark();
-                GroupGenerator groupGenerator = groupGeneratorProvider.get();
+                //GroupGenerator groupGenerator = groupGeneratorProvider.get();
 		Map<VGAVehicle,List<Plan>> feasibleGroupPlans = benchmark.measureTime(() ->
-					groupGenerator.generateGroupsForVehiclesNN(vehicles, waitingRequests, startTime));
+					groupGenerator.generateGroupsForVehiclesClean(vehicles, waitingRequests, startTime));
 		
 		// log
                 if(config.ridesharing.vga.logPlanComputationalTime && !vehicles.isEmpty()){
@@ -340,7 +341,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 	}
 	private void logPlansPerVehicles(List<VGAVehicle> vehicles, Map<VGAVehicle,List<Plan>> feasibleGroupPlans, long totalTimeNano) {
-                GroupGenerator groupGenerator = groupGeneratorProvider.get();
+                //GroupGenerator groupGenerator = groupGeneratorProvider.get();
                 Map<VGAVehicle, FlexArray> groupCount = groupGenerator.getGroupCountPerVehicle();
                 Map<VGAVehicle, FlexArray> groupCountsPlanExist = groupGenerator.getGroupCountsPlanExistPerVehicle();
                 Map<VGAVehicle, FlexArray> computationalTime = groupGenerator.getComputationalTimePerVehicle();
@@ -410,7 +411,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
             // log number of feasible and infeasible groups and computation time of NN
             try {
                 CsvWriter writer;
-                GroupGenerator groupGenerator = groupGeneratorProvider.get();
+                //GroupGenerator groupGenerator = groupGeneratorProvider.get();
                 if(ridesharingStats.size() == 1){
                     writer = new CsvWriter(
                         Common.getFileWriter(config.amodsimExperimentDir + "/NN_logs.csv", false));                
@@ -520,7 +521,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
                         List<VGAVehicle> vehicles = new ArrayList<>();
                         List<OnDemandVehicleStation> stations = new ArrayList<>();
 
-			ProgressBar.wrap(waitingRequests.stream().parallel(), "Generating groups for vehicles in station")
+			ProgressBar.wrap(waitingRequests.stream(), "Generating groups for vehicles in station")
 				.forEach(request -> computeGroupForVehicleInStation(request, usedVehiclesPerStation, 
 						plansFromStation, waitingRequests, vehicles, stations));
 

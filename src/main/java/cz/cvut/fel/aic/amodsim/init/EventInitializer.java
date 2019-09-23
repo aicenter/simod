@@ -50,7 +50,7 @@ public class EventInitializer {
 //	private static final double TRIP_MULTIPLICATION_FACTOR = 1.615;
 //	private static final double TRIP_MULTIPLICATION_FACTOR = 3.433;
 	
-	private static final long TRIP_MULTIPLICATION_TIME_SHIFT = 60000;
+	private static final long TRIP_MULTIPLICATION_TIME_SHIFT = 240_000;
 	
 	private static final long MAX_EVENTS = 0;
 	

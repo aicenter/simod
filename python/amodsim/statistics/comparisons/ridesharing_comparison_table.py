@@ -106,14 +106,14 @@ def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, experi
 edge_data = edges.load_table()
 edge_object_data = edges.load_edges_mapped_by_id()
 
-# exp_dir_1 = config.comparison.experiment_1_dir
-# exp_dir_2 = config.comparison.experiment_2_dir
-# exp_dir_3 = config.comparison.experiment_3_dir
-# exp_dir_4 = config.comparison.experiment_4_dir
-exp_dir_1 = config.comparison.experiment_5_dir
-exp_dir_2 = config.comparison.experiment_6_dir
-exp_dir_3 = config.comparison.experiment_7_dir
-exp_dir_4 = config.comparison.experiment_8_dir
+exp_dir_1 = config.comparison.experiment_1_dir
+exp_dir_2 = config.comparison.experiment_2_dir
+exp_dir_3 = config.comparison.experiment_3_dir
+exp_dir_4 = config.comparison.experiment_4_dir
+# exp_dir_1 = config.comparison.experiment_5_dir
+# exp_dir_2 = config.comparison.experiment_6_dir
+# exp_dir_3 = config.comparison.experiment_7_dir
+# exp_dir_4 = config.comparison.experiment_8_dir
 
 # result json files
 results_ridesharing_off \

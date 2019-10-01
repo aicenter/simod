@@ -96,7 +96,8 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
 		}
 	}
 
-	protected void drawLine(Graphics2D canvas, Rectangle2D drawingRectangle, int startLocationNodeId, int targetLocationNodeId) {
+	protected void drawLine(Graphics2D canvas, Rectangle2D drawingRectangle, int startLocationNodeId, 
+			int targetLocationNodeId) {
 		Point2d startPosition = positionUtil.getCanvasPosition(startLocationNodeId);
 		Point2d targetPosition = positionUtil.getCanvasPosition(targetLocationNodeId);
 

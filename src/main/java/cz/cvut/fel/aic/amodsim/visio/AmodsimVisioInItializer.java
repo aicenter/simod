@@ -58,7 +58,7 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 	
 	private final OnDemandVehicleStationsLayer onDemandVehicleStationsLayer;
 	
-	private final OnDemandVehiclePlanLayer onDemandVehiclePlanLayer;
+	private final RidesharingOnDemandVehiclePlanLayer onDemandVehiclePlanLayer;
 	
 	protected final HighwayLayer highwayLayer;
 	
@@ -89,7 +89,7 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 								   SimulationCreator simulationCreator, OnDemandVehicleLayer onDemandVehicleLayer,
 								   TrafficDensityLayer trafficDensityLayer, NodeIdLayer nodeIdLayer,
 								   OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, DemandLayer demandLayer,
-								   OnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer,
+								   RidesharingOnDemandVehiclePlanLayer onDemandVehiclePlanLayer, HighwayLayer highwayLayer,
 								   BufferedHighwayLayer bufferedHighwayLayer, SimulationControlLayer simulationControlLayer,
 								   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer,
 								   MapTilesLayer mapTilesLayer, AgentpolisConfig config, LayerManagementLayer layerManagementLayer,

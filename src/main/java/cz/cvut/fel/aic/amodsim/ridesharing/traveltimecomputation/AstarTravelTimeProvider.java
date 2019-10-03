@@ -31,6 +31,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.TransportNetworks;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.Node;
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -62,10 +63,10 @@ public class AstarTravelTimeProvider extends TravelTimeProvider{
 			return 0;
 		}
 		
-		Trip<SimulationNode> trip = tripsUtil.createTrip(positionA.id, positionB.id);
+		Trip<SimulationNode> trip = tripsUtil.createTrip(positionA, positionB);
 		long totalDuration = 0;
 		
-		Iterator<SimulationNode> nodeIterator = trip.getLocations().iterator();
+		Iterator<SimulationNode> nodeIterator = Arrays.asList(trip.getLocations()).iterator();
 		Node fromNode = nodeIterator.next();
 		while (nodeIterator.hasNext()) {
 			Node toNode = nodeIterator.next();

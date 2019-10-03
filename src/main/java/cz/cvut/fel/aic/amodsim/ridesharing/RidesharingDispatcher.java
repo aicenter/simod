@@ -126,9 +126,9 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	
 	@Override
 	protected void serveDemand(SimulationNode startNode, DemandData demandData) {
-		SimulationNode requestStartPosition = demandData.locations.get(0);
+		SimulationNode requestStartPosition = demandData.locations[0];
 		DefaultPlanComputationRequest newRequest = requestFactory.create(requestCounter++, requestStartPosition, 
-				demandData.locations.get(1), demandData.demandAgent);
+				demandData.locations[1], demandData.demandAgent);
 		waitingRequests.add(newRequest);
 		newRequests.add(newRequest);
 		requestsMapByDemandAgents.put(newRequest.getDemandAgent().getSimpleId(), newRequest);

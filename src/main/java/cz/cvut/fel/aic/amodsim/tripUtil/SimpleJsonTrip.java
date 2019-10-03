@@ -21,14 +21,15 @@ package cz.cvut.fel.aic.amodsim.tripUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.TripItem;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 /**
  *
  * @author fido
  */
-public class SimpleJsonTrip extends Trip<JsonTripItem>{
+public class SimpleJsonTrip extends Trip<SimulationNode>{
 	
 	public static LinkedList<JsonTripItem> getLocationList(int[] locationsArray){
 		LinkedList<JsonTripItem> locationList = new LinkedList<>();
@@ -37,35 +38,26 @@ public class SimpleJsonTrip extends Trip<JsonTripItem>{
 		}
 		return locationList;
 	}
-	
-//	@JsonCreator
-//	public SimpleJsonTrip(@JsonProperty("locations") LinkedList<JsonTripItem> locations) {
-//		super(locations);
-//	}
-	
-	public SimpleJsonTrip(LinkedList<JsonTripItem> locations) {
+
+	@JsonCreator
+	public SimpleJsonTrip(SimulationNode... locations) {
 		super(locations);
 	}
-	
-	@JsonCreator
-	public SimpleJsonTrip(int[] locationsArray) {
-		this(getLocationList(locationsArray));
-	}
+
 	
 	
 
 	@JsonValue
 	public int[] serialize(){
-		int[] locationsArray = new int[locations.size()];
-		for (int i = 0; i < locationsArray.length; i++) {
-			
-			// this does not work due to some misterious bug in jackson
-//			positions[i] = locations.get(i).tripPositionByNodeId;
-
-			TripItem tripItem = locations.get(i);
-			locationsArray[i] = tripItem.tripPositionByNodeId;
-		}
-		return locationsArray;
+//		for (int i = 0; i < locations.length; i++) {
+//			
+//			// this does not work due to some misterious bug in jackson
+////			positions[i] = locations.get(i).tripPositionByNodeId;
+//
+//			TripItem tripItem = locations[i];
+//			locationsArray[i] = tripItem.tripPositionByNodeId;
+//		}
+		return Arrays.stream(locations).mapToInt(l -> l.getIndex()).toArray();
 	}
 	
 }

@@ -134,9 +134,9 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			pickupAndContinue();
 		}
 		else{
-			currentTrip = tripsUtil.createTrip(getPosition().id, currentTask.getPosition().id, vehicle);
+			currentTrip = tripsUtil.createTrip(getPosition(), currentTask.getPosition(), vehicle);
 			DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
-			driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
+			driveFactory.runActivity(this, vehicle, currentTrip);
 		}
 	}
 
@@ -147,8 +147,8 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			dropOffAndContinue();
 		}
 		else{
-			currentTrip = tripsUtil.createTrip(getPosition().id, currentTask.getPosition().id, vehicle);
-			driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
+			currentTrip = tripsUtil.createTrip(getPosition(), currentTask.getPosition(), vehicle);
+			driveFactory.runActivity(this, vehicle, currentTrip);
 		}
 	}
 
@@ -161,9 +161,8 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			finishDrivingToStation();
 		}
 		else{
-			currentTrip = tripsUtil.createTrip(getPosition().id, 
-					targetStation.getPosition().getId(), vehicle);
-			driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
+			currentTrip = tripsUtil.createTrip(getPosition(), targetStation.getPosition(), vehicle);
+			driveFactory.runActivity(this, vehicle, currentTrip);
 		}
 	}
 

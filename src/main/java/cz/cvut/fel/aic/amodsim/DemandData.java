@@ -20,18 +20,17 @@ package cz.cvut.fel.aic.amodsim;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
-import java.util.List;
 
 /**
  *
  * @author fido
  */
 public class DemandData {
-	public List<SimulationNode> locations;
+	public SimulationNode[] locations;
 	
 	public DemandAgent demandAgent;
 
-	public DemandData(List<SimulationNode> locList, DemandAgent demandAgent) {
+	public DemandData(SimulationNode[] locList, DemandAgent demandAgent) {
 		this.locations = locList;
 		this.demandAgent = demandAgent;
 	}

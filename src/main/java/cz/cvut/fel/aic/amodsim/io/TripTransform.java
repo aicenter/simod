@@ -132,8 +132,8 @@ public class TripTransform {
 				   sameStartAndTargetInDataCount++;
 			   }
 			   else{
-					gpsTrips.add(new TimeTrip<>(startLocation, targetLocation, 
-					   Long.parseLong(parts[0].split("\\.")[0])));
+					gpsTrips.add(
+							new TimeTrip<>(Long.parseLong(parts[0].split("\\.")[0]), startLocation, targetLocation));
 			   }
 			}
 		} catch (IOException ex) {
@@ -153,15 +153,16 @@ public class TripTransform {
 	}
 	
 	private void processGpsTrip(TimeTrip<GPSLocation> gpsTrip, List<TimeTrip<SimulationNode>>trips) {
-		List<GPSLocation> locations = gpsTrip.getLocations();
-		SimulationNode startNode = nearestElementUtils.getNearestElement(locations.get(0), EGraphType.HIGHWAY);
-		SimulationNode targetNode = nearestElementUtils.getNearestElement(locations.get(locations.size() - 1), EGraphType.HIGHWAY);
+		GPSLocation[] locations = gpsTrip.getLocations();
+		SimulationNode startNode = nearestElementUtils.getNearestElement(locations[0], EGraphType.HIGHWAY);
+		SimulationNode targetNode 
+				= nearestElementUtils.getNearestElement(locations[locations.length - 1], EGraphType.HIGHWAY);
 	
 		if(startNode != targetNode){
-			LinkedList<SimulationNode> nodesList = new LinkedList<>();
-			nodesList.add(startNode);
-			nodesList.add(targetNode);
-			trips.add(new TimeTrip<>(nodesList, gpsTrip.getStartTime(), gpsTrip.getEndTime()));
+			SimulationNode[] nodesList = new SimulationNode[2];
+			nodesList[0] = startNode;
+			nodesList[1] = targetNode;
+			trips.add(new TimeTrip<>(gpsTrip.getStartTime(), gpsTrip.getEndTime(), nodesList));
 		}   
 		else{
 			zeroLenghtTripsCount++;

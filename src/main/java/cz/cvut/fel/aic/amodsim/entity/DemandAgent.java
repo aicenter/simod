@@ -147,7 +147,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	public DemandAgent(StationsDispatcher onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
 			DemandStorage demandStorage, StandardTimeProvider timeProvider, Statistics statistics, TripsUtil tripsUtil,
 			@Assisted String agentId, @Assisted int id, @Assisted TimeTrip<SimulationNode> trip) {
-		super(agentId, trip.getLocations().get(0));
+		super(agentId, trip.getLocations()[0]);
 		this.simpleId = id;
 		this.trip = trip;
 		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
@@ -192,7 +192,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 
 
 	public void tripEnded() {
-		if(!getPosition().equals(trip.getLocations().getLast())){
+		if(!getPosition().equals(trip.getLastLocation())){
 			try {
 				throw new Exception("Demand not served properly");
 			} catch (Exception ex) {
@@ -243,7 +243,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	}
 
 	private void computeMinServiceDuration() {
-		Trip<SimulationNode> minTrip = tripsUtil.createTrip(getPosition().id, trip.getLocations().getLast().id);
+		Trip<SimulationNode> minTrip = tripsUtil.createTrip(getPosition(), trip.getLastLocation());
 		minDemandServiceDuration = tripsUtil.getTripDuration(minTrip);
 	}
 

@@ -24,7 +24,6 @@ import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.path.ShortestPathPlanner;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.Graphs;
@@ -87,9 +86,6 @@ public class TestStandardAgentPolisModule extends AbstractModule implements Agen
 		bind(AgentpolisConfig.class).toInstance(agentpolisConfig);
 		
 		bind(TimeProvider.class).to(StandardTimeProvider.class);
-		
-		install(new FactoryModuleBuilder().implement(ShortestPathPlanner.class, ShortestPathPlanner.class)
-			.build(ShortestPathPlanner.ShortestPathPlannerFactory.class));
 		
 		bindVisioInitializer();
 		configureNext();

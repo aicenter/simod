@@ -23,12 +23,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.jackson.MyModule;
-import cz.cvut.fel.aic.amodsim.statistics.Statistics;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripPlannerException;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.path.ShortestPathPlanner;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.path.ShortestPathPlanners;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
@@ -37,6 +32,8 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.ShortestPathPlanner;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.graphimporter.util.MD5ChecksumGenerator;
 
 import java.io.File;
@@ -65,13 +62,13 @@ public class TripsUtilCached extends TripsUtil {
 	
 	private int cacheFileCounter;
 
-	private ShortestPathPlanner pathPlanner;
 
-
+	
+	
 	@Inject
-	public TripsUtilCached(ShortestPathPlanners pathPlanners, NearestElementUtils nearestElementUtils, 
+	public TripsUtilCached(ShortestPathPlanner pathPlanner, NearestElementUtils nearestElementUtils, 
 			HighwayNetwork network, SimulationCreator simulationCreator, AmodsimConfig amodConfig, AgentpolisConfig agentpolisConfig) throws IOException {
-		super(pathPlanners, nearestElementUtils, network);
+		super(pathPlanner, nearestElementUtils, network);
 		
 		mapper = new ObjectMapper();
 		mapper.registerModule(new MyModule());
@@ -93,35 +90,23 @@ public class TripsUtilCached extends TripsUtil {
 	}
 
 
+	
+	
 	@Override
-	public VehicleTrip createTrip(int startNodeId, int targetNodeId, PhysicalVehicle vehicle) {
-		if (startNodeId == targetNodeId) {
-			try {
-				throw new Exception("Start node cannot be the same as end node");
-			} catch (Exception ex) {
-				LOGGER.error(null, ex);
-			}
-		}
+	public VehicleTrip createTrip(SimulationNode startNode, SimulationNode targetNode, PhysicalVehicle vehicle) {
+		StartTargetNodePair tripStartTargetPair = new StartTargetNodePair(startNode.getIndex(), targetNode.getIndex());
 
-		ShortestPathPlanner pathPlanner = pathPlanners.getPathPlanner(GRAPH_TYPES); 
-
-		StartTargetNodePair tripStartTargetPair = new StartTargetNodePair(startNodeId, targetNodeId);
-
-		VehicleTrip finalTrip = null;
+		VehicleTrip<SimulationNode> finalTrip = null;
 
 		if (tripCache.containsKey(tripStartTargetPair)) {
 			finalTrip =
-					new VehicleTrip(tripCache.get(tripStartTargetPair).getLocations(), EGraphType.HIGHWAY, vehicle.getId());
+					new VehicleTrip<>(vehicle, tripCache.get(tripStartTargetPair).getLocations());
 		} else {
-			try {
-				finalTrip = pathPlanner.findTrip(vehicle.getId(), startNodeId, targetNodeId);
-				tripCache.put(tripStartTargetPair, new SimpleJsonTrip(finalTrip.getLocations()));
-				newTrips.put(tripStartTargetPair, new SimpleJsonTrip(finalTrip.getLocations()));
-				if(newTrips.size() > OUTPUT_BATCH_SIZE){
-					saveNewTrips();
-				}
-			} catch (TripPlannerException ex) {
-				LOGGER.error(null, ex);
+			finalTrip = super.createTrip(startNode, targetNode, vehicle);
+			tripCache.put(tripStartTargetPair, new SimpleJsonTrip(finalTrip.getLocations()));
+			newTrips.put(tripStartTargetPair, new SimpleJsonTrip(finalTrip.getLocations()));
+			if(newTrips.size() > OUTPUT_BATCH_SIZE){
+				saveNewTrips();
 			}
 		}
 

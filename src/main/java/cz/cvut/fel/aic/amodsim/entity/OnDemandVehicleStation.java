@@ -153,8 +153,8 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 	
 
 	public void handleTripRequest(DemandData demandData) {
-		Node startLocation = demandData.locations.get(0);
-		Node targetLocation = demandData.locations.get(demandData.locations.size() - 1);
+		Node startLocation = demandData.locations[0];
+		Node targetLocation = demandData.locations[demandData.locations.length - 1];
 		
 		// hack for demands that starts and ends in the same position
 		if(startLocation.equals(targetLocation)){

@@ -23,6 +23,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.TripItem;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.alite.vis.layer.AbstractLayer;
@@ -38,6 +39,7 @@ import java.awt.event.MouseListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -85,20 +87,21 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
 	}
 
 	protected void drawTrip(Graphics2D canvas, Dimension dim, Rectangle2D drawingRectangle, E entity) {
-		VehicleTrip trip = entity.getCurrentTripPlan();
-		LinkedList<TripItem> locations = trip.getLocations();
-		Iterator<TripItem> iterator = locations.iterator();
-		int startLocationNodeId = iterator.next().tripPositionByNodeId;
+		VehicleTrip<SimulationNode> trip = entity.getCurrentTripPlan();
+		SimulationNode[] locations = trip.getLocations();
+		Iterator<SimulationNode> iterator = Arrays.asList(locations).iterator();
+		SimulationNode startLocation = trip.getFirstLocation();
 		while (iterator.hasNext()) {
-			int targetLocationNodeId = iterator.next().tripPositionByNodeId;
-			drawLine(canvas, drawingRectangle, startLocationNodeId, targetLocationNodeId);
-			startLocationNodeId = targetLocationNodeId;
+			SimulationNode targetLocation = iterator.next();
+			drawLine(canvas, drawingRectangle, startLocation, targetLocation);
+			startLocation = targetLocation;
 		}
 	}
 
-	protected void drawLine(Graphics2D canvas, Rectangle2D drawingRectangle, int startLocationNodeId, int targetLocationNodeId) {
-		Point2d startPosition = positionUtil.getCanvasPosition(startLocationNodeId);
-		Point2d targetPosition = positionUtil.getCanvasPosition(targetLocationNodeId);
+	protected void drawLine(Graphics2D canvas, Rectangle2D drawingRectangle, SimulationNode startLocation, 
+			SimulationNode targetLocation) {
+		Point2d startPosition = positionUtil.getCanvasPosition(startLocation);
+		Point2d targetPosition = positionUtil.getCanvasPosition(targetLocation);
 
 		int x = (int) startPosition.x;
 		int y = (int) startPosition.y;
@@ -112,23 +115,6 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
 		}
 	}
 
-//	@Override
-//	public void mouseClicked(MouseEvent mouseEvent) {
-//		if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
-//			double clickDistanceInM = Vis.transInvW(CLICK_DISTANCE_IN_PX);
-//			Point2d clickInRealCoords = new Point2d(Vis.transInvX(mouseEvent.getX()), Vis.transInvY(mouseEvent.getY()));
-//
-//			if (entityStorage.isEmpty() == false) {
-//				AgentPolisEntity closestAgent = Collections.min(entityStorage.getEntities(), 
-//						new NearestEntityComparator<>(entityPositionUtil, clickInRealCoords));
-//
-//				if (entityPositionUtil.getEntityPosition(closestAgent).distance(clickInRealCoords) 
-//						<= clickDistanceInM) {
-//					switchDrawPlan((E) closestAgent);
-//				}
-//			}
-//		}
-//	}
 
 	@Override
 	public void mouseClicked(MouseEvent mouseEvent) {

@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
-import java.util.LinkedList;
+import cz.cvut.fel.aic.geographtools.GPSLocation;
 
 /**
  *
@@ -48,27 +48,21 @@ public class TimeTrip<L> extends Trip<L>{
 	
 	
 	@JsonCreator
-	public TimeTrip(@JsonProperty("locations") LinkedList<L> locations, @JsonProperty("startTime") long startTime, 
-			@JsonProperty("endTime") long endTime){
+	public TimeTrip(@JsonProperty("startTime") long startTime, @JsonProperty("endTime") long endTime, 
+			@JsonProperty("locations") L... locations){
 		super(locations);
 		this.startTime = startTime;
 		this.endTime = endTime;
 	}
 	
-	public TimeTrip(LinkedList<L> locations, long startTime){
-		this(locations, startTime, 0);
-	}
-	
-	public TimeTrip(L startLocation, L endLocation, long startTime){
-		super(startLocation, endLocation);
-		this.startTime = startTime;
-		this.endTime = 0;
+	public TimeTrip(long startTime, L... locations){
+		this(startTime, 0, locations);
 	}
 
 	@Override
 	@JsonIgnore
-	public L getAndRemoveFirstLocation() {
-		return super.getAndRemoveFirstLocation();
+	public L removeFirstLocation() {
+		return super.removeFirstLocation();
 	}
 
 	@JsonIgnore

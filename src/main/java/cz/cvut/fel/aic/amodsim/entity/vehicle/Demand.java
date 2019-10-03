@@ -47,10 +47,10 @@ public class Demand {
 	}
 
 	public int getStartNodeId(){
-		return demandTrip.getLocations().getFirst().tripPositionByNodeId;
+		return demandTrip.getLocations()[0].tripPositionByNodeId;
 	}
 
 	public int getTargetNodeId(){
-		return demandTrip.getLocations().getLast().tripPositionByNodeId;
+		return demandTrip.getLocations()[demandTrip.getLocations().length - 1].tripPositionByNodeId;
 	}
 }

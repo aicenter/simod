@@ -72,8 +72,8 @@ public class Loader {
 						System.out.println("count" + count);
 
 						while (resultSet.next()) {
-							trips.add(new TimeTrip(getLocationsFromJson(resultSet.getString("path")), 
-									resultSet.getLong("start_time"), resultSet.getLong("end_time")));
+							trips.add(new TimeTrip(resultSet.getLong("start_time"), resultSet.getLong("end_time"), 
+									getLocationsFromJson(resultSet.getString("path")).toArray()));
 						}
 					}
 				}

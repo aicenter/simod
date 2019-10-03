@@ -144,8 +144,8 @@ public class RebalancingLoader {
 
 							rebalancingTripsCount = (int) ((double) rebalancingTripsCount / 4);
 							for (int l = 0; l < rebalancingTripsCount; l++) {
-								rebalancingTrips.add(new TimeTrip<>(onDemandVehicleStations.get(j), 
-										onDemandVehicleStations.get(k), finalStartTime));
+								rebalancingTrips.add(new TimeTrip<>(finalStartTime, onDemandVehicleStations.get(j), 
+										onDemandVehicleStations.get(k)));
 								finalStartTime += intervalBetweenCars;
 							}
 						}

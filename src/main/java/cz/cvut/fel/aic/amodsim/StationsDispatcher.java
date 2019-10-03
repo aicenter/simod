@@ -118,16 +118,16 @@ public class StationsDispatcher extends EventHandlerAdapter{
 	private void processDemand(Event event) {
 		demandsCount++;
 		DemandData demandData = (DemandData) event.getContent();
-		List<SimulationNode> locations = demandData.locations;
-		SimulationNode startNode = locations.get(0);
+		SimulationNode[] locations = demandData.locations;
+		SimulationNode startNode = locations[0];
 		
 		serveDemand(startNode, demandData);
 	}
 
 	private void serveRebalancing(Event event) {
 		TimeTrip<OnDemandVehicleStation> rebalancingTrip = (TimeTrip<OnDemandVehicleStation>) event.getContent();
-		OnDemandVehicleStation sourceStation = rebalancingTrip.getLocations().peek();
-		OnDemandVehicleStation targetStation = rebalancingTrip.getLocations().peekLast();
+		OnDemandVehicleStation sourceStation = rebalancingTrip.getFirstLocation();
+		OnDemandVehicleStation targetStation = rebalancingTrip.getLastLocation();
 		rebalance(sourceStation, targetStation);
 	}
 	
@@ -155,7 +155,7 @@ public class StationsDispatcher extends EventHandlerAdapter{
 		long finalStartDelay = inititalDelay;
 
 		for (int l = 0; l < amount; l++) {
-			TimeTrip<OnDemandVehicleStation> rebalancingTrip = new TimeTrip<>(from, to, finalStartDelay);
+			TimeTrip<OnDemandVehicleStation> rebalancingTrip = new TimeTrip<>(finalStartDelay, from, to);
 			eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, this, 
 						null, rebalancingTrip, finalStartDelay);
 			finalStartDelay += intervalBetweenCars;

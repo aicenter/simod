@@ -131,7 +131,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	}
 
 	public VehicleTrip getDemandTrip(DemandAgent agent) {
-		return demandTrip.clone();
+		return new VehicleTrip(demandTrip.getVehicle(), demandTrip.getLocations().clone());
 	}
 
 	public OnDemandVehicleState getState() {
@@ -216,11 +216,11 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	@Override
 	public void handleEvent(Event event) {
 		currentlyServedDemmand = (DemandData) event.getContent();
-		List<SimulationNode> locations = currentlyServedDemmand.locations;
+		SimulationNode[] locations = currentlyServedDemmand.locations;
 		
 		demandNodes = new ArrayList<>();
-		demandNodes.add(locations.get(0));
-		demandNodes.add(locations.get(locations.size() - 1));
+		demandNodes.add(locations[0]);
+		demandNodes.add(locations[locations.length - 1]);
 		
 		leavingStationEvent();
 		driveToDemandStartLocation();
@@ -250,11 +250,10 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 			currentTrip = null;
 		}
 		else{
-			currentTrip = tripsUtil.createTrip(getPosition().id, 
-				demandNodes.get(0).getId(), vehicle);
+			currentTrip = tripsUtil.createTrip(getPosition(), demandNodes.get(0), vehicle);
 			metersToStartLocation += positionUtil.getTripLengthInMeters(currentTrip);
 		}
-		demandTrip = tripsUtil.createTrip(demandNodes.get(0).getId(), demandNodes.get(1).getId(), vehicle);
+		demandTrip = tripsUtil.createTrip(demandNodes.get(0), demandNodes.get(1), vehicle);
 		metersWithPassenger += positionUtil.getTripLengthInMeters(demandTrip);
 		
 		SimulationNode demandEndNode = demandNodes.get(demandNodes.size() - 1);
@@ -265,8 +264,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 			tripToStation = null;
 		}
 		else{
-			tripToStation = tripsUtil.createTrip(demandEndNode.getId(), 
-					targetStation.getPosition().getId(), vehicle);
+			tripToStation = tripsUtil.createTrip(demandEndNode, targetStation.getPosition(), vehicle);
 			metersToStation += positionUtil.getTripLengthInMeters(tripToStation);
 		}
 		
@@ -281,7 +279,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 				
 //		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
 //		driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
-		driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
+		driveFactory.runActivity(this, vehicle, currentTrip);
 	}
 
 	
@@ -296,7 +294,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 				
 //		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
 //		driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
-		driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
+		driveFactory.runActivity(this, vehicle, currentTrip);
 		
 	}
 
@@ -312,7 +310,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 				
 //		driveVehicleActivity.drive(getId(), vehicle, currentTrip.clone(), this);
 //		driveActivityFactory.create(this, vehicle, vehicleTripToTrip(currentTrip)).run();
-		driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
+		driveFactory.runActivity(this, vehicle, currentTrip);
 	}
 
 	protected void waitInStation() {
@@ -346,15 +344,14 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		state = OnDemandVehicleState.REBALANCING;
 		currentRebalancingId = rebalancingIdGenerator.getId();
 		
-		currentTrip = tripsUtil.createTrip(getPosition().id, 
-				targetStation.getPosition().getId(), vehicle);
+		currentTrip = tripsUtil.createTrip(getPosition(), targetStation.getPosition(), vehicle);
 		metersRebalancing += positionUtil.getTripLengthInMeters(currentTrip);
 		
-		completeTrip = currentTrip.clone();
+		completeTrip = new VehicleTrip(currentTrip.getVehicle(), currentTrip.getLocations().clone());
 		
 		this.targetStation = targetStation;
 		
-		driveFactory.runActivity(this, vehicle, vehicleTripToTrip(currentTrip));
+		driveFactory.runActivity(this, vehicle, currentTrip);
 	}
 
 	@Override
@@ -407,17 +404,6 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
 				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
 						currentlyServedDemmand.demandAgent.getSimpleId(), getId()));
-	}
-	
-	// todo - repair path planner and remove this
-	protected Trip<Node> vehicleTripToTrip(VehicleTrip<TripItem> vehicleTrip){
-		LinkedList<Node>  locations = new LinkedList<>();
-		for (TripItem tripItem : vehicleTrip.getLocations()) {
-			locations.add(positionUtil.getNode(tripItem.tripPositionByNodeId));
-		}
-		Trip<Node> trip = new Trip<>(locations);
-		
-		return trip;
 	}
 
 	@Override

@@ -27,12 +27,9 @@ import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvi
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.DistanceMatrixTravelTimeProvider;
 import java.io.File;
 import cz.agents.amodsim.ridesharing.vga.mock.TestTimeProvider;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.path.ShortestPathPlanner;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.GeojsonMapInitializer;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
@@ -62,8 +59,6 @@ public class TestModuleNoVisio extends StandardAgentPolisModule{
 		
 		bind(TimeProvider.class).to(TestTimeProvider.class);
 		
-		install(new FactoryModuleBuilder().implement(ShortestPathPlanner.class, ShortestPathPlanner.class)
-			.build(ShortestPathPlanner.ShortestPathPlannerFactory.class));
 		configureNext();
 	}
 

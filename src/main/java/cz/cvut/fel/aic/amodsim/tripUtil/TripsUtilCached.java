@@ -26,7 +26,6 @@ import com.google.inject.Singleton;
 import cz.cvut.fel.aic.amodsim.jackson.MyModule;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
@@ -34,10 +33,12 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.ShortestPathPlanner;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.NodesMappedByIndex;
 import cz.cvut.fel.aic.graphimporter.util.MD5ChecksumGenerator;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +58,8 @@ public class TripsUtilCached extends TripsUtil {
 	
 	private final ObjectMapper mapper;
 	
+	private final NodesMappedByIndex nodesMappedByIndex;
+	
 	
 	private HashMap<StartTargetNodePair, SimpleJsonTrip> newTrips;
 	
@@ -67,8 +70,10 @@ public class TripsUtilCached extends TripsUtil {
 	
 	@Inject
 	public TripsUtilCached(ShortestPathPlanner pathPlanner, NearestElementUtils nearestElementUtils, 
-			HighwayNetwork network, SimulationCreator simulationCreator, AmodsimConfig amodConfig, AgentpolisConfig agentpolisConfig) throws IOException {
+			HighwayNetwork network, SimulationCreator simulationCreator, AmodsimConfig amodConfig, 
+			AgentpolisConfig agentpolisConfig,NodesMappedByIndex nodesMappedByIndex) throws IOException {
 		super(pathPlanner, nearestElementUtils, network);
+		this.nodesMappedByIndex = nodesMappedByIndex;
 		
 		mapper = new ObjectMapper();
 		mapper.registerModule(new MyModule());
@@ -99,12 +104,17 @@ public class TripsUtilCached extends TripsUtil {
 		VehicleTrip<SimulationNode> finalTrip = null;
 
 		if (tripCache.containsKey(tripStartTargetPair)) {
+			SimulationNode[] locations = Arrays.stream(tripCache.get(tripStartTargetPair).getLocations())
+					.map(item -> nodesMappedByIndex.getNodeByIndex(item))
+					.toArray(SimulationNode[]::new);
 			finalTrip =
-					new VehicleTrip<>(vehicle, tripCache.get(tripStartTargetPair).getLocations());
+					new VehicleTrip<>(vehicle, locations);
 		} else {
 			finalTrip = super.createTrip(startNode, targetNode, vehicle);
-			tripCache.put(tripStartTargetPair, new SimpleJsonTrip(finalTrip.getLocations()));
-			newTrips.put(tripStartTargetPair, new SimpleJsonTrip(finalTrip.getLocations()));
+			Integer[] locationIndexes 
+					= Arrays.stream(finalTrip.getLocations()).map(node -> node.getIndex()).toArray(Integer[]::new);
+			tripCache.put(tripStartTargetPair, new SimpleJsonTrip(locationIndexes));
+			newTrips.put(tripStartTargetPair, new SimpleJsonTrip(locationIndexes));
 			if(newTrips.size() > OUTPUT_BATCH_SIZE){
 				saveNewTrips();
 			}

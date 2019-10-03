@@ -45,7 +45,10 @@ import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.statistics.PickupEventContent;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
+import cz.cvut.fel.aic.amodsim.visio.PlanLayerTrip;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -270,6 +273,20 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
 	public boolean hasFreeCapacity() {
 		return getFreeCapacity() > 0;
+	}
+	
+	public List<PlanLayerTrip> getPlanForRendering(){
+		List<PlanLayerTrip> trips = new ArrayList<>(currentPlan.getLength());
+		SimulationNode lastPosition = getPosition();
+		for(PlanAction action: currentPlan){
+			if(action instanceof PlanRequestAction){
+				VehicleTrip<SimulationNode> newTrip
+						= tripsUtil.createTrip(lastPosition, action.getPosition(), vehicle);
+				trips.add(new PlanLayerTrip((PlanRequestAction) action, newTrip.getLocations()));
+			}
+			lastPosition = action.getPosition();
+		}
+		return trips;
 	}
 
 	private void logTraveledDistance(boolean wasStopped) {

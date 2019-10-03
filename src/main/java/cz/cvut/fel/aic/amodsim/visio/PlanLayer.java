@@ -23,7 +23,9 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.TripItem;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.alite.vis.layer.AbstractLayer;
@@ -31,6 +33,8 @@ import cz.cvut.fel.aic.amodsim.NearestVehicleComparator;
 import cz.cvut.fel.aic.amodsim.entity.PlanningAgent;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
+import cz.cvut.fel.aic.geographtools.GPSLocation;
+import cz.cvut.fel.aic.geographtools.Graph;
 
 import javax.vecmath.Point2d;
 import java.awt.*;
@@ -63,12 +67,15 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
 	protected final VisioPositionUtil positionUtil;
 
 	protected final ArrayList<E> drawedEntities;
+	
+	private final Graph<SimulationNode, SimulationEdge> network;
 
 
 	@Inject
-	public PlanLayer(OnDemandVehicleStorage entityStorage, VisioPositionUtil positionUtil) {
+	public PlanLayer(OnDemandVehicleStorage entityStorage, VisioPositionUtil positionUtil, HighwayNetwork highwayNetwork) {
 		this.entityStorage = entityStorage;
 		this.positionUtil = positionUtil;
+		network = highwayNetwork.getNetwork();
 		drawedEntities = new ArrayList<>();
 	}
 
@@ -93,25 +100,31 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
 		SimulationNode startLocation = trip.getFirstLocation();
 		while (iterator.hasNext()) {
 			SimulationNode targetLocation = iterator.next();
-			drawLine(canvas, drawingRectangle, startLocation, targetLocation);
+			drawOnEdge(canvas, drawingRectangle, startLocation, targetLocation);
 			startLocation = targetLocation;
 		}
 	}
 
-	protected void drawLine(Graphics2D canvas, Rectangle2D drawingRectangle, SimulationNode startLocation, 
+	protected void drawOnEdge(Graphics2D canvas, Rectangle2D drawingRectangle, SimulationNode startLocation, 
 			SimulationNode targetLocation) {
-		Point2d startPosition = positionUtil.getCanvasPosition(startLocation);
-		Point2d targetPosition = positionUtil.getCanvasPosition(targetLocation);
+		SimulationEdge edge = network.getEdge(startLocation, targetLocation);
+		Iterator<GPSLocation> iterator = edge.shape.iterator();
+		
+		Point2d startPosition = positionUtil.getCanvasPosition(iterator.next());
+		while(iterator.hasNext()){
+			Point2d targetPosition = positionUtil.getCanvasPosition(iterator.next());
+			
+			int x = (int) startPosition.x;
+			int y = (int) startPosition.y;
+			int xTo = (int) targetPosition.x;
+			int yTo = (int) targetPosition.y;
 
-		int x = (int) startPosition.x;
-		int y = (int) startPosition.y;
-		int xTo = (int) targetPosition.x;
-		int yTo = (int) targetPosition.y;
+			Line2D line2d = new Line2D.Double(x, y, xTo, yTo);
 
-		Line2D line2d = new Line2D.Double(x, y, xTo, yTo);
-
-		if (line2d.intersects(drawingRectangle)) {
-			canvas.draw(line2d);
+			if (line2d.intersects(drawingRectangle)) {
+				canvas.draw(line2d);
+			}
+			startPosition = targetPosition;
 		}
 	}
 

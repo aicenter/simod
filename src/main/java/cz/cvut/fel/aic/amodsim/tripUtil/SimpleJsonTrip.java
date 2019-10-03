@@ -21,34 +21,36 @@ package cz.cvut.fel.aic.amodsim.tripUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import java.util.Arrays;
-import java.util.LinkedList;
 
 /**
  *
  * @author fido
  */
-public class SimpleJsonTrip extends Trip<SimulationNode>{
+public class SimpleJsonTrip extends Trip<Integer>{
 	
-	public static LinkedList<JsonTripItem> getLocationList(int[] locationsArray){
-		LinkedList<JsonTripItem> locationList = new LinkedList<>();
-		for (int i = 0; i < locationsArray.length; i++) {
-			locationList.add(new JsonTripItem(locationsArray[i]));
-		}
-		return locationList;
-	}
-
+//	public static JsonTripItem[] getLocationList(int[] locationsArray){
+//		JsonTripItem[] locationList = new JsonTripItem[locationsArray.length];
+//		for (int i = 0; i < locationsArray.length; i++) {
+//			locationList[i] = new JsonTripItem(locationsArray[i]);
+//		}
+//		return locationList;
+//	}
+	
+	
 	@JsonCreator
-	public SimpleJsonTrip(SimulationNode... locations) {
+	public SimpleJsonTrip(Integer... locations) {
 		super(locations);
 	}
 
+//	@JsonCreator
+//	public SimpleJsonTrip(int[] locationsArray) {
+//		super(locationsArray);
+//	}
 	
 	
 
 	@JsonValue
-	public int[] serialize(){
+	public Integer[] serialize(){
 //		for (int i = 0; i < locations.length; i++) {
 //			
 //			// this does not work due to some misterious bug in jackson
@@ -57,7 +59,7 @@ public class SimpleJsonTrip extends Trip<SimulationNode>{
 //			TripItem tripItem = locations[i];
 //			locationsArray[i] = tripItem.tripPositionByNodeId;
 //		}
-		return Arrays.stream(locations).mapToInt(l -> l.getIndex()).toArray();
+		return locations;
 	}
 	
 }

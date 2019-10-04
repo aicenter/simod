@@ -279,7 +279,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		List<PlanLayerTrip> trips = new ArrayList<>(currentPlan.getLength());
 		SimulationNode lastPosition = getPosition();
 		for(PlanAction action: currentPlan){
-			if(action instanceof PlanRequestAction){
+			if(action instanceof PlanRequestAction && lastPosition != action.getPosition()){
 				VehicleTrip<SimulationNode> newTrip
 						= tripsUtil.createTrip(lastPosition, action.getPosition(), vehicle);
 				trips.add(new PlanLayerTrip((PlanRequestAction) action, newTrip.getLocations()));

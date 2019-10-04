@@ -219,7 +219,64 @@ print("the assignments computed by VGA method lead to total  \\SI{{{}}}{{\\perce
 
 delay_reduction \
 	= int(round((insertion_heuristic_data[7] - vga_data[7]) / insertion_heuristic_data[7] * 100))
-print("and the average passenger travel delay is improved by  \\SI{{{}}}{{\\percent}} ".format(
+print("and the average passenger travel delay is decreased by  \\SI{{{}}}{{\\percent}} ".format(
 	delay_reduction))
 
+print("Our simulation revealed that ridesharing based on VGA method allows reducing the distance driven in the system by \\SI{{{}}}{{\\percent}} ".format(
+	percentage_reduction_compared_to_no_ridesharing))
 
+print("Specifically, in the system that uses VGA, the vehicles drive \\SI{{{}}}{{\\percent}} less distance, "
+	  "and the average passenger travel delay is decreased by~\\SI{{{}}}{{\\percent}} compared to the "
+	  "system that uses IH.".format(percentage_reduction_compared_to_ih, delay_reduction))
+
+absolute_reduction_compared_to_ih = insertion_heuristic_data[0] - vga_data[0]
+print("We can see that when using the \\gls{{vga}} method instead of Insertion Heuristic during the morning peak, we can "
+	  "save almost \\SI{{{}}}{{\\km}} of vehicle distance driven, which is more than \\SI{{{}}}{{\\percent}} reduction."
+	  .format(absolute_reduction_compared_to_ih, percentage_reduction_compared_to_ih))
+
+absolute_reduction_compared_to_no_ridesharing = no_ridesharing_data[0] - vga_data[0]
+absolute_reduction_compared_to_present_state = present_state_data[0] - vga_data[0]
+percentage_reduction_compared_to_present_state \
+	= int(round((present_state_data[0] - vga_data[0]) / present_state_data[0] * 100))
+print("When comparing with the no ridesharing scenario and with the present state, the \\gls{{vga}} method saves over "
+	  "\\SI{{{}}}{{\\km}} (\\SI{{{}}}{{\\percent}}) and \\SI{{{}}}{{\\km}} (\\SI{{{}}}{{\\percent}}) respectively."
+	  .format(absolute_reduction_compared_to_no_ridesharing, percentage_reduction_compared_to_no_ridesharing,
+			  absolute_reduction_compared_to_present_state, percentage_reduction_compared_to_present_state))
+
+vehicles_saved = insertion_heuristic_data[5] - vga_data[5]
+vehicles_saved_percent = int(round((insertion_heuristic_data[5] - vga_data[5]) / insertion_heuristic_data[5] * 100))
+print("The results confirm that the \\gls{{vga}} mehod indeed makes the \\gls{{mod}} system more efficient, saving "
+	  "over \\SI{{{}}}{{vehicles}}~(\\SI{{{}}}{{\percent}}) over the Insertion Heuristic."
+	  .format(vehicles_saved, vehicles_saved_percent))
+
+traffic_density_reduction_overih_percent = int(round((insertion_heuristic_data[1] - vga_data[1]) / insertion_heuristic_data[1] * 100))
+traffic_density_reduction_no_ridesharing_percent = int(round((no_ridesharing_data[1] - vga_data[1]) / no_ridesharing_data[1] * 100))
+traffic_density_reduction_current_state_percent = int(round((present_state_data[1] - vga_data[1]) / present_state_data[1] * 100))
+print("in the morning peak, using the VGA method decreases the average traffic density by \\SI{{{}}}{{\\percent}} over the "
+	  "Insertion Heuristic ridesharing, and by \\SI{{{}}}{{\\percent}} and \\SI{{{}}}{{\\percent}} over the MoD without "
+	  "ridesharing and the current state respectively.".format(traffic_density_reduction_overih_percent,
+		   traffic_density_reduction_no_ridesharing_percent, traffic_density_reduction_current_state_percent))
+
+percentage_increase_no_ridesharing_compared_to_present_state \
+	= int(round((no_ridesharing_data[0] - present_state_data[0]) / present_state_data[0] * 100))
+print("When using \\gls{{mod}}, the size of the vehicle fleet can be reduced almost four times, at the cost of about "
+	  "\\SI{{{}}}{{\\percent}} increase in traveled distance due to empty trips between passengers."
+	  .format(percentage_increase_no_ridesharing_compared_to_present_state))
+
+percentage_reduction_ih_compared_to_present_state \
+	= int(round((present_state_data[0] - insertion_heuristic_data[0]) / present_state_data[0] * 100))
+print("We also demonstrated that when using Insertion Heuristic ridesharing, the number of vehicles can be reduced"
+	  " almost eight times compared to the present state, and the total traveled distance can be reduced "
+	  "by \\SI{{{}}}{{\\percent}}.".format(percentage_reduction_ih_compared_to_present_state))
+
+print("Finally, the results confirmed that the optimal \\gls{{vga}} method is significantly more efficient than "
+	  "the Insertion Heuristic, reducing the traveled distance by \\SI{{{}}}{{\\percent}}:"
+	  .format(percentage_reduction_compared_to_present_state))
+
+print("The results confirmed that ridesharing dramatically increases the efficiency of an MoD system: by employing "
+	  "the \\gls{{vga}} method, we reduce the total distance driven in the system by more then \\SI{{{}}}{{\\percent}}."
+	  .format(percentage_reduction_compared_to_no_ridesharing))
+
+print("Our results show that using the VGA method instead of the Insertion Heuristic, we can reduce the total distance "
+	  "traveled by more than \\SI{{{}}}{{\\percent}} while reducing the passenger delays by \\SI{{{}}}{{\\percent}}."
+	  .format(percentage_reduction_compared_to_ih, delay_reduction))

@@ -1,4 +1,4 @@
-from init import config
+from amodsim.init import config
 
 import pandas
 import roadmaptools.inout

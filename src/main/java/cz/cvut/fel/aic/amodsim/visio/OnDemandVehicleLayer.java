@@ -41,11 +41,11 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
 	
 //	private static final Color NORMAL_COLOR = new Color(5, 89, 12);
 	
-	private static final Color REBALANCING_COLOR = new Color(20, 252, 80);
+	private static final Color REBALANCING_COLOR = new Color(88, 196, 178);
 	
-	private static final Color NORMAL_COLOR = Color.BLUE;
+	private static final Color NORMAL_COLOR = new Color(76, 82, 156);
 
-	private static final Color HIGHLIGHTED_COLOR = Color.MAGENTA;
+	private static final Color HIGHLIGHTED_COLOR = new Color(0, 19, 255);
 	
 
 	private static String highlightedVehicleID;
@@ -88,20 +88,19 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
 
 	@Override
 	protected float getVehicleStaticWidth(PhysicalTransportVehicle vehicle) {
-		return 3;
+		return 24;
 	}
 
 	@Override
 	protected float getVehicleStaticLength(PhysicalTransportVehicle vehicle) {
-		return (float) vehicle.getLengthM();
+		return (float) vehicle.getLengthM() * 8;
 	}
 
 	@Override
 	protected Color getEntityDrawColor(PhysicalTransportVehicle vehicle) {
 		OnDemandVehicle onDemandVehicle = (OnDemandVehicle) vehicle.getDriver();
-		if (onDemandVehicle.getVehicleId().equals(this.highlightedVehicleID)) {
-			return HIGHLIGHTED_COLOR;
-
+		if (onDemandVehicle.getVehicleId().equals(this.highlightedVehicleID) || vehicle.isHighlited()) {
+ 			return HIGHLIGHTED_COLOR;
 		}
 
 		switch(onDemandVehicle.getState()){
@@ -117,4 +116,16 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
 	public void setHighlightedID(String id) {
 		this.highlightedVehicleID = id + " - vehicle";
 	}
+
+	@Override
+	public boolean checkIfTransformSize(PhysicalTransportVehicle representative) {
+		if(representative.isHighlited()){
+			return false;
+		}
+		else{
+			return super.checkIfTransformSize(representative);
+		}
+	}
+	
+	
 }

@@ -169,8 +169,10 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
 	private void switchDrawPlan(E agent) {
    		if (drawedEntities.contains(agent)) {
 			drawedEntities.remove(agent);
+			((OnDemandVehicle) agent).getVehicle().setHighlited(false);
 		} else {
 			drawedEntities.add(agent);
+			((OnDemandVehicle) agent).getVehicle().setHighlited(true);
 		}
 	}
 

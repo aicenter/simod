@@ -65,7 +65,6 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.statistics.content.GroupSizeData;
 import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStatsVGA;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage.NearestType;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Singleton
 public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHandler{
@@ -73,6 +72,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(VehicleGroupAssignmentSolver.class);
 	
 	private static final int MILLION = 1000000;
+	
+	private static final int GROUP_RECORDS_BATCH_SIZE = 10_000;
 	
 	
 	private final LinkedHashSet<PlanComputationRequest> activeRequests;
@@ -92,6 +93,9 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	private final TimeProvider timeProvider;
 	
 	private final Provider<GroupGenerator> groupGeneratorProvider;
+	
+	private final Boolean exportGroupData;
+	
 	
 	private List<VGAVehicle> vgaVehicles;
 	
@@ -120,6 +124,10 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	private FlexArray computationalTimesPlanExists;
 	
 	private int[] usedVehiclesPerStation;
+	
+	private List<String[]> groupRecords;
+	
+	private CsvWriter groupRecordWriter = null;
 
 	
 	
@@ -137,10 +145,21 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
 		this.timeProvider = timeProvider;
 		this.groupGeneratorProvider = groupGeneratorProvider;
+		exportGroupData = config.ridesharing.vga.exportGroupData;
 		activeRequests = new LinkedHashSet<>();
 		vgaVehiclesMapBydemandOnDemandVehicles = new HashMap<>();
 		MathUtils.setTravelTimeProvider(travelTimeProvider);
 		setEventHandeling();
+		
+		if(exportGroupData){
+			try {
+				groupRecordWriter =  new CsvWriter(
+						Common.getFileWriter(config.statistics.groupDataFilePath));
+			} catch (IOException ex) {
+				Logger.getLogger(GroupGenerator.class.getName()).log(Level.SEVERE, null, ex);
+			}
+			groupRecords = new ArrayList<>(GROUP_RECORDS_BATCH_SIZE);
+		}
 	}
 
 	@Override
@@ -217,15 +236,13 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 						? usedVehiclesPerStation.get(nearestStation) : 0;
 				int index = nearestStation.getParkedVehiclesCount() - 1 - indexFromEnd;
 
-				OnDemandVehicle onDemandVehicle = nearestStation.getVehicle(index);
-				VGAVehicle vGAVehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(onDemandVehicle.getId());
-				planMap.put(vGAVehicle.getRidesharingVehicle(), driverPlan);
+				RideSharingOnDemandVehicle onDemandVehicle = 
+						(RideSharingOnDemandVehicle) nearestStation.getVehicle(index);
+				planMap.put(onDemandVehicle, driverPlan);
 				
 				CollectionUtil.incrementMapValue(usedVehiclesPerStation, nearestStation, 1);
 			}
 		}
-
-		VGAVehicle.resetMapping();
 		
 		if(config.ridesharing.vga.logPlanComputationalTime){
 			logRecords();
@@ -263,7 +280,43 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 	}
 	
+	public synchronized void saveGroupData(IOptimalPlanVehicle vehicle, int startTime, LinkedHashSet<PlanComputationRequest> group, 
+			boolean feasible) {
+		int size = group.size() * 6 + 4;
+		String[] record = new String[size];
+		record[0] = Boolean.toString(feasible);
+		record[1] = Integer.toString(vehicle.getRequestsOnBoard().size());
+		record[2] = Integer.toString(vehicle.getPosition().latE6);
+		record[3] = Integer.toString(vehicle.getPosition().lonE6);
+		
+		int index = 4;
+		for(PlanComputationRequest planComputationRequest: group){
+			record[index++] = Integer.toString(planComputationRequest.getPickUpAction().getPosition().latE6);
+			record[index++] = Integer.toString(planComputationRequest.getPickUpAction().getPosition().lonE6);
+			record[index++] = Integer.toString(planComputationRequest.getPickUpAction().getMaxTime() - startTime);
+			record[index++] = Integer.toString(planComputationRequest.getDropOffAction().getPosition().latE6);
+			record[index++] = Integer.toString(planComputationRequest.getDropOffAction().getPosition().lonE6);
+			record[index++] = Integer.toString(planComputationRequest.getDropOffAction().getMaxTime() - startTime);
+		}
+		groupRecords.add(record);
+		if(groupRecords.size() == GROUP_RECORDS_BATCH_SIZE){
+			exportGroupData();
+		}
+	}
 	
+	private synchronized void exportGroupData() {
+		try {
+			for (String[] groupRecord : groupRecords) {
+				groupRecordWriter.writeLine(groupRecord);
+			}
+			groupRecordWriter.flush();
+		} catch (IOException ex) {
+			LOGGER.error(null, ex);
+		}
+		finally{
+			groupRecords = new ArrayList<>(GROUP_RECORDS_BATCH_SIZE);
+		}
+	}
 
 	private void setEventHandeling() {
 		List<Enum> typesToHandle = new LinkedList<>();
@@ -503,6 +556,10 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		LOGGER.info("{} groups generated", planCount);
 		if(true){
 			printGroupStats(feasiblePlans);
+		}
+		
+		if(exportGroupData){
+			exportGroupData();
 		}
 	}
 	

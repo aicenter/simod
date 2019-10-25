@@ -32,6 +32,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
@@ -54,7 +55,7 @@ public class RidesharingOnDemandVehiclePlanLayer extends PlanLayer<RideSharingOn
 	
 	private static final Color DROPOFF_COLOR = Color.MAGENTA;
 	
-	private static final int ACTION_MARKER_SIZE = 10;
+	private static final int ACTION_MARKER_SIZE = 20;
 	
 	private static final int TRIP_LINE_THIKNESS = 4;
 	
@@ -73,8 +74,14 @@ public class RidesharingOnDemandVehiclePlanLayer extends PlanLayer<RideSharingOn
 		List<PlanLayerTrip> trips = entity.getPlanForRendering();
 		for(PlanLayerTrip trip: trips){
 			drawTrip(canvas, drawingRectangle, trip);
+		}
+		
+		Font currentFont = canvas.getFont();
+		canvas.setFont(currentFont.deriveFont(20f)); 
+		for(PlanLayerTrip trip: trips){
 			drawAction(canvas, drawingRectangle, trip.getTask());
 		}
+		canvas.setFont(currentFont);
 	}
 
 	private void drawTrip(Graphics2D canvas, Rectangle2D drawingRectangle, PlanLayerTrip trip) {
@@ -109,7 +116,7 @@ public class RidesharingOnDemandVehiclePlanLayer extends PlanLayer<RideSharingOn
 			canvas.fillOval(x1, y1, ACTION_MARKER_SIZE, ACTION_MARKER_SIZE);
 
 			String textIn = task instanceof PlanActionPickup ? "Pickup" : "Dropoff";
-			String title = String.format("%s demand %s", textIn, task.getRequest().getDemandAgent().getSimpleId());
+			String title = String.format("%s request %s", textIn, task.getRequest().getDemandAgent().getSimpleId());
 			
 			VisioUtils.printTextWithBackgroud(canvas, title,
 						new Point((int) (x1 - 5), y1 - (y2 - y1) / 2), color, Color.WHITE);

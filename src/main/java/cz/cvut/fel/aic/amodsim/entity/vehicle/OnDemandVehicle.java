@@ -123,6 +123,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	private int currentRebalancingId;
 	
 	protected OnDemandVehicleStation parkedIn;
+
 	
 	
 	
@@ -167,8 +168,6 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	public void setParkedIn(OnDemandVehicleStation parkedIn) {
 		this.parkedIn = parkedIn;
 	}
-
-	
 	
 	
 	

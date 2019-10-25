@@ -43,7 +43,7 @@ import javax.vecmath.Point2d;
 @Singleton
 public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
 
-	private static final Color DEMAND_COLOR = Color.RED;
+	private static final Color DEMAND_COLOR = new Color(194, 66, 74);
 
 	private static final Color DROPPED_COLOR = Color.MAGENTA;
 
@@ -156,8 +156,6 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
 				VisioUtils.printTextWithBackgroud(canvas, demandAgents.get(0).getId(),
 						new Point((int) (x1 + TEXT_MARGIN_BOTTOM), y1 + (y2 - y1) / 2), Color.BLACK,
 						TEXT_BACKGROUND_COLOR);
-			}
-		}
 	}
 
 }

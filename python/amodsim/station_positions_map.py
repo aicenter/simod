@@ -1,17 +1,93 @@
 from amodsim.init import config
 
+import numpy as np
 import matplotlib.pyplot as plt
 import roadmaptools.inout
 import roadmaptools.plotting
 import roadmaptools.utm
 import matplotlib.font_manager as fm
+import amodsim.demand
 
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
+from matplotlib.colors import LogNorm
 from roadmaptools.printer import print_info
 from roadmaptools.graph import RoadGraph
 
+MIN_LAT = 5_530_000
+MAX_LAT = 5_560_000
+MIN_LON = 445_000
+MAX_LON = 480_000
+HEATMAP_RESOLUTION = 200
 
-fig, axis = plt.subplots(1, 1, figsize=(8, 6))
+
+# DEMAND
+fig, map_axis = plt.subplots(1, 1, figsize=(7, 7))
+fig.subplots_adjust(wspace=0.01)
+# map_axis = axes[0]
+# colorbar_axis = axes[1]
+
+# # road network
+fc = roadmaptools.inout.load_geojson(config.main_roads_graph_filepath)
+xList, yList = roadmaptools.plotting.export_edges_for_matplotlib(roadmaptools.plotting.geojson_iterator(fc))
+map_axis.plot(xList, yList, linewidth=0.2, color='black', zorder=1)
+
+# demand
+#  - generate empty heatmap
+lon_range = np.arange(MIN_LON, MAX_LON, HEATMAP_RESOLUTION)
+lat_range = np.arange(MIN_LAT, MAX_LAT, HEATMAP_RESOLUTION)
+map = np.zeros((len(lat_range), len(lon_range)))
+# map = np.random.rand(len(lon_range), len(lat_range))
+
+# - fill heatmap
+demand_data = amodsim.demand.load(config.trips_path)
+xlist, ylist = roadmaptools.plotting.export_nodes_for_matplotlib(demand_data[["from_lat", "from_lon"]].to_numpy())
+for i, x in enumerate(xlist):
+	y = ylist[i]
+	x_index = round((x - MIN_LON) / HEATMAP_RESOLUTION)
+	y_index = round((y - MIN_LAT) / HEATMAP_RESOLUTION)
+	map[y_index][x_index] += config.trips_multiplier
+
+# - mask empty cells
+map = np.ma.masked_where(map == 0, map)
+cmap = plt.cm.Reds
+cmap.set_bad(color='white')
+
+heatmap = map_axis.matshow(map, extent=(MIN_LON, MAX_LON, MIN_LAT, MAX_LAT), origin='lower', cmap=cmap,
+			 norm=LogNorm(vmin=1, vmax=map.max()), alpha=0.8)
+
+
+plt.colorbar(heatmap, orientation='horizontal', fraction=0.14286, pad=0.01)
+
+# scale bar
+scalebar = AnchoredSizeBar(map_axis.transData,
+                           5000, '5 km', 'lower right',
+                           pad=0.3,
+                           color='black',
+                           frameon=True,
+                           size_vertical=1,
+							borderpad=0.5,
+                           fontproperties=fm.FontProperties(size=10))
+map_axis.add_artist(scalebar)
+
+# remove ticks
+map_axis.set_xticklabels([])
+map_axis.set_yticklabels([])
+map_axis.tick_params(
+	which='both',  # both major and minor ticks are affected
+	bottom=False,  # ticks along the bottom edge are off
+	top=False,  # ticks along the top edge are off
+	labelbottom=False, right=False, left=False, labelleft=False, labelright=False, labeltop=False)
+
+map_axis.set_xlim(MIN_LON, MAX_LON)
+map_axis.set_ylim(MIN_LAT, MAX_LAT)
+
+plt.tight_layout(h_pad=1)
+
+plt.savefig(config.images.demand_heatmap, bbox_inches='tight', transparent=True, pad_inches=0.0)
+
+
+# STATION POSITIONS
+fig, axis = plt.subplots(1, 1, figsize=(7, 6))
 fig.subplots_adjust(wspace=0.01)
 
 axis.set_xticklabels([])
@@ -24,7 +100,7 @@ axis.tick_params(
 
 # road network
 fc = roadmaptools.inout.load_geojson(config.agentpolis.map_edges_filepath)
-xList, yList = roadmaptools.plotting.export_for_matplotlib(roadmaptools.plotting.geojson_iterator(fc))
+xList, yList = roadmaptools.plotting.export_edges_for_matplotlib(roadmaptools.plotting.geojson_iterator(fc))
 axis.plot(xList, yList, linewidth=0.2, color='gray', zorder=1)
 
 # stations
@@ -49,8 +125,8 @@ for station in stations:
 	x_list.append(coords[0])
 	y_list.append(coords[1])
 axis.scatter(x_list, y_list, edgecolors='red', facecolors='white', marker='o', s=40, zorder=2)
-axis.set_xlim(min(x_list), max(x_list))
-axis.set_ylim(min(y_list), max(y_list))
+# axis.set_xlim(min(x_list), max(x_list))
+# axis.set_ylim(min(y_list), max(y_list))
 
 # scale bar
 scalebar = AnchoredSizeBar(axis.transData,
@@ -61,8 +137,12 @@ scalebar = AnchoredSizeBar(axis.transData,
                            size_vertical=1,
 							borderpad=0.5,
                            fontproperties=fm.FontProperties(size=10))
-
 axis.add_artist(scalebar)
+
+axis.set_xlim(MIN_LON, MAX_LON)
+axis.set_ylim(MIN_LAT, MAX_LAT)
+
+plt.tight_layout(h_pad=1)
 
 plt.savefig(config.images.stations, bbox_inches='tight', transparent=True, pad_inches=0.0)
 

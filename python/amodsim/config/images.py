@@ -11,6 +11,8 @@ class Images:
         self.traffic_density_map_comparison = properties.get("traffic_density_map_comparison")
         self.ridesharing_performance_comparison = properties.get("ridesharing_performance_comparison")
         self.stations = properties.get("stations")
+        self.demand_heatmap = properties.get("demand_heatmap")
+        self.distance_delay_tradeoff = properties.get("distance_delay_tradeoff")
 
 
         pass

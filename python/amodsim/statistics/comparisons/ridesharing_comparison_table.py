@@ -106,14 +106,14 @@ def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, experi
 edge_data = edges.load_table()
 edge_object_data = edges.load_edges_mapped_by_id()
 
-exp_dir_1 = config.comparison.experiment_1_dir
-exp_dir_2 = config.comparison.experiment_2_dir
-exp_dir_3 = config.comparison.experiment_3_dir
-exp_dir_4 = config.comparison.experiment_4_dir
-# exp_dir_1 = config.comparison.experiment_5_dir
-# exp_dir_2 = config.comparison.experiment_6_dir
-# exp_dir_3 = config.comparison.experiment_7_dir
-# exp_dir_4 = config.comparison.experiment_8_dir
+# exp_dir_1 = config.comparison.experiment_1_dir
+# exp_dir_2 = config.comparison.experiment_2_dir
+# exp_dir_3 = config.comparison.experiment_3_dir
+# exp_dir_4 = config.comparison.experiment_4_dir
+exp_dir_1 = config.comparison.experiment_5_dir
+exp_dir_2 = config.comparison.experiment_6_dir
+exp_dir_3 = config.comparison.experiment_7_dir
+exp_dir_4 = config.comparison.experiment_8_dir
 
 # result json files
 results_ridesharing_off \
@@ -168,15 +168,25 @@ print_table(output_table)
 
 # latex table
 print("Latex code:")
-print(r"\begin{tabular}{|l|r|r|r|r|r|}")
+print(r"{\renewcommand{\arraystretch}{1.2}%")
+print(r"\begin{tabular}{|+l|-r|-r|-r|-r|-r|}")
 print(r"\hline")
+print(r" &  & \multicolumn{4}{c|}{Mobility-on-Demand}}")
+print(r"\tabularnewline}")
+print(r"\cline{3-6}}")
 print(r" & \thead{Present} & \thead{No Ridesh.} & \thead{IH} & \thead{VGA} & \thead{VGA lim}")
 print(r"\tabularnewline")
 print(r"\hline")
 print(r"\hline")
+print(r"\rowstyle{\bfseries}")
 print("Total veh. dist. (km) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(present_state_data[0], no_ridesharing_data[0],
 	insertion_heuristic_data[0], vga_data[0], vga_limited_data[0]))
 print(r"\tabularnewline")
+print(r"\hline")
+print("Avg. delay (s) & {} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}& \\num{{{}}}".format("-", no_ridesharing_data[7], insertion_heuristic_data[7], vga_data[7],
+	vga_limited_data[7]))
+print(r"\tabularnewline")
+print(r"\hline")
 print(r"\hline")
 print("Avg. density (veh/km) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}& \\num{{{}}}".format(round(present_state_data[1], 4), round(no_ridesharing_data[1], 4),
 	 round(insertion_heuristic_data[1], 4), round(vga_data[1], 4), round(vga_limited_data[1], 4)))
@@ -194,15 +204,11 @@ print("Used Vehicles  & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}& \
 	vga_limited_data[5]))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Avg. delay (s) & {} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}& \\num{{{}}}".format("-", no_ridesharing_data[7], insertion_heuristic_data[7], vga_data[7],
-	vga_limited_data[7]))
-print(r"\tabularnewline")
-print(r"\hline")
 print("Avg. comp. time (ms)  & {} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format("-", no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6],
 	vga_limited_data[6]))
 print(r"\tabularnewline")
 print(r"\hline")
-print(r"\end{tabular}")
+print(r"\end{tabular}}")
 
 # To text
 percentage_reduction_compared_to_no_ridesharing \

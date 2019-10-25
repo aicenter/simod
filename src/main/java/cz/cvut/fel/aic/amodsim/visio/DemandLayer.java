@@ -156,6 +156,8 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
 				VisioUtils.printTextWithBackgroud(canvas, demandAgents.get(0).getId(),
 						new Point((int) (x1 + TEXT_MARGIN_BOTTOM), y1 + (y2 - y1) / 2), Color.BLACK,
 						TEXT_BACKGROUND_COLOR);
+			}
+		}
 	}
 
 }

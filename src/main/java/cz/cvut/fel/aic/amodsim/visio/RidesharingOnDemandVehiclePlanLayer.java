@@ -128,8 +128,7 @@ public class RidesharingOnDemandVehiclePlanLayer extends PlanLayer<RideSharingOn
 		Iterator<SimulationNode> iterator = Arrays.asList(locations).iterator();
 		SimulationNode startLocation;
 		if(firstTrip){
-			startLocation = onDemandVehicleLayer.getEntityPositionInTime(entity.getVehicle(), 
-					timeProvider.getCurrentSimTime());
+			startLocation = entity.getVehicle().getPosition();
 		}
 		else{
 			startLocation = iterator.next();

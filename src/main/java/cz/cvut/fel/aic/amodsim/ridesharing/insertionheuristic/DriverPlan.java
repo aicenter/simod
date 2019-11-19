@@ -64,4 +64,17 @@ public class DriverPlan implements Iterable<PlanAction>{
 	public void taskCompleted(){
 		plan.remove(1);
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb  = new StringBuilder("[");
+		int counter = 0;
+		for(PlanAction action: this){
+			sb.append(String.format("%s: %s, ", counter, action.toString()));
+		}
+		sb.append("]");
+		return sb.toString();
+	}
+	
+	
 }

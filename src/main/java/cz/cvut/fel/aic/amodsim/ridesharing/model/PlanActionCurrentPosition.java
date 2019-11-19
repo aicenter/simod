@@ -30,4 +30,12 @@ public class PlanActionCurrentPosition extends PlanAction{
 	public PlanActionCurrentPosition(SimulationNode position) {
 		super(position);
 	}
+
+	@Override
+	public String toString() {
+		return String.format("Current position at node %s", location.id);
+	}
+	
+	
 }
+ 

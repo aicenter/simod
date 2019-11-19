@@ -132,12 +132,12 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
 
 	@Override
 	protected void processClick(DemandAgent nearestEntity) {
-		if(demandsWithPrintedInfo.contains(nearestEntity)){
-			demandsWithPrintedInfo.remove(nearestEntity);
-		}
-		else{
-			demandsWithPrintedInfo.add(nearestEntity);
-		}
+//		if(demandsWithPrintedInfo.contains(nearestEntity)){
+//			demandsWithPrintedInfo.remove(nearestEntity);
+//		}
+//		else{
+//			demandsWithPrintedInfo.add(nearestEntity);
+//		}
 	}
 
 	@Override

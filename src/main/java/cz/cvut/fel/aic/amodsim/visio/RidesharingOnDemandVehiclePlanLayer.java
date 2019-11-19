@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.amodsim.visio;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
@@ -29,6 +30,7 @@ import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
+import static cz.cvut.fel.aic.amodsim.visio.OnDemandVehicleLayer.NORMAL_COLOR;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -59,39 +61,90 @@ public class RidesharingOnDemandVehiclePlanLayer extends PlanLayer<RideSharingOn
 	
 	private static final int TRIP_LINE_THIKNESS = 4;
 	
+	private static final int TRIP_BORDER_THIKNESS = 1;
 	
+	private static final Color TRIP_BORDER_COLOR = Color.BLACK;
+	
+	
+	
+	private final OnDemandVehicleLayer onDemandVehicleLayer;
+	
+	private final TimeProvider timeProvider;
 	
 	
 	@Inject
 	public RidesharingOnDemandVehiclePlanLayer(OnDemandVehicleStorage entityStorage, VisioPositionUtil positionUtil,
-			HighwayNetwork highwayNetwork) {
+			HighwayNetwork highwayNetwork, OnDemandVehicleLayer onDemandVehicleLayer, TimeProvider timeProvider) {
 		super(entityStorage, positionUtil, highwayNetwork);
+		this.onDemandVehicleLayer = onDemandVehicleLayer;
+		this.timeProvider = timeProvider;
 	}
 
 	@Override
 	protected void drawTrip(Graphics2D canvas, Dimension dim, Rectangle2D drawingRectangle, 
 			RideSharingOnDemandVehicle entity) {
 		List<PlanLayerTrip> trips = entity.getPlanForRendering();
+		boolean firstTrip = true;
 		for(PlanLayerTrip trip: trips){
-			drawTrip(canvas, drawingRectangle, trip);
+			drawTrip(canvas, drawingRectangle, trip, entity, firstTrip);
+			firstTrip = false;
 		}
 		
 		Font currentFont = canvas.getFont();
-		canvas.setFont(currentFont.deriveFont(20f)); 
+		canvas.setFont(currentFont.deriveFont(25f)); 
 		for(PlanLayerTrip trip: trips){
 			drawAction(canvas, drawingRectangle, trip.getTask());
 		}
 		canvas.setFont(currentFont);
+		
+		// draw enlarged vehicle
+		canvas.setColor(OnDemandVehicleLayer.HIGHLIGHTED_COLOR);
+		long time = timeProvider.getCurrentSimTime();
+		Point2d entityPosition = onDemandVehicleLayer.getEntityPositionInTime(entity.getVehicle(), time);
+		onDemandVehicleLayer.drawEntityShape(entity.getVehicle(), entityPosition, canvas, false);
+		
+		// onboard count
+		int x = (int) (entityPosition.getX());
+		int y = (int) (entityPosition.getY());
+		currentFont = canvas.getFont();
+		canvas.setFont(currentFont.deriveFont(25f)); 
+		VisioUtils.printTextWithBackgroud(canvas, Integer.toString(entity.getVehicle().getTransportedEntities().size()),
+				new Point(x + 8, y - 8), NORMAL_COLOR, Color.WHITE);
+		canvas.setFont(currentFont); 
+		
+		// draw border
+		
 	}
 
-	private void drawTrip(Graphics2D canvas, Rectangle2D drawingRectangle, PlanLayerTrip trip) {
-		canvas.setColor(TRIP_COLOR);
-		Stroke stroke = canvas.getStroke();
-		canvas.setStroke(new BasicStroke(TRIP_LINE_THIKNESS));
+	private void drawTrip(Graphics2D canvas, Rectangle2D drawingRectangle, PlanLayerTrip trip, 
+			RideSharingOnDemandVehicle entity, boolean firstTrip) {
 		
+		Stroke stroke = canvas.getStroke();
 		SimulationNode[] locations = trip.getLocations();
+		
+		// print border
+		canvas.setColor(TRIP_BORDER_COLOR);
+		canvas.setStroke(new BasicStroke(TRIP_BORDER_THIKNESS * 2 + TRIP_LINE_THIKNESS));
 		Iterator<SimulationNode> iterator = Arrays.asList(locations).iterator();
-		SimulationNode startLocation = iterator.next();
+		SimulationNode startLocation;
+		if(firstTrip){
+			startLocation = onDemandVehicleLayer.getEntityPositionInTime(entity.getVehicle(), 
+					timeProvider.getCurrentSimTime());
+		}
+		else{
+			startLocation = iterator.next();
+		}
+		
+		while (iterator.hasNext()) {
+			SimulationNode targetLocation = iterator.next();
+			drawOnEdge(canvas, drawingRectangle, startLocation, targetLocation);
+			startLocation = targetLocation;
+		}
+		
+		canvas.setColor(TRIP_COLOR);
+		canvas.setStroke(new BasicStroke(TRIP_LINE_THIKNESS));
+		iterator = Arrays.asList(locations).iterator();
+		startLocation = iterator.next();
 		while (iterator.hasNext()) {
 			SimulationNode targetLocation = iterator.next();
 			drawOnEdge(canvas, drawingRectangle, startLocation, targetLocation);
@@ -115,11 +168,11 @@ public class RidesharingOnDemandVehiclePlanLayer extends PlanLayer<RideSharingOn
 		if (VisioUtils.rectangleOverlaps(x1, y1, x2, y2, Vis.getDrawingDimension())) {
 			canvas.fillOval(x1, y1, ACTION_MARKER_SIZE, ACTION_MARKER_SIZE);
 
-			String textIn = task instanceof PlanActionPickup ? "Pickup" : "Dropoff";
-			String title = String.format("%s request %s", textIn, task.getRequest().getDemandAgent().getSimpleId());
+			String textIn = task instanceof PlanActionPickup ? "P" : "D";
+			String title = String.format("%s %s", textIn, task.getRequest().getDemandAgent().getSimpleId());
 			
 			VisioUtils.printTextWithBackgroud(canvas, title,
-						new Point((int) (x1 - 5), y1 - (y2 - y1) / 2), color, Color.WHITE);
+						new Point(x1 + 15, y1 - 5), Color.BLACK, Color.WHITE);
 			
 		}
 	}

@@ -1,5 +1,6 @@
 from amodsim.init import config
 
+import matplotlib
 import matplotlib.pyplot as plt
 import amodsim.statistics.model.edges as edges
 import amodsim.statistics.model.transit as transit
@@ -8,6 +9,11 @@ import amodsim.statistics.model.service as service
 from typing import Tuple, List
 from pandas import DataFrame
 from amodsim.statistics.model.vehicle_state import VehicleState
+
+FONT_SIZE = 18
+
+matplotlib.rcParams['text.usetex'] = True
+matplotlib.rcParams.update({'font.size': FONT_SIZE})
 
 
 def get_data_for_dir_current(experiment_dir: str, edge_data: DataFrame) -> Tuple[int, float]:
@@ -41,7 +47,7 @@ def get_data_for_dir(experiment_dir: str, edge_data: DataFrame) -> Tuple[int, fl
 
 def plot_data_for_window(axis, edge_data: DataFrame, dir_cap_1: str, dir_ih: str, dir_vga: str, dir_vga_limited: str):
 	labels = ['Current State', 'No Ridesharing', 'IH', 'VGA', 'VGA Limited']
-	label_offsets = [(0, 30), (-30, -40), (30, 30), (-0, 30), (30, -40)]
+	label_offsets = [(0, 30), (-30, -40), (30, 0), (-0, 30), (30, -40)]
 	distances = []
 	delays = []
 	cur_state = True
@@ -91,7 +97,7 @@ axis1.set_title("a) Peak")
 axis1.set_xlabel(r"Total Distance [km $\cdot 10^3$]")
 axis1.set_ylabel("Avg. Delay [s]")
 axis2.set_title("b) Off-peak")
-axis2.set_xlabel("Total Distance [$km $\cdot 10^3$]")
+axis2.set_xlabel("Total Distance [km $\cdot 10^3$]")
 axis2.tick_params(
     axis='y',          # changes apply to the x-axis
     which='both',      # both major and minor ticks are affected

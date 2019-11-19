@@ -24,6 +24,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.ticker.PeriodicTicker;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.ticker.Routine;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
@@ -40,6 +41,8 @@ import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionCurrentPosition;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
@@ -82,6 +85,8 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	
 	private final Map<Integer,PlanComputationRequest> requestsMapByDemandAgents;
 	
+	private final PositionUtil positionUtil;
+	
 	
 	private List<PlanComputationRequest> newRequests;
 	
@@ -103,11 +108,12 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	public RidesharingDispatcher(OnDemandvehicleStationStorage onDemandvehicleStationStorage, 
 			TypedSimulation eventProcessor, AmodsimConfig config, DARPSolver solver, PeriodicTicker ticker,
 			DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory, 
-			TimeProvider timeProvider) {
+			TimeProvider timeProvider, PositionUtil positionUtil) {
 		super(onDemandvehicleStationStorage, eventProcessor, config);
 		this.timeProvider = timeProvider;
 		this.solver = solver;
 		this.requestFactory = requestFactory;
+		this.positionUtil = positionUtil;
 		newRequests = new ArrayList<>();
 		waitingRequests = new LinkedHashSet<>();
 		darpSolverComputationalTimes = new ArrayList();
@@ -175,6 +181,56 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 			RideSharingOnDemandVehicle vehicle = entry.getKey();
 			DriverPlan plan = entry.getValue();
 			vehicle.replan(plan);
+		}
+		
+		// printing nice plans
+		if(true){
+			for(Entry<RideSharingOnDemandVehicle,DriverPlan> entry: newPlans.entrySet()){
+				RideSharingOnDemandVehicle vehicle = entry.getKey();
+				DriverPlan plan = entry.getValue();
+				
+				int pickupCount = 0;
+				int dropoffCount = 0;
+				Set<SimulationNode> positions = new HashSet<>();
+				boolean positionOverlaps = false;
+				
+				for(PlanAction planAction: plan){
+					if(positions.contains(planAction.getPosition())){
+						positionOverlaps = true;
+						break;
+					}
+					positions.add(planAction.getPosition());
+					if(planAction instanceof PlanActionPickup){
+						pickupCount++;
+					}
+					else if(planAction instanceof  PlanActionDropoff){
+						dropoffCount++;
+					}
+				}
+				
+				if(!positionOverlaps && pickupCount > 1 && dropoffCount > 1){
+					boolean nearby = false;
+				
+					for(SimulationNode node: positions){
+						for(SimulationNode node2: positions){
+							if(node != node2){
+								int distance = (int) Math.round(positionUtil.getPosition(node).distance(
+										positionUtil.getPosition(node2)));
+								if(distance <  500){
+									nearby = true;
+									break;
+								}
+							}
+							if(nearby){
+								break;
+							}
+						}
+					}
+					if(!nearby){
+						System.out.println(vehicle.getId() + ": " + plan.toString());
+					}
+				}
+			}
 		}
 
 		// reseting new request for next iteration

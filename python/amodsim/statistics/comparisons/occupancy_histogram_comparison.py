@@ -2,6 +2,7 @@ from amodsim.init import config
 
 import numpy as np
 import pandas as pd
+import matplotlib
 import matplotlib.pyplot as plt
 import datetime
 import roadmaptools.inout
@@ -9,6 +10,11 @@ import amodsim.statistics.model.occupancy as occupancy
 import amodsim.statistics.comparisons.common as common
 
 from matplotlib.ticker import FuncFormatter
+
+FONT_SIZE = 16
+
+matplotlib.rcParams['text.usetex'] = True
+matplotlib.rcParams.update({'font.size': FONT_SIZE})
 
 
 def format_time(minutes: int, position) -> str:
@@ -19,6 +25,7 @@ def format_time(minutes: int, position) -> str:
 def configure_subplot(axis):
 	axis.yaxis.set_ticks(np.arange(0, 1020001, 120000))
 	axis.yaxis.set_major_formatter(FuncFormatter(format_time))
+	axis.xaxis.set_ticks(np.arange(0, 6, 1))
 
 
 data_1 = occupancy.load(config.comparison.experiment_1_dir)
@@ -120,7 +127,7 @@ configure_subplot(axis2)
 for patch_set, hatch in zip(patches, common.hatches):
 	plt.setp(patch_set, hatch=hatch)
 
-plt.legend(loc='upper right')
+plt.legend(loc='upper right', labelspacing=0.01)
 
 plt.savefig(config.images.occupancy_histogram_comparison_combined, bbox_inches='tight', transparent=True, pad_inches=0.0, dpi=fig.dpi)
 

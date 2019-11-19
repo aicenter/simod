@@ -1,6 +1,7 @@
 
 from amodsim.init import config
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import amodsim.statistics.model.traffic_load as traffic_load
@@ -10,6 +11,9 @@ import amodsim.statistics.trafic_density_map as trafic_density_map
 from roadmaptools.printer import print_info
 from amodsim.statistics.model.vehicle_state import VehicleState
 
+FONT_SIZE = 14
+
+matplotlib.rcParams.update({'font.size': FONT_SIZE})
 
 edgePairs = edges.load_edge_pairs()
 

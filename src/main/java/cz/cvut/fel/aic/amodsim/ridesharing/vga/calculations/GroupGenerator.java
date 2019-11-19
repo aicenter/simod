@@ -282,7 +282,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 									vehicle, newGroupToCheck, startTime, false);
 						}
 						
-						if(exportGroupData && currentGroupSize >= 2){
+						if(exportGroupData && currentGroupSize >= 3){
 							vgaSolverProvider.get().saveGroupData(vehicle, startTime, newGroupToCheck, plan != null);
 						}
 

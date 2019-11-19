@@ -9,6 +9,11 @@ import amodsim.statistics.comparisons.common as common
 
 from matplotlib.ticker import FuncFormatter
 
+FONT_SIZE = 18
+
+matplotlib.rcParams['text.usetex'] = True
+matplotlib.rcParams.update({'font.size': FONT_SIZE})
+
 
 def to_percent(y, position):
 	# Ignore the passed in position. This has the effect of scaling the default
@@ -25,6 +30,7 @@ def to_percent(y, position):
 def configure_subplot(axis):
 	# axis.yaxis.set_major_formatter(FuncFormatter(to_percent))
 	axis.set_xlabel("delay [min]")
+	axis.xaxis.set_ticks(np.arange(0, 6, 1))
 
 
 service_1 = service.load_dataframe(config.comparison.experiment_1_dir)
@@ -110,7 +116,7 @@ _n, _bins, patches = axis2.hist(delays_list[4:8], bins,
 for patch_set, hatch in zip(patches, common.hatches[1:]):
 	plt.setp(patch_set, hatch=hatch)
 
-plt.legend(loc='upper right')
+plt.legend(loc='upper right', labelspacing=0.01)
 
 plt.savefig(config.images.delay_histogram_comparison_combined, bbox_inches='tight', transparent=True, pad_inches=0.0, dpi=fig.dpi)
 

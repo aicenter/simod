@@ -24,9 +24,16 @@ import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VehicleLayer;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioUtils;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.util.List;
+import javax.vecmath.Point2d;
 
 /**
  *
@@ -35,17 +42,15 @@ import java.awt.Color;
 @Singleton
 public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>{
 	
-	private static final int STATIC_WIDTH = 7;
-	
-	private static final int STATIC_LENGTH = 10;
+	private static final int STATIC_WIDTH = 24;
 	
 //	private static final Color NORMAL_COLOR = new Color(5, 89, 12);
 	
 	private static final Color REBALANCING_COLOR = new Color(88, 196, 178);
 	
-	private static final Color NORMAL_COLOR = new Color(76, 82, 156);
+	public static final Color NORMAL_COLOR = new Color(76, 82, 156);
 
-	private static final Color HIGHLIGHTED_COLOR = new Color(0, 19, 255);
+	public static final Color HIGHLIGHTED_COLOR = new Color(0, 19, 255);
 	
 
 	private static String highlightedVehicleID;
@@ -88,7 +93,7 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
 
 	@Override
 	protected float getVehicleStaticWidth(PhysicalTransportVehicle vehicle) {
-		return 24;
+		return STATIC_WIDTH;
 	}
 
 	@Override
@@ -99,7 +104,7 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
 	@Override
 	protected Color getEntityDrawColor(PhysicalTransportVehicle vehicle) {
 		OnDemandVehicle onDemandVehicle = (OnDemandVehicle) vehicle.getDriver();
-		if (onDemandVehicle.getVehicleId().equals(this.highlightedVehicleID) || vehicle.isHighlited()) {
+		if (onDemandVehicle.getVehicleId().equals(OnDemandVehicleLayer.highlightedVehicleID) || vehicle.isHighlited()) {
  			return HIGHLIGHTED_COLOR;
 		}
 
@@ -114,12 +119,12 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
 	
 	
 	public void setHighlightedID(String id) {
-		this.highlightedVehicleID = id + " - vehicle";
+		OnDemandVehicleLayer.highlightedVehicleID = id + " - vehicle";
 	}
 
 	@Override
 	public boolean checkIfTransformSize(PhysicalTransportVehicle representative) {
-		if(representative.isHighlited()){
+		if(representative.getId().equals(OnDemandVehicleLayer.highlightedVehicleID) || representative.isHighlited()){
 			return false;
 		}
 		else{

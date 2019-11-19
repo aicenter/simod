@@ -1,10 +1,12 @@
 from amodsim.init import config
 
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import roadmaptools.inout
 import roadmaptools.plotting
 import roadmaptools.utm
+import matplotlib
 import matplotlib.font_manager as fm
 import amodsim.demand
 
@@ -18,6 +20,8 @@ MAX_LAT = 5_560_000
 MIN_LON = 445_000
 MAX_LON = 480_000
 HEATMAP_RESOLUTION = 200
+
+matplotlib.rcParams.update({'font.size': 18})
 
 
 # DEMAND
@@ -56,7 +60,7 @@ heatmap = map_axis.matshow(map, extent=(MIN_LON, MAX_LON, MIN_LAT, MAX_LAT), ori
 			 norm=LogNorm(vmin=1, vmax=map.max()), alpha=0.8)
 
 
-plt.colorbar(heatmap, orientation='horizontal', fraction=0.14286, pad=0.01)
+plt.colorbar(heatmap, orientation='horizontal', fraction=0.048, pad=0.01)
 
 # scale bar
 scalebar = AnchoredSizeBar(map_axis.transData,
@@ -66,7 +70,7 @@ scalebar = AnchoredSizeBar(map_axis.transData,
                            frameon=True,
                            size_vertical=1,
 							borderpad=0.5,
-                           fontproperties=fm.FontProperties(size=10))
+                           fontproperties=fm.FontProperties(size=18))
 map_axis.add_artist(scalebar)
 
 # remove ticks
@@ -83,7 +87,8 @@ map_axis.set_ylim(MIN_LAT, MAX_LAT)
 
 plt.tight_layout(h_pad=1)
 
-plt.savefig(config.images.demand_heatmap, bbox_inches='tight', transparent=True, pad_inches=0.0)
+#matplotlib.rcParams['lines.linewidth'] = 0.1
+plt.savefig(config.images.demand_heatmap, bbox_inches='tight', transparent=True, pad_inches=0.0, dpi=fig.dpi)
 
 
 # STATION POSITIONS
@@ -136,7 +141,7 @@ scalebar = AnchoredSizeBar(axis.transData,
                            frameon=True,
                            size_vertical=1,
 							borderpad=0.5,
-                           fontproperties=fm.FontProperties(size=10))
+                           fontproperties=fm.FontProperties(size=18))
 axis.add_artist(scalebar)
 
 axis.set_xlim(MIN_LON, MAX_LON)

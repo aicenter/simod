@@ -34,6 +34,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehi
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
+import cz.cvut.fel.aic.amodsim.entity.deliveryPackage.DeliveryPackageLoad;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionCurrentPosition;
@@ -59,11 +60,12 @@ import java.util.logging.Logger;
 public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
 	private final VisioPositionUtil positionUtil;
-	
+        
 	private DriverPlan currentPlan;
 	
 	private PlanAction currentTask;
-
+        
+        private DeliveryPackageLoad currentPackageLoad;
 
 	public DriverPlan getCurrentPlan() {
 		currentPlan.updateCurrentPosition(getPosition());
@@ -198,6 +200,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		if(currentPlan.getLength() == 1){
 			currentTask = null;
 			if(state != OnDemandVehicleState.WAITING){
+                                // TODO : Deliver nearest package
 				if(onDemandVehicleStationsCentral.stationsOn()){
 					driveToNearestStation();
 				}
@@ -308,5 +311,17 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		}
 		
 	}
+        
+        public void loadNewPackages(DeliveryPackageLoad newPackageLoad) {
+                currentPackageLoad = newPackageLoad;
+        }
+
+        public void unloadPackages() {
+                currentPackageLoad.clear();
+        }
+
+        public DeliveryPackageLoad getCurrentPackageLoad() {
+                return currentPackageLoad;
+        }
 
 }

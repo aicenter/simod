@@ -34,6 +34,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehi
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
+import cz.cvut.fel.aic.amodsim.entity.deliveryPackage.DeliveryPackage;
 import cz.cvut.fel.aic.amodsim.entity.deliveryPackage.DeliveryPackageLoad;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
@@ -44,10 +45,12 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.statistics.PickupEventContent;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 import cz.cvut.fel.aic.amodsim.visio.PlanLayerTrip;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -57,262 +60,253 @@ import java.util.logging.Logger;
  *
  * @author fido
  */
-public class RideSharingOnDemandVehicle extends OnDemandVehicle{
+public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 
-	private final VisioPositionUtil positionUtil;
+        private final VisioPositionUtil positionUtil;
+
+        private final TravelTimeProvider travelTimeProvider;
         
-	private DriverPlan currentPlan;
-	
-	private PlanAction currentTask;
-        
+        private DriverPlan currentPlan;
+
+        private PlanAction currentTask;
+
         private DeliveryPackageLoad currentPackageLoad;
 
-	public DriverPlan getCurrentPlan() {
-		currentPlan.updateCurrentPosition(getPosition());
-		return currentPlan;
-	}
-	
-	
-	
-	
-	@Inject
-	public RideSharingOnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
-			TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
-			PhysicalVehicleDriveFactory driveActivityFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor, 
-			StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, 
-			@Assisted String vehicleId, @Assisted SimulationNode startPosition, @Assisted DeliveryPackageLoad packageLoad) {
-		super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
-				driveActivityFactory, positionUtil, eventProcessor, timeProvider, rebalancingIdGenerator, config, 
-				vehicleId, startPosition);
-		this.positionUtil = positionUtil;
+        public DriverPlan getCurrentPlan() {
+                currentPlan.updateCurrentPosition(getPosition());
+                return currentPlan;
+        }
+
+        @Inject
+        public RideSharingOnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage,
+                TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral,
+                PhysicalVehicleDriveFactory driveActivityFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor,
+                StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, TravelTimeProvider travelTimeProvider,
+                @Assisted String vehicleId, @Assisted SimulationNode startPosition, @Assisted DeliveryPackageLoad packageLoad) {
+                super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
+                        driveActivityFactory, positionUtil, eventProcessor, timeProvider, rebalancingIdGenerator, config,
+                        vehicleId, startPosition);
+                this.travelTimeProvider = travelTimeProvider;
+                this.positionUtil = positionUtil;
                 this.currentPackageLoad = packageLoad;
-		
+
 //		empty plan
-		LinkedList<PlanAction> plan = new LinkedList<>();
-		plan.add(new PlanActionCurrentPosition(getPosition()));
-		currentPlan = new DriverPlan(plan, 0, 0);
-	}
+                LinkedList<PlanAction> plan = new LinkedList<>();
+                plan.add(new PlanActionCurrentPosition(getPosition()));
+                currentPlan = new DriverPlan(plan, 0, 0);
+        }
 
-	@Override
-	public void handleEvent(Event event) {
-		
-	}
-	
-	public int getOnBoardCount(){
-		return vehicle.getTransportedEntities().size();
-	}
-	
-	public int getFreeCapacity(){
-		return vehicle.getCapacity() - vehicle.getTransportedEntities().size();
-	}
-	
-	public void replan(DriverPlan plan){
-		currentPlan = plan;
-		// The vehicle now waits, we have to start moving.
-		if(state == OnDemandVehicleState.WAITING && plan.getLength() > 1){
-			driveToNextTask();
-		}
-		// SPECIAL CASES - we don't have to do anything and let the current Drive action continue.
-		
-		else if(
-			// The first action in the new plan is the same as the current action 
-			(plan.getLength() > 1 && currentTask != null && currentTask.equals(plan.getNextTask()))
-			// The new plan is empty and the vehicle is waiting or driving to station
-			|| (plan.getLength() == 1 && (state == OnDemandVehicleState.WAITING || state == OnDemandVehicleState.DRIVING_TO_STATION))){
+        @Override
+        public void handleEvent(Event event) {
 
-		}
-		// We end the current Drive action and start the execution of the new plan.
-		else{
-			((PhysicalVehicleDrive) getCurrentTopLevelActivity()).end();
-		}
-		
-	}
+        }
 
-	@Override
-	protected void driveToDemandStartLocation() {
-		// safety check that prevents request from being picked up twice because of the delayed pickup event
-		if(((PlanActionPickup) currentTask).request.isOnboard()){
-			currentPlan.taskCompleted();
-			driveToNextTask();
-		}
-		state = OnDemandVehicleState.DRIVING_TO_START_LOCATION;
-		if(getPosition().id == currentTask.getPosition().id){
-			pickupAndContinue();
-		}
-		else{
-			currentTrip = tripsUtil.createTrip(getPosition(), currentTask.getPosition(), vehicle);
-			DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
-			driveFactory.runActivity(this, vehicle, currentTrip);
-		}
-	}
+        public int getOnBoardCount() {
+                return vehicle.getTransportedEntities().size();
+        }
 
-	@Override
-	protected void driveToTargetLocation() {
-		state = OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION;
-		if(getPosition().id == currentTask.getPosition().id){
-			dropOffAndContinue();
-		}
-		else{
-			currentTrip = tripsUtil.createTrip(getPosition(), currentTask.getPosition(), vehicle);
-			driveFactory.runActivity(this, vehicle, currentTrip);
-		}
-	}
+        public int getFreeCapacity() {
+                return vehicle.getCapacity() - vehicle.getTransportedEntities().size();
+        }
 
-	@Override
-	protected void driveToNearestStation() {
-		state = OnDemandVehicleState.DRIVING_TO_STATION;
-		targetStation = onDemandVehicleStationsCentral.getNearestStation(getPosition());
-		
-		if(getPosition().equals(targetStation.getPosition())){
-			finishDrivingToStation();
-		}
-		else{
-			currentTrip = tripsUtil.createTrip(getPosition(), targetStation.getPosition(), vehicle);
-			driveFactory.runActivity(this, vehicle, currentTrip);
-		}
-	}
+        public void replan(DriverPlan plan) {
+                currentPlan = plan;
+                // The vehicle now waits, we have to start moving.
+                if (state == OnDemandVehicleState.WAITING && plan.getLength() > 1) {
+                        driveToNextTask();
+                } // SPECIAL CASES - we don't have to do anything and let the current Drive action continue.
+                else if ( // The first action in the new plan is the same as the current action 
+                        (plan.getLength() > 1 && currentTask != null && currentTask.equals(plan.getNextTask()))
+                        // The new plan is empty and the vehicle is waiting or driving to station
+                        || (plan.getLength() == 1 && (state == OnDemandVehicleState.WAITING || state == OnDemandVehicleState.DRIVING_TO_STATION))) {
 
-	@Override
-	public void finishedDriving(boolean wasStopped) {
-		logTraveledDistance(wasStopped);
-		
-		if(wasStopped){
-			driveToNextTask();
-		}
-		else{
-			switch(state){
-				case DRIVING_TO_START_LOCATION:
-					pickupAndContinue();
-					break;
-				case DRIVING_TO_TARGET_LOCATION:
-					dropOffAndContinue();
-					break;
-				case DRIVING_TO_STATION:
-					finishDrivingToStation();
-					break;
-				case REBALANCING:
-					finishRebalancing();
-					break;
-			}
-		}
-	}
+                } // We end the current Drive action and start the execution of the new plan.
+                else {
+                        ((PhysicalVehicleDrive) getCurrentTopLevelActivity()).end();
+                }
 
-	private void driveToNextTask() {
-		if(currentPlan.getLength() == 1){
-			currentTask = null;
-			if(state != OnDemandVehicleState.WAITING){
-                                // TODO : Deliver nearest package
-				if(onDemandVehicleStationsCentral.stationsOn()){
-					driveToNearestStation();
-				}
-				else{
-					park();
-				}
-			}
-		}
-		else{
-			currentTask = currentPlan.getNextTask();
-			if(parkedIn != null){
-				parkedIn.releaseVehicle(this);
-				leavingStationEvent();
-			}
-			if(currentTask instanceof PlanActionPickup){
-				driveToDemandStartLocation();
-			}
-			else{
-				driveToTargetLocation();
-			}
-		}
-	}
+        }
 
-	private void pickupAndContinue() {
-		try {
-			DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
-			if(demandAgent.isDropped()){
-				throw new Exception(
-					String.format("Demand agent %s cannot be picked up, he is already dropped!", demandAgent));
-			}
-			demandAgent.tripStarted(this);
-			vehicle.pickUp(demandAgent);
+        @Override
+        protected void driveToDemandStartLocation() {
+                // safety check that prevents request from being picked up twice because of the delayed pickup event
+                if (((PlanActionPickup) currentTask).request.isOnboard()) {
+                        currentPlan.taskCompleted();
+                        driveToNextTask();
+                }
+                state = OnDemandVehicleState.DRIVING_TO_START_LOCATION;
+                if (getPosition().id == currentTask.getPosition().id) {
+                        pickupAndContinue();
+                } else {
+                        currentTrip = tripsUtil.createTrip(getPosition(), currentTask.getPosition(), vehicle);
+                        DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
+                        driveFactory.runActivity(this, vehicle, currentTrip);
+                }
+        }
 
-			// statistics TODO demand tirp?
-	//		demandTrip = tripsUtil.createTrip(currentTask.getDemandAgent().getPosition().id,
-	//				currentTask.getLocation().id, vehicle);
-			// demand trip length 0 - need to find out where the statistic is used, does it make sense with rebalancing?
-			eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
-					new PickupEventContent(timeProvider.getCurrentSimTime(), 
-							demandAgent.getSimpleId(), getId(), 0));
-			currentPlan.taskCompleted();
-			driveToNextTask();
+        @Override
+        protected void driveToTargetLocation() {
+                state = OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION;
+                if (getPosition().id == currentTask.getPosition().id) {
+                        dropOffAndContinue();
+                } else {
+                        currentTrip = tripsUtil.createTrip(getPosition(), currentTask.getPosition(), vehicle);
+                        driveFactory.runActivity(this, vehicle, currentTrip);
+                }
+        }
 
-		} catch (Exception ex) {
-			Logger.getLogger(RideSharingOnDemandVehicle.class.getName()).log(Level.SEVERE, null, ex);
-		}
-	}
+        @Override
+        protected void driveToNearestStation() {
+                state = OnDemandVehicleState.DRIVING_TO_STATION;
+                targetStation = onDemandVehicleStationsCentral.getNearestStation(getPosition());
 
-	private void dropOffAndContinue() {
-		DemandAgent demandAgent = ((PlanActionDropoff) currentTask).getRequest().getDemandAgent();
-		demandAgent.tripEnded();
-		vehicle.dropOff(demandAgent);
-		
-		// statistics
-		eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
-				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-						demandAgent.getSimpleId(), getId()));
-		currentPlan.taskCompleted();
-		driveToNextTask();
-	}
+                if (getPosition().equals(targetStation.getPosition())) {
+                        finishDrivingToStation();
+                } else {
+                        currentTrip = tripsUtil.createTrip(getPosition(), targetStation.getPosition(), vehicle);
+                        driveFactory.runActivity(this, vehicle, currentTrip);
+                }
+        }
 
-	@Override
-	protected void leavingStationEvent() {
-		eventProcessor.addEvent(OnDemandVehicleEvent.LEAVE_STATION, null, null, 
-				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-						((PlanRequestAction) currentTask).getRequest().getDemandAgent().getSimpleId(), getId()));
-	}
-	
-	@Override
-	public VehicleTrip getCurrentTripPlan() {
-		return currentTrip;
-	}
+        @Override
+        public void finishedDriving(boolean wasStopped) {
+                logTraveledDistance(wasStopped);
 
-	public boolean hasFreeCapacity() {
-		return getFreeCapacity() > 0;
-	}
-	
-	public List<PlanLayerTrip> getPlanForRendering(){
-		List<PlanLayerTrip> trips = new ArrayList<>(currentPlan.getLength());
-		SimulationNode lastPosition = getPosition();
-		for(PlanAction action: currentPlan){
-			if(action instanceof PlanRequestAction && lastPosition != action.getPosition()){
-				VehicleTrip<SimulationNode> newTrip
-						= tripsUtil.createTrip(lastPosition, action.getPosition(), vehicle);
-				trips.add(new PlanLayerTrip((PlanRequestAction) action, newTrip.getLocations()));
-			}
-			lastPosition = action.getPosition();
-		}
-		return trips;
-	}
+                if (wasStopped) {
+                        driveToNextTask();
+                } else {
+                        switch (state) {
+                                case DRIVING_TO_START_LOCATION:
+                                        pickupAndContinue();
+                                        break;
+                                case DRIVING_TO_TARGET_LOCATION:
+                                        dropOffAndContinue();
+                                        break;
+                                case DRIVING_TO_STATION:
+                                        finishDrivingToStation();
+                                        break;
+                                case REBALANCING:
+                                        finishRebalancing();
+                                        break;
+                        }
+                }
+        }
 
-	private void logTraveledDistance(boolean wasStopped) {
-		int length = wasStopped ? positionUtil.getTripLengthInMeters(currentTrip, getPosition())
-				: positionUtil.getTripLengthInMeters(currentTrip);
-		
-		if(getOnBoardCount() > 0){
-			metersWithPassenger += length;
-		}
-		else{
-			switch(state){
-				case DRIVING_TO_START_LOCATION:
-					metersToStartLocation += length;
-					break;
-				case DRIVING_TO_STATION:
-					metersToStation += length;
-					break;
-			}
-		}
-		
-	}
-        
+        private void driveToNextTask() {
+                if (currentPlan.getLength() == 1) {
+                        currentTask = null;
+                        if (state != OnDemandVehicleState.WAITING) {
+                                if (currentPackageLoad.getSize() > 0) {
+                                        // TODO deliver package
+
+                                }
+                                if (onDemandVehicleStationsCentral.stationsOn()) {
+                                        driveToNearestStation();
+                                } else {
+                                        park();
+                                }
+                        }
+                } else {
+                        currentTask = currentPlan.getNextTask();
+                        if (parkedIn != null) {
+                                parkedIn.releaseVehicle(this);
+                                leavingStationEvent();
+                        }
+                        if (currentTask instanceof PlanActionPickup) {
+                                driveToDemandStartLocation();
+                        } else {
+                                driveToTargetLocation();
+                        }
+                }
+        }
+
+        private void pickupAndContinue() {
+                try {
+                        DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
+                        if (demandAgent.isDropped()) {
+                                throw new Exception(
+                                        String.format("Demand agent %s cannot be picked up, he is already dropped!", demandAgent));
+                        }
+                        demandAgent.tripStarted(this);
+                        vehicle.pickUp(demandAgent);
+
+                        // statistics TODO demand tirp?
+                        //		demandTrip = tripsUtil.createTrip(currentTask.getDemandAgent().getPosition().id,
+                        //				currentTask.getLocation().id, vehicle);
+                        // demand trip length 0 - need to find out where the statistic is used, does it make sense with rebalancing?
+                        eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null,
+                                new PickupEventContent(timeProvider.getCurrentSimTime(),
+                                        demandAgent.getSimpleId(), getId(), 0));
+                        currentPlan.taskCompleted();
+                        driveToNextTask();
+
+                } catch (Exception ex) {
+                        Logger.getLogger(RideSharingOnDemandVehicle.class.getName()).log(Level.SEVERE, null, ex);
+                }
+        }
+
+        private void dropOffAndContinue() {
+                DemandAgent demandAgent = ((PlanActionDropoff) currentTask).getRequest().getDemandAgent();
+                demandAgent.tripEnded();
+                vehicle.dropOff(demandAgent);
+
+                // statistics
+                eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null,
+                        new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(),
+                                demandAgent.getSimpleId(), getId()));
+                currentPlan.taskCompleted();
+                driveToNextTask();
+        }
+
+        @Override
+        protected void leavingStationEvent() {
+                eventProcessor.addEvent(OnDemandVehicleEvent.LEAVE_STATION, null, null,
+                        new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(),
+                                ((PlanRequestAction) currentTask).getRequest().getDemandAgent().getSimpleId(), getId()));
+        }
+
+        @Override
+        public VehicleTrip getCurrentTripPlan() {
+                return currentTrip;
+        }
+
+        public boolean hasFreeCapacity() {
+                return getFreeCapacity() > 0;
+        }
+
+        public List<PlanLayerTrip> getPlanForRendering() {
+                List<PlanLayerTrip> trips = new ArrayList<>(currentPlan.getLength());
+                SimulationNode lastPosition = getPosition();
+                for (PlanAction action : currentPlan) {
+                        if (action instanceof PlanRequestAction && lastPosition != action.getPosition()) {
+                                VehicleTrip<SimulationNode> newTrip
+                                        = tripsUtil.createTrip(lastPosition, action.getPosition(), vehicle);
+                                trips.add(new PlanLayerTrip((PlanRequestAction) action, newTrip.getLocations()));
+                        }
+                        lastPosition = action.getPosition();
+                }
+                return trips;
+        }
+
+        private void logTraveledDistance(boolean wasStopped) {
+                int length = wasStopped ? positionUtil.getTripLengthInMeters(currentTrip, getPosition())
+                        : positionUtil.getTripLengthInMeters(currentTrip);
+
+                if (getOnBoardCount() > 0) {
+                        metersWithPassenger += length;
+                } else {
+                        switch (state) {
+                                case DRIVING_TO_START_LOCATION:
+                                        metersToStartLocation += length;
+                                        break;
+                                case DRIVING_TO_STATION:
+                                        metersToStation += length;
+                                        break;
+                        }
+                }
+
+        }
+
         public void loadNewPackages(DeliveryPackageLoad newPackageLoad) {
                 currentPackageLoad = newPackageLoad;
         }
@@ -325,4 +319,38 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
                 return currentPackageLoad;
         }
 
+        private void deliverPackage() {
+                DeliveryPackage closestPackage = chooseClosestPackage();
+                currentTask = new PlanAction(closestPackage.getDestination());
+                LinkedList<PlanAction> plan = new LinkedList<>();
+                plan.add(new PlanActionCurrentPosition(getPosition()));
+                plan.add(currentTask);
+                
+                // TODO: Find correct cost and sitance
+                currentPlan = new DriverPlan(plan, 0, 0);
+                this.state = OnDemandVehicleState.DELIVERING_PACKAGE;
+        }
+
+        private DeliveryPackage chooseClosestPackage() {
+                Iterator<DeliveryPackage> iterator = currentPackageLoad.iterator();
+                
+                DeliveryPackage closestPacakge = iterator.next();
+                long shortestDistance = travelTimeProvider.getTravelTime(this, this.getPosition(), closestPacakge.getDestination());
+                
+                DeliveryPackage currentPackage;
+                long currentDistance;
+                
+                while(iterator.hasNext()){
+                        currentPackage = iterator.next();
+                        currentDistance = travelTimeProvider.getTravelTime(this, this.getPosition(), currentPackage.getDestination());
+                        
+                        if(currentDistance < shortestDistance){
+                                shortestDistance = currentDistance;
+                                closestPacakge = currentPackage;
+                        }
+                }
+                
+                currentPackageLoad.remove(closestPacakge);
+                return closestPacakge;
+        }
 }

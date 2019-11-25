@@ -37,6 +37,7 @@ import cz.cvut.fel.aic.amodsim.entity.deliveryPackage.DeliveryPackageLoad;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import java.io.BufferedReader;
@@ -58,22 +59,24 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory {
 
         private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RidesharingOnDemandVehicleFactory.class);
 
+        private static final Random RANDOM = new Random();
+        
+        private final TravelTimeProvider travelTimeProvider;
+        
         private ArrayList<SimulationNode> packageDestinations;
 
-        private final NearestElementUtils nearestElementUtils;
-
-        private Random randomGenerator;
+        private final NearestElementUtils nearestElementUtils;        
 
         @Inject
         public RidesharingOnDemandVehicleFactory(PhysicalTransportVehicleStorage vehicleStorage, TripsUtil tripsUtil,
                 StationsDispatcher onDemandVehicleStationsCentral,
                 PhysicalVehicleDriveFactory driveActivityFactory, VisioPositionUtil positionUtil,
                 EventProcessor eventProcessor, StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator,
-                AmodsimConfig config, NearestElementUtils nearestElementUtils) {
+                AmodsimConfig config, NearestElementUtils nearestElementUtils, TravelTimeProvider travelTimeProvider) {
                 super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral, driveActivityFactory, positionUtil,
                         eventProcessor, timeProvider, rebalancingIdGenerator, config);
                 this.nearestElementUtils = nearestElementUtils;
-                this.randomGenerator = new Random();
+                this.travelTimeProvider = travelTimeProvider;
                 loadPackageDestinations(new File(config.packagePath));
         }
 
@@ -82,11 +85,11 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory {
                 DeliveryPackageLoad packageLoad = new DeliveryPackageLoad(assignPackages());
                 return new RideSharingOnDemandVehicle(vehicleStorage, tripsUtil,
                         onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, eventProcessor, timeProvider,
-                        rebalancingIdGenerator, config, vehicleId, startPosition, packageLoad);
+                        rebalancingIdGenerator, config, travelTimeProvider, vehicleId, startPosition, packageLoad);
         }
 
         private void loadPackageDestinations(File inputFile) {
-                this.packageDestinations = new ArrayList<SimulationNode>();
+                this.packageDestinations = new ArrayList<>();
                 try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
                         String line;
                         while ((line = br.readLine()) != null) {
@@ -102,7 +105,7 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory {
         }
 
         private List<DeliveryPackage> assignPackages() {
-                List<DeliveryPackage> packages = new LinkedList<DeliveryPackage>();
+                List<DeliveryPackage> packages = new LinkedList<>();
                 for (int i = 0; i < 10; i++) {
                         packages.add(getRandomPackage());
                 }
@@ -111,7 +114,7 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory {
         }
 
         private DeliveryPackage getRandomPackage() {
-                int index = randomGenerator.nextInt(packageDestinations.size());
+                int index = RANDOM.nextInt(packageDestinations.size());
                 return new DeliveryPackage(null, 0, packageDestinations.get(index));
         }
 }

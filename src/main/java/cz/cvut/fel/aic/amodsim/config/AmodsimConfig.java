@@ -27,6 +27,8 @@ public class AmodsimConfig implements GeneratedConfig {
   public Integer startTime;
 
   public String tripsPath;
+  
+  public String packagePath;
 
   public String amodsimExperimentDir;
 
@@ -72,6 +74,7 @@ public class AmodsimConfig implements GeneratedConfig {
     this.stationPositionFilepath = (String) amodsimConfig.get("station_position_filepath");
     this.rebalancing = new Rebalancing((Map) amodsimConfig.get("rebalancing"));
     this.statistics = new Statistics((Map) amodsimConfig.get("statistics"));
+    this.packagePath = (String) amodsimConfig.get("package_file_path");
     return this;
   }
 }

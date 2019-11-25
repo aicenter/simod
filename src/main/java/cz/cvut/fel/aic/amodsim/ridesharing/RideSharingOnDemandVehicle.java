@@ -80,11 +80,12 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
 			PhysicalVehicleDriveFactory driveActivityFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor, 
 			StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, 
-			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
+			@Assisted String vehicleId, @Assisted SimulationNode startPosition, @Assisted DeliveryPackageLoad packageLoad) {
 		super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
 				driveActivityFactory, positionUtil, eventProcessor, timeProvider, rebalancingIdGenerator, config, 
 				vehicleId, startPosition);
 		this.positionUtil = positionUtil;
+                this.currentPackageLoad = packageLoad;
 		
 //		empty plan
 		LinkedList<PlanAction> plan = new LinkedList<>();

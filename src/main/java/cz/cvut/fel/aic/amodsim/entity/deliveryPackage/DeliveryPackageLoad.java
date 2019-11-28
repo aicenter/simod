@@ -32,5 +32,9 @@ public class DeliveryPackageLoad implements Iterable<DeliveryPackage> {
         public void clear() {
                 load.clear();
         }
+        
+        public void remove(DeliveryPackage toRemove){
+                load.remove(toRemove);
+        }
 
 }

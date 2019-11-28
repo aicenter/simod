@@ -25,5 +25,9 @@ public class DeliveryPackage {
                 this.weight = weight;
                 this.dimensions = dimensions;
         }
+        
+        public SimulationNode getDestination(){
+                return destination;
+        }
 
 }

@@ -71,6 +71,8 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
         private PlanAction currentTask;
 
         private DeliveryPackageLoad currentPackageLoad;
+        
+        private DeliveryPackage packageToDeliver;
 
         public DriverPlan getCurrentPlan() {
                 currentPlan.updateCurrentPosition(getPosition());
@@ -89,6 +91,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
                 this.travelTimeProvider = travelTimeProvider;
                 this.positionUtil = positionUtil;
                 this.currentPackageLoad = packageLoad;
+                this.packageToDeliver = null;
 
 //		empty plan
                 LinkedList<PlanAction> plan = new LinkedList<>();
@@ -187,6 +190,9 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
                                         break;
                                 case REBALANCING:
                                         finishRebalancing();
+                                        break;
+                                case DELIVERING_PACKAGE:
+                                        unloadPackage();
                                         break;
                         }
                 }
@@ -311,8 +317,17 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
                 currentPackageLoad = newPackageLoad;
         }
 
-        public void unloadPackages() {
+        public void unloadAllPackages() {
                 currentPackageLoad.clear();
+        }
+        
+        public void unloadPackage() {
+                currentPackageLoad.remove(packageToDeliver);
+                packageToDeliver = null;
+                
+                // TODO: add statistics
+                currentPlan.taskCompleted();
+                driveToNextTask();
         }
 
         public DeliveryPackageLoad getCurrentPackageLoad() {
@@ -320,14 +335,14 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
         }
 
         private void deliverPackage() {
-                DeliveryPackage closestPackage = chooseClosestPackage();
-                currentTask = new PlanAction(closestPackage.getDestination());
+                packageToDeliver = chooseClosestPackage();
+                currentTask = new PlanAction(packageToDeliver.getDestination());
                 LinkedList<PlanAction> plan = new LinkedList<>();
                 plan.add(new PlanActionCurrentPosition(getPosition()));
                 plan.add(currentTask);
                 
-                // TODO: Find correct cost and sitance
-                currentPlan = new DriverPlan(plan, 0, 0);
+                long cost = travelTimeProvider.getTravelTime(this, this.getPosition(), packageToDeliver.getDestination());
+                currentPlan = new DriverPlan(plan, cost, (double)cost);
                 this.state = OnDemandVehicleState.DELIVERING_PACKAGE;
         }
 
@@ -350,7 +365,6 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
                         }
                 }
                 
-                currentPackageLoad.remove(closestPacakge);
                 return closestPacakge;
         }
 }

@@ -45,6 +45,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDelivery;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.statistics.PickupEventContent;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
@@ -65,13 +66,13 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
         private final VisioPositionUtil positionUtil;
 
         private final TravelTimeProvider travelTimeProvider;
-        
+
         private DriverPlan currentPlan;
 
         private PlanAction currentTask;
 
         private DeliveryPackageLoad currentPackageLoad;
-        
+
         private DeliveryPackage packageToDeliver;
 
         public DriverPlan getCurrentPlan() {
@@ -320,14 +321,19 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
         public void unloadAllPackages() {
                 currentPackageLoad.clear();
         }
-        
+
         public void unloadPackage() {
                 currentPackageLoad.remove(packageToDeliver);
                 packageToDeliver = null;
-                
+
                 // TODO: add statistics
+                System.out.println("Delivered a package:)");
                 currentPlan.taskCompleted();
                 driveToNextTask();
+        }
+
+        public PlanAction getCurrentTask() {
+                return currentTask;
         }
 
         public DeliveryPackageLoad getCurrentPackageLoad() {
@@ -336,35 +342,34 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 
         private void deliverPackage() {
                 packageToDeliver = chooseClosestPackage();
-                currentTask = new PlanAction(packageToDeliver.getDestination());
+                long cost = travelTimeProvider.getTravelTime(this, this.getPosition(), packageToDeliver.getDestination());
+                
+                currentTask = new PlanActionDelivery(packageToDeliver.getDestination(), cost);
                 LinkedList<PlanAction> plan = new LinkedList<>();
                 plan.add(new PlanActionCurrentPosition(getPosition()));
                 plan.add(currentTask);
-                
-                long cost = travelTimeProvider.getTravelTime(this, this.getPosition(), packageToDeliver.getDestination());
-                currentPlan = new DriverPlan(plan, cost, (double)cost);
+                currentPlan = new DriverPlan(plan, cost, (double) cost);
                 this.state = OnDemandVehicleState.DELIVERING_PACKAGE;
         }
 
         private DeliveryPackage chooseClosestPackage() {
                 Iterator<DeliveryPackage> iterator = currentPackageLoad.iterator();
-                
+
                 DeliveryPackage closestPacakge = iterator.next();
                 long shortestDistance = travelTimeProvider.getTravelTime(this, this.getPosition(), closestPacakge.getDestination());
-                
+
                 DeliveryPackage currentPackage;
                 long currentDistance;
-                
-                while(iterator.hasNext()){
+
+                while (iterator.hasNext()) {
                         currentPackage = iterator.next();
                         currentDistance = travelTimeProvider.getTravelTime(this, this.getPosition(), currentPackage.getDestination());
-                        
-                        if(currentDistance < shortestDistance){
+
+                        if (currentDistance < shortestDistance) {
                                 shortestDistance = currentDistance;
                                 closestPacakge = currentPackage;
                         }
                 }
-                
                 return closestPacakge;
         }
 }

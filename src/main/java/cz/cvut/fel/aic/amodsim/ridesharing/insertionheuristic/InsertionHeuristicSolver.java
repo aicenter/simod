@@ -148,7 +148,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 
 	@Override
 	public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<PlanComputationRequest> newRequests, 
-			List<PlanComputationRequest> waitingRequests) {
+			List<PlanComputationRequest> waitingRequests, List<OnDemandVehicle> vehiclesForPlanning) {
 		callCount++;
 		long startTime = System.nanoTime();
 		
@@ -177,8 +177,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 				planMap.put(vehicle, currentPlan);
 			}
 		}
-		
-		List<OnDemandVehicle> vehiclesForPlanning = getDrivingVehicles();
+                
 		int[] usedVehiclesPerStation = new int[onDemandvehicleStationStorage.size()];
 		
 		if(requests.size() > 10){
@@ -508,17 +507,6 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			benchmark.measureTime(() ->	droppedDemandsAnalyzer.debugFail(request, usedVehiclesPerStation));
 			debugFailTime += benchmark.getDurationMs();
 		}
-	}
-
-	private List<OnDemandVehicle> getDrivingVehicles() {
-		List<OnDemandVehicle> listForPlanning = new ArrayList<>();
-		for(OnDemandVehicle vehicle: vehicleStorage){
-			if(vehicle.getState() != OnDemandVehicleState.WAITING 
-					&& vehicle.getState() != OnDemandVehicleState.REBALANCING){
-				listForPlanning.add(vehicle);
-			}
-		}
-		return listForPlanning;
 	}
 	
 	private class PlanData{

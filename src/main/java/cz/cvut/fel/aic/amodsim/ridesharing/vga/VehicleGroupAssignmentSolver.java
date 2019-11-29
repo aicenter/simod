@@ -145,7 +145,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 	@Override
 	public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<PlanComputationRequest> newRequests, 
-			List<PlanComputationRequest> waitingRequests) {
+			List<PlanComputationRequest> waitingRequests, List<OnDemandVehicle> onDemandVehicles) {
 		
 		// statistic vars
 		newRequestCount = newRequests.size();
@@ -159,12 +159,10 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		logRecords = new ArrayList<>();
 		
 		//init VGA vehicles	
-		if(vgaVehicles == null){
-			initVehicles();
-		}
-
+                // TODO : improve in future to not retype on each iteration
+                initVehicles(onDemandVehicles);
 		LOGGER.info("Total vehicle count: " + vgaVehicles.size());
-		List<VGAVehicle> drivingVehicles = filterVehicles(vgaVehicles);
+		List<VGAVehicle> drivingVehicles = vgaVehicles;
 
 		// active requests update
 		for (PlanComputationRequest newRequest : newRequests) {
@@ -273,10 +271,10 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		eventProcessor.addEventHandler(this, typesToHandle);
 	}
 
-	private void initVehicles() {
+	private void initVehicles(List<OnDemandVehicle> onDemandVehicles) {
 		vgaVehicles = new LinkedList<>();
 		int i = 0;
-		for(OnDemandVehicle onDemandVehicle: vehicleStorage){
+		for(OnDemandVehicle onDemandVehicle: onDemandVehicles){
 			VGAVehicle newVGAVehicle = VGAVehicle.newInstance((RideSharingOnDemandVehicle) onDemandVehicle);
 			vgaVehicles.add(newVGAVehicle);
 			vgaVehiclesMapBydemandOnDemandVehicles.put(onDemandVehicle.getId(), newVGAVehicle);

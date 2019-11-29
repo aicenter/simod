@@ -124,6 +124,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 		// best plan
 		PlanRequestAction[] bestPlan = null;
 		int bestPlanCost = Integer.MAX_VALUE;
+		long bestPlanEndTime = 0;
 		
 		// indexes
 		int planPositionIndex = 0;
@@ -206,6 +207,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 
 							if(planCost < bestPlanCost){
 								bestPlanCost = planCost;
+								bestPlanEndTime = endTime + durationMs;
 
 								// save best plan
 								if(bestPlan == null){
@@ -333,7 +335,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 			bestPlanActions.add(bestPlan[i]);
 			
 		}
-		int endTimeS = (int) Math.round((float) endTime / 1000);
+		int endTimeS = (int) Math.round((float) bestPlanEndTime / 1000);
 		return new Plan((int) startTime, endTimeS, (int) bestPlanCost, bestPlanActions, vehicle);
 	}
 	

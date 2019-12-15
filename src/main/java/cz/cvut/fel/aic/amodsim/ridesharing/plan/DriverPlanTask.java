@@ -1,0 +1,35 @@
+package cz.cvut.fel.aic.amodsim.ridesharing.plan;
+
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
+
+/**
+ *
+ * @author F.I.D.O.
+ */
+public class DriverPlanTask {
+	public final DemandAgent demandAgent;
+	private final SimulationNode location;
+    public final OnDemandVehicleEvent taskType;
+    
+	public DemandAgent getDemandAgent() {
+		return demandAgent;
+	}
+	public SimulationNode getLocation() {
+		return location;
+	}
+	
+	public DriverPlanTask(OnDemandVehicleEvent taskType, DemandAgent demandAgent, SimulationNode location) {
+        this.taskType = taskType; 
+		this.demandAgent = demandAgent;
+		this.location = location;
+	}
+
+    public OnDemandVehicleEvent getTaskType() {
+        return taskType;
+    }
+	
+	
+	
+}

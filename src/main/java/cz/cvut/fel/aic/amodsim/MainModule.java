@@ -124,8 +124,8 @@ public class MainModule extends StandardAgentPolisModule{
 					bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);
 					break;
                 case "offline-vga":
-//                    bind(DARPSolver.class).to(OfflineVGASolver.class);
-                    bind(DARPSolver.class).to(MyOfflineVgaSolver.class);
+                    bind(DARPSolver.class).to(OfflineVGASolver.class);
+//                    bind(DARPSolver.class).to(MyOfflineVgaSolver.class);
                     bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);
                     break;
                 case "offline":

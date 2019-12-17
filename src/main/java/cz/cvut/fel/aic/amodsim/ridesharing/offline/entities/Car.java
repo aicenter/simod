@@ -24,7 +24,7 @@ public class Car {
      */
     public final int id;
     
-    int arr = 1000;
+    int arr = 10000;
     
     private int[] nodes;
     
@@ -58,6 +58,17 @@ public class Car {
         emptyTravelTime = 0;
     }
 
+    public Car(){
+        id = count++;
+        size = 0;
+        nodes = new int[arr];
+        times = new int[arr][2];
+        depoCount = 0;
+        tripTravelTime = 0;
+        emptyTravelTime = 0;
+    }
+    
+    
     public int getId() {
         return id;
     }
@@ -120,7 +131,8 @@ public class Car {
         times[size][0] = startTime;
         times[size][1] = startTime + tripDuration;
         tripTravelTime += tripDuration;
-        emptyTravelTime += (startTime - getLastNodeEndTime());
+        int previousTime = size > 0 ? getLastNodeEndTime() : 0;
+        emptyTravelTime += (startTime - previousTime);
         size++;
     }
 
@@ -136,7 +148,8 @@ public void addDepo(int node, int arrivalTime, int stayDuration){
     nodes[size] = -node;
     times[size][0] = arrivalTime;
     times[size][1] = arrivalTime + stayDuration;
-    emptyTravelTime += (arrivalTime - getLastNodeEndTime());
+    int previousTime = size > 0 ? getLastNodeEndTime() : 0;
+    emptyTravelTime += (arrivalTime - previousTime);
     size++;
 }
 

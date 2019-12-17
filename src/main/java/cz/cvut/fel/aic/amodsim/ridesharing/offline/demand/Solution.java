@@ -5,7 +5,6 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.offline.demand;
 
-import cz.cvut.fel.aic.amodsim.ridesharing.offline.demand.Demand;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.entities.Car;
@@ -14,8 +13,10 @@ import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvi
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,8 @@ public class Solution {
 
     private final int maxWaitTime;
     
+    private final int timeToStart;
+    
     private final Demand demand;
     
     private final TravelTimeProvider travelTimeProvider;
@@ -36,6 +39,8 @@ public class Solution {
     private final AmodsimConfig config;
     
     private final List<Car> cars;
+    
+    private final Map<Integer, Map<Integer,Integer>> carPlanTimeMap;
 
     /**
      *
@@ -48,8 +53,9 @@ public class Solution {
         this.travelTimeProvider = travelTimeProvider;
         this.config = config;
         maxWaitTime = config.ridesharing.maxProlongationInSeconds * 1000;
-        
+        timeToStart = config.ridesharing.offline.timeToStart;
         cars = new ArrayList<>();
+        carPlanTimeMap = new HashMap<>();
     }
            
     /**
@@ -71,26 +77,34 @@ public class Solution {
 
         Set<Integer> seenNodes = new HashSet<>();
         for(int i = 0; i < n; i++ ){
-            // the node is already used in the path
-       //      LOGGER.debug("pair: "+i + "  " + pair[i]);
             if(seenNodes.contains(i)){
-        //        LOGGER.debug("SEEN");
                 continue;
             }
             // start of new segment, which doesn't have an assigned car
             int currentNodeInd = i; 
             seenNodes.add(currentNodeInd);
-//            LOGGER.debug("demand ind "+ currentNodeInd +", demand id "+demand.indToTripId(currentNodeInd));
-         
+            LOGGER.debug("\nNode "+currentNodeInd+", next "+pair[currentNodeInd]);
             Car car = getCar(currentNodeInd);
+            //add first node
+            int time = car.getLastNodeEndTime();
+            currentNodeInd  = pair[currentNodeInd];
+            //LOGGER.debug("\nCar "+car.id +", node "+car.getLastNode()+", time "+time);
+            
             while(currentNodeInd != n){
-//                LOGGER.debug("trip node " + currentNodeInd);
+                LOGGER.debug("\nCar "+car.id +", node "+car.getLastNode()+", time "+time);
+                int travelTime = (int) travelTimeProvider.getExpectedTravelTime(demand.getEndNode(car.getLastNode()),
+                    demand.getStartNode(currentNodeInd));
+                int requestTime = demand.getStartTime(currentNodeInd) - timeToStart;
+                int startTime = Math.max(time + travelTime, requestTime);
+                LOGGER.debug("\nTravel Time "+ travelTime + ", real time "+startTime);
+                LOGGER.debug("\nNode "+currentNodeInd+", next "+pair[currentNodeInd]+ ", request time "+requestTime);
+                
                 seenNodes.add(currentNodeInd);
-                car.addTrip(currentNodeInd, demand.getStartTime(currentNodeInd), demand.getBestTime(currentNodeInd));
-          //      LOGGER.debug(currentNodeInd +" being add. timeTo="+timeToTripStart+", timeOf="+demand.getBestTime(currentNode));
+                car.addTrip(currentNodeInd, startTime, demand.getBestTime(currentNodeInd));
+                LOGGER.debug(currentNodeInd +" being add. start="+startTime+", length="+demand.getBestTime(currentNodeInd));
                 currentNodeInd  = pair[currentNodeInd];
             }
-//            LOGGER.debug("FINISHED.");
+            LOGGER.debug("FINISHED.");
         }
         int totaTrips = getAllCars().stream().map(c->c.getTripCount()).mapToInt(Integer::intValue).sum();
         LOGGER.info("Total trip nodes in paths: "+totaTrips);
@@ -121,7 +135,8 @@ public class Solution {
 //                 " at " + demand.getStartTime(trip));
             return theCar;
         }
-        theCar = new Car(demand.getStartNode(trip).id);
+        theCar = new Car();
+        theCar.addTrip(trip, demand.getStartTime(trip), demand.getBestTime(trip));
 //        LOGGER.debug("New car created: " + theCar.id + " at node "+ theCar.getLastNode() + " time "+ theCar.getLastNodeEndTime());
         cars.add(theCar);
         return theCar;
@@ -137,7 +152,7 @@ public class Solution {
 //        LOGGER.debug("travelTime "+ travelTime);
         int requestTime = demand.getStartTime(trip);
 //        LOGGER.debug("request time  "+ requestTime + " epa time " + (travelTime + lastActionTime));
-        if ((lastActionTime + travelTime)  <= requestTime){
+        if ((lastActionTime + travelTime - timeToStart)  <= requestTime){
             return travelTime;
         } else {
             return -1;

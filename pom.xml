@@ -41,7 +41,7 @@
                         <!-- automatically creates the classpath using all project dependencies,
                              also adding the project build directory -->
                         <classpath/>
-                        <argument>cz.cvut.fel.aic.amodsim.OfflineTaxify</argument>
+                        <argument>cz.cvut.fel.aic.amodsim.OfflineRidesharing</argument>
                         <argument>-Xmx16g</argument>
                     </arguments>
                 </configuration>

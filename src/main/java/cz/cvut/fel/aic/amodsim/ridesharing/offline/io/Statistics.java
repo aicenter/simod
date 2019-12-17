@@ -93,48 +93,52 @@ public class Statistics {
         return result;
     }
     
+    boolean dbg = false;
     private List<String[]> prepareGroupResults(){
         
         int maxProlongation = config.ridesharing.maxProlongationInSeconds * 1000;
         int timeToStart = config.ridesharing.offline.timeToStart;
         
         Set<Integer> seenPickups = new HashSet<>();
-        int[] plansBysize = {0, 0, 0, 0, 0};
+        int[] plansBysize = new int[config.ridesharing.vehicleCapacity+1];
+        for(int i =0; i < plansBysize.length; i++){
+            plansBysize[i]=0;
+        }
         List<String[]> result = new ArrayList<>();
         result.add(0, new String[]{"car_id", "demand_id", "action", 
             "ept",  "action time",  "lpt",  "time-ept", "lpt-time" , "node_id", "lat",  "lon"});
         for(Car car : cars){
            int[] groups = car.getAllTrips();
-           LOGGER.debug("\n"+car.id +" car with "+groups.length + " plans");
+           if(dbg) LOGGER.debug("\n"+car.id +" car with "+groups.length + " plans");
            SimulationNode node = null;
            int time = 0;
            for(int i = 0; i < car.getTripCount(); i++){
-                LOGGER.debug("\nnode  "+ (node == null? "null":node.id) + ", time "+time);
+                if(dbg) LOGGER.debug("\nnode  "+ (node == null? "null":node.id) + ", time "+time);
                 int groupInd = groups[i];
                 DriverPlan plan = (DriverPlan) demand.getTripByIndex(groupInd);
                 int planSize = plan.size()/2;
-                LOGGER.debug("\nPlan size "+planSize + ", cost "+plan.cost+", totalTime "+plan.totalTime);
+                if(dbg) LOGGER.debug("\nPlan size "+planSize + ", cost "+plan.cost+", totalTime "+plan.totalTime);
                 for (PlanAction action : plan){
                      if( action instanceof PlanActionPickup ){
-                           LOGGER.debug("\nPickup");  
+                           if(dbg) LOGGER.debug("\nPickup");  
                         PlanComputationRequest request = ((PlanActionPickup) action).request;
                         if(seenPickups.contains(request.getId())){
-                            LOGGER.error("Duplicate pickup trip "+request.getId());
+                             LOGGER.error("Duplicate pickup trip "+request.getId());
                             //continue;
                         }
                         seenPickups.add(request.getId());
                         
                         int requestTime = request.getOriginTime()*1000;
-                        LOGGER.debug("\n request time "+requestTime);
+                         if(dbg)LOGGER.debug("\n request time "+requestTime);
                         String actionType = "Pickup";
                         int earliestPossibleTime = requestTime;
                         int actionTime = node == null ? requestTime + timeToStart : 
                             time + (int)travelTimeProvider.getExpectedTravelTime(node, request.getFrom());
-                        LOGGER.debug("\n action time "+actionTime);
+                         if(dbg)LOGGER.debug("\n action time "+actionTime);
                         int latestPossibleTime = earliestPossibleTime + maxProlongation;
-                        LOGGER.debug("\n ept "+earliestPossibleTime + ", lpt "+latestPossibleTime);
+                         if(dbg)LOGGER.debug("\n ept "+earliestPossibleTime + ", lpt "+latestPossibleTime);
                         actionTime = actionTime > earliestPossibleTime ? actionTime : earliestPossibleTime;
-                        LOGGER.debug("\n action time "+actionTime);
+                         if(dbg)LOGGER.debug("\n action time "+actionTime);
                         String[] entry = { 
                             String.valueOf(car.id), 
                             String.valueOf(request.getId()), 
@@ -153,17 +157,17 @@ public class Statistics {
                         result.add(entry);
                             
                     }else if (action instanceof PlanActionDropoff ){
-                        LOGGER.debug("\nDropoff");  
+                         if(dbg)LOGGER.debug("\nDropoff");  
                         PlanComputationRequest request = ((PlanActionDropoff) action).request;
                         int requestTime = request.getOriginTime()*1000;
                         String actionType = "Dropoff";
                         int minTravelTime = request.getMinTravelTime()*1000;
-                        LOGGER.debug("\n request time "+requestTime + ", mtt "+minTravelTime);
+                         if(dbg)LOGGER.debug("\n request time "+requestTime + ", mtt "+minTravelTime);
                         int earliestPossibleTime = requestTime + minTravelTime ;
                         int actionTime = time + minTravelTime;
                         int latestPossibleTime = earliestPossibleTime + maxProlongation;
-                        LOGGER.debug("\n ept "+earliestPossibleTime + ", lpt "+latestPossibleTime);
-                        LOGGER.debug("\n action time "+actionTime);
+                         if(dbg)LOGGER.debug("\n ept "+earliestPossibleTime + ", lpt "+latestPossibleTime);
+                         if(dbg)LOGGER.debug("\n action time "+actionTime);
                         String[] entry = {
                             String.valueOf(car.id), 
                             String.valueOf(request.getId()), 
@@ -186,6 +190,7 @@ public class Statistics {
         }//cars
         int tripCount = 0;
         for (int i = 1; i< plansBysize.length; i++){
+
             LOGGER.debug(plansBysize[i] +" plans of size " + i);
             tripCount += i*plansBysize[i];
         }
@@ -201,7 +206,11 @@ public class Statistics {
         int timeToStart = config.ridesharing.offline.timeToStart;
         int maxProlongation = config.ridesharing.maxProlongationInSeconds * 1000;
         Set<Integer> seenPickups = new HashSet<>();
-        int[] plansBysize = {0, 0, 0, 0, 0};
+        
+        int[] plansBysize = new int[config.ridesharing.vehicleCapacity];
+        for(int i = 0; i < plansBysize.length; i++){
+            plansBysize[i]=0;
+        }
         
         List<String[]> result = new ArrayList<>();
         result.add(0, new String[]{"car_id", "demand_id", "action", "ept", 
@@ -332,7 +341,7 @@ public class Statistics {
         String name = "eval_result";
         List<String[]> result = new ArrayList<>();
         if(demand instanceof GroupNormalDemand){
-            result = prepareGroupResults2((GroupNormalDemand) demand);
+//            result = prepareGroupResults2((GroupNormalDemand) demand);
         } else if (demand instanceof GroupDemand){
              result = prepareGroupResults();
         }else if (demand instanceof NormalDemand){

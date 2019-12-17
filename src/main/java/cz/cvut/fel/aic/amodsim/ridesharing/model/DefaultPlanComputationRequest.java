@@ -95,8 +95,7 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 		hash = 0;
 		
 		originTime = (int) Math.round(demandAgent.getDemandTime() / 1000.0);
-		minTravelTime = (int) Math.round(
-				travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
+		minTravelTime = (int) Math.ceil(travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
 		
 		int maxProlongation;
 		if(amodsimConfig.ridesharing.discomfortConstraint.equals("absolute")){
@@ -107,11 +106,11 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 				amodsimConfig.ridesharing.maximumRelativeDiscomfort * minTravelTime);
 		}		
 		
-//		int maxPickUpTime = originTime + maxProlongation;
-//		int maxDropOffTime = originTime + minTravelTime + maxProlongation;
-        
-        int maxPickUpTime = originTime + amodsimConfig.ridesharing.offline.timeToStart/1000;
+		int maxPickUpTime = originTime + maxProlongation;
 		int maxDropOffTime = maxPickUpTime + minTravelTime;
+        
+//        int maxPickUpTime = originTime + amodsimConfig.ridesharing.offline.timeToStart/1000;
+//		int maxDropOffTime = maxPickUpTime + minTravelTime;
 		
 		this.demandAgent = demandAgent;
 		onboard = false;

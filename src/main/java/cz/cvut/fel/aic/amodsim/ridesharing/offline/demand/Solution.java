@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 public class Solution {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Solution.class);
 
-    private final int maxWaitTime;
+    private final int maxProlongation;
     
     private final int timeToStart;
     
@@ -52,7 +52,7 @@ public class Solution {
         this.demand = demand;
         this.travelTimeProvider = travelTimeProvider;
         this.config = config;
-        maxWaitTime = config.ridesharing.maxProlongationInSeconds * 1000;
+        maxProlongation = config.ridesharing.maxProlongationInSeconds * 1000;
         timeToStart = config.ridesharing.offline.timeToStart;
         cars = new ArrayList<>();
         carPlanTimeMap = new HashMap<>();
@@ -68,7 +68,7 @@ public class Solution {
     }
 
     /**
-     * Creates paths from map covering, and assigns cars to the paths.
+     * Creates paths from map cover, and assigns cars to the paths.
      * 
      */
     public void buildPaths(){
@@ -83,48 +83,59 @@ public class Solution {
             // start of new segment, which doesn't have an assigned car
             int currentNodeInd = i; 
             seenNodes.add(currentNodeInd);
-            LOGGER.debug("\nNode "+currentNodeInd+", next "+pair[currentNodeInd]);
+//            LOGGER.debug("\nNode "+currentNodeInd+", next "+pair[currentNodeInd]);
             Car car = getCar(currentNodeInd);
-            //add first node
             int time = car.getLastNodeEndTime();
             currentNodeInd  = pair[currentNodeInd];
             //LOGGER.debug("\nCar "+car.id +", node "+car.getLastNode()+", time "+time);
             
             while(currentNodeInd != n){
-                LOGGER.debug("\nCar "+car.id +", node "+car.getLastNode()+", time "+time);
+//                LOGGER.debug("\nCar "+car.id +", node "+car.getLastNode()+", time "+time);
                 int travelTime = (int) travelTimeProvider.getExpectedTravelTime(demand.getEndNode(car.getLastNode()),
                     demand.getStartNode(currentNodeInd));
                 int requestTime = demand.getStartTime(currentNodeInd) - timeToStart;
                 int startTime = Math.max(time + travelTime, requestTime);
-                LOGGER.debug("\nTravel Time "+ travelTime + ", real time "+startTime);
-                LOGGER.debug("\nNode "+currentNodeInd+", next "+pair[currentNodeInd]+ ", request time "+requestTime);
+//                LOGGER.debug("\nTravel Time "+ travelTime + ", real time "+startTime);
+//                LOGGER.debug("\nNode "+currentNodeInd+", next "+pair[currentNodeInd]+ ", request time "+requestTime);
                 
                 seenNodes.add(currentNodeInd);
                 car.addTrip(currentNodeInd, startTime, demand.getBestTime(currentNodeInd));
-                LOGGER.debug(currentNodeInd +" being add. start="+startTime+", length="+demand.getBestTime(currentNodeInd));
+//                LOGGER.debug(currentNodeInd +" being add. start="+startTime+", length="+demand.getBestTime(currentNodeInd));
                 currentNodeInd  = pair[currentNodeInd];
             }
-            LOGGER.debug("FINISHED.");
+//            LOGGER.debug("FINISHED.");
         }
         int totaTrips = getAllCars().stream().map(c->c.getTripCount()).mapToInt(Integer::intValue).sum();
         LOGGER.info("Total trip nodes in paths: "+totaTrips);
         LOGGER.info("Cars used: "+ cars.size());
     }
     
+    /**
+     * Tries to find existing car able to arrive to the
+     * origin of the trip in time. 
+     * If car is not found, creates new car located
+     *  timeToStart ms from the origin of the trip, 
+     * adds it to the list.
+     * Adds trip to the car, returns the car.
+     * 
+     * @param trip trip index in demand
+     * @return 
+     */
     private Car getCar(int trip){
         Car theCar = null;
         List<Car> filteredCars = cars.stream()
             .filter(c -> c.getLastNodeEndTime() < demand.getStartTime(trip))
             .collect(Collectors.toList());
-        long bestTime = Integer.MAX_VALUE;
-        long time = -1;
+        int bestArrivalTime = Integer.MAX_VALUE;
+        int time = -1;
         
         for (Car car: filteredCars){
             if((time = canServe(car, trip)) > 0){
 //              LOGGER.debug("time "+ time);
-                if (time < bestTime){
-                    bestTime = time;
+                if (time < bestArrivalTime){
+                    bestArrivalTime = time;
                     theCar = car;
+                    theCar.addTrip(trip, bestArrivalTime, demand.getBestTime(trip));
 //                    LOGGER.debug("Best time "+ bestTime);
                 }
             }
@@ -136,24 +147,33 @@ public class Solution {
             return theCar;
         }
         theCar = new Car();
-        theCar.addTrip(trip, demand.getStartTime(trip), demand.getBestTime(trip));
+        theCar.addTrip(trip, demand.getStartTime(trip) + timeToStart, demand.getBestTime(trip));
 //        LOGGER.debug("New car created: " + theCar.id + " at node "+ theCar.getLastNode() + " time "+ theCar.getLastNodeEndTime());
         cars.add(theCar);
         return theCar;
     }
-    
-    private long canServe(Car car, int trip){
+
+
+    /**
+     * Checks if existing car from the list
+     * is able to arrive from it's last node
+     * to the origin of the new trip in time.
+     * Returns time of arrival if it is feasible, 
+     *  - 1 otherwise.
+    */
+    private int canServe(Car car, int trip){
         int lastTripId = car.getLastNode();
         int lastActionTime = car.getLastNodeEndTime();
 //        LOGGER.debug("car last action time " + lastActionTime);
         SimulationNode startNode = demand.getEndNode(lastTripId);
         SimulationNode endNode = demand.getStartNode(trip);
-        long travelTime = travelTimeProvider.getExpectedTravelTime(startNode, endNode);
+        int travelTime = (int) travelTimeProvider.getExpectedTravelTime(startNode, endNode);
 //        LOGGER.debug("travelTime "+ travelTime);
         int requestTime = demand.getStartTime(trip);
 //        LOGGER.debug("request time  "+ requestTime + " epa time " + (travelTime + lastActionTime));
-        if ((lastActionTime + travelTime - timeToStart)  <= requestTime){
-            return travelTime;
+        int actionTime = lastActionTime + travelTime;
+        if (actionTime  <= (requestTime + maxProlongation)){
+            return actionTime;
         } else {
             return -1;
        }

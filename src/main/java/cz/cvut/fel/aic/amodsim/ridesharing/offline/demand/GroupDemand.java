@@ -86,6 +86,7 @@ public class GroupDemand extends Demand<DriverPlan>{
             PlanActionPickup firstPickup = (PlanActionPickup) plan.get(0);
             SimulationNode firstNode  = firstPickup.getPosition();
             int startTime = firstPickup.request.getOriginTime()*1000;
+            
             PlanActionDropoff lastDropoff = (PlanActionDropoff) plan.get(plan.size() -1);
             SimulationNode lastNode  = lastDropoff.getPosition();
             int planTravelTime = (int) plan.cost*1000;   
@@ -103,12 +104,14 @@ public class GroupDemand extends Demand<DriverPlan>{
         LOGGER.debug(badPlans.size() +" invalid plans dropped.");
         LOGGER.debug(differentCost[0] +" with generator cost bigger than real.");
         LOGGER.debug(differentCost[1] +" with generator cost less than real.");
+        LOGGER.debug(duplicatePickups + " duplicate pickups.");
   	}
     
     int tolerance = 1000;
     int[] differentCost = new int[]{0,0};
     Set<DriverPlan> badPlans = new HashSet<>();
-    
+    Set<Integer> seenTrips = new HashSet<>();
+    int duplicatePickups = 0;
 
   
     private int checkGroupPlan(DriverPlan plan, int startTime, SimulationNode firstNode,
@@ -122,6 +125,13 @@ public class GroupDemand extends Demand<DriverPlan>{
             
             if(action instanceof PlanActionPickup){
                 PlanActionPickup pick = (PlanActionPickup) action;
+                if(seenTrips.contains(pick.request.getId())){
+                    LOGGER.error("Duplicate pickup node "+pick.request.getId());
+                    duplicatePickups++;
+                            
+                } 
+                seenTrips.add(pick.request.getId());
+                
                 if(node == null){
                    time += timeToStart;
                     node = pick.getPosition();

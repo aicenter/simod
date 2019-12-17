@@ -102,7 +102,12 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 		// global stats
 		int onBoardCount = vehicle.getRequestsOnBoard().size();
     
-        long endTime = startTime * 1000;
+        /* for offline:
+         * start and end time should be initialized individually for each plan as follows:
+         * startTime = originStartTime of 1st action (pickup)
+         * endTime = startTime * 1000ms
+         */
+        long endTime = 0;
         SimulationNode lastPosition = vehicle.getPosition();
 		int totalDiscomfort = 0;
 		
@@ -123,14 +128,12 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
                 // free capacity check
 				if(newAction instanceof PlanActionDropoff || onBoardCount < vehicle.getCapacity()){
 				    int durationMs;
-                                
-                    // fixed time to first pickup node
+                    
+                    // initial time for offline groups
 					if(planPositionIndex == 0){
-                        durationMs = timeToStart;
-                        //actual plan start time
                         startTime = PlanActionPickup.class.cast(newAction).getRequest().getOriginTime();
                         endTime = startTime*1000;
-                    //    endTime = PlanActionPickup.class.cast(newAction).getRequest().getOriginTime()*1000 ;
+                        durationMs = timeToStart;
                         
 					}
                     // max pick up / drop off time check
@@ -141,7 +144,6 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 					
 					// actions feasibility check
 					boolean allActionsFeasible = true;
-					int roundingExtraTime = 1;
 					for (int i = 0; i < availableActions.length; i++) {
 						PlanActionData actionData = availableActions[i];
 						PlanRequestAction action = actionData.getAction();

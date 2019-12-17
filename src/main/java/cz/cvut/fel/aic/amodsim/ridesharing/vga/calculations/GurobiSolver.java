@@ -129,6 +129,7 @@ public class GurobiSolver {
 				String vehicleId = vehicleEntry.optimalPlanVehicle.getId();
 				
 				int groupCounter = 0;
+                //TODO remove plan from list 
 				for (Plan<IOptimalPlanVehicle> plan : vehicleEntry.feasibleGroupPlans) {
 					
 					// variables
@@ -163,14 +164,13 @@ public class GurobiSolver {
 				// normal vehicles 
 				if(vehicleEntry.optimalPlanVehicle instanceof VGAVehicle){
 					model.addConstr(vehicleConstraint, GRB.EQUAL, 1.0, vehicleConstraintName);
-                    LOGGER.debug("VGAVehicle");
+
 				}
 				// virtual vehicles
 				else{
 					int limit = ((OfflineVirtualVehicle) vehicleEntry.optimalPlanVehicle).getCarLimit();
 					model.addConstr(vehicleConstraint, GRB.LESS_EQUAL, limit, vehicleConstraintName);
-                     LOGGER.debug("Virtual vehicle, capacity " + limit);
-				}
+  				}
 				
 				
 				vehicleCounter++;

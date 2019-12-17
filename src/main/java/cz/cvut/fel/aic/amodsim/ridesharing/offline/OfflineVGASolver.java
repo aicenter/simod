@@ -109,8 +109,6 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
 	
 	private List<VGAVehicle> vgaVehicles;
 	
-	private int startTime;
-	
 	private int planCount;
 	
 	private List<VehiclePlanList> feasiblePlans;
@@ -193,9 +191,9 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
     }
 
     
-    private LinkedHashMap<Integer, List<PlanComputationRequest>>  groupRequests(List<TripTaxify<SimulationNode>> trips){
+    private List<List<PlanComputationRequest>>  groupRequests(List<TripTaxify<SimulationNode>> trips){
 //        int counter = 0;
-        LinkedHashMap<Integer, List<PlanComputationRequest>> batches = new LinkedHashMap<>();
+        List<List<PlanComputationRequest>> batches = new LinkedList<>();
         int batchPeriod = config.ridesharing.offline.batchPeriod;
 //        int maxBatch = config.ridesharing.offline.batchMax == 0 ? Integer.MAX_VALUE : config.ridesharing.offline.batchMax;
 //        int maxTrips = config.ridesharing.offline.batchTotal == 0 ? Integer.MAX_VALUE : config.ridesharing.offline.batchTotal;
@@ -219,10 +217,9 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
                 batch.add(request);
             }else  {
 //                LOGGER.debug("Batch size "+ batch.size());
-                batches.put(batch.get(0).getOriginTime()*1000, batch);
+                batches.add(batch);
                 batch = new ArrayList<>();
                 batch.add(request);
-                start = end; 
                 end += batchPeriod;
 //                LOGGER.debug("start "+start+", end "+end);
             }
@@ -241,15 +238,14 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
         List<TripTaxify<SimulationNode>> trips = loadTrips();
        
         Collections.sort(trips, Comparator.comparing(TripTaxify::getStartTime));
-         LOGGER.debug("Sorted trips "+trips.size());
+        LOGGER.debug("Sorted trips "+trips.size());
          
         //NormalDemand nd = new NormalDemand(travelTimeProvider, config, trips, graph);
         
-        LinkedHashMap<Integer, List<PlanComputationRequest>> requestBatches = groupRequests(trips); //.subList(0,1000)
+        List<List<PlanComputationRequest>> requestBatches = groupRequests(trips); //.subList(0,1000)
         vgaVehicles = new LinkedList<>();
         // initialize 1 OnDemandVehicle in any node
-        List<PlanComputationRequest> firstBatch = requestBatches.values().stream().findFirst().get();
-        initVehicle(firstBatch.get(0).getFrom());
+        initVehicle(requestBatches.get(0).get(0).getFrom());
         
         List<DriverPlan> allPlans = new LinkedList<>();
         LOGGER.debug( requestBatches.size() + " request batches in the list");
@@ -257,10 +253,9 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
 
       //compute optimal plan for each batch
 //        for(List<PlanComputationRequest> requests : requestBatches){
-        for(int batchStart : requestBatches.keySet()){
-           List<PlanComputationRequest> requests = requestBatches.get(batchStart);
-           startTime = batchStart/1000;
-          LOGGER.debug( requests.size() + " requests in batch");
+        for( List<PlanComputationRequest> requests: requestBatches){
+
+           LOGGER.debug( requests.size() + " requests in batch");
             waitingRequests.addAll(requests);
             //TODO vehicles
             List<DriverPlan> plans = computePlans(requests, waitingRequests);
@@ -363,14 +358,12 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
  private void generateGroups(List<PlanComputationRequest> waitingRequests) {
         
         feasiblePlans = new ArrayList<>();
-	//	startTime = (int) Math.round(timeProvider.getCurrentSimTime() / 1000.0);
-        LOGGER.debug("\nstartTime="+startTime);
-		LOGGER.info("Generating groups for vehicles.");
+//		LOGGER.info("Generating groups for vehicle.");
 		planCount = 0;
         
 		VGAVehicle vGAVehicle = vgaVehicles.get(0);
-        LOGGER.debug("Vehicle position " + vGAVehicle.getPosition());
-        LOGGER.debug("Vehicle requests " + vGAVehicle.getRequestsOnBoard().size());
+//        LOGGER.debug("Vehicle position " + vGAVehicle.getPosition());
+//        LOGGER.debug("Vehicle requests " + vGAVehicle.getRequestsOnBoard().size());
         // all waiting request can be assigned to 1  vehicle
 		List<Plan> feasibleGroupPlans = computeGroupsForVehicle(vGAVehicle, waitingRequests);
         LOGGER.info("groups generated " +feasibleGroupPlans.size());
@@ -498,7 +491,7 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
 		Benchmark benchmark = new Benchmark();
 		GroupGenerator groupGenerator = groupGeneratorProvider.get();
 		List<Plan> feasibleGroupPlans = benchmark.measureTime(() ->
-					groupGenerator.generateGroupsForVehicle(vehicle, waitingRequests, startTime));
+					groupGenerator.generateGroupsForVehicle(vehicle, waitingRequests, 0));
 		
 		// log
 		if(config.ridesharing.vga.logPlanComputationalTime){
@@ -547,7 +540,7 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
 		computationalTimesPlanExists.addArrayInPlace(groupGenerator.getComputationalTimesPlanExists());	
 		
 		List<String> record = new ArrayList<>(5);
-		record.add(Integer.toString(startTime));
+		record.add(Integer.toString(0));
 		record.add(vehicle.getRidesharingVehicle().getId());
 		record.add(Long.toString(Math.round(totalTimeNano / MILLION)));
 		record.add(Integer.toString(vehicle.getRequestsOnBoard().size()));

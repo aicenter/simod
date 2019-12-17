@@ -144,10 +144,10 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 					for (int i = 0; i < availableActions.length; i++) {
 						PlanActionData actionData = availableActions[i];
 						PlanRequestAction action = actionData.getAction();
-						int durationS = (int) Math.ceil((float) durationMs / 1000);
+						int durationS = (int) Math.round((float) durationMs / 1000);
 						
 						if(!actionData.isUsed()){
-							int endTimeS = (int) Math.ceil((float) endTime / 1000);
+							int endTimeS = (int) Math.round((float) endTime / 1000);
 							if((action instanceof PlanActionPickup 
 								&& action.getRequest().getMaxPickupTime()  < endTimeS + durationS)
                                 
@@ -164,7 +164,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 						if(planPositionIndex == plan.length - 1){
 							
 							// compute necessary variables as if going deep
-							int endTimeTemp = (int) Math.ceil((endTime + durationMs ) / 1000.0);
+							int endTimeTemp = (int) Math.round((endTime + durationMs ) / 1000.0);
 							PlanComputationRequest request = newAction.getRequest();
 							int discomfort = endTimeTemp - request.getOriginTime() - request.getMinTravelTime() ;
 							
@@ -204,7 +204,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 							lastPosition = newAction.getPosition();
 							if(newAction instanceof PlanActionDropoff){
 								PlanComputationRequest request = newAction.getRequest();
-								int endTimeS = (int) Math.ceil(endTime  / 1000.0);
+								int endTimeS = (int) Math.round(endTime  / 1000.0);
 								int discomfort = endTimeS - request.getOriginTime() - request.getMinTravelTime();
 								newActionData.setDiscomfort(discomfort);
 								totalDiscomfort += discomfort;
@@ -304,7 +304,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 			bestPlanActions.add(bestPlan[i]);
 			
 		}
-		int endTimeS = (int) Math.ceil(endTime / 1000.0);
+		int endTimeS = (int) Math.round(endTime / 1000.0);
 		return new Plan((int) startTime, endTimeS, (int) bestPlanCost, bestPlanActions, vehicle);
 	}
 	

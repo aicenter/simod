@@ -277,10 +277,10 @@ public class Demand<D> {
     }
    
     private int[][] buildAdjacency(int sigma) {
-        int maxWaitTime = config.ridesharing.offline.maxWaitTime;
+        int maxWaitTime = config.ridesharing.maxProlongationInSeconds * 1000;
         LOGGER.debug("sigma in millis " + sigma);
         LOGGER.debug("timeLine length: " + startTimes.length);
-        LOGGER.debug("N = "+N);
+        LOGGER.debug("N = " + N);
 //        for(int t:startTimes){ System.out.println(t);}
         int[][] adjacency = new int[N][];
         

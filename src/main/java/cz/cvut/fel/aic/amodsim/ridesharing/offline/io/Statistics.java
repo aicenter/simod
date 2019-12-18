@@ -39,7 +39,6 @@ public class Statistics {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Statistics.class);
     
     Demand demand;
-    
     List<Car> cars;
     
     TravelTimeProvider travelTimeProvider;
@@ -61,8 +60,8 @@ public class Statistics {
         result.add(new String[]{"car_id", "demand_id", "action", 
             "time", "node_id", "lat",  "lon"});
         for(Car car : cars){
-//            LOGGER.debug("Car "+car.id + " num trips " + car.getTripCount() + " , length " + car.getAllTrips().length);
-            int[] trips = car.getAllTrips();
+//            LOGGER.debug("Car "+car.id + " num trips " + car.getTripCount() + " , length " + car.getAllDemandNodes().length);
+            int[] trips = car.getAllDemandNodes();
             for(int tripInd : trips){
                 int tripId = demand.indToTripId(tripInd);
              //    LOGGER.debug("Trip # "+tripId + " at position " + tripInd);
@@ -94,94 +93,93 @@ public class Statistics {
     }
     
     boolean dbg = false;
-    private List<String[]> prepareGroupResults(){
-        
+
+    private List<String[]> prepareGroupResults(GroupDemand gd){
+
         int maxProlongation = config.ridesharing.maxProlongationInSeconds * 1000;
         int timeToStart = config.ridesharing.offline.timeToStart;
         
+        //TODO remove. Already checked in GroupDemand
         Set<Integer> seenPickups = new HashSet<>();
+        
         int[] plansBysize = new int[config.ridesharing.vehicleCapacity+1];
-        for(int i =0; i < plansBysize.length; i++){
-            plansBysize[i]=0;
-        }
+        for(int i =0; i < plansBysize.length; i++)         plansBysize[i]=0;
         List<String[]> result = new ArrayList<>();
         result.add(0, new String[]{"car_id", "demand_id", "action", 
             "ept",  "action time",  "lpt",  "time-ept", "lpt-time" , "node_id", "lat",  "lon"});
+        
         for(Car car : cars){
-           int[] groups = car.getAllTrips();
-           if(dbg) LOGGER.debug("\n"+car.id +" car with "+groups.length + " plans");
-           SimulationNode node = null;
-           int time = 0;
-           for(int i = 0; i < car.getTripCount(); i++){
-                if(dbg) LOGGER.debug("\nnode  "+ (node == null? "null":node.id) + ", time "+time);
-                int groupInd = groups[i];
-                DriverPlan plan = (DriverPlan) demand.getTripByIndex(groupInd);
+           int[] groups = car.getAllDemandNodes();
+          
+           int firstPlanInd = car.getFirstDemandNode();
+           int firstActionTimeMs = car.getFirstActionTime();
+           SimulationNode initialNode = gd.getStartNode(firstPlanInd);
+           if(dbg) LOGGER.debug(car.id +" car ["+groups.length + "]. Starts at "+ firstActionTimeMs + " ("+firstPlanInd+", "+initialNode.id+")");
+           SimulationNode node = initialNode;
+           int timeMs = firstActionTimeMs;
+           // i = plan's position in car's path 
+           for(int i = 0; i < car.getSize(); i++){
+                LOGGER.debug("time "+ timeMs + ", node "+node.id);
+                int planIndex = groups[i];
+                DriverPlan plan = gd.getPlanByIndex(planIndex);
                 int planSize = plan.size()/2;
-                if(dbg) LOGGER.debug("\nPlan size "+planSize + ", cost "+plan.cost+", totalTime "+plan.totalTime);
+//                time = car.times[i][0];
+                if(dbg) LOGGER.debug("New plan ["+planSize + "], start " + timeMs+ ", cost "+plan.cost + ", end "+ (timeMs + plan.cost*1000));
+                
                 for (PlanAction action : plan){
                      if( action instanceof PlanActionPickup ){
-                           if(dbg) LOGGER.debug("\nPickup");  
                         PlanComputationRequest request = ((PlanActionPickup) action).request;
                         if(seenPickups.contains(request.getId())){
                              LOGGER.error("Duplicate pickup trip "+request.getId());
                             //continue;
                         }
                         seenPickups.add(request.getId());
-                        
-                        int requestTime = request.getOriginTime()*1000;
-                         if(dbg)LOGGER.debug("\n request time "+requestTime);
                         String actionType = "Pickup";
-                        int earliestPossibleTime = requestTime;
-                        int actionTime = node == null ? requestTime + timeToStart : 
-                            time + (int)travelTimeProvider.getExpectedTravelTime(node, request.getFrom());
-                         if(dbg)LOGGER.debug("\n action time "+actionTime);
-                        int latestPossibleTime = earliestPossibleTime + maxProlongation;
-                         if(dbg)LOGGER.debug("\n ept "+earliestPossibleTime + ", lpt "+latestPossibleTime);
-                        actionTime = actionTime > earliestPossibleTime ? actionTime : earliestPossibleTime;
-                         if(dbg)LOGGER.debug("\n action time "+actionTime);
+                        int earliestPossibleTimeMs = request.getOriginTime() *1000;
+                        int actionTimeMs = timeMs + (int)travelTimeProvider.getExpectedTravelTime(node, request.getFrom());
+                        actionTimeMs = actionTimeMs > earliestPossibleTimeMs ? actionTimeMs : earliestPossibleTimeMs;
+                        int actionTimeS = (int) Math.round(actionTimeMs/1000.0);
+                        int latestPossibleTimeMs = request.getMaxPickupTime() *1000;
+                        if(dbg) LOGGER.debug("P"+request.getId()+": " +earliestPossibleTimeMs + " < " + actionTimeMs + " < "+ latestPossibleTimeMs);
                         String[] entry = { 
                             String.valueOf(car.id), 
                             String.valueOf(request.getId()), 
                             actionType,
-                            String.valueOf(earliestPossibleTime), 
-                            String.valueOf(actionTime), 
-                            String.valueOf(latestPossibleTime),
-                            String.valueOf(actionTime - earliestPossibleTime),
-                            String.valueOf(latestPossibleTime - actionTime),
+                            String.valueOf(request.getOriginTime()), 
+                            String.valueOf(actionTimeS), 
+                            String.valueOf(request.getMaxPickupTime()),
+                            String.valueOf(actionTimeS - request.getOriginTime()),
+                            String.valueOf(request.getMaxPickupTime() - actionTimeS),
                             String.valueOf(request.getFrom().id),
                             String.valueOf(request.getFrom().getLatitude()), 
                             String.valueOf(request.getFrom().getLongitude())
                         };
                         node = request.getFrom();
-                        time = actionTime;
+                        timeMs = actionTimeMs;
                         result.add(entry);
-                            
-                    }else if (action instanceof PlanActionDropoff ){
-                         if(dbg)LOGGER.debug("\nDropoff");  
+                    }
+                     else if (action instanceof PlanActionDropoff ){
                         PlanComputationRequest request = ((PlanActionDropoff) action).request;
-                        int requestTime = request.getOriginTime()*1000;
                         String actionType = "Dropoff";
-                        int minTravelTime = request.getMinTravelTime()*1000;
-                         if(dbg)LOGGER.debug("\n request time "+requestTime + ", mtt "+minTravelTime);
-                        int earliestPossibleTime = requestTime + minTravelTime ;
-                        int actionTime = time + minTravelTime;
-                        int latestPossibleTime = earliestPossibleTime + maxProlongation;
-                         if(dbg)LOGGER.debug("\n ept "+earliestPossibleTime + ", lpt "+latestPossibleTime);
-                         if(dbg)LOGGER.debug("\n action time "+actionTime);
-                        String[] entry = {
-                            String.valueOf(car.id), 
-                            String.valueOf(request.getId()), 
-                            actionType,
-                            String.valueOf(earliestPossibleTime), 
-                            String.valueOf(actionTime),
-                            String.valueOf(latestPossibleTime), 
-                            String.valueOf(actionTime - earliestPossibleTime),
-                            String.valueOf(latestPossibleTime - actionTime),
-                            String.valueOf(request.getTo().id),
-                            String.valueOf(request.getTo().getLatitude()),
-                            String.valueOf(request.getTo().getLongitude())};
+                        int latestPossibleTimeMs = request.getMaxDropoffTime()*1000;
+                        int earliestPossibleTimeMs = latestPossibleTimeMs - maxProlongation ;
+                        int actionTimeMs = timeMs + (int) travelTimeProvider.getExpectedTravelTime(node, request.getTo());
+                        int actionTimeS = (int) Math.round(actionTimeMs/1000.0);
+                        if(dbg) LOGGER.debug("D"+request.getId()+": "+earliestPossibleTimeMs + " < " + actionTimeMs + " < "+ latestPossibleTimeMs);
+                            String[] entry = {
+                                String.valueOf(car.id), 
+                                String.valueOf(request.getId()), 
+                                actionType,
+                                String.valueOf(earliestPossibleTimeMs/1000.0), 
+                                String.valueOf(actionTimeS),
+                                String.valueOf(request.getMaxDropoffTime()), 
+                                String.valueOf(actionTimeS - Math.round(earliestPossibleTimeMs/1000.0)),
+                                String.valueOf(request.getMaxDropoffTime() - actionTimeS),
+                                String.valueOf(request.getTo().id),
+                                String.valueOf(request.getTo().getLatitude()),
+                                String.valueOf(request.getTo().getLongitude())};
                         node = request.getTo();
-                        time = actionTime;
+                        timeMs = actionTimeMs;
                         result.add(entry);
                     }
                     plansBysize[planSize]++;
@@ -219,16 +217,17 @@ public class Statistics {
         for(Car car : cars){
 //           LOGGER.debug("\nCar " + car.id + " with "+car.getTripCount() + " trips");
            String carId = String.valueOf(car.id);
-           int[] plans = car.getAllTrips();
+           int[] route = car.getAllDemandNodes();
 //           LOGGER.debug("\nplans "+ Arrays.toString(plans));
-           SimulationNode carNode = groupDemand.getStartNode(plans[0]);
-           long carTime = groupDemand.getStartTime(plans[0]);
+           SimulationNode carNode = groupDemand.getStartNode(route[0]);
+           int carTime = car.getFirstActionTime();
 //            LOGGER.debug("\nstart node "+ carNode.id + ", start time "+carTime);
              
             // vehicle's plans
-           for(int planId :plans){
-              
-                int[] plan = (int[]) demand.getTripByIndex(planId);
+           for(int i = 0; i < route.length;i ++){
+               int planId = route[i];
+                carTime = car.times[i][0];
+                int[] plan = groupDemand.getPlanByIndex(planId);
                 
                 int planSize = (plan.length-1)/2;
 //                LOGGER.debug("\n" + planId +" plan size "+ planSize + " : "+Arrays.toString(plan));
@@ -251,8 +250,8 @@ public class Statistics {
                         
                         SimulationNode nextNode = normalDemand.getStartNode(tripInd); 
                         String actionType = "Pickup"; 
-                        long travelTime = travelTimeProvider.getExpectedTravelTime(carNode, nextNode);
-                        long actionTime = carTime + travelTime;
+                        int travelTime = (int) travelTimeProvider.getExpectedTravelTime(carNode, nextNode);
+                        int actionTime = carTime + travelTime;
                         int ept = normalDemand.getStartTime(tripInd);
                         int lpt = ept + maxProlongation;
 //                        LOGGER.debug("\ntravel time" + travelTime + ", action time " + actionTime
@@ -262,7 +261,7 @@ public class Statistics {
                             actionTime = ept + timeToStart;
                         
                         }
-                        actionTime = ept > actionTime ? ept : actionTime;
+                        //actionTime = ept > actionTime ? ept : actionTime;
 //                         LOGGER.debug("\naction time " + actionTime);
                         String[] entry = {
                             carId, 
@@ -286,8 +285,8 @@ public class Statistics {
                         int tripInd = -action - 1;
 //                          LOGGER.debug("\ndropoff " + tripInd);
                         SimulationNode nextNode = normalDemand.getEndNode(tripInd);
-                        long travelTime = travelTimeProvider.getExpectedTravelTime(carNode, nextNode);
-                        long actionTime = carTime + travelTime;
+                        int travelTime = (int) travelTimeProvider.getExpectedTravelTime(carNode, nextNode);
+                        int actionTime = carTime + travelTime;
                         int ept = normalDemand.getEndTime(tripInd);
                         int lpt = ept + maxProlongation;
 //                        LOGGER.debug("\ntravel time" + travelTime + ", action time " + actionTime
@@ -343,7 +342,7 @@ public class Statistics {
         if(demand instanceof GroupNormalDemand){
 //            result = prepareGroupResults2((GroupNormalDemand) demand);
         } else if (demand instanceof GroupDemand){
-             result = prepareGroupResults();
+             result = prepareGroupResults((GroupDemand) demand);
         }else if (demand instanceof NormalDemand){
              result = prepareResults();
         }
@@ -370,8 +369,8 @@ public class Statistics {
         long totalWithPassenger = 0;
         long totalEmpty = 0;
         for(Car car : cars){
-            int busyTime = car.getTripTravelTime();
-            int emptyTime = car.getEmptyTravelTime();
+            int busyTime = car.getTripBusyTime();
+            int emptyTime = car.getEmptyTime();
             String[] entry = new String[]{
                 String.valueOf(car.getId()), String.valueOf(busyTime/1000), String.valueOf(emptyTime/1000),
                 String.valueOf(100*busyTime/(busyTime+emptyTime))};

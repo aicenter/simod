@@ -31,7 +31,7 @@ public class NormalDemand extends Demand<TripTaxify<SimulationNode>>{
 	public NormalDemand(TravelTimeProvider travelTimeProvider, AmodsimConfig config, 
 			List<TripTaxify<SimulationNode>> demand, Graph<SimulationNode, SimulationEdge> graph) {
 		super(travelTimeProvider, config, demand, graph);
-        prepareDemand();
+        prepareDemand(demand);
 //        for (int i = 0; i < 10; i++){
 //            System.out.println(getTripByIndex(i).id +": "+getStartNodeId(i) + " -> " + getEndNodeId(i) + 
 //                "; start time " + getStartTime(i) + ", shortest route "+getBestTime(i));
@@ -40,7 +40,7 @@ public class NormalDemand extends Demand<TripTaxify<SimulationNode>>{
 //        }
     }
 
-	private void prepareDemand() {
+	private void prepareDemand(List<TripTaxify<SimulationNode>> demand) {
         Collections.sort(demand, Comparator.comparing(TripTaxify::getStartTime));
         for (TripTaxify<SimulationNode> trip : demand) {
 //            System.out.println("Start lon"+trip.getStartNode().getLongitude() + " proj "+ trip.getStartNode().getLongitudeProjected());

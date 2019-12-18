@@ -56,7 +56,7 @@ public class SolutionStatistics {
 //        result.add(0, new String[]{"car_id", "demand_id", "action", 
 //            "ept",  "action time",  "lpt",  "time-ept", "lpt-time" , "node_id", "lat",  "lon"});
 //        for(Car car : cars){
-//           int[] groups = car.getAllTrips();
+//           int[] groups = car.getAllDemandNodes();
 //           LOGGER.debug("\n"+car.id +" car with "+groups.length + " plans");
 //           SimulationNode node = null;
 //           int time = 0;
@@ -193,8 +193,8 @@ public class SolutionStatistics {
         long totalWithPassenger = 0;
         long totalEmpty = 0;
         for(Car car : cars){
-            int busyTime = car.getTripTravelTime();
-            int emptyTime = car.getEmptyTravelTime();
+            int busyTime = car.getTripBusyTime();
+            int emptyTime = car.getEmptyTime();
             String[] entry = new String[]{
                 String.valueOf(car.getId()), String.valueOf(busyTime/1000), String.valueOf(emptyTime/1000),
                 String.valueOf(100*busyTime/(busyTime+emptyTime))};

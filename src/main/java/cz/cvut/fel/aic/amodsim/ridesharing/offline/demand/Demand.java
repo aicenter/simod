@@ -38,7 +38,6 @@ public class Demand<D> {
     int lastInd;
     private final Graph<SimulationNode, SimulationEdge> graph;
     Rtree rtree;
-    List<D> demand;
 
 
     /**
@@ -61,9 +60,7 @@ public class Demand<D> {
         bestTimes = new int[N];
         startNodes = new int[N];
         endNodes = new int[N];
-        
         lastInd = 0;
-        this.demand = demand;
 
     }
     
@@ -82,14 +79,14 @@ public class Demand<D> {
         endNodes[ind] = endNodeId;
     }
     
-    /**
-     *
-     * @param ind
-     * @return
-     */
-    public D getTripByIndex(int ind){
-        return demand.get(ind);
-    }
+//    /**
+//     *
+//     * @param ind
+//     * @return
+//     */
+//    public D getTripByIndex(int ind){
+//        return index[ind];
+//    }
     /**
      * @return total number of trips in Demand
      */
@@ -278,6 +275,7 @@ public class Demand<D> {
    
     private int[][] buildAdjacency(int sigma) {
         int maxWaitTime = config.ridesharing.maxProlongationInSeconds * 1000;
+        int timeToStart = config.ridesharing.offline.timeToStart;
         LOGGER.debug("sigma in millis " + sigma);
         LOGGER.debug("timeLine length: " + startTimes.length);
         LOGGER.debug("N = " + N);
@@ -287,25 +285,26 @@ public class Demand<D> {
         for (int tripInd = 0; tripInd < N; tripInd++) {
             
             List<Integer> neighbors = new ArrayList<>();
-          //  LOGGER.debug("NEW TRIP. #"+ tripInd + "; start " + getStartTime(tripInd) + "; end " + getEndTime(tripInd));
+//            LOGGER.debug("NEW TRIP. #"+ tripInd + "; starts " + getStartTime(tripInd) + "; ends" + getEndTime(tripInd));
             int timeLimit = getEndTime(tripInd) + sigma;
-          //  LOGGER.debug("timeLimit = " + timeLimit);
+//            LOGGER.debug("timeLimit = " + timeLimit);
             int lastTripInd = getIndexByStartTime(timeLimit);
-        //    LOGGER.debug("  returned index = " + lastTripInd+", starts at " + getStartTime(lastTripInd));
+//            LOGGER.debug("  returned index = " + lastTripInd+", starts at " + getStartTime(lastTripInd));
+            
             for (int nextTripInd = lastTripInd + 1; nextTripInd < N; nextTripInd++) {
-               // LOGGER.debug("nextTrip = " + indToTripId(nextTripInd) + "; start " + getStartTime(nextTripInd));
+//                LOGGER.debug("next " + indToTripId(nextTripInd) + "; starts " + getStartTime(nextTripInd));
                 if(getStartTime(nextTripInd) <= getEndTime(tripInd)){
-                 //   LOGGER.error("Failed.Next trip starts before the previous ends" + indToTripId(tripInd));
+//                    LOGGER.error("Failed.Next trip starts before the previous ends" + indToTripId(tripInd));
                     continue;
                 }
                 int timeToNextTrip = (int) travelTimeProvider.getExpectedTravelTime(
                     getEndNode(tripInd), getStartNode(nextTripInd));
-              //  int travelTime = bestTravelTimeMs + config.timeBuffer;
                 int earliestPossibleArrival = getEndTime(tripInd) + timeToNextTrip;
-               // LOGGER.debug("  Added.Travel time = " + timeToNextTrip +"; start "+getStartTime(nextTripInd));
-                if (earliestPossibleArrival <= getStartTime(nextTripInd) + maxWaitTime) {
-                 //   LOGGER.debug("  Added.Travel time = " + timeToNextTrip +"; start "+getStartTime(nextTripInd));
-                   // LOGGER.debug("Ok. Arrival to next start at "+ earliestPossibleArrival +"\n latest start at "+startTimes[nextTripInd]);
+                int requestTime = getStartTime(nextTripInd);
+                earliestPossibleArrival = Math.max(requestTime, earliestPossibleArrival);
+                if (earliestPossibleArrival <= (getStartTime(nextTripInd) + timeToStart)) {
+//                    LOGGER.debug("Added.Travel time = " + timeToNextTrip +"; start "+getStartTime(nextTripInd));
+//                    LOGGER.debug("Ok. "+ getStartTime(nextTripInd) + " < "+ earliestPossibleArrival +" <  " +  (getStartTime(nextTripInd) + timeToStart));
                     neighbors.add(nextTripInd);
                 }
             }
@@ -334,7 +333,9 @@ public class Demand<D> {
         return ind;
     }
     
-    
+    public D getPlanByIndex(int ind){
+       throw new UnsupportedOperationException("Not supported yet.");
+    }
     /**
      * Returns slice of array with demand ids between two positions.
      *

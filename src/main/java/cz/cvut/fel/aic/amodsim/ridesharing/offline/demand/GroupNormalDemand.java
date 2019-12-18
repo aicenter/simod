@@ -13,6 +13,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvi
 import cz.cvut.fel.aic.geographtools.Graph;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,14 +28,14 @@ public class GroupNormalDemand extends Demand<int[]>{
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GroupNormalDemand.class);
     
     NormalDemand normalDemand;
-    
+    List<int[]> plans;
     
 	public GroupNormalDemand(TravelTimeProvider travelTimeProvider, AmodsimConfig config, 
 			List<int[]> plans, NormalDemand normalDemand, Graph<SimulationNode, SimulationEdge> graph) {
 		super(travelTimeProvider, config, plans, graph);
 //        LOGGER.debug("plans for group demand "+ plans.size());
         this.normalDemand = normalDemand;
-        prepareDemand(plans);
+        this.plans = prepareDemand(plans);
 //        if(!plans.isEmpty()){
 //            for (int i = 0; i < 20; i++){
 //            LOGGER.debug(Arrays.toString(getTripByIndex(i)) +": "+getStartNodeId(i) + " -> " + getEndNodeId(i) + 
@@ -43,6 +44,9 @@ public class GroupNormalDemand extends Demand<int[]>{
 //        }
     }
    	
+    public int[] getPlanByIndex(int ind){
+        return plans.get(ind);
+    }
     
     public NormalDemand getNormalDemand(){
         return normalDemand;
@@ -74,11 +78,11 @@ public class GroupNormalDemand extends Demand<int[]>{
        return sortedByStartTime;
     }
   
-	private void prepareDemand(List<int[]> plans) {
-        
+	private List<int[]>  prepareDemand(List<int[]> plans) {
+        List<int[]> sortedPlans = new LinkedList<>();
         Map<int[], Integer> startTimesMap = mapByStartTime(plans);
         int timeToStart = config.ridesharing.offline.timeToStart;
-        demand.clear();
+
         int planCounter = 0;
         
         for(int[] plan: startTimesMap.keySet()){
@@ -87,9 +91,10 @@ public class GroupNormalDemand extends Demand<int[]>{
             int planTime = planCost - timeToStart;
             SimulationNode firstNode = normalDemand.getStartNode(plan[1]);
             SimulationNode lastNode = normalDemand.getEndNode(-plan[plan.length-1] -1);
-            demand.add(plan);
+            sortedPlans.add(plan);
             addGroupPlanToIndex(planCounter++, startTime, planTime, firstNode.id, lastNode.id);
         }
+        return sortedPlans;
 	}
 
 	private void addGroupPlanToIndex(int plan_id, int startTime, 

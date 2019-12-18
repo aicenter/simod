@@ -32,23 +32,24 @@ public class GroupDemand extends Demand<DriverPlan>{
     
      int timeToStart;
      int maxProlongation;
+     List<DriverPlan> demand;
      
      
 	public GroupDemand(TravelTimeProvider travelTimeProvider, AmodsimConfig config, 
-			List<DriverPlan> demand, Graph<SimulationNode, SimulationEdge> graph) {
-		super(travelTimeProvider, config, demand, graph);
+			List<DriverPlan> optimalPlans, Graph<SimulationNode, SimulationEdge> graph) {
+		super(travelTimeProvider, config, optimalPlans, graph);
         
         timeToStart = config.ridesharing.offline.timeToStart;
         maxProlongation = config.ridesharing.maxProlongationInSeconds * 1000;
-        LOGGER.debug("size of demand "+demand.size());
-        prepareDemand();
+        LOGGER.debug("size of demand "+optimalPlans.size());
+        demand = prepareDemand(optimalPlans);
 //        
-//        if(!demand.isEmpty()){
-//            for (int i = 0; i < 20; i++){
-//            LOGGER.debug(getTripByIndex(i).toString() +": "+getStartNodeId(i) + " -> " + getEndNodeId(i) + 
-//                "; start time " + getStartTime(i) + ", shortest route "+getBestTime(i));
-//            }
-//        }
+        if(!demand.isEmpty()){
+            for (int i = 0; i < 20; i++){
+            LOGGER.debug(getPlanByIndex(i).toString() +": "+getStartNodeId(i) + " -> " + getEndNodeId(i) + 
+                "; start time " + getStartTime(i) + ", shortest route "+getBestTime(i));
+            }
+        }
    	}
 
     private List<DriverPlan> sortByStartTime(List<DriverPlan> demand){
@@ -75,14 +76,12 @@ public class GroupDemand extends Demand<DriverPlan>{
         
     }
 
-	private void prepareDemand() {
+	private List<DriverPlan> prepareDemand(List<DriverPlan> demand) {
         LOGGER.debug("Prepare demand " + demand.size());
-        demand = sortByStartTime(demand);
-        
-        
-        
-        for (int i = 0; i < demand.size(); i++) {
-            DriverPlan plan = demand.get(i); 
+        List<DriverPlan> sortedDemand = sortByStartTime(demand);
+           
+        for (int i = 0; i < sortedDemand.size(); i++) {
+            DriverPlan plan = sortedDemand.get(i); 
             PlanActionPickup firstPickup = (PlanActionPickup) plan.get(0);
             SimulationNode firstNode  = firstPickup.getPosition();
             int startTime = firstPickup.request.getOriginTime()*1000;
@@ -94,21 +93,21 @@ public class GroupDemand extends Demand<DriverPlan>{
 //            LOGGER.debug("\n"+i+": "+firstNode.id+" -> "+lastNode.id+", start at "+startTime+
 //                ", length "+planTravelTime);
 
-            addGroupPlanToIndex(i, startTime, planTravelTime, firstNode.id, lastNode.id);
-            int minPlanTime = checkGroupPlan(plan, startTime, firstNode, planTravelTime, lastNode);
-//            if(minPlanTime > 0){
-//                addGroupPlanToIndex(i, startTime, minPlanTime , firstNode.id, lastNode.id);
-//            }
+//            addGroupPlanToIndex(i, startTime, planTravelTime, firstNode.id, lastNode.id);
+            int bestTime = checkGroupPlan(plan, startTime, firstNode, planTravelTime, lastNode);
+            if(bestTime > 0){
+                addGroupPlanToIndex(i, startTime, bestTime , firstNode.id, lastNode.id);
+            }
         }
         
         LOGGER.debug(badPlans.size() +" invalid plans dropped.");
-        LOGGER.debug(differentCost[0] +" with generator cost bigger than real.");
-        LOGGER.debug(differentCost[1] +" with generator cost less than real.");
+        LOGGER.debug(differentCost +" with generator cost differes from real.");
         LOGGER.debug(duplicatePickups + " duplicate pickups.");
+        return sortedDemand;
   	}
     
     int tolerance = 1000;
-    int[] differentCost = new int[]{0,0};
+    int differentCost = 0;
     Set<DriverPlan> badPlans = new HashSet<>();
     Set<Integer> seenTrips = new HashSet<>();
     int duplicatePickups = 0;
@@ -125,9 +124,11 @@ public class GroupDemand extends Demand<DriverPlan>{
             
             if(action instanceof PlanActionPickup){
                 PlanActionPickup pick = (PlanActionPickup) action;
+                //chceck duplicate trips 
                 if(seenTrips.contains(pick.request.getId())){
                     LOGGER.error("Duplicate pickup node "+pick.request.getId());
                     duplicatePickups++;
+                    return -1;
                             
                 } 
                 seenTrips.add(pick.request.getId());
@@ -194,34 +195,26 @@ public class GroupDemand extends Demand<DriverPlan>{
                 node = drop.getPosition();
             }
         }//actions
-        if(lastNode.id != node.id){
-            LOGGER.error("Expected end node "+lastNode.id + " != "+node.id+"; ");
 
         if(lastNode.id != node.id){
             LOGGER.error("Expected end node "+lastNode.id + " != "+node.id+"; ");
-
-                return -1;
-             }
+            return -1;
          }
-       
+         
         int realTravelTime = time  - startTime;
         if(Math.abs(realTravelTime - planTravelTime) > tolerance){
             LOGGER.warn("Expected end time "+planTravelTime+ " != "+realTravelTime+"; exp - actual = " +(planTravelTime - realTravelTime));
             if(Math.abs(planTravelTime - realTravelTime) > tolerance){
-                differentCost[0]++;
+                differentCost++;
             } 
-            if( realTravelTime > planTravelTime){
-                differentCost[1]++;
-            }
-
-            
-
         }
-   
-//        LOGGER.debug("path is correct.");
-        return time;//Math.min(time, expectedEndTime);
+ //        LOGGER.debug("path is correct.");
+        return Math.max(realTravelTime, planTravelTime);
     }
     
+    public DriverPlan getPlanByIndex(int planIndex){
+        return demand.get(planIndex);
+    }
 
 	private void addGroupPlanToIndex(int plan_id, int startTime, 
         int bestTime, int startNodeId, int endNodeId  ) {

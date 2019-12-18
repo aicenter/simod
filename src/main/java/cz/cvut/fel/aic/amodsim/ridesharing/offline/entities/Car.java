@@ -26,44 +26,30 @@ public class Car {
     
     int arr = 10000;
     
-    private int[] nodes;
+    private final int[] demandNodes;
     
     public int[][] times;
     
     private int size;
-    
-    private int depoCount;
-    
+     
     private int tripTravelTime;
     
     private int emptyTravelTime;
 
     /**
-     * Each class instance represents specific car and keeps track of it's route and charge level along the route.
-     * Route is a list nodes visited by the car with arrival and departure times.
-     * 
-     * @param depoNode id of SimNode, from which car starts it's route.
+     * Keeps track of it's route.
+     * tripNodes are indices of demand entries in Demand 
+     * in the order they were visited by the car.
+     *  for nth demand node in demandNodes
+     *  times[n][0] is actual start time
+     *  times[n][1] is best travel time.
      */
-    public Car(int depoNode) {
-       
-        id = count++;
-       // LOGGER.debug("NEW CAR: " + id);
-        size = 1;
-        nodes = new int[arr];
-        nodes[0] = -depoNode;
-        times = new int[arr][2];
-        times[0] = new int[]{0,0}; 
-        depoCount = 1;
-        tripTravelTime = 0;
-        emptyTravelTime = 0;
-    }
 
     public Car(){
         id = count++;
         size = 0;
-        nodes = new int[arr];
+        demandNodes = new int[arr];
         times = new int[arr][2];
-        depoCount = 0;
         tripTravelTime = 0;
         emptyTravelTime = 0;
     }
@@ -74,38 +60,29 @@ public class Car {
     }
     
     /**
-     * @return number of requests served by the car.
+     * @return ind of last node.
      */
-    public int getTripCount(){
-        return size - depoCount;
+    public int getLastDemandNode(){
+        return demandNodes[size-1];
     }
-
     /**
-     * @return id of the first node (station).
+     * @return ind of last node.
      */
-    public int getInitialStation(){
-        return nodes[0];
+    public int getFirstDemandNode(){
+        return demandNodes[0];
     }
-
-    /**
-     * @return id of last node.
-     */
-    public int getLastNode(){
-        return nodes[size-1];
-    }
-
     /**
      * @return departure time from the last node.
      */
-    public int getLastNodeEndTime(){
+    public int getLastActionTime(){
         return times[size-1][1];
     }
 
     /**
-     * @return time at which the car started to operate.
+     * @return car's arrival to the first node in the path.
      */
-    public int getOperationStartTime(){
-        return times[1][0];
+    public int getFirstActionTime(){
+        return times[0][0];
     }
 
     /**
@@ -119,39 +96,38 @@ public class Car {
      * 
      * @return list of visited request nodes (without stations).
      */
-    public int[] getAllTrips(){
-
-        return Arrays.stream(nodes).filter(n -> n >= 0).limit(getTripCount()).toArray();
+    public int[] getAllDemandNodes(){
+        return Arrays.stream(demandNodes).limit(size).toArray();
     }
         
-    public void addTrip(int node, int startTime, int tripDuration){
+    public void addDemandNode(int tripNode, int startTime, int tripDuration){
 //        LOGGER.debug("trip start "+ startTime + ", length "+tripDuration);
-//        LOGGER.debug("car last action time "+getLastNodeEndTime());
-        nodes[size] = node;
+//        LOGGER.debug("car last action time "+getLastActionTime());
+        demandNodes[size] = tripNode;
         times[size][0] = startTime;
         times[size][1] = startTime + tripDuration;
         tripTravelTime += tripDuration;
-        int previousTime = size > 0 ? getLastNodeEndTime() : 0;
+        int previousTime = size > 0 ? getLastActionTime() : 0;
         emptyTravelTime += (startTime - previousTime);
         size++;
     }
 
-    public int getTripTravelTime() {
+    public int getTripBusyTime() {
         return tripTravelTime;
     }
 
-    public int getEmptyTravelTime() {
+    public int getEmptyTime() {
         return emptyTravelTime;
     }
 
-public void addDepo(int node, int arrivalTime, int stayDuration){
-    nodes[size] = -node;
-    times[size][0] = arrivalTime;
-    times[size][1] = arrivalTime + stayDuration;
-    int previousTime = size > 0 ? getLastNodeEndTime() : 0;
-    emptyTravelTime += (arrivalTime - previousTime);
-    size++;
-}
+//public void addDepo(int node, int arrivalTime, int stayDuration){
+//    nodes[size] = -node;
+//    times[size][0] = arrivalTime;
+//    times[size][1] = arrivalTime + stayDuration;
+//    int previousTime = size > 0 ? getLastActionTime() : 0;
+//    emptyTravelTime += (arrivalTime - previousTime);
+//    size++;
+//}
 
 //    private void realloc(){
 //        nodes = Arrays.copyOf(nodes, arr*= 2);
@@ -198,7 +174,7 @@ public void addDepo(int node, int arrivalTime, int stayDuration){
 //     * @param startTime start time of the trip
 //     * @param tripDuration best possible time for the trip itself
 //     */
-//    public void addTrip(int node, int bestTimeToStart, int startTime, int tripDuration){
+//    public void addDemandNode(int node, int bestTimeToStart, int startTime, int tripDuration){
 //        nodes[size] = node;
 //        
 //       int earliestPossibleArrival = times[size-1][1] + bestTimeToStart;

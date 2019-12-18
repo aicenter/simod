@@ -112,7 +112,7 @@ public class TripTransformTaxify {
         
         LocalDateTime startDateTime = LocalDateTime.parse(config.ridesharing.offline.startFrom ,formatter);
         int pickupRadius = config.ridesharing.offline.pickupRadius;
-        
+        int count = 0;
         rtree = new Rtree(this.graph.getAllNodes(), this.graph.getAllEdges());
         List<TripTaxify<SimulationNode>> trips = new LinkedList<>();
         System.out.println(inputFile);
@@ -121,6 +121,7 @@ public class TripTransformTaxify {
             //LOGGER.debug(line);
             while ((line = br.readLine()) != null) {
               //  LOGGER.debug(line);
+               count++;
                 String[] parts = line.split(",");
                 int id = Integer.parseInt(parts[0]);
                 
@@ -152,6 +153,7 @@ public class TripTransformTaxify {
         }catch (IOException ex) {
             LOGGER.error(null, ex);
         }
+        LOGGER.info("{} trips in csv file", count);
         LOGGER.info("{} trips remained", trips.size());
         LOGGER.info("{} nodes not found in node tree", tooFarCount);
         LOGGER.info("{} same start and target node", sameNodeCount);

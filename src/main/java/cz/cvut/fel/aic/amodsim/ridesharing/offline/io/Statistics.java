@@ -98,7 +98,7 @@ public class Statistics {
 
         int maxProlongation = config.ridesharing.maxProlongationInSeconds * 1000;
         int timeToStart = config.ridesharing.offline.timeToStart;
-        
+
         //TODO remove. Already checked in GroupDemand
         Set<Integer> seenPickups = new HashSet<>();
         
@@ -114,17 +114,17 @@ public class Statistics {
            int firstPlanInd = car.getFirstDemandNode();
            int firstActionTimeMs = car.getFirstActionTime();
            SimulationNode initialNode = gd.getStartNode(firstPlanInd);
-           if(dbg) LOGGER.debug(car.id +" car ["+groups.length + "]. Starts at "+ firstActionTimeMs + " ("+firstPlanInd+", "+initialNode.id+")");
+//           if(dbg) LOGGER.debug(car.id +" car ["+groups.length + "]. Starts at "+ firstActionTimeMs + " ("+firstPlanInd+", "+initialNode.id+")");
            SimulationNode node = initialNode;
            int timeMs = firstActionTimeMs;
            // i = plan's position in car's path 
            for(int i = 0; i < car.getSize(); i++){
-                LOGGER.debug("time "+ timeMs + ", node "+node.id);
+//                if(dbg)LOGGER.debug("time "+ timeMs + ", node "+node.id);
                 int planIndex = groups[i];
                 DriverPlan plan = gd.getPlanByIndex(planIndex);
                 int planSize = plan.size()/2;
-//                time = car.times[i][0];
-                if(dbg) LOGGER.debug("New plan ["+planSize + "], start " + timeMs+ ", cost "+plan.cost + ", end "+ (timeMs + plan.cost*1000));
+                plansBysize[planSize]++;
+//                if(dbg) LOGGER.debug("New plan ["+planSize + "], start " + timeMs+ ", cost "+plan.cost + ", end "+ (timeMs + plan.cost*1000));
                 
                 for (PlanAction action : plan){
                      if( action instanceof PlanActionPickup ){
@@ -182,13 +182,11 @@ public class Statistics {
                         timeMs = actionTimeMs;
                         result.add(entry);
                     }
-                    plansBysize[planSize]++;
                 }//plan actions
             }//car plans
         }//cars
         int tripCount = 0;
         for (int i = 1; i< plansBysize.length; i++){
-
             LOGGER.debug(plansBysize[i] +" plans of size " + i);
             tripCount += i*plansBysize[i];
         }

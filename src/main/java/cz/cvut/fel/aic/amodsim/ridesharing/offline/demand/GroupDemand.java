@@ -44,12 +44,12 @@ public class GroupDemand extends Demand<DriverPlan>{
         LOGGER.debug("size of demand "+optimalPlans.size());
         demand = prepareDemand(optimalPlans);
 //        
-        if(!demand.isEmpty()){
-            for (int i = 0; i < 20; i++){
-            LOGGER.debug(getPlanByIndex(i).toString() +": "+getStartNodeId(i) + " -> " + getEndNodeId(i) + 
-                "; start time " + getStartTime(i) + ", shortest route "+getBestTime(i));
-            }
-        }
+//        if(!demand.isEmpty()){
+//            for (int i = 0; i < 20; i++){
+//            LOGGER.debug(getPlanByIndex(i).toString() +": "+getStartNodeId(i) + " -> " + getEndNodeId(i) + 
+//                "; start time " + getStartTime(i) + ", shortest route "+getBestTime(i));
+//            }
+//        }
    	}
 
     private List<DriverPlan> sortByStartTime(List<DriverPlan> demand){

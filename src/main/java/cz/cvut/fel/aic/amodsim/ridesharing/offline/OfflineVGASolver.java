@@ -198,7 +198,9 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
 //        int maxBatch = config.ridesharing.offline.batchMax == 0 ? Integer.MAX_VALUE : config.ridesharing.offline.batchMax;
 //        int maxTrips = config.ridesharing.offline.batchTotal == 0 ? Integer.MAX_VALUE : config.ridesharing.offline.batchTotal;
 //        LOGGER.debug ("Period " + (batchPeriod/1000) + ", max batch "+maxBatch + ", max total "+maxTrips);
-        int start = (int) trips.get(0).getStartTime();        
+        int start = (int) trips.get(0).getStartTime() + 10000;
+        //FIXME it loses around 200 trips somewhere here
+        
         int end = start + batchPeriod;
         List<PlanComputationRequest> batch = new ArrayList<>();
 //        LOGGER.debug("start "+start+", end "+end);
@@ -213,7 +215,7 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
 //                batch = new ArrayList<>();
 //                batch.add(request);
 //            }
-            if (trip.getStartTime() < end ) {
+            if (trip.getStartTime() <= end ) {
                 batch.add(request);
             }else  {
 //                LOGGER.debug("Batch size "+ batch.size());
@@ -225,6 +227,7 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
             }
  
         }
+        LOGGER.debug(batches.stream().mapToInt((b)-> b.size()).sum() +" trips in "+batches.size() + " batches");
         return batches;
     }
    
@@ -342,7 +345,8 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
 			logRecords();
 		}
         LOGGER.debug("DriverPlans size " + driverPlans.size());
-        LOGGER.debug("Plans length 1 " + driverPlans.stream().filter(p -> p.getLength() == 0).count());
+        
+        LOGGER.debug("Plans length  " + driverPlans.stream().filter(p -> p.getLength() == 0).count());
         return driverPlans;
 	}
        
@@ -486,6 +490,10 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
         }
     }
 
+    private void writeGraphDat(){
+        long totalLengthM=0;
+        long totalTimeS =0;
+    }
     
 	private List<Plan> computeGroupsForVehicle(VGAVehicle vehicle, Collection<PlanComputationRequest> waitingRequests) {
 		Benchmark benchmark = new Benchmark();

@@ -198,7 +198,7 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
 //        int maxBatch = config.ridesharing.offline.batchMax == 0 ? Integer.MAX_VALUE : config.ridesharing.offline.batchMax;
 //        int maxTrips = config.ridesharing.offline.batchTotal == 0 ? Integer.MAX_VALUE : config.ridesharing.offline.batchTotal;
 //        LOGGER.debug ("Period " + (batchPeriod/1000) + ", max batch "+maxBatch + ", max total "+maxTrips);
-        int start = (int) trips.get(0).getStartTime() + 10000;
+        int start = (int) trips.get(0).getStartTime();
         //FIXME it loses around 200 trips somewhere here
         
         int end = start + batchPeriod;

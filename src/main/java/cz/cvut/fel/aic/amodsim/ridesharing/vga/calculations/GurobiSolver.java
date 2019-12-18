@@ -130,6 +130,7 @@ public class GurobiSolver {
 				
 				int groupCounter = 0;
                 //TODO remove plan from list 
+//                List<Plan> vehiclePlans = vehicleEntry.feasibleGroupPlans;
 				for (Plan<IOptimalPlanVehicle> plan : vehicleEntry.feasibleGroupPlans) {
 					
 					// variables
@@ -152,11 +153,14 @@ public class GurobiSolver {
 							CollectionUtil.addToListInMap(requestVariableMap, (DefaultPlanComputationRequest) action.getRequest(), newVar);
 						}
 					}
+                    
 					
 					groupCounter++;
 				}//plan
 				//LOGGER.debug("GroupCounter {}",groupCounter);
-			
+                //Plans are already in the map
+                vehicleEntry.feasibleGroupPlans.clear();
+                
 				String vehicleConstraintName = String.format("v%s", vehicleId);
 				
 				/* Adding constraint 1 into model */

@@ -78,7 +78,7 @@ public class Solution {
         int n = pair.length;
         
          //print pairs for debug
-        Set<Integer> seen = new HashSet<>();
+//        Set<Integer> seen = new HashSet<>();
 //        LOGGER.debug("PAIRS");
 //        for (int i = 0 ; i < pair.length; i++){
 //            while(i != demand.N){
@@ -104,7 +104,7 @@ public class Solution {
             // start of new segment, which doesn't have an assigned car
             int currentNodeInd = i; 
             //DriverPlan dp = (DriverPlan) demand.getPlanByIndex(i);
-            int planStartTime = demand.getStartTime(i);
+//            int planStartTime = demand.getStartTime(i);
 //            LOGGER.debug("New plan " + currentNodeInd + " time [" + planStartTime + ", " + demand.getEndTime(i) +
 //                "]" + ", next plan "+pair[currentNodeInd]);
             Car car = getCar(currentNodeInd);//returns car with current node already added

@@ -44,6 +44,11 @@ public class Statistics {
     TravelTimeProvider travelTimeProvider;
     
     AmodsimConfig config;
+    
+    List<double[]> occupancy;
+
+   
+    
         
      public Statistics(Demand demand, List<Car> cars,  TravelTimeProvider travelTimeProvider, 
          AmodsimConfig config){
@@ -51,6 +56,7 @@ public class Statistics {
         this.cars = cars;
         this.travelTimeProvider = travelTimeProvider;
         this.config = config;
+        
     }
     
     private  List<String[]> prepareResults(){
@@ -61,6 +67,7 @@ public class Statistics {
             "time", "node_id", "lat",  "lon"});
         for(Car car : cars){
 //            LOGGER.debug("Car "+car.id + " num trips " + car.getTripCount() + " , length " + car.getAllDemandNodes().length);
+  
             int[] trips = car.getAllDemandNodes();
             for(int tripInd : trips){
                 int tripId = demand.indToTripId(tripInd);
@@ -95,7 +102,7 @@ public class Statistics {
     boolean dbg = false;
 
     private List<String[]> prepareGroupResults(GroupDemand gd){
-
+        occupancy = new ArrayList<>();
         int maxProlongation = config.ridesharing.maxProlongationInSeconds * 1000;
         int timeToStart = config.ridesharing.offline.timeToStart;
 
@@ -109,6 +116,10 @@ public class Statistics {
             "ept",  "action time",  "lpt",  "time-ept", "lpt-time" , "node_id", "lat",  "lon"});
         
         for(Car car : cars){
+           int passengerCount = 0;
+           double[] timeWitnNPassengers = new double[config.ridesharing.vehicleCapacity + 1];
+           
+           Arrays.fill(timeWitnNPassengers, 0);
            int[] groups = car.getAllDemandNodes();
           
            int firstPlanInd = car.getFirstDemandNode();
@@ -129,17 +140,23 @@ public class Statistics {
                 for (PlanAction action : plan){
                      if( action instanceof PlanActionPickup ){
                         PlanComputationRequest request = ((PlanActionPickup) action).request;
+                        
                         if(seenPickups.contains(request.getId())){
                              LOGGER.error("Duplicate pickup trip "+request.getId());
                             //continue;
                         }
+                        
                         seenPickups.add(request.getId());
                         String actionType = "Pickup";
                         int earliestPossibleTimeMs = request.getOriginTime() *1000;
-                        int actionTimeMs = timeMs + (int)travelTimeProvider.getExpectedTravelTime(node, request.getFrom());
+                        int travelTime = (int)travelTimeProvider.getExpectedTravelTime(node, request.getFrom());
+                        int actionTimeMs = timeMs + travelTime;
                         actionTimeMs = actionTimeMs > earliestPossibleTimeMs ? actionTimeMs : earliestPossibleTimeMs;
                         int actionTimeS = (int) Math.round(actionTimeMs/1000.0);
                         int latestPossibleTimeMs = request.getMaxPickupTime() *1000;
+                        
+                        timeWitnNPassengers[passengerCount]+= (travelTime/1000.0);
+                        passengerCount++;
                         if(dbg) LOGGER.debug("P"+request.getId()+": " +earliestPossibleTimeMs + " < " + actionTimeMs + " < "+ latestPossibleTimeMs);
                         String[] entry = { 
                             String.valueOf(car.id), 
@@ -163,10 +180,16 @@ public class Statistics {
                         String actionType = "Dropoff";
                         int latestPossibleTimeMs = request.getMaxDropoffTime()*1000;
                         int earliestPossibleTimeMs = latestPossibleTimeMs - maxProlongation ;
-                        int actionTimeMs = timeMs + (int) travelTimeProvider.getExpectedTravelTime(node, request.getTo());
+                        int travelTime = (int) travelTimeProvider.getExpectedTravelTime(node, request.getTo());
+                        int actionTimeMs = timeMs + travelTime;
                         int actionTimeS = (int) Math.round(actionTimeMs/1000.0);
+                        
+                        timeWitnNPassengers[passengerCount]+= (travelTime/1000.0);
+                        passengerCount--;
+                        
                         if(dbg) LOGGER.debug("D"+request.getId()+": "+earliestPossibleTimeMs + " < " + actionTimeMs + " < "+ latestPossibleTimeMs);
-                            String[] entry = {
+                        
+                        String[] entry = {
                                 String.valueOf(car.id), 
                                 String.valueOf(request.getId()), 
                                 actionType,
@@ -184,6 +207,7 @@ public class Statistics {
                     }
                 }//plan actions
             }//car plans
+           occupancy.add(timeWitnNPassengers);
         }//cars
         int tripCount = 0;
         for (int i = 1; i< plansBysize.length; i++){
@@ -191,8 +215,43 @@ public class Statistics {
             tripCount += i*plansBysize[i];
         }
         LOGGER.debug("Total trips " + tripCount);
-
+        occupancyResults();
         return result;
+    }
+    
+    private void occupancyResults(){
+        int capacities = config.ridesharing.vehicleCapacity +1;
+        int columns = capacities + 1;
+        int[] total = new int[columns];
+        Arrays.fill(total, 0);
+        
+        List<String[]> result = new ArrayList<>();
+        String[] header = new String[columns];
+        header[0] = "car_id";
+        for(int i = 1; i < columns; i++){
+            header[i] = String.format("onboard_%s", i); 
+        }
+        result.add(header);
+//        result.add(new String[]{ "car_id", "empty", "one", "two", "three", "four"});
+        for(int carId = 0; carId < occupancy.size(); carId++){
+            double car[] = occupancy.get(carId);
+            String[] entry = new String[columns];
+            entry[0] = String.valueOf(carId);
+            for(int count = 0; count < capacities; count++){
+                int col = count  + 1;
+                total[count]+=car[count];
+                entry[col] = String.valueOf(car[count]);
+            }
+            result.add(entry);
+        }
+//        String[] entry = new String[columns];
+//        entry[0] = "total";
+////        result.add(new String[]{"total for all cars  "," minutes"});
+//        for(int count = 0; count < total.length; count++){
+//            
+//            result.add(new String[]{String.valueOf(count),  String.valueOf(total[count]/60.0)});
+//        }
+        writeCsv(config.amodsimExperimentDir, "passenger_stats", result);
     }
     
     

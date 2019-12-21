@@ -491,8 +491,25 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
     }
 
     private void writeGraphDat(){
-        long totalLengthM=0;
-        long totalTimeS =0;
+        double totalLengthM = graph.getAllEdges().stream().mapToDouble((e) -> e.getLengthCm()).sum()/100.0;
+        double totalTimeS = graph.getAllEdges().stream().mapToDouble((e) -> e.getLengthCm()/e.getAllowedMaxSpeedInCmPerSecond()).sum();
+        List<String[]> result = new ArrayList<>();
+        result.add(new String[]{"id", "lengthM", "timeS"});
+        for(SimulationEdge edge: graph.getAllEdges()){
+            double lengthM = edge.getLengthCm()/100.0;
+            double timeS = edge.getLengthCm()/edge.getAllowedMaxSpeedInCmPerSecond();
+            result.add(new String[]{String.valueOf(edge.getStaticId()),
+            String.valueOf(lengthM), String.valueOf(timeS)});
+        }
+         try (CSVWriter csvWriter = new CSVWriter(new FileWriter(
+             FilenameUtils.concat(config.amodsimDataDir, "nyc_edges.csv")))) {
+                csvWriter.writeAll(result);
+            }
+            catch(Exception ex){
+                ex.printStackTrace();
+            }
+        
+        
     }
     
 	private List<Plan> computeGroupsForVehicle(VGAVehicle vehicle, Collection<PlanComputationRequest> waitingRequests) {

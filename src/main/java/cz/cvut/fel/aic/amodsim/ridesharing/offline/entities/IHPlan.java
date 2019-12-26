@@ -150,7 +150,23 @@ public class IHPlan {
         actions.add(-tripNode - 1);
         times.add(startTime + bestTime);
      }
-
+    
+    public String printPlan(){
+        String p = "Plan "+id +", cost "+getPlanCost()+", size "+getSize() + "\n";
+        for(int i=0; i < getSize(); i++){
+            int action = actions.get(i);
+//            if (action > 0){
+//                p += ("P "+action +", ");
+//            }else{
+//                action = - action -1;
+//                p += ("D "+action+", ");
+//            }
+            p += ("("+action+", "+times.get(i) + "), ");
+            
+        }
+        p +="\n";
+        return p;
+    }
 
 
 

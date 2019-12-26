@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -45,44 +46,26 @@ public class GroupDemand extends Demand<DriverPlan>{
         demand = prepareDemand(optimalPlans);
 //        
 //        if(!demand.isEmpty()){
-//            for (int i = 0; i < 20; i++){
+//            for (int i = 0; i < 50; i++){
 //            LOGGER.debug(getPlanByIndex(i).toString() +": "+getStartNodeId(i) + " -> " + getEndNodeId(i) + 
 //                "; start time " + getStartTime(i) + ", shortest route "+getBestTime(i));
 //            }
 //        }
    	}
 
-    private List<DriverPlan> sortByStartTime(List<DriverPlan> demand){
-        LOGGER.debug("Sorting demand ");
-        List<int[]> times = new LinkedList<>();
-        for(int i = 0; i < demand.size(); i++){
-            DriverPlan plan = demand.get(i);
-            int startTime = PlanActionPickup.class.cast(plan.get(0)).request.getMaxPickupTime();
-            int[] time = {i, startTime};
-            times.add(time);
-        }
-        Collections.sort(times, (int[] o1, int[] o2) -> {
-            Integer i1 = o1[1];
-            Integer i2 = o2[1];
-            return i1.compareTo(i2);
-        });
-        
-        List<DriverPlan> sortedDemand = new LinkedList<>();
-        times.forEach((t) -> {
-            sortedDemand.add(demand.get(t[0]));
-        }); 
-        
-        return sortedDemand;
-        
-    }
 
 	private List<DriverPlan> prepareDemand(List<DriverPlan> demand) {
         LOGGER.debug("Prepare demand " + demand.size());
-        List<DriverPlan> sortedDemand = sortByStartTime(demand);
+        Collections.sort(demand, (p1, p2) -> {
+            Integer i1 = PlanActionPickup.class.cast(p1.get(0)).request.getOriginTime();  
+            Integer i2 = PlanActionPickup.class.cast(p2.get(0)).request.getOriginTime();
+            return i1.compareTo(i2);
+        });
            
-        for (int i = 0; i < sortedDemand.size(); i++) {
-            DriverPlan plan = sortedDemand.get(i); 
+        for (int i = 0; i < demand.size(); i++) {
+            DriverPlan plan = demand.get(i); 
             PlanActionPickup firstPickup = (PlanActionPickup) plan.get(0);
+            
             SimulationNode firstNode  = firstPickup.getPosition();
             int startTime = firstPickup.request.getOriginTime()*1000;
             
@@ -96,14 +79,14 @@ public class GroupDemand extends Demand<DriverPlan>{
 //            addGroupPlanToIndex(i, startTime, planTravelTime, firstNode.id, lastNode.id);
             int bestTime = checkGroupPlan(plan, startTime, firstNode, planTravelTime, lastNode);
             if(bestTime > 0){
-                addGroupPlanToIndex(i, startTime, bestTime , firstNode.id, lastNode.id);
+            addGroupPlanToIndex(i, startTime, planTravelTime , firstNode.id, lastNode.id);
             }
         }
         
         LOGGER.debug(badPlans.size() +" invalid plans dropped.");
         LOGGER.debug(differentCost +" with generator cost differes from real.");
         LOGGER.debug(duplicatePickups + " duplicate pickups.");
-        return sortedDemand;
+        return demand;
   	}
     
     int tolerance = 1000;
@@ -112,15 +95,16 @@ public class GroupDemand extends Demand<DriverPlan>{
     Set<Integer> seenTrips = new HashSet<>();
     int duplicatePickups = 0;
 
-  
+    boolean dbg = false;
     private int checkGroupPlan(DriverPlan plan, int startTime, SimulationNode firstNode,
         int planTravelTime,  SimulationNode lastNode){
-//        LOGGER.debug("PLAN size "+ plan.size()/2 + ", first request time " + startTime +
-//            ", time from start of the batch " + ((startTime - 1000) % 30000) + ", solver plan cost " + planTravelTime );
+        if (dbg) LOGGER.debug("PLAN size "+ plan.size()/2 + ", first request time " + startTime +
+            ", time from start of the batch " + ((startTime - 1000) % 30000) + ", solver plan cost " + planTravelTime );
         int time = startTime;
         SimulationNode node = null;
 //        LOGGER.debug("\nplan size "+((int) plan.size()/2));
         for(PlanAction action : plan){
+             if (dbg)  LOGGER.debug("new action, current time " +time);
             
             if(action instanceof PlanActionPickup){
                 PlanActionPickup pick = (PlanActionPickup) action;
@@ -136,7 +120,7 @@ public class GroupDemand extends Demand<DriverPlan>{
                 if(node == null){
                    time += timeToStart;
                     node = pick.getPosition();
-                   // LOGGER.debug("Pickup "+ pick.request.getId()+". travel time to node " + timeToStart + ", action time " + time);
+                   if (dbg)    LOGGER.debug("Pickup1 "+ pick.request.getId()+". travel time to node " + timeToStart + ", action time " + time);
                     if(node.id != firstNode.id){
                         LOGGER.error("Expected start node "+firstNode.id + " != "+node.id);
                         return -1;
@@ -144,11 +128,12 @@ public class GroupDemand extends Demand<DriverPlan>{
                 } else {
                     int travelTime = (int) travelTimeProvider.getExpectedTravelTime(node, pick.getPosition());
                     time += travelTime;
-                   // LOGGER.debug("Pickup "+ pick.request.getId()+". travel time to node "+travelTime + ", action time " + time);
+                    
                     int ept = pick.request.getOriginTime()*1000;
                     int lpt = pick.request.getMaxPickupTime()*1000;
-                    
-                    time = Math.max(ept, time);
+                   if (dbg)    LOGGER.debug("ept "+ ept+ ", lpt "+ lpt);
+                    time = time > ept ? time : ept ;
+                     if (dbg)  LOGGER.debug("Pickup "+ pick.request.getId()+". travel time to node "+travelTime + ", action time " + time);
                     if ((ept - time ) > tolerance){
                         LOGGER.error("plan size "+((int) plan.size()/2));
                         LOGGER.error(pick.request.getId()+"p("+((int) plan.size()/2)+") arrived "
@@ -161,7 +146,7 @@ public class GroupDemand extends Demand<DriverPlan>{
                         LOGGER.error(pick.request.getId()+"d("+((int) plan.size()/2)+") arrived "
                             +(time - lpt) +"ms too late: lpt "+ lpt +", time " +time);
                                 badPlans.add(plan);
-                           return -1;
+                               return -1;
                     }
 //                    if( time < lpt && time > ept){
 //                           LOGGER.debug("ok. " + ept + " < " + time+   " > " + lpt);
@@ -176,23 +161,23 @@ public class GroupDemand extends Demand<DriverPlan>{
              //  LOGGER.debug("Dropoff "+ drop.request.getId()+". travel time to node "+travelTime + ", action time "+ time);
                 int lpt = drop.request.getMaxDropoffTime()*1000;
                 int ept = lpt - maxProlongation;
-                    if ((ept - time)  > tolerance){
-                        LOGGER.error(drop.request.getId() + "d("+((int) plan.size()/2) + ")  arrived " 
-                            + (ept - time) + "ms too early: ept " + ept + ", time " + time);
-                            badPlans.add(plan);
+                if ((ept - time)  > tolerance){
+                    LOGGER.error(drop.request.getId() + "d("+((int) plan.size()/2) + ")  arrived " 
+                        + (ept - time) + "ms too early: ept " + ept + ", time " + time);
+                        badPlans.add(plan);
                            return -1;
-                    }
-                    if((time - lpt) > tolerance){
-                        LOGGER.error( drop.request.getId() + "d(" + ((int) plan.size()/2) + ") arrived " +
-                            (time - lpt) +"ms too late: lpt "+ lpt + ", time " + time);
-                            
-                            badPlans.add(plan);
+                }
+                if((time - lpt) > tolerance){
+                    LOGGER.error( drop.request.getId() + "d(" + ((int) plan.size()/2) + ") arrived " +
+                        (time - lpt) +"ms too late: lpt "+ lpt + ", time " + time);
+                        
+                        badPlans.add(plan);
                            return -1;
-                    }
+                }
 //                    if( time < lpt && time > ept){
 //                           LOGGER.debug("ok. "+ ept + " < " + time+   " > " + lpt);
 //                    }
-                node = drop.getPosition();
+            node = drop.getPosition();
             }
         }//actions
 
@@ -212,6 +197,7 @@ public class GroupDemand extends Demand<DriverPlan>{
         return Math.max(realTravelTime, planTravelTime);
     }
     
+    @Override
     public DriverPlan getPlanByIndex(int planIndex){
         return demand.get(planIndex);
     }

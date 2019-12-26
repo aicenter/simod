@@ -54,6 +54,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.offline.MyOfflineVgaSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.OfflineSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher;
 import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.offline.OfflineIHSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.OfflineVGASolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.search.TravelTimeProviderTaxify;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
@@ -117,7 +118,8 @@ public class MainModule extends StandardAgentPolisModule{
 						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
 			switch(amodsimConfig.ridesharing.method){
 				case "insertion-heuristic":
-					bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
+					//bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
+                    bind(DARPSolver.class).to(OfflineIHSolver.class);
 					break;
 				case "vga":
 					bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);

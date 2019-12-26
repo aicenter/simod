@@ -202,7 +202,7 @@ public class Solution {
         int requestTime = demand.getStartTime(trip);
 //        LOGGER.debug("request time  "+ requestTime + " epa time " + (travelTime + lastActionTime));
         int actionTime = lastActionTime + travelTime;
-        if (actionTime  <= (requestTime + timeToStart)){
+        if (actionTime  < (requestTime + timeToStart)){
             return actionTime;
         } else {
             return -1;

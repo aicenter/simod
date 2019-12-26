@@ -193,45 +193,81 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
     
     private List<List<PlanComputationRequest>>  groupRequests(List<TripTaxify<SimulationNode>> trips){
 //        int counter = 0;
-        List<List<PlanComputationRequest>> batches = new LinkedList<>();
-        int batchPeriod = config.ridesharing.offline.batchPeriod;
-//        int maxBatch = config.ridesharing.offline.batchMax == 0 ? Integer.MAX_VALUE : config.ridesharing.offline.batchMax;
-//        int maxTrips = config.ridesharing.offline.batchTotal == 0 ? Integer.MAX_VALUE : config.ridesharing.offline.batchTotal;
-//        LOGGER.debug ("Period " + (batchPeriod/1000) + ", max batch "+maxBatch + ", max total "+maxTrips);
-        int start = (int) trips.get(0).getStartTime();
-        //FIXME it loses around 200 trips somewhere here
+        writeTripStats(trips);
         
-        int end = start + batchPeriod;
-        List<PlanComputationRequest> batch = new ArrayList<>();
-//        LOGGER.debug("start "+start+", end "+end);
-        for(TripTaxify<SimulationNode> trip : trips){
-
-//            counter++;
-            DefaultPlanComputationRequest request = requestFactory.create(trip.id, trip.getStartNode(), 
-                trip.getEndNode(), agentFactory.create("agent " + trip.id, trip.id, trip));
-//            if(batch.size() >= maxBatch){
-//                LOGGER.debug("Batch size "+ batch.size());
+        
+        List<List<PlanComputationRequest>> batches = new LinkedList<>();
+//        int batchPeriod = config.ridesharing.offline.batchPeriod;
+////        int maxBatch = config.ridesharing.offline.batchMax == 0 ? Integer.MAX_VALUE : config.ridesharing.offline.batchMax;
+////        int maxTrips = config.ridesharing.offline.batchTotal == 0 ? Integer.MAX_VALUE : config.ridesharing.offline.batchTotal;
+////        LOGGER.debug ("Period " + (batchPeriod/1000) + ", max batch "+maxBatch + ", max total "+maxTrips);
+//        int start = (int) trips.get(0).getStartTime();
+//        //FIXME it loses around 200 trips somewhere here
+//        
+//        int end = start + batchPeriod;
+//        List<PlanComputationRequest> batch = new ArrayList<>();
+////        LOGGER.debug("start "+start+", end "+end);
+//        for(TripTaxify<SimulationNode> trip : trips){
+//
+////            counter++;
+//            DefaultPlanComputationRequest request = requestFactory.create(trip.id, trip.getStartNode(), 
+//                trip.getEndNode(), agentFactory.create("agent " + trip.id, trip.id, trip));
+////            if(batch.size() >= maxBatch){
+////                LOGGER.debug("Batch size "+ batch.size());
+////                batches.add(batch);
+////                batch = new ArrayList<>();
+////                batch.add(request);
+////            }
+//            if (trip.getStartTime() < end ) {
+//                batch.add(request);
+//            }else  {
+////                LOGGER.debug("Batch size "+ batch.size());
 //                batches.add(batch);
 //                batch = new ArrayList<>();
 //                batch.add(request);
+//                end += batchPeriod;
+////                LOGGER.debug("start "+start+", end "+end);
 //            }
-            if (trip.getStartTime() <= end ) {
-                batch.add(request);
-            }else  {
-//                LOGGER.debug("Batch size "+ batch.size());
-                batches.add(batch);
-                batch = new ArrayList<>();
-                batch.add(request);
-                end += batchPeriod;
-//                LOGGER.debug("start "+start+", end "+end);
-            }
- 
-        }
-        LOGGER.debug(batches.stream().mapToInt((b)-> b.size()).sum() +" trips in "+batches.size() + " batches");
+// 
+//        }
+//        LOGGER.debug(batches.stream().mapToInt((b)-> b.size()).sum() +" trips in "+batches.size() + " batches");
         return batches;
     }
    
 
+     private void writeTripStats(List<TripTaxify<SimulationNode>> trips){
+        
+        List<String[]> result = new ArrayList<>();
+        
+        for (TripTaxify<SimulationNode> trip : trips){
+            Long shortestPathInMs = travelTimeProvider.getExpectedTravelTime(trip.getStartNode(), trip.getEndNode());
+            result.add(new String[]{
+                String.valueOf(trip.id), 
+                String.valueOf(trip.getStartTime()/1000), 
+                String.valueOf(shortestPathInMs/1000.0),
+                
+                String.valueOf(trip.getStartNode().id),
+                String.valueOf(trip.getStartNode().getLatitude()),
+                String.valueOf(trip.getStartNode().getLongitude()),
+                
+                String.valueOf(trip.getEndNode().id),
+                String.valueOf(trip.getEndNode().getLatitude()),
+                String.valueOf(trip.getEndNode().getLongitude())
+               
+            });
+        }
+        
+        result.add(0, new String[]{"tripId", "startTime", "lengthSec",
+            "startNode",  "startLat", "startLon", "endNode", "endLat", "endLon"});
+        String filename = "trip_stats_0308.csv";
+        String filepath  =  FilenameUtils.concat(config.amodsimExperimentDir, filename);
+        
+        try (CSVWriter csvWriter = new CSVWriter(new FileWriter(filepath))) {
+                csvWriter.writeAll(result);
+        }catch(Exception ex){
+                ex.printStackTrace();
+        }
+    }
     
      
     @Override 

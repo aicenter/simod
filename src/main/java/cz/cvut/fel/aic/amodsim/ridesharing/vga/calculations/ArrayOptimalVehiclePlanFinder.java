@@ -56,14 +56,13 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
     
     private final int timeToStart;
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ArrayOptimalVehiclePlanFinder.class);
-    private final int batchPeriod;
+
 
 	@Inject
 	public ArrayOptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation, AmodsimConfig config,
 			TravelTimeProvider travelTimeProvider) {
 		super(planCostComputation, config, travelTimeProvider);
         timeToStart = config.ridesharing.offline.timeToStart;
-        batchPeriod = config.ridesharing.offline.batchPeriod;
 	}
 	
 	
@@ -129,13 +128,25 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 				if(newAction instanceof PlanActionDropoff || onBoardCount < vehicle.getCapacity()){
 				    int durationMs;
                     
-                    // initial time for offline groups
+                    // initial time for offline group is equal to
+                    //  start time of it's 1st pickup + constant 
 					if(planPositionIndex == 0){
                         startTime = PlanActionPickup.class.cast(newAction).getRequest().getOriginTime();
                         endTime = startTime*1000;
                         durationMs = timeToStart;
                         
 					}
+                    //adjust travel time to not arrive for pick-up before request time
+                    else if (newAction instanceof PlanActionPickup){
+                        durationMs = (int) (travelTimeProvider.getExpectedTravelTime(
+								lastPosition, newAction.getPosition()));
+                        int arrivalTime = (int) endTime + durationMs;
+                        int requestTime = newAction.getRequest().getOriginTime()*1000;
+                        if (arrivalTime < requestTime){
+                            int delta = requestTime - arrivalTime;
+                            durationMs += delta;
+                        }
+                    }
                     // max pick up / drop off time check
 					else{
 						durationMs = (int) (travelTimeProvider.getExpectedTravelTime(

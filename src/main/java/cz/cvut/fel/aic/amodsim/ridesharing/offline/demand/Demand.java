@@ -274,8 +274,9 @@ public class Demand<D> {
     }
    
     private int[][] buildAdjacency(int sigma) {
-        int maxWaitTime = config.ridesharing.maxProlongationInSeconds * 1000;
+//        int maxProlongartion = config.ridesharing.maxProlongationInSeconds * 1000;
         int timeToStart = config.ridesharing.offline.timeToStart;
+        sigma = sigma > 0 ? sigma : Integer.MAX_VALUE;
         LOGGER.debug("sigma in millis " + sigma);
         LOGGER.debug("timeLine length: " + startTimes.length);
         LOGGER.debug("N = " + N);
@@ -286,9 +287,7 @@ public class Demand<D> {
             
             List<Integer> neighbors = new ArrayList<>();
 //            LOGGER.debug("NEW TRIP. #"+ tripInd + "; starts " + getStartTime(tripInd) + "; ends" + getEndTime(tripInd));
-            int timeLimit = getEndTime(tripInd) + sigma;
-//            LOGGER.debug("timeLimit = " + timeLimit);
-            int lastTripInd = getIndexByStartTime(timeLimit);
+            int lastTripInd = getIndexByStartTime(getEndTime(tripInd));
 //            LOGGER.debug("  returned index = " + lastTripInd+", starts at " + getStartTime(lastTripInd));
             
             for (int nextTripInd = lastTripInd + 1; nextTripInd < N; nextTripInd++) {
@@ -297,19 +296,23 @@ public class Demand<D> {
 //                    LOGGER.error("Failed.Next trip starts before the previous ends" + indToTripId(tripInd));
                     continue;
                 }
+                if(getStartTime(nextTripInd) - getEndTime(tripInd) > sigma){
+                    continue;
+                }
+                
                 int timeToNextTrip = (int) travelTimeProvider.getExpectedTravelTime(
                     getEndNode(tripInd), getStartNode(nextTripInd));
                 int earliestPossibleArrival = getEndTime(tripInd) + timeToNextTrip;
                 int requestTime = getStartTime(nextTripInd);
                 earliestPossibleArrival = Math.max(requestTime, earliestPossibleArrival);
-                if (earliestPossibleArrival <= (getStartTime(nextTripInd) + timeToStart)) {
+                if (earliestPossibleArrival <= (requestTime + timeToStart)) {
 //                    LOGGER.debug("Added.Travel time = " + timeToNextTrip +"; start "+getStartTime(nextTripInd));
 //                    LOGGER.debug("Ok. "+ getStartTime(nextTripInd) + " < "+ earliestPossibleArrival +" <  " +  (getStartTime(nextTripInd) + timeToStart));
                     neighbors.add(nextTripInd);
                 }
             }
             //TODO limit for neighbors
-            adjacency[tripInd] = neighbors.stream().mapToInt(Integer::intValue).sorted().limit(50).toArray();
+            adjacency[tripInd] = neighbors.stream().mapToInt(Integer::intValue).sorted().toArray();
         }
         double avg = Arrays.stream(adjacency).map((int[] ns) -> ns.length).mapToInt(Integer::intValue).sum() / N;
         LOGGER.debug("AVERAGE  edges per node " + avg);

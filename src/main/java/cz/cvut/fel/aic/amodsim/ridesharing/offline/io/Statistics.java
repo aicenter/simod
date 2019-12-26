@@ -109,7 +109,7 @@ public class Statistics {
         //TODO remove. Already checked in GroupDemand
         Set<Integer> seenPickups = new HashSet<>();
         
-        int[] plansBysize = new int[config.ridesharing.vehicleCapacity+1];
+        int[] plansBysize = new int[config.ridesharing.vga.maxGroupSize+1];
         for(int i =0; i < plansBysize.length; i++)         plansBysize[i]=0;
         List<String[]> result = new ArrayList<>();
         result.add(0, new String[]{"car_id", "demand_id", "action", 
@@ -123,7 +123,7 @@ public class Statistics {
            int[] groups = car.getAllDemandNodes();
           
            int firstPlanInd = car.getFirstDemandNode();
-           int firstActionTimeMs = car.getFirstActionTime();
+           int firstActionTimeMs = gd.getStartTime(firstPlanInd) + timeToStart;
            SimulationNode initialNode = gd.getStartNode(firstPlanInd);
 //           if(dbg) LOGGER.debug(car.id +" car ["+groups.length + "]. Starts at "+ firstActionTimeMs + " ("+firstPlanInd+", "+initialNode.id+")");
            SimulationNode node = initialNode;

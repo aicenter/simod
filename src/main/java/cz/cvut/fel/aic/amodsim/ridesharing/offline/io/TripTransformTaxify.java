@@ -45,7 +45,7 @@ public class TripTransformTaxify {
     
     private final AmodsimConfig config;
     
-    private final TravelTimeProvider travelTimeProvider;
+//    private final TravelTimeProvider travelTimeProvider;
     
     private final Graph<SimulationNode,SimulationEdge> graph;
     
@@ -57,7 +57,7 @@ public class TripTransformTaxify {
     
 //    private final int pickupRadius;
     
-    private final int maxWaitTime;
+//    private final int maxWaitTime;
     
     
     /**
@@ -82,9 +82,8 @@ public class TripTransformTaxify {
 //        Double maxLat = this.graph.getAllNodes().stream()
 //            .map(n->n.getLatitude()).max(Double::compare).get();
 //        LOGGER.debug("BBOX: "+ minLon+", " +maxLon +", " +minLat +", "+maxLat);
-        this.travelTimeProvider = travelTimeProvider;
         this.config = config;
-        maxWaitTime = config.ridesharing.offline.maxWaitTime;
+
     }    
     /**
      *

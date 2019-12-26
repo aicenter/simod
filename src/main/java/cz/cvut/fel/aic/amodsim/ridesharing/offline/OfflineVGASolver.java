@@ -197,40 +197,40 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
         
         
         List<List<PlanComputationRequest>> batches = new LinkedList<>();
-//        int batchPeriod = config.ridesharing.offline.batchPeriod;
-////        int maxBatch = config.ridesharing.offline.batchMax == 0 ? Integer.MAX_VALUE : config.ridesharing.offline.batchMax;
-////        int maxTrips = config.ridesharing.offline.batchTotal == 0 ? Integer.MAX_VALUE : config.ridesharing.offline.batchTotal;
-////        LOGGER.debug ("Period " + (batchPeriod/1000) + ", max batch "+maxBatch + ", max total "+maxTrips);
-//        int start = (int) trips.get(0).getStartTime();
-//        //FIXME it loses around 200 trips somewhere here
-//        
-//        int end = start + batchPeriod;
-//        List<PlanComputationRequest> batch = new ArrayList<>();
-////        LOGGER.debug("start "+start+", end "+end);
-//        for(TripTaxify<SimulationNode> trip : trips){
-//
-////            counter++;
-//            DefaultPlanComputationRequest request = requestFactory.create(trip.id, trip.getStartNode(), 
-//                trip.getEndNode(), agentFactory.create("agent " + trip.id, trip.id, trip));
-////            if(batch.size() >= maxBatch){
-////                LOGGER.debug("Batch size "+ batch.size());
-////                batches.add(batch);
-////                batch = new ArrayList<>();
-////                batch.add(request);
-////            }
-//            if (trip.getStartTime() < end ) {
-//                batch.add(request);
-//            }else  {
-////                LOGGER.debug("Batch size "+ batch.size());
+        int batchPeriod = config.ridesharing.offline.batchPeriod;
+//        int maxBatch = config.ridesharing.offline.batchMax == 0 ? Integer.MAX_VALUE : config.ridesharing.offline.batchMax;
+//        int maxTrips = config.ridesharing.offline.batchTotal == 0 ? Integer.MAX_VALUE : config.ridesharing.offline.batchTotal;
+//        LOGGER.debug ("Period " + (batchPeriod/1000) + ", max batch "+maxBatch + ", max total "+maxTrips);
+        int start = (int) trips.get(0).getStartTime();
+        //FIXME it loses around 200 trips somewhere here
+        
+        int end = start + batchPeriod;
+        List<PlanComputationRequest> batch = new ArrayList<>();
+//        LOGGER.debug("start "+start+", end "+end);
+        for(TripTaxify<SimulationNode> trip : trips){
+
+//            counter++;
+            DefaultPlanComputationRequest request = requestFactory.create(trip.id, trip.getStartNode(), 
+                trip.getEndNode(), agentFactory.create("agent " + trip.id, trip.id, trip));
+//            if(batch.size() >= maxBatch){
+//                LOGGER.debug("Batch size "+ batch.size());
 //                batches.add(batch);
 //                batch = new ArrayList<>();
 //                batch.add(request);
-//                end += batchPeriod;
-////                LOGGER.debug("start "+start+", end "+end);
 //            }
-// 
-//        }
-//        LOGGER.debug(batches.stream().mapToInt((b)-> b.size()).sum() +" trips in "+batches.size() + " batches");
+            if (trip.getStartTime() < end ) {
+                batch.add(request);
+            }else  {
+//                LOGGER.debug("Batch size "+ batch.size());
+                batches.add(batch);
+                batch = new ArrayList<>();
+                batch.add(request);
+                end += batchPeriod;
+//                LOGGER.debug("start "+start+", end "+end);
+            }
+ 
+        }
+        LOGGER.debug(batches.stream().mapToInt((b)-> b.size()).sum() +" trips in "+batches.size() + " batches");
         return batches;
     }
    

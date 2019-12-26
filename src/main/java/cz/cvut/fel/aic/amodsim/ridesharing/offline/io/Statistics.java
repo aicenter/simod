@@ -229,7 +229,7 @@ public class Statistics {
         String[] header = new String[columns];
         header[0] = "car_id";
         for(int i = 1; i < columns; i++){
-            header[i] = String.format("onboard_%s", i); 
+            header[i] = String.format("onboard_%s", (i-1)); 
         }
         result.add(header);
 //        result.add(new String[]{ "car_id", "empty", "one", "two", "three", "four"});

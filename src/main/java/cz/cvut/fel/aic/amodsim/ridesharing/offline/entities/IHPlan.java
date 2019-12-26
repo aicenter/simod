@@ -71,6 +71,14 @@ public class IHPlan {
         return actions;
     }
     
+    public int getPreviousActionTime(int ind){
+        if(ind > 0){
+            return times.get(ind-1);
+        } else{
+            return 0;
+        }
+        
+    }
    
     
     public int getId() {

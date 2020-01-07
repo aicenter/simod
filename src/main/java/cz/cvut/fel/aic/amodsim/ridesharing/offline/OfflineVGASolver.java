@@ -193,7 +193,7 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
     
     private List<List<PlanComputationRequest>>  groupRequests(List<TripTaxify<SimulationNode>> trips){
 //        int counter = 0;
-        writeTripStats(trips);
+     //   writeTripStats(trips);
         
         
         List<List<PlanComputationRequest>> batches = new LinkedList<>();
@@ -230,6 +230,7 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
             }
  
         }
+        batches.add(batch);
         LOGGER.debug(batches.stream().mapToInt((b)-> b.size()).sum() +" trips in "+batches.size() + " batches");
         return batches;
     }
@@ -281,7 +282,8 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
          
         //NormalDemand nd = new NormalDemand(travelTimeProvider, config, trips, graph);
         
-        List<List<PlanComputationRequest>> requestBatches = groupRequests(trips); //.subList(0,1000)
+        List<List<PlanComputationRequest>> requestBatches = groupRequests(trips.subList(1800,2700)); //.subList(0,1000)
+       
         vgaVehicles = new LinkedList<>();
         // initialize 1 OnDemandVehicle in any node
         initVehicle(requestBatches.get(0).get(0).getFrom());

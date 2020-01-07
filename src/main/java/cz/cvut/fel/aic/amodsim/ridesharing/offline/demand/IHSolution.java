@@ -213,9 +213,9 @@ public class IHSolution {
                         String.valueOf(Math.round(lpt/1000.0)),
                         String.valueOf(Math.round((actionTime-ept)/1000.0)),
                         String.valueOf(Math.round((lpt-actionTime)/1000.0)),
-                        String.valueOf(demand.getStartNodeId(action)),
-                        String.valueOf(demand.getStartLatitude(action)), 
-                        String.valueOf(demand.getStartLongitude(action)) });
+                        String.valueOf(demand.getEndNodeId(action)),
+                        String.valueOf(demand.getTargetLatitude(action)), 
+                        String.valueOf(demand.getTargetLongitude(action)) });
                 
                 }
             }
@@ -231,29 +231,49 @@ public class IHSolution {
     private IHPlan tryInsert(IHPlan plan, int trip){
        if (dbg)  LOGGER.debug("Inserting " +trip +" into "+ plan.printPlan());
         List<Integer> planActions = plan.getActions();
+        int tripOriginTime = demand.getStartTime(trip);
+        int tripTargetTime = demand.getEndTime(trip);
+        
        if (dbg)  LOGGER.debug("plan actions: ");
         if (dbg) for(int action: planActions) System.out.print(action + ", ");
         if (dbg) LOGGER.debug("\n");
+        
         int l = plan.getSize();
         int bestTime = Integer.MAX_VALUE;
         IHPlan bestPlan  = null;
         
         for(int i = 0; i <= l; i++){
-//            if(i < (l - 1) && plan.times.get(i+1) > (demand.getStartTime(trip) + maxProlongation)){
+//        if(i < (l - 1) && plan.times.get(i+1) > (demand.getStartTime(trip) + maxProlongation)){
 //                continue;
 //            }
+            if( i < l){
+                int action1 = planActions.get(i);
+                int actionRequestTime1 = action1 >= 0 ? demand.getStartTime(action1) : demand.getEndTime(-action1-1);
+                int actionLpt1 = actionRequestTime1 + maxProlongation;
+                if(actionLpt1 < tripOriginTime){
+                    continue;
+                }
+            }
             planActions.add(i, trip);
              
             if (dbg)LOGGER.debug("p ins pos " +i);
              if (dbg)  LOGGER.debug("plan actions: ");
-             if (dbg)   for(int action: planActions) System.out.print(action + ", ");
+             if (dbg)   for(int a: planActions) System.out.print(a + ", ");
              if (dbg)  LOGGER.debug("\n");
            
            
             for (int j = i + 1; j <= l + 1; j++){
-//                if(j < l  && plan.times.get(j+1) > (demand.getEndTime(trip) + maxProlongation)){
+//            if(j < l  && plan.times.get(j) > (demand.getEndTime(trip) + maxProlongation)){
 //                continue;
 //            }
+                if(j < l+1){
+                    int action2 = planActions.get(j);
+                    int actionRequestTime2 = action2 >= 0 ? demand.getStartTime(action2) : demand.getEndTime(-action2-1);
+                    int actionLpt2 = actionRequestTime2 + maxProlongation;
+                    if(actionLpt2 < tripTargetTime){
+                        continue;
+                    }
+                }
                 planActions.add(j, -trip-1);
                 
                 if (dbg)   LOGGER.debug("d ins pos " +j);
@@ -305,7 +325,9 @@ public class IHSolution {
                SimulationNode actionNode = demand.getStartNode(nextAction);
                int travelTime = (int) travelTimeProvider.getExpectedTravelTime(planLastNode, actionNode);
                int arrivalTime = planLastTime + travelTime;
-               
+//               if (travelTime == 0 && +planLastNode.id !=actionNode.id ){
+//                   LOGGER.debug("0 travel time "+ travelTime+", "+planLastNode.id+" -> "+actionNode.id);
+//               }
                 //pickup time window
                arrivalTime = arrivalTime > originTime ? arrivalTime : originTime;
                if (cap == 0 && arrivalTime > (originTime + timeToStart)){
@@ -314,6 +336,7 @@ public class IHSolution {
                if(arrivalTime > originTime + maxProlongation){
                    return null;
                }
+//  
                plan.addAction(nextAction, arrivalTime, actionNode.id);
                cap++;
                time = arrivalTime;
@@ -326,6 +349,9 @@ public class IHSolution {
 //               }
                SimulationNode actionNode = demand.getEndNode(nextAction);
                int travelTime = (int) travelTimeProvider.getExpectedTravelTime(planLastNode, actionNode);
+//               if (travelTime == 0 && +planLastNode.id !=actionNode.id ){
+//                   LOGGER.debug("0 travel time "+ travelTime+", "+planLastNode.id+" -> "+actionNode.id);
+//               }
                int arrivalTime = planLastTime + travelTime;
                
                if(arrivalTime > plannedArrival + maxProlongation){

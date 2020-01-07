@@ -116,10 +116,12 @@ public class Statistics {
             "ept",  "action time",  "lpt",  "time-ept", "lpt-time" , "node_id", "lat",  "lon"});
         
         for(Car car : cars){
-           int passengerCount = 0;
-           double[] timeWitnNPassengers = new double[config.ridesharing.vehicleCapacity + 1];
+            int passengerCount = 0;
+            double[] timeWitnNPassengers = new double[config.ridesharing.vehicleCapacity + 1];
+            Arrays.fill(timeWitnNPassengers, 0);
+            timeWitnNPassengers[0]+= 60;
            
-           Arrays.fill(timeWitnNPassengers, 0);
+           
            int[] groups = car.getAllDemandNodes();
           
            int firstPlanInd = car.getFirstDemandNode();
@@ -138,6 +140,7 @@ public class Statistics {
 //                if(dbg) LOGGER.debug("New plan ["+planSize + "], start " + timeMs+ ", cost "+plan.cost + ", end "+ (timeMs + plan.cost*1000));
                 
                 for (PlanAction action : plan){
+
                      if( action instanceof PlanActionPickup ){
                         PlanComputationRequest request = ((PlanActionPickup) action).request;
                         
@@ -220,7 +223,7 @@ public class Statistics {
     }
     
     private void occupancyResults(){
-        int capacities = config.ridesharing.vehicleCapacity +1;
+        int capacities = config.ridesharing.vga.maxGroupSize + 1;
         int columns = capacities + 1;
         int[] total = new int[columns];
         Arrays.fill(total, 0);
@@ -238,7 +241,7 @@ public class Statistics {
             String[] entry = new String[columns];
             entry[0] = String.valueOf(carId);
             for(int count = 0; count < capacities; count++){
-                int col = count  + 1;
+                int col = count+1;
                 total[count]+=car[count];
                 entry[col] = String.valueOf(car[count]);
             }
@@ -262,7 +265,7 @@ public class Statistics {
         int maxProlongation = config.ridesharing.maxProlongationInSeconds * 1000;
         Set<Integer> seenPickups = new HashSet<>();
         
-        int[] plansBysize = new int[config.ridesharing.vehicleCapacity];
+        int[] plansBysize = new int[config.ridesharing.vga.maxGroupSize + 1];
         for(int i = 0; i < plansBysize.length; i++){
             plansBysize[i]=0;
         }
@@ -277,13 +280,13 @@ public class Statistics {
            int[] route = car.getAllDemandNodes();
 //           LOGGER.debug("\nplans "+ Arrays.toString(plans));
            SimulationNode carNode = groupDemand.getStartNode(route[0]);
-           int carTime = car.getFirstActionTime();
+           int carTime = 0;
 //            LOGGER.debug("\nstart node "+ carNode.id + ", start time "+carTime);
              
             // vehicle's plans
            for(int i = 0; i < route.length;i ++){
                int planId = route[i];
-                carTime = car.times[i][0];
+//                carTime = car.times[i][0];
                 int[] plan = groupDemand.getPlanByIndex(planId);
                 
                 int planSize = (plan.length-1)/2;
@@ -307,28 +310,36 @@ public class Statistics {
                         
                         SimulationNode nextNode = normalDemand.getStartNode(tripInd); 
                         String actionType = "Pickup"; 
-                        int travelTime = (int) travelTimeProvider.getExpectedTravelTime(carNode, nextNode);
-                        int actionTime = carTime + travelTime;
                         int ept = normalDemand.getStartTime(tripInd);
+                        int actionTime;
+                        if(i == 0 && a == 1){
+                            carTime = ept;
+                            actionTime = carTime + timeToStart; 
+                        }else{
+                            int travelTime = (int) travelTimeProvider.getExpectedTravelTime(carNode, nextNode);
+                            actionTime = carTime + travelTime; 
+                            actionTime = actionTime > ept ? actionTime : ept;
+                        }
                         int lpt = ept + maxProlongation;
+                        
 //                        LOGGER.debug("\ntravel time" + travelTime + ", action time " + actionTime
 //                            + ", ept "+ept +", lpt "+lpt);
-                        if(a == 1){
-//                             LOGGER.debug("\n1st action in plan, gd start" + groupDemand.getStartTime(planId));
-                            actionTime = ept + timeToStart;
-                        
-                        }
+//                        if(a == 1){
+////                             LOGGER.debug("\n1st action in plan, gd start" + groupDemand.getStartTime(planId));
+//                            actionTime = ept + timeToStart;
+//                        
+//                        }
                         //actionTime = ept > actionTime ? ept : actionTime;
 //                         LOGGER.debug("\naction time " + actionTime);
                         String[] entry = {
                             carId, 
                             String.valueOf(tripInd),
                             actionType, 
-                            String.valueOf(ept),
-                            String.valueOf(actionTime),
-                            String.valueOf(lpt),
-                            String.valueOf(actionTime - ept),
-                            String.valueOf(lpt - actionTime), 
+                            String.valueOf(Math.round(ept/1000.0)),
+                            String.valueOf(Math.round(actionTime/1000.0)),
+                            String.valueOf(Math.round(lpt/1000.0)),
+                            String.valueOf(Math.round((actionTime - ept)/1000.0)),
+                            String.valueOf(Math.round((lpt - actionTime)/1000.0)), 
                             String.valueOf(nextNode.id), 
                             String.valueOf(nextNode.getLatitude()),  
                             String.valueOf(nextNode.getLongitude())
@@ -353,11 +364,11 @@ public class Statistics {
                             carId,  
                             String.valueOf(tripInd), 
                             actionType, 
-                            String.valueOf(ept),
-                            String.valueOf(actionTime), 
-                            String.valueOf(lpt),
-                            String.valueOf(actionTime - ept),
-                            String.valueOf(lpt - actionTime), 
+                            String.valueOf(Math.round(ept/1000.0)),
+                            String.valueOf(Math.round(actionTime/1000.0)),
+                            String.valueOf(Math.round(lpt/1000.0)),
+                            String.valueOf(Math.round((actionTime - ept)/1000.0)),
+                            String.valueOf(Math.round((lpt - actionTime)/1000.0)), 
                             String.valueOf(nextNode.id),
                             String.valueOf(nextNode.getLatitude()),  
                             String.valueOf(nextNode.getLongitude())
@@ -397,7 +408,7 @@ public class Statistics {
         String name = "eval_result";
         List<String[]> result = new ArrayList<>();
         if(demand instanceof GroupNormalDemand){
-//            result = prepareGroupResults2((GroupNormalDemand) demand);
+            result = prepareGroupResults2((GroupNormalDemand) demand);
         } else if (demand instanceof GroupDemand){
              result = prepareGroupResults((GroupDemand) demand);
         }else if (demand instanceof NormalDemand){

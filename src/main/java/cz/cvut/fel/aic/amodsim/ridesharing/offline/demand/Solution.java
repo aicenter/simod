@@ -171,7 +171,7 @@ public class Solution {
         }
         if(theCar != null){
             theCar.addDemandNode(trip, bestArrivalTime, demand.getBestTime(trip));
-//            LOGGER.debug("Car found " + theCar.id + " in node " + theCar.getLastDemandNode() + " time: " + theCar.getLastActionTime());
+            LOGGER.debug("Car found " + theCar.id + " in node " + theCar.getLastDemandNode() + " time: " + theCar.getLastActionTime());
 //            LOGGER.debug("for trip " + demand.indToTripId(trip) + " starting from " + demand.getStartNodeId(trip) +
 //                 " at " + demand.getStartTime(trip));
             return theCar;

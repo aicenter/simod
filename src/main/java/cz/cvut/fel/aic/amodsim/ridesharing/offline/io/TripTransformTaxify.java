@@ -55,9 +55,6 @@ public class TripTransformTaxify {
     
     private int sameNodeCount = 0;
     
-//    private final int pickupRadius;
-    
-//    private final int maxWaitTime;
     
     
     /**
@@ -73,15 +70,6 @@ public class TripTransformTaxify {
     public TripTransformTaxify(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils,
         AmodsimConfig config, TravelTimeProvider travelTimeProvider) {
         this.graph = highwayNetwork.getNetwork();
-//        Double minLon = this.graph.getAllNodes().stream()
-//            .map(n->n.getLongitude()).min(Double::compare).get();
-//        Double maxLon = this.graph.getAllNodes().stream()
-//            .map(n->n.getLongitude()).max(Double::compare).get();
-//        Double minLat = this.graph.getAllNodes().stream()
-//            .map(n->n.getLatitude()).min(Double::compare).get();
-//        Double maxLat = this.graph.getAllNodes().stream()
-//            .map(n->n.getLatitude()).max(Double::compare).get();
-//        LOGGER.debug("BBOX: "+ minLon+", " +maxLon +", " +minLat +", "+maxLat);
         this.config = config;
 
     }    

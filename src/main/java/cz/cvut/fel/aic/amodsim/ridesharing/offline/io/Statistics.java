@@ -16,7 +16,6 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.entities.Car;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.demand.Demand;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.demand.GroupDemand;
-import cz.cvut.fel.aic.amodsim.ridesharing.offline.demand.GroupNormalDemand;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.demand.NormalDemand;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import java.io.FileWriter;
@@ -247,151 +246,11 @@ public class Statistics {
             }
             result.add(entry);
         }
-//        String[] entry = new String[columns];
-//        entry[0] = "total";
-////        result.add(new String[]{"total for all cars  "," minutes"});
-//        for(int count = 0; count < total.length; count++){
-//            
-//            result.add(new String[]{String.valueOf(count),  String.valueOf(total[count]/60.0)});
-//        }
+
         writeCsv(config.amodsimExperimentDir, "passenger_stats", result);
     }
     
-    
-    private List<String[]> prepareGroupResults2(GroupNormalDemand groupDemand){
-        
-        NormalDemand normalDemand = groupDemand.getNormalDemand(); 
-        int timeToStart = config.ridesharing.offline.timeToStart;
-        int maxProlongation = config.ridesharing.maxProlongationInSeconds * 1000;
-        Set<Integer> seenPickups = new HashSet<>();
-        
-        int[] plansBysize = new int[config.ridesharing.vga.maxGroupSize + 1];
-        for(int i = 0; i < plansBysize.length; i++){
-            plansBysize[i]=0;
-        }
-        
-        List<String[]> result = new ArrayList<>();
-        result.add(0, new String[]{"car_id", "demand_id", "action", "ept", 
-            "time", "lpt", "time-ept","lpt-time", "node_id", "lat",  "lon"});
-        
-        for(Car car : cars){
-//           LOGGER.debug("\nCar " + car.id + " with "+car.getTripCount() + " trips");
-           String carId = String.valueOf(car.id);
-           int[] route = car.getAllDemandNodes();
-//           LOGGER.debug("\nplans "+ Arrays.toString(plans));
-           SimulationNode carNode = groupDemand.getStartNode(route[0]);
-           int carTime = 0;
-//            LOGGER.debug("\nstart node "+ carNode.id + ", start time "+carTime);
-             
-            // vehicle's plans
-           for(int i = 0; i < route.length;i ++){
-               int planId = route[i];
-//                carTime = car.times[i][0];
-                int[] plan = groupDemand.getPlanByIndex(planId);
-                
-                int planSize = (plan.length-1)/2;
-//                LOGGER.debug("\n" + planId +" plan size "+ planSize + " : "+Arrays.toString(plan));
-                plansBysize[planSize]++;
-                // plan actions
-                for (int a = 1; a < plan.length; a++){
-//                    LOGGER.debug("\n"+a+"th action #" + plan[a]+";Node "+carNode.id+ ", time "+ carTime);
-                    int action = plan[a];
-//                     LOGGER.debug("\naction " + action);
-                   //pickup
-                    if(action >= 0){ 
-                        int tripInd = action; 
-//                         LOGGER.debug("\npickup " + tripInd);
-                        //debug
-                        if( seenPickups.contains(tripInd)){
-                           LOGGER.error("Duplicate pickup trip "+tripInd);
-                            continue;
-                        }
-                        seenPickups.add(tripInd);
-                        
-                        SimulationNode nextNode = normalDemand.getStartNode(tripInd); 
-                        String actionType = "Pickup"; 
-                        int ept = normalDemand.getStartTime(tripInd);
-                        int actionTime;
-                        if(i == 0 && a == 1){
-                            carTime = ept;
-                            actionTime = carTime + timeToStart; 
-                        }else{
-                            int travelTime = (int) travelTimeProvider.getExpectedTravelTime(carNode, nextNode);
-                            actionTime = carTime + travelTime; 
-                            actionTime = actionTime > ept ? actionTime : ept;
-                        }
-                        int lpt = ept + maxProlongation;
-                        
-//                        LOGGER.debug("\ntravel time" + travelTime + ", action time " + actionTime
-//                            + ", ept "+ept +", lpt "+lpt);
-//                        if(a == 1){
-////                             LOGGER.debug("\n1st action in plan, gd start" + groupDemand.getStartTime(planId));
-//                            actionTime = ept + timeToStart;
-//                        
-//                        }
-                        //actionTime = ept > actionTime ? ept : actionTime;
-//                         LOGGER.debug("\naction time " + actionTime);
-                        String[] entry = {
-                            carId, 
-                            String.valueOf(tripInd),
-                            actionType, 
-                            String.valueOf(Math.round(ept/1000.0)),
-                            String.valueOf(Math.round(actionTime/1000.0)),
-                            String.valueOf(Math.round(lpt/1000.0)),
-                            String.valueOf(Math.round((actionTime - ept)/1000.0)),
-                            String.valueOf(Math.round((lpt - actionTime)/1000.0)), 
-                            String.valueOf(nextNode.id), 
-                            String.valueOf(nextNode.getLatitude()),  
-                            String.valueOf(nextNode.getLongitude())
-                        };
-                        result.add(entry);
-                        carTime = actionTime;
-                        carNode = nextNode;
-                    }
-                    //dropoff
-                    else {
-                        int tripInd = -action - 1;
-//                          LOGGER.debug("\ndropoff " + tripInd);
-                        SimulationNode nextNode = normalDemand.getEndNode(tripInd);
-                        int travelTime = (int) travelTimeProvider.getExpectedTravelTime(carNode, nextNode);
-                        int actionTime = carTime + travelTime;
-                        int ept = normalDemand.getEndTime(tripInd);
-                        int lpt = ept + maxProlongation;
-//                        LOGGER.debug("\ntravel time" + travelTime + ", action time " + actionTime
-//                            + ", ept "+ept +", lpt "+lpt);
-                        String actionType = "Dropoff";
-                        String[] entry = {
-                            carId,  
-                            String.valueOf(tripInd), 
-                            actionType, 
-                            String.valueOf(Math.round(ept/1000.0)),
-                            String.valueOf(Math.round(actionTime/1000.0)),
-                            String.valueOf(Math.round(lpt/1000.0)),
-                            String.valueOf(Math.round((actionTime - ept)/1000.0)),
-                            String.valueOf(Math.round((lpt - actionTime)/1000.0)), 
-                            String.valueOf(nextNode.id),
-                            String.valueOf(nextNode.getLatitude()),  
-                            String.valueOf(nextNode.getLongitude())
-                        };
-                        result.add(entry);
-                        carTime = actionTime;
-                        carNode = nextNode;
-                    }
-                    
-                }//plan actions
-            }//car plans
-        }//cars
-        
-        int tripCount = 0;
-        for (int i = 1; i< plansBysize.length; i++){
-            LOGGER.debug(plansBysize[i] +" plans of size " + i);
-            tripCount += i*plansBysize[i];
-        }
-        LOGGER.debug("Total trips " + tripCount);
-
-        return result;
-    }
-    
+       
     private void writeCsv(String dir, String name, List<String[]> result){
         Date timeStamp = Calendar.getInstance().getTime();
      
@@ -404,12 +263,15 @@ public class Statistics {
 		}
     }
     
+    /**
+     * Saves evaluation results and passenger 
+     * statistics to the given directory.
+     * @param dir 
+     */
     public void writeResults(String dir){
         String name = "eval_result";
         List<String[]> result = new ArrayList<>();
-        if(demand instanceof GroupNormalDemand){
-            result = prepareGroupResults2((GroupNormalDemand) demand);
-        } else if (demand instanceof GroupDemand){
+        if (demand instanceof GroupDemand){
              result = prepareGroupResults((GroupDemand) demand);
         }else if (demand instanceof NormalDemand){
              result = prepareResults();

@@ -42,9 +42,9 @@ public class Demand<D> {
 
     /**
      *
-     * @param travelTimeProvider {@link cz.cvut.fel.aic.amodsim.ridesharing.offline.search.TravelTimeProviderTaxify}
+     * @param travelTimeProvider 
      * @param config {@link cz.cvut.fel.aic.amodsim.config.AmodsimConfig}
-     * @param demand list of {@link cz.cvut.fel.aic.amodsim.ridesharing.offline.io.TripTaxify}
+     * @param demand 
      * @param graph {@link cz.cvut.fel.aic.geographtools.Graph}
      */  
     public Demand(TravelTimeProvider travelTimeProvider, AmodsimConfig config, List<D> demand,
@@ -79,14 +79,6 @@ public class Demand<D> {
         endNodes[ind] = endNodeId;
     }
     
-//    /**
-//     *
-//     * @param ind
-//     * @return
-//     */
-//    public D getTripByIndex(int ind){
-//        return index[ind];
-//    }
     /**
      * @return total number of trips in Demand
      */
@@ -311,7 +303,6 @@ public class Demand<D> {
                     neighbors.add(nextTripInd);
                 }
             }
-            //TODO limit for neighbors
             adjacency[tripInd] = neighbors.stream().mapToInt(Integer::intValue).sorted().toArray();
         }
         double avg = Arrays.stream(adjacency).map((int[] ns) -> ns.length).mapToInt(Integer::intValue).sum() / N;

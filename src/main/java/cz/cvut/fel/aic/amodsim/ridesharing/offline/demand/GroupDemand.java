@@ -18,15 +18,13 @@ import cz.cvut.fel.aic.geographtools.Graph;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author F.I.D.O.
+ * Container for group demand.
  */
 public class GroupDemand extends Demand<DriverPlan>{
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GroupDemand.class);
@@ -44,18 +42,11 @@ public class GroupDemand extends Demand<DriverPlan>{
         maxProlongation = config.ridesharing.maxProlongationInSeconds * 1000;
         LOGGER.debug("size of demand "+optimalPlans.size());
         demand = prepareDemand(optimalPlans);
-//        
-//        if(!demand.isEmpty()){
-//            for (int i = 0; i < 50; i++){
-//            LOGGER.debug(getPlanByIndex(i).toString() +": "+getStartNodeId(i) + " -> " + getEndNodeId(i) + 
-//                "; start time " + getStartTime(i) + ", shortest route "+getBestTime(i));
-//            }
-//        }
    	}
 
 
 	private List<DriverPlan> prepareDemand(List<DriverPlan> demand) {
-        LOGGER.debug("Prepare demand " + demand.size());
+//        LOGGER.debug("Prepare demand " + demand.size());
         Collections.sort(demand, (p1, p2) -> {
             Integer i1 = PlanActionPickup.class.cast(p1.get(0)).request.getOriginTime();  
             Integer i2 = PlanActionPickup.class.cast(p2.get(0)).request.getOriginTime();
@@ -76,7 +67,6 @@ public class GroupDemand extends Demand<DriverPlan>{
 //            LOGGER.debug("\n"+i+": "+firstNode.id+" -> "+lastNode.id+", start at "+startTime+
 //                ", length "+planTravelTime);
 
-//            addGroupPlanToIndex(i, startTime, planTravelTime, firstNode.id, lastNode.id);
             int bestTime = checkGroupPlan(plan, startTime, firstNode, planTravelTime, lastNode);
             if(bestTime > 0){
             addGroupPlanToIndex(i, startTime, planTravelTime , firstNode.id, lastNode.id);

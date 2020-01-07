@@ -50,7 +50,6 @@ import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingOnDemandVehicleFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
-import cz.cvut.fel.aic.amodsim.ridesharing.offline.MyOfflineVgaSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.OfflineSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher;
 import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
@@ -127,7 +126,6 @@ public class MainModule extends StandardAgentPolisModule{
 					break;
                 case "offline-vga":
                     bind(DARPSolver.class).to(OfflineVGASolver.class);
-//                    bind(DARPSolver.class).to(MyOfflineVgaSolver.class);
                     bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);
                     break;
                 case "offline":

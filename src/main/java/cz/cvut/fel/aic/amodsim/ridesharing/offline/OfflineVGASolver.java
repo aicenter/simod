@@ -282,7 +282,7 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
          
         //NormalDemand nd = new NormalDemand(travelTimeProvider, config, trips, graph);
         
-        List<List<PlanComputationRequest>> requestBatches = groupRequests(trips.subList(1800,2700)); //.subList(0,1000)
+        List<List<PlanComputationRequest>> requestBatches = groupRequests(trips);
        
         vgaVehicles = new LinkedList<>();
         // initialize 1 OnDemandVehicle in any node

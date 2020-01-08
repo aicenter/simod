@@ -22,13 +22,10 @@ import cz.cvut.fel.aic.amodsim.ridesharing.offline.demand.Solution;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.demand.GroupDemand;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.demand.Demand;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
-import com.opencsv.CSVWriter;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.agentpolis.utils.Benchmark;
 import cz.cvut.fel.aic.agentpolis.utils.CollectionUtil;
 import cz.cvut.fel.aic.agentpolis.utils.FlexArray;
@@ -56,10 +53,6 @@ import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
-import java.io.IOException;
-
-import java.util.*;
-import org.slf4j.LoggerFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
@@ -76,13 +69,17 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver;
 import cz.cvut.fel.aic.amodsim.statistics.content.GroupSizeData;
 import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStatsVGA;
 import cz.cvut.fel.aic.geographtools.Graph;
-import java.io.File;
-import java.io.FileWriter;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.stream.Collectors;
-import org.apache.commons.io.FilenameUtils;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
+import com.opencsv.CSVWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
+import java.text.SimpleDateFormat;
+import org.apache.commons.io.FilenameUtils;
+import org.slf4j.LoggerFactory;
 
 
 @Singleton
@@ -92,8 +89,7 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
 	
 	private static final int MILLION = 1000000;
 	
-    
-	private final LinkedHashSet<PlanComputationRequest> activeRequests;
+    private final LinkedHashSet<PlanComputationRequest> activeRequests;
 
 	private final AmodsimConfig config;
 		
@@ -140,8 +136,7 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
     final DemandAgent.DemandAgentFactory agentFactory;
 	        
     private final Provider<OnDemandVehicleFactorySpec> vehicleFactoryProvider;
-    
-	
+    	
 	private final GurobiSolver gurobiSolver;
     
     Statistics stats;
@@ -152,7 +147,7 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
 			DefaultPlanComputationRequestFactory requestFactory, TypedSimulation eventProcessor, 
 			GurobiSolver gurobiSolver, Provider<GroupGenerator> groupGeneratorProvider,
 			OnDemandvehicleStationStorage onDemandvehicleStationStorage, DemandAgent.DemandAgentFactory
-            agentFactory, TripTransformTaxify tripTransform,
+            agentFactory, TripTransformTaxify tripTransform, HighwayNetwork highwayNetwork,
             Provider<OnDemandVehicleFactorySpec> vehicleFactoryProvider, 
             OnDemandVehicleStorage onDemandVehicleStorage) {
 		super(vehicleStorage, travelTimeProvider, travelCostProvider, requestFactory);
@@ -171,152 +166,49 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
         this.tripTransform = tripTransform;
         this.vehicleFactoryProvider = vehicleFactoryProvider;
 
-        graph = tripTransform.getGraph();
+        graph = highwayNetwork.getNetwork();
     }
     
-    //TODO move to TripTransform
-    private List<TripTaxify<SimulationNode>> loadTrips(){
-      
-        List<TripTaxify<SimulationNode>>  trips = new ArrayList<>();
-        try {
-            trips = tripTransform.loadTripsFromCsv(new File(config.tripsPath));
-        }catch (IOException|ParseException ex) {
-            LOGGER.error("File IO exception: " + ex);
-        }
-        if(trips.isEmpty()){
-            LOGGER.error("Empty trip list ");
-            System.exit(-1);
-        }
-        return trips;
-    }
-
-    
-    private List<List<PlanComputationRequest>>  groupRequests(List<TripTaxify<SimulationNode>> trips){
-//        int counter = 0;
-     //   writeTripStats(trips);
-        
-        
-        List<List<PlanComputationRequest>> batches = new LinkedList<>();
-        int batchPeriod = config.ridesharing.offline.batchPeriod;
-//        int maxBatch = config.ridesharing.offline.batchMax == 0 ? Integer.MAX_VALUE : config.ridesharing.offline.batchMax;
-//        int maxTrips = config.ridesharing.offline.batchTotal == 0 ? Integer.MAX_VALUE : config.ridesharing.offline.batchTotal;
-//        LOGGER.debug ("Period " + (batchPeriod/1000) + ", max batch "+maxBatch + ", max total "+maxTrips);
-        int start = (int) trips.get(0).getStartTime();
-        //FIXME it loses around 200 trips somewhere here
-        
-        int end = start + batchPeriod;
-        List<PlanComputationRequest> batch = new ArrayList<>();
-//        LOGGER.debug("start "+start+", end "+end);
-        for(TripTaxify<SimulationNode> trip : trips){
-
-//            counter++;
-            DefaultPlanComputationRequest request = requestFactory.create(trip.id, trip.getStartNode(), 
-                trip.getEndNode(), agentFactory.create("agent " + trip.id, trip.id, trip));
-//            if(batch.size() >= maxBatch){
-//                LOGGER.debug("Batch size "+ batch.size());
-//                batches.add(batch);
-//                batch = new ArrayList<>();
-//                batch.add(request);
-//            }
-            if (trip.getStartTime() < end ) {
-                batch.add(request);
-            }else  {
-//                LOGGER.debug("Batch size "+ batch.size());
-                batches.add(batch);
-                batch = new ArrayList<>();
-                batch.add(request);
-                end += batchPeriod;
-//                LOGGER.debug("start "+start+", end "+end);
-            }
- 
-        }
-        batches.add(batch);
-        LOGGER.debug(batches.stream().mapToInt((b)-> b.size()).sum() +" trips in "+batches.size() + " batches");
-        return batches;
-    }
-   
-
-     private void writeTripStats(List<TripTaxify<SimulationNode>> trips){
-        
-        List<String[]> result = new ArrayList<>();
-        
-        for (TripTaxify<SimulationNode> trip : trips){
-            Long shortestPathInMs = travelTimeProvider.getExpectedTravelTime(trip.getStartNode(), trip.getEndNode());
-            result.add(new String[]{
-                String.valueOf(trip.id), 
-                String.valueOf(trip.getStartTime()/1000), 
-                String.valueOf(shortestPathInMs/1000.0),
-                
-                String.valueOf(trip.getStartNode().id),
-                String.valueOf(trip.getStartNode().getLatitude()),
-                String.valueOf(trip.getStartNode().getLongitude()),
-                
-                String.valueOf(trip.getEndNode().id),
-                String.valueOf(trip.getEndNode().getLatitude()),
-                String.valueOf(trip.getEndNode().getLongitude())
-               
-            });
-        }
-        
-        result.add(0, new String[]{"tripId", "startTime", "lengthSec",
-            "startNode",  "startLat", "startLon", "endNode", "endLat", "endLon"});
-        String filename = "trip_stats_0308.csv";
-        String filepath  =  FilenameUtils.concat(config.amodsimExperimentDir, filename);
-        
-        try (CSVWriter csvWriter = new CSVWriter(new FileWriter(filepath))) {
-                csvWriter.writeAll(result);
-        }catch(Exception ex){
-                ex.printStackTrace();
-        }
-    }
-    
-     
+    /**
+     * Offline VGA + Chaining.
+     * 
+     * @param newRequests
+     * @param waitingRequests
+     * @return 
+     */
+       
     @Override 
     public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<PlanComputationRequest> newRequests, 
         List<PlanComputationRequest> waitingRequests) {
-        
-        List<TripTaxify<SimulationNode>> trips = loadTrips();
-       
+
+        List<TripTaxify<SimulationNode>> trips = tripTransform.loadTripsFromCsv();
         Collections.sort(trips, Comparator.comparing(TripTaxify::getStartTime));
-        LOGGER.debug("Sorted trips "+trips.size());
-         
-        //NormalDemand nd = new NormalDemand(travelTimeProvider, config, trips, graph);
-        
-        List<List<PlanComputationRequest>> requestBatches = groupRequests(trips);
+        List<List<PlanComputationRequest>> requestBatches = groupRequests(trips.subList(0, 900));
        
         vgaVehicles = new LinkedList<>();
-        // initialize 1 OnDemandVehicle in any node
+
         initVehicle(requestBatches.get(0).get(0).getFrom());
         
         List<DriverPlan> allPlans = new LinkedList<>();
-        LOGGER.debug( requestBatches.size() + " request batches in the list");
 
-
-      //compute optimal plan for each batch
-//        for(List<PlanComputationRequest> requests : requestBatches){
+      // VGA
         for( List<PlanComputationRequest> requests: requestBatches){
 
-           LOGGER.debug( requests.size() + " requests in batch");
             waitingRequests.addAll(requests);
-            //TODO vehicles
             List<DriverPlan> plans = computePlans(requests, waitingRequests);
-            LOGGER.debug("Empty plans "+ plans.stream().filter((p)->p.size() == 0).count());
-            LOGGER.debug("New plans " + plans.size());
             allPlans.addAll(plans);
-            LOGGER.debug("total plans " + allPlans.size());
             waitingRequests.clear();
         }
-//        demand.printDemand();
         LOGGER.debug("Group generation finished, plans " + allPlans.size());
         LOGGER.debug(allPlans.stream().mapToInt(p -> p.size()).sum()/2 + 
             " trips in  " + allPlans.size() + " plans");
-        LOGGER.debug(waitingRequests.size() + " trips in waitingRequests");
+
         
-        // chain plans and assign vehicles
-        
+        // Chaining
         Demand demand = new GroupDemand(travelTimeProvider, config, allPlans, graph);
         Solution sol = new Solution(demand, travelTimeProvider, config);
         sol.buildPaths();
+        
       // write results 
        List<Car> cars = sol.getAllCars();
        stats = new Statistics(demand, cars, travelTimeProvider, config);
@@ -325,6 +217,41 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
 
        return new HashMap<>();
     }     
+   /**
+    *  Divides requests into batches for VGA.
+    *  Length of batch in defined in config.vga.offline.batchPeriod
+    * 
+    * @param trips
+    * @return 
+    */ 
+    
+    
+    private List<List<PlanComputationRequest>>  groupRequests(List<TripTaxify<SimulationNode>> trips){
+
+        List<List<PlanComputationRequest>> batches = new LinkedList<>();
+        int batchPeriod = config.ridesharing.offline.batchPeriod;
+        int start = (int) trips.get(0).getStartTime();
+        
+        int end = start + batchPeriod;
+        List<PlanComputationRequest> batch = new ArrayList<>();
+        for(TripTaxify<SimulationNode> trip : trips){
+
+            DefaultPlanComputationRequest request = requestFactory.create(trip.id, trip.getStartNode(), 
+                trip.getEndNode(), agentFactory.create("agent " + trip.id, trip.id, trip));
+            if (trip.getStartTime() < end ) {
+                batch.add(request);
+            }else  {
+                batches.add(batch);
+                batch = new ArrayList<>();
+                batch.add(request);
+                end += batchPeriod;
+             }
+        }
+        batches.add(batch);
+        LOGGER.debug(batches.stream().mapToInt((b)-> b.size()).sum() +" trips in "+batches.size() + " batches");
+        return batches;
+    }
+   
     
     
     private List<DriverPlan> computePlans(List<PlanComputationRequest> newRequests, 
@@ -528,7 +455,44 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
         }
     }
 
-    private void writeGraphDat(){
+    
+    
+    private void writeDemandStatis(List<TripTaxify<SimulationNode>> trips){
+        
+        List<String[]> result = new ArrayList<>();
+        
+        for (TripTaxify<SimulationNode> trip : trips){
+            Long shortestPathInMs = travelTimeProvider.getExpectedTravelTime(trip.getStartNode(), trip.getEndNode());
+            result.add(new String[]{
+                String.valueOf(trip.id), 
+                String.valueOf(trip.getStartTime()/1000), 
+                String.valueOf(shortestPathInMs/1000.0),
+                
+                String.valueOf(trip.getStartNode().id),
+                String.valueOf(trip.getStartNode().getLatitude()),
+                String.valueOf(trip.getStartNode().getLongitude()),
+                
+                String.valueOf(trip.getEndNode().id),
+                String.valueOf(trip.getEndNode().getLatitude()),
+                String.valueOf(trip.getEndNode().getLongitude())
+               
+            });
+        }
+        
+        result.add(0, new String[]{"tripId", "startTime", "lengthSec",
+            "startNode",  "startLat", "startLon", "endNode", "endLat", "endLon"});
+        String filename = "trip_stats_0308.csv";
+        String filepath  =  FilenameUtils.concat(config.amodsimExperimentDir, filename);
+        
+        try (CSVWriter csvWriter = new CSVWriter(new FileWriter(filepath))) {
+                csvWriter.writeAll(result);
+        }catch(Exception ex){
+                ex.printStackTrace();
+        }
+    }
+    
+    
+    private void writeGraphStats(){
         double totalLengthM = graph.getAllEdges().stream().mapToDouble((e) -> e.getLengthCm()).sum()/100.0;
         double totalTimeS = graph.getAllEdges().stream().mapToDouble((e) -> e.getLengthCm()/e.getAllowedMaxSpeedInCmPerSecond()).sum();
         List<String[]> result = new ArrayList<>();

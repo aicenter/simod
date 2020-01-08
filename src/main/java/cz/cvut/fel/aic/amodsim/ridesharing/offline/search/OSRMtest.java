@@ -22,7 +22,7 @@ import org.json.JSONObject;
  *
  * @author Olga Kholkovskaia
  */
-public class OSRM {
+public class OSRMtest {
 	
 	/**
 	 * Finds way points nearest to the given location.
@@ -85,7 +85,7 @@ public class OSRM {
      * @param args
      */
     public static void main(String[] args){
-        OSRM osrm = new OSRM();
+        OSRMtest osrm = new OSRMtest();
         Map<String, Object> data;
         double dist = osrm.getRoute(59.433002,	24.744429, 59.438425, 24.72181);
         System.out.println(dist);

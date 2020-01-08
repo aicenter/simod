@@ -5,7 +5,8 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.offline.io;
 
-import com.opencsv.CSVWriter;
+
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
@@ -17,16 +18,18 @@ import cz.cvut.fel.aic.amodsim.ridesharing.offline.entities.Car;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.demand.Demand;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.demand.GroupDemand;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.demand.NormalDemand;
+import cz.cvut.fel.aic.amodsim.ridesharing.offline.entities.TripTaxify;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
+import cz.cvut.fel.aic.geographtools.Graph;
+
+import com.opencsv.CSVWriter;
 import java.io.FileWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.text.SimpleDateFormat;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +41,7 @@ public class Statistics {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Statistics.class);
     
     Demand demand;
+    
     List<Car> cars;
     
     TravelTimeProvider travelTimeProvider;
@@ -45,11 +49,9 @@ public class Statistics {
     AmodsimConfig config;
     
     List<double[]> occupancy;
-
-   
-    
+       
         
-     public Statistics(Demand demand, List<Car> cars,  TravelTimeProvider travelTimeProvider, 
+    public Statistics(Demand demand, List<Car> cars,  TravelTimeProvider travelTimeProvider, 
          AmodsimConfig config){
         this.demand = demand;
         this.cars = cars;
@@ -59,54 +61,36 @@ public class Statistics {
     }
     
     private  List<String[]> prepareResults(){
-        
-        Set<Integer> seenPickups = new HashSet<>();
         List<String[]> result = new ArrayList<>();
         result.add(new String[]{"car_id", "demand_id", "action", 
             "time", "node_id", "lat",  "lon"});
         for(Car car : cars){
-//            LOGGER.debug("Car "+car.id + " num trips " + car.getTripCount() + " , length " + car.getAllDemandNodes().length);
-  
             int[] trips = car.getAllDemandNodes();
             for(int tripInd : trips){
                 int tripId = demand.indToTripId(tripInd);
-             //    LOGGER.debug("Trip # "+tripId + " at position " + tripInd);
-                if(seenPickups.contains(tripId)){
-                    LOGGER.error("Duplicate pickup trip "+tripId);
-                    //continue;
-                }
-                seenPickups.add(tripId);
-                String[] pickupEntry = {String.valueOf(car.id), 
+
+                result.add(new String[]{String.valueOf(car.id), 
                     String.valueOf(tripId), "Pick-up", 
                     String.valueOf(demand.getStartTime(tripInd)), 
                     String.valueOf(demand.getStartNodeId(tripInd)),
                     String.valueOf(demand.getStartNode(tripInd).getLatitude()),
-                    String.valueOf(demand.getStartNode(tripInd).getLongitude())
-                };
-                result.add(pickupEntry);
+                    String.valueOf(demand.getStartNode(tripInd).getLongitude()) });
                 
-                String[] dropoffEntry = {String.valueOf(car.id), 
+                result.add(new String[] {String.valueOf(car.id), 
                     String.valueOf(tripId), "Drop-off", 
                     String.valueOf(demand.getEndTime(tripInd)),
                     String.valueOf(demand.getEndNodeId(tripInd)),
                     String.valueOf(demand.getEndNode(tripInd).getLatitude()),
-                    String.valueOf(demand.getEndNode(tripInd).getLongitude())
-                };
-                result.add(dropoffEntry);
-                    }
+                    String.valueOf(demand.getEndNode(tripInd).getLongitude())});
             }
+        }
         return result;
     }
     
-    boolean dbg = false;
 
     private List<String[]> prepareGroupResults(GroupDemand gd){
         occupancy = new ArrayList<>();
-        int maxProlongation = config.ridesharing.maxProlongationInSeconds * 1000;
         int timeToStart = config.ridesharing.offline.timeToStart;
-
-        //TODO remove. Already checked in GroupDemand
-        Set<Integer> seenPickups = new HashSet<>();
         
         int[] plansBysize = new int[config.ridesharing.vga.maxGroupSize+1];
         for(int i =0; i < plansBysize.length; i++)         plansBysize[i]=0;
@@ -119,93 +103,59 @@ public class Statistics {
             double[] timeWitnNPassengers = new double[config.ridesharing.vehicleCapacity + 1];
             Arrays.fill(timeWitnNPassengers, 0);
             timeWitnNPassengers[0]+= 60;
-           
-           
+                      
            int[] groups = car.getAllDemandNodes();
-          
+         
            int firstPlanInd = car.getFirstDemandNode();
            int firstActionTimeMs = gd.getStartTime(firstPlanInd) + timeToStart;
            SimulationNode initialNode = gd.getStartNode(firstPlanInd);
-//           if(dbg) LOGGER.debug(car.id +" car ["+groups.length + "]. Starts at "+ firstActionTimeMs + " ("+firstPlanInd+", "+initialNode.id+")");
            SimulationNode node = initialNode;
            int timeMs = firstActionTimeMs;
-           // i = plan's position in car's path 
+
            for(int i = 0; i < car.getSize(); i++){
-//                if(dbg)LOGGER.debug("time "+ timeMs + ", node "+node.id);
+
                 int planIndex = groups[i];
                 DriverPlan plan = gd.getPlanByIndex(planIndex);
                 int planSize = plan.size()/2;
                 plansBysize[planSize]++;
-//                if(dbg) LOGGER.debug("New plan ["+planSize + "], start " + timeMs+ ", cost "+plan.cost + ", end "+ (timeMs + plan.cost*1000));
-                
+
                 for (PlanAction action : plan){
 
                      if( action instanceof PlanActionPickup ){
                         PlanComputationRequest request = ((PlanActionPickup) action).request;
-                        
-                        if(seenPickups.contains(request.getId())){
-                             LOGGER.error("Duplicate pickup trip "+request.getId());
-                            //continue;
-                        }
-                        
-                        seenPickups.add(request.getId());
-                        String actionType = "Pickup";
-                        int earliestPossibleTimeMs = request.getOriginTime() *1000;
-                        int travelTime = (int)travelTimeProvider.getExpectedTravelTime(node, request.getFrom());
+                        SimulationNode nextNode = request.getFrom();
+                        int earliestPossibleTimeS = request.getOriginTime();
+                        int latestPossibleTimeS = request.getMaxPickupTime();
+                        int travelTime = (int)travelTimeProvider.getExpectedTravelTime(node, nextNode);
                         int actionTimeMs = timeMs + travelTime;
-                        actionTimeMs = actionTimeMs > earliestPossibleTimeMs ? actionTimeMs : earliestPossibleTimeMs;
-                        int actionTimeS = (int) Math.round(actionTimeMs/1000.0);
-                        int latestPossibleTimeMs = request.getMaxPickupTime() *1000;
-                        
+                        actionTimeMs = actionTimeMs > earliestPossibleTimeS*1000 ?
+                            actionTimeMs : earliestPossibleTimeS*1000;
+                          
                         timeWitnNPassengers[passengerCount]+= (travelTime/1000.0);
                         passengerCount++;
-                        if(dbg) LOGGER.debug("P"+request.getId()+": " +earliestPossibleTimeMs + " < " + actionTimeMs + " < "+ latestPossibleTimeMs);
-                        String[] entry = { 
-                            String.valueOf(car.id), 
-                            String.valueOf(request.getId()), 
-                            actionType,
-                            String.valueOf(request.getOriginTime()), 
-                            String.valueOf(actionTimeS), 
-                            String.valueOf(request.getMaxPickupTime()),
-                            String.valueOf(actionTimeS - request.getOriginTime()),
-                            String.valueOf(request.getMaxPickupTime() - actionTimeS),
-                            String.valueOf(request.getFrom().id),
-                            String.valueOf(request.getFrom().getLatitude()), 
-                            String.valueOf(request.getFrom().getLongitude())
-                        };
-                        node = request.getFrom();
+                   
+                        result.add(makeResultEntry(car.id, request.getId(),  "Pickup",
+                            earliestPossibleTimeS, actionTimeMs, latestPossibleTimeS, nextNode));
+             
+                        node = nextNode;
                         timeMs = actionTimeMs;
-                        result.add(entry);
-                    }
-                     else if (action instanceof PlanActionDropoff ){
+                       
+                    } else if (action instanceof PlanActionDropoff ){
                         PlanComputationRequest request = ((PlanActionDropoff) action).request;
-                        String actionType = "Dropoff";
-                        int latestPossibleTimeMs = request.getMaxDropoffTime()*1000;
-                        int earliestPossibleTimeMs = latestPossibleTimeMs - maxProlongation ;
-                        int travelTime = (int) travelTimeProvider.getExpectedTravelTime(node, request.getTo());
+                        SimulationNode nextNode = request.getTo();
+                        int latestPossibleTimeS = request.getMaxDropoffTime();
+                        int earliestPossibleTimeS = request.getOriginTime() + request.getMinTravelTime();
+                        int travelTime = (int) travelTimeProvider.getExpectedTravelTime(node, nextNode);
                         int actionTimeMs = timeMs + travelTime;
-                        int actionTimeS = (int) Math.round(actionTimeMs/1000.0);
-                        
+                      
                         timeWitnNPassengers[passengerCount]+= (travelTime/1000.0);
                         passengerCount--;
+            
+                        result.add(makeResultEntry(car.id, request.getId(), "Dropoff",
+                            earliestPossibleTimeS, actionTimeMs, latestPossibleTimeS, nextNode));
                         
-                        if(dbg) LOGGER.debug("D"+request.getId()+": "+earliestPossibleTimeMs + " < " + actionTimeMs + " < "+ latestPossibleTimeMs);
-                        
-                        String[] entry = {
-                                String.valueOf(car.id), 
-                                String.valueOf(request.getId()), 
-                                actionType,
-                                String.valueOf(earliestPossibleTimeMs/1000.0), 
-                                String.valueOf(actionTimeS),
-                                String.valueOf(request.getMaxDropoffTime()), 
-                                String.valueOf(actionTimeS - Math.round(earliestPossibleTimeMs/1000.0)),
-                                String.valueOf(request.getMaxDropoffTime() - actionTimeS),
-                                String.valueOf(request.getTo().id),
-                                String.valueOf(request.getTo().getLatitude()),
-                                String.valueOf(request.getTo().getLongitude())};
-                        node = request.getTo();
+                        node = nextNode;
                         timeMs = actionTimeMs;
-                        result.add(entry);
                     }
                 }//plan actions
             }//car plans
@@ -221,6 +171,16 @@ public class Statistics {
         return result;
     }
     
+    private String[] makeResultEntry(int carId, int requestId, String actionType, int earliestPossibleTime, 
+        int actionTimeMs,  int latestPossibleTime, SimulationNode node){
+        
+        int actionTime = Math.round(actionTimeMs/1000);
+        return new String[]{String.valueOf(carId), String.valueOf(requestId), actionType,
+            String.valueOf(earliestPossibleTime), String.valueOf(actionTime), String.valueOf(latestPossibleTime), 
+            String.valueOf(actionTime - earliestPossibleTime), String.valueOf(latestPossibleTime - actionTime),
+            String.valueOf(node.id), String.valueOf(node.getLatitude()), String.valueOf(node.getLongitude())};
+    }
+    
     private void occupancyResults(){
         int capacities = config.ridesharing.vga.maxGroupSize + 1;
         int columns = capacities + 1;
@@ -234,7 +194,7 @@ public class Statistics {
             header[i] = String.format("onboard_%s", (i-1)); 
         }
         result.add(header);
-//        result.add(new String[]{ "car_id", "empty", "one", "two", "three", "four"});
+
         for(int carId = 0; carId < occupancy.size(); carId++){
             double car[] = occupancy.get(carId);
             String[] entry = new String[columns];
@@ -265,8 +225,12 @@ public class Statistics {
     
     /**
      * Saves evaluation results and passenger 
-     * statistics to the given directory.
-     * @param dir 
+     * statistics.
+     * Creates 2 .csv files:
+     *  1) eval_results - routes of all cars
+     *  2) passenger_stats - travel time by number of passengers for all cars
+     * 
+     * @param dir path to directory for results
      */
     public void writeResults(String dir){
         String name = "eval_result";
@@ -281,54 +245,76 @@ public class Statistics {
         } else {
             LOGGER.debug("Empty result.");
         }
-        
-        result = prepareOccupancyStatistics(cars);
-        if(! result.isEmpty()){
-             writeCsv(dir, "occupancy", result);
-        } else {
-            LOGGER.debug("Empty result.");
-        }
-       
     }
     
       
-    private static List<String[]> prepareOccupancyStatistics(List<Car> cars){
-   
-        List<String[]> result = new ArrayList<>();
-        result.add(new String[]{"car_id", "time with passenger, s", "empty time, s", "with passenger, % from total"});
-        long totalWithPassenger = 0;
-        long totalEmpty = 0;
-        for(Car car : cars){
-            int busyTime = car.getTripBusyTime();
-            int emptyTime = car.getEmptyTime();
-            String[] entry = new String[]{
-                String.valueOf(car.getId()), String.valueOf(busyTime/1000), String.valueOf(emptyTime/1000),
-                String.valueOf(100*busyTime/(busyTime+emptyTime))};
-            result.add(entry);
-            totalEmpty += emptyTime;
-            totalWithPassenger += busyTime;
-        }
-        
-        result.add(new String[]{"total", String.valueOf(totalWithPassenger),
-            String.valueOf(totalEmpty), String.valueOf(100*totalWithPassenger/(totalEmpty + totalWithPassenger))});
-        
-        double avgWithPassenger = totalWithPassenger/cars.size();
-        double avgEmpty = totalEmpty/cars.size();
-        result.add(new String[]{"average", String.valueOf(avgWithPassenger), String.valueOf(avgEmpty),
-            String.valueOf(100*avgWithPassenger/(avgEmpty+avgWithPassenger))});
-        LOGGER.debug("Average time with passenger "+avgWithPassenger/1000);
-        LOGGER.debug("Average empty time  "+ avgEmpty/1000);
-        LOGGER.debug("Ratio " + (avgWithPassenger/(avgEmpty+avgWithPassenger)));
-        return result;
-    }
+
     
     private static String makeFilename(String dir, String name, Date timeStamp){
-         
-        //dir = dir.endsWith("/") ? dir : dir + "/";
         String timeString = new SimpleDateFormat("dd-MM-HH-mm").format(timeStamp);
-        name = name + "_"+ timeString + ".csv";
+         name = name + "_"+ timeString + ".csv";
         return FilenameUtils.concat(dir, name);
     }
+    
+    
+    private static void writeDemandStatistics(List<TripTaxify<SimulationNode>> trips,
+        TravelTimeProvider travelTimeProvider, String dir, String filename){
+        
+        List<String[]> result = new ArrayList<>();
+        
+        for (TripTaxify<SimulationNode> trip : trips){
+            Long shortestPathInMs = travelTimeProvider.getExpectedTravelTime(trip.getStartNode(), trip.getEndNode());
+            result.add(new String[]{String.valueOf(trip.id), 
+                                    String.valueOf(trip.getStartTime()/1000), 
+                                    String.valueOf(shortestPathInMs/1000.0),
+
+                                    String.valueOf(trip.getStartNode().id),
+                                    String.valueOf(trip.getStartNode().getLatitude()),
+                                    String.valueOf(trip.getStartNode().getLongitude()),
+
+                                    String.valueOf(trip.getEndNode().id),
+                                    String.valueOf(trip.getEndNode().getLatitude()),
+                                    String.valueOf(trip.getEndNode().getLongitude())   });
+        }
+        
+        result.add(0, new String[]{"tripId", "startTime", "lengthSec",
+            "startNode",  "startLat", "startLon", "endNode", "endLat", "endLon"});
+        String filepath  =  FilenameUtils.concat(dir, filename);
+        
+        try (CSVWriter csvWriter = new CSVWriter(new FileWriter(filepath))) {
+                csvWriter.writeAll(result);
+        }catch(Exception ex){
+                ex.printStackTrace();
+        }
+    }
+    
+    
+    public static void writeGraphStatisticss(Graph<SimulationNode, SimulationEdge> graph,
+        String dir, String filename){
+      
+//        double totalLengthM = graph.getAllEdges().stream().mapToDouble((e) -> e.getLengthCm()).sum()/100.0;
+//        double totalTimeS = graph.getAllEdges().stream().mapToDouble((e) -> 
+//            e.getLengthCm()/e.getAllowedMaxSpeedInCmPerSecond()).sum();
+        List<String[]> result = new ArrayList<>();
+        result.add(new String[]{"id", "lengthM", "timeS"});
+        for(SimulationEdge edge: graph.getAllEdges()){
+            double lengthM = edge.getLengthCm()/100.0;
+            double timeS = edge.getLengthCm()/edge.getAllowedMaxSpeedInCmPerSecond();
+            result.add(new String[]{String.valueOf(edge.getStaticId()),
+                                    String.valueOf(lengthM),
+                                    String.valueOf(timeS)});
+        }
+         try (CSVWriter csvWriter = new CSVWriter(new FileWriter(
+             FilenameUtils.concat(dir, filename)))) {
+                csvWriter.writeAll(result);
+            }
+            catch(Exception ex){
+                ex.printStackTrace();
+            }
+        
+        
+    }
+    
     
     private static double tripDurationInSeconds(int startTime, int endTime){
         return (endTime - startTime)/1000;

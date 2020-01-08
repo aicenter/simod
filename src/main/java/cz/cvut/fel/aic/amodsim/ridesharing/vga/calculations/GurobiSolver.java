@@ -122,15 +122,14 @@ public class GurobiSolver {
 			// map for request constraint generation
 			Map<PlanComputationRequest,List<GRBVar>> requestVariableMap = new LinkedHashMap<>();
 			
-			int vehicleCounter = 0;
-			for (VehiclePlanList vehicleEntry : feasiblePlans) {
-				
+            while(!feasiblePlans.isEmpty()){
+//			for (VehiclePlanList vehicleEntry : feasiblePlans) {
+                VehiclePlanList vehicleEntry = feasiblePlans.remove(0);
 				GRBLinExpr vehicleConstraint = new GRBLinExpr();
 				String vehicleId = vehicleEntry.optimalPlanVehicle.getId();
 				
 				int groupCounter = 0;
-                //TODO remove plan from list 
-//                List<Plan> vehiclePlans = vehicleEntry.feasibleGroupPlans;
+
 				for (Plan<IOptimalPlanVehicle> plan : vehicleEntry.feasibleGroupPlans) {
 					
 					// variables
@@ -140,7 +139,6 @@ public class GurobiSolver {
 					variablePlanMap.put(newVar, plan);
 					
 					// objective
-//					double cost = planCostComputation.calculatePlanCost(plan);
 					objetive.addTerm(plan.getCost(), newVar);
 					
 					// constraint 1 - exactly one plan per vehicle
@@ -157,7 +155,6 @@ public class GurobiSolver {
 					
 					groupCounter++;
 				}//plan
-				//LOGGER.debug("GroupCounter {}",groupCounter);
                 //Plans are already in the map
                 vehicleEntry.feasibleGroupPlans.clear();
                 
@@ -176,8 +173,6 @@ public class GurobiSolver {
 					model.addConstr(vehicleConstraint, GRB.LESS_EQUAL, limit, vehicleConstraintName);
   				}
 				
-				
-				vehicleCounter++;
 			}//vehicle
 			
 			// dropping variables generation (y_r)
@@ -213,7 +208,7 @@ public class GurobiSolver {
 					requestConstraint.addTerm(1.0, planVariable);
 				}
 				
-				String requestConstraintName = String.format("One plan per request - request %s", request.getId());
+				String requestConstraintName = String.format("req %s", request.getId());
 				model.addConstr(requestConstraint, GRB.EQUAL, 1.0, requestConstraintName);
 				
 				requestCounter++;

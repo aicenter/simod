@@ -16,6 +16,7 @@ import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
@@ -72,13 +73,13 @@ public class OfflineSolver extends DARPSolver implements EventHandler{
         TripTransformTaxify tripTransform, GroupGenerator groupGenerator, AmodsimConfig config,
         DroppedDemandsAnalyzer droppedAnalyzer, StandardPlanCostProvider spcProvider,
         DefaultPlanComputationRequestFactory requestFactory, TypedSimulation eventProcessor, 
-		OnDemandvehicleStationStorage onDemandvehicleStationStorage
+		OnDemandvehicleStationStorage onDemandvehicleStationStorage,  HighwayNetwork highwayNetwork
 
     ){
         super(vehicleStorage, travelTimeProvider, travelCostProvider, requestFactory);
         this.config = config;
         this.tripTransform = tripTransform;
-        graph = tripTransform.getGraph();
+        graph = highwayNetwork.getNetwork();
     };
 
     /**
@@ -91,17 +92,8 @@ public class OfflineSolver extends DARPSolver implements EventHandler{
     @Override
     public Map<RideSharingOnDemandVehicle, DriverPlan>  solve(List<PlanComputationRequest> newRequests,
         List<PlanComputationRequest> waitingRequests) {
-         List<TripTaxify<SimulationNode>>  trips = new ArrayList<>();
-        //TODO move to TripTransform
-         try {
-            trips = tripTransform.loadTripsFromCsv(new File(config.tripsPath));
-         }  catch (IOException|ParseException ex) {
-            LOGGER.error("Input demand file error : "+ex);
-        }
-        if (trips.isEmpty()){
-            LOGGER.error("Empty trip list");
-            System.exit(-1);
-        }
+        List<TripTaxify<SimulationNode>>  trips = tripTransform.loadTripsFromCsv();
+        Collections.sort(trips, Comparator.comparing(TripTaxify::getStartTime));
         
         Demand demand = new NormalDemand(travelTimeProvider, config, trips, graph);
         Solution sol = new Solution(demand, travelTimeProvider, config);

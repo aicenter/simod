@@ -22,12 +22,12 @@ import cz.cvut.fel.aic.geographtools.util.GPSLocationTools;
     
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,9 +44,7 @@ public class TripTransformTaxify {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TripTransformTaxify.class);
     
     private final AmodsimConfig config;
-    
-//    private final TravelTimeProvider travelTimeProvider;
-    
+  
     private final Graph<SimulationNode,SimulationEdge> graph;
     
     private Rtree rtree;
@@ -73,49 +71,39 @@ public class TripTransformTaxify {
         this.config = config;
 
     }    
-    /**
-     *
-     * @return road graph 
-     */
-    public Graph<SimulationNode, SimulationEdge> getGraph() {
-        return graph;
-    }
-    
+   
        	
     /**
      * Reads demand data from .csv, and prepares it for solver.
      * 
      * @param inputFile
      * @return
-     * @throws FileNotFoundException
-     * @throws IOException
-     * @throws ParseException 
      */
-    public List<TripTaxify<SimulationNode>> loadTripsFromCsv(File inputFile) throws FileNotFoundException, IOException, ParseException{
+    public List<TripTaxify<SimulationNode>> loadTripsFromCsv(){
         
         //TODO srid from parent config? 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         int SRID = 32116;
         
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        File inputFile = new File(config.tripsPath);
         LocalDateTime startDateTime = LocalDateTime.parse(config.ridesharing.offline.startFrom ,formatter);
         int pickupRadius = config.ridesharing.offline.pickupRadius;
         int count = 0;
-        rtree = new Rtree(this.graph.getAllNodes(), this.graph.getAllEdges());
+        rtree = new Rtree(this.graph.getAllNodes());
         List<TripTaxify<SimulationNode>> trips = new LinkedList<>();
-        System.out.println(inputFile);
+  
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
             String line = br.readLine(); //header
-            //LOGGER.debug(line);
+  
             while ((line = br.readLine()) != null) {
-              //  LOGGER.debug(line);
-               count++;
+                count++;
                 String[] parts = line.split(",");
                 int id = Integer.parseInt(parts[0]);
                 
-                GPSLocation startLocation
-                    = GPSLocationTools.createGPSLocation(Double.parseDouble(parts[2]), Double.parseDouble(parts[3]), 0, SRID);
-                GPSLocation targetLocation
-                    = GPSLocationTools.createGPSLocation(Double.parseDouble(parts[4]), Double.parseDouble(parts[5]), 0, SRID);
+                GPSLocation startLocation = GPSLocationTools.createGPSLocation(
+                    Double.parseDouble(parts[2]), Double.parseDouble(parts[3]), 0, SRID);
+                GPSLocation targetLocation = GPSLocationTools.createGPSLocation(
+                    Double.parseDouble(parts[4]), Double.parseDouble(parts[5]), 0, SRID);
 
                 long millisFromStart = parseTime(LocalDateTime.parse(parts[1].substring(0,19) ,formatter),
                     startDateTime);
@@ -138,14 +126,22 @@ public class TripTransformTaxify {
                     graph.getNode(endNodeId)));
             }
         }catch (IOException ex) {
-            LOGGER.error(null, ex);
+            LOGGER.error(ex.getMessage());
         }
+        
+        if(trips.isEmpty()){
+            LOGGER.error("Empty trip list ");
+            System.exit(-1);
+        }
+        
         LOGGER.info("{} trips in csv file", count);
         LOGGER.info("{} trips remained", trips.size());
         LOGGER.info("{} nodes not found in node tree", tooFarCount);
         LOGGER.info("{} same start and target node", sameNodeCount);
+        Collections.sort(trips, Comparator.comparing(TripTaxify::getStartTime));
         return trips;
     }
+   
         
     private long parseTime(LocalDateTime dateTime, LocalDateTime startDateTime){
         int startDay = startDateTime.getDayOfMonth();
@@ -154,9 +150,8 @@ public class TripTransformTaxify {
         int hour = day*24 + dateTime.getHour() - startHour;
         int min = hour*60 + dateTime.getMinute();
         int sec = min*60 + dateTime.getSecond();
-         long millisFromStart = sec*1000;
+        long millisFromStart = sec*1000;
         return millisFromStart;
-
     }
 }
    

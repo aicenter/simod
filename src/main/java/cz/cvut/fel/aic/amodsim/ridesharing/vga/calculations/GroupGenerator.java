@@ -277,14 +277,6 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 								break;
 							}
 						}
-//                        if ( newCurrentGroups.size() >= 10000){
-//                         //   LOGGER.debug("Current groups : "+currentGroups.size());
-//                            
-//                            LOGGER.debug(currentGroupSize +" group, size  "+newCurrentGroups.size());
-//                            //currentGroupSize++;
-//                            break;
-//                        }
-						
 						if(recordTime){
 							groupCounts.increment(newGroupToCheck.size() - 1);
 							Benchmark benchmark = new Benchmark();
@@ -316,18 +308,9 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 							else{
 								newCurrentGroups.add(new GroupData(newGroupToCheck, groupData.onboardRequestLock));
 							}
-//							if(groups.size() > 50){
-//								return groups;
-//							}
 						}
 					}
 				}
-//                if (newCurrentGroups.size() >= groupSizeLimit){
-//                    //   LOGGER.debug("Current groups : "+currentGroups.size());
-//                    LOGGER.debug((currentGroupSize+1) +" group, size  "+newCurrentGroups.size());
-//                    //currentGroupSize++;
-//                    break;
-//                        }
 				if(stop){
 					break;
 				}

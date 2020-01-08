@@ -247,7 +247,6 @@ public class Statistics {
         }
     }
     
-      
 
     
     private static String makeFilename(String dir, String name, Date timeStamp){
@@ -255,9 +254,17 @@ public class Statistics {
          name = name + "_"+ timeString + ".csv";
         return FilenameUtils.concat(dir, name);
     }
-    
-    
-    private static void writeDemandStatistics(List<TripTaxify<SimulationNode>> trips,
+        
+    /**
+     * Writes .csv with demand data.
+     * trip id, start time in ms from start, trip length in sec,
+     * start node id,  latitude, longitude, end node id, latitude, longitude.
+     * @param trips
+     * @param travelTimeProvider
+     * @param dir
+     * @param filename
+     */
+    public static void writeDemandStatistics(List<TripTaxify<SimulationNode>> trips,
         TravelTimeProvider travelTimeProvider, String dir, String filename){
         
         List<String[]> result = new ArrayList<>();
@@ -274,7 +281,7 @@ public class Statistics {
 
                                     String.valueOf(trip.getEndNode().id),
                                     String.valueOf(trip.getEndNode().getLatitude()),
-                                    String.valueOf(trip.getEndNode().getLongitude())   });
+                                    String.valueOf(trip.getEndNode().getLongitude()) });
         }
         
         result.add(0, new String[]{"tripId", "startTime", "lengthSec",
@@ -288,7 +295,13 @@ public class Statistics {
         }
     }
     
-    
+    /**
+     * Writes .csv with demand data.
+     * edge id, edge length in meters, travel time in sec (from TravelTimeProvider)
+     * @param graph 
+     * @param dir
+     * @param filename 
+     */
     public static void writeGraphStatisticss(Graph<SimulationNode, SimulationEdge> graph,
         String dir, String filename){
       

@@ -59,6 +59,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.offline.search.TravelTimeProviderTaxi
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.DistanceMatrixTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.EuclideanTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OfflineArrayOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayer;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayerWithJitter;
 import cz.cvut.fel.aic.geographtools.TransportMode;
@@ -126,7 +127,7 @@ public class MainModule extends StandardAgentPolisModule{
 					break;
                 case "offline-vga":
                     bind(DARPSolver.class).to(OfflineVGASolver.class);
-                    bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);
+                    bind(OptimalVehiclePlanFinder.class).to(OfflineArrayOptimalVehiclePlanFinder.class);
                     break;
                 case "offline":
                     bind(DARPSolver.class).to(OfflineSolver.class);

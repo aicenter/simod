@@ -58,9 +58,9 @@ import org.slf4j.LoggerFactory;
  * @author LocalAdmin
  */
 @Singleton
-public class GurobiSolver {
+public class OfflineGurobiSolver {
 	
-	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GurobiSolver.class);
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OfflineGurobiSolver.class);
 	
 	
 	private final StandardPlanCostProvider planCostComputation;
@@ -85,7 +85,7 @@ public class GurobiSolver {
 	
 	
 	@Inject
-	public GurobiSolver(StandardPlanCostProvider planCostComputation, AmodsimConfig config, 
+	public OfflineGurobiSolver(StandardPlanCostProvider planCostComputation, AmodsimConfig config, 
 			DroppedDemandsAnalyzer droppedDemandsAnalyzer) {
 		this.planCostComputation = planCostComputation;
 		this.droppedDemandsAnalyzer = droppedDemandsAnalyzer;
@@ -97,7 +97,7 @@ public class GurobiSolver {
 		try {            
 			env = new GRBEnv(config.amodsimExperimentDir +"/log/mip.log");
 		} catch (GRBException ex) {
-			Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
+			Logger.getLogger(OfflineGurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
 		}
 		
 	}
@@ -219,7 +219,7 @@ public class GurobiSolver {
 			
 			return optimalPlans;
 		} catch (GRBException ex) {
-			Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
+			Logger.getLogger(OfflineGurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
 		}
 		
 		return null;

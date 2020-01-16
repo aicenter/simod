@@ -32,25 +32,15 @@ public class NormalDemand extends Demand<TripTaxify<SimulationNode>>{
 			List<TripTaxify<SimulationNode>> demand, Graph<SimulationNode, SimulationEdge> graph) {
 		super(travelTimeProvider, config, demand, graph);
         prepareDemand(demand);
-//        for (int i = 0; i < 10; i++){
-//            System.out.println(getTripByIndex(i).id +": "+getStartNodeId(i) + " -> " + getEndNodeId(i) + 
-//                "; start time " + getStartTime(i) + ", shortest route "+getBestTime(i));
-//            System.out.println("unproj: " +getStartLongitude(i) + ", " + getStartLatitude(i)+"; proj: " +
-//               getTargetLongitudeProj(i) + ", " +getTargetLatitudeProj(i));
-//        }
+
     }
 
 	private void prepareDemand(List<TripTaxify<SimulationNode>> demand) {
         Collections.sort(demand, Comparator.comparing(TripTaxify::getStartTime));
         for (TripTaxify<SimulationNode> trip : demand) {
-//            System.out.println("Start lon"+trip.getStartNode().getLongitude() + " proj "+ trip.getStartNode().getLongitudeProjected());
-//            System.out.println("Start lat"+trip.getStartNode().getLatitude() + " proj "+ trip.getStartNode().getLatitudeProjected());
-//            System.out.println("End lon"+trip.getEndNode().getLongitude() + " proj "+ trip.getEndNode().getLongitudeProjected());
-//            System.out.println("End lat"+trip.getEndNode().getLatitude() + " proj "+ trip.getEndNode().getLatitudeProjected());
-//            
+          
             int bestTime = (int) travelTimeProvider.getExpectedTravelTime(trip.getStartNode(), 
                 trip.getEndNode());
-//             System.out.println("Best time "+ bestTime);
 			addTripToIndex(trip, bestTime);
         }
         

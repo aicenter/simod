@@ -21,7 +21,6 @@ package cz.cvut.fel.aic.amodsim.ridesharing.offline;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.demand.Solution;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.demand.GroupDemand;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.demand.Demand;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
@@ -52,13 +51,10 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
-import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.amodsim.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.entities.Car;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.entities.OfflineVirtualVehicle;
@@ -73,12 +69,8 @@ import cz.cvut.fel.aic.geographtools.Graph;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
-import com.opencsv.CSVWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-import java.text.SimpleDateFormat;
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.LoggerFactory;
 
 
@@ -176,7 +168,7 @@ public class OfflineVGASolver extends DARPSolver implements EventHandler{
 
         List<TripTaxify<SimulationNode>> trips = tripTransform.loadTripsFromCsv();
         Collections.sort(trips, Comparator.comparing(TripTaxify::getStartTime));
-        List<List<PlanComputationRequest>> requestBatches = groupRequests(trips.subList(0, 900));
+        List<List<PlanComputationRequest>> requestBatches = groupRequests(trips);
        
         vgaVehicles = new LinkedList<>();
 

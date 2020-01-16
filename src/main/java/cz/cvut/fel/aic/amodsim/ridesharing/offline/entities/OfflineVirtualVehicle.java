@@ -18,12 +18,9 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.offline.entities;
 
-import com.google.inject.Provider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
-import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
@@ -83,9 +80,5 @@ public class OfflineVirtualVehicle implements IOptimalPlanVehicle{
     public MovingEntity getRealVehicle() {
         return exampleVehicle;
     }
-
-
-
-
 	
 }

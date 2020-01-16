@@ -266,13 +266,9 @@ public class Demand<D> {
     }
    
     private int[][] buildAdjacency(int sigma) {
-//        int maxProlongartion = config.ridesharing.maxProlongationInSeconds * 1000;
         int timeToStart = config.ridesharing.offline.timeToStart;
         sigma = sigma > 0 ? sigma : Integer.MAX_VALUE;
-        LOGGER.debug("sigma in millis " + sigma);
-        LOGGER.debug("timeLine length: " + startTimes.length);
-        LOGGER.debug("N = " + N);
-//        for(int t:startTimes){ System.out.println(t);}
+
         int[][] adjacency = new int[N][];
         
         for (int tripInd = 0; tripInd < N; tripInd++) {
@@ -320,10 +316,8 @@ public class Demand<D> {
     public int getIndexByStartTime(int time){
         
         int ind = Arrays.binarySearch(startTimes, time);
-//        LOGGER.debug("Bsearch " + time + " returned "+ ind);
         ind = ind >= 0 ? ind : -(ind + 1);
         ind =  ind < N ? ind : N - 1 ;
-//        LOGGER.debug(" final index " + ind);
         return ind;
     }
     

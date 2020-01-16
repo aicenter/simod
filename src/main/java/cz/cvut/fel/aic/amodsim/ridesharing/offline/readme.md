@@ -1,8 +1,8 @@
-###All paths, parameters, and evaluated method
-###are set in local config file.
+###All paths, parameters, and the evaluated method
+###are set in the local config file.
 You can change config.olga_vga_local.cfg or create your own config file. 
 To run evaluation you need nodes.geojson and edges.geojson
-files for graph, and .csv file with demand data. 
+files for the  graph, and .csv file with demand data. 
 Final results are saved to experiment_dir, file name eval_result_{timestamp}.csv
 ###Name of local config file should be passed as an argument.
 

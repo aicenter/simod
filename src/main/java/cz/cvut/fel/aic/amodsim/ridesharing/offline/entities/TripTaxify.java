@@ -1,9 +1,7 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.offline.entities;
 
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.io.*;
 import cz.cvut.fel.aic.amodsim.ridesharing.offline.io.TripTransformTaxify;
-import cz.cvut.fel.aic.geographtools.GPSLocation;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -19,17 +17,11 @@ public class TripTaxify<L> extends TimeTrip<L>{
      * unique id of the trip from input .csv file
      */
     public final int id;
-//    private SimulationNode startNode;
-//    private SimulationNode endNode;
 
     public L getStartNode() {
         return locations[0];
     }
-//
-//    public void setStartNode(SimulationNode startNode) {
-//        this.startNode = startNode;
-//    }
-//
+
     public L getEndNode() {
         return locations[locations.length - 1];
     }

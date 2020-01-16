@@ -76,24 +76,8 @@ public class Solution {
         
         int[] pair = demand.findMapCover(config.ridesharing.offline.sigma);
         int n = pair.length;
-        
-         //print pairs for debug
-//        Set<Integer> seen = new HashSet<>();
-//        LOGGER.debug("PAIRS");
-//        for (int i = 0 ; i < pair.length; i++){
-//            while(i != demand.N){
-//                if(seen.contains(i)) break;
-//                seen.add(i);
-//                if(pair[i] < demand.N){
-//                    LOGGER.debug( "d("+i+") "+ demand.getEndTime(i)+" -> p("+pair[i] +") "+ demand.getStartTime(pair[i]));
-//                }else{
-//                    LOGGER.debug( " last d("+i+") "+ demand.getEndTime(i)+" -> end");
-//                }
-//                i = pair[i];
-//            }
-//           LOGGER.debug("Done");
-//        }
-        
+       
+         
 
         Set<Integer> seenNodes = new HashSet<>();
         for(int i = 0; i < n; i++ ){
@@ -103,10 +87,6 @@ public class Solution {
             seenNodes.add(i);
             // start of new segment, which doesn't have an assigned car
             int currentNodeInd = i; 
-            //DriverPlan dp = (DriverPlan) demand.getPlanByIndex(i);
-//            int planStartTime = demand.getStartTime(i);
-//            LOGGER.debug("New plan " + currentNodeInd + " time [" + planStartTime + ", " + demand.getEndTime(i) +
-//                "]" + ", next plan "+pair[currentNodeInd]);
             Car car = getCar(currentNodeInd);//returns car with current node already added
             int time = car.getLastActionTime();//end of the 1s plan
             currentNodeInd  = pair[currentNodeInd];//2nd plan index
@@ -172,13 +152,10 @@ public class Solution {
         if(theCar != null){
             theCar.addDemandNode(trip, bestArrivalTime, demand.getBestTime(trip));
             LOGGER.debug("Car found " + theCar.id + " in node " + theCar.getLastDemandNode() + " time: " + theCar.getLastActionTime());
-//            LOGGER.debug("for trip " + demand.indToTripId(trip) + " starting from " + demand.getStartNodeId(trip) +
-//                 " at " + demand.getStartTime(trip));
             return theCar;
         }
         theCar = new Car();
         theCar.addDemandNode(trip, demand.getStartTime(trip) + timeToStart, demand.getBestTime(trip));
-//        LOGGER.debug("New car created: " + theCar.id + " at node "+ theCar.getLastDemandNode() + " time "+ theCar.getLastActionTime());
         cars.add(theCar);
         return theCar;
     }
@@ -194,13 +171,10 @@ public class Solution {
     private int canServe(Car car, int trip){
         int lastTripId = car.getLastDemandNode();
         int lastActionTime = car.getLastActionTime();
-//        LOGGER.debug("car last action time " + lastActionTime);
         SimulationNode startNode = demand.getEndNode(lastTripId);
         SimulationNode endNode = demand.getStartNode(trip);
         int travelTime = (int) travelTimeProvider.getExpectedTravelTime(startNode, endNode);
-//        LOGGER.debug("travelTime "+ travelTime);
         int requestTime = demand.getStartTime(trip);
-//        LOGGER.debug("request time  "+ requestTime + " epa time " + (travelTime + lastActionTime));
         int actionTime = lastActionTime + travelTime;
         if (actionTime  < (requestTime + timeToStart)){
             return actionTime;
@@ -208,79 +182,6 @@ public class Solution {
             return -1;
        }
     }
-    
-    
+       
  }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    private Car getCar(int trip, int[] depo){
-//        Car theCar = null;
-//        // check among waiting cars
-//        List<Car> sortedCars = cars[W].stream().sorted(Comparator.comparingInt(Car::getLastActionTime))
-//            .collect(Collectors.toList());
-//        for (Car car: sortedCars){
-//            if(canServe(car.getLastDemandNode(), car.getLastActionTime(), trip)){
-//                theCar = car;
-////                int currentNode = car.getLastDemandNode();
-////                SimulationNode startSimNode = demand.getEndNode(currentNode);
-////                SimulationNode endSimNode = demand.getStartNode(trip);
-////                int timeToTripStart = (int) travelTimeProvider.getExpectedTravelTime(startSimNode, endSimNode);
-//                break;
-//                }
-//        }
-//        if(theCar != null){
-//            
-//            cars[D].add(theCar);
-//            cars[W].remove(theCar);
-//            return theCar;
-//        }
-//        //second, search for cars in the nearest Depo
-//        int latestPossibleArrival = demand.getStartTime(trip) + maxWaitTime;
-////        sortedCars = cars[C].stream().sorted(Comparator.comparingInt(Car::getLastActionTime))
-////            .collect(Collectors.toList());
-////        for(Car car: sortedCars){
-////            SimulationNode startSimNode = demand.getNodeById(-car.getLastDemandNode());
-////            SimulationNode endSimNode = demand.getStartNode(trip);
-////            int timeFromeDepo = (int) travelTimeProvider.getExpectedTravelTime(startSimNode, endSimNode);
-////            if (car.getLastActionTime() + timeFromeDepo + timeBuffer <= latestPossibleArrival){
-////                theCar = car;
-////                break;
-////                }
-////            }
-////        if(theCar != null){
-////            cars[D].add(theCar);
-////            cars[C].remove(theCar);
-////            return theCar;
-////           
-////        }
-//        if(depo[1] < latestPossibleArrival){
-//         
-//            theCar = new Car(depo[0]);
-//            cars[D].add(theCar);
-//            return theCar;
-//        }
-//        return null;
-//    }
-
-
-
-
-
-
-
-
-
-    

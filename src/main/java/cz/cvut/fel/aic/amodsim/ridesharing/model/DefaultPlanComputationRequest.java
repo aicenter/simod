@@ -108,10 +108,7 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 		
 		int maxPickUpTime = originTime + maxProlongation;
 		int maxDropOffTime = maxPickUpTime + minTravelTime;
-        
-//        int maxPickUpTime = originTime + amodsimConfig.ridesharing.offline.timeToStart/1000;
-//		int maxDropOffTime = maxPickUpTime + minTravelTime;
-		
+  	
 		this.demandAgent = demandAgent;
 		onboard = false;
 		
@@ -124,23 +121,13 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 		return originTime; 
 	}
 
-	
-
-//	@Override
-//	public boolean equals(Object obj) {
-//		if(!(obj instanceof DefaultPlanComputationRequest)) return false;
-//		return demandAgent.toString().equals(((DefaultPlanComputationRequest) obj).demandAgent.toString());
-//	}
 
 	@Override
 	public boolean equals(Object obj) {
+        if(!(obj instanceof DefaultPlanComputationRequest)) return false;
 		return this == obj;
 	}
 
-//	@Override
-//	public int hashCode() {
-//		return demandAgent.getSimpleId();
-//	}
 	@Override
 	public int hashCode() {
 		if(hash == 0){

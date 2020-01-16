@@ -17,16 +17,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import me.tongfei.progressbar.ProgressBar;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.LoggerFactory;
@@ -53,7 +48,6 @@ public class IHSolution {
     
     private final int maxCapacity;
     
-//    private final Map<Integer, Map<Integer,Integer>> carPlanTimeMap;
 
     /**
      *
@@ -72,61 +66,40 @@ public class IHSolution {
     }
            
     /**
-     * 
-     * @return 
-     */
-//    public List<IHPlan> getAllPlans(){
-//        Collections.sort(plans, Comparator.comparing(IHPlan::getId));
-//        return plans;
-//    }
-
-    /**
      * Insertion Heuristic 
      * 
      */
-    boolean dbg = false;
     public void buildPaths(){
         
         ProgressBar pb = new ProgressBar("Insertion Heuristic", demand.N);
         for(int trip = 0; trip < demand.N; trip++){
-             if (dbg) LOGGER.debug("Trip "+trip + ", num of plans "+plans.size());
+
             int bestResult = Integer.MAX_VALUE;
             int bestPlanInd = -1;
             IHPlan bestPlan = null;
            
             for(int pInd = 0; pInd < plans.size(); pInd++){
                 IHPlan plan = plans.get(pInd);
-                if (dbg) LOGGER.debug("Plan "+plan.id+", at position "+pInd);
                 IHPlan updatedPlan = tryInsert(plan, trip);
                 if (updatedPlan == null){
-                     if (dbg)LOGGER.debug("Failed to build plan.");
                     continue;
                 }
                 int costInc = updatedPlan.getPlanCost() - plan.getPlanCost();
-                if (dbg) LOGGER.debug("updated plan "+updatedPlan.id +", cost "+updatedPlan.getPlanCost());
                 if (costInc < bestResult){
-                    if (dbg) LOGGER.debug("new best plan "+plan.printPlan());
                     bestPlanInd = pInd;
                     bestResult = costInc;
                     bestPlan = updatedPlan;
                 }
                 
             }
-           // pb.step();
             if(bestPlan != null){
-                if (dbg) LOGGER.debug("Old plan at position "+bestPlanInd+", id "+plans.get(bestPlanInd).id+", cost"+plans.get(bestPlanInd).getPlanCost());
                 IHPlan oldPlan = plans.remove(bestPlanInd);
                 IHPlan newPlan = new IHPlan(bestPlanInd, bestPlan);
-                if (dbg) LOGGER.debug("old plan "+oldPlan.printPlan());
-                    if (dbg) LOGGER.debug("new plan "+newPlan.printPlan());
-                if (dbg)LOGGER.debug("New plan at position "+bestPlanInd+", id "+newPlan.id+", cost"+newPlan.getPlanCost());
                  plans.add(bestPlanInd, newPlan);
             } else {
-                if (dbg) LOGGER.debug("Adding new plan");
                 bestPlan = new IHPlan();
                 bestPlan.addFirstTrip(trip, demand.getStartTime(trip) + timeToStart, demand.getBestTime(trip));
                 plans.add(bestPlan);
-                if (dbg)LOGGER.debug("Adding new plan " + bestPlan.id + ", position " + (plans.size()-1)+"; "+bestPlan.printPlan());
             }
             pb.step();
         }
@@ -138,7 +111,7 @@ public class IHSolution {
         
         LOGGER.info("Cars used: "+ plans.size()+", total cost "+(totalCost/3600)+" hours");
         
-        //TODO move to statistics
+
         int[] plansBysize = new int[config.ridesharing.vga.maxGroupSize+1];
         for(int i =0; i < plansBysize.length; i++)         plansBysize[i]=0;
         List<String[]> result = new ArrayList<>();
@@ -149,12 +122,10 @@ public class IHSolution {
 
         int tripCounter = 0;
         for (IHPlan plan: plans){
-            if(dbg) LOGGER.debug("plan "+plan.id+", size "+plan.getSize() +", n  req "+plan.getRequestsNum()+", cost "+plan.getPlanCost());
             List<Integer> planActions = plan.getActions();
             int cap = 0;
             double[] timeWitnNPassengers = new double[config.ridesharing.vehicleCapacity + 1];
             for(int planInd = 0; planInd < plan.getSize(); planInd++){
-               if(dbg)  LOGGER.debug("i=" +planInd+", action "+planActions.get(planInd));
                 int action = planActions.get(planInd);
                 int actionTime = plan.times.get(planInd);
                 if(action >= 0){
@@ -229,23 +200,16 @@ public class IHSolution {
     
     
     private IHPlan tryInsert(IHPlan plan, int trip){
-       if (dbg)  LOGGER.debug("Inserting " +trip +" into "+ plan.printPlan());
         List<Integer> planActions = plan.getActions();
         int tripOriginTime = demand.getStartTime(trip);
         int tripTargetTime = demand.getEndTime(trip);
-        
-       if (dbg)  LOGGER.debug("plan actions: ");
-        if (dbg) for(int action: planActions) System.out.print(action + ", ");
-        if (dbg) LOGGER.debug("\n");
         
         int l = plan.getSize();
         int bestTime = Integer.MAX_VALUE;
         IHPlan bestPlan  = null;
         
         for(int i = 0; i <= l; i++){
-//        if(i < (l - 1) && plan.times.get(i+1) > (demand.getStartTime(trip) + maxProlongation)){
-//                continue;
-//            }
+
             if( i < l){
                 int action1 = planActions.get(i);
                 int actionRequestTime1 = action1 >= 0 ? demand.getStartTime(action1) : demand.getEndTime(-action1-1);
@@ -256,16 +220,8 @@ public class IHSolution {
             }
             planActions.add(i, trip);
              
-            if (dbg)LOGGER.debug("p ins pos " +i);
-             if (dbg)  LOGGER.debug("plan actions: ");
-             if (dbg)   for(int a: planActions) System.out.print(a + ", ");
-             if (dbg)  LOGGER.debug("\n");
-           
-           
             for (int j = i + 1; j <= l + 1; j++){
-//            if(j < l  && plan.times.get(j) > (demand.getEndTime(trip) + maxProlongation)){
-//                continue;
-//            }
+
                 if(j < l+1){
                     int action2 = planActions.get(j);
                     int actionRequestTime2 = action2 >= 0 ? demand.getStartTime(action2) : demand.getEndTime(-action2-1);
@@ -275,11 +231,6 @@ public class IHSolution {
                     }
                 }
                 planActions.add(j, -trip-1);
-                
-                if (dbg)   LOGGER.debug("d ins pos " +j);
-                if (dbg)   LOGGER.debug("plan actions: ");
-                if (dbg)   for(int action: planActions) System.out.print(action + ", ");
-                if (dbg)    LOGGER.debug("\n");
                 
                 IHPlan newPlan = makePlan(planActions);
                 if(newPlan != null){
@@ -297,9 +248,7 @@ public class IHSolution {
     }
     
     private IHPlan makePlan(List<Integer> actions){
-         if (dbg)LOGGER.debug("TRY make plan from :");
-        if (dbg) for(int action: actions) System.out.print(action + ", ");
-       if (dbg)  LOGGER.debug("\n");
+   
         IHPlan plan = new IHPlan(-1);
         int firstPickup = actions.get(0);
         int startTime = demand.getStartTime(firstPickup) + timeToStart;
@@ -319,15 +268,10 @@ public class IHSolution {
                    return null;
                }
                int originTime = demand.getStartTime(nextAction);
-//               if(time > originTime){
-//                   return null;
-//               }
+
                SimulationNode actionNode = demand.getStartNode(nextAction);
                int travelTime = (int) travelTimeProvider.getExpectedTravelTime(planLastNode, actionNode);
                int arrivalTime = planLastTime + travelTime;
-//               if (travelTime == 0 && +planLastNode.id !=actionNode.id ){
-//                   LOGGER.debug("0 travel time "+ travelTime+", "+planLastNode.id+" -> "+actionNode.id);
-//               }
                 //pickup time window
                arrivalTime = arrivalTime > originTime ? arrivalTime : originTime;
                if (cap == 0 && arrivalTime > (originTime + timeToStart)){
@@ -344,14 +288,8 @@ public class IHSolution {
            else if (nextAction < 0){
                nextAction = -nextAction - 1;
                int plannedArrival = demand.getEndTime(nextAction);
-//                if(time > plannedArrival){
-//                   return null;
-//               }
                SimulationNode actionNode = demand.getEndNode(nextAction);
                int travelTime = (int) travelTimeProvider.getExpectedTravelTime(planLastNode, actionNode);
-//               if (travelTime == 0 && +planLastNode.id !=actionNode.id ){
-//                   LOGGER.debug("0 travel time "+ travelTime+", "+planLastNode.id+" -> "+actionNode.id);
-//               }
                int arrivalTime = planLastTime + travelTime;
                
                if(arrivalTime > plannedArrival + maxProlongation){
@@ -405,8 +343,7 @@ public class IHSolution {
        
        
     private static String makeFilename(String dir, String name, Date timeStamp){
-         
-        //dir = dir.endsWith("/") ? dir : dir + "/";
+
         String timeString = new SimpleDateFormat("dd-MM-HH-mm").format(timeStamp);
         name = name + "_"+ timeString + ".csv";
         return FilenameUtils.concat(dir, name);

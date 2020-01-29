@@ -171,6 +171,17 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
                         driveFactory.runActivity(this, vehicle, currentTrip);
                 }
         }
+       
+        
+        protected void driveToPackageDestination() {
+                state = OnDemandVehicleState.DELIVERING_PACKAGE;
+                if (getPosition().id == currentTask.getPosition().id) {
+                        unloadPackage();
+                } else {
+                        currentTrip = tripsUtil.createTrip(getPosition(), currentTask.getPosition(), vehicle);
+                        driveFactory.runActivity(this, vehicle, currentTrip);
+                }
+        }
 
         @Override
         public void finishedDriving(boolean wasStopped) {
@@ -204,13 +215,15 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
                         currentTask = null;
                         if (state != OnDemandVehicleState.WAITING) {
                                 if (currentPackageLoad.getSize() > 0) {
-                                        // TODO deliver package
-
+                                        deliverPackage();
+                                        driveToPackageDestination(); 
                                 }
-                                if (onDemandVehicleStationsCentral.stationsOn()) {
-                                        driveToNearestStation();
-                                } else {
-                                        park();
+                                else{
+                                        if (onDemandVehicleStationsCentral.stationsOn()) {
+                                                driveToNearestStation();
+                                        } else {
+                                                park();
+                                        }
                                 }
                         }
                 } else {
@@ -221,7 +234,8 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
                         }
                         if (currentTask instanceof PlanActionPickup) {
                                 driveToDemandStartLocation();
-                        } else {
+                        } 
+                        else {
                                 driveToTargetLocation();
                         }
                 }
@@ -327,7 +341,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
                 packageToDeliver = null;
 
                 // TODO: add statistics
-                System.out.println("Delivered a package:)");
+                System.out.println("package delivered!!!");
                 currentPlan.taskCompleted();
                 driveToNextTask();
         }
@@ -349,7 +363,6 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
                 plan.add(new PlanActionCurrentPosition(getPosition()));
                 plan.add(currentTask);
                 currentPlan = new DriverPlan(plan, cost, (double) cost);
-                this.state = OnDemandVehicleState.DELIVERING_PACKAGE;
         }
 
         private DeliveryPackage chooseClosestPackage() {

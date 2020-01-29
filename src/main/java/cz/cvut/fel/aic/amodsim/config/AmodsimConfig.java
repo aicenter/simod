@@ -16,6 +16,8 @@ public class AmodsimConfig implements GeneratedConfig {
 
   public String tripsFilename;
 
+  public String packagePath;
+
   public String distanceMatrixFilepath;
 
   public String edgePairsFilePath;
@@ -27,8 +29,6 @@ public class AmodsimConfig implements GeneratedConfig {
   public Integer startTime;
 
   public String tripsPath;
-  
-  public String packagePath;
 
   public String amodsimExperimentDir;
 
@@ -58,13 +58,13 @@ public class AmodsimConfig implements GeneratedConfig {
     this.useTripCache = (Boolean) amodsimConfig.get("use_trip_cache");
     this.experimentName = (String) amodsimConfig.get("experiment_name");
     this.tripsFilename = (String) amodsimConfig.get("trips_filename");
+    this.packagePath = (String) amodsimConfig.get("package_path");
     this.distanceMatrixFilepath = (String) amodsimConfig.get("distance_matrix_filepath");
     this.edgePairsFilePath = (String) amodsimConfig.get("edge_pairs_file_path");
     this.tripCacheFile = (String) amodsimConfig.get("trip_cache_file");
     this.mapDir = (String) amodsimConfig.get("map_dir");
     this.startTime = (Integer) amodsimConfig.get("start_time");
     this.tripsPath = (String) amodsimConfig.get("trips_path");
-    this.packagePath = (String) amodsimConfig.get("package_file_path");
     this.amodsimExperimentDir = (String) amodsimConfig.get("amodsim_experiment_dir");
     this.amodsimDataDir = (String) amodsimConfig.get("amodsim_data_dir");
     this.edgesFilePath = (String) amodsimConfig.get("edges_file_path");

@@ -23,6 +23,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.utils.Benchmark;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
@@ -42,6 +43,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDelivery;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
@@ -259,6 +261,14 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 
 	private void computeOptimalPlan(RideSharingOnDemandVehicle vehicle, PlanComputationRequest planComputationRequest) {
 		DriverPlan currentPlan = vehicle.getCurrentPlan();
+                
+                // check if the current plan is package delivery
+                if (currentPlan.getLength() > 1){
+                        PlanAction firstAction = currentPlan.plan.get(1);
+                        if (firstAction instanceof PlanActionDelivery){
+                                currentPlan = createEmptyPlan(vehicle.getPosition());
+                        }
+                }
 		
 		// if the plan was already changed
 		if(planMap.containsKey(vehicle)){
@@ -370,7 +380,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			// check max time for actions in the current plan
 			for(int index = indexInOldPlan + 1; index < currentPlan.getLength(); index++){
 				PlanAction remainingAction = currentPlan.plan.get(index);
-				if(!(remainingAction instanceof PlanActionCurrentPosition)){
+				if(!(remainingAction instanceof PlanActionCurrentPosition) && !(remainingAction instanceof PlanActionDelivery)){
 					PlanRequestAction remainingRequestAction = (PlanRequestAction) remainingAction;
 					if(remainingRequestAction.getMaxTime() < curentTaskTimeInSeconds){
 						return null;
@@ -509,6 +519,12 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		}
 	}
 	
+        private DriverPlan createEmptyPlan(SimulationNode currentPosition){
+                LinkedList<PlanAction> plan = new LinkedList<>();
+                plan.add(new PlanActionCurrentPosition(currentPosition));
+                return new DriverPlan(plan, 0, 0);
+        }
+        
 	private class PlanData{
 		final DriverPlan plan;
 		

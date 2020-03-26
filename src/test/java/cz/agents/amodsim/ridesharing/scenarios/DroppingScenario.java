@@ -50,8 +50,8 @@ public class DroppingScenario {
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(graph.getNode(1), graph.getNode(3), 1000));
-		trips.add(new TimeTrip<>(graph.getNode(9), graph.getNode(8), 2000));
+		trips.add(new TimeTrip<>(1000, graph.getNode(1), graph.getNode(3)));
+		trips.add(new TimeTrip<>(2000, graph.getNode(9), graph.getNode(8)));
 		
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
 		vehicalInitPositions.add(graph.getNode(0));

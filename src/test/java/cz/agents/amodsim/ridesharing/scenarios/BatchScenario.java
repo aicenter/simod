@@ -58,8 +58,8 @@ public class BatchScenario {
 		
 		// trips
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(graph.getNode(1), graph.getNode(3), 8000));
-		trips.add(new TimeTrip<>(graph.getNode(2), graph.getNode(4), 1000));
+		trips.add(new TimeTrip<>(8000, graph.getNode(1), graph.getNode(3)));
+		trips.add(new TimeTrip<>(1000, graph.getNode(2), graph.getNode(4)));
 		
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
 		vehicalInitPositions.add(graph.getNode(0));

@@ -65,8 +65,6 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	
 	private final StandardTimeProvider timeProvider;
 	
-	private final Statistics statistics;
-	
 	private final TripsUtil tripsUtil;
 	
 	
@@ -145,7 +143,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	
 	@Inject
 	public DemandAgent(StationsDispatcher onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
-			DemandStorage demandStorage, StandardTimeProvider timeProvider, Statistics statistics, TripsUtil tripsUtil,
+			DemandStorage demandStorage, StandardTimeProvider timeProvider, TripsUtil tripsUtil,
 			@Assisted String agentId, @Assisted int id, @Assisted TimeTrip<SimulationNode> trip) {
 		super(agentId, trip.getLocations()[0]);
 		this.simpleId = id;
@@ -154,7 +152,6 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		this.eventProcessor = eventProcessor;
 		this.demandStorage = demandStorage;
 		this.timeProvider = timeProvider;
-		this.statistics = statistics;
 		this.tripsUtil = tripsUtil;
 		state = DemandAgentState.WAITING;
 		dropped = false;

@@ -57,8 +57,8 @@ public class DroppingBatchScenario {
 		
 		// trips
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(graph.getNode(1), graph.getNode(3), 8000));
-		trips.add(new TimeTrip<>(graph.getNode(19), graph.getNode(0), 1000));
+		trips.add(new TimeTrip<>(8000, graph.getNode(1), graph.getNode(3)));
+		trips.add(new TimeTrip<>(1000, graph.getNode(19), graph.getNode(0)));
 		
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
 		vehicalInitPositions.add(graph.getNode(0));

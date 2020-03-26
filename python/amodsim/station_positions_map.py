@@ -105,7 +105,7 @@ axis.tick_params(
 
 # road network
 fc = roadmaptools.inout.load_geojson(config.agentpolis.map_edges_filepath)
-xList, yList = roadmaptools.plotting.export_edges_for_matplotlib(roadmaptools.plotting.geojson_iterator(fc))
+xList, yList = roadmaptools.plotting.export_edges_for_matplotlib(roadmaptools.plotting.geojson_edges_iterator(fc))
 axis.plot(xList, yList, linewidth=0.2, color='gray', zorder=1)
 
 # stations

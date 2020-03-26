@@ -54,11 +54,11 @@ public class ComplexScenario {
 		
 		// demand trips
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(graph.getNode(17), graph.getNode(3), 1000));
-		trips.add(new TimeTrip<>(graph.getNode(16), graph.getNode(14), 3000));
-		trips.add(new TimeTrip<>(graph.getNode(5), graph.getNode(10), 4000));
-		trips.add(new TimeTrip<>(graph.getNode(12), graph.getNode(9), 7000));
-		trips.add(new TimeTrip<>(graph.getNode(11), graph.getNode(0), 8000));
+		trips.add(new TimeTrip<>(1000, graph.getNode(17), graph.getNode(3)));
+		trips.add(new TimeTrip<>(3000, graph.getNode(16), graph.getNode(14)));
+		trips.add(new TimeTrip<>(4000, graph.getNode(5), graph.getNode(10)));
+		trips.add(new TimeTrip<>(7000, graph.getNode(12), graph.getNode(9)));
+		trips.add(new TimeTrip<>(8000, graph.getNode(11), graph.getNode(0)));
 		
 		// vehicles
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();

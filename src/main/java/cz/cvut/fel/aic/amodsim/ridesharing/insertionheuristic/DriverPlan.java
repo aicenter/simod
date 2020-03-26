@@ -71,6 +71,7 @@ public class DriverPlan implements Iterable<PlanAction>{
 		int counter = 0;
 		for(PlanAction action: this){
 			sb.append(String.format("%s: %s, ", counter, action.toString()));
+			counter++;
 		}
 		sb.append("]");
 		return sb.toString();

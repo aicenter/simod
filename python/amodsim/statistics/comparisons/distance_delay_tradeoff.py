@@ -46,8 +46,8 @@ def get_data_for_dir(experiment_dir: str, edge_data: DataFrame) -> Tuple[int, fl
 
 
 def plot_data_for_window(axis, edge_data: DataFrame, dir_cap_1: str, dir_ih: str, dir_vga: str, dir_vga_limited: str):
-	labels = ['Current State', 'No Ridesharing', 'IH', 'VGA', 'VGA Limited']
-	label_offsets = [(0, 30), (-30, -40), (30, 0), (-0, 30), (30, -40)]
+	labels = ['Current State', 'No Ridesharing', 'IH', 'VGA (optimal)', 'VGA (limited)']
+	label_offsets = [(0, 30), (-30, -35), (40, -25), (35, 25), (30, -40)]
 	distances = []
 	delays = []
 	cur_state = True

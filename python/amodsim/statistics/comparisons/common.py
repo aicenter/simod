@@ -6,8 +6,8 @@ class Experiment(Enum):
 	PRESENT_STATE = (0, "grey", "ooo", "Present State")
 	NO_RIDESHARING = (1, "red", "+++", "No Ridesharing")
 	IH = (2, "green", "///", "Insertion Heuristic")
-	VGA = (3, "blue", "\\\\\\", "VGA")
-	VGA_LIMITED = (4, "orange", "***", "VGA Limited")
+	VGA = (3, "blue", "\\\\\\", "VGA (optimal)")
+	VGA_LIMITED = (4, "orange", "***", "VGA (limited)")
 
 	def __init__(self, index, color, pattern, label):
 		self.color = color

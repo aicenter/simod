@@ -20,6 +20,8 @@ package cz.cvut.fel.aic.amodsim;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.FileAppender;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.EuclideanTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TNRAFTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.InsertionHeuristicSolver;
 import com.google.common.collect.Sets;
@@ -99,7 +101,8 @@ public class MainModule extends StandardAgentPolisModule{
 		if(amodsimConfig.ridesharing.on){
 			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 			bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
-			bind(TravelTimeProvider.class).to(DistanceMatrixTravelTimeProvider.class);
+			bind(TravelTimeProvider.class).to(TNRAFTravelTimeProvider.class);
+//			bind(TravelTimeProvider.class).to(DistanceMatrixTravelTimeProvider.class);
 //			bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
 //			bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
 			bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);

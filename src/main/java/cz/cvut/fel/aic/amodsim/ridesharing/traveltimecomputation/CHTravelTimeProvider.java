@@ -30,32 +30,77 @@ public class CHTravelTimeProvider extends TravelTimeProvider{
 
     private boolean closed = false;
 
+    private int queryManagersCount = 4;
+
+    private int freeQueryManagers;
+
+    private boolean[] queryManagersOccupied;
+    private CHDistanceQueryManagerAPI[] queryManagers;
+
     @Inject
     public CHTravelTimeProvider(TimeProvider timeProvider, TripsUtil tripsUtil, TransportNetworks transportNetworks) {
         super(timeProvider);
         this.tripsUtil = tripsUtil;
         this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
 
+        System.loadLibrary("shortestPaths");
+        this.freeQueryManagers = this.queryManagersCount;
+        this.queryManagers = new CHDistanceQueryManagerAPI[this.queryManagersCount];
+        this.queryManagersOccupied = new boolean[this.queryManagersCount];
+        for(int i = 0; i < this.queryManagersCount; i++) {
+            this.queryManagers[i] = new CHDistanceQueryManagerAPI();
+            this.queryManagers[i].initializeCH("/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/Prague.ch", "/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/PragueMapping.xeni");
+            this.queryManagersOccupied[i] = false;
+        }
+
         // Note that you have to guarantee, that the path to the library is always included in the java.library.path.
         // If this doesn't hold, the library will not get found and this class won't function. You can set
         // java.library.path using the -Djava.library.path option. Alternatively, System.load() lets you load a library
         // using an absolute path instead of trying to find in in the java.library.path.
-        System.loadLibrary("shortestPaths");
-        this.dqm = new CHDistanceQueryManagerAPI();
+        //System.loadLibrary("shortestPaths");
+        //this.dqm = new CHDistanceQueryManagerAPI();
         // FIXME relative path should be probably used here instead. Maybe this should be included in the config as well?
-        this.dqm.initializeCH("/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/Prague.ch", "/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/PragueMapping.xeni");
+        //this.dqm.initializeCH("/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/Prague.ch", "/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/PragueMapping.xeni");
     }
 
     @Override
-    synchronized public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
-        //System.out.println("A query initiated.");
-        //System.out.println("Distance: " + dqm.distanceQuery(BigInteger.valueOf(positionA.sourceId), BigInteger.valueOf(positionB.sourceId)));
-        return dqm.distanceQuery(BigInteger.valueOf(positionA.sourceId), BigInteger.valueOf(positionB.sourceId));
+    public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
+        int managerForQuery = 0;
+        synchronized (this) {
+            while(this.freeQueryManagers == 0) {
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            this.freeQueryManagers--;
+            for(int i = 0; i < this.queryManagersCount; i++) {
+                if(this.queryManagersOccupied[i] == false) {
+                    managerForQuery = i;
+                    this.queryManagersOccupied[i] = true;
+                    break;
+                }
+            }
+        }
+
+        long result = this.queryManagers[managerForQuery].distanceQuery(BigInteger.valueOf(positionA.sourceId), BigInteger.valueOf(positionB.sourceId));
+
+        synchronized (this) {
+            freeQueryManagers++;
+            this.queryManagersOccupied[managerForQuery] = false;
+            this.notify();
+        }
+
+        return result;
     }
 
     public void close() {
         if(! closed) {
-            dqm.clearStructures();
+            for(int i = 0; i < this.queryManagersCount; i++) {
+                this.queryManagers[i].clearStructures();
+            }
             closed = true;
         }
     }

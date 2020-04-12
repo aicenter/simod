@@ -74,9 +74,12 @@ public class DistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 	
 
 	@Override
-	public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
+	synchronized public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
 		callCount++;		
 		int durationInMilliseconds = distanceMatrix[positionA.getIndex()][positionB.getIndex()];
+		if(callCount <= 500) {
+			System.out.println("Call " + callCount + " returned: " + durationInMilliseconds + " (from " + positionA.sourceId + " to " + positionB.sourceId + ").");
+		}
 		return durationInMilliseconds;
 	}
 
@@ -130,6 +133,11 @@ public class DistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 			Logger.getLogger(DistanceMatrixTravelTimeProvider.class.getName()).log(Level.SEVERE, null, ex);
 			return null;
 		}
+	}
+
+	@Override
+	public void printCalls() {
+		System.out.println("Distance matrix was queried " + callCount + " times.");
 	}
 	
 }

@@ -80,4 +80,11 @@ public abstract class TravelTimeProvider {
 		long timeFromNextNodeToTarget = getTravelTime(entity, entity.getTargetNode(), targetPosition);
 		return timeToNextNode + timeFromNextNodeToTarget;
 	}
+
+	public void printCalls() {
+    }
+
+    public void close() {
+
+	}
 }

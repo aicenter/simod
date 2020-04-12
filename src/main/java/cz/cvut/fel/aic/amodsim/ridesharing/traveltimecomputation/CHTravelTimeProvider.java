@@ -47,7 +47,7 @@ public class CHTravelTimeProvider extends TravelTimeProvider{
     }
 
     @Override
-    public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
+    synchronized public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
         //System.out.println("A query initiated.");
         //System.out.println("Distance: " + dqm.distanceQuery(BigInteger.valueOf(positionA.sourceId), BigInteger.valueOf(positionB.sourceId)));
         return dqm.distanceQuery(BigInteger.valueOf(positionA.sourceId), BigInteger.valueOf(positionB.sourceId));

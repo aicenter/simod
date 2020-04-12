@@ -47,7 +47,7 @@ public class TNRTravelTimeProvider extends TravelTimeProvider{
     }
 
     @Override
-    public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
+    synchronized public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
         return dqm.distanceQuery(BigInteger.valueOf(positionA.sourceId), BigInteger.valueOf(positionB.sourceId));
     }
 

@@ -31,9 +31,16 @@ public class TNRAFTravelTimeProvider extends TravelTimeProvider{
 
     private final Graph<SimulationNode, SimulationEdge> graph;
 
-    private TNRAFDistanceQueryManagerAPI dqm;
-
     private boolean closed = false;
+
+    private int queryManagersCount = 8;
+
+    private int freeQueryManagers;
+
+    private boolean[] queryManagersOccupied;
+    private TNRAFDistanceQueryManagerAPI[] queryManagers;
+
+    //private long callCount = 0;
 
     @Inject
     public TNRAFTravelTimeProvider(TimeProvider timeProvider, TripsUtil tripsUtil, TransportNetworks transportNetworks) {
@@ -41,24 +48,63 @@ public class TNRAFTravelTimeProvider extends TravelTimeProvider{
         this.tripsUtil = tripsUtil;
         this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
 
+        System.loadLibrary("shortestPaths");
+        this.freeQueryManagers = this.queryManagersCount;
+        this.queryManagers = new TNRAFDistanceQueryManagerAPI[this.queryManagersCount];
+        this.queryManagersOccupied = new boolean[this.queryManagersCount];
+        for(int i = 0; i < this.queryManagersCount; i++) {
+            this.queryManagers[i] = new TNRAFDistanceQueryManagerAPI();
+            this.queryManagers[i].initializeTNRAF("/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/Prague2000tnodes.tgaf", "/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/PragueMapping.xeni");
+            this.queryManagersOccupied[i] = false;
+        }
         // Note that you have to guarantee, that the path to the library is always included in the java.library.path.
         // If this doesn't hold, the library will not get found and this class won't function. You can set
         // java.library.path using the -Djava.library.path option. Alternatively, System.load() lets you load a library
         // using an absolute path instead of trying to find in in the java.library.path.
-        System.loadLibrary("shortestPaths");
-        this.dqm = new TNRAFDistanceQueryManagerAPI();
+        /*
+        this.dqm = new TNRAFDistanceQueryManagerAPI("/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/Prague2000tnodes.tgaf", "/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/PragueMapping.xeni");
         // FIXME relative path should be probably used here instead. Maybe this should be included in the config as well?
-        this.dqm.initializeTNRAF("/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/Prague2000tnodes.tgaf", "/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/PragueMapping.xeni");
+        this.dqm.initializeTNRAF();*/
     }
 
     @Override
     public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
-        return dqm.distanceQuery(BigInteger.valueOf(positionA.sourceId), BigInteger.valueOf(positionB.sourceId));
+        int managerForQuery = 0;
+        synchronized (this) {
+            while(this.freeQueryManagers == 0) {
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            this.freeQueryManagers--;
+            for(int i = 0; i < this.queryManagersCount; i++) {
+                if(this.queryManagersOccupied[i] == false) {
+                    managerForQuery = i;
+                    this.queryManagersOccupied[i] = true;
+                    break;
+                }
+            }
+        }
+
+        long result = this.queryManagers[managerForQuery].distanceQuery(BigInteger.valueOf(positionA.sourceId), BigInteger.valueOf(positionB.sourceId));
+
+        synchronized (this) {
+            freeQueryManagers++;
+            this.queryManagersOccupied[managerForQuery] = false;
+            this.notify();
+        }
+
+        return result;
     }
 
     public void close() {
         if(! closed) {
-            dqm.clearStructures();
+            for(int i = 0; i < this.queryManagersCount; i++) {
+                this.queryManagers[i].clearStructures();
+            }
             closed = true;
         }
     }

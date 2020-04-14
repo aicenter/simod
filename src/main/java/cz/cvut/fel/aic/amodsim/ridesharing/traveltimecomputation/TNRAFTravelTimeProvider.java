@@ -33,7 +33,7 @@ public class TNRAFTravelTimeProvider extends TravelTimeProvider{
 
     private boolean closed = false;
 
-    private int queryManagersCount = 4;
+    private int queryManagersCount = java.lang.Thread.activeCount();
 
     private int freeQueryManagers;
 

@@ -2,6 +2,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
@@ -11,6 +12,8 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphTy
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.TransportNetworks;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.config.Shortestpaths;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.Node;
 import cz.cvut.fel.aic.shortestpaths.CHDistanceQueryManagerAPI;
@@ -29,6 +32,8 @@ public class TNRAFTravelTimeProvider extends TravelTimeProvider{
 
     private final TripsUtil tripsUtil;
 
+    private final AmodsimConfig config;
+
     private final Graph<SimulationNode, SimulationEdge> graph;
 
     private boolean closed = false;
@@ -43,9 +48,10 @@ public class TNRAFTravelTimeProvider extends TravelTimeProvider{
     //private long callCount = 0;
 
     @Inject
-    public TNRAFTravelTimeProvider(TimeProvider timeProvider, TripsUtil tripsUtil, TransportNetworks transportNetworks) {
+    public TNRAFTravelTimeProvider(TimeProvider timeProvider, TripsUtil tripsUtil, TransportNetworks transportNetworks, AmodsimConfig config) {
         super(timeProvider);
         this.tripsUtil = tripsUtil;
+        this.config = config;
         this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
 
         System.loadLibrary("shortestPaths");
@@ -54,7 +60,7 @@ public class TNRAFTravelTimeProvider extends TravelTimeProvider{
         this.queryManagersOccupied = new boolean[this.queryManagersCount];
         for(int i = 0; i < this.queryManagersCount; i++) {
             this.queryManagers[i] = new TNRAFDistanceQueryManagerAPI();
-            this.queryManagers[i].initializeTNRAF("/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/Prague2000tnodes.tgaf", "/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/PragueMapping.xeni");
+            this.queryManagers[i].initializeTNRAF(config.shortestpaths.tnrafFilePath, config.shortestpaths.mappingFilePath);
             this.queryManagersOccupied[i] = false;
         }
         // Note that you have to guarantee, that the path to the library is always included in the java.library.path.

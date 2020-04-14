@@ -9,6 +9,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphTy
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.TransportNetworks;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.shortestpaths.CHDistanceQueryManagerAPI;
 import cz.cvut.fel.aic.shortestpaths.TNRDistanceQueryManagerAPI;
@@ -24,6 +25,8 @@ public class CHTravelTimeProvider extends TravelTimeProvider{
 
     private final TripsUtil tripsUtil;
 
+    private final AmodsimConfig config;
+
     private final Graph<SimulationNode, SimulationEdge> graph;
 
     private CHDistanceQueryManagerAPI dqm;
@@ -38,9 +41,10 @@ public class CHTravelTimeProvider extends TravelTimeProvider{
     private CHDistanceQueryManagerAPI[] queryManagers;
 
     @Inject
-    public CHTravelTimeProvider(TimeProvider timeProvider, TripsUtil tripsUtil, TransportNetworks transportNetworks) {
+    public CHTravelTimeProvider(TimeProvider timeProvider, TripsUtil tripsUtil, TransportNetworks transportNetworks, AmodsimConfig config) {
         super(timeProvider);
         this.tripsUtil = tripsUtil;
+        this.config = config;
         this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
 
         System.loadLibrary("shortestPaths");
@@ -49,7 +53,7 @@ public class CHTravelTimeProvider extends TravelTimeProvider{
         this.queryManagersOccupied = new boolean[this.queryManagersCount];
         for(int i = 0; i < this.queryManagersCount; i++) {
             this.queryManagers[i] = new CHDistanceQueryManagerAPI();
-            this.queryManagers[i].initializeCH("/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/Prague.ch", "/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/PragueMapping.xeni");
+            this.queryManagers[i].initializeCH(config.shortestpaths.chFilePath, config.shortestpaths.mappingFilePath);
             this.queryManagersOccupied[i] = false;
         }
 

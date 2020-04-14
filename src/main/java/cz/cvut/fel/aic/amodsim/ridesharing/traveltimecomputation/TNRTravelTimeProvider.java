@@ -9,6 +9,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphTy
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.TransportNetworks;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.shortestpaths.TNRAFDistanceQueryManagerAPI;
 import cz.cvut.fel.aic.shortestpaths.TNRDistanceQueryManagerAPI;
@@ -24,6 +25,8 @@ public class TNRTravelTimeProvider extends TravelTimeProvider{
 
     private final TripsUtil tripsUtil;
 
+    private final AmodsimConfig config;
+
     private final Graph<SimulationNode, SimulationEdge> graph;
 
     private TNRDistanceQueryManagerAPI dqm;
@@ -38,9 +41,10 @@ public class TNRTravelTimeProvider extends TravelTimeProvider{
     private TNRDistanceQueryManagerAPI[] queryManagers;
 
     @Inject
-    public TNRTravelTimeProvider(TimeProvider timeProvider, TripsUtil tripsUtil, TransportNetworks transportNetworks) {
+    public TNRTravelTimeProvider(TimeProvider timeProvider, TripsUtil tripsUtil, TransportNetworks transportNetworks, AmodsimConfig config) {
         super(timeProvider);
         this.tripsUtil = tripsUtil;
+        this.config = config;
         this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
 
         System.loadLibrary("shortestPaths");
@@ -49,7 +53,7 @@ public class TNRTravelTimeProvider extends TravelTimeProvider{
         this.queryManagersOccupied = new boolean[this.queryManagersCount];
         for(int i = 0; i < this.queryManagersCount; i++) {
             this.queryManagers[i] = new TNRDistanceQueryManagerAPI();
-            this.queryManagers[i].initializeTNR("/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/Prague2000tnodes.tnrg", "/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/PragueMapping.xeni");
+            this.queryManagers[i].initializeTNR(config.shortestpaths.tnrFilePath, config.shortestpaths.mappingFilePath);
             this.queryManagersOccupied[i] = false;
         }
         // Note that you have to guarantee, that the path to the library is always included in the java.library.path.

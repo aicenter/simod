@@ -17,6 +17,8 @@ import cz.cvut.fel.aic.shortestpaths.TNRDistanceQueryManagerAPI;
 import java.math.BigInteger;
 
 /**
+ * This class implements an API that allows us to call the Contraction Hierarchies query algorithm present
+ * in the C++ Shortest Paths library to answer queries.
  *
  * @author Michal Cvach
  */
@@ -47,6 +49,10 @@ public class CHTravelTimeProvider extends TravelTimeProvider{
         this.config = config;
         this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
 
+        // Note that you have to guarantee, that the path to the library is always included in the java.library.path.
+        // If this doesn't hold, the library will not get found and this class won't function. You can set
+        // java.library.path using the -Djava.library.path option. Alternatively, System.load() lets you load a library
+        // using an absolute path instead of trying to find in in the java.library.path.
         System.loadLibrary("shortestPaths");
         this.freeQueryManagers = this.queryManagersCount;
         this.queryManagers = new CHDistanceQueryManagerAPI[this.queryManagersCount];
@@ -57,14 +63,6 @@ public class CHTravelTimeProvider extends TravelTimeProvider{
             this.queryManagersOccupied[i] = false;
         }
 
-        // Note that you have to guarantee, that the path to the library is always included in the java.library.path.
-        // If this doesn't hold, the library will not get found and this class won't function. You can set
-        // java.library.path using the -Djava.library.path option. Alternatively, System.load() lets you load a library
-        // using an absolute path instead of trying to find in in the java.library.path.
-        //System.loadLibrary("shortestPaths");
-        //this.dqm = new CHDistanceQueryManagerAPI();
-        // FIXME relative path should be probably used here instead. Maybe this should be included in the config as well?
-        //this.dqm.initializeCH("/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/Prague.ch", "/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/PragueMapping.xeni");
     }
 
     @Override

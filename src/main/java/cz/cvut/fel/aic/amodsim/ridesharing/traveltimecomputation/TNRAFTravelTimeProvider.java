@@ -2,28 +2,23 @@ package cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
-import cz.cvut.fel.aic.agentpolis.simmodel.MoveUtil;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.TransportNetworks;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.config.Shortestpaths;
 import cz.cvut.fel.aic.geographtools.Graph;
-import cz.cvut.fel.aic.geographtools.Node;
-import cz.cvut.fel.aic.shortestpaths.CHDistanceQueryManagerAPI;
 import cz.cvut.fel.aic.shortestpaths.TNRAFDistanceQueryManagerAPI;
 
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Iterator;
+
 
 /**
+ * This class implements an API that allows us to call the Transit Node Routing with Arc Flags query algorithm present
+ * in the C++ Shortest Paths library to answer queries.
  *
  * @author Michal Cvach
  */
@@ -54,6 +49,10 @@ public class TNRAFTravelTimeProvider extends TravelTimeProvider{
         this.config = config;
         this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
 
+        // Note that you have to guarantee, that the path to the library is always included in the java.library.path.
+        // If this doesn't hold, the library will not get found and this class won't function. You can set
+        // java.library.path using the -Djava.library.path option. Alternatively, System.load() lets you load a library
+        // using an absolute path instead of trying to find in in the java.library.path.
         System.loadLibrary("shortestPaths");
         this.freeQueryManagers = this.queryManagersCount;
         this.queryManagers = new TNRAFDistanceQueryManagerAPI[this.queryManagersCount];
@@ -63,14 +62,6 @@ public class TNRAFTravelTimeProvider extends TravelTimeProvider{
             this.queryManagers[i].initializeTNRAF(config.shortestpaths.tnrafFilePath, config.shortestpaths.mappingFilePath);
             this.queryManagersOccupied[i] = false;
         }
-        // Note that you have to guarantee, that the path to the library is always included in the java.library.path.
-        // If this doesn't hold, the library will not get found and this class won't function. You can set
-        // java.library.path using the -Djava.library.path option. Alternatively, System.load() lets you load a library
-        // using an absolute path instead of trying to find in in the java.library.path.
-        /*
-        this.dqm = new TNRAFDistanceQueryManagerAPI("/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/Prague2000tnodes.tgaf", "/home/xenty/sum/2019/ContractionHierarchies/amod-to-agentpolis/data/shortestpathslib/PragueMapping.xeni");
-        // FIXME relative path should be probably used here instead. Maybe this should be included in the config as well?
-        this.dqm.initializeTNRAF();*/
     }
 
     @Override

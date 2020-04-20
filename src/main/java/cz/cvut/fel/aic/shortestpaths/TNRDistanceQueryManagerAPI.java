@@ -39,8 +39,8 @@ public class TNRDistanceQueryManagerAPI {
     shortestPathsJNI.TNRDistanceQueryManagerAPI_initializeTNR(swigCPtr, this, tnrFile, mappingFile);
   }
 
-  public long distanceQuery(java.math.BigInteger source, java.math.BigInteger target) {
-    return shortestPathsJNI.TNRDistanceQueryManagerAPI_distanceQuery(swigCPtr, this, source, target);
+  public long distanceQuery(java.math.BigInteger start, java.math.BigInteger goal) {
+    return shortestPathsJNI.TNRDistanceQueryManagerAPI_distanceQuery(swigCPtr, this, start, goal);
   }
 
   public void clearStructures() {

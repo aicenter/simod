@@ -39,8 +39,8 @@ public class TNRAFDistanceQueryManagerAPI {
     shortestPathsJNI.TNRAFDistanceQueryManagerAPI_initializeTNRAF(swigCPtr, this, tnrafFile, mappingFile);
   }
 
-  public long distanceQuery(java.math.BigInteger source, java.math.BigInteger target) {
-    return shortestPathsJNI.TNRAFDistanceQueryManagerAPI_distanceQuery(swigCPtr, this, source, target);
+  public long distanceQuery(java.math.BigInteger start, java.math.BigInteger goal) {
+    return shortestPathsJNI.TNRAFDistanceQueryManagerAPI_distanceQuery(swigCPtr, this, start, goal);
   }
 
   public void clearStructures() {

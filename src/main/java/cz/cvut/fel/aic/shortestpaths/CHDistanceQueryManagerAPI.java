@@ -39,8 +39,8 @@ public class CHDistanceQueryManagerAPI {
     shortestPathsJNI.CHDistanceQueryManagerAPI_initializeCH(swigCPtr, this, chFile, mappingFile);
   }
 
-  public long distanceQuery(java.math.BigInteger source, java.math.BigInteger target) {
-    return shortestPathsJNI.CHDistanceQueryManagerAPI_distanceQuery(swigCPtr, this, source, target);
+  public long distanceQuery(java.math.BigInteger start, java.math.BigInteger goal) {
+    return shortestPathsJNI.CHDistanceQueryManagerAPI_distanceQuery(swigCPtr, this, start, goal);
   }
 
   public void clearStructures() {

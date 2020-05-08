@@ -15,6 +15,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+/**
+ * A test verifying that the Transit Node Routing provider returns the same distances as the A* provider.
+ *
+ * @author Michal Cvach
+ */
 public class TNRTraveltimeTest {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DistanceMatrixTraveltimeTest.class);
 

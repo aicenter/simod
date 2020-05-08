@@ -15,6 +15,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+/**
+ * A test verifying that the Transit Node Routing with Arc Flags provider returns the same distances as the A* provider.
+ *
+ * @author Michal Cvach
+ */
 public class TNRAFTraveltimeTest {
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DistanceMatrixTraveltimeTest.class);

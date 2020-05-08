@@ -70,16 +70,10 @@ public class DistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 		this.config = config;
 		distanceMatrix = loadDistanceMatrix(config.distanceMatrixFilepath);
 	}
-	
-	
 
 	@Override
-	synchronized public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
-		callCount++;		
+	public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
 		int durationInMilliseconds = distanceMatrix[positionA.getIndex()][positionB.getIndex()];
-		if(callCount <= 500) {
-			System.out.println("Call " + callCount + " returned: " + durationInMilliseconds + " (from " + positionA.sourceId + " to " + positionB.sourceId + ").");
-		}
 		return durationInMilliseconds;
 	}
 

@@ -35,7 +35,7 @@ public class TNRTravelTimeProvider extends TravelTimeProvider{
 
     private boolean closed = false;
 
-    private int queryManagersCount = java.lang.Thread.activeCount();
+    private int queryManagersCount = Runtime.getRuntime().availableProcessors();
 
     private int freeQueryManagers;
 
@@ -55,6 +55,7 @@ public class TNRTravelTimeProvider extends TravelTimeProvider{
         // using an absolute path instead of trying to find in in the java.library.path.
         System.loadLibrary("shortestPaths");
         this.freeQueryManagers = this.queryManagersCount;
+        System.out.println("Initializing " + this.queryManagersCount + " TNR query managers.");
         this.queryManagers = new TNRDistanceQueryManagerAPI[this.queryManagersCount];
         this.queryManagersOccupied = new boolean[this.queryManagersCount];
         for(int i = 0; i < this.queryManagersCount; i++) {

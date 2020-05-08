@@ -33,14 +33,12 @@ public class TNRAFTravelTimeProvider extends TravelTimeProvider{
 
     private boolean closed = false;
 
-    private int queryManagersCount = java.lang.Thread.activeCount();
+    private int queryManagersCount = Runtime.getRuntime().availableProcessors();
 
     private int freeQueryManagers;
 
     private boolean[] queryManagersOccupied;
     private TNRAFDistanceQueryManagerAPI[] queryManagers;
-
-    //private long callCount = 0;
 
     @Inject
     public TNRAFTravelTimeProvider(TimeProvider timeProvider, TripsUtil tripsUtil, TransportNetworks transportNetworks, AmodsimConfig config) {
@@ -55,6 +53,7 @@ public class TNRAFTravelTimeProvider extends TravelTimeProvider{
         // using an absolute path instead of trying to find in in the java.library.path.
         System.loadLibrary("shortestPaths");
         this.freeQueryManagers = this.queryManagersCount;
+        System.out.println("Initializing " + this.queryManagersCount + " TNRAF query managers.");
         this.queryManagers = new TNRAFDistanceQueryManagerAPI[this.queryManagersCount];
         this.queryManagersOccupied = new boolean[this.queryManagersCount];
         for(int i = 0; i < this.queryManagersCount; i++) {

@@ -98,12 +98,28 @@ public class MainModule extends StandardAgentPolisModule{
 		if(amodsimConfig.ridesharing.on){
 			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 			bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
-//			bind(TravelTimeProvider.class).to(CHTravelTimeProvider.class);
-//			bind(TravelTimeProvider.class).to(TNRTravelTimeProvider.class);
-			bind(TravelTimeProvider.class).to(TNRAFTravelTimeProvider.class);
-//			bind(TravelTimeProvider.class).to(DistanceMatrixTravelTimeProvider.class);
-//			bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
-//			bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
+
+			switch(amodsimConfig.ridesharing.travelTimeProvider){
+				case "astar":
+					bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
+					break;
+				case "dm":
+					bind(TravelTimeProvider.class).to(DistanceMatrixTravelTimeProvider.class);
+					break;
+				case "euclidean":
+					bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
+					break;
+				case "ch":
+					bind(TravelTimeProvider.class).to(CHTravelTimeProvider.class);
+					break;
+				case "tnr":
+					bind(TravelTimeProvider.class).to(TNRTravelTimeProvider.class);
+					break;
+				case "tnraf":
+					bind(TravelTimeProvider.class).to(TNRAFTravelTimeProvider.class);
+					break;
+			}
+
 			bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
 			install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
 						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));

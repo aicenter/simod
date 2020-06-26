@@ -73,6 +73,44 @@ for i in range(12):
 
 # Plotting
 
+# FuncFormatter can be used as a decorator
+@ticker.FuncFormatter
+def minute_formater(x, pos):
+    return "{}".format(int(x / 2))
+
+
+# Simulation Time Plot
+fig, axes = plt.subplots(3,1, figsize=(5,6), sharex=True)
+ax1 = axes[0]
+ax2 = axes[1]
+ax3 = axes[2]
+
+# Axis 1
+ax1.plot(r["Active Request Count"] / 1000)
+ax1.set_xlabel("simulation time [min]")
+ax1.set_ylabel("active requests [thousands]")
+
+# Axis 2
+ax2.plot(max_group_sizes, color='r')
+ax2.set_ylabel("max group size", color='r')
+ax2.tick_params('y', colors='r')
+ax2.set_ylim(0, 12)
+
+# Axis 3
+ax3.plot(r["Group Generation Time"] / 1000)
+ax3.plot(r["Solver Time"] / 1000)
+ax3.set_ylim(0, 500)
+ax3.set_xlim(0, 180)
+ax3.set_xlabel("simulation time [min]")
+ax3.set_ylabel("computational time [s]")
+
+# Group Size Plot
+fig2, axes2 = plt.subplots(2,1, figsize=(5,4), sharex=True)
+ax1 = axes[0]
+ax2 = axes[1]
+
+
+
 # Times
 fig, axes = plt.subplots(2,1, figsize=(5,6))
 ax1 = axes[0]
@@ -95,23 +133,16 @@ ax1r.set_ylim(0, 25)
 
 ax1.legend(loc=1, prop={'size': 10})
 
+ax1.xaxis.set_major_locator(ticker.MultipleLocator(20))
+ax1.xaxis.set_major_formatter(minute_formater)
+
+plt.savefig(r"C:\Users\david\Downloads/vga_simulation_time.png", bbox_inches='tight', transparent=True)
+
 # Bars
 ax2.bar
 
 
-# FuncFormatter can be used as a decorator
-@ticker.FuncFormatter
-def minute_formater(x, pos):
-    return "{}".format(int(x / 2))
-
-
-ax1.xaxis.set_major_locator(ticker.MultipleLocator(20))
-ax1.xaxis.set_major_formatter(minute_formater)
-
-ax2.xaxis.set_major_locator(ticker.MultipleLocator(20))
-ax2.xaxis.set_major_formatter(minute_formater)
-
-plt.savefig(r"C:\Users\david\Downloads/vga_times.png", bbox_inches='tight', transparent=True)
+plt.savefig(r"C:\Users\david\Downloads/vga_group_size.png", bbox_inches='tight', transparent=True)
 
 plt.show()
 

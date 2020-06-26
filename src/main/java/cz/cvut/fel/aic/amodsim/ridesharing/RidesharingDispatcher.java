@@ -179,7 +179,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		// executing new plans
 		for(Entry<RideSharingOnDemandVehicle,DriverPlan> entry: newPlans.entrySet()){
 			RideSharingOnDemandVehicle vehicle = entry.getKey();
-			DriverPlan plan = entry.getValue();
+    			DriverPlan plan = entry.getValue();
 			vehicle.replan(plan);
 		}
 		

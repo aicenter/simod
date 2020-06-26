@@ -127,12 +127,12 @@ public class RidesharingOnDemandVehiclePlanLayer extends PlanLayer<RideSharingOn
 		canvas.setStroke(new BasicStroke(TRIP_BORDER_THIKNESS * 2 + TRIP_LINE_THIKNESS));
 		Iterator<SimulationNode> iterator = Arrays.asList(locations).iterator();
 		SimulationNode startLocation;
-		if(firstTrip){
-			startLocation = entity.getVehicle().getPosition();
-		}
-		else{
+//		if(firstTrip){
+//			startLocation = entity.getVehicle().getPosition();
+//		}
+//		else{
 			startLocation = iterator.next();
-		}
+//		}
 		
 		while (iterator.hasNext()) {
 			SimulationNode targetLocation = iterator.next();

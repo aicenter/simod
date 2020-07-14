@@ -1,82 +1,84 @@
-### Installation
-Install agentpolis from github.
+
+
+## 1. first steps
+Go to your/project/folder and  clone all repositories listed below:
+
+ - clone **agentpolis**
+
 ```commandline
-cd your/project/folder
 git clone https://github.com/aicenter/agentpolis.git
 ```
-or with SSH key:
-```commandline
-git@github.com:aicenter/agentpolis.git
-```
-Install amodsim.
+
+ - clone **amodsim**
 
 ```commandline
-cd your/project/folder
-git clone https://github.com/
+git clone https://gitlab.fel.cvut.cz/fiedlda1/amod-to-agentpolis.git
 ```
 
-### Data for simulation
-Create directory to keep data for simulation. For example:
+ - clone **roadmap_processing**
 
- /path/to/folder/amod-data
+```commandline
+git clone https://github.com/aicenter/roadmap-processing.git
+```
 
-and two subdirectories
+## **2. amodsim installation**
+Simulation requires gurobi optimizer software
+1. download Gurobi Optimizer tar file from [https://www.gurobi.com/downloads/](https://www.gurobi.com/downloads/)
 
-/amod-data/maps
+2. untar downloaded file via tar command. location specification is optional. In this example it is /opt directory- 
+```commandline
+sudo tar xfvz "your downloaded gurobi tar.gz file" -C /opt
+```
+3. Go to your/gurobi/directory/../lib/ (directory where the **gurobi.jar** file is) and install gurobi via maven:
+```commandline
+mvn install:install-file -Dfile=gurobi.jar -DgroupId=com.gurobi -DartifactId=gurobi -Dversion=1.0 -Dpackaging=jar
+```
+4. Go to your amod-to-agentpolis directory and compile the project
+```commandline
+mvn compile
+```
 
-/amod-data/experiments
+## 3. prepare map
+1. go to your/project/folder and install roadmaptools:
 
-Parent directory should contain following files:
+```commandline
+sudo apt-get install -y libspatialindex-dev
+```
+```commandline
+pip3 install roadmap-processing/
+```
+	
+	
+2. go to  agentpolis/python/agentpolis directory and create **your_config.cfg** file, which
 
-policy.json
+ **must** include:
+``` commandline
+data_dir: "/absolute/path/to/this/directory/"
+```
+**may** include: 
+```commandline
+map_envelope:
+[
+    your
+    specific
+    envelope
+    values
+]
+```
 
+3. run the script with your local config file
+```
+python3 prepare_map -lc=your_config.cfg
+```
+4. result is now in ../maps directory
 
-To /amod-data/maps go files with road graph:
+## 4. run the simulation
+1. if You face **UnsetisfiedLinkError** You may need to set path to gurobi lib as environment variable
+```
+LD_LIBRARY_PATH="/path/to/gurobi/lib" 
+```
 
-edges.geojson
-
-nodes.geojson
-
-Last subfolder is used by amodsim to save simulation results. 
-
-
-### Cofiguration
-Project uses two cofiguration files. Master config is in
-
-/your/folder/src/main/resources/cz/cvut/fel/aic/amodsim/config/config.cfg
-
-Local configuration files are in
-
-/your/folder/local_config_files
-
-Create new configuration file in local_config_files folder (like, my_config.cfg).
-
-Add paths to directory with data for simulation, and for saving the results:
-
-amodsim_data_dir: 'path/to/folder/amod-data/'
-
-trips_filename: 'trips'
-
-trips_file_path: $amodsim_data_dir + $trips_filenamev
-
-amodsim_experiment_dir: $amodsim_data_dir + 'experiments'  + '/'
-
-rebalancing:
-
-{
-
-    policy_file_path: $amodsim_data_dir +'policy.json'
-}
-
-In NetBeans open File/Project. First, open Cofigurations, add new configuration. The go to Run, choose configuration, you've just created.In Main class add
-cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation
-In Arguments path to your local configuration file
-/your/project/folder/local_config_files/my_config.cfg
-Go back to Configurations, and check if your configuration is activated.
-
-
-
-
+**..next steps yet to be added**
 
 
 

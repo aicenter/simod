@@ -227,7 +227,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 						}
 					}
 					if(!nearby){
-						System.out.println(vehicle.getId() + ": " + plan.toString());
+						LOGGER.info(vehicle.getId() + ": " + plan.toString());
 					}
 				}
 			}

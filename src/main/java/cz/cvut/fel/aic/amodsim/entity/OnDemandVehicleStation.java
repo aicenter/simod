@@ -143,7 +143,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 		parkedVehicles.remove(vehicle);
 		vehicle.setParkedIn(null);
 		if(getParkedVehiclesCount() == 0){
-			System.out.println("Station is empty!" + getId());
+                        LOGGER.info("Station is empty! " +  getId());
 		}
 	}
 	

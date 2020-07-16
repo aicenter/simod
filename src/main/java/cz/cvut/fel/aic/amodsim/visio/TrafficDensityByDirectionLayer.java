@@ -105,7 +105,7 @@ public class TrafficDensityByDirectionLayer extends AbstractLayer {
 		if (!point.equals(lastPoint)) {
 
 			// Debug
-			// System.out.println(lastPoint);
+			// LOGGER.info(lastPoint);
 
 			lastPoint = point;
 			dimension = dimTemp;

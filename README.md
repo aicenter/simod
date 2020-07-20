@@ -80,6 +80,7 @@ Simulation requires gurobi optimizer software
 ## 4. prepare demand
 
 1. Go to demand_processing/ directory and edit config.py file according to your project.
+	(in **data_dir** you specify the path to your downloaded data in .csv format)
 2. run the script:
 	 ```
 		python3 trips_process.py

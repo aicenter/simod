@@ -136,7 +136,7 @@ public class TripsUtilCached extends TripsUtil {
 		}
 		LOGGER.info("Loading cache finished - {} trips loaded", tripCache.size());
 
-//		System.out.println(mapper.getSerializationConfig().toString());
+//		LOGGER.info(mapper.getSerializationConfig().toString());
 	}
 
 	private File getCacheFolder(AmodsimConfig amodConfig, AgentpolisConfig agentpolisConfig) {

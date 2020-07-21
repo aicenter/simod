@@ -69,7 +69,7 @@ public class Loader {
 					try(ResultSet resultSet = statement.executeQuery(SQL)) {
 						resultSet.next();
 						int count = resultSet.getInt(1);
-						System.out.println("count" + count);
+                                                LOGGER.info("count " + count);
 
 						while (resultSet.next()) {
 							trips.add(new TimeTrip(resultSet.getLong("start_time"), resultSet.getLong("end_time"), 
@@ -78,14 +78,12 @@ public class Loader {
 					}
 				}
 			} catch (SQLException ex) {
-				ex.printStackTrace();
-				System.out.println(ex.getMessage());
+				LOGGER.error(null,ex);
 			}
 
 		} 
 		catch (Exception e) {
-			e.printStackTrace();
-			System.err.println(e.getClass().getName()+": "+e.getMessage());
+			LOGGER.error(null,e);
 			System.exit(0);
 		}
 		

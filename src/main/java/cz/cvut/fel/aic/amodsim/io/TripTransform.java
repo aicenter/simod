@@ -97,8 +97,8 @@ public class TripTransform {
 //			processGpsTrip(trip, nearestElementUtil, osmNodeTrips, completedTrips);
 //		}
 //		
-//		System.out.println("Number of trips with same source and destination: " + sameStartAndTargetInDataCount);
-//		System.out.println(zeroLenghtTripsCount + " trips with zero lenght discarded");
+//		LOGGER.info("Number of trips with same source and destination: " + sameStartAndTargetInDataCount);
+//		LOGGER.info(zeroLenghtTripsCount + " trips with zero lenght discarded");
 //		
 //		return osmNodeTrips;
 //	}

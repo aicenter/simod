@@ -156,16 +156,16 @@ public class DroppedDemandsAnalyzer {
 		int delta = 5000;
 		String requestId = request.getDemandAgent().getId();
 		if(!freeVehicle){
-			System.out.println("Request " + requestId + ": Cannot serve request - No free vehicle");
+			LOGGER.info("Request " + requestId + ": Cannot serve request - No free vehicle");
 		}
 		else if(bestEuclideanDistance > maxDistance){
-			System.out.println("Request " + requestId + ": Cannot serve request - Too big distance: " + bestEuclideanDistance + "m (max distance: " + maxDistance + ")");
+			LOGGER.info("Request " + requestId + ": Cannot serve request - Too big distance: " + bestEuclideanDistance + "m (max distance: " + maxDistance + ")");
 		}
 		else if(bestTravelTimne + delta > maxDelayTime){
-			System.out.println("Request " + requestId + ": Cannot serve request - Too big traveltime to startLoaction: " + bestTravelTimne);
+			LOGGER.info("Request " + requestId + ": Cannot serve request - Too big traveltime to startLoaction: " + bestTravelTimne);
 		}
 		else{
-			System.out.println("Request " + requestId + ": Cannot serve request - Some other problem - all nearby vehicle plans infeasible?");
+			LOGGER.info("Request " + requestId + ": Cannot serve request - Some other problem - all nearby vehicle plans infeasible?");
 		}
 	}
 }

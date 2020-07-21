@@ -1,3 +1,5 @@
+This guide is focused on installation on Linux. But any of these instructions can be extrapolated to any OS, just with basic knowledge of the OS.
+
 ## 1. first steps
 Go to your/project/folder and  clone all repositories listed below:
 
@@ -23,12 +25,12 @@ Go to your/project/folder and  clone all repositories listed below:
 	```commandline
 	git clone https://github.com/horychtom/demand-processing.git
 	```
-
 ## **2. amodsim installation**
 Simulation requires gurobi optimizer software
 1. download Gurobi Optimizer tar file from [https://www.gurobi.com/downloads/](https://www.gurobi.com/downloads/)
+	- follow the instructions on gurobi site. You need to properly license the software as well.
 
-2. untar downloaded file via tar command. location specification is optional. In this example it is /opt directory- 
+2. untar downloaded file via tar command. Location specification is optional. In this example it is /opt  directory
 	```
 	sudo tar xfvz "your downloaded gurobi tar.gz file" -C /opt
 	```
@@ -52,13 +54,13 @@ Simulation requires gurobi optimizer software
 	```
 		
 	
-2. go to  agentpolis/python/agentpolis directory and create **your_config.cfg** file, which
+2. go to  agentpolis/python/agentpolis directory and edit **custom_config.cfg** file, which
 	
 	 **must** include:
 	``` commandline
 	data_dir: "/absolute/path/to/your/directory/"
 	```
-	**may** include: 
+	**may** include specification of the city envelope values:
 	```commandline
 	map_envelope:
 	[
@@ -71,14 +73,14 @@ Simulation requires gurobi optimizer software
 
 3. run the script with your local config file
 	```
-	python3 prepare_map -lc=your_config.cfg
+	python3 prepare_map -lc=custom_config.cfg
 	```
-4. result is now in ../maps directory
+4. result - final map .geojson data,  is now in ../maps directory
 
 
 
 ## 4. prepare demand
-
+Depending on your project, download trips data (in .csv format) you need.
 1. Go to demand_processing/ directory and edit config.py file according to your project.
 	(in **data_dir** you specify the path to your downloaded data in .csv format)
 2. run the script:
@@ -86,6 +88,7 @@ Simulation requires gurobi optimizer software
 		python3 trips_process.py
 	```
 3. This creates trips.txt in the directory. This file contains demand for the simulation, you need to move it to wherever you store the data for the simulation.
+
 ## 5. run the simulation
 
 1. Create your local config file (your_config.cfg). You can copy the original master config from the project. Here, change ****amodsim_data_dir**** line to your directory with data for the simulation. Tweak anything you need.
@@ -96,12 +99,18 @@ Simulation requires gurobi optimizer software
 	into the agentpolis:{} block.
 	srid is natively set for simulation of Prague. Find what UTM zone your target belongs to:
 	[https://mangomap.com/robertyoung/maps/69585/what-utm-zone-am-i-in-#](https://mangomap.com/robertyoung/maps/69585/what-utm-zone-am-i-in-#)
-	and find appropriate srid value (EPSG).
-2. Run the amodsim **OnDemandVehiclesSimulation.java**  with path/to/your/config as 		an argument (you may need to set it in your IDE)
-3.  if You face **UnsetisfiedLinkError** You may need to set path to gurobi lib as environment variable. You can do it in your IDE or on OS level:
+	and then find appropriate srid value (EPSG).
+2. Create **station_positions.csv**  file.  In format:
 	```
-	LD_LIBRARY_PATH="/path/to/gurobi/lib" 
+	id_of_the_node,number_of_cars_in_this_station,
+	id_of_the_next_node,...
 	```
-**..next steps yet to be added**
+	You can run **MapVisualizer.java** (with path to the config file) to view the map and nodes so you can design your placement of the stations.
+3. **Run** the amodsim **OnDemandVehiclesSimulation.java**  with path/to/your/config as 		an argument (you may need to set it in your IDE)
 
+## issues you may encounter
 
+if You face **UnsetisfiedLinkError** You need to set path to gurobi lib as environment variable. You can do it in your IDE or on OS level:
+```
+	LD_LIBRARY_PATH="/path/to/gurobi/lib"
+```

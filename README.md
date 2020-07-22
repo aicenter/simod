@@ -70,13 +70,14 @@ Simulation requires gurobi optimizer software
 	    40.82
 	    -73.87
 	]
-```
-	
-3. run the script with your local config file
 	```
-	python3 prepare_map -lc=/absolute_path/custom_config.cfg
-	```
-	
+
+ 	3. run the script with your local config file	
+
+    ```
+    python3 prepare_map -lc=/absolute_path/custom_config.cfg
+    ```
+
 4. result - final map .geojson data,  is now in ../maps directory
 
 
@@ -89,7 +90,7 @@ If you are not sure about the steps, please see readme in demand_processing gith
 	
 2. run the script:
 	 ```
-		python3 trips_process.py
+	python3 trips_process.py
 	```
 	
 3. This creates trips.txt in the directory. This file contains demand for the simulation, you need to move it to wherever you store the data for the simulation.

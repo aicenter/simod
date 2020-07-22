@@ -39,7 +39,11 @@ Simulation requires gurobi optimizer software
 	```
 	mvn install:install-file -Dfile=gurobi.jar -DgroupId=com.gurobi -DartifactId=gurobi -Dversion=1.0 -Dpackaging=jar
 	```
-4. Go to your amod-to-agentpolis directory and compile the project
+4. Go to your agentpolis directory and install the proejct
+	```
+	mvn install
+	```		
+5. Go to your amod-to-agentpolis directory and compile the project
 	```
 	mvn compile
 	```
@@ -47,9 +51,6 @@ Simulation requires gurobi optimizer software
 ## 3. prepare map
 1. go to your/project/folder and install roadmaptools:
 
-	```commandline
-	sudo apt-get install -y libspatialindex-dev
-	```
 	```commandline
 	pip3 install roadmap-processing/
 	```
@@ -72,18 +73,18 @@ Simulation requires gurobi optimizer software
 	]
 	```
 
- 	3. run the script with your local config file	
+ 3. run the script with your local config file	
 
     ```
     python3 prepare_map -lc=/absolute_path/custom_config.cfg
     ```
 
-4. result - final map .geojson data,  is now in ../maps directory
+4. result of .geojson data is now in ../maps directory
 
 
 ## 4. prepare demand
 Depending on your project, download trips data (in .csv format) you need.
-If you are not sure about the steps, please see readme in demand_processing github repository.
+If you are not sure about the steps, please see readme in https://github.com/horychtom/demand-processing repository.
 
 1. Go to demand_processing/ directory and edit config.py file according to your project.
 	(in **data_dir** you specify the path to your downloaded data in .csv format)
@@ -95,26 +96,23 @@ If you are not sure about the steps, please see readme in demand_processing gith
 	
 3. This creates trips.txt in the directory. This file contains demand for the simulation, you need to move it to wherever you store the data for the simulation.
 
-    *check, whether the trip times fit in your simulation time* 
 
 ## 5. run the simulation
 
-1. Create your local config file (your_config.cfg) in directory /amod-to-agentpolis\local_config_files/. You can copy the original master config from the project, located in /src/.../amodsim/config/. Here, change amodsim_data_dir line to your directory with data for the simulation. Tweak anything you need. 
+1. Create your local config file (your_config.cfg) in directory /amod-to-agentpolis/local_config_files/. You can copy the original master config from the project, located in /src/.../amodsim/config/. Here, change amodsim_data_dir line to your directory with data for the simulation. Tweak anything you need. 
+ 
+     - *check, whether the trip times fit in your simulation time* 
 
 	```
+	start_time: change to match your data (in milliseconds)
 	agentpolis:
 	{
-		#srid: 32618 #Manhattan
-		show_stacked_entities: true
+		#srid for New York
+		srid: 32618
 		
-		visio:
-		{
-			#launches gui on true
-			show_visio: false
-		}
-		
-		map_nodes_filepath: $map_dir + 'nodes.geojson'
-		map_edges_filepath: $map_dir + 'edges.geojson'
+		...
+		...
+		...
 		
 		# length of simulation
 		simulation_duration:
@@ -131,15 +129,15 @@ If you are not sure about the steps, please see readme in demand_processing gith
 	**Important:** In order to get correct map transformations, you have to specify the srid value into the agentpolis:{} block. 
 	
 	srid is natively set for simulation of Prague. Find what UTM zone your target belongs to:
-	[https://mangomap.com/robertyoung/maps/69585/what-utm-zone-am-i-in-#](https://mangomap.com/robertyoung/maps/69585/what-utm-zone-am-i-in-#)
+	[https://mangomap.com/robertyoung/maps/69585/what-utm-zone-am-i-in-#]
 	and then find appropriate srid value (EPSG).
 	
-2. Create **station_positions.csv**  file.  In format:
-  ```
-  id_of_the_node,number_of_cars_in_this_station,
-  id_of_the_next_node,...
-  ```
-  You can run **MapVisualizer.java** (with path to the config file) to view the map and nodes so you can design your placement of the stations.
+3. Create **station_positions.csv**  file.  In format:
+	  ```
+	  id_of_the_node,number_of_cars_in_this_station,
+	  id_of_the_next_node,...
+	```
+	  You can run **MapVisualizer.java** (with path to the config file) to view the map and nodes so you can design your placement of the stations.
 
 3. **Run** the amodsim **OnDemandVehiclesSimulation.java**  with path/to/your/config as an argument (you may need to set it in your IDE)
 
@@ -148,8 +146,14 @@ If you are not sure about the steps, please see readme in demand_processing gith
 
 
 ## Issues you may encounter
-
-- if You face **UnsetisfiedLinkError** You need to set path to gurobi lib as environment variable. You can do it in your IDE or on OS level:
+- Problems with installing **roadmaptools**: you may need manually install rtree library. Download it from here: https://www.lfd.uci.edu/~gohlke/pythonlibs/#rtree
+   - *choose file according to your System and Python version, i.e. for Python 3.8 on Windows choose Rtree‑0.9.4‑cp38‑cp38‑win32.whl* 
+	
+	Rtree requires libspatialindex library. In case you don't have it, install:
+	```
+	sudo apt-get install -y libspatialindex-dev
+	```
+- **UnsetisfiedLinkError** You need to set path to gurobi lib as environment variable. You can do it in your IDE or on OS level:
 
   Linux:
 
@@ -163,12 +167,5 @@ If you are not sure about the steps, please see readme in demand_processing gith
   PATH="/path/to/gurobi/lib"
   ```
 
-  
 
-- If pip has a problem with installing rtree (or any other package), you may need to download it here https://www.lfd.uci.edu/~gohlke/pythonlibs/ and install manually using.
-
-  ```
-  pip3 install /downloaded/folder/
-  ```
-
-  *choose file according to your System and Python version, i.e. for Python 3.8 on Windows choose Rtree‑0.9.4‑cp38‑cp38‑win32.whl*
+- **ProjectionException** (Latitude 90°00 N is too close to a pole) caused by wrong SRID value or created map is wrong.

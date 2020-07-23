@@ -49,6 +49,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingOnDemandVehicleFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.DistanceMatrixTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayer;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayerWithJitter;
@@ -99,9 +100,9 @@ public class MainModule extends StandardAgentPolisModule{
 		if(amodsimConfig.ridesharing.on){
 			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 			bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
-			bind(TravelTimeProvider.class).to(DistanceMatrixTravelTimeProvider.class);
+//			bind(TravelTimeProvider.class).to(DistanceMatrixTravelTimeProvider.class);
 //			bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
-//			bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
+			bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
 			bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
 			install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
 						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));

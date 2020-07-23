@@ -2,33 +2,33 @@
 
 Go to your/project/folder and  clone all repositories listed below:
 
- - clone **agentpolis**
+ - Clone **agentpolis**
 
 	```commandline
 	git clone https://github.com/aicenter/agentpolis.git
 	```
 
- - clone **amodsim**
+ - Clone **amodsim**
 
 	```commandline
 	git clone https://gitlab.fel.cvut.cz/fiedlda1/amod-to-agentpolis.git
 	```
 
- - clone **roadmap_processing**
+ - Clone **roadmap_processing**
 
 	```commandline
 	git clone https://github.com/aicenter/roadmap-processing.git
 	```
-- clone **demand_processing**
+- Clone **demand_processing**
 
 	```commandline
 	git clone https://github.com/horychtom/demand-processing.git
 	```
 ## **2. Gurobi installation**
 Simulation requires gurobi optimizer software
-- download Gurobi Optimizer tar file from [https://www.gurobi.com/downloads/](https://www.gurobi.com/downloads/)
+- Download Gurobi Optimizer tar file from [https://www.gurobi.com/downloads/](https://www.gurobi.com/downloads/)
 
-- follow the instructions on gurobi site. You need to properly license the software as well.
+- Follow the instructions on gurobi site. You need to properly license the software as well.
 	
 - Go to your/gurobi/directory/../lib/ (directory where the **gurobi.jar** file is) and install gurobi via maven:
 
@@ -50,23 +50,29 @@ Simulation requires gurobi optimizer software
   ```
 
 ## 4. Prepare map
-1. go to your project folder (directory, where repositories are cloned) and install roadmaptools from roadmap-processing package:
+1. Go to your project folder (directory, where repositories are cloned) and install roadmaptools from **cloned** roadmap-processing package:
+
+  **Important:** '/' is neccessary, pip installer will otherwise use python repository version but we need this local one
 
   ```commandline
   pip3 install roadmap-processing/
   ```
 
-  - If there is an error installing roadmaptools, you may need to install **rtree** package manually.
+  If installation did not finnish succesfully, this may help you. 
 
-    ​	Visit this page: https://www.lfd.uci.edu/~gohlke/pythonlibs/#rtree and choose package version according to your version of Python  *i.e. for Python 3.8 on Windows choose Rtree‑0.9.4‑cp38‑cp38‑win32.whl* 
+  - On windows is a need to install **rtree** package manualy as precompiled .whl package. Download it [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#rtree) and choose package version according to your version of Python  *i.e. for Python 3.8 on Windows choose Rtree‑0.9.4‑cp38‑cp38‑win32.whl*  Then install downloaded file
 
-    - On linux, you may also need libspatialindex library
+    ```
+    pip3 install <path to downloaded .whl package>
+    ```
 
-      ```
-      sudo apt-get install -y libspatialindex-dev
-      ```
+  - On linux, you may also need libspatialindex library
 
-2. go to  agentpolis/python/agentpolis directory and edit **custom_config.cfg** file, which
+    ```
+    sudo apt-get install -y libspatialindex-dev
+    ```
+
+2. Go to  ./agentpolis/python/agentpolis directory and edit **custom_config.cfg** file, which
 
     **must** include:
 
@@ -94,32 +100,57 @@ Simulation requires gurobi optimizer software
 4. result of .geojson data is now in ../maps directory
 
 
-## 5. Prepare demands
-1. Depending on your project, download trips data (in .csv format) you need. 
+## 5. Prepare demands and stations
+1. Prepare new **data_folder** and copy your maps in it. *You may use any folder or the one, where maps already are.*
 
-   Csv data of taxis in Manhattan can be downloaded from NYC taxi and limousine commision [here](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page)
+2. Create demands
 
-   
+   1. Depending on your project, download trips data (in .csv format) you need. 
 
-2. Go to ./demand_processing/ directory and edit config.py file according to your project.
-   (in **data_dir** specify the path to your downloaded data in .csv format)
+      Csv data of taxis in Manhattan can be downloaded from NYC Open Data [here](https://data.cityofnewyork.us/browse?q=taxi)
 
-3. run the script:
+      ​	*Datasets we used are [here](https://data.cityofnewyork.us/dataset/Yellow-Tripdata-2015-January-June/2yzn-sicd) (2.8GB) and [here](https://data.cityofnewyork.us/Transportation/2014-Yellow-Taxi-Trip-Data/gkne-dk5s) (5.8GB)*
 
-   ```
-   python3 trips_process.py
-   ```
+   2. Go to ./demand_processing/ directory and edit config.py file according to your project.
+      (in **data_dir** specify the path to your downloaded data in .csv format)
 
-4. This creates trips.txt in the directory. This file contains demand for the simulation, you need to move it to wherever you store the data for the simulation.
+   3. Run the script
 
-   *For additional information see readme in https://github.com/horychtom/demand-processing repository.*
+      ```
+      python3 trips_process.py
+      ```
+
+   ​	This creates **trips.txt** in the directory. This file contains demands for the simulation, you need to move it to **data_folder** from step 1.
+
+   ​	*For additional information see readme in https://github.com/horychtom/demand-processing repository.*
+
+3. Prepare stations
+
+   Stations are nodes on map containing vehicles, which can fulfill created demands.
+
+   1. Create **station_positions.csv**  file.  In format:
+
+      ```
+      id_of_the_node,number_of_cars_in_this_station,
+      id_of_the_next_node,...
+      ```
+
+      For better stations placement run **MapVisualizer.java** (with path to the config file) to view the map. After ticking "**Show all nodes**" on the right are all nodes ID displayed. 
 
 
 ## 6. Run the simulation
 
-1. Create your local config file (your_config.cfg). You can see the original master config from the project, located in /src/.../amodsim/config/. Here, change amodsim_data_dir line to your directory with data for the simulation. Tweak anything you need. Here is an example of data you may want to ajdust
+1. Create your local config file (your_config.cfg). Add amodsim_data_dir line as stated below: 
 
-     * *check, whether the trip times fit in your simulation time* 
+     ```
+     amodsim_data_dir: <absolute path to data_folder from step 5.Prepare demands and stations>
+     ```
+
+2. Tweak anything you need. Here is an example of data you may want to ajdust.
+
+     **Important** You can see the original master config from the project, located in /src/.../amodsim/config/. 
+
+     * *check, whether the trip times fit in your simulation time * 
 
      * *you can see local configurations used by us in /amod-to-agentpolis/local_config_files*
 
@@ -140,7 +171,7 @@ Simulation requires gurobi optimizer software
      	simulation_duration:
      	{
      		days: 0
-     		hours: 1
+     		hours: 6
      		minutes: 30
      		seconds: 0
      	}
@@ -153,22 +184,13 @@ Simulation requires gurobi optimizer software
      Srid is natively set for simulation of Prague. Find what UTM zone your target belongs to  here: [https://mangomap.com/utm](https://mangomap.com/robertyoung/maps/69585/what-utm-zone-am-i-in-#)
      and then find relevant srid value (EPSG).
 
-     *simulation should run even with incorrect (but valid) srid but displays another area*
-
      
-
-2. Create **station_positions.csv**  file.  In format:
-     ```
-       id_of_the_node,number_of_cars_in_this_station,
-       id_of_the_next_node,...
-     ```
-       You can run **MapVisualizer.java** (with path to the config file) to view the map and nodes so you can design your placement of the stations.
 
 3. **Run** the amodsim **OnDemandVehiclesSimulation.java**  with path/to/your/config as an argument (you may need to set it in your IDE)
 
    Simulation speed can be adjusted by '+' , '-' , '*' or 'Ctrl *'
 
-   - if you face **UnsatisfiedLinkError**, you need to set path to gurobi lib as environment variable.  You can do it in your IDE or on OS level:
+   - If you face **UnsatisfiedLinkError**, you need to set path to gurobi lib as environment variable.  You can do it in your IDE or on OS level:
 
      Linux:
 
@@ -176,10 +198,11 @@ Simulation requires gurobi optimizer software
      LD_LIBRARY_PATH="/path/to/gurobi/lib"
      ```
 
-     Windows:
+     Windows: *rather use control panel*
 
      ```
-     PATH="/path/to/gurobi/lib"
+     IDE: Path=<path/to/gurobi/lib>
+     CMD: Path=%Path%;<path/to/gurobi/lib>
      ```
 
-   - error **ProjectionException:** *Latitude 90°00 N is too close to a pole)* is caused by mistake in generated maps. Try  rerunning process from *Prepare map* section. Also, double check your srid.
+   - Error **ProjectionException:** *Latitude 90°00 N is too close to a pole)* is caused by mistake in generated maps. Try  rerunning process from *Prepare map* section. Also, double check your srid.

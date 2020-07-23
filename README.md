@@ -97,7 +97,9 @@ Simulation requires gurobi optimizer software
 ## 5. Prepare demands
 1. Depending on your project, download trips data (in .csv format) you need. 
 
-   Csv data of taxis in Manhattan can be downloaded from NYC taxi and limousine commision [here](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page)[https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page]
+   Csv data of taxis in Manhattan can be downloaded from NYC taxi and limousine commision [here](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page)
+
+   
 
 2. Go to ./demand_processing/ directory and edit config.py file according to your project.
    (in **data_dir** specify the path to your downloaded data in .csv format)
@@ -148,7 +150,7 @@ Simulation requires gurobi optimizer software
 
      **Important:** In order to get correct map transformations, you have to specify the srid value into the agentpolis:{} block. 
 
-     Srid is natively set for simulation of Prague. Find what UTM zone your target belongs to  here: [https://mangomap.com/utm][https://mangomap.com/robertyoung/maps/69585/what-utm-zone-am-i-in-#]
+     Srid is natively set for simulation of Prague. Find what UTM zone your target belongs to  here: [https://mangomap.com/utm](https://mangomap.com/robertyoung/maps/69585/what-utm-zone-am-i-in-#)
      and then find relevant srid value (EPSG).
 
      *simulation should run even with incorrect (but valid) srid but displays another area*

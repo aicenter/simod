@@ -1,4 +1,3 @@
-This guide is focused on installation on Linux. But any of these instructions can be extrapolated to any OS, just with basic knowledge of the OS.
 
 ## 1. first steps
 Go to your/project/folder and  clone all repositories listed below:

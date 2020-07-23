@@ -1,4 +1,4 @@
-## 1. First steps
+## **1. First steps**
 
 Go to your/project/folder and  clone all repositories listed below:
 
@@ -49,7 +49,7 @@ Simulation requires gurobi optimizer software
   mvn compile
   ```
 
-## 4. Prepare map
+## **4. Prepare map**
 1. Go to your project folder (directory, where repositories are cloned) and install roadmaptools from **cloned** roadmap-processing package:
 
   **Important:** '/' is neccessary, pip installer will otherwise use python repository version but we need this local one
@@ -91,25 +91,25 @@ Simulation requires gurobi optimizer software
     ]
     ```
 
- 3. run the script with your local config file	
+ 3. Run the script with your local config file	
 
     ```
     python3 prepare_map -lc=/absolute/path/to/custom_config.cfg
     ```
 
-4. result of .geojson data is now in ../maps directory
+    Result of .geojson data is now in ../maps directory
 
 
-## 5. Prepare demands and stations
-1. Prepare new **data_folder** and copy your maps in it. *You may use any folder or the one, where maps already are.*
+## **5. Prepare demands and stations**
+1. ###### Prepare new **data_folder** and copy your maps in it. *You may use any folder or the one, where maps already are.*
 
-2. Create demands
+2. ###### Create demands
 
    1. Depending on your project, download trips data (in .csv format) you need. 
 
       Csv data of taxis in Manhattan can be downloaded from NYC Open Data [here](https://data.cityofnewyork.us/browse?q=taxi)
 
-      ​	*Datasets we used are [here](https://data.cityofnewyork.us/dataset/Yellow-Tripdata-2015-January-June/2yzn-sicd) (2.8GB) and [here](https://data.cityofnewyork.us/Transportation/2014-Yellow-Taxi-Trip-Data/gkne-dk5s) (5.8GB)*
+      ​	*Datasets we used are [here](https://data.cityofnewyork.us/dataset/Yellow-Tripdata-2015-January-June/2yzn-sicd) (2.8GB) and [here](https://data.cityofnewyork.us/Transportation/2014-Yellow-Taxi-Trip-Data/gkne-dk5s) (5.8GB). Differently formated data may need code adjustment*
 
    2. Go to ./demand_processing/ directory and edit config.py file according to your project.
       (in **data_dir** specify the path to your downloaded data in .csv format)
@@ -124,7 +124,7 @@ Simulation requires gurobi optimizer software
 
    ​	*For additional information see readme in https://github.com/horychtom/demand-processing repository.*
 
-3. Prepare stations
+3. ###### Create stations
 
    Stations are nodes on map containing vehicles, which can fulfill created demands.
 
@@ -138,7 +138,7 @@ Simulation requires gurobi optimizer software
       For better stations placement run **MapVisualizer.java** (with path to the config file) to view the map. After ticking "**Show all nodes**" on the right are all nodes ID displayed. 
 
 
-## 6. Run the simulation
+## **6. Run the simulation**
 
 1. Create your local config file (your_config.cfg). Add amodsim_data_dir line as stated below: 
 
@@ -150,9 +150,9 @@ Simulation requires gurobi optimizer software
 
      **Important** You can see the original master config from the project, located in /src/.../amodsim/config/. 
 
-     * *check, whether the trip times fit in your simulation time * 
+     * *Check, whether the trip times (first value on each row in trips.txt) fit in your simulation time, change **start_time** if not*  
 
-     * *you can see local configurations used by us in /amod-to-agentpolis/local_config_files*
+     * *You can see local configurations used by us in /amod-to-agentpolis/local_config_files*
 
      ```
      start_time: change to match your data (in milliseconds)
@@ -198,7 +198,7 @@ Simulation requires gurobi optimizer software
      LD_LIBRARY_PATH="/path/to/gurobi/lib"
      ```
 
-     Windows: *rather use control panel*
+     Windows:              *Tip: rather use control panel*
 
      ```
      IDE: Path=<path/to/gurobi/lib>

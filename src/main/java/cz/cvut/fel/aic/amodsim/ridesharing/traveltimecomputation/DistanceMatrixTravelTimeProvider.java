@@ -54,11 +54,7 @@ public class DistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 	
 	private final int[][] distanceMatrix;
 	
-	private long callCount = 0;
 
-	public long getCallCount() {
-		return callCount;
-	}
 	
 	
 	

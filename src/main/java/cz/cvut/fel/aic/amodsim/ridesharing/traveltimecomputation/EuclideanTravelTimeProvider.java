@@ -40,11 +40,6 @@ public class EuclideanTravelTimeProvider extends TravelTimeProvider{
 
 	private final int travelSpeedEstimateCmPerSecond;
 	
-	private long callCount = 0;
-
-	public long getCallCount() {
-		return callCount;
-	}
 	
 	
 	

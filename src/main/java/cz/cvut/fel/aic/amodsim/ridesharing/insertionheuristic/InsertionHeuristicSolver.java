@@ -204,7 +204,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			sb.append("Iteration time: ").append(iterationTime).append(readableTime(iterationTime)).append("\n");
 			sb.append("Can serve call count: ").append(canServeRequestCallCount).append("\n");
 			sb.append("Vehicle planning call count: ").append(vehiclePlanningAllCallCount).append("\n");
-			sb.append("Traveltime call count: ").append(((EuclideanTravelTimeProvider) travelTimeProvider).getCallCount()).append("\n");
+			sb.append("Traveltime call count: ").append((travelTimeProvider).getCallCount()).append("\n");
 			LOGGER.info(sb.toString());
 		}
 		

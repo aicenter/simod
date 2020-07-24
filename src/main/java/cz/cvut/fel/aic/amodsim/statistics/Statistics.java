@@ -428,6 +428,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 	}
 	
 	private void saveRidesharingStatistics() {
+                int highestGroup = 0;
 		if(dARPSolver.getRidesharingStats().size() < 1){
 			return;
 		}
@@ -447,6 +448,8 @@ public class Statistics extends AliteEntity implements EventHandler{
 					}
 				}
 				
+                                highestGroup = longestGroupStat.groupSizeData.length;
+                                
 				List<String> writerLine = new ArrayList(Arrays.asList("Batch", "New Request Count", "Active Request Count", 
 						"Group Generation Time", "Solver Time", "Solver gap"));
 				
@@ -478,14 +481,26 @@ public class Statistics extends AliteEntity implements EventHandler{
 					writerLine.add(Integer.toString(vgaStat.solverTime));
 					writerLine.add(Double.toString(vgaStat.gap));
 					
-					for(int i = 0; i < vgaStat.groupSizeData.length; i++){
+					for(int i = 0; i < highestGroup; i++){
+                                            if(i < vgaStat.groupSizeDataPlanExists.length){
 						writerLine.add(Integer.toString(vgaStat.groupSizeData[i].groupCount));
 						writerLine.add(Integer.toString(vgaStat.groupSizeData[i].totalTime));
+                                            }
+                                            else{
+                                                writerLine.add(Integer.toString(0));
+                                                writerLine.add(Integer.toString(0));
+                                            }
 					}
 					
-					for(int i = 0; i < vgaStat.groupSizeDataPlanExists.length; i++){
+					for(int i = 0; i < highestGroup; i++){
+                                            if(i < vgaStat.groupSizeDataPlanExists.length){
 						writerLine.add(Integer.toString(vgaStat.groupSizeDataPlanExists[i].groupCount));
 						writerLine.add(Integer.toString(vgaStat.groupSizeDataPlanExists[i].totalTime));
+                                            }
+                                            else{
+                                                writerLine.add(Integer.toString(0));
+                                                writerLine.add(Integer.toString(0));
+                                            }
 					}
 					
 					writer.writeLine(writerLine.toArray(new String[writerLine.size()]));

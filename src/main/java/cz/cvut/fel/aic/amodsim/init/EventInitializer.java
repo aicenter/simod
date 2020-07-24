@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Random;
 
 import cz.cvut.fel.aic.agentpolis.simulator.SimulationUtils;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -49,6 +50,8 @@ public class EventInitializer {
 //	private static final double TRIP_MULTIPLICATION_FACTOR = 13.63;
 //	private static final double TRIP_MULTIPLICATION_FACTOR = 1.615;
 //	private static final double TRIP_MULTIPLICATION_FACTOR = 3.433;
+    
+        private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(EventInitializer.class);
 	
 	private static final long TRIP_MULTIPLICATION_TIME_SHIFT = 240_000;
 	
@@ -72,6 +75,8 @@ public class EventInitializer {
 	private final SimulationUtils simulationUtils;
 	
 	private long eventCount;
+        
+        private long impossibleTripsCount;
 	
 	
 	@Inject
@@ -85,6 +90,7 @@ public class EventInitializer {
 		this.agentpolisConfig = agentpolisConfig;
 		this.simulationUtils = simulationUtils;
 		eventCount = 0;
+                impossibleTripsCount = 0;
 	}
 	
 	
@@ -95,7 +101,7 @@ public class EventInitializer {
 			long startTime = trip.getStartTime() - amodsimConfig.startTime;
 			// trip have to start at least 1ms after start of the simulation and no later then last
 			if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
-
+                                impossibleTripsCount++;
 				continue;
 			}
 			
@@ -119,12 +125,14 @@ public class EventInitializer {
 			for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
 				long startTime = rebalancingTrip.getStartTime() - amodsimConfig.startTime;
 			if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
+                                        impossibleTripsCount++;
 					continue;
 				}
 				eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 
 						null, rebalancingTrip, startTime);
 			}
 		}
+                LOGGER.info("No. of trips that do not fit the simulation time window: ", impossibleTripsCount);
 	}
 	
 	

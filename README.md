@@ -148,7 +148,7 @@ Simulation requires gurobi optimizer software
 
 2. Tweak anything you need. Here is an example of data you may want to ajdust.
 
-     **Important** You can see the original master config from the project, located in /src/.../amodsim/config/. 
+     **Important** You can see the original master config from the project, located in /src/main/resources/.../amodsim/config/. 
 
      * *Check, whether the trip times (first value on each row in trips.txt) fit in your simulation time, change **start_time** if not*  
 

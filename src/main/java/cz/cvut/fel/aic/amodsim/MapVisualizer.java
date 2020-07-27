@@ -48,6 +48,7 @@ public class MapVisualizer {
 		
 		File localConfigFile = args.length > 0 ? new File(args[0]) : null;
 		
+                LOGGER.debug("Load ALL metadata");
 		Injector injector = new AgentPolisInitializer(new MapVisualiserModule(config, localConfigFile)).initialize();
 		
 		injector.getInstance(AgentpolisConfig.class).visio.showVisio = true;

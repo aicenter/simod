@@ -33,7 +33,7 @@ public class MapVisualiserModule  extends MainModule{
 	private final AmodsimConfig amodsimConfig;
 	
 	public MapVisualiserModule(AmodsimConfig amodsimConfig, File localConfigFile) {
-		super(amodsimConfig, localConfigFile);
+		super(amodsimConfig, localConfigFile, false);
 		this.amodsimConfig = amodsimConfig;
 	}
 	

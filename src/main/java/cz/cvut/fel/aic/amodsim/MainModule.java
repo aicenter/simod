@@ -71,16 +71,12 @@ public class MainModule extends StandardAgentPolisModule{
 	
 	public MainModule(AmodsimConfig amodsimConfig, File localConfigFile) {
 		super(amodsimConfig, localConfigFile, "agentpolis");
-		this.amodsimConfig = amodsimConfig;                
+		this.amodsimConfig = amodsimConfig;      
                 //clean experiment folder (for merging, must be before setting logger file path in branch feature/saveLogToExperiments)
                 deleteFiles(new File(amodsimConfig.amodsimExperimentDir));
                 //set logger file path (for merging, must be after cleanup folder in branch feature/clear_exp_folder)
                 setLoggerFilePath(amodsimConfig.amodsimExperimentDir);
 	}
-        public MainModule(AmodsimConfig amodsimConfig, File localConfigFile, boolean toggleRidesharing) {
-            this(amodsimConfig, localConfigFile);
-            amodsimConfig.ridesharing.on = toggleRidesharing;
-        }
 
 	@Override
 	protected void bindVisioInitializer() {
@@ -125,9 +121,7 @@ public class MainModule extends StandardAgentPolisModule{
 
 		}
 		else{
-                   bind(TravelTimeProvider.class).to(EmptyTravelTimeProvider.class);
-		   bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
-                   bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
+                   bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
 		}
 		install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
 			.build(DemandAgentFactory.class));

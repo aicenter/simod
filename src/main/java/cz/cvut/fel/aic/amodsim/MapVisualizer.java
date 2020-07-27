@@ -19,6 +19,7 @@
 package cz.cvut.fel.aic.amodsim;
 
 
+import cz.cvut.fel.aic.amodsim.mapVisualization.MapVisualiserModule;
 import com.google.inject.Injector;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
@@ -26,6 +27,7 @@ import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.init.StationsInitializer;
+import cz.cvut.fel.aic.amodsim.mapVisualization.MapVisualizationCreator;
 import java.io.File;
 
 import java.net.MalformedURLException;
@@ -51,9 +53,9 @@ public class MapVisualizer {
                 LOGGER.debug("Load ALL metadata");
 		Injector injector = new AgentPolisInitializer(new MapVisualiserModule(config, localConfigFile)).initialize();
 		
-		injector.getInstance(AgentpolisConfig.class).visio.showVisio = true;
-
-		SimulationCreator creator = injector.getInstance(SimulationCreator.class);
+//		injector.getInstance(AgentpolisConfig.class).visio.showVisio = true;
+                                
+		MapVisualizationCreator creator = injector.getInstance(MapVisualizationCreator.class);
 
 		// prepare map, entity storages...
 		creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());

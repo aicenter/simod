@@ -448,7 +448,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 					}
 				}
 				
-                                highestGroup = longestGroupStat.groupSizeData.length;
+                highestGroup = longestGroupStat.groupSizeData.length;
                                 
 				List<String> writerLine = new ArrayList(Arrays.asList("Batch", "New Request Count", "Active Request Count", 
 						"Group Generation Time", "Solver Time", "Solver gap"));
@@ -482,25 +482,25 @@ public class Statistics extends AliteEntity implements EventHandler{
 					writerLine.add(Double.toString(vgaStat.gap));
 					
 					for(int i = 0; i < highestGroup; i++){
-                                            if(i < vgaStat.groupSizeDataPlanExists.length){
-						writerLine.add(Integer.toString(vgaStat.groupSizeData[i].groupCount));
-						writerLine.add(Integer.toString(vgaStat.groupSizeData[i].totalTime));
-                                            }
-                                            else{
-                                                writerLine.add(Integer.toString(0));
-                                                writerLine.add(Integer.toString(0));
-                                            }
+						if(i < vgaStat.groupSizeDataPlanExists.length){
+							writerLine.add(Integer.toString(vgaStat.groupSizeData[i].groupCount));
+							writerLine.add(Integer.toString(vgaStat.groupSizeData[i].totalTime));
+						}
+						else{
+							writerLine.add(Integer.toString(0));
+							writerLine.add(Integer.toString(0));
+						}
 					}
 					
 					for(int i = 0; i < highestGroup; i++){
-                                            if(i < vgaStat.groupSizeDataPlanExists.length){
-						writerLine.add(Integer.toString(vgaStat.groupSizeDataPlanExists[i].groupCount));
-						writerLine.add(Integer.toString(vgaStat.groupSizeDataPlanExists[i].totalTime));
-                                            }
-                                            else{
-                                                writerLine.add(Integer.toString(0));
-                                                writerLine.add(Integer.toString(0));
-                                            }
+						if(i < vgaStat.groupSizeDataPlanExists.length){
+							writerLine.add(Integer.toString(vgaStat.groupSizeDataPlanExists[i].groupCount));
+							writerLine.add(Integer.toString(vgaStat.groupSizeDataPlanExists[i].totalTime));
+						}
+						else{
+							writerLine.add(Integer.toString(0));
+							writerLine.add(Integer.toString(0));
+						}
 					}
 					
 					writer.writeLine(writerLine.toArray(new String[writerLine.size()]));
@@ -509,8 +509,8 @@ public class Statistics extends AliteEntity implements EventHandler{
 					RidesharingBatchStatsIH vgaStat = (RidesharingBatchStatsIH) ridesharingStat;
 					
 					writer.writeLine(Integer.toString(batch), Integer.toString(vgaStat.newRequestCount), 
-							Integer.toString(vgaStat.failFastTime), Integer.toString(vgaStat.ihTime),
-							Integer.toString(vgaStat.logFailTime));
+					Integer.toString(vgaStat.failFastTime), Integer.toString(vgaStat.ihTime),
+					Integer.toString(vgaStat.logFailTime));
 				}
 				batch++;
 			}

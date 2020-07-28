@@ -21,8 +21,11 @@ package cz.agents.amodsim.ridesharing.insertionheuristic.common;
 import cz.agents.amodsim.ridesharing.vga.common.*;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.GeojsonMapInitializer;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
@@ -67,11 +70,13 @@ public class TestModule extends StandardAgentPolisModule{
 	protected void configureNext() {
 		super.configureNext();
 		bind(AmodsimConfig.class).toInstance(amodsimConfig);
+                bind(AgentpolisConfig.class).toInstance(agentpolisConfig);
 		install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
 			.build(DemandAgent.DemandAgentFactory.class));
 		bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 		bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 		bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
+                bind(MapInitializer.class).to(GeojsonMapInitializer.class);
 		bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
 //		bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
 		bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);

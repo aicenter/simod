@@ -70,7 +70,10 @@ public class BatchScenario {
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.PICKUP));
 		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.DROP_OFF));
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DROP_OFF));
-		
+		          System.out.println("Events added succesfully");
+                          for(RidesharingEventData e : expectedEvents){
+                              System.out.println(e);
+                          }
 		testEnvironment.run(graph, trips, vehicalInitPositions, expectedEvents);
 	}
 

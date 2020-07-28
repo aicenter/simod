@@ -22,6 +22,10 @@ import cz.agents.amodsim.ridesharing.RidesharingEventData;
 import com.google.inject.Injector;
 import cz.agents.amodsim.ridesharing.EventOrderStorage;
 import cz.agents.amodsim.ridesharing.RidesharingTestEnvironment;
+import cz.agents.amodsim.ridesharing.TestMapInitializer;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.GraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
@@ -39,8 +43,10 @@ import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Graph;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import org.junit.Assert;
 
 /**
@@ -57,28 +63,22 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 	public Injector getInjector() {
 		return injector;
 	}
-	
-	
-
+        
 	public InsertionHeuristicTestEnvironment() {
 		config = new AmodsimConfig();
 		
 		File localConfigFile = null;
 
 		// Guice configuration
-		AgentPolisInitializer agentPolisInitializer 
+		AgentPolisInitializer agentPolisInitializer
 				= new AgentPolisInitializer(new TestModule(config, localConfigFile));
 		injector = agentPolisInitializer.initialize();
-		
 		// config changes
 		config.ridesharing.batchPeriod = 0;
 		config.ridesharing.maximumRelativeDiscomfort = 2.0;
 		config.ridesharing.discomfortConstraint = "relative";
+                System.out.println("Environment created.");
 	}
-	
-	
-	
-	
 	
 	@Override
 	public void run(Graph<SimulationNode, SimulationEdge> graph, List<TimeTrip<SimulationNode>> trips,
@@ -92,22 +92,30 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 		
 		// requests
 		injector.getInstance(EventInitializer.class).initialize(trips, new ArrayList<>());
-		
+                System.out.println("Requests created");
+                
 		// vehicles
 		OnDemandVehicleFactorySpec onDemandVehicleFactory = injector.getInstance(OnDemandVehicleFactorySpec.class);
 		OnDemandVehicleStorage onDemandVehicleStorage = injector.getInstance(OnDemandVehicleStorage.class);
 		int counter = 0;
+                
+                System.out.println("startTime: "+injector.getInstance(AmodsimConfig.class).startTime);
+                System.out.println("First trip start "+trips.get(0).getStartTime());                
 		for (SimulationNode vehiclePosition: vehicalInitPositions) {
 			String onDemandVehicelId = String.format("%s", counter);
 			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, vehiclePosition);
 			onDemandVehicleStorage.addEntity(newVehicle);
 			counter++;
 		}
+                System.out.println("Vehicles: "+onDemandVehicleStorage.size());
+                System.out.println("Vehicles created");
 		
 		EventOrderStorage eventOrderStorage = injector.getInstance(EventOrderStorage.class);
-		
+                
+                TestMapInitializer tmi = new TestMapInitializer(graph, injector.getInstance(AgentpolisConfig.class));
+                creator.prepareSimulation(tmi.getMap());
+                                
 		creator.startSimulation();
-		
 		
 		// TESTING EVENT ORDER
 		List<Event> realEvents = eventOrderStorage.getOnDemandVehicleEvents();
@@ -115,6 +123,9 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 		Assert.assertEquals("Event count", expectedEvents.size(), realEvents.size());
 		Iterator<RidesharingEventData> expectedEventsIterator = expectedEvents.iterator();
 		counter = 1;
+                
+                System.out.println("Triggering events");
+                
 		for(Event event: realEvents){
 			RidesharingEventData expectedEvent = expectedEventsIterator.next();
 			OnDemandVehicleEventContent eventContent = (OnDemandVehicleEventContent) event.getContent();

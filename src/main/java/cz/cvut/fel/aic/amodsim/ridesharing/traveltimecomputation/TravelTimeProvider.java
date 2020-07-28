@@ -30,11 +30,16 @@ public abstract class TravelTimeProvider {
 	
 	private final TimeProvider timeProvider;
 
-	
+	protected long callCount;
 	
 	
 	public TravelTimeProvider(TimeProvider timeProvider) {
 		this.timeProvider = timeProvider;
+                callCount = 0;
+	}
+        
+        public long getCallCount() {
+		return callCount;
 	}
 	
 	

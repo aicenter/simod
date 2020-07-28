@@ -58,7 +58,7 @@ public class AstarTravelTimeProvider extends TravelTimeProvider{
 	
 	@Override
 	public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB){
-		
+		callCount++;
 		if(positionA == positionB){
 			return 0;
 		}

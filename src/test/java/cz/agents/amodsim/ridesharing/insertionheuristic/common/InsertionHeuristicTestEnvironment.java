@@ -96,7 +96,6 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 		
 		// requests
 		injector.getInstance(EventInitializer.class).initialize(trips, new ArrayList<>());
-                System.out.println("Requests created");
                 
 		// vehicles
 		OnDemandVehicleFactorySpec onDemandVehicleFactory = injector.getInstance(OnDemandVehicleFactorySpec.class);
@@ -105,8 +104,7 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
                 
                 System.out.println("startTime: "+config.startTime);
                 System.out.println("Duration: " +(injector.getInstance(AgentpolisConfig.class).simulationDuration.seconds*1000));
-                                                
-                System.out.println("First trip starts at "+trips.get(0).getStartTime());             
+                                                            
 		for (SimulationNode vehiclePosition: vehicalInitPositions) {
 			String onDemandVehicelId = String.format("%s", counter);
 			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, vehiclePosition);
@@ -128,9 +126,7 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 		
 		Assert.assertEquals("Event count", expectedEvents.size(), realEvents.size());
 		Iterator<RidesharingEventData> expectedEventsIterator = expectedEvents.iterator();
-		counter = 1;
-                
-                System.out.println("Triggering events");
+		counter = 1;                
                 
 		for(Event event: realEvents){
 			RidesharingEventData expectedEvent = expectedEventsIterator.next();

@@ -102,6 +102,7 @@ public class EventInitializer {
 			// trip have to start at least 1ms after start of the simulation and no later then last
 			if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
                                 impossibleTripsCount++;
+                                LOGGER.info("Trip starts out of simulation time. Total: {}", impossibleTripsCount);
 				continue;
 			}
 			

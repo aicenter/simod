@@ -22,7 +22,6 @@ import cz.agents.amodsim.ridesharing.RidesharingEventData;
 import com.google.inject.Injector;
 import cz.agents.amodsim.ridesharing.EventOrderStorage;
 import cz.agents.amodsim.ridesharing.RidesharingTestEnvironment;
-import cz.agents.amodsim.ridesharing.TestMapInitializer;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.GraphType;
@@ -34,6 +33,8 @@ import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation.OnDemandVehicleStationFactory;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.amodsim.init.EventInitializer;
@@ -73,10 +74,13 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 		AgentPolisInitializer agentPolisInitializer
 				= new AgentPolisInitializer(new TestModule(config, localConfigFile));
 		injector = agentPolisInitializer.initialize();
+                
 		// config changes
 		config.ridesharing.batchPeriod = 0;
 		config.ridesharing.maximumRelativeDiscomfort = 2.0;
 		config.ridesharing.discomfortConstraint = "relative";
+                config.stations.on = false;
+                
                 System.out.println("Environment created.");
 	}
 	
@@ -99,22 +103,24 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 		OnDemandVehicleStorage onDemandVehicleStorage = injector.getInstance(OnDemandVehicleStorage.class);
 		int counter = 0;
                 
-                System.out.println("startTime: "+injector.getInstance(AmodsimConfig.class).startTime);
-                System.out.println("First trip start "+trips.get(0).getStartTime());                
+                System.out.println("startTime: "+config.startTime);
+                System.out.println("Duration: " +(injector.getInstance(AgentpolisConfig.class).simulationDuration.seconds*1000));
+                                                
+                System.out.println("First trip starts at "+trips.get(0).getStartTime());             
 		for (SimulationNode vehiclePosition: vehicalInitPositions) {
 			String onDemandVehicelId = String.format("%s", counter);
 			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, vehiclePosition);
 			onDemandVehicleStorage.addEntity(newVehicle);
 			counter++;
 		}
-                System.out.println("Vehicles: "+onDemandVehicleStorage.size());
-                System.out.println("Vehicles created");
-		
-		EventOrderStorage eventOrderStorage = injector.getInstance(EventOrderStorage.class);
+                System.out.print("Vehicles: "+onDemandVehicleStorage.size());
+                System.out.println(" created");
                 
-                TestMapInitializer tmi = new TestMapInitializer(graph, injector.getInstance(AgentpolisConfig.class));
-                creator.prepareSimulation(tmi.getMap());
-                                
+                
+		
+                System.out.println(injector.getInstance(EventOrderStorage.class));
+		EventOrderStorage eventOrderStorage = injector.getInstance(EventOrderStorage.class);
+                                                
 		creator.startSimulation();
 		
 		// TESTING EVENT ORDER

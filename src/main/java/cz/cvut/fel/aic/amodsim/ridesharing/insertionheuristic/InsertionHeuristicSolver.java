@@ -21,6 +21,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionCurrentPosition;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.utils.Benchmark;
@@ -133,6 +134,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		this.eventProcessor = eventProcessor;
 		this.droppedDemandsAnalyzer = droppedDemandsAnalyzer;
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
+                        
 		
 		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
 		maxDistance = (double) config.ridesharing.maxProlongationInSeconds 
@@ -215,7 +217,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	
 	@Override
 	public void handleEvent(Event event) {
-
+            
 	}
 	
 	@Override
@@ -254,13 +256,15 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		// real feasibility check 
 		boolean canServe = travelTimeProvider.getTravelTime(vehicle, request.getFrom()) 
 				< maxDelayTime;
-		
+	
+                
 		return canServe;
 	}
 
 	private void computeOptimalPlan(RideSharingOnDemandVehicle vehicle, PlanComputationRequest planComputationRequest) {
 		DriverPlan currentPlan = vehicle.getCurrentPlan();
 		
+                LOGGER.debug("Looking for a plan");
 		// if the plan was already changed
 		if(planMap.containsKey(vehicle)){
 			currentPlan = planMap.get(vehicle);
@@ -448,22 +452,25 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		minCostIncrement = Double.MAX_VALUE;
 		bestPlan = null;
 		
-		OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(request.getFrom(), 
-				OnDemandvehicleStationStorage.NearestType.TRAVELTIME_FROM);
-		int indexFromEnd = usedVehiclesPerStation[Integer.parseInt(nearestStation.getId())];
-		int index = nearestStation.getParkedVehiclesCount() - 1 - indexFromEnd;
-		
-		if(index >= 0){
-			vehicleFromNearestStation = nearestStation.getVehicle(index);
-			vehiclesForPlanning.add(vehicleFromNearestStation);
-		}
-		else{
-			LOGGER.warn("Nearest station {} empty for request {}", nearestStation, request);
-		}
+                if(config.stations.on){
+                    OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(request.getFrom(), 
+                                    OnDemandvehicleStationStorage.NearestType.TRAVELTIME_FROM);
+                    int indexFromEnd = usedVehiclesPerStation[Integer.parseInt(nearestStation.getId())];
+                    int index = nearestStation.getParkedVehiclesCount() - 1 - indexFromEnd;
 
+                    if(index >= 0){
+                            vehicleFromNearestStation = nearestStation.getVehicle(index);
+                            vehiclesForPlanning.add(vehicleFromNearestStation);
+                    }
+                    else{
+                            LOGGER.warn("Nearest station {} empty for request {}", nearestStation, request);
+                    }
+                }
 		long iterationStartTime = System.nanoTime();
 
-		vehiclesForPlanning.stream().parallel().forEach((tVvehicle) -> processRequestVehicleCombination(request, tVvehicle));
+		vehiclesForPlanning.stream().parallel().forEach((tVvehicle) -> {
+                    processRequestVehicleCombination(request, tVvehicle);
+                });
 
 		iterationTime += System.nanoTime() - iterationStartTime;
 	}
@@ -504,7 +511,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		}
 		else{
 			LOGGER.debug("Request {} cannot be served!", request);
-        	benchmark = new Benchmark();
+                        benchmark = new Benchmark();
 			benchmark.measureTime(() ->	droppedDemandsAnalyzer.debugFail(request, usedVehiclesPerStation));
 			debugFailTime += benchmark.getDurationMs();
 		}
@@ -513,8 +520,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	private List<OnDemandVehicle> getDrivingVehicles() {
 		List<OnDemandVehicle> listForPlanning = new ArrayList<>();
 		for(OnDemandVehicle vehicle: vehicleStorage){
-			if(vehicle.getState() != OnDemandVehicleState.WAITING 
-					&& vehicle.getState() != OnDemandVehicleState.REBALANCING){
+			if(vehicle.getState() != OnDemandVehicleState.REBALANCING){
 				listForPlanning.add(vehicle);
 			}
 		}

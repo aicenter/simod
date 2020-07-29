@@ -20,6 +20,7 @@ package cz.agents.amodsim.ridesharing.insertionheuristic.common;
 
 import cz.agents.amodsim.ridesharing.vga.common.*;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import cz.agents.amodsim.ridesharing.EventOrderStorage;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
@@ -31,7 +32,9 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
+import cz.cvut.fel.aic.amodsim.rebalancing.RebalancingOnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.InsertionHeuristicSolver;
@@ -76,13 +79,16 @@ public class TestModule extends StandardAgentPolisModule{
 		bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 		bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 		bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
-                bind(MapInitializer.class).to(GeojsonMapInitializer.class);
 		bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
 //		bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
 		bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
 		bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
 		install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
 				.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
+                
+                
+                install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, RebalancingOnDemandVehicleStation.class)
+				.build(RebalancingOnDemandVehicleStation.OnDemandVehicleStationFactory.class));
 	}
 	
 

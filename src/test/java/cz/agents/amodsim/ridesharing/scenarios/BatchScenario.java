@@ -49,7 +49,7 @@ public class BatchScenario {
 		injector.getInstance(AmodsimConfig.class).ridesharing.batchPeriod = 10;
 		
 		// set relative discomfort to 2.1 to deal with batch delay + some tiny implicit simulation delay
-		injector.getInstance(AmodsimConfig.class).ridesharing.maximumRelativeDiscomfort = 2.5;
+		injector.getInstance(AmodsimConfig.class).ridesharing.maximumRelativeDiscomfort = 2.5; //2.5
 		
 		// set roadgraph
 		Graph<SimulationNode, SimulationEdge> graph 
@@ -57,10 +57,10 @@ public class BatchScenario {
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
 		// trips
-		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(8000, graph.getNode(1), graph.getNode(3)));
+		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();		
 		trips.add(new TimeTrip<>(1000, graph.getNode(2), graph.getNode(4)));
-		
+		trips.add(new TimeTrip<>(8000, graph.getNode(1), graph.getNode(3)));
+                
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
 		vehicalInitPositions.add(graph.getNode(0));
 		
@@ -70,10 +70,8 @@ public class BatchScenario {
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.PICKUP));
 		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.DROP_OFF));
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DROP_OFF));
-		          System.out.println("Events added succesfully");
-                          for(RidesharingEventData e : expectedEvents){
-                              System.out.println(e);
-                          }
+		System.out.println("Events added.");
+                
 		testEnvironment.run(graph, trips, vehicalInitPositions, expectedEvents);
 	}
 

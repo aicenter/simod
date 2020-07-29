@@ -38,8 +38,8 @@ import org.slf4j.LoggerFactory;
 public class DroppedDemandsAnalyzer {
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DroppedDemandsAnalyzer.class);
-	
-	
+		
+        private final AmodsimConfig config;
 	
 	protected final OnDemandVehicleStorage vehicleStorage;
 	
@@ -64,6 +64,7 @@ public class DroppedDemandsAnalyzer {
 		this.positionUtil = positionUtil;
 		this.travelTimeProvider = travelTimeProvider;
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
+                this.config = config;
 		
 		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
 		maxDistance = (double) config.ridesharing.maxProlongationInSeconds 
@@ -86,41 +87,40 @@ public class DroppedDemandsAnalyzer {
 		/*
 		 * First check the nearest station 
 		 */
-		OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(
-				request.getFrom(), OnDemandvehicleStationStorage.NearestType.TRAVELTIME_FROM);
-		double stationDistance;
-		double travelTimeFromStation;
-		if(usedVehiclesPerStation[nearestStation.getIndex()] >= nearestStation.getParkedVehiclesCount()){
-			LOGGER.debug("Cannot serve the request from the nearest station, the nearest station {} is empty!", 
-					nearestStation);
-		}
-		else{
-			// euclidean distance check
-			stationDistance = positionUtil.getPosition(nearestStation.getPosition())
-					.distance(positionUtil.getPosition(request.getFrom()));
+                if(config.stations.on){
+                        OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(
+                                        request.getFrom(), OnDemandvehicleStationStorage.NearestType.TRAVELTIME_FROM);
+                        double stationDistance;
+                        double travelTimeFromStation;
+                        if(usedVehiclesPerStation[nearestStation.getIndex()] >= nearestStation.getParkedVehiclesCount()){
+                                LOGGER.debug("Cannot serve the request from the nearest station, the nearest station {} is empty!", 
+                                                nearestStation);
+                        }
+                        else{
+                                // euclidean distance check
+                                stationDistance = positionUtil.getPosition(nearestStation.getPosition())
+                                                .distance(positionUtil.getPosition(request.getFrom()));
 
-			if(stationDistance > maxDistance){
-				LOGGER.debug("Cannot serve the request from the nearest station, the nearest station {} is too far! ({}m)", 
-						nearestStation, stationDistance);
-			}
-			else{
-				// real feasibility check 
-				travelTimeFromStation = 
-						travelTimeProvider.getExpectedTravelTime(nearestStation.getPosition(), request.getFrom());
-				if(travelTimeFromStation > maxDelayTime){
-					LOGGER.debug("Cannot serve the request from the nearest station, the traveltime from the "
-							+ "nearest station {} greater than the maximum delay ({}ms)!", 
-						nearestStation, maxDelayTime);
-				}
-				else{
-					LOGGER.debug("Cannot serve the request from the nearest station {} from the reason unknown!", 
-					nearestStation);
-				}
-			}
-			
-		}
-			
-		
+                                if(stationDistance > maxDistance){
+                                        LOGGER.debug("Cannot serve the request from the nearest station, the nearest station {} is too far! ({}m)", 
+                                                        nearestStation, stationDistance);
+                                }
+                                else{
+                                        // real feasibility check 
+                                        travelTimeFromStation = 
+                                                        travelTimeProvider.getExpectedTravelTime(nearestStation.getPosition(), request.getFrom());
+                                        if(travelTimeFromStation > maxDelayTime){
+                                                LOGGER.debug("Cannot serve the request from the nearest station, the traveltime from the "
+                                                                + "nearest station {} greater than the maximum delay ({}ms)!", 
+                                                        nearestStation, maxDelayTime);
+                                        }
+                                        else{
+                                                LOGGER.debug("Cannot serve the request from the nearest station {} from the reason unknown!", 
+                                                nearestStation);
+                                        }
+                                }
+                        }			
+                }
 		
 		/*
 		Then check the driving cars	
@@ -138,7 +138,7 @@ public class DroppedDemandsAnalyzer {
 					bestEuclideanDistance = distance;
 				}
 				
-				
+				LOGGER.debug("distance:{} vs maxDistance:{}", distance, maxDistance);
 				if(distance < maxDistance){
 					// real feasibility check 
 					double travelTime = 

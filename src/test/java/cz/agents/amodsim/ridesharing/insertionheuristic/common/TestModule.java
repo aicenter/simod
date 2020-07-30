@@ -59,11 +59,16 @@ public class TestModule extends StandardAgentPolisModule{
 		this.amodsimConfig = amodsimConfig;
 		agentpolisConfig.visio.showVisio = VisualTests.SHOW_VISIO;
 		amodsimConfig.startTime = 0;
-		amodsimConfig.tripsMultiplier = 1.0;
+		amodsimConfig.tripsMultiplier = 1.0;  //1.0
+                                
+                amodsimConfig.vehicleSpeedInMeters = 4; // delete line /40
+//                amodsimConfig.ridesharing.on = true;
+                
 		agentpolisConfig.simulationDuration.days = 0;
 		agentpolisConfig.simulationDuration.hours = 0;
 		agentpolisConfig.simulationDuration.minutes = 0;
 		agentpolisConfig.simulationDuration.seconds = 120;
+                
 	}
 
 	

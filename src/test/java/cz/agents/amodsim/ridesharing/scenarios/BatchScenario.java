@@ -46,7 +46,7 @@ public class BatchScenario {
 		Injector injector = testEnvironment.getInjector();
 		
 		// set batch time
-		injector.getInstance(AmodsimConfig.class).ridesharing.batchPeriod = 10;
+		injector.getInstance(AmodsimConfig.class).ridesharing.batchPeriod = 10; //10
 		
 		// set relative discomfort to 2.1 to deal with batch delay + some tiny implicit simulation delay
 		injector.getInstance(AmodsimConfig.class).ridesharing.maximumRelativeDiscomfort = 2.5; //2.5

@@ -19,7 +19,7 @@
 package cz.agents.amodsim.ridesharing.insertionheuristic;
 
 import cz.agents.amodsim.ridesharing.insertionheuristic.common.InsertionHeuristicTestEnvironment;
-import cz.agents.amodsim.ridesharing.scenarios.SimpleRidesharing;
+import cz.agents.amodsim.ridesharing.scenarios.SimpleRidesharingScenario;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ public class SimpleRidesharingTest {
 	
 	@Test
 	public void run() throws Throwable{
-		new SimpleRidesharing().run(new InsertionHeuristicTestEnvironment());
+		new SimpleRidesharingScenario().run(new InsertionHeuristicTestEnvironment());
 	}
 	
 	public static void main(String[] args) {

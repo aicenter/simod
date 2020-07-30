@@ -359,7 +359,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 				}
 			}
 			long currentTaskTimeInSeconds = (timeProvider.getCurrentSimTime() + newPlanTravelTime) / 1000;
-			LOGGER.debug("currentTaskTimeInSeconds: " + currentTaskTimeInSeconds);
+//			LOGGER.debug("currentTaskTimeInSeconds: " + currentTaskTimeInSeconds);
 			
 			/* check max time for all unfinished demands */
 			

@@ -19,7 +19,7 @@
 package cz.agents.amodsim.ridesharing.insertionheuristic;
 
 import cz.agents.amodsim.ridesharing.insertionheuristic.common.InsertionHeuristicTestEnvironment;
-import cz.agents.amodsim.ridesharing.scenarios.OneVehicleOneDemmand;
+import cz.agents.amodsim.ridesharing.scenarios.OneVehicleOneDemmandScenario;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ public class Test1Vehicle1Demmand {
 	
 	@Test
 	public void run() throws Throwable{
-		new OneVehicleOneDemmand().run(new InsertionHeuristicTestEnvironment());
+		new OneVehicleOneDemmandScenario().run(new InsertionHeuristicTestEnvironment());
 	}
 	
 	public static void main(String[] args) {

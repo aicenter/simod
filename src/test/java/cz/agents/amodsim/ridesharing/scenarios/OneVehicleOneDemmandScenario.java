@@ -36,7 +36,7 @@ import java.util.List;
  *
  * @author David Fiedler
  */
-public class OneVehicleOneDemmand {
+public class OneVehicleOneDemmandScenario {
 	
 	
 	public void run(RidesharingTestEnvironment testEnvironment) throws Throwable{

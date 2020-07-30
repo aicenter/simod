@@ -36,7 +36,7 @@ import java.util.List;
  *
  * @author David Fiedler
  */
-public class Weight0 {
+public class Weight0Scenario {
 	
 	public void run(RidesharingTestEnvironment testEnvironment) throws Throwable{
 		// bootstrap Guice

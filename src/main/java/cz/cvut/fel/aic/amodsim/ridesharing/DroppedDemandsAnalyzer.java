@@ -138,7 +138,7 @@ public class DroppedDemandsAnalyzer {
 					bestEuclideanDistance = distance;
 				}
 				
-				LOGGER.debug("distance:{} vs maxDistance:{}", distance, maxDistance);
+//				LOGGER.debug("distance:{} vs maxDistance:{}", distance, maxDistance);
 				if(distance < maxDistance){
 					// real feasibility check 
 					double travelTime = 

@@ -43,8 +43,13 @@ Simulation requires gurobi optimizer software
   ```
   mvn install
   ```
+2. Install agentpolis python package (located in agentpolis directory)
+ 
+  ```
+  pip3 install python/
+  ``` 
 
-2. Go to your /amod-to-agentpolis directory and compile the project
+3. Go to your /amod-to-agentpolis directory and compile the project
   ```
   mvn compile
   ```

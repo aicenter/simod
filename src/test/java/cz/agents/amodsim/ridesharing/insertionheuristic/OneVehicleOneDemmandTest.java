@@ -27,7 +27,7 @@ import org.junit.Test;
  *
  * @author David Fiedler
  */
-public class Test1Vehicle1Demmand {
+public class OneVehicleOneDemmandTest {
 	
 	@Test
 	public void run() throws Throwable{
@@ -35,6 +35,6 @@ public class Test1Vehicle1Demmand {
 	}
 	
 	public static void main(String[] args) {
-		VisualTests.runVisualTest(Test1Vehicle1Demmand.class);
+		VisualTests.runVisualTest(OneVehicleOneDemmandTest.class);
 	}
 }

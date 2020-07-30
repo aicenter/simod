@@ -359,7 +359,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 				}
 			}
 			long currentTaskTimeInSeconds = (timeProvider.getCurrentSimTime() + newPlanTravelTime) / 1000;
-//			LOGGER.debug("currentTaskTimeInSeconds: " + currentTaskTimeInSeconds);
+//			LOGGER.debug("currentTaskTimeInSeconds: {}", currentTaskTimeInSeconds);
 			
 			/* check max time for all unfinished demands */
 			
@@ -367,6 +367,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			if(newTask instanceof PlanRequestAction){
 				int maxTime = ((PlanRequestAction) newTask).getMaxTime();
 				if(maxTime < currentTaskTimeInSeconds){
+//                                    LOGGER.debug("currentTaskTimeInSeconds {} \n> maxTime {}",currentTaskTimeInSeconds, maxTime);
 					return null;
 				}
 			}
@@ -385,8 +386,6 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			// check max time for pick up action
 			if(newPlanIndex <= pickupOptionIndex){
 				if(planComputationRequest.getPickUpAction().getMaxTime() < currentTaskTimeInSeconds){
-                                        System.out.println("planComputationRequest.getPickUpAction().getMaxTime(): " + planComputationRequest.getPickUpAction().getMaxTime());
-                                        System.out.println(planComputationRequest.getPickUpAction().getRequest().getMaxDropoffTime());
                                         return null;
 				}
 			}

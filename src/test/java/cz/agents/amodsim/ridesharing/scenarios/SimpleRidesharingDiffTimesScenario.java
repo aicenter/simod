@@ -46,12 +46,12 @@ public class SimpleRidesharingDiffTimesScenario {
 		
 		// set roadgraph
 		Graph<SimulationNode, SimulationEdge> graph 
-				= Utils.getGridGraph(41, injector.getInstance(Transformer.class), 1); //5 1
+				= Utils.getGridGraph(5, injector.getInstance(Transformer.class), 1); //5 1
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(1000, graph.getNode(1), graph.getNode(30))); // 1 3
-		trips.add(new TimeTrip<>(2000, graph.getNode(20), graph.getNode(40))); // 2 4
+		trips.add(new TimeTrip<>(1000, graph.getNode(1), graph.getNode(3))); // 1 3
+		trips.add(new TimeTrip<>(8000, graph.getNode(2), graph.getNode(4))); // 2 4
 		
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
 		vehicalInitPositions.add(graph.getNode(0));

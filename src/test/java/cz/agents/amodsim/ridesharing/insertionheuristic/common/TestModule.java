@@ -58,11 +58,10 @@ public class TestModule extends StandardAgentPolisModule{
 		super(amodsimConfig, localConfigFile, "agentpolis"); 
 		this.amodsimConfig = amodsimConfig;
 		agentpolisConfig.visio.showVisio = VisualTests.SHOW_VISIO;
+                
 		amodsimConfig.startTime = 0;
 		amodsimConfig.tripsMultiplier = 1.0;  //1.0
-                                
-                amodsimConfig.vehicleSpeedInMeters = 4; // delete line /40
-//                amodsimConfig.ridesharing.on = true;
+                amodsimConfig.ridesharing.maxProlongationInSeconds = 600;                
                 
 		agentpolisConfig.simulationDuration.days = 0;
 		agentpolisConfig.simulationDuration.hours = 0;
@@ -71,9 +70,6 @@ public class TestModule extends StandardAgentPolisModule{
                 
 	}
 
-	
-	
-	
 	@Override
 	protected void configureNext() {
 		super.configureNext();

@@ -47,12 +47,12 @@ public class SimpleRidesharingScenario {
 		
 		// set roadgraph
 		Graph<SimulationNode, SimulationEdge> graph 
-				= Utils.getGridGraph(31, injector.getInstance(Transformer.class), 1);
+				= Utils.getGridGraph(5, injector.getInstance(Transformer.class), 1);
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(1000, graph.getNode(1), graph.getNode(20)));
-		trips.add(new TimeTrip<>(1000, graph.getNode(4), graph.getNode(20)));
+		trips.add(new TimeTrip<>(1000, graph.getNode(1), graph.getNode(3)));
+		trips.add(new TimeTrip<>(1000, graph.getNode(2), graph.getNode(4)));
                 
 //                System.out.println("ridesharing.maxProlongationInSeconds: " + testEnvironment.getConfig().ridesharing.maxProlongationInSeconds);
 		

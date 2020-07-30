@@ -28,6 +28,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.Sim
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.geographtools.Graph;
+import cz.cvut.fel.aic.geographtools.Node;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,15 +42,19 @@ public class OneVehicleOneDemmandScenario {
 	
 	public void run(RidesharingTestEnvironment testEnvironment) throws Throwable{
 		// bootstrap Guice
-		Injector injector = testEnvironment.getInjector();
+		Injector injector = testEnvironment.getInjector();                
 		
 		// set roadgraph
 		Graph<SimulationNode, SimulationEdge> graph 
 				= Utils.getGridGraph(3, injector.getInstance(Transformer.class), 1);
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
+                
+                for (Node tn :graph.getAllNodes()){
+                    System.out.println(tn.getId()+ ": ["+tn.lonE6+", "+tn.latE6+"]");
+                }
 		
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(1000, graph.getNode(1), graph.getNode(2)));
+		trips.add(new TimeTrip<>(1000, graph.getNode(0), graph.getNode(2)));
 		
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
 		vehicalInitPositions.add(graph.getNode(0));

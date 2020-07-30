@@ -134,10 +134,11 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 			
 			Assert.assertEquals(
 					String.format("%s. event vehicle", counter), 
-					expectedEvent.onDemandVehicleId, eventContent.getOnDemandVehicleId());
+					expectedEvent.onDemandVehicleId, eventContent.getOnDemandVehicleId());                                               
 			Assert.assertEquals(
 					String.format("%s. event demand", counter),
 					expectedEvent.demandId, eventContent.getDemandId());
+                        
 			Assert.assertEquals(
 					String.format("%s. event type", counter),
 					expectedEvent.eventType, event.getType());

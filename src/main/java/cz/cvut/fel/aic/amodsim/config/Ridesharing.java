@@ -27,6 +27,8 @@ public class Ridesharing {
 
   public Boolean on;
 
+  public String travelTimeProvider;
+
   public Ridesharing(Map ridesharing) {
     this.vga = new Vga((Map) ridesharing.get("vga"));
     this.batchPeriod = (Integer) ridesharing.get("batch_period");
@@ -38,5 +40,6 @@ public class Ridesharing {
     this.weightParameter = (Double) ridesharing.get("weight_parameter");
     this.vehicleCapacity = (Integer) ridesharing.get("vehicle_capacity");
     this.on = (Boolean) ridesharing.get("on");
+    this.travelTimeProvider = (String) ridesharing.get("travel_time_provider");
   }
 }

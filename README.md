@@ -99,7 +99,7 @@ Simulation requires gurobi optimizer software
  3. Run the script with your local config file	
 
     ```
-    python3 prepare_map -lc=/absolute/path/to/custom_config.cfg
+    python3 prepare_map -lc=custom_config.cfg
     ```
 
     Result of .geojson data is now in ../maps directory

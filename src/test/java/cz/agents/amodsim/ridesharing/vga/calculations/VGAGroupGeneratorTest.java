@@ -19,7 +19,7 @@
 package cz.agents.amodsim.ridesharing.vga.calculations;
 
 import com.google.inject.Injector;
-import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestScenario;
+import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestEnvironment;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
@@ -38,7 +38,7 @@ public class VGAGroupGeneratorTest {
 	@BeforeClass
 	public void prepare(){
 		// bootstrap Guice
-		VGASystemTestScenario scenario = new VGASystemTestScenario();
+		VGASystemTestEnvironment scenario = new VGASystemTestEnvironment();
 		Injector injector = scenario.getInjector();
 		
 		AgentpolisConfig agentpolisConfig = new AgentpolisConfig();

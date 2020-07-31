@@ -47,11 +47,7 @@ public class OneVehicleOneDemmandScenario {
 		// set roadgraph
 		Graph<SimulationNode, SimulationEdge> graph 
 				= Utils.getGridGraph(3, injector.getInstance(Transformer.class), 1);
-		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
-                
-                for (Node tn :graph.getAllNodes()){
-                    System.out.println(tn.getId()+ ": ["+tn.lonE6+", "+tn.latE6+"]");
-                }
+		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);               
 		
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
 		trips.add(new TimeTrip<>(1000, graph.getNode(0), graph.getNode(2)));

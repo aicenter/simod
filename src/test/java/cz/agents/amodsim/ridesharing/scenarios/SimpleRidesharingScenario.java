@@ -21,7 +21,7 @@ package cz.agents.amodsim.ridesharing.scenarios;
 import com.google.inject.Injector;
 import cz.agents.amodsim.ridesharing.RidesharingEventData;
 import cz.agents.amodsim.ridesharing.RidesharingTestEnvironment;
-import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestScenario;
+import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestEnvironment;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.Utils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;

@@ -47,7 +47,7 @@ import org.junit.Assert;
  *
  * @author David Fiedler
  */
-public class VGASystemTestScenario implements RidesharingTestEnvironment{
+public class VGASystemTestEnvironment implements RidesharingTestEnvironment{
 	
 	public final AmodsimConfig config;
 	
@@ -60,7 +60,7 @@ public class VGASystemTestScenario implements RidesharingTestEnvironment{
 	
 	
 
-	public VGASystemTestScenario() {
+	public VGASystemTestEnvironment() {
 		config = new AmodsimConfig();
 		
 		File localConfigFile = null;
@@ -113,7 +113,7 @@ public class VGASystemTestScenario implements RidesharingTestEnvironment{
 		// TESTING EVENT ORDER
 		List<Event> realEvents = eventOrderStorage.getOnDemandVehicleEvents();
 		
-		Assert.assertEquals(realEvents.size(), expectedEvents.size());
+		Assert.assertEquals(expectedEvents.size(), realEvents.size());
 		Iterator<RidesharingEventData> expectedEventsIterator = expectedEvents.iterator();
 		for(Event event: realEvents){
 			RidesharingEventData expectedEvent = expectedEventsIterator.next();

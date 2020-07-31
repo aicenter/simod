@@ -39,13 +39,13 @@ import cz.cvut.fel.aic.geographtools.util.Transformer;
  *
  * @author fido
  */
-public class TestModuleNoVisio extends StandardAgentPolisModule{
+public class TestModuleNoVisio extends TestModule{
 	
 	private final AmodsimConfig amodsimConfig;
 
 
 	public TestModuleNoVisio(AmodsimConfig amodsimConfig, File localConfigFile) {
-		super(amodsimConfig, localConfigFile, "agentpolis"); 
+		super(amodsimConfig, localConfigFile); 
 		this.amodsimConfig = amodsimConfig;
 	}
 
@@ -62,9 +62,7 @@ public class TestModuleNoVisio extends StandardAgentPolisModule{
 		configureNext();
 	}
 
-	
-	
-	
+
 	@Override
 	protected void configureNext() {
 		super.configureNext();

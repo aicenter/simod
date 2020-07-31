@@ -193,7 +193,7 @@ Simulation requires gurobi optimizer software
 
 3. **Run** the amodsim **OnDemandVehiclesSimulation.java**  with path/to/your/config as an argument (you may need to set it in your IDE)
 
-   Simulation speed can be adjusted by '+' , '-' , '*' or 'Ctrl *'
+   Simulation speed can be adjusted by '+' , '-' , '*' or 'Ctrl *' and paused by 'Space'
 
    - If you face **UnsatisfiedLinkError**, you need to set path to gurobi lib as environment variable.  You can do it in your IDE or on OS level:
 

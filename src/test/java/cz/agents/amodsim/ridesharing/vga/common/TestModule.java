@@ -58,14 +58,15 @@ public class TestModule extends StandardAgentPolisModule{
 		amodsimConfig.tripsMultiplier = 1.0;
                 amodsimConfig.ridesharing.on = true;
                 amodsimConfig.ridesharing.vga.logPlanComputationalTime = false;
+                amodsimConfig.ridesharing.maxProlongationInSeconds = 300;
+                amodsimConfig.stations.on = false;
+                
                 
 		agentpolisConfig.simulationDuration.days = 0;
 		agentpolisConfig.simulationDuration.hours = 0;
 		agentpolisConfig.simulationDuration.minutes = 0;
-		agentpolisConfig.simulationDuration.seconds = 120;
+		agentpolisConfig.simulationDuration.seconds = 120;                
                 
-                amodsimConfig.ridesharing.maxProlongationInSeconds = 600; 
-                amodsimConfig.stations.on = false;
 	}
 
 	

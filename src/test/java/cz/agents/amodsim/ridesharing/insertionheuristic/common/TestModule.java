@@ -61,7 +61,7 @@ public class TestModule extends StandardAgentPolisModule{
                 
 		amodsimConfig.startTime = 0;
 		amodsimConfig.tripsMultiplier = 1.0;  //1.0
-                amodsimConfig.ridesharing.maxProlongationInSeconds = 600;                
+                amodsimConfig.ridesharing.maxProlongationInSeconds = 300;                
                 
 		agentpolisConfig.simulationDuration.days = 0;
 		agentpolisConfig.simulationDuration.hours = 0;

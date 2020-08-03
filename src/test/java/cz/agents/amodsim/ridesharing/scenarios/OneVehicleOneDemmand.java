@@ -49,7 +49,7 @@ public class OneVehicleOneDemmand {
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(1000, graph.getNode(1), graph.getNode(2)));
+		trips.add(new TimeTrip<>(0,1000, graph.getNode(1), graph.getNode(2)));
 		
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
 		vehicalInitPositions.add(graph.getNode(0));

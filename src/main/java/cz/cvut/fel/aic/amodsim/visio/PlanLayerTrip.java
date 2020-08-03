@@ -25,8 +25,8 @@ public class PlanLayerTrip extends Trip<SimulationNode> {
 	
 	
 
-	public PlanLayerTrip(PlanRequestAction task, SimulationNode... locations) {
-		super(locations);
+	public PlanLayerTrip(int tripId,PlanRequestAction task, SimulationNode... locations) {
+		super(tripId,locations);
 		this.task = task;
 	}
 	

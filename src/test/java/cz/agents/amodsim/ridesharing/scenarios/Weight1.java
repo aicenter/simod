@@ -54,8 +54,8 @@ public class Weight1 {
 		
 		// demand trips
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(1000, graph.getNode(1), graph.getNode(6)));
-		trips.add(new TimeTrip<>(3000, graph.getNode(5), graph.getNode(7)));
+		trips.add(new TimeTrip<>(0,1000, graph.getNode(1), graph.getNode(6)));
+		trips.add(new TimeTrip<>(1,3000, graph.getNode(5), graph.getNode(7)));
 		
 		// vehicles
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();

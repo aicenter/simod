@@ -38,8 +38,8 @@ public class SimpleJsonTrip extends Trip<Integer>{
 	
 	
 	@JsonCreator
-	public SimpleJsonTrip(Integer... locations) {
-		super(locations);
+	public SimpleJsonTrip(int tripId,Integer... locations) {
+		super(tripId,locations);
 	}
 
 //	@JsonCreator

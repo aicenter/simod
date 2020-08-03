@@ -55,7 +55,7 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 	@Override
 	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition) {
 		return new RideSharingOnDemandVehicle(vehicleStorage, tripsUtil, 
-				onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, eventProcessor, timeProvider, 
+				onDemandVehicleStationsCentral, driveActivityFactory, positionUtil,rebalancingIdGenerator, eventProcessor, timeProvider, 
 				rebalancingIdGenerator, config, vehicleId, startPosition);
 	}
 	

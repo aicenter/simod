@@ -132,7 +132,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	}
 
 	public VehicleTrip getDemandTrip(DemandAgent agent) {
-		return new VehicleTrip(demandTrip.getVehicle(), demandTrip.getLocations().clone());
+		return new VehicleTrip(rebalancingIdGenerator.getId(),demandTrip.getVehicle(), demandTrip.getLocations().clone());
 	}
 
 	public OnDemandVehicleState getState() {
@@ -346,7 +346,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		currentTrip = tripsUtil.createTrip(getPosition(), targetStation.getPosition(), vehicle);
 		metersRebalancing += positionUtil.getTripLengthInMeters(currentTrip);
 		
-		completeTrip = new VehicleTrip(currentTrip.getVehicle(), currentTrip.getLocations().clone());
+		completeTrip = new VehicleTrip(currentRebalancingId,currentTrip.getVehicle(), currentTrip.getLocations().clone());
 		
 		this.targetStation = targetStation;
 		

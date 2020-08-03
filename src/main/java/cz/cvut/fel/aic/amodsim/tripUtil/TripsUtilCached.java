@@ -32,6 +32,7 @@ import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.ShortestPathPlanner;
+import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.NodesMappedByIndex;
 import cz.cvut.fel.aic.graphimporter.util.MD5ChecksumGenerator;
@@ -64,6 +65,8 @@ public class TripsUtilCached extends TripsUtil {
 	private HashMap<StartTargetNodePair, SimpleJsonTrip> newTrips;
 	
 	private int cacheFileCounter;
+	
+	private IdGenerator tripIdGenerator;
 
 
 	
@@ -71,9 +74,10 @@ public class TripsUtilCached extends TripsUtil {
 	@Inject
 	public TripsUtilCached(ShortestPathPlanner pathPlanner, NearestElementUtils nearestElementUtils, 
 			HighwayNetwork network, SimulationCreator simulationCreator, AmodsimConfig amodConfig, 
-			AgentpolisConfig agentpolisConfig,NodesMappedByIndex nodesMappedByIndex) throws IOException {
-		super(pathPlanner, nearestElementUtils, network);
+			AgentpolisConfig agentpolisConfig,NodesMappedByIndex nodesMappedByIndex,IdGenerator tripIdGenerator) throws IOException {
+		super(pathPlanner, nearestElementUtils, network,tripIdGenerator);
 		this.nodesMappedByIndex = nodesMappedByIndex;
+		this.tripIdGenerator = tripIdGenerator;
 		
 		mapper = new ObjectMapper();
 		mapper.registerModule(new MyModule());
@@ -108,13 +112,13 @@ public class TripsUtilCached extends TripsUtil {
 					.map(item -> nodesMappedByIndex.getNodeByIndex(item))
 					.toArray(SimulationNode[]::new);
 			finalTrip =
-					new VehicleTrip<>(vehicle, locations);
+					new VehicleTrip<>(tripIdGenerator.getId(),vehicle, locations);
 		} else {
 			finalTrip = super.createTrip(startNode, targetNode, vehicle);
 			Integer[] locationIndexes 
 					= Arrays.stream(finalTrip.getLocations()).map(node -> node.getIndex()).toArray(Integer[]::new);
-			tripCache.put(tripStartTargetPair, new SimpleJsonTrip(locationIndexes));
-			newTrips.put(tripStartTargetPair, new SimpleJsonTrip(locationIndexes));
+			tripCache.put(tripStartTargetPair, new SimpleJsonTrip(tripIdGenerator.getId(),locationIndexes));
+			newTrips.put(tripStartTargetPair, new SimpleJsonTrip(tripIdGenerator.getId(),locationIndexes));
 			if(newTrips.size() > OUTPUT_BATCH_SIZE){
 				saveNewTrips();
 			}

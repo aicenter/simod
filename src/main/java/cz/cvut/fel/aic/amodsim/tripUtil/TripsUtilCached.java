@@ -117,8 +117,8 @@ public class TripsUtilCached extends TripsUtil {
 			finalTrip = super.createTrip(startNode, targetNode, vehicle);
 			Integer[] locationIndexes 
 					= Arrays.stream(finalTrip.getLocations()).map(node -> node.getIndex()).toArray(Integer[]::new);
-			tripCache.put(tripStartTargetPair, new SimpleJsonTrip(tripIdGenerator.getId(),locationIndexes));
-			newTrips.put(tripStartTargetPair, new SimpleJsonTrip(tripIdGenerator.getId(),locationIndexes));
+			tripCache.put(tripStartTargetPair, new SimpleJsonTrip(locationIndexes));
+			newTrips.put(tripStartTargetPair, new SimpleJsonTrip(locationIndexes));
 			if(newTrips.size() > OUTPUT_BATCH_SIZE){
 				saveNewTrips();
 			}

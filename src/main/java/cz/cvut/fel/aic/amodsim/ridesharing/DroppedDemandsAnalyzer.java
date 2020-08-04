@@ -138,7 +138,6 @@ public class DroppedDemandsAnalyzer {
 					bestEuclideanDistance = distance;
 				}
 				
-//				LOGGER.debug("distance:{} vs maxDistance:{}", distance, maxDistance);
 				if(distance < maxDistance){
 					// real feasibility check 
 					double travelTime = 
@@ -165,7 +164,7 @@ public class DroppedDemandsAnalyzer {
 			LOGGER.info("Request " + requestId + ": Cannot serve request - Too big traveltime to startLoaction: " + bestTravelTimne);
 		}
 		else{
-			LOGGER.info("Request " + requestId + ": Cannot serve request - Some other problem - all nearby vehicle plans infeasible?");
+			LOGGER.info("Request " + requestId + ": Cannot serve request - Some other problem - all nearby vehicle plans may be infeasible");
 		}
 	}
 }

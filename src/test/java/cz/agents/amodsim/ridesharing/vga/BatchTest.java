@@ -30,8 +30,8 @@ import org.junit.Test;
 public class BatchTest {
 	
 	@Test
-	public void run() throws Throwable{
-		new BatchScenario().run(new VGASystemTestEnvironment());
+	public void run() throws Throwable{         
+                new BatchScenario().run(new VGASystemTestEnvironment());		
 	}
 	
 	public static void main(String[] args) {

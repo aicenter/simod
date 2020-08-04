@@ -47,8 +47,6 @@ public class BatchScenario {
 		
 		// set batch time
 		injector.getInstance(AmodsimConfig.class).ridesharing.batchPeriod = 10; //10
-
-                System.out.println("relative disconfort: "+injector.getInstance(AmodsimConfig.class).ridesharing.maximumRelativeDiscomfort);                
                 
 		// set relative discomfort to 2.1 to deal with batch delay + some tiny implicit simulation delay
 		injector.getInstance(AmodsimConfig.class).ridesharing.maximumRelativeDiscomfort = 2.5; //2.5		
@@ -73,7 +71,6 @@ public class BatchScenario {
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.PICKUP));
 		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.DROP_OFF));
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DROP_OFF));
-		System.out.println("Events added.");
                 
 		testEnvironment.run(graph, trips, vehicalInitPositions, expectedEvents);
 	}

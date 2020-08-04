@@ -33,13 +33,11 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.AgentStorage;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.VehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.alite.simulation.Simulation;
-import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.alite.vis.VisManager;
 import cz.cvut.fel.aic.alite.vis.layer.VisLayer;
 import cz.cvut.fel.aic.alite.vis.layer.common.ColorLayer;
 
 import java.awt.Color;
-import java.awt.RenderingHints;
 
 /**
  *
@@ -95,8 +93,7 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 								   MapTilesLayer mapTilesLayer, AgentpolisConfig config, LayerManagementLayer layerManagementLayer,
 								   VehicleHighlightingLayer vehicleHighlightingLayer, ScreenRecordingLayer screenRecordingLayer,
 								   ScreenCaputreLayer screenCaputreLayer, SimpleBackgroundLayer simpleBackgroundLayer) {
-		super(simulation, pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork,
-				simulationControlLayer, gridLayer, config);
+		super(simulation, highwayNetwork, simulationControlLayer, gridLayer);
 		this.onDemandVehicleLayer = onDemandVehicleLayer;
 		this.trafficDensityLayer = trafficDensityLayer;
 		this.nodeIdLayer = nodeIdLayer;

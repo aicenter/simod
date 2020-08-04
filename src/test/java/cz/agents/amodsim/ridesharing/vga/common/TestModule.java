@@ -19,6 +19,8 @@
 package cz.agents.amodsim.ridesharing.vga.common;
 
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
@@ -89,6 +91,11 @@ public class TestModule extends StandardAgentPolisModule{
 				.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
 		bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);
 //		bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
+                int w = 24;
+
+                bind(int.class).annotatedWith(Names.named("HighwayLayer edge width")).toInstance(w);
+                
+                
 	}
 	
 

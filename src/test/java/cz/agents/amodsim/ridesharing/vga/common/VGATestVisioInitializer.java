@@ -66,9 +66,7 @@ public class VGATestVisioInitializer extends TestVisioInitializer{
 			TestVehicleLayer testVehicleLayer, NodeIdLayer nodeIdLayer, GridLayer gridLayer, CarLayer carLayer, 
 			AgentpolisConfig config, OnDemandVehicleLayer onDemandVehicleLayer, DemandLayer demandLayer, 
 			OnDemandVehiclePlanLayer onDemandVehiclePlanLayer) {
-		super(simulation, pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, 
-				railwayNetwork, layerManagementLayer, simulationControlLayer, highwayLayer, testVehicleLayer, 
-				nodeIdLayer, gridLayer, carLayer, config);
+		super(simulation, highwayNetwork, layerManagementLayer, simulationControlLayer, highwayLayer, nodeIdLayer, gridLayer, carLayer);
 		this.onDemandVehicleLayer = onDemandVehicleLayer;
 		this.demandLayer = demandLayer;
 		this.onDemandVehiclePlanLayer = onDemandVehiclePlanLayer;

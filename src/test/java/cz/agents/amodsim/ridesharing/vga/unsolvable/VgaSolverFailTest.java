@@ -19,6 +19,7 @@ import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.amodsim.init.EventInitializer;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
@@ -26,17 +27,21 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author travnja5
  */
 public class VgaSolverFailTest {
+    
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GurobiSolver.class);
         
         @Test
-        public void run() throws Throwable{
+        public void run() throws Throwable{                             
         //environment preparation
                 AmodsimConfig config = new AmodsimConfig();		
                 File localConfigFile = null;
@@ -86,9 +91,14 @@ public class VgaSolverFailTest {
                 
                 assertEquals(6, eventOrderStorage.getOnDemandVehicleEvents().size());
                 
-            
-            
+                System.out.println(config.ridesharing.vga.groupGeneratorLogFilepath+"/model.lp");
+                
+                
+                File file = new File(config.ridesharing.vga.groupGeneratorLogFilepath+"/model.lp");
+                Assert.assertTrue(file.exists());
+                file.delete();                       
         }
+        
         public static void main(String[] args) {
                 VisualTests.runVisualTest(VgaSolverFailTest.class);
         }

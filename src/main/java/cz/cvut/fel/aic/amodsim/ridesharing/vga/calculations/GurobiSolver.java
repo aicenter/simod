@@ -76,7 +76,7 @@ public class GurobiSolver {
 	
 	double gap;
 
-	
+	private AmodsimConfig config;
 	
 	
 	public double getGap() {
@@ -90,6 +90,7 @@ public class GurobiSolver {
 			DroppedDemandsAnalyzer droppedDemandsAnalyzer) {
 		this.planCostComputation = planCostComputation;
 		this.droppedDemandsAnalyzer = droppedDemandsAnalyzer;
+                this.config = config;
 		iteration = 1;
 		timeLimit = config.ridesharing.vga.solverTimeLimit;
 		
@@ -247,6 +248,11 @@ public class GurobiSolver {
 				GRBVar variable = entry.getKey();
 				PlanComputationRequest request = entry.getValue();
 				if(Math.round(variable.get(GRB.DoubleAttr.X)) == 1){
+                                    
+//                                        if(config.ridesharing.vga.exportGroupData){
+                                               model.write(config.ridesharing.vga.groupGeneratorLogFilepath+"/model.lp");
+//                                        }
+                                    
 					droppedDemandsAnalyzer.debugFail(request, usedVehiclesPerStation);
 					LOGGER.debug("The request was part of {} group plans", requestVariableMap.get(request).size() - 1);
 				}

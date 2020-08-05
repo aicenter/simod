@@ -59,6 +59,9 @@ public class TestVgaModule extends TestModule{
                 this.amodsimConfig.ridesharing.weightParameter = 0.6;
                 this.amodsimConfig.ridesharing.maximumRelativeDiscomfort = 1.3;                                         
                 this.amodsimConfig.ridesharing.maxProlongationInSeconds = 60;
+//                this.amodsimConfig.ridesharing.vga.exportGroupData
+                        
+                this.amodsimConfig.ridesharing.vga.groupGeneratorLogFilepath = new File("").getAbsolutePath();
                 roadWidth = 80;
                 
                 

@@ -50,7 +50,8 @@ import java.io.File;
 public class TestModule extends StandardAgentPolisModule{
 	
 	private final AmodsimConfig amodsimConfig;
-
+        protected int roadWidth;
+        
 	public TestModule(AmodsimConfig amodsimConfig, File localConfigFile) {
 		super(amodsimConfig, localConfigFile, "agentpolis"); 
 		this.amodsimConfig = amodsimConfig;
@@ -68,7 +69,7 @@ public class TestModule extends StandardAgentPolisModule{
 		agentpolisConfig.simulationDuration.hours = 0;
 		agentpolisConfig.simulationDuration.minutes = 0;
 		agentpolisConfig.simulationDuration.seconds = 120;                
-                
+                roadWidth = 24;
 	}
 
 	
@@ -91,9 +92,9 @@ public class TestModule extends StandardAgentPolisModule{
 				.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
 		bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);
 //		bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
-                int w = 24;
+                
 
-                bind(int.class).annotatedWith(Names.named("HighwayLayer edge width")).toInstance(w);
+                bind(int.class).annotatedWith(Names.named("HighwayLayer edge width")).toInstance(roadWidth);
                 
                 
 	}

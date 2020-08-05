@@ -258,7 +258,7 @@ public class GurobiSolver {
 				}
 			}
                         
-                        if(!correct || model.get(GRB.IntAttr.Status) == 3){ //3 = INFEASIBLE state
+                        if(!correct || model.get(GRB.IntAttr.Status) != 2){ //3 = INFEASIBLE state 2 = OPTIMAL
                                 model.write(config.ridesharing.vga.groupGeneratorLogFilepath+"/model"+iteration+".lp");
                         }
 			

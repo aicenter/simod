@@ -21,6 +21,7 @@ package cz.cvut.fel.aic.amodsim.io;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
@@ -61,7 +62,7 @@ public class RebalancingLoader {
 	
 	private final NearestElementUtils nearestElementUtils;
 	
-
+	private IdGenerator tripIdGenerator;
 	
 	
 	
@@ -78,11 +79,12 @@ public class RebalancingLoader {
 	
 	@Inject
 	public RebalancingLoader(OnDemandVehicleStationFactory onDemandVehicleStationFactory, 
-			NearestElementUtils nearestElementUtils) {
+			NearestElementUtils nearestElementUtils,IdGenerator tripIdGenerator) {
 		this.onDemandVehicleStationFactory = onDemandVehicleStationFactory;
 		this.nearestElementUtils = nearestElementUtils;
 		this.onDemandVehicleStations = new ArrayList<>();
 		this.rebalancingTrips = new ArrayList<>();
+		this.tripIdGenerator = tripIdGenerator;
 	}
 	
 	
@@ -144,7 +146,7 @@ public class RebalancingLoader {
 
 							rebalancingTripsCount = (int) ((double) rebalancingTripsCount / 4);
 							for (int l = 0; l < rebalancingTripsCount; l++) {
-								rebalancingTrips.add(new TimeTrip<>(finalStartTime, onDemandVehicleStations.get(j), 
+								rebalancingTrips.add(new TimeTrip<>(tripIdGenerator.getId(),finalStartTime, onDemandVehicleStations.get(j), 
 										onDemandVehicleStations.get(k)));
 								finalStartTime += intervalBetweenCars;
 							}

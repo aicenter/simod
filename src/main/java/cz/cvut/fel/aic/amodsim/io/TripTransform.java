@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
@@ -58,11 +59,14 @@ public class TripTransform {
 	
 	private final NearestElementUtils nearestElementUtils;
 	
+	private IdGenerator tripIdGenerator;
+	
 
 	@Inject
-	public TripTransform(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils) {
+	public TripTransform(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils,IdGenerator tripIdGenerator) {
 		this.highwayGraph = highwayNetwork.getNetwork();
 		this.nearestElementUtils = nearestElementUtils;
+		this.tripIdGenerator = tripIdGenerator;
 	}
 	
 	
@@ -133,7 +137,7 @@ public class TripTransform {
 			   }
 			   else{
 					gpsTrips.add(
-							new TimeTrip<>(Long.parseLong(parts[0].split("\\.")[0]), startLocation, targetLocation));
+							new TimeTrip<>(tripIdGenerator.getId(),Long.parseLong(parts[0].split("\\.")[0]), startLocation, targetLocation));
 			   }
 			}
 		} catch (IOException ex) {
@@ -162,7 +166,7 @@ public class TripTransform {
 			SimulationNode[] nodesList = new SimulationNode[2];
 			nodesList[0] = startNode;
 			nodesList[1] = targetNode;
-			trips.add(new TimeTrip<>(gpsTrip.getStartTime(), gpsTrip.getEndTime(), nodesList));
+			trips.add(new TimeTrip<>(tripIdGenerator.getId(),gpsTrip.getStartTime(), gpsTrip.getEndTime(), nodesList));
 		}   
 		else{
 			zeroLenghtTripsCount++;

@@ -250,7 +250,7 @@ public class GurobiSolver {
 				if(Math.round(variable.get(GRB.DoubleAttr.X)) == 1){
                                     
 //                                        if(config.ridesharing.vga.exportGroupData){
-                                               model.write(config.ridesharing.vga.groupGeneratorLogFilepath+"/model.lp");
+                                               model.write(config.ridesharing.vga.groupGeneratorLogFilepath+"/model"+iteration+".lp");
 //                                        }
                                     
 					droppedDemandsAnalyzer.debugFail(request, usedVehiclesPerStation);

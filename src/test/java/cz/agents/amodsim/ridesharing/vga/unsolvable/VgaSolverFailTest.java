@@ -91,10 +91,10 @@ public class VgaSolverFailTest {
                 
                 assertEquals(6, eventOrderStorage.getOnDemandVehicleEvents().size());
                 
-                System.out.println(config.ridesharing.vga.groupGeneratorLogFilepath+"/model.lp");
+                System.out.println(config.ridesharing.vga.groupGeneratorLogFilepath+"/model1.lp");
                 
                 
-                File file = new File(config.ridesharing.vga.groupGeneratorLogFilepath+"/model.lp");
+                File file = new File(config.ridesharing.vga.groupGeneratorLogFilepath+"/model1.lp");
                 Assert.assertTrue(file.exists());
                 file.delete();                       
         }

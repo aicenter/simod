@@ -56,11 +56,13 @@ public class TestModule extends StandardAgentPolisModule{
 		super(amodsimConfig, localConfigFile, "agentpolis"); 
 		this.amodsimConfig = amodsimConfig;
 		agentpolisConfig.visio.showVisio = VisualTests.SHOW_VISIO;
+                this.amodsimConfig.ridesharing.vga.groupGeneratorLogFilepath = new File("").getAbsolutePath();
                 
 		amodsimConfig.startTime = 0;
 		amodsimConfig.tripsMultiplier = 1.0;
                 amodsimConfig.ridesharing.on = true;
                 amodsimConfig.ridesharing.vga.logPlanComputationalTime = false;
+                amodsimConfig.ridesharing.vga.exportGroupData = false;
                 amodsimConfig.ridesharing.vga.groupGenerationTimeLimit = 0; //turns off limit for all tests
                 amodsimConfig.ridesharing.maxProlongationInSeconds = 300;
                 amodsimConfig.stations.on = false;               

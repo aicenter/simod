@@ -30,7 +30,6 @@ import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
-import cz.cvut.fel.aic.geographtools.Node;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 
 /**

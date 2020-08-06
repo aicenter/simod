@@ -18,6 +18,7 @@
  */
 package cz.cvut.fel.aic.amodsim.entity;
 
+import com.google.inject.Inject;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.amodsim.DemandData;
@@ -71,7 +72,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 
 	
 	
-
+	@Inject
 	public OnDemandVehicleStation(AmodsimConfig config, EventProcessor eventProcessor, 
 			OnDemandVehicleFactorySpec onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
 			OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 

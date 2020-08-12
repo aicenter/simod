@@ -61,7 +61,6 @@ public class EventOrderStorage extends AliteEntity{
 	
 	@Override
 	public void handleEvent(Event event) {
-                System.out.println("EVENT ORDER STORAGE: handling event.");
 		onDemandVehicleEvents.add(event);
 	}
 	

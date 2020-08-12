@@ -80,8 +80,6 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 		config.ridesharing.maximumRelativeDiscomfort = 2.0;
 		config.ridesharing.discomfortConstraint = "relative";
                 config.stations.on = false;
-                
-                System.out.println("Environment created.");
 	}
 	
 	@Override
@@ -100,10 +98,7 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 		// vehicles
 		OnDemandVehicleFactorySpec onDemandVehicleFactory = injector.getInstance(OnDemandVehicleFactorySpec.class);
 		OnDemandVehicleStorage onDemandVehicleStorage = injector.getInstance(OnDemandVehicleStorage.class);
-		int counter = 0;
-                
-                System.out.println("startTime: "+config.startTime);
-                System.out.println("Duration: " +(injector.getInstance(AgentpolisConfig.class).simulationDuration.seconds*1000));
+		int counter = 0;               
                                                             
 		for (SimulationNode vehiclePosition: vehicalInitPositions) {
 			String onDemandVehicelId = String.format("%s", counter);
@@ -111,12 +106,7 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 			onDemandVehicleStorage.addEntity(newVehicle);
 			counter++;
 		}
-                System.out.print("Vehicles: "+onDemandVehicleStorage.size());
-                System.out.println(" created");
-                
-                
-		
-                System.out.println(injector.getInstance(EventOrderStorage.class));
+
 		EventOrderStorage eventOrderStorage = injector.getInstance(EventOrderStorage.class);
                                                 
 		creator.startSimulation();

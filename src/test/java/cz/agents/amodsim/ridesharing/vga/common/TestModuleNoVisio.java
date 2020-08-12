@@ -30,10 +30,14 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import java.io.File;
 import cz.agents.amodsim.ridesharing.vga.mock.TestTimeProvider;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.AStarShortestPathPlanner;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.EuclideanTraveltimeHeuristic;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.ShortestPathPlanner;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.GeojsonMapInitializer;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
+import org.jgrapht.alg.interfaces.AStarAdmissibleHeuristic;
 
 /**
  *
@@ -58,6 +62,10 @@ public class TestModuleNoVisio extends TestModule{
 		bind(AgentpolisConfig.class).toInstance(agentpolisConfig);
 		
 		bind(TimeProvider.class).to(TestTimeProvider.class);
+		
+		bind(ShortestPathPlanner.class).to(AStarShortestPathPlanner.class);
+		
+		bind(AStarAdmissibleHeuristic.class).to(EuclideanTraveltimeHeuristic.class);
 		
 		configureNext();
 	}

@@ -24,6 +24,9 @@ import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.AStarShortestPathPlanner;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.EuclideanTraveltimeHeuristic;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.ShortestPathPlanner;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.Graphs;
@@ -50,6 +53,7 @@ import java.time.ZonedDateTime;
 import javax.annotation.Nullable;
 import ninja.fido.config.Configuration;
 import ninja.fido.config.GeneratedConfig;
+import org.jgrapht.alg.interfaces.AStarAdmissibleHeuristic;
 
 /**
  *
@@ -86,6 +90,10 @@ public class TestStandardAgentPolisModule extends AbstractModule implements Agen
 		bind(AgentpolisConfig.class).toInstance(agentpolisConfig);
 		
 		bind(TimeProvider.class).to(StandardTimeProvider.class);
+		
+		bind(ShortestPathPlanner.class).to(AStarShortestPathPlanner.class);
+		
+		bind(AStarAdmissibleHeuristic.class).to(EuclideanTraveltimeHeuristic.class);
 		
 		bindVisioInitializer();
 		configureNext();

@@ -115,6 +115,9 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	
 	OnDemandVehicle vehicleFromNearestStation;
 	
+	private int[] usedVehiclesPerStation;
+	
+	private List<OnDemandVehicle> vehiclesForPlanning;
 	
 	
 	
@@ -178,17 +181,19 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			}
 		}
 		
-		List<OnDemandVehicle> vehiclesForPlanning = getDrivingVehicles();
-		int[] usedVehiclesPerStation = new int[onDemandvehicleStationStorage.size()];
+//		List<OnDemandVehicle> vehiclesForPlanning = getDrivingVehicles();
+		usedVehiclesPerStation = new int[onDemandvehicleStationStorage.size()];
+		
+		getVehiclesForPlanning();
 		
 		if(requests.size() > 10){
 			for(PlanComputationRequest request: ProgressBar.wrap(requests, "Processing new requests")){
-				processRequest(request, vehiclesForPlanning, usedVehiclesPerStation);
+				processRequest(request);
 			}
 		}
 		else{
 			for(PlanComputationRequest request: requests){
-				processRequest(request, vehiclesForPlanning, usedVehiclesPerStation);
+				processRequest(request);
 			}
 		}
 		
@@ -446,30 +451,32 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 				requests.size()));
 	}
 
-	private void computeBestPlanForRequest(PlanComputationRequest request, List<OnDemandVehicle> vehiclesForPlanning, 
-			int[] usedVehiclesPerStation) {
+	private void computeBestPlanForRequest(PlanComputationRequest request) {
 		minCostIncrement = Double.MAX_VALUE;
 		bestPlan = null;
 		
-                if(config.stations.on){ //!onDemandvehicleStationStorage.isEmpty()){ //
-                    OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(request.getFrom(), 
-                                    OnDemandvehicleStationStorage.NearestType.TRAVELTIME_FROM);
-                    int indexFromEnd = usedVehiclesPerStation[Integer.parseInt(nearestStation.getId())];
-                    int index = nearestStation.getParkedVehiclesCount() - 1 - indexFromEnd;
+		// in case of station system, add one vehicle from the nearest station
+		if(config.stations.on){ //!onDemandvehicleStationStorage.isEmpty()){ //
+			OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(request.getFrom(), 
+							OnDemandvehicleStationStorage.NearestType.TRAVELTIME_FROM);
+			int indexFromEnd = usedVehiclesPerStation[Integer.parseInt(nearestStation.getId())];
+			int index = nearestStation.getParkedVehiclesCount() - 1 - indexFromEnd;
 
-                    if(index >= 0){
-                            vehicleFromNearestStation = nearestStation.getVehicle(index);
-                            vehiclesForPlanning.add(vehicleFromNearestStation);
-                    }
-                    else{
-                            LOGGER.warn("Nearest station {} empty for request {}", nearestStation, request);
-                    }
-                }
+			if(index >= 0){
+				vehicleFromNearestStation = nearestStation.getVehicle(index);
+				vehiclesForPlanning.add(vehicleFromNearestStation);
+			}
+			else{
+				LOGGER.warn("Nearest station {} empty for request {}", nearestStation, request);
+			}
+		}
+		
+		
 		long iterationStartTime = System.nanoTime();
 
 		vehiclesForPlanning.stream().parallel().forEach((tVvehicle) -> {
-                    processRequestVehicleCombination(request, tVvehicle);
-                });
+			processRequestVehicleCombination(request, tVvehicle);
+		});
 
 		iterationTime += System.nanoTime() - iterationStartTime;
 	}
@@ -492,10 +499,9 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		}
 	}
 
-	private void processRequest(PlanComputationRequest request, List<OnDemandVehicle> vehiclesForPlanning, 
-			int[] usedVehiclesPerStation) {
+	private void processRequest(PlanComputationRequest request) {
 		Benchmark benchmark = new Benchmark();
-		benchmark.measureTime(() -> computeBestPlanForRequest(request, vehiclesForPlanning, usedVehiclesPerStation));
+		benchmark.measureTime(() -> computeBestPlanForRequest(request));
 		insertionHeuristicTime += benchmark.getDurationMsInt();
 
 		if(bestPlan != null){
@@ -504,6 +510,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			if(bestPlan.vehicle == vehicleFromNearestStation){
 				usedVehiclesPerStation[Integer.parseInt(vehicleFromNearestStation.getParkedIn().getId())]++;
 			}
+			// remove nearest vehicle if not used
 			else{
 				vehiclesForPlanning.remove(vehicleFromNearestStation);
 			}
@@ -516,14 +523,26 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		}
 	}
 
-	private List<OnDemandVehicle> getDrivingVehicles() {
-		List<OnDemandVehicle> listForPlanning = new ArrayList<>();
+//	private List<OnDemandVehicle> getDrivingVehicles() {
+//		List<OnDemandVehicle> listForPlanning = new ArrayList<>();
+//		for(OnDemandVehicle vehicle: vehicleStorage){
+//			if(vehicle.getState() != OnDemandVehicleState.REBALANCING){
+//				listForPlanning.add(vehicle);
+//			}
+//		}
+//		return listForPlanning;
+//	}
+	
+	private List<OnDemandVehicle> getVehiclesForPlanning() {
+		vehiclesForPlanning = new ArrayList<>();
 		for(OnDemandVehicle vehicle: vehicleStorage){
-			if(vehicle.getState() != OnDemandVehicleState.REBALANCING){
-				listForPlanning.add(vehicle);
+			if(vehicle.getState() != OnDemandVehicleState.REBALANCING 
+					&& (!config.stations.on || vehicle.getState() != OnDemandVehicleState.WAITING)){
+				vehiclesForPlanning.add(vehicle);
 			}
 		}
-		return listForPlanning;
+		
+		return vehiclesForPlanning;
 	}
 	
 	private class PlanData{

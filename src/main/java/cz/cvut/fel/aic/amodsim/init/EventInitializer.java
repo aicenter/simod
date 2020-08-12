@@ -101,8 +101,8 @@ public class EventInitializer {
 			long startTime = trip.getStartTime() - amodsimConfig.startTime;
 			// trip have to start at least 1ms after start of the simulation and no later then last
 			if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
-                                impossibleTripsCount++;
-                                LOGGER.info("Trip out of simulation time. Total: {}", impossibleTripsCount);
+				impossibleTripsCount++;
+//				LOGGER.info("Trip out of simulation time. Total: {}", impossibleTripsCount);
 				continue;
 			}
 			
@@ -126,13 +126,15 @@ public class EventInitializer {
 			for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
 				long startTime = rebalancingTrip.getStartTime() - amodsimConfig.startTime;
 			if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
-                                        impossibleTripsCount++;
-					continue;
-				}
+				impossibleTripsCount++;
+				continue;
+			}
 				eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 
 						null, rebalancingTrip, startTime);
 			}
-		}                
+		}
+		
+		LOGGER.info("{} trips discarded because they are not within simulation time bounds", impossibleTripsCount);
 	}
 	
 	

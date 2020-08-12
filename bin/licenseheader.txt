@@ -1,6 +1,0 @@
-<#if licenseFirst??>
-${licenseFirst}
-</#if>
-<#if licenseLast??>
-${licenseLast}
-</#if>

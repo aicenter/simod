@@ -95,7 +95,7 @@ public class MainModule extends StandardAgentPolisModule{
 		}
 		bind(DemandLayer.class).to(DemandLayerWithJitter.class);
 		
-                if(amodsimConfig.congestion.on){
+                if(agentpolisConfig.congestionModel.on){
                         bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
                 } else {
                         bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);

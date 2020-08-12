@@ -21,8 +21,6 @@ package cz.agents.amodsim.ridesharing.scenarios;
 import com.google.inject.Injector;
 import cz.agents.amodsim.ridesharing.RidesharingEventData;
 import cz.agents.amodsim.ridesharing.RidesharingTestEnvironment;
-import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestScenario;
-import cz.cvut.fel.aic.agentpolis.VisualTests;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.Utils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
@@ -39,20 +37,21 @@ import org.junit.Test;
  *
  * @author David Fiedler
  */
-public class SimpleRidesharing {
+public class SimpleRidesharingDiffTimesScenario {
 	
+	@Test
 	public void run(RidesharingTestEnvironment testEnvironment) throws Throwable{
 		// bootstrap Guice
 		Injector injector = testEnvironment.getInjector();
 		
 		// set roadgraph
 		Graph<SimulationNode, SimulationEdge> graph 
-				= Utils.getGridGraph(5, injector.getInstance(Transformer.class), 1);
+				= Utils.getGridGraph(5, injector.getInstance(Transformer.class), 1); //5 1
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(0,1000, graph.getNode(1), graph.getNode(3)));
-		trips.add(new TimeTrip<>(1,1000, graph.getNode(2), graph.getNode(4)));
+		trips.add(new TimeTrip<>(0, 1000, graph.getNode(1), graph.getNode(3))); // 1 3
+		trips.add(new TimeTrip<>(1, 8000, graph.getNode(2), graph.getNode(4))); // 2 4
 		
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
 		vehicalInitPositions.add(graph.getNode(0));

@@ -46,6 +46,7 @@ public class ComplexScenario {
 		
 		// config
 		testEnvironment.getConfig().ridesharing.maximumRelativeDiscomfort = 3.0;
+                testEnvironment.getConfig().ridesharing.weightParameter = 0.2;
 		
 		// set roadgraph - grid 5x4
 		Graph<SimulationNode, SimulationEdge> graph 

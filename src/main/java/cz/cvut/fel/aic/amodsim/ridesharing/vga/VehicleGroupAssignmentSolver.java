@@ -515,7 +515,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 				.forEach(vehicle -> computeGroupForDrivingVehicle(vehicle, waitingRequests));
 		
 		// groups for vehicles in the station
-		if(!onDemandvehicleStationStorage.isEmpty()){
+		if(!onDemandvehicleStationStorage.isEmpty()){ // or config.stations.on
 			usedVehiclesPerStation = new int[onDemandvehicleStationStorage.size()];
 			insufficientCapacityCount = 0;
 			
@@ -554,9 +554,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 		
 		LOGGER.info("{} groups generated", planCount);
-		if(true){
-			printGroupStats(feasiblePlans);
-		}
+                printGroupStats(feasiblePlans);
 		
 		if(exportGroupData){
 			exportGroupData();

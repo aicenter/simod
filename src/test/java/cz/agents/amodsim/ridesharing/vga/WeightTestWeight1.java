@@ -18,8 +18,8 @@
  */
 package cz.agents.amodsim.ridesharing.vga;
 
-import cz.agents.amodsim.ridesharing.scenarios.Weight1;
-import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestScenario;
+import cz.agents.amodsim.ridesharing.scenarios.Weight1Scenario;
+import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestEnvironment;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ public class WeightTestWeight1 {
 	
 	@Test
 	public void run() throws Throwable{
-		new Weight1().run(new VGASystemTestScenario());
+		new Weight1Scenario().run(new VGASystemTestEnvironment());
 	}
 	
 	public static void main(String[] args) {

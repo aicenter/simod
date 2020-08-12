@@ -19,7 +19,7 @@
 package cz.agents.amodsim.ridesharing.insertionheuristic;
 
 import cz.agents.amodsim.ridesharing.insertionheuristic.common.InsertionHeuristicTestEnvironment;
-import cz.agents.amodsim.ridesharing.scenarios.Weight0;
+import cz.agents.amodsim.ridesharing.scenarios.Weight0Scenario;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ public class WeightTestWeight0 {
 	
 	@Test
 	public void run() throws Throwable{
-		new Weight0().run(new InsertionHeuristicTestEnvironment());
+		new Weight0Scenario().run(new InsertionHeuristicTestEnvironment());
 	}
 	
 	public static void main(String[] args) {

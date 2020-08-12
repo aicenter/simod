@@ -36,15 +36,14 @@ import java.util.List;
  *
  * @author David Fiedler
  */
-public class Weight1 {
+public class Weight0Scenario {
 	
-
 	public void run(RidesharingTestEnvironment testEnvironment) throws Throwable{
 		// bootstrap Guice
 		Injector injector = testEnvironment.getInjector();
 		
 		// config
-		testEnvironment.getConfig().ridesharing.weightParameter = 1.0;
+		testEnvironment.getConfig().ridesharing.weightParameter = 0.0;
 		testEnvironment.getConfig().ridesharing.maximumRelativeDiscomfort = 3.0;
 		
 		// set roadgraph - grid 5x4
@@ -54,8 +53,8 @@ public class Weight1 {
 		
 		// demand trips
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(0,1000, graph.getNode(1), graph.getNode(6)));
-		trips.add(new TimeTrip<>(1,3000, graph.getNode(5), graph.getNode(7)));
+		trips.add(new TimeTrip<>(0, 1000, graph.getNode(1), graph.getNode(6)));
+		trips.add(new TimeTrip<>(1, 3000, graph.getNode(5), graph.getNode(7)));
 		
 		// vehicles
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
@@ -65,9 +64,9 @@ public class Weight1 {
 		// expected events
 		List<RidesharingEventData> expectedEvents = new LinkedList<>();
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new RidesharingEventData("1", 1, OnDemandVehicleEvent.PICKUP));
+		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.PICKUP));
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DROP_OFF));
-		expectedEvents.add(new RidesharingEventData("1", 1, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.DROP_OFF));
 		
 		testEnvironment.run(graph, trips, vehicalInitPositions, expectedEvents);
 	}

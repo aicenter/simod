@@ -18,8 +18,8 @@
  */
 package cz.agents.amodsim.ridesharing.vga;
 
-import cz.agents.amodsim.ridesharing.scenarios.OneVehicleOneDemmand;
-import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestScenario;
+import cz.agents.amodsim.ridesharing.scenarios.OneVehicleOneDemmandScenario;
+import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestEnvironment;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import org.junit.Test;
 
@@ -27,14 +27,14 @@ import org.junit.Test;
  *
  * @author David Fiedler
  */
-public class Test1Vehicle1Demmand {
+public class OneVehicleOneDemmandTest {
 	
 	@Test
 	public void run() throws Throwable{
-		new OneVehicleOneDemmand().run(new VGASystemTestScenario());
+		new OneVehicleOneDemmandScenario().run(new VGASystemTestEnvironment());
 	}
 	
 	public static void main(String[] args) {
-		VisualTests.runVisualTest(Test1Vehicle1Demmand.class);
+		VisualTests.runVisualTest(OneVehicleOneDemmandTest.class);
 	}
 }

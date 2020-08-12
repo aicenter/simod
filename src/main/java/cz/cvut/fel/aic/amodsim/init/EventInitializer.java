@@ -102,6 +102,7 @@ public class EventInitializer {
 			// trip have to start at least 1ms after start of the simulation and no later then last
 			if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
                                 impossibleTripsCount++;
+                                LOGGER.info("Trip out of simulation time. Total: {}", impossibleTripsCount);
 				continue;
 			}
 			
@@ -131,8 +132,7 @@ public class EventInitializer {
 				eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 
 						null, rebalancingTrip, startTime);
 			}
-		}
-                LOGGER.info("No. of trips that do not fit the simulation time window: ", impossibleTripsCount);
+		}                
 	}
 	
 	

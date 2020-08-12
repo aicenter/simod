@@ -23,3 +23,5 @@ log/
 
 # Python
 *.egg-info/
+local_config_files/honza_config.cfg
+local_config_files/honzik.cfg

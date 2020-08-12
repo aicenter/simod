@@ -19,8 +19,9 @@
 package cz.agents.amodsim.geojsonWithAstar;
 
 import com.google.inject.Injector;
-import cz.agents.amodsim.geojsonWithAstar.utils.TestModuleAstar;
+import cz.agents.amodsim.geojsonWithAstar.utils.*;
 import cz.agents.amodsim.ridesharing.traveltimecomputation.TestAgentPolisInitializer;
+
 
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.Graphs;
@@ -37,8 +38,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import cz.agents.amodsim.geojsonWithAstar.utils.TestGeojsonMapInitializer;
-import cz.agents.amodsim.geojsonWithAstar.utils.TestGeojsonMapInitializer1;
 import org.junit.After;
 import org.junit.Before;
 
@@ -67,10 +66,12 @@ public class AstarParallelEdgesTest {
                 fil.write("{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [0.0, 0.0]}, \"properties\": {\"node_id\": \"1\", \"index\": 0}}, {\"type\": \"Feature\", \"geometry\": {\"type\": \"Point\", \"coordinates\": [0.01, 0.0]}, \"properties\": {\"node_id\": \"2\", \"index\": 1}}]}");
                 fil.close();
                 fil = new FileWriter(edgePath1);
-                fil.write("{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"id\": 1, \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[0.0, 0.0], [0.01, 0.0]]}, \"properties\": {\"highway\": \"residential\", \"maxspeed\": 40.0, \"id\": \"1\", \"lanes\": 1, \"utm_coords\": [[-652669530, 1058827799], [-652668236, 1058827461]], \"length\": 15, \"from_id\": \"1\", \"to_id\": \"2\"}}]}");
+                //just the longer edge - test should always fail
+                fil.write("{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"id\": 2, \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[0.0, 0.0],[0.008, 0.0001],[0.01, 0.0]]}, \"properties\": {\"highway\": \"residential\", \"maxspeed\": 40.0, \"id\": \"2\", \"lanes\": 1, \"utm_coords\": [[-652669530, 1058827799], [-652668236, 1058827461]], \"length\": 20, \"from_id\": \"1\", \"to_id\": \"2\"}}]}");
+//                fil.write("{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"id\": 1, \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[0.0, 0.0], [0.01, 0.0]]}, \"properties\": {\"highway\": \"residential\", \"maxspeed\": 40.0, \"id\": \"1\", \"lanes\": 1, \"utm_coords\": [[-652669530, 1058827799], [-652668236, 1058827461]], \"length\": 15, \"from_id\": \"1\", \"to_id\": \"2\"}}]}");
                 fil.close();
                 fil = new FileWriter(edgePath2);
-                fil.write("{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"id\": 2, \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[0.0, 0.0],[0.005, 0.0001],[0.01, 0.0]]}, \"properties\": {\"highway\": \"residential\", \"maxspeed\": 40.0, \"id\": \"2\", \"lanes\": 1, \"utm_coords\": [[-652669530, 1058827799], [-652668236, 1058827461]], \"length\": 20, \"from_id\": \"1\", \"to_id\": \"2\"}}, {\"type\": \"Feature\", \"id\": 1, \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[0.0, 0.0], [0.01, 0.0]]}, \"properties\": {\"highway\": \"residential\", \"maxspeed\": 40.0, \"id\": \"1\", \"lanes\": 1, \"utm_coords\": [[-652669530, 1058827799], [-652668236, 1058827461]], \"length\": 15, \"from_id\": \"1\", \"to_id\": \"2\"}}]}");
+                fil.write("{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"id\": 2, \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[0.0, 0.0],[0.008, 0.0001],[0.01, 0.0]]}, \"properties\": {\"highway\": \"residential\", \"maxspeed\": 40.0, \"id\": \"2\", \"lanes\": 1, \"utm_coords\": [[-652669530, 1058827799], [-652668236, 1058827461]], \"length\": 20, \"from_id\": \"1\", \"to_id\": \"2\"}}, {\"type\": \"Feature\", \"id\": 1, \"geometry\": {\"type\": \"LineString\", \"coordinates\": [[0.0, 0.0], [0.01, 0.0]]}, \"properties\": {\"highway\": \"residential\", \"maxspeed\": 40.0, \"id\": \"1\", \"lanes\": 1, \"utm_coords\": [[-652669530, 1058827799], [-652668236, 1058827461]], \"length\": 15, \"from_id\": \"1\", \"to_id\": \"2\"}}]}");
                 fil.close();
         }
         

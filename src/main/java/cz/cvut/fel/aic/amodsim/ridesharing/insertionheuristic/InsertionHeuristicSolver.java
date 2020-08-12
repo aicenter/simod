@@ -262,7 +262,6 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	private void computeOptimalPlan(RideSharingOnDemandVehicle vehicle, PlanComputationRequest planComputationRequest) {
 		DriverPlan currentPlan = vehicle.getCurrentPlan();
 		
-                LOGGER.debug("Looking for a plan");
 		// if the plan was already changed
 		if(planMap.containsKey(vehicle)){
 			currentPlan = planMap.get(vehicle);

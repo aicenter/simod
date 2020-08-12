@@ -40,6 +40,8 @@ public class AmodsimConfig implements GeneratedConfig {
 
   public Boolean simplifyGraph;
 
+  public Congestion congestion;
+
   public Ridesharing ridesharing;
 
   public String stationPositionFilepath;
@@ -68,6 +70,7 @@ public class AmodsimConfig implements GeneratedConfig {
     this.tripsMultiplier = (Double) amodsimConfig.get("trips_multiplier");
     this.vehiclesPerStation = (Integer) amodsimConfig.get("vehicles_per_station");
     this.simplifyGraph = (Boolean) amodsimConfig.get("simplify_graph");
+    this.congestion = new Congestion((Map) amodsimConfig.get("congestion"));
     this.ridesharing = new Ridesharing((Map) amodsimConfig.get("ridesharing"));
     this.stationPositionFilepath = (String) amodsimConfig.get("station_position_filepath");
     this.rebalancing = new Rebalancing((Map) amodsimConfig.get("rebalancing"));

@@ -39,7 +39,7 @@ public class SimpleJsonTrip extends Trip<Integer>{
 	
 	@JsonCreator
 	public SimpleJsonTrip(Integer... locations) {
-		super(locations);
+		super(0,locations);
 	}
 
 //	@JsonCreator

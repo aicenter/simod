@@ -21,8 +21,6 @@ package cz.agents.amodsim.ridesharing.scenarios;
 import com.google.inject.Injector;
 import cz.agents.amodsim.ridesharing.RidesharingEventData;
 import cz.agents.amodsim.ridesharing.RidesharingTestEnvironment;
-import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestScenario;
-import cz.cvut.fel.aic.agentpolis.VisualTests;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.Utils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
@@ -33,29 +31,35 @@ import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.util.LinkedList;
 import java.util.List;
-import org.junit.Test;
 
 /**
  *
  * @author David Fiedler
  */
-public class SimpleRidesharing {
+public class Weight0Scenario {
 	
 	public void run(RidesharingTestEnvironment testEnvironment) throws Throwable{
 		// bootstrap Guice
 		Injector injector = testEnvironment.getInjector();
 		
-		// set roadgraph
+		// config
+		testEnvironment.getConfig().ridesharing.weightParameter = 0.0;
+		testEnvironment.getConfig().ridesharing.maximumRelativeDiscomfort = 3.0;
+		
+		// set roadgraph - grid 5x4
 		Graph<SimulationNode, SimulationEdge> graph 
-				= Utils.getGridGraph(5, injector.getInstance(Transformer.class), 1);
+				= Utils.getGridGraph(4, injector.getInstance(Transformer.class), 2);
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
+		// demand trips
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(1000, graph.getNode(1), graph.getNode(3)));
-		trips.add(new TimeTrip<>(1000, graph.getNode(2), graph.getNode(4)));
+		trips.add(new TimeTrip<>(0, 1000, graph.getNode(1), graph.getNode(6)));
+		trips.add(new TimeTrip<>(1, 3000, graph.getNode(5), graph.getNode(7)));
 		
+		// vehicles
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
 		vehicalInitPositions.add(graph.getNode(0));
+		vehicalInitPositions.add(graph.getNode(4));
 		
 		// expected events
 		List<RidesharingEventData> expectedEvents = new LinkedList<>();

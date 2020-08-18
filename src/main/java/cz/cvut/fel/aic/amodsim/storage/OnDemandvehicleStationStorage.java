@@ -58,17 +58,17 @@ public class OnDemandvehicleStationStorage extends EntityStorage<OnDemandVehicle
 	
 	private int numberOfDemandsNotServedFromNearestStation;
 	
-	private final TravelTimeProvider travelTimeProvider;
+	@Inject(optional = true) 
+	private final TravelTimeProvider travelTimeProvider = null;
 	
 	public int getNumberOfDemandsNotServedFromNearestStation() {
 		return numberOfDemandsNotServedFromNearestStation;
 	}
 	
 	@Inject
-	public OnDemandvehicleStationStorage(Transformer transformer, TravelTimeProvider travelTimeProvider) {
+	public OnDemandvehicleStationStorage(Transformer transformer) {
 		super();
 		this.transformer = transformer;
-		this.travelTimeProvider = travelTimeProvider;
 		numberOfDemandsNotServedFromNearestStation = 0;
 	}
 	

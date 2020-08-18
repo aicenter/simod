@@ -48,15 +48,15 @@ public class TimeTrip<L> extends Trip<L>{
 	
 	
 	@JsonCreator
-	public TimeTrip(@JsonProperty("startTime") long startTime, @JsonProperty("endTime") long endTime, 
+	public TimeTrip(int tripId,@JsonProperty("startTime") long startTime, @JsonProperty("endTime") long endTime, 
 			@JsonProperty("locations") L... locations){
-		super(locations);
+		super(tripId,locations);
 		this.startTime = startTime;
 		this.endTime = endTime;
 	}
 	
-	public TimeTrip(long startTime, L... locations){
-		this(startTime, 0, locations);
+	public TimeTrip(int tripId,long startTime, L... locations){
+		this(tripId,startTime, 0, locations);
 	}
 
 	@Override

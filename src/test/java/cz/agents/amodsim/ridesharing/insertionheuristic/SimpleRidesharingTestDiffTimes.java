@@ -20,7 +20,7 @@ package cz.agents.amodsim.ridesharing.insertionheuristic;
 
 
 import cz.agents.amodsim.ridesharing.insertionheuristic.common.InsertionHeuristicTestEnvironment;
-import cz.agents.amodsim.ridesharing.scenarios.SimpleRidesharingDiffTimes;
+import cz.agents.amodsim.ridesharing.scenarios.SimpleRidesharingDiffTimesScenario;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import org.junit.Test;
 
@@ -32,7 +32,7 @@ public class SimpleRidesharingTestDiffTimes {
 	
 	@Test
 	public void run() throws Throwable{
-		new SimpleRidesharingDiffTimes().run(new InsertionHeuristicTestEnvironment());
+		new SimpleRidesharingDiffTimesScenario().run(new InsertionHeuristicTestEnvironment());
 	}
 	
 	public static void main(String[] args) {

@@ -64,6 +64,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	
 	private PlanAction currentTask;
 
+	private IdGenerator tripIdGenerator;
 
 	public DriverPlan getCurrentPlan() {
 		currentPlan.updateCurrentPosition(getPosition());
@@ -76,13 +77,14 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	@Inject
 	public RideSharingOnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
 			TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
-			PhysicalVehicleDriveFactory driveActivityFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor, 
-			StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, 
+			PhysicalVehicleDriveFactory driveActivityFactory, VisioPositionUtil positionUtil,IdGenerator tripIdGenerator,
+			EventProcessor eventProcessor,StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, 
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
 		super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
 				driveActivityFactory, positionUtil, eventProcessor, timeProvider, rebalancingIdGenerator, config, 
 				vehicleId, startPosition);
 		this.positionUtil = positionUtil;
+		this.tripIdGenerator = tripIdGenerator;
 		
 //		empty plan
 		LinkedList<PlanAction> plan = new LinkedList<>();
@@ -282,7 +284,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			if(action instanceof PlanRequestAction && lastPosition != action.getPosition()){
 				VehicleTrip<SimulationNode> newTrip
 						= tripsUtil.createTrip(lastPosition, action.getPosition(), vehicle);
-				trips.add(new PlanLayerTrip((PlanRequestAction) action, newTrip.getLocations()));
+				trips.add(new PlanLayerTrip(tripIdGenerator.getId(),(PlanRequestAction) action, newTrip.getLocations()));
 				lastPosition = action.getPosition();
 			}
 		}

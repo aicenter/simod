@@ -126,28 +126,35 @@ public class RidesharingOnDemandVehiclePlanLayer extends PlanLayer<RideSharingOn
 		canvas.setColor(TRIP_BORDER_COLOR);
 		canvas.setStroke(new BasicStroke(TRIP_BORDER_THIKNESS * 2 + TRIP_LINE_THIKNESS));
 		Iterator<SimulationNode> iterator = Arrays.asList(locations).iterator();
-		SimulationNode startLocation;
-//		if(firstTrip){
-//			startLocation = entity.getVehicle().getPosition();
-//		}
-//		else{
-			startLocation = iterator.next();
-//		}
+		
+                long time = timeProvider.getCurrentSimTime();
+                Point2d entityPosition = onDemandVehicleLayer.getEntityPositionInTime(entity.getVehicle(), time);
+                SimulationNode startLocation = iterator.next();
+		SimulationNode targetLocation = iterator.next();
+                
+                //first edge is special -> start is where the car is not on the station
+                if(firstTrip){drawOnEdgeWithAgent(canvas, drawingRectangle,startLocation,targetLocation,entityPosition);}
+                else{drawOnEdge(canvas, drawingRectangle, startLocation, targetLocation);}
 		
 		while (iterator.hasNext()) {
-			SimulationNode targetLocation = iterator.next();
-			drawOnEdge(canvas, drawingRectangle, startLocation, targetLocation);
 			startLocation = targetLocation;
+			targetLocation = iterator.next();
+			drawOnEdge(canvas, drawingRectangle, startLocation, targetLocation);
 		}
 		
 		canvas.setColor(TRIP_COLOR);
 		canvas.setStroke(new BasicStroke(TRIP_LINE_THIKNESS));
 		iterator = Arrays.asList(locations).iterator();
-		startLocation = iterator.next();
+                
+                startLocation = iterator.next();
+                targetLocation = iterator.next();
+                if(firstTrip){drawOnEdgeWithAgent(canvas, drawingRectangle,startLocation,targetLocation,entityPosition);}
+                else{drawOnEdge(canvas, drawingRectangle, startLocation, targetLocation);}
+		
 		while (iterator.hasNext()) {
-			SimulationNode targetLocation = iterator.next();
+                        startLocation = targetLocation;
+			targetLocation = iterator.next();
 			drawOnEdge(canvas, drawingRectangle, startLocation, targetLocation);
-			startLocation = targetLocation;
 		}
 		
 		canvas.setStroke(stroke);

@@ -16,29 +16,25 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package cz.cvut.fel.aic.amodsim;
+package cz.agents.amodsim.ridesharing.vga;
 
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer;
-import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
-import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.visio.MapVisualizerVisioInitializer;
-import java.io.File;
+import cz.agents.amodsim.ridesharing.scenarios.OneVehicleOneDemmandScenario;
+import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestEnvironment;
+import cz.cvut.fel.aic.agentpolis.VisualTests;
+import org.junit.Test;
 
 /**
  *
- * @author F.I.D.O.
+ * @author David Fiedler
  */
-public class MapVisualiserModule  extends MainModule{
-
-	private final AmodsimConfig amodsimConfig;
+public class OneVehicleOneDemmandTest {
 	
-	public MapVisualiserModule(AmodsimConfig amodsimConfig, File localConfigFile) {
-		super(amodsimConfig, localConfigFile);
-		this.amodsimConfig = amodsimConfig;
+	@Test
+	public void run() throws Throwable{
+		new OneVehicleOneDemmandScenario().run(new VGASystemTestEnvironment());
 	}
 	
-	@Override
-	protected void bindVisioInitializer() {
-		bind(VisioInitializer.class).to(MapVisualizerVisioInitializer.class);
+	public static void main(String[] args) {
+		VisualTests.runVisualTest(OneVehicleOneDemmandTest.class);
 	}
 }

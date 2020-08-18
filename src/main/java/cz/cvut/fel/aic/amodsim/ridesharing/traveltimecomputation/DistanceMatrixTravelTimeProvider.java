@@ -54,11 +54,7 @@ public class DistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 	
 	private final int[][] distanceMatrix;
 	
-	private long callCount = 0;
 
-	public long getCallCount() {
-		return callCount;
-	}
 	
 	
 	
@@ -87,7 +83,8 @@ public class DistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 					= new BufferedReader(new InputStreamReader(new FileInputStream(distanceMatrixFilepath), "utf-8"));
 			
 			CsvParserSettings settings = new CsvParserSettings();
-			settings.getFormat().setLineSeparator("\r\n");
+			//settings.getFormat().setLineSeparator("\n");
+			settings.detectFormatAutomatically(',', ';','|',' ');
 
 			//turning off features enabled by default
 			settings.setIgnoreLeadingWhitespaces(false);
@@ -124,6 +121,7 @@ public class DistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 			}
 			pb.close();
 			parser.stopParsing();
+			LOGGER.info("Loading finished");
 			return dm;
 		} 
 		catch (FileNotFoundException | UnsupportedEncodingException ex) {

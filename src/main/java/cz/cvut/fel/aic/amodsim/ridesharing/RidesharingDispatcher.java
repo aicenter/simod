@@ -23,32 +23,27 @@ import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.ticker.PeriodicTicker;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.ticker.Routine;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
+import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
-import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.amodsim.DemandData;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.event.DemandEvent;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionCurrentPosition;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
-import cz.cvut.fel.aic.amodsim.statistics.PickupEventContent;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
-import cz.cvut.fel.aic.geographtools.Node;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -92,6 +87,8 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	
 	private int requestCounter;
 	
+	private IdGenerator tripIdGenerator;
+	
 	
 
 	
@@ -108,12 +105,13 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	public RidesharingDispatcher(OnDemandvehicleStationStorage onDemandvehicleStationStorage, 
 			TypedSimulation eventProcessor, AmodsimConfig config, DARPSolver solver, PeriodicTicker ticker,
 			DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory, 
-			TimeProvider timeProvider, PositionUtil positionUtil) {
-		super(onDemandvehicleStationStorage, eventProcessor, config);
+			TimeProvider timeProvider, PositionUtil positionUtil,IdGenerator tripIdGenerator) {
+		super(onDemandvehicleStationStorage, eventProcessor, config, tripIdGenerator);
 		this.timeProvider = timeProvider;
 		this.solver = solver;
 		this.requestFactory = requestFactory;
 		this.positionUtil = positionUtil;
+		this.tripIdGenerator = tripIdGenerator;
 		newRequests = new ArrayList<>();
 		waitingRequests = new LinkedHashSet<>();
 		darpSolverComputationalTimes = new ArrayList();
@@ -227,7 +225,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 						}
 					}
 					if(!nearby){
-						System.out.println(vehicle.getId() + ": " + plan.toString());
+						LOGGER.info(vehicle.getId() + ": " + plan.toString());
 					}
 				}
 			}

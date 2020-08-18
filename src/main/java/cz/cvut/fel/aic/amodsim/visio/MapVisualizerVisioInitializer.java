@@ -65,8 +65,7 @@ public class MapVisualizerVisioInitializer  extends DefaultVisioInitializer{
 			HighwayLayer highwayLayer, NodeIdLayer nodeIdLayer, AgentpolisConfig config, 
 			OnDemandVehicleStationsLayer onDemandVehicleStationsLayer, LayerManagementLayer layerManagementLayer,
 			SimpleBackgroundLayer simpleBackgroundLayer, MapTilesLayer mapTilesLayer) {
-		super(simulation, pedestrianNetwork, bikewayNetwork, highwayNetwork, tramwayNetwork, metrowayNetwork, railwayNetwork,
-				simulationControlLayer, gridLayer, config);
+		super(simulation, highwayNetwork,simulationControlLayer, gridLayer);
 		this.highwayLayer = highwayLayer;
 		this.nodeIdLayer = nodeIdLayer;
 		this.layerManagementLayer = layerManagementLayer;

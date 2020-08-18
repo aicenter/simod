@@ -19,6 +19,8 @@
 package cz.cvut.fel.aic.amodsim;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
+import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import java.io.IOException;
@@ -37,14 +39,21 @@ import org.slf4j.LoggerFactory;
  */
 public class Loader {
 	
-		private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Loader.class);
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Loader.class);
 	
 //	private Connection connection;
+	
+	private IdGenerator tripIdGenerator;
 	
 	private ArrayList<TimeTrip<GPSLocation>> trips;
 
 	public ArrayList<TimeTrip<GPSLocation>> getTrips() {
 		return trips;
+	}
+	
+	@Inject
+	public Loader(IdGenerator tripIdGenerator) {
+		this.tripIdGenerator = tripIdGenerator;
 	}
 	
 	
@@ -60,6 +69,7 @@ public class Loader {
  
 			trips = new ArrayList<>();
 			
+			
 			try (Connection connection = 
 						DriverManager.getConnection("jdbc:postgresql://localhost/postgis_test", "postgres", "fido7382");
 					){
@@ -69,23 +79,21 @@ public class Loader {
 					try(ResultSet resultSet = statement.executeQuery(SQL)) {
 						resultSet.next();
 						int count = resultSet.getInt(1);
-						System.out.println("count" + count);
+                                                LOGGER.info("count " + count);
 
 						while (resultSet.next()) {
-							trips.add(new TimeTrip(resultSet.getLong("start_time"), resultSet.getLong("end_time"), 
+							trips.add(new TimeTrip(tripIdGenerator.getId(),resultSet.getLong("start_time"), resultSet.getLong("end_time"), 
 									getLocationsFromJson(resultSet.getString("path")).toArray()));
 						}
 					}
 				}
 			} catch (SQLException ex) {
-				ex.printStackTrace();
-				System.out.println(ex.getMessage());
+				LOGGER.error(null,ex);
 			}
 
 		} 
 		catch (Exception e) {
-			e.printStackTrace();
-			System.err.println(e.getClass().getName()+": "+e.getMessage());
+			LOGGER.error(null,e);
 			System.exit(0);
 		}
 		

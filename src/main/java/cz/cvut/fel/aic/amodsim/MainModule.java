@@ -20,7 +20,7 @@ package cz.cvut.fel.aic.amodsim;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.FileAppender;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.*;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.InsertionHeuristicSolver;
 import com.google.common.collect.Sets;
 import com.google.inject.TypeLiteral;
@@ -49,6 +49,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingOnDemandVehicleFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.DistanceMatrixTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayer;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayerWithJitter;
@@ -69,7 +70,7 @@ public class MainModule extends StandardAgentPolisModule{
 	
 	public MainModule(AmodsimConfig amodsimConfig, File localConfigFile) {
 		super(amodsimConfig, localConfigFile, "agentpolis");
-		this.amodsimConfig = amodsimConfig;
+		this.amodsimConfig = amodsimConfig;      
                 //clean experiment folder (for merging, must be before setting logger file path in branch feature/saveLogToExperiments)
                 deleteFiles(new File(amodsimConfig.amodsimExperimentDir));
                 //set logger file path (for merging, must be after cleanup folder in branch feature/clear_exp_folder)
@@ -99,9 +100,17 @@ public class MainModule extends StandardAgentPolisModule{
 		if(amodsimConfig.ridesharing.on){
 			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 			bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
-			bind(TravelTimeProvider.class).to(DistanceMatrixTravelTimeProvider.class);
-//			bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
-//			bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
+			switch(amodsimConfig.ridesharing.travelTimeProvider){
+			    case "Astar":
+				bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
+				break;
+			    case "Euclidean":	
+				bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
+				break;
+			    case "DistanceMatrix":
+				bind(TravelTimeProvider.class).to(DistanceMatrixTravelTimeProvider.class);
+				break;
+			}
 			bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
 			install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
 						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
@@ -119,7 +128,7 @@ public class MainModule extends StandardAgentPolisModule{
 
 		}
 		else{
-		   bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
+                   bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
 		}
 		install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
 			.build(DemandAgentFactory.class));

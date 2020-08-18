@@ -16,22 +16,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package cz.agents.amodsim.ridesharing.traveltimecomputation;
+package cz.agents.amodsim.ridesharing.vga.unsolvable;
 
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
 import cz.agents.amodsim.ridesharing.vga.common.*;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.GeojsonMapInitializer;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer;
-import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
@@ -48,32 +43,28 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehicleP
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import java.io.File;
-import java.time.ZonedDateTime;
-import javax.annotation.Nullable;
 
 /**
  *
  * @author fido
  */
-public class TestModule extends TestStandardAgentPolisModule{
+public class TestVgaModule extends TestModule{
 	
 	private final AmodsimConfig amodsimConfig;
 
-	public TestModule(AmodsimConfig amodsimConfig) {
-		super(amodsimConfig, null, "agentpolis"); 
+	public TestVgaModule(AmodsimConfig amodsimConfig, File localConfigFile) {
+		super(amodsimConfig, localConfigFile); 
 		this.amodsimConfig = amodsimConfig;
-	}
-	
-	@Override
-	protected void configureNext() {
-		super.configureNext();
-		bind(AmodsimConfig.class).toInstance(amodsimConfig);
-		bind(MapInitializer.class).to(TestGeojsonMapInitializer.class);
-	}
-      
-	@Override
-	protected void bindVisioInitializer() {
-		
+                this.amodsimConfig.ridesharing.batchPeriod = 10;
+                this.amodsimConfig.ridesharing.weightParameter = 0.6;
+                this.amodsimConfig.ridesharing.maximumRelativeDiscomfort = 1.3;                                         
+                this.amodsimConfig.ridesharing.maxProlongationInSeconds = 60;
+//                this.amodsimConfig.ridesharing.vga.exportGroupData
+                        
+                this.amodsimConfig.ridesharing.vga.groupGeneratorLogFilepath = new File("").getAbsolutePath();
+                roadWidth = 80;
+                
+                
 	}
 	
 }

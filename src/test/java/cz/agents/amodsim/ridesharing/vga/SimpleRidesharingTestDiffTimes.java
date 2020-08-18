@@ -19,8 +19,8 @@
 package cz.agents.amodsim.ridesharing.vga;
 
 
-import cz.agents.amodsim.ridesharing.scenarios.SimpleRidesharingDiffTimes;
-import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestScenario;
+import cz.agents.amodsim.ridesharing.scenarios.SimpleRidesharingDiffTimesScenario;
+import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestEnvironment;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import org.junit.Test;
 
@@ -32,7 +32,7 @@ public class SimpleRidesharingTestDiffTimes {
 	
 	@Test
 	public void run() throws Throwable{
-		new SimpleRidesharingDiffTimes().run(new VGASystemTestScenario());
+		new SimpleRidesharingDiffTimesScenario().run(new VGASystemTestEnvironment());
 	}
 	
 	public static void main(String[] args) {

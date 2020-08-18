@@ -76,7 +76,7 @@ public class GurobiSolver {
 	
 	double gap;
 
-	
+	private AmodsimConfig config;
 	
 	
 	public double getGap() {
@@ -90,6 +90,7 @@ public class GurobiSolver {
 			DroppedDemandsAnalyzer droppedDemandsAnalyzer) {
 		this.planCostComputation = planCostComputation;
 		this.droppedDemandsAnalyzer = droppedDemandsAnalyzer;
+                this.config = config;
 		iteration = 1;
 		timeLimit = config.ridesharing.vga.solverTimeLimit;
 		
@@ -224,8 +225,10 @@ public class GurobiSolver {
 			model.set(GRB.DoubleParam.TimeLimit, timeLimit);
 			
 			LOGGER.info("solving start");
-			model.optimize();
-			LOGGER.info("solving finished");
+                        
+			model.optimize();                                                
+                        
+			LOGGER.info("solving finished in state {}", model.get(GRB.IntAttr.Status));
 			
 			LOGGER.info("Objective function value: {}", model.get(GRB.DoubleAttr.ObjVal));
 			
@@ -242,15 +245,22 @@ public class GurobiSolver {
 				}
 			}
 			
+                        boolean correct = true;
 			// debug dropped demands
 			for (Map.Entry<GRBVar, PlanComputationRequest> entry : droppingVarsMap.entrySet()) {
 				GRBVar variable = entry.getKey();
 				PlanComputationRequest request = entry.getValue();
 				if(Math.round(variable.get(GRB.DoubleAttr.X)) == 1){
+                                    
+                                        correct = false;
 					droppedDemandsAnalyzer.debugFail(request, usedVehiclesPerStation);
 					LOGGER.debug("The request was part of {} group plans", requestVariableMap.get(request).size() - 1);
 				}
 			}
+                        
+                        if(!correct || model.get(GRB.IntAttr.Status) != 2){ //3 = INFEASIBLE state 2 = OPTIMAL
+                                model.write(config.ridesharing.vga.groupGeneratorLogFilepath+"/model"+iteration+".lp");
+                        }
 			
 			// check 1 plan for vehicle
 //			checkOnePlanPerVehicle(feasiblePlans, variablePlanMap);

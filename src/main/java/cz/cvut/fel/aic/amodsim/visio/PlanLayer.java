@@ -127,6 +127,52 @@ public class PlanLayer<E extends AgentPolisEntity & PlanningAgent> extends Abstr
 			startPosition = targetPosition;
 		}
 	}
+        
+        protected void drawOnEdgeWithAgent(Graphics2D canvas, Rectangle2D drawingRectangle,SimulationNode startLocation,
+                SimulationNode targetLocation,Point2d entityPosition) {
+
+                SimulationEdge edge = network.getEdge(startLocation, targetLocation);
+		Iterator<GPSLocation> iterator = edge.shape.iterator();
+                boolean readyToDraw = false;
+                
+                int entX = (int) entityPosition.x;
+                int entY = (int) entityPosition.y;
+                
+                Point2d startPosition = positionUtil.getCanvasPosition(iterator.next());
+		while(iterator.hasNext()){
+			Point2d targetPosition = positionUtil.getCanvasPosition(iterator.next());
+                        
+                        int x = (int) startPosition.x;
+                        int y = (int) startPosition.y;
+                        int xTo = (int) targetPosition.x;
+                        int yTo = (int) targetPosition.y;
+                        
+                        //entity spotted
+                        if(isBetweenX(x, xTo, entX) && isBetweenY(y, yTo, entY)){
+                                x = entX;
+                                y = entY;
+                                readyToDraw = true;
+                        }
+                      
+                        
+                        Line2D line2d = new Line2D.Double(x, y, xTo, yTo);
+
+                        if (line2d.intersects(drawingRectangle) && readyToDraw) {
+                                canvas.draw(line2d);
+                        }
+                        
+			startPosition = targetPosition;
+		}
+		
+	}
+        
+        private boolean isBetweenX(int x, int xTo, int entX){
+            return (xTo >= x && entX <= xTo && entX >= x) || (xTo <= x && entX <= x && entX >= xTo);
+        }
+        
+        private boolean isBetweenY(int y, int yTo, int entY){
+            return (yTo >= y && entY <= yTo && entY >= y) ||  (yTo <= y && entY <= y && entY >= yTo);
+        }
 
 
 	@Override

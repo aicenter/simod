@@ -31,43 +31,37 @@ import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.util.LinkedList;
 import java.util.List;
+import org.junit.Test;
 
 /**
  *
  * @author David Fiedler
  */
-public class Weight1 {
+public class SimpleRidesharingDiffTimesScenario {
 	
-
+	@Test
 	public void run(RidesharingTestEnvironment testEnvironment) throws Throwable{
 		// bootstrap Guice
 		Injector injector = testEnvironment.getInjector();
 		
-		// config
-		testEnvironment.getConfig().ridesharing.weightParameter = 1.0;
-		testEnvironment.getConfig().ridesharing.maximumRelativeDiscomfort = 3.0;
-		
-		// set roadgraph - grid 5x4
+		// set roadgraph
 		Graph<SimulationNode, SimulationEdge> graph 
-				= Utils.getGridGraph(4, injector.getInstance(Transformer.class), 2);
+				= Utils.getGridGraph(5, injector.getInstance(Transformer.class), 1); //5 1
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
-		// demand trips
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(1000, graph.getNode(1), graph.getNode(6)));
-		trips.add(new TimeTrip<>(3000, graph.getNode(5), graph.getNode(7)));
+		trips.add(new TimeTrip<>(0, 1000, graph.getNode(1), graph.getNode(3))); // 1 3
+		trips.add(new TimeTrip<>(1, 8000, graph.getNode(2), graph.getNode(4))); // 2 4
 		
-		// vehicles
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
 		vehicalInitPositions.add(graph.getNode(0));
-		vehicalInitPositions.add(graph.getNode(4));
 		
 		// expected events
 		List<RidesharingEventData> expectedEvents = new LinkedList<>();
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new RidesharingEventData("1", 1, OnDemandVehicleEvent.PICKUP));
+		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.PICKUP));
 		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DROP_OFF));
-		expectedEvents.add(new RidesharingEventData("1", 1, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.DROP_OFF));
 		
 		testEnvironment.run(graph, trips, vehicalInitPositions, expectedEvents);
 	}

@@ -23,3 +23,8 @@ log/
 
 # Python
 *.egg-info/
+bin/null/logicek.txt
+local_config_files/honza_config.cfg
+.project
+.classpath
+bin/.gitignore

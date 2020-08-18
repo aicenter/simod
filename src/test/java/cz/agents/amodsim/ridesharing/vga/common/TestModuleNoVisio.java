@@ -30,22 +30,26 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import java.io.File;
 import cz.agents.amodsim.ridesharing.vga.mock.TestTimeProvider;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.AStarShortestPathPlanner;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.EuclideanTraveltimeHeuristic;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.ShortestPathPlanner;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.GeojsonMapInitializer;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
+import org.jgrapht.alg.interfaces.AStarAdmissibleHeuristic;
 
 /**
  *
  * @author fido
  */
-public class TestModuleNoVisio extends StandardAgentPolisModule{
+public class TestModuleNoVisio extends TestModule{
 	
 	private final AmodsimConfig amodsimConfig;
 
 
 	public TestModuleNoVisio(AmodsimConfig amodsimConfig, File localConfigFile) {
-		super(amodsimConfig, localConfigFile, "agentpolis"); 
+		super(amodsimConfig, localConfigFile); 
 		this.amodsimConfig = amodsimConfig;
 	}
 
@@ -59,12 +63,14 @@ public class TestModuleNoVisio extends StandardAgentPolisModule{
 		
 		bind(TimeProvider.class).to(TestTimeProvider.class);
 		
+		bind(ShortestPathPlanner.class).to(AStarShortestPathPlanner.class);
+		
+		bind(AStarAdmissibleHeuristic.class).to(EuclideanTraveltimeHeuristic.class);
+		
 		configureNext();
 	}
 
-	
-	
-	
+
 	@Override
 	protected void configureNext() {
 		super.configureNext();

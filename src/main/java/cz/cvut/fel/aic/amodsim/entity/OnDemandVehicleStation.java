@@ -18,6 +18,7 @@
  */
 package cz.cvut.fel.aic.amodsim.entity;
 
+import com.google.inject.Inject;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.amodsim.DemandData;
@@ -71,7 +72,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 
 	
 	
-
+	@Inject
 	public OnDemandVehicleStation(AmodsimConfig config, EventProcessor eventProcessor, 
 			OnDemandVehicleFactorySpec onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
 			OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 
@@ -143,7 +144,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 		parkedVehicles.remove(vehicle);
 		vehicle.setParkedIn(null);
 		if(getParkedVehiclesCount() == 0){
-			System.out.println("Station is empty!" + getId());
+                        LOGGER.info("Station is empty! " +  getId());
 		}
 	}
 	

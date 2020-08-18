@@ -79,49 +79,49 @@ public class ArrayOptimalVehiclePlanFinderTest {
 		
 	}
 	
-	@Test
-	public void testRealMap(){
-		
-		// set simulation time 
-		injector.getInstance(TestTimeProvider.class).setSimulationTime(180000);
-		
-		// prepare map
-		MapInitializer mapInitializer = injector.getInstance(MapInitializer.class);
-		MapData mapData = mapInitializer.getMap();
-		injector.getInstance(AllNetworkNodes.class).setAllNetworkNodes(mapData.nodesFromAllGraphs);
-		injector.getInstance(Graphs.class).setGraphs(mapData.graphByType);
-		
-		arrayOptimalVehiclePlanFinder = injector.getInstance(ArrayOptimalVehiclePlanFinder.class);
-		
-		NodesMappedByIndex nodesMappedByIndex = injector.getInstance(NodesMappedByIndex.class);
-		
-		TravelTimeProvider travelTimeProvider = injector.getInstance(TravelTimeProvider.class);
-		
-		// prepare test requests
-		TestPlanRequest request0 = new TestPlanRequest(
-				1390, config, nodesMappedByIndex.getNodeByIndex(15982), nodesMappedByIndex.getNodeByIndex(1071), 117, true,
-				travelTimeProvider);
-		TestPlanRequest request1 = new TestPlanRequest(
-				453, config, nodesMappedByIndex.getNodeByIndex(15982), nodesMappedByIndex.getNodeByIndex(1071), 57, true,
-				travelTimeProvider);
-		LinkedHashSet<PlanComputationRequest> onBoardRequests = new LinkedHashSet<>();
-		onBoardRequests.add(request0);
-		onBoardRequests.add(request1);
-		LinkedHashSet<TestPlanRequest> requests = new LinkedHashSet<>();
-		requests.add(request0);
-				
-		// prepare test vehicle
-		SimulationNode position = nodesMappedByIndex.getNodeByIndex(19027);
-		DelayData delayData = new DelayData(9190L, 207407L, 12765);
-		SimulationNode targetNode = nodesMappedByIndex.getNodeByIndex(6928);
-		TestOnDemandVehicle testOnDemandVehicle = new TestOnDemandVehicle(config, targetNode, delayData, position);
-		TestOptimalPlanVehicle vehicle = new TestOptimalPlanVehicle(onBoardRequests, position, 
-				config.ridesharing.vehicleCapacity, testOnDemandVehicle);
-		
-		Plan plan = arrayOptimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(vehicle, requests, 210, false);
-		
-		Assert.assertNotNull(plan);
-	}
+//	@Test
+//	public void testRealMap(){
+//		
+//		// set simulation time 
+//		injector.getInstance(TestTimeProvider.class).setSimulationTime(180000);
+//		
+//		// prepare map
+//		MapInitializer mapInitializer = injector.getInstance(MapInitializer.class);
+//		MapData mapData = mapInitializer.getMap();
+//		injector.getInstance(AllNetworkNodes.class).setAllNetworkNodes(mapData.nodesFromAllGraphs);
+//		injector.getInstance(Graphs.class).setGraphs(mapData.graphByType);
+//		
+//		arrayOptimalVehiclePlanFinder = injector.getInstance(ArrayOptimalVehiclePlanFinder.class);
+//		
+//		NodesMappedByIndex nodesMappedByIndex = injector.getInstance(NodesMappedByIndex.class);
+//		
+//		TravelTimeProvider travelTimeProvider = injector.getInstance(TravelTimeProvider.class);
+//		
+//		// prepare test requests
+//		TestPlanRequest request0 = new TestPlanRequest(
+//				1390, config, nodesMappedByIndex.getNodeByIndex(15982), nodesMappedByIndex.getNodeByIndex(1071), 117, true,
+//				travelTimeProvider);
+//		TestPlanRequest request1 = new TestPlanRequest(
+//				453, config, nodesMappedByIndex.getNodeByIndex(15982), nodesMappedByIndex.getNodeByIndex(1071), 57, true,
+//				travelTimeProvider);
+//		LinkedHashSet<PlanComputationRequest> onBoardRequests = new LinkedHashSet<>();
+//		onBoardRequests.add(request0);
+//		onBoardRequests.add(request1);
+//		LinkedHashSet<TestPlanRequest> requests = new LinkedHashSet<>();
+//		requests.add(request0);
+//				
+//		// prepare test vehicle
+//		SimulationNode position = nodesMappedByIndex.getNodeByIndex(19027);
+//		DelayData delayData = new DelayData(9190L, 207407L, 12765);
+//		SimulationNode targetNode = nodesMappedByIndex.getNodeByIndex(6928);
+//		TestOnDemandVehicle testOnDemandVehicle = new TestOnDemandVehicle(config, targetNode, delayData, position);
+//		TestOptimalPlanVehicle vehicle = new TestOptimalPlanVehicle(onBoardRequests, position, 
+//				config.ridesharing.vehicleCapacity, testOnDemandVehicle);
+//		
+//		Plan plan = arrayOptimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(vehicle, requests, 210, false);
+//		
+//		Assert.assertNotNull(plan);
+//	}
 	
 //	@Test
 //	public void testFailCase(){

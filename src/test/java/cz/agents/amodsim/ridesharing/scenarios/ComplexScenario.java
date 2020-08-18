@@ -46,6 +46,7 @@ public class ComplexScenario {
 		
 		// config
 		testEnvironment.getConfig().ridesharing.maximumRelativeDiscomfort = 3.0;
+                testEnvironment.getConfig().ridesharing.weightParameter = 0.2;
 		
 		// set roadgraph - grid 5x4
 		Graph<SimulationNode, SimulationEdge> graph 
@@ -54,11 +55,11 @@ public class ComplexScenario {
 		
 		// demand trips
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(1000, graph.getNode(17), graph.getNode(3)));
-		trips.add(new TimeTrip<>(3000, graph.getNode(16), graph.getNode(14)));
-		trips.add(new TimeTrip<>(4000, graph.getNode(5), graph.getNode(10)));
-		trips.add(new TimeTrip<>(7000, graph.getNode(12), graph.getNode(9)));
-		trips.add(new TimeTrip<>(8000, graph.getNode(11), graph.getNode(0)));
+		trips.add(new TimeTrip<>(0,1000, graph.getNode(17), graph.getNode(3)));
+		trips.add(new TimeTrip<>(1,3000, graph.getNode(16), graph.getNode(14)));
+		trips.add(new TimeTrip<>(2,4000, graph.getNode(5), graph.getNode(10)));
+		trips.add(new TimeTrip<>(3,7000, graph.getNode(12), graph.getNode(9)));
+		trips.add(new TimeTrip<>(4,8000, graph.getNode(11), graph.getNode(0)));
 		
 		// vehicles
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();

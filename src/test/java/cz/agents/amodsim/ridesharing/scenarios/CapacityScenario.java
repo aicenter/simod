@@ -21,6 +21,7 @@ package cz.agents.amodsim.ridesharing.scenarios;
 import com.google.inject.Injector;
 import cz.agents.amodsim.ridesharing.RidesharingEventData;
 import cz.agents.amodsim.ridesharing.RidesharingTestEnvironment;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.Utils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
@@ -47,14 +48,17 @@ public class CapacityScenario {
 		testEnvironment.getConfig().ridesharing.discomfortConstraint = "relative";
 		testEnvironment.getConfig().ridesharing.maximumRelativeDiscomfort = 0.6;
 		
+                
+                
+                
 		// set roadgraph
 		Graph<SimulationNode, SimulationEdge> graph 
 				= Utils.getGridGraph(5, injector.getInstance(Transformer.class), 1);
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(1000, graph.getNode(1), graph.getNode(3)));
-		trips.add(new TimeTrip<>(1000, graph.getNode(2), graph.getNode(4)));
+		trips.add(new TimeTrip<>(0,1000, graph.getNode(1), graph.getNode(3)));
+		trips.add(new TimeTrip<>(0,1000, graph.getNode(2), graph.getNode(4)));
 		
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
 		vehicalInitPositions.add(graph.getNode(0));

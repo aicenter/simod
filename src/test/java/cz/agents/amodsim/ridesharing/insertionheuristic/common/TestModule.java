@@ -20,15 +20,21 @@ package cz.agents.amodsim.ridesharing.insertionheuristic.common;
 
 import cz.agents.amodsim.ridesharing.vga.common.*;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import cz.agents.amodsim.ridesharing.EventOrderStorage;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.GeojsonMapInitializer;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
+import cz.cvut.fel.aic.amodsim.rebalancing.RebalancingOnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.InsertionHeuristicSolver;
@@ -52,21 +58,23 @@ public class TestModule extends StandardAgentPolisModule{
 		super(amodsimConfig, localConfigFile, "agentpolis"); 
 		this.amodsimConfig = amodsimConfig;
 		agentpolisConfig.visio.showVisio = VisualTests.SHOW_VISIO;
+                
 		amodsimConfig.startTime = 0;
-		amodsimConfig.tripsMultiplier = 1.0;
+		amodsimConfig.tripsMultiplier = 1.0;  //1.0
+                amodsimConfig.ridesharing.maxProlongationInSeconds = 300;                
+                
 		agentpolisConfig.simulationDuration.days = 0;
 		agentpolisConfig.simulationDuration.hours = 0;
 		agentpolisConfig.simulationDuration.minutes = 0;
 		agentpolisConfig.simulationDuration.seconds = 120;
+                
 	}
 
-	
-	
-	
 	@Override
 	protected void configureNext() {
 		super.configureNext();
 		bind(AmodsimConfig.class).toInstance(amodsimConfig);
+                bind(AgentpolisConfig.class).toInstance(agentpolisConfig);
 		install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
 			.build(DemandAgent.DemandAgentFactory.class));
 		bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
@@ -78,6 +86,10 @@ public class TestModule extends StandardAgentPolisModule{
 		bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
 		install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
 				.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
+                
+                
+                install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, RebalancingOnDemandVehicleStation.class)
+				.build(RebalancingOnDemandVehicleStation.OnDemandVehicleStationFactory.class));
 	}
 	
 

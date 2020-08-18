@@ -18,8 +18,8 @@
  */
 package cz.agents.amodsim.ridesharing.vga;
 
-import cz.agents.amodsim.ridesharing.scenarios.SimpleRidesharing;
-import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestScenario;
+import cz.agents.amodsim.ridesharing.scenarios.SimpleRidesharingScenario;
+import cz.agents.amodsim.ridesharing.vga.common.VGASystemTestEnvironment;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ public class SimpleRidesharingTest {
 	
 	@Test
 	public void run() throws Throwable{
-		new SimpleRidesharing().run(new VGASystemTestScenario());
+		new SimpleRidesharingScenario().run(new VGASystemTestEnvironment());
 	}
 	
 	public static void main(String[] args) {

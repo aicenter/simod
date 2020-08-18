@@ -1,10 +1,14 @@
 
+from amodsim.init import config
+
 import csv
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import ticker, gridspec
 from typing import Tuple
+
+from amodsim.statistics.comparisons.common import Experiment
 
 
 def get_max_group_size_row(row: pd.Series, max_group_size: int = 11) -> int:
@@ -74,10 +78,11 @@ def get_group_counts_per_row(row: pd.Series, max_group_size: int = 11) -> pd.Ser
     return pd.Series(counts[0:max_group_size + 1])
 
 
-# ridesharing_filepath = r"O:/AIC data/Shared/amod-data/VGA Evaluation/experiments/icreased_trip_multiplication_time_shift/vga-weight0/ridesharing.csv"
+ridesharing_filepath = r"O:/AIC data/Shared/amod-data/VGA Evaluation/experiments/icreased_trip_multiplication_time_shift/vga-weight0/ridesharing.csv"
+ridesharing_filepath_lim = r"O:/AIC data/Shared/amod-data/VGA Evaluation/experiments/icreased_trip_multiplication_time_shift/vga-limited-weight0-lim30ms/ridesharing.csv"
 
-ridesharing_filepath = r"C:/AIC data/Shared/amod-data/VGA Evaluation/experiments/icreased_trip_multiplication_time_shift/vga-weight0/ridesharing.csv"
-ridesharing_filepath_lim = r"C:/AIC data/Shared/amod-data/VGA Evaluation/experiments/icreased_trip_multiplication_time_shift/vga-limited-weight0-lim30ms/ridesharing.csv"
+# ridesharing_filepath = r"C:/AIC data/Shared/amod-data/VGA Evaluation/experiments/icreased_trip_multiplication_time_shift/vga-weight0/ridesharing.csv"
+# ridesharing_filepath_lim = r"C:/AIC data/Shared/amod-data/VGA Evaluation/experiments/icreased_trip_multiplication_time_shift/vga-limited-weight0-lim30ms/ridesharing.csv"
 
 with open(ridesharing_filepath, 'r', encoding="utf-8") as ridesharing:
     r = pd.read_csv(ridesharing)
@@ -125,8 +130,8 @@ for i in range(12):
 
 # Plotting
 
-optimal_color = "green"
-limited_color = "blue"
+optimal_color = Experiment.VGA.color
+limited_color = Experiment.VGA_LIMITED.color
 
 # FuncFormatter can be used as a decorator
 @ticker.FuncFormatter
@@ -143,32 +148,33 @@ ax3 = axes[2]
 
 # Axis 1 - Active Requests
 ax1.plot(r["Active Request Count"] / 1000, color="red")
-ax1.set_ylabel("Ac. Req. [$10^3$]")
+ax1.set_ylabel(r"Ac. req. $ \times 10^3 $")
 
 # Axis 2 - Max Group Size
 ax2.plot(max_group_sizes, label="VGA optimal", color=optimal_color)
 ax2.plot(max_group_sizes_lim, label="VGA limited", color=limited_color)
-ax2.set_ylabel("Max Group")
+ax2.set_ylabel("Max group size")
 ax2.set_ylim(1.5, 12)
 ax2.set_yticks(np.arange(2, 13, 2))
 ax2.legend(loc=4, prop={'size': 8})
 
 # Axis 3
-ax3.plot(r["Group Generation Time"] / 1000, '-', label="VGA optimal Group Generation Time", color=optimal_color)
-ax3.plot(r["Solver Time"] / 1000, '--', label="VGA optimal ILP Solver Time", color="lime")
-ax3.plot(r_lim["Group Generation Time"] / 1000, '-.', label="VGA limited Group Generation Time", color=limited_color)
-ax3.plot(r_lim["Solver Time"] / 1000, ':', label="VGA limited ILP Solver Time", color="darkviolet")
-ax3.set_ylabel("comp. time [s]")
+ax3.plot(r["Group Generation Time"] / 1000, '-', label="VGA optimal group generation time", color=optimal_color)
+ax3.plot(r["Solver Time"] / 1000, '--', label="VGA optimal ILP solver time", color="aqua")
+ax3.plot(r_lim["Group Generation Time"] / 1000, '-.', label="VGA limited group generation time", color=limited_color)
+ax3.plot(r_lim["Solver Time"] / 1000, ':', label="VGA limited ILP solver time", color="orangered")
+ax3.set_ylabel("Comp. time [s]")
 ax3.set_ylim(0.5, 16000)
 ax3.set_yscale("log")
+ax3.axhline(y=30, linewidth=0.5, color='black', linestyle='-', label='VGA limited ILP solver limit')
 ax3.legend(loc=1, prop={'size': 8})
 
-ax3.set_xlabel("simulation time [min]")
+ax3.set_xlabel("Simulation time [min]")
 ax3.set_xlim(0, 180)
 ax3.xaxis.set_major_locator(ticker.MultipleLocator(20))
 ax3.xaxis.set_major_formatter(minute_formater)
 
-plt.savefig(r"C:\Users\david\Downloads/vga_simulation_time.pdf", bbox_inches='tight', transparent=True)
+plt.savefig(config.images.vga_times, bbox_inches='tight', transparent=True)
 
 
 # Group Size Plot
@@ -179,25 +185,25 @@ ax2 = axes2[1]
 # Axis 1 - Computational Time
 width = 0.4
 x = np.arange(1,12)
-ax1.bar(x - width / 2, group_times_sum / 1000, width, label="VGA optimal", color=optimal_color)
-ax1.bar(x + width / 2, group_times_sum_lim / 1000, width, label="VGA limited", color=limited_color)
-ax1.set_ylabel("comp. time [s]")
+ax1.bar(x - width / 2, group_times_sum / 1000, width, label="VGA optimal", color=optimal_color, hatch=Experiment.VGA.pattern)
+ax1.bar(x + width / 2, group_times_sum_lim / 1000, width, label="VGA limited", color=limited_color, hatch=Experiment.VGA_LIMITED.pattern)
+ax1.set_ylabel("Comp. time [s]")
 ax1.set_yscale("log")
 # ax1.legend(loc=1, prop={'size': 8})
 
 # Axis 2 - Group Counts
-ax2.bar(x - width / 2, group_counts_sum / 1, width, label="VGA optimal", color=optimal_color)
-ax2.bar(x + width / 2, group_counts_sum_lim / 1, width, label="VGA limited", color=limited_color)
-ax2.set_ylabel("group counts")
+ax2.bar(x - width / 2, group_counts_sum / 1, width, label="VGA optimal", color=optimal_color, hatch=Experiment.VGA.pattern)
+ax2.bar(x + width / 2, group_counts_sum_lim / 1, width, label="VGA limited", color=limited_color, hatch=Experiment.VGA_LIMITED.pattern)
+ax2.set_ylabel("Number of groups")
 ax2.set_yscale("log")
 ax2.legend(loc=1, prop={'size': 8})
 
 # x Axis config
 ax2.set_xlim(0, 12)
-ax2.set_xlabel("group size")
+ax2.set_xlabel("Group size")
 plt.xticks(np.arange(min(x), max(x)+1, 1.0))
 
-plt.savefig(r"C:\Users\david\Downloads/vga_group_size.pdf", bbox_inches='tight', transparent=True)
+plt.savefig(config.images.vga_group_size, bbox_inches='tight', transparent=True)
 
 plt.show()
 

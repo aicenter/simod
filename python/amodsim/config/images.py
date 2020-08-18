@@ -13,6 +13,8 @@ class Images:
         self.stations = properties.get("stations")
         self.demand_heatmap = properties.get("demand_heatmap")
         self.distance_delay_tradeoff = properties.get("distance_delay_tradeoff")
+        self.vga_times = properties.get("vga_times")
+        self.vga_group_size = properties.get("vga_group_size")
 
 
         pass

@@ -33,7 +33,7 @@ public class ExportEdge {
 	
 	private final int laneCount;
 	
-	private final float maxSpeed;
+	private final double maxSpeed;
 	
 	private final int length;
 	
@@ -57,7 +57,7 @@ public class ExportEdge {
 		return laneCount;
 	}
 
-	public float getMaxSpeed() {
+	public double getMaxSpeed() {
 		return maxSpeed;
 	}
 
@@ -69,7 +69,7 @@ public class ExportEdge {
 	
 	
 	
-	public ExportEdge(GPSLocation from, GPSLocation to, String id, int laneCount, float maxSpeed, int length) {
+	public ExportEdge(GPSLocation from, GPSLocation to, String id, int laneCount, double maxSpeed, int length) {
 		this.from = from;
 		this.to = to;
 		this.id = id;

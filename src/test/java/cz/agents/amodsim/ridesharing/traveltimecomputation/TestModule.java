@@ -23,6 +23,9 @@ import com.google.inject.Singleton;
 import cz.agents.amodsim.ridesharing.vga.common.*;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.AStarShortestPathPlanner;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.EuclideanTraveltimeHeuristic;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.ShortestPathPlanner;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
@@ -47,6 +50,8 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
+import org.jgrapht.alg.interfaces.AStarAdmissibleHeuristic;
+
 import java.io.File;
 import java.time.ZonedDateTime;
 import javax.annotation.Nullable;
@@ -69,6 +74,8 @@ public class TestModule extends TestStandardAgentPolisModule{
 		super.configureNext();
 		bind(AmodsimConfig.class).toInstance(amodsimConfig);
 		bind(MapInitializer.class).to(TestGeojsonMapInitializer.class);
+		bind(ShortestPathPlanner.class).to(AStarShortestPathPlanner.class);
+		bind(AStarAdmissibleHeuristic.class).to(EuclideanTraveltimeHeuristic.class);
 	}
       
 	@Override

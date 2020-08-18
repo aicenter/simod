@@ -69,10 +69,10 @@ public class MainModule extends StandardAgentPolisModule{
 	public MainModule(AmodsimConfig amodsimConfig, File localConfigFile) {
 		super(amodsimConfig, localConfigFile, "agentpolis");
 		this.amodsimConfig = amodsimConfig;
-                //clean experiment folder (for merging, must be before setting logger file path in branch feature/saveLogToExperiments)
-                deleteFiles(new File(amodsimConfig.amodsimExperimentDir));
-                //set logger file path (for merging, must be after cleanup folder in branch feature/clear_exp_folder)
-                setLoggerFilePath(amodsimConfig.amodsimExperimentDir);
+		//clean experiment folder (for merging, must be before setting logger file path in branch feature/saveLogToExperiments)
+		deleteFiles(new File(amodsimConfig.amodsimExperimentDir));
+		//set logger file path (for merging, must be after cleanup folder in branch feature/clear_exp_folder)
+		setLoggerFilePath(amodsimConfig.amodsimExperimentDir);
 	}
 
 	@Override

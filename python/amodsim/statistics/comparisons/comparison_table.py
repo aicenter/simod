@@ -5,8 +5,8 @@ import roadmaptools.inout
 import statistics.model.traffic_load as traffic_load
 
 from typing import List
-from scripts.printer import print_table
-from statistics.model.traffic_load import VehiclePhase
+# from scripts.printer import print_table
+# from statistics.model.traffic_load import VehiclePhase
 from amodsim.statistics.traffic_density_histogram import TrafficDensityHistogram
 
 

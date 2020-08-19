@@ -110,4 +110,11 @@ Simulation creates following files:
 
 ## Proccessing data using python
 
-...
+Statistics scripts in python needs several prerequisities. Visualization itself uses python library **matplotlib **, which additionally needs **LateX** and **Ghostscript**.
+
+* https://ghostscript.com/download.html
+
+* https://miktex.org/download
+
+*Official matplotlib site regarding this topic: https://matplotlib.org/tutorials/text/usetex.html*
+

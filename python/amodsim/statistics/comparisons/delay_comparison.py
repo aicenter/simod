@@ -63,15 +63,15 @@ bins = np.arange(-0.49, 5.51, 1)
 
 fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))
 # axes.hist([delays_1, delays_2, delays_3], bins, label=['No Ridesharing', 'Insertion Heuristic', 'VGA'], histtype='step',
-# 		  normed=True)
+# 		  density=True)
 axes.hist([delays_1, delays_2, delays_3, delays_4, delays_5], bins,
-		label=common.labels, normed=True, histtype='step')
+		label=common.labels, density=True, histtype='step')
 axes.yaxis.set_major_formatter(FuncFormatter(to_percent))
 plt.legend(loc='upper right')
 
 fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))
 axes.hist([delays_window_1, delays_window_2, delays_window_3, delays_window_4, delays_window_5], bins,
-		  label=common.labels, normed=True, histtype='step')
+		  label=common.labels, density=True, histtype='step')
 axes.set_xlabel("delay [min]")
 axes.yaxis.set_major_formatter(FuncFormatter(to_percent))
 

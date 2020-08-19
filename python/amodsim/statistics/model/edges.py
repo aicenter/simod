@@ -2,7 +2,7 @@ from amodsim.init import config
 
 import pandas
 import roadmaptools.inout
-
+import geojson
 from typing import Union, Dict, List
 from pandas import DataFrame
 from roadmaptools.printer import print_info
@@ -37,11 +37,14 @@ def load_edge_pairs() -> Union[Dict, List]:
 	return roadmaptools.inout.load_json(config.edge_pairs_file_path + modifier + ".json")
 
 
+def make_data_frame(geojson: geojson.feature.FeatureCollection) -> DataFrame:
+	return DataFrame(([str(edge['properties']['id']), int(edge['properties']['length'])] for edge in geojson['features']), columns=cols)
+
+
 def load_table() -> DataFrame:
 	# json = roadmaptools.inout.load_json(filename)
 	geojson = roadmaptools.inout.load_geojson(config.agentpolis.map_edges_filepath)
-	data = DataFrame(([str(edge['properties']['id']), int(edge['properties']['length'])] for edge in geojson['features']), columns=cols)
-	return data
+	return make_data_frame(geojson)
 
 
 

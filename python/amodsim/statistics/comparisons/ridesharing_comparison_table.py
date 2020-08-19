@@ -106,11 +106,7 @@ def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, experi
 
 loaded_edges = roadmaptools.inout.load_geojson(config.agentpolis.map_edges_filepath)
 edge_data = edges.make_data_frame(loaded_edges)
-
-edge_object_data = {}
-for edge in loaded_edges['features']:
-	edge_object_data[edge['properties']['id']] = edge['properties']
-print(len(edge_object_data))
+edge_object_data = edges.load_edges_mapped_by_id(loaded_edges)
 
 
 # exp_dir_1 = config.comparison.experiment_1_dir

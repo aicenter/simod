@@ -50,7 +50,6 @@ import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehicleP
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.DistanceMatrixTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayer;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayerWithJitter;
 import cz.cvut.fel.aic.geographtools.TransportMode;
@@ -71,10 +70,10 @@ public class MainModule extends StandardAgentPolisModule{
 	public MainModule(AmodsimConfig amodsimConfig, File localConfigFile) {
 		super(amodsimConfig, localConfigFile, "agentpolis");
 		this.amodsimConfig = amodsimConfig;      
-                //clean experiment folder (for merging, must be before setting logger file path in branch feature/saveLogToExperiments)
-                deleteFiles(new File(amodsimConfig.amodsimExperimentDir));
-                //set logger file path (for merging, must be after cleanup folder in branch feature/clear_exp_folder)
-                setLoggerFilePath(amodsimConfig.amodsimExperimentDir);
+		//clean experiment folder (for merging, must be before setting logger file path in branch feature/saveLogToExperiments)
+		deleteFiles(new File(amodsimConfig.amodsimExperimentDir));
+		//set logger file path (for merging, must be after cleanup folder in branch feature/clear_exp_folder)
+		setLoggerFilePath(amodsimConfig.amodsimExperimentDir);
 	}
 
 	@Override
@@ -100,17 +99,28 @@ public class MainModule extends StandardAgentPolisModule{
 		if(amodsimConfig.ridesharing.on){
 			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 			bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
+
 			switch(amodsimConfig.ridesharing.travelTimeProvider){
-			    case "Astar":
-				bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
-				break;
-			    case "Euclidean":	
-				bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
-				break;
-			    case "DistanceMatrix":
-				bind(TravelTimeProvider.class).to(DistanceMatrixTravelTimeProvider.class);
-				break;
+				case "astar":
+					bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
+					break;
+				case "dm":
+					bind(TravelTimeProvider.class).to(DistanceMatrixTravelTimeProvider.class);
+					break;
+				case "euclidean":
+					bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
+					break;
+				case "ch":
+					bind(TravelTimeProvider.class).to(CHTravelTimeProvider.class);
+					break;
+				case "tnr":
+					bind(TravelTimeProvider.class).to(TNRTravelTimeProvider.class);
+					break;
+				case "tnraf":
+					bind(TravelTimeProvider.class).to(TNRAFTravelTimeProvider.class);
+					break;
 			}
+
 			bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
 			install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
 						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));

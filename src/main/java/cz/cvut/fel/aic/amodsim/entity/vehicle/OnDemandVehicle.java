@@ -359,8 +359,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	}
 
 	@Override
-	public int getVelocity() {
-		return config.vehicleSpeedInMeters;
+	public double getVelocity() {
+		return (double) config.vehicleSpeedInMeters;
 	}
 	
 	public int getCapacity(){

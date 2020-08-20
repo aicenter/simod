@@ -76,9 +76,9 @@ public class TestOnDemandVehicle extends OnDemandVehicle{
 	protected void dropOffDemand() {
 		super.dropOffDemand(); 
 	}
-	
-	
-	
-	
-	
+
+	@Override
+	public double getVelocity() {
+		return super.getVelocity();
+	}
 }

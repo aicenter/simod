@@ -6,7 +6,7 @@ from amodsim.utils import col_to_percent, to_percetnt
 from roadmaptools.printer import print_table
 
 
-json_file = open(config.amodsim.statistics.result_file_path, 'r')
+json_file = open(config.statistics.result_file_path, 'r')
 result = json.loads(json_file.read())
 
 avg_km_total = result["averageKmWithPassenger"] + result["averageKmToStartLocation"] + result["averageKmToStation"] \
@@ -21,10 +21,10 @@ total_demands = result["demandsCount"]
 dropped_demands = result["numberOfDemandsDropped"]
 
 output_table = np.array([["TRIP TYPE", "AVG KM PER VEHICLE", "SHARE ON TRAFFIC"],
-                ["demnad trips", result["averageKmWithPassenger"], demand_share],
-                ["pickup trips", result["averageKmToStartLocation"], pickup_share],
-                ["drop off trips", result["averageKmToStation"], drop_off_share],
-                ["rebalancing trips", result["averageKmRebalancing"], rebalancing_share]])
+                ["Demand trips", result["averageKmWithPassenger"], demand_share],
+                ["Pickup trips", result["averageKmToStartLocation"], pickup_share],
+                ["Drop off trips", result["averageKmToStation"], drop_off_share],
+                ["Rebalancing trips", result["averageKmRebalancing"], rebalancing_share]])
 
 output_table[1:,2] = col_to_percent(output_table[1:,2])
 

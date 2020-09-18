@@ -105,7 +105,7 @@ class TrafficDensityHistogram:
             edge = self.edges[edge_id]
             while w <= WINDOW_END:
                 if edge_id in load[w]:
-                    sum += traffic_load.get_normalized_load(load[w][edge_id], edge["length"], edge["laneCount"])
+                    sum += traffic_load.get_normalized_load(load[w][edge_id], edge["length"], edge["lanes"])
                 w += 1
             average_density_list[i] = sum / WINDOW_LENGTH
             i += 1

@@ -30,13 +30,19 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.20</version>
+				<version>3.0.0-M5</version>
 				<configuration>
 					<excludes>
 						<exclude>**/Simulation10MinuteTest.java</exclude>
 						<exclude>**/SimulationMinuteTest.java</exclude>
 					</excludes>
 					<trimStackTrace>false</trimStackTrace>
+					
+					<!-- This is needed because of the tests calling native code. Without it, the native code's stdout
+					somehow conflicts with the surefire plugin, resulting in missing output from the native code. 
+					This can be probably removed in future versions of the surefire plugin -->
+					<forkNode implementation="org.apache.maven.plugin.surefire.extensions.SurefireForkNodeFactory"/>
+					<argLine>-Dfile.encoding=UTF-8</argLine>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -112,6 +118,7 @@
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
+			<version>5.0.0-BETA-1</version> <!-- older versions cause some warnings in surefire -->
 		</dependency>
 		<dependency>
 			<groupId>com.google.inject.extensions</groupId>

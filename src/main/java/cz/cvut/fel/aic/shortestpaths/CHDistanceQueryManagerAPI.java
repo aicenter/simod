@@ -9,46 +9,46 @@
 package cz.cvut.fel.aic.shortestpaths;
 
 public class CHDistanceQueryManagerAPI {
-  private transient long swigCPtr;
-  protected transient boolean swigCMemOwn;
+    private transient long swigCPtr;
+    protected transient boolean swigCMemOwn;
 
-  protected CHDistanceQueryManagerAPI(long cPtr, boolean cMemoryOwn) {
-    swigCMemOwn = cMemoryOwn;
-    swigCPtr = cPtr;
-  }
-
-  protected static long getCPtr(CHDistanceQueryManagerAPI obj) {
-    return (obj == null) ? 0 : obj.swigCPtr;
-  }
-
-  protected void finalize() {
-    delete();
-  }
-
-  public synchronized void delete() {
-    if (swigCPtr != 0) {
-      if (swigCMemOwn) {
-        swigCMemOwn = false;
-        shortestPathsJNI.delete_CHDistanceQueryManagerAPI(swigCPtr);
-      }
-      swigCPtr = 0;
+    protected CHDistanceQueryManagerAPI(long cPtr, boolean cMemoryOwn) {
+        swigCMemOwn = cMemoryOwn;
+        swigCPtr = cPtr;
     }
-  }
 
-  public void initializeCH(String chFile, String mappingFile) {
-    shortestPathsJNI.CHDistanceQueryManagerAPI_initializeCH(swigCPtr, this, chFile, mappingFile);
-  }
+    protected static long getCPtr(CHDistanceQueryManagerAPI obj) {
+        return (obj == null) ? 0 : obj.swigCPtr;
+    }
 
-  public long distanceQuery(java.math.BigInteger start, java.math.BigInteger goal) {
-    return shortestPathsJNI.CHDistanceQueryManagerAPI_distanceQuery(swigCPtr, this, start, goal);
-  }
+    protected void finalize() {
+        delete();
+    }
 
-  public void clearStructures() {
-    shortestPathsJNI.CHDistanceQueryManagerAPI_clearStructures(swigCPtr, this);
-  }
+    public synchronized void delete() {
+        if (swigCPtr != 0) {
+            if (swigCMemOwn) {
+                swigCMemOwn = false;
+                shortestPathsJNI.delete_CHDistanceQueryManagerAPI(swigCPtr);
+            }
+            swigCPtr = 0;
+        }
+    }
 
-  public CHDistanceQueryManagerAPI() {
-    this(shortestPathsJNI.new_CHDistanceQueryManagerAPI(), true);
-  }
+    public void initializeCH(String chFile, String mappingFile) {
+        shortestPathsJNI.CHDistanceQueryManagerAPI_initializeCH(swigCPtr, this, chFile, mappingFile);
+    }
+
+    public long distanceQuery(java.math.BigInteger start, java.math.BigInteger goal) {
+        return shortestPathsJNI.CHDistanceQueryManagerAPI_distanceQuery(swigCPtr, this, start, goal);
+    }
+
+    public void clearStructures() {
+        shortestPathsJNI.CHDistanceQueryManagerAPI_clearStructures(swigCPtr, this);
+    }
+
+    public CHDistanceQueryManagerAPI() {
+        this(shortestPathsJNI.new_CHDistanceQueryManagerAPI(), true);
+    }
 
 }

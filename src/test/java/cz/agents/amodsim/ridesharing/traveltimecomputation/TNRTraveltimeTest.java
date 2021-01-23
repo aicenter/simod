@@ -1,5 +1,7 @@
 package cz.agents.amodsim.ridesharing.traveltimecomputation;
 
+import cz.agents.amodsim.ridesharing.traveltimecomputation.common.ShortestPathsTestModule;
+import cz.agents.amodsim.ridesharing.traveltimecomputation.common.TestAgentPolisInitializer;
 import com.google.inject.Injector;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.Graphs;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;

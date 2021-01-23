@@ -1,5 +1,7 @@
-package cz.agents.amodsim.ridesharing.traveltimecomputation;
+package cz.agents.amodsim.ridesharing.traveltimecomputation.common;
 
+import cz.agents.amodsim.ridesharing.traveltimecomputation.common.TestGeojsonMapInitializer;
+import cz.agents.amodsim.ridesharing.traveltimecomputation.common.TestStandardAgentPolisModule;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.AStarShortestPathPlanner;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.EuclideanTraveltimeHeuristic;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.ShortestPathPlanner;
@@ -26,7 +28,7 @@ public class ShortestPathsTestModule extends TestStandardAgentPolisModule {
     protected void configureNext() {
         super.configureNext();
         bind(AmodsimConfig.class).toInstance(amodsimConfig);
-        bind(MapInitializer.class).to(GeojsonMapInitializer.class);
+        bind(MapInitializer.class).to(TestGeojsonMapInitializer.class);
         bind(ShortestPathPlanner.class).to(AStarShortestPathPlanner.class);
         bind(AStarAdmissibleHeuristic.class).to(EuclideanTraveltimeHeuristic.class);
     }

@@ -1,7 +1,6 @@
 import os
 import sys
 import roadmaptools.init
-import amodsim.config.amodsim_config
 
 import amodsim.config.amodsim_config
 

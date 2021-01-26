@@ -52,6 +52,7 @@
 		<dependency>
 			<groupId>cz.cvut.fel.aic</groupId>
 			<artifactId>agentpolis</artifactId>
+			<version>7.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>cz.cvut.fel.aic</groupId>
@@ -123,6 +124,7 @@
 		<dependency>
 			<groupId>com.google.inject.extensions</groupId>
 			<artifactId>guice-assistedinject</artifactId>
+			<version>5.0.0-BETA-1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.gurobi</groupId>

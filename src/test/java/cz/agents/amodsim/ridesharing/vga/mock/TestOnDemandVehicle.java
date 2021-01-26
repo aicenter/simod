@@ -47,8 +47,8 @@ public class TestOnDemandVehicle implements MovingEntity{
 	
 
 	@Override
-	public int getVelocity() {
-		return config.vehicleSpeedInMeters;
+	public double getVelocity() {
+		return (double) config.vehicleSpeedInMeters;
 	}
 
 	@Override

@@ -78,7 +78,7 @@ public class TestOnDemandVehicle extends OnDemandVehicle{
 	}
 
 	@Override
-	public int getVelocity() {
-		return super.getVelocity();
+	public double getVelocity() {
+		return (double) super.getVelocity();
 	}
 }

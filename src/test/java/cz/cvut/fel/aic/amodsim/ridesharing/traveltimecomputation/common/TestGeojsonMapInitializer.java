@@ -51,8 +51,8 @@ public class TestGeojsonMapInitializer  extends MapInitializer{
 
 	@Override
 	protected Graph<SimulationNode, SimulationEdge> getGraph() {
-                String package_path = "cz/agents/amodsim/ridesharing/traveltimecomputation/";
-                String nodeFile = getClass().getClassLoader().getResource(package_path + "nodes.geojson").getPath();
+		String package_path = "cz/cvut/fel/aic/amodsim/ridesharing/traveltimecomputation/";
+		String nodeFile = getClass().getClassLoader().getResource(package_path + "nodes.geojson").getPath();
 		String edgeFile = getClass().getClassLoader().getResource(package_path + "edges.geojson").getPath();
 		String serializedGraphFile = config.pathToSerializedGraph;
 		GeoJSONReader importer = new GeoJSONReader(edgeFile, nodeFile, serializedGraphFile, projection);

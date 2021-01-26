@@ -7,6 +7,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.EuclideanTraveltimeH
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.ShortestPathPlanner;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.GeojsonMapInitializer;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
+import cz.cvut.fel.aic.agentpolis.utils.ResourceReader;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import org.jgrapht.alg.interfaces.AStarAdmissibleHeuristic;
 
@@ -22,6 +23,20 @@ public class ShortestPathsTestModule extends TestStandardAgentPolisModule {
     public ShortestPathsTestModule(AmodsimConfig amodsimConfig) {
         super(amodsimConfig, null, "agentpolis");
         this.amodsimConfig = amodsimConfig;
+		
+		String package_path = "/cz/cvut/fel/aic/amodsim/ridesharing/traveltimecomputation/";
+
+		String CHPath = ResourceReader.getAbsoultePathToResource(package_path + "ch.ch");
+		amodsimConfig.shortestpaths.chFilePath = CHPath;
+		
+		String TNRPath = ResourceReader.getAbsoultePathToResource(package_path + "tnr.tnrg");
+		amodsimConfig.shortestpaths.tnrFilePath = TNRPath;
+		
+		String TNRAFPath = ResourceReader.getAbsoultePathToResource(package_path + "tnraf.tgaf");
+		amodsimConfig.shortestpaths.tnrafFilePath = TNRAFPath;
+		
+		String mappingPath = ResourceReader.getAbsoultePathToResource(package_path + "mapping.xeni");
+		amodsimConfig.shortestpaths.mappingFilePath = mappingPath;
     }
 
     @Override

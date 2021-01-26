@@ -52,9 +52,9 @@ public class TNRAFTraveltimeTest {
                 SimulationNode to = map.get(((j * 897) + 2000) % map.size());
                 double durationAstar = astarTravelTimeProvider.getExpectedTravelTime(from, to);
                 double durationTNRAF = tnrafTravelTimeProvider.getExpectedTravelTime(from, to);
-                LOGGER.debug("From {}(index {}) to {}(index {}), astar distance: {}, TNRAF distance: {}, difference {}", from,
+                LOGGER.trace("From {}(index {}) to {}(index {}), astar distance: {}, TNRAF distance: {}, difference {}", from,
                         from.getIndex(), to, to.getIndex(), durationAstar, durationTNRAF, durationAstar - durationTNRAF);
-                Assert.assertEquals(durationAstar, durationTNRAF, 5);
+                Assert.assertEquals(durationAstar, durationTNRAF, 30);
             }
         }
     }

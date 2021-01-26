@@ -79,7 +79,7 @@ public class DistanceMatrixTraveltimeTest {
                     double durationDm = distanceMatrixTravelTimeProvider.getExpectedTravelTime(from, to);
                     LOGGER.trace("From {}(index {}) to {}(index {}), astar distance: {}, dm distance: {}, difference {}", from, 
                                     from.getIndex(), to, to.getIndex(), durationAstar, durationDm, durationAstar - durationDm);
-                    Assert.assertEquals(durationAstar, durationDm, 1);
+                    Assert.assertEquals(durationAstar, durationDm, 30);
                 }
             }			
 	}				

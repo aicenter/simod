@@ -63,7 +63,7 @@ public class TestDistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 	@Inject
 	public TestDistanceMatrixTravelTimeProvider(TimeProvider timeProvider) {
 		super(timeProvider);
-                String package_path = "cz/agents/amodsim/ridesharing/traveltimecomputation/";
+                String package_path = "cz/cvut/fel/aic/amodsim/ridesharing/traveltimecomputation/";
                 String dmPath = getClass().getClassLoader().getResource(package_path + "dm.csv").getPath();
 		distanceMatrix = loadDistanceMatrix(dmPath);
 	}

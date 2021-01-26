@@ -51,9 +51,9 @@ public class TNRTraveltimeTest {
                 SimulationNode to = map.get(((j * 897) + 2000) % map.size());
                 double durationAstar = astarTravelTimeProvider.getExpectedTravelTime(from, to);
                 double durationTNR = tnrTravelTimeProvider.getExpectedTravelTime(from, to);
-                LOGGER.debug("From {}(index {}) to {}(index {}), astar distance: {}, TNR distance: {}, difference {}", from,
+                LOGGER.trace("From {}(index {}) to {}(index {}), astar distance: {}, TNR distance: {}, difference {}", from,
                         from.getIndex(), to, to.getIndex(), durationAstar, durationTNR, durationAstar - durationTNR);
-                Assert.assertEquals(durationAstar, durationTNR, 5);
+                Assert.assertEquals(durationAstar, durationTNR, 30);
             }
         }
     }

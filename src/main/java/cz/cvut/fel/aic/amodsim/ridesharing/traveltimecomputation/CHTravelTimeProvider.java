@@ -63,8 +63,8 @@ public class CHTravelTimeProvider extends TravelTimeProvider{
             this.queryManagers[i].initializeCH(config.shortestpaths.chFilePath, config.shortestpaths.mappingFilePath);
             this.queryManagersOccupied[i] = false;
         }
-
     }
+
 
     @Override
     public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {

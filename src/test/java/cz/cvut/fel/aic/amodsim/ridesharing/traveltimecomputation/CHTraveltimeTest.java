@@ -52,9 +52,9 @@ public class CHTraveltimeTest {
                 SimulationNode to = map.get(((j * 897) + 2000) % map.size());
                 double durationAstar = astarTravelTimeProvider.getExpectedTravelTime(from, to);
                 double durationCH = chTravelTimeProvider.getExpectedTravelTime(from, to);
-                LOGGER.debug("From {}(index {}) to {}(index {}), astar distance: {}, CH distance: {}, difference {}", from,
+                LOGGER.trace("From {}(index {}) to {}(index {}), astar distance: {}, CH distance: {}, difference {}", from,
                         from.getIndex(), to, to.getIndex(), durationAstar, durationCH, durationAstar - durationCH);
-                Assert.assertEquals(durationAstar, durationCH, 5);
+                Assert.assertEquals(durationAstar, durationCH, 30);
             }
         }
     }

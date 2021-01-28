@@ -101,9 +101,6 @@ public class MainModule extends StandardAgentPolisModule{
 			bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
 
 			switch(amodsimConfig.ridesharing.travelTimeProvider){
-				case "astar":
-					bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
-					break;
 				case "dm":
 					bind(TravelTimeProvider.class).to(DistanceMatrixTravelTimeProvider.class);
 					break;
@@ -118,6 +115,10 @@ public class MainModule extends StandardAgentPolisModule{
 					break;
 				case "tnraf":
 					bind(TravelTimeProvider.class).to(TNRAFTravelTimeProvider.class);
+					break;
+				case "astar":
+				default:
+					bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
 					break;
 			}
 
@@ -146,6 +147,10 @@ public class MainModule extends StandardAgentPolisModule{
 		if(amodsimConfig.rebalancing.on){
 			install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, RebalancingOnDemandVehicleStation.class)
 				.build(RebalancingOnDemandVehicleStation.OnDemandVehicleStationFactory.class));
+		}
+		else{
+			install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, OnDemandVehicleStation.class)
+				.build(OnDemandVehicleStation.OnDemandVehicleStationFactory.class));
 		}
 	} 
 	private void deleteFiles(File folder) {

@@ -28,6 +28,7 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent.DemandAgentFactory;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.CongestedDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.*;
@@ -93,8 +94,11 @@ public class MainModule extends StandardAgentPolisModule{
 		}
 		bind(DemandLayer.class).to(DemandLayerWithJitter.class);
 		
-//		bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
-		bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
+                if(agentpolisConfig.congestionModel.on){
+                        bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
+                } else {
+                        bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
+                }
 
 		if(amodsimConfig.ridesharing.on){
 			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);

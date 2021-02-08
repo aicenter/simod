@@ -94,11 +94,11 @@ public class MainModule extends StandardAgentPolisModule{
 		}
 		bind(DemandLayer.class).to(DemandLayerWithJitter.class);
 		
-                if(agentpolisConfig.congestionModel.on){
-                        bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
-                } else {
-                        bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
-                }
+		if(agentpolisConfig.congestionModel.on){
+				bind(PhysicalVehicleDriveFactory.class).to(CongestedDriveFactory.class);
+		} else {
+				bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
+		}
 
 		if(amodsimConfig.ridesharing.on){
 			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);

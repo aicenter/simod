@@ -19,7 +19,6 @@
 package cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.common;
 
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
@@ -50,28 +49,33 @@ import java.io.File;
 public class TestModule extends StandardAgentPolisModule{
 	
 	private final AmodsimConfig amodsimConfig;
-        protected int roadWidth;
-        
+	
+	protected int roadWidth;
+
 	public TestModule(AmodsimConfig amodsimConfig, File localConfigFile) {
 		super(amodsimConfig, localConfigFile, "agentpolis"); 
 		this.amodsimConfig = amodsimConfig;
 		agentpolisConfig.visio.showVisio = VisualTests.SHOW_VISIO;
-                this.amodsimConfig.ridesharing.vga.groupGeneratorLogFilepath = new File("").getAbsolutePath();
-                
+		this.amodsimConfig.ridesharing.vga.groupGeneratorLogFilepath = new File("").getAbsolutePath();
+		
 		amodsimConfig.startTime = 0;
 		amodsimConfig.tripsMultiplier = 1.0;
-                amodsimConfig.ridesharing.on = true;
-                amodsimConfig.ridesharing.vga.logPlanComputationalTime = false;
-                amodsimConfig.ridesharing.vga.exportGroupData = false;
-                amodsimConfig.ridesharing.vga.groupGenerationTimeLimit = 0; //turns off limit for all tests
-                amodsimConfig.ridesharing.maxProlongationInSeconds = 300;
-                amodsimConfig.stations.on = false;               
-                
+		
+		amodsimConfig.startTime = 0;
+		amodsimConfig.tripsMultiplier = 1.0;
+		amodsimConfig.ridesharing.on = true;
+		amodsimConfig.ridesharing.vga.logPlanComputationalTime = false;
+		amodsimConfig.ridesharing.vga.exportGroupData = false;
+		amodsimConfig.ridesharing.vga.groupGenerationTimeLimit = 0; //turns off limit for all tests
+		amodsimConfig.ridesharing.maxProlongationInSeconds = 300;
+		amodsimConfig.stations.on = false; 
+		
 		agentpolisConfig.simulationDuration.days = 0;
 		agentpolisConfig.simulationDuration.hours = 0;
 		agentpolisConfig.simulationDuration.minutes = 0;
-		agentpolisConfig.simulationDuration.seconds = 120;                
-                roadWidth = 24;
+		agentpolisConfig.simulationDuration.seconds = 120;
+		
+		roadWidth = 24;
 	}
 
 	
@@ -94,11 +98,8 @@ public class TestModule extends StandardAgentPolisModule{
 				.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
 		bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);
 //		bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
-                
 
-                bind(int.class).annotatedWith(Names.named("HighwayLayer edge width")).toInstance(roadWidth);
-                
-                
+		bind(int.class).annotatedWith(Names.named("HighwayLayer edge width")).toInstance(roadWidth);
 	}
 	
 

@@ -65,19 +65,20 @@ public class OnDemandVehiclesSimulation {
 
 		TripTransform tripTransform = injector.getInstance(TripTransform.class);
 		RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
+		
+		// load stations
+			injector.getInstance(StationsInitializer.class).loadStations();
 
 		if(config.rebalancing.on){
-//				rebalancingLoader.load(new File(config.rebalancing.external.policyFilePath), true);
-			// load stations
-			injector.getInstance(StationsInitializer.class).loadStations();
 
 			// start rebalancing
 			injector.getInstance(ReactiveRebalancing.class).start();
 
-			// load trips
-			injector.getInstance(EventInitializer.class).initialize(
-				tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
 		}
+		
+		// load trips
+		injector.getInstance(EventInitializer.class).initialize(
+			tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
 
 		injector.getInstance(StatisticInitializer.class).initialize();
             

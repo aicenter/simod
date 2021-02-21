@@ -66,15 +66,17 @@ import org.slf4j.LoggerFactory;
  */
 public class MainModule extends StandardAgentPolisModule{
 	
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(MainModule.class);
+	
 	private final AmodsimConfig amodsimConfig;
 	
 	public MainModule(AmodsimConfig amodsimConfig, File localConfigFile) {
 		super(amodsimConfig, localConfigFile, "agentpolis");
+		setLoggerFilePath(amodsimConfig.amodsimExperimentDir);
 		this.amodsimConfig = amodsimConfig;      
 		//clean experiment folder (for merging, must be before setting logger file path in branch feature/saveLogToExperiments)
 		deleteFiles(new File(amodsimConfig.amodsimExperimentDir));
 		//set logger file path (for merging, must be after cleanup folder in branch feature/clear_exp_folder)
-		setLoggerFilePath(amodsimConfig.amodsimExperimentDir);
 	}
 
 	@Override
@@ -173,9 +175,10 @@ public class MainModule extends StandardAgentPolisModule{
 	
 	private void setLoggerFilePath(String experiments_path) {         
 			LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-			FileAppender appender =
-			(FileAppender) lc.getLogger("ROOT").getAppender("FILE");
-			appender.setFile(experiments_path+"/log/log.txt");appender.setFile(experiments_path+"/log/log.txt");
+			FileAppender appender = (FileAppender) lc.getLogger("ROOT").getAppender("FILE");
+			String logPath = experiments_path+"/log/log.txt";
+			LOGGER.info("Setting log filepath to: {}", logPath);
+			appender.setFile(logPath);
 			appender.start();
 	}
            

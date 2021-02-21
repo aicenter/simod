@@ -54,10 +54,10 @@ public class OnDemandVehiclesSimulation {
 		
 		File localConfigFile = null;
 		if(args.length > 0){
-                    localConfigFile = new File(args[0]);
+			localConfigFile = new File(args[0]);
 		}               
 		Injector injector = new AgentPolisInitializer(new MainModule(config, localConfigFile)).initialize();
-                SimulationCreator creator = injector.getInstance(SimulationCreator.class);         
+		SimulationCreator creator = injector.getInstance(SimulationCreator.class);         
 		// prepare map, entity storages...
 		creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
 
@@ -65,7 +65,7 @@ public class OnDemandVehiclesSimulation {
 		RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
 		
 		// load stations
-			injector.getInstance(StationsInitializer.class).loadStations();
+		injector.getInstance(StationsInitializer.class).loadStations();
 
 		if(config.rebalancing.on){
 

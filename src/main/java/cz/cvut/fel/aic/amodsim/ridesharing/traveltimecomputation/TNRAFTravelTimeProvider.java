@@ -14,6 +14,7 @@ import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.shortestpaths.TNRAFDistanceQueryManagerAPI;
 
 import java.math.BigInteger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -24,6 +25,8 @@ import java.math.BigInteger;
  */
 @Singleton
 public class TNRAFTravelTimeProvider extends TravelTimeProvider{
+	
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TNRAFTravelTimeProvider.class);
 
     private final TripsUtil tripsUtil;
 
@@ -53,7 +56,7 @@ public class TNRAFTravelTimeProvider extends TravelTimeProvider{
         // using an absolute path instead of trying to find in in the java.library.path.
         System.loadLibrary("shortestPaths");
         this.freeQueryManagers = this.queryManagersCount;
-        System.out.println("Initializing " + this.queryManagersCount + " TNRAF query managers.");
+        LOGGER.info("Initializing {} TNRAF query managers.", this.queryManagersCount);
         this.queryManagers = new TNRAFDistanceQueryManagerAPI[this.queryManagersCount];
         this.queryManagersOccupied = new boolean[this.queryManagersCount];
         for(int i = 0; i < this.queryManagersCount; i++) {

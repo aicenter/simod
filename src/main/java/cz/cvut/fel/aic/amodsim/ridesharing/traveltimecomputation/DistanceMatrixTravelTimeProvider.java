@@ -129,7 +129,7 @@ public class DistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 
 	@Override
 	public void printCalls() {
-		System.out.println("Distance matrix was queried " + callCount + " times.");
+		LOGGER.info("Distance matrix was queried {} times.", callCount);
 	}
 	
 }

@@ -12,9 +12,9 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.shortestpaths.CHDistanceQueryManagerAPI;
-import cz.cvut.fel.aic.shortestpaths.TNRDistanceQueryManagerAPI;
 
 import java.math.BigInteger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class implements an API that allows us to call the Contraction Hierarchies query algorithm present
@@ -24,6 +24,8 @@ import java.math.BigInteger;
  */
 @Singleton
 public class CHTravelTimeProvider extends TravelTimeProvider{
+	
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(CHTravelTimeProvider.class);
 
     private final TripsUtil tripsUtil;
 
@@ -55,7 +57,7 @@ public class CHTravelTimeProvider extends TravelTimeProvider{
         // using an absolute path instead of trying to find in in the java.library.path.
         System.loadLibrary("shortestPaths");
         this.freeQueryManagers = this.queryManagersCount;
-        System.out.println("Initializing " + this.queryManagersCount + " TNRAF query managers.");
+        LOGGER.info("Initializing {} CH query managers.", this.queryManagersCount);
         this.queryManagers = new CHDistanceQueryManagerAPI[this.queryManagersCount];
         this.queryManagersOccupied = new boolean[this.queryManagersCount];
         for(int i = 0; i < this.queryManagersCount; i++) {

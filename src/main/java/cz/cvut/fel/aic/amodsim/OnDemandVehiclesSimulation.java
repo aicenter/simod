@@ -18,8 +18,6 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.core.FileAppender;
 import com.google.inject.Injector;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;

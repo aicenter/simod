@@ -85,18 +85,17 @@ public class VgaSolverFailTest {
 			counter++;
 		}
                 
-                EventOrderStorage eventOrderStorage = injector.getInstance(EventOrderStorage.class);
-                
-                creator.startSimulation();                                
-                
-                assertEquals(6, eventOrderStorage.getOnDemandVehicleEvents().size());
-                
-                System.out.println(config.ridesharing.vga.groupGeneratorLogFilepath+"/model1.lp");
-                
-                
-                File file = new File(config.ridesharing.vga.groupGeneratorLogFilepath+"/model1.lp");
-                Assert.assertTrue(file.exists());
-                file.delete();                       
+			EventOrderStorage eventOrderStorage = injector.getInstance(EventOrderStorage.class);
+
+			creator.startSimulation();                                
+
+			assertEquals(6, eventOrderStorage.getOnDemandVehicleEvents().size());
+
+			LOGGER.info("Model saved to {}/model1.lp", config.ridesharing.vga.groupGeneratorLogFilepath);
+
+			File file = new File(config.ridesharing.vga.groupGeneratorLogFilepath+"/model1.lp");
+			Assert.assertTrue(file.exists());
+			file.delete();                       
         }
         
         public static void main(String[] args) {

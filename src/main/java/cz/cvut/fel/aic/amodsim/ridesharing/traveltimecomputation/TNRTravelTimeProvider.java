@@ -15,6 +15,7 @@ import cz.cvut.fel.aic.shortestpaths.TNRAFDistanceQueryManagerAPI;
 import cz.cvut.fel.aic.shortestpaths.TNRDistanceQueryManagerAPI;
 
 import java.math.BigInteger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class implements an API that allows us to call the Transit Node Routing query algorithm present
@@ -24,6 +25,8 @@ import java.math.BigInteger;
  */
 @Singleton
 public class TNRTravelTimeProvider extends TravelTimeProvider{
+	
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TNRTravelTimeProvider.class);
 
     private final TripsUtil tripsUtil;
 
@@ -55,7 +58,7 @@ public class TNRTravelTimeProvider extends TravelTimeProvider{
         // using an absolute path instead of trying to find in in the java.library.path.
         System.loadLibrary("shortestPaths");
         this.freeQueryManagers = this.queryManagersCount;
-        System.out.println("Initializing " + this.queryManagersCount + " TNR query managers.");
+        LOGGER.info("Initializing {} TNR query managers.", this.queryManagersCount);
         this.queryManagers = new TNRDistanceQueryManagerAPI[this.queryManagersCount];
         this.queryManagersOccupied = new boolean[this.queryManagersCount];
         for(int i = 0; i < this.queryManagersCount; i++) {

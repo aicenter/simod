@@ -31,6 +31,7 @@ def load_edges_mapped_by_id(geojson: geojson.feature.FeatureCollection):
 	edge_object_data = {}
 	for edge in geojson['features']:
 		edge_object_data[edge['properties']['id']] = edge['properties']
+	return edge_object_data
 
 
 def load_edge_pairs() -> Union[Dict, List]:

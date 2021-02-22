@@ -147,7 +147,7 @@ public class TripTransform {
 		List<TimeTrip<SimulationNode>> trips = new ArrayList<>();
 
 		for (TimeTrip<GPSLocation> trip : ProgressBar.wrap(gpsTrips, "Process GPS trip: ")) {
-				processGpsTrip(trip, trips);
+			processGpsTrip(trip, trips);
 		}
 		
 		LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);

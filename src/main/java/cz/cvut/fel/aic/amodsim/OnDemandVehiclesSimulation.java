@@ -62,7 +62,6 @@ public class OnDemandVehiclesSimulation {
 		creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
 
 		TripTransform tripTransform = injector.getInstance(TripTransform.class);
-		RebalancingLoader rebalancingLoader = injector.getInstance(RebalancingLoader.class);
 		
 		// load stations
 		injector.getInstance(StationsInitializer.class).loadStations();
@@ -76,7 +75,7 @@ public class OnDemandVehiclesSimulation {
 		
 		// load trips
 		injector.getInstance(EventInitializer.class).initialize(
-			tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
+		tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
 
 		injector.getInstance(StatisticInitializer.class).initialize();
             

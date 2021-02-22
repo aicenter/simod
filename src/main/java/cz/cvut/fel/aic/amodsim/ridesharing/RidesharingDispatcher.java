@@ -182,7 +182,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		}
 		
 		// printing nice plans
-		if(true){
+		if(false){
 			for(Entry<RideSharingOnDemandVehicle,DriverPlan> entry: newPlans.entrySet()){
 				RideSharingOnDemandVehicle vehicle = entry.getKey();
 				DriverPlan plan = entry.getValue();

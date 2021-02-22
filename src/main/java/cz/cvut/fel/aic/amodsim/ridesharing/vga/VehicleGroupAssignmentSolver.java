@@ -192,6 +192,10 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		
 		LOGGER.info("No. of active requests: {}", activeRequests.size());
 		LOGGER.info("Number of vehicles used for planning: {}", drivingVehicles.size() + 1 * waitingRequests.size());
+		
+		if(activeRequests.isEmpty()){
+			return new LinkedHashMap<>();
+		}
 
 
 		/* Generating feasible plans for each vehicle */

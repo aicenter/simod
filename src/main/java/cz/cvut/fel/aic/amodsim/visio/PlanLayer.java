@@ -19,7 +19,6 @@
 package cz.cvut.fel.aic.amodsim.visio;
 
 import com.google.inject.Inject;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.TripItem;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
@@ -35,8 +34,6 @@ import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
-
-import javax.vecmath.Point2d;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -46,7 +43,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
+import javax.vecmath.Point2d;
 
 /**
  * @param <E> entity type

@@ -19,13 +19,12 @@
 package cz.cvut.fel.aic.amodsim.statistics;
 
 import com.google.inject.Inject;
-import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
-import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
-import cz.cvut.fel.aic.agentpolis.utils.CollectionUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.load.AllEdgesLoad;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
+import cz.cvut.fel.aic.agentpolis.utils.CollectionUtil;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
-
+import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import java.math.BigInteger;
 import java.util.HashMap;
 

@@ -25,7 +25,6 @@ import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.statistics.EdgesLoadByState;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Node;
-
 import java.math.BigInteger;
 import static org.junit.Assert.assertSame;
 

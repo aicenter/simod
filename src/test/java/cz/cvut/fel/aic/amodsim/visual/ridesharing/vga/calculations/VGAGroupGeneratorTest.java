@@ -19,12 +19,11 @@
 package cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.calculations;
 
 import com.google.inject.Injector;
-import cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.common.VGASystemTestEnvironment;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GroupGenerator;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GroupGenerator;
+import cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.common.VGASystemTestEnvironment;
 import ninja.fido.config.Configuration;
 import org.junit.BeforeClass;
 

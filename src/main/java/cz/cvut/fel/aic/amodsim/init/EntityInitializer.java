@@ -20,9 +20,9 @@ package cz.cvut.fel.aic.amodsim.init;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
-import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
+import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import java.util.List;
 
 /**

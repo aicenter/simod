@@ -19,36 +19,12 @@
 package cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.calculations;
 
 import com.google.inject.Injector;
-import cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.common.TestModuleNoVisio;
-import cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.mock.TestOptimalPlanVehicle;
-import cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.mock.TestPlanRequest;
-import cz.cvut.fel.aic.agentpolis.simmodel.agent.DelayData;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.Graphs;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.Utils;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.SimpleMapInitializer;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.AllNetworkNodes;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.NodesMappedByIndex;
-import cz.cvut.fel.aic.agentpolis.simulator.MapData;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
-import cz.cvut.fel.aic.geographtools.Graph;
-import cz.cvut.fel.aic.geographtools.util.Transformer;
+import cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.common.TestModuleNoVisio;
 import java.io.File;
-import java.util.LinkedHashSet;
-import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Test;
-import cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.mock.TestOnDemandVehicle;
-import cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.mock.TestTimeProvider;
 
 /**
  *

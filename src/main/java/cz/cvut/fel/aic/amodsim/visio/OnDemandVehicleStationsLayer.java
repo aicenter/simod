@@ -18,14 +18,14 @@
  */
 package cz.cvut.fel.aic.amodsim.visio;
 
-import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioUtils;
 import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.alite.vis.layer.AbstractLayer;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
+import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;

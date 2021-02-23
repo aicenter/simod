@@ -19,16 +19,15 @@
 package cz.cvut.fel.aic.amodsim.visual.ridesharing.scenarios;
 
 import com.google.inject.Injector;
-import cz.cvut.fel.aic.amodsim.visual.ridesharing.RidesharingEventData;
-import cz.cvut.fel.aic.amodsim.visual.ridesharing.RidesharingTestEnvironment;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.Utils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.SimpleMapInitializer;
-import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
+import cz.cvut.fel.aic.amodsim.io.TimeTrip;
+import cz.cvut.fel.aic.amodsim.visual.ridesharing.RidesharingEventData;
+import cz.cvut.fel.aic.amodsim.visual.ridesharing.RidesharingTestEnvironment;
 import cz.cvut.fel.aic.geographtools.Graph;
-import cz.cvut.fel.aic.geographtools.Node;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.util.LinkedList;
 import java.util.List;

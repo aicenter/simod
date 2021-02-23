@@ -20,18 +20,18 @@ package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
 //import gurobi.*;
 
-import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.utils.CollectionUtil;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.DroppedDemandsAnalyzer;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
+import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehicle;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VGAVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VehiclePlanList;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.VirtualVehicle;
 import gurobi.GRB;

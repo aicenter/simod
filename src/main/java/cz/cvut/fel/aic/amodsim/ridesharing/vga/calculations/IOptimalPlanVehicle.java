@@ -19,8 +19,8 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import java.util.LinkedHashSet;
 
 /**

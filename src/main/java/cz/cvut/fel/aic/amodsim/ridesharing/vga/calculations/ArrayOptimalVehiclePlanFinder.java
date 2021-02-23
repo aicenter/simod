@@ -18,23 +18,22 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
-import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
+import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.PlanActionData;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.PlanActionDataPickup;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;

@@ -21,10 +21,9 @@ package cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.mock;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 
 /**

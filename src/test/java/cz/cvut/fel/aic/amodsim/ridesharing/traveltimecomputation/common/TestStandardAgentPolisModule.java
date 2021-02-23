@@ -21,7 +21,6 @@ package cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.AStarShortestPathPlanner;

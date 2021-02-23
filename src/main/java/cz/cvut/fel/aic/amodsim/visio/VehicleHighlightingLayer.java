@@ -20,13 +20,12 @@ package cz.cvut.fel.aic.amodsim.visio;
 
 import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.alite.vis.layer.AbstractLayer;
-
-import javax.vecmath.Point2d;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import javax.vecmath.Point2d;
 
 public class VehicleHighlightingLayer extends AbstractLayer {
 

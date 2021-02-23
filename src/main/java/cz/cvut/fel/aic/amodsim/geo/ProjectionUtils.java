@@ -18,8 +18,6 @@
  */
 package cz.cvut.fel.aic.amodsim.geo;
 
-import cz.cvut.fel.aic.geographtools.GPSLocation;
-
 /**
  *
  * @author fido

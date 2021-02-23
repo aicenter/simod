@@ -33,15 +33,13 @@ import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Edge;
 import cz.cvut.fel.aic.geographtools.Graph;
 import edu.mines.jtk.awt.ColorMap;
-
-import javax.vecmath.Point2d;
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+import javax.vecmath.Point2d;
 
 /**
  * Layer that shows traffic on edges. Two-way edges are split for each direction. Start of each edge is with light blue

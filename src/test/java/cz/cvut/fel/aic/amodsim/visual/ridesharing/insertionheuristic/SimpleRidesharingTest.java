@@ -18,9 +18,9 @@
  */
 package cz.cvut.fel.aic.amodsim.visual.ridesharing.insertionheuristic;
 
+import cz.cvut.fel.aic.agentpolis.VisualTests;
 import cz.cvut.fel.aic.amodsim.visual.ridesharing.insertionheuristic.common.InsertionHeuristicTestEnvironment;
 import cz.cvut.fel.aic.amodsim.visual.ridesharing.scenarios.SimpleRidesharingScenario;
-import cz.cvut.fel.aic.agentpolis.VisualTests;
 import org.junit.Test;
 
 /**

@@ -18,7 +18,6 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.vga;
 
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
@@ -36,35 +35,35 @@ import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.event.DemandEvent;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.io.Common;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
+import cz.cvut.fel.aic.amodsim.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionCurrentPosition;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GroupGenerator;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.MathUtils;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GroupGenerator;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
-import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEvent;
-import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
+import cz.cvut.fel.aic.amodsim.statistics.content.GroupSizeData;
+import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStatsVGA;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
+import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage.NearestType;
 import java.io.IOException;
-
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import me.tongfei.progressbar.ProgressBar;
 import org.slf4j.LoggerFactory;
-import cz.cvut.fel.aic.amodsim.ridesharing.PlanCostProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionCurrentPosition;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
-import cz.cvut.fel.aic.amodsim.statistics.content.GroupSizeData;
-import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStatsVGA;
-import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage.NearestType;
 
 @Singleton
 public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHandler{

@@ -32,12 +32,11 @@ import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Graph;
 import edu.mines.jtk.awt.ColorMap;
-
-import javax.vecmath.Point2d;
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.math.BigInteger;
+import javax.vecmath.Point2d;
 
 /**
  *

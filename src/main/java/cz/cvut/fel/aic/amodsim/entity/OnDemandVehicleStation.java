@@ -19,12 +19,7 @@
 package cz.cvut.fel.aic.amodsim.entity;
 
 import com.google.inject.Inject;
-import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import com.google.inject.assistedinject.Assisted;
-import cz.cvut.fel.aic.amodsim.DemandData;
-import cz.cvut.fel.aic.amodsim.DemandSimulationEntityType;
-import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
-import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
@@ -33,9 +28,14 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUti
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
+import cz.cvut.fel.aic.amodsim.DemandData;
+import cz.cvut.fel.aic.amodsim.DemandSimulationEntityType;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
+import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
+import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Node;
 import cz.cvut.fel.aic.geographtools.util.NearestElementUtil;

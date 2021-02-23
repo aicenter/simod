@@ -20,23 +20,22 @@ package cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.common;
 
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
-import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
-import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
-import java.io.File;
-import cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.mock.TestTimeProvider;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.AStarShortestPathPlanner;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.EuclideanTraveltimeHeuristic;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.ShortestPathPlanner;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.GeojsonMapInitializer;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
+import cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.mock.TestTimeProvider;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
+import java.io.File;
 import org.jgrapht.alg.interfaces.AStarAdmissibleHeuristic;
 
 /**

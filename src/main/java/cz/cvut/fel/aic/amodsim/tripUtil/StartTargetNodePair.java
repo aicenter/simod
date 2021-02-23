@@ -18,9 +18,6 @@
  */
 package cz.cvut.fel.aic.amodsim.tripUtil;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  *
  * @author fido

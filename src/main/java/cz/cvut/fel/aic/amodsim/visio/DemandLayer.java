@@ -20,8 +20,8 @@ package cz.cvut.fel.aic.amodsim.visio;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.ClickableEntityLayer;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.ClickableEntityLayer;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioUtils;
 import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;

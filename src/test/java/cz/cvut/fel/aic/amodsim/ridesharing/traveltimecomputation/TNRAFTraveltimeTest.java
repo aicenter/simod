@@ -1,7 +1,5 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation;
 
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.ShortestPathsTestModule;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.TestAgentPolisInitializer;
 import com.google.inject.Injector;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.Graphs;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
@@ -9,13 +7,12 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.Map
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.AllNetworkNodes;
 import cz.cvut.fel.aic.agentpolis.simulator.MapData;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TNRAFTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.ShortestPathsTestModule;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.TestAgentPolisInitializer;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 /**
  * A test verifying that the Transit Node Routing with Arc Flags provider returns the same distances as the A* provider.

@@ -18,16 +18,16 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.planBuilder;
 
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
-import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
+import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;

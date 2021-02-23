@@ -18,13 +18,7 @@
  */
 package cz.cvut.fel.aic.amodsim.visual.ridesharing.insertionheuristic.common;
 
-import cz.cvut.fel.aic.amodsim.visual.ridesharing.RidesharingEventData;
 import com.google.inject.Injector;
-import cz.cvut.fel.aic.amodsim.visual.ridesharing.EventOrderStorage;
-import cz.cvut.fel.aic.amodsim.visual.ridesharing.RidesharingTestEnvironment;
-import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.GraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
@@ -33,21 +27,20 @@ import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
-import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation.OnDemandVehicleStationFactory;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.init.EventInitializer;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
-import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
+import cz.cvut.fel.aic.amodsim.visual.ridesharing.EventOrderStorage;
+import cz.cvut.fel.aic.amodsim.visual.ridesharing.RidesharingEventData;
+import cz.cvut.fel.aic.amodsim.visual.ridesharing.RidesharingTestEnvironment;
 import cz.cvut.fel.aic.geographtools.Graph;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import org.junit.Assert;
 
 /**

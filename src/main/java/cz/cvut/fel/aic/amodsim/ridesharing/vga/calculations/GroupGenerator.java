@@ -18,7 +18,6 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import cz.cvut.fel.aic.agentpolis.utils.Benchmark;
@@ -27,13 +26,13 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;

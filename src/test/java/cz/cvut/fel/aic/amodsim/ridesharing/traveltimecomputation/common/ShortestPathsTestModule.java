@@ -1,11 +1,8 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common;
 
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.TestGeojsonMapInitializer;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.TestStandardAgentPolisModule;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.AStarShortestPathPlanner;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.EuclideanTraveltimeHeuristic;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.ShortestPathPlanner;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.GeojsonMapInitializer;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.agentpolis.utils.ResourceReader;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;

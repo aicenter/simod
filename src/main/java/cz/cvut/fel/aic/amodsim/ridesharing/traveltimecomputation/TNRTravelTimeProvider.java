@@ -11,9 +11,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.TransportNetworks;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.geographtools.Graph;
-import cz.cvut.fel.aic.shortestpaths.TNRAFDistanceQueryManagerAPI;
 import cz.cvut.fel.aic.shortestpaths.TNRDistanceQueryManagerAPI;
-
 import java.math.BigInteger;
 import org.slf4j.LoggerFactory;
 

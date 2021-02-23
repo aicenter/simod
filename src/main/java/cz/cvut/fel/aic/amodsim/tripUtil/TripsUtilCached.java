@@ -18,25 +18,24 @@
  */
 package cz.cvut.fel.aic.amodsim.tripUtil;
 
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import cz.cvut.fel.aic.amodsim.jackson.MyModule;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
-import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
-import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.ShortestPathPlanner;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.NodesMappedByIndex;
+import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
+import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.jackson.MyModule;
 import cz.cvut.fel.aic.graphimporter.util.MD5ChecksumGenerator;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;

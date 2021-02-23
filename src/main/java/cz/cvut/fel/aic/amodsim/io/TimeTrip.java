@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
-import cz.cvut.fel.aic.geographtools.GPSLocation;
 
 /**
  *

@@ -3,7 +3,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
@@ -12,7 +12,6 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.shortestpaths.TNRAFDistanceQueryManagerAPI;
-
 import java.math.BigInteger;
 import org.slf4j.LoggerFactory;
 

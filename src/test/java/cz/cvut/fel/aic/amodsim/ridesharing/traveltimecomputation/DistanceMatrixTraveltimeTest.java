@@ -18,26 +18,16 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation;
 
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.TestDistanceMatrixTravelTimeProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.TestAgentPolisInitializer;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.TestModule;
 import com.google.inject.Injector;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.Graphs;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.SimpleMapInitializer;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.AllNetworkNodes;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.NodesMappedByIndex;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.TransportNetworks;
 import cz.cvut.fel.aic.agentpolis.simulator.MapData;
-import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
-import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.DistanceMatrixTravelTimeProvider;
-import java.io.File;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.TestAgentPolisInitializer;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.TestDistanceMatrixTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.TestModule;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;

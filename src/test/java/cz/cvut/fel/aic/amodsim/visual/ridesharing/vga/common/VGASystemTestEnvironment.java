@@ -18,10 +18,7 @@
  */
 package cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.common;
 
-import cz.cvut.fel.aic.amodsim.visual.ridesharing.EventOrderStorage;
-import cz.cvut.fel.aic.amodsim.visual.ridesharing.RidesharingEventData;
 import com.google.inject.Injector;
-import cz.cvut.fel.aic.amodsim.visual.ridesharing.RidesharingTestEnvironment;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
@@ -32,10 +29,13 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.init.EventInitializer;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
-import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
+import cz.cvut.fel.aic.amodsim.visual.ridesharing.EventOrderStorage;
+import cz.cvut.fel.aic.amodsim.visual.ridesharing.RidesharingEventData;
+import cz.cvut.fel.aic.amodsim.visual.ridesharing.RidesharingTestEnvironment;
 import cz.cvut.fel.aic.geographtools.Graph;
 import java.io.File;
 import java.util.ArrayList;

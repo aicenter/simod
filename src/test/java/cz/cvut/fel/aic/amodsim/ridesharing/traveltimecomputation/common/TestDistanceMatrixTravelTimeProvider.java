@@ -25,8 +25,6 @@ import com.univocity.parsers.csv.CsvParserSettings;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
-import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import java.io.BufferedReader;
 import java.io.FileInputStream;

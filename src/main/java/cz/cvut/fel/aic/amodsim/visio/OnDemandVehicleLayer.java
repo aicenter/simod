@@ -22,18 +22,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
-import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VehicleLayer;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioUtils;
-import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
+import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.util.List;
-import javax.vecmath.Point2d;
 
 /**
  *

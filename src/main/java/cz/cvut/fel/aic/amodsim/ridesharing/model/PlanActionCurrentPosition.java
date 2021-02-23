@@ -19,7 +19,6 @@
 package cz.cvut.fel.aic.amodsim.ridesharing.model;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 
 /**
  *

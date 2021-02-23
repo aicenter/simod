@@ -18,16 +18,10 @@
  */
 package cz.cvut.fel.aic.amodsim.entity;
 
-import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
-import cz.cvut.fel.aic.amodsim.DemandData;
-import cz.cvut.fel.aic.amodsim.StationsDispatcher;
-import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleStationsCentralEvent;
-import cz.cvut.fel.aic.amodsim.io.TimeTrip;
-import cz.cvut.fel.aic.amodsim.storage.DemandStorage;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.Agent;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.TransportEntity;
@@ -37,10 +31,15 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
+import cz.cvut.fel.aic.amodsim.DemandData;
 import cz.cvut.fel.aic.amodsim.DemandSimulationEntityType;
+import cz.cvut.fel.aic.amodsim.StationsDispatcher;
+import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleStationsCentralEvent;
+import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import cz.cvut.fel.aic.amodsim.statistics.DemandServiceStatistic;
 import cz.cvut.fel.aic.amodsim.statistics.StatisticEvent;
-import cz.cvut.fel.aic.amodsim.statistics.Statistics;
+import cz.cvut.fel.aic.amodsim.storage.DemandStorage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;

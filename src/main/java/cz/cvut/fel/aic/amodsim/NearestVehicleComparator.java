@@ -18,13 +18,10 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.EntityLayer;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.NearestEntityComparator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import java.util.Comparator;
-
 import javax.vecmath.Point2d;
 
 /**

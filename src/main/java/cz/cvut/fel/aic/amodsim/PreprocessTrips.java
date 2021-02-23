@@ -18,11 +18,6 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
-import ninja.fido.config.Configuration;
-import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
-import cz.cvut.fel.aic.amodsim.io.TripTransform;
-import java.io.File;
-import java.io.IOException;
 import org.slf4j.LoggerFactory;
 
 /**

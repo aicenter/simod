@@ -18,18 +18,18 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
-import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
-import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
-import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleStationsCentralEvent;
-import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandlerAdapter;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleStationsCentralEvent;
+import cz.cvut.fel.aic.amodsim.io.TimeTrip;
+import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 
 /**
  *

@@ -18,12 +18,10 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common;
 
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.TestStandardAgentPolisModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
-import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
 
 /**
  *

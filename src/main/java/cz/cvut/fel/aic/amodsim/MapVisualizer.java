@@ -19,16 +19,15 @@
 package cz.cvut.fel.aic.amodsim;
 
 
-import cz.cvut.fel.aic.amodsim.mapVisualization.MapVisualiserModule;
 import com.google.inject.Injector;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.init.StationsInitializer;
+import cz.cvut.fel.aic.amodsim.mapVisualization.MapVisualiserModule;
 import cz.cvut.fel.aic.amodsim.mapVisualization.MapVisualizationCreator;
 import java.io.File;
-
 import java.net.MalformedURLException;
 import org.slf4j.LoggerFactory;
 

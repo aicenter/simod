@@ -18,17 +18,16 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
-import cz.cvut.fel.aic.amodsim.io.ExportEdge;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cz.cvut.fel.aic.amodsim.io.ExportEdgePair;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
+import cz.cvut.fel.aic.amodsim.io.ExportEdge;
+import cz.cvut.fel.aic.amodsim.io.ExportEdgePair;
 import cz.cvut.fel.aic.geographtools.Graph;
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.LinkedList;
 import org.slf4j.LoggerFactory;

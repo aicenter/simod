@@ -18,9 +18,9 @@
  */
 package cz.cvut.fel.aic.amodsim.visual.ridesharing.vga;
 
+import cz.cvut.fel.aic.agentpolis.VisualTests;
 import cz.cvut.fel.aic.amodsim.visual.ridesharing.scenarios.DroppingBatchScenario;
 import cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.common.VGASystemTestEnvironment;
-import cz.cvut.fel.aic.agentpolis.VisualTests;
 import org.junit.Test;
 
 /**

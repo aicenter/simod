@@ -19,30 +19,27 @@
 package cz.cvut.fel.aic.amodsim.visual.ridesharing.insertionheuristic.common;
 
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-import cz.cvut.fel.aic.amodsim.visual.ridesharing.EventOrderStorage;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.GeojsonMapInitializer;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
-import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer;
+import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.amodsim.rebalancing.RebalancingOnDemandVehicleStation;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.DARPSolver;
-import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.InsertionHeuristicSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingDispatcher;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingOnDemandVehicleFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.InsertionHeuristicSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.common.VGATestVisioInitializer;
 import java.io.File;
 

@@ -20,7 +20,6 @@ package cz.cvut.fel.aic.amodsim.visio;
 
 import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.alite.vis.layer.AbstractLayer;
-
 import java.awt.*;
 
 public class SimpleBackgroundLayer extends AbstractLayer {

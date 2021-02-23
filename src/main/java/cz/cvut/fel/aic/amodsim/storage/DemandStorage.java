@@ -19,9 +19,8 @@
 package cz.cvut.fel.aic.amodsim.storage;
 
 import com.google.inject.Singleton;
-import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage;
-import java.util.HashMap;
+import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
 
 /**
  *

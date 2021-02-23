@@ -19,17 +19,17 @@
 package cz.cvut.fel.aic.amodsim.rebalancing;
 
 import com.google.inject.Inject;
-import cz.cvut.fel.aic.amodsim.entity.*;
 import com.google.inject.assistedinject.Assisted;
-import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
-import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.entity.*;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicleFactorySpec;
+import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
+import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 
 /**

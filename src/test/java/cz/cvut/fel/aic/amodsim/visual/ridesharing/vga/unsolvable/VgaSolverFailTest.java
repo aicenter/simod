@@ -6,7 +6,6 @@
 package cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.unsolvable;
 
 import com.google.inject.Injector;
-import cz.cvut.fel.aic.amodsim.visual.ridesharing.EventOrderStorage;
 import cz.cvut.fel.aic.agentpolis.VisualTests;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.Utils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
@@ -21,6 +20,7 @@ import cz.cvut.fel.aic.amodsim.init.EventInitializer;
 import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
+import cz.cvut.fel.aic.amodsim.visual.ridesharing.EventOrderStorage;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.io.File;

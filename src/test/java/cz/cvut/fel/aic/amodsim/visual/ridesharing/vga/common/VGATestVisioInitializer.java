@@ -30,7 +30,6 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.PedestrianNetwork;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.RailwayNetwork;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.TramwayNetwork;
-
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.GridLayer;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.HighwayLayer;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.LayerManagementLayer;

@@ -23,21 +23,20 @@ import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.amodsim.StationsDispatcher;
-import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
-import cz.cvut.fel.aic.amodsim.entity.DemandAgent.DemandAgentFactory;
-import cz.cvut.fel.aic.amodsim.io.TimeTrip;
-import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
-import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleStationsCentralEvent;
+import cz.cvut.fel.aic.agentpolis.simulator.SimulationUtils;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandlerAdapter;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
+import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
+import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
+import cz.cvut.fel.aic.amodsim.entity.DemandAgent.DemandAgentFactory;
+import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
+import cz.cvut.fel.aic.amodsim.event.OnDemandVehicleStationsCentralEvent;
+import cz.cvut.fel.aic.amodsim.io.TimeTrip;
 import java.util.List;
 import java.util.Random;
-
-import cz.cvut.fel.aic.agentpolis.simulator.SimulationUtils;
 import org.slf4j.LoggerFactory;
 
 /**

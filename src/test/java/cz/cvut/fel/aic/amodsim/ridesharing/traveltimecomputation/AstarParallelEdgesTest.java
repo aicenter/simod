@@ -18,11 +18,7 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation;
 
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.TestGeojsonMapInitializerAstar;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.TestModuleAstar;
 import com.google.inject.Injector;
-
-
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.Graphs;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
@@ -30,16 +26,17 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks
 import cz.cvut.fel.aic.agentpolis.simulator.MapData;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.TestAgentPolisInitializer;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.TestGeojsonMapInitializerAstar;
+import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.common.TestModuleAstar;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
-
-import org.junit.After;
-import org.junit.Before;
 
 /**
  *

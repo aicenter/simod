@@ -20,16 +20,16 @@ package cz.cvut.fel.aic.amodsim.system;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 
 /**

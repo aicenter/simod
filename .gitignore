@@ -11,7 +11,7 @@ nb-configuration.xml
 /target/
 /log.txt
 /result.json
-.idea/
+
 /trip_cache.json
 /allEdgesLoadHistory.json
 /src/main/python/.idea/
@@ -26,3 +26,6 @@ log/
 
 .project
 .classpath
+
+# Idea
+.idea/

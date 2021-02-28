@@ -27,6 +27,6 @@ setup(
 	author_email='david.fido.fiedler@gmail.com',
 	license='MIT',
 	packages=setuptools.find_packages(),
-	install_requires=['roadmaptools>=2.0.0', 'fconfig', 'numpy', 'pandas', 'matplotlib', 'tqdm', 'typing'],
+	install_requires=['roadmaptools>=4.1.0', 'fconfig', 'numpy', 'pandas', 'matplotlib', 'tqdm', 'typing'],
 	python_requires='>=3'
 )

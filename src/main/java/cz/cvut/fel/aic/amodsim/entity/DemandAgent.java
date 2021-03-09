@@ -66,12 +66,15 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	
 	private final TripsUtil tripsUtil;
 	
+	/**
+	 * Request announcement time in milliseconds
+	 */
+	private final long demandTime;
+	
 	
 	private DemandAgentState state;
 	
 	private OnDemandVehicle onDemandVehicle;
-	
-	private long demandTime;
 	
 	private TransportEntity transportEntity;
 	

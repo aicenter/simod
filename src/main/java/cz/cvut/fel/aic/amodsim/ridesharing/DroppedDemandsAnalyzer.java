@@ -87,40 +87,40 @@ public class DroppedDemandsAnalyzer {
 		/*
 		 * First check the nearest station 
 		 */
-                if(config.stations.on){
-                        OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(
-                                        request.getFrom(), OnDemandvehicleStationStorage.NearestType.TRAVELTIME_FROM);
-                        double stationDistance;
-                        double travelTimeFromStation;
-                        if(usedVehiclesPerStation[nearestStation.getIndex()] >= nearestStation.getParkedVehiclesCount()){
-                                LOGGER.debug("Cannot serve the request from the nearest station, the nearest station {} is empty!", 
-                                                nearestStation);
-                        }
-                        else{
-                                // euclidean distance check
-                                stationDistance = positionUtil.getPosition(nearestStation.getPosition())
-                                                .distance(positionUtil.getPosition(request.getFrom()));
+		if(config.stations.on){
+			OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(
+							request.getFrom(), OnDemandvehicleStationStorage.NearestType.TRAVELTIME_FROM);
+			double stationDistance;
+			double travelTimeFromStation;
+			if(usedVehiclesPerStation[nearestStation.getIndex()] >= nearestStation.getParkedVehiclesCount()){
+				LOGGER.debug("Cannot serve the request from the nearest station, the nearest station {} is empty!", 
+									nearestStation);
+			}
+			else{
+				// euclidean distance check
+				stationDistance = positionUtil.getPosition(nearestStation.getPosition())
+								.distance(positionUtil.getPosition(request.getFrom()));
 
-                                if(stationDistance > maxDistance){
-                                        LOGGER.debug("Cannot serve the request from the nearest station, the nearest station {} is too far! ({}m)", 
-                                                        nearestStation, stationDistance);
-                                }
-                                else{
-                                        // real feasibility check 
-                                        travelTimeFromStation = 
-                                                        travelTimeProvider.getExpectedTravelTime(nearestStation.getPosition(), request.getFrom());
-                                        if(travelTimeFromStation > maxDelayTime){
-                                                LOGGER.debug("Cannot serve the request from the nearest station, the traveltime from the "
-                                                                + "nearest station {} greater than the maximum delay ({}ms)!", 
-                                                        nearestStation, maxDelayTime);
-                                        }
-                                        else{
-                                                LOGGER.debug("Cannot serve the request from the nearest station {} from the reason unknown!", 
-                                                nearestStation);
-                                        }
-                                }
-                        }			
-                }
+				if(stationDistance > maxDistance){
+					LOGGER.debug("Cannot serve the request from the nearest station, the nearest station {} is too far! ({}m)", 
+										nearestStation, stationDistance);
+				}
+				else{
+					// real feasibility check 
+					travelTimeFromStation = 
+									travelTimeProvider.getExpectedTravelTime(nearestStation.getPosition(), request.getFrom());
+					if(travelTimeFromStation > maxDelayTime){
+						LOGGER.debug("Cannot serve the request from the nearest station, the traveltime from the "
+											+ "nearest station {} greater than the maximum delay ({}ms)!", 
+									nearestStation, maxDelayTime);
+					}
+					else{
+						LOGGER.debug("Cannot serve the request from the nearest station {} from the reason unknown!", 
+							nearestStation);
+					}
+				}
+			}			
+		}
 		
 		/*
 		Then check the driving cars	

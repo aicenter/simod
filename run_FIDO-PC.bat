@@ -16,4 +16,4 @@
 :: You should have received a copy of the GNU Lesser General Public License
 :: along with this program. If not, see <http://www.gnu.org/licenses/>.
 ::
-mvn exec:exec -Dexec.executable="java" -Dexec.args="-classpath %%classpath -Xmx30g cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation C:/Workspaces/AIC/amod-to-agentpolis/local_config_files/fido-PC.cfg" -Dfile.encoding=UTF-8
+mvn exec:exec -Dexec.executable="java" -Dexec.args="-classpath %%classpath -Xmx25g cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation C:/Workspaces/AIC/amod-to-agentpolis/local_config_files/PC/vga.cfg" -Dfile.encoding=UTF-8

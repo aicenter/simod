@@ -84,10 +84,10 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	
 	private final IdGenerator rebalancingIdGenerator;
 	
-	private final AmodsimConfig config;
-	
-	
 	private List<SimulationNode> demandNodes;
+	
+	
+	protected final AmodsimConfig config;
 	
 	protected OnDemandVehicleState state;
 	

@@ -227,8 +227,11 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		try {
 			DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
 			if(demandAgent.isDropped()){
+				long currentTime = timeProvider.getCurrentSimTime();
+				long droppTime = demandAgent.getDemandTime() + config.ridesharing.maxProlongationInSeconds * 1000;
 				throw new Exception(
-					String.format("Demand agent %s cannot be picked up, he is already dropped!", demandAgent));
+					String.format("Demand agent %s cannot be picked up, he is already dropped! Current simulation "
+							+ "time: %s, dropp time: %s", demandAgent, currentTime, droppTime));
 			}
 			demandAgent.tripStarted(this);
 			vehicle.pickUp(demandAgent);

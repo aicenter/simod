@@ -110,6 +110,11 @@ public class GurobiSolver {
 		
 		Collections.sort(feasiblePlans);
 		
+		// If the number of trips/vehicles/groups per request is limited
+		if(config.ridesharing.vga.solverMaxTripsPerRequest > 0){
+			
+		}
+		
 		try {
 			// solver init
 			GRBModel model = new GRBModel(env);
@@ -223,6 +228,11 @@ public class GurobiSolver {
 		
 			// time limit
 			model.set(GRB.DoubleParam.TimeLimit, timeLimit);
+			
+			// min gap
+			if(config.ridesharing.vga.solverMinGap > 0){
+				model.set(GRB.DoubleParam.MIPGap, config.ridesharing.vga.solverMinGap);
+			}
 			
 			LOGGER.info("solving start");
                         

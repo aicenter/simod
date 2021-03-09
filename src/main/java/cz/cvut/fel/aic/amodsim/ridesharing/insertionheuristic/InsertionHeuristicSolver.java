@@ -387,7 +387,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			// check max time for pick up action
 			if(newPlanIndex <= pickupOptionIndex){
 				if(planComputationRequest.getPickUpAction().getMaxTime() < currentTaskTimeInSeconds){
-                                        return null;
+                    return null;
 				}
 			}
 			
@@ -514,7 +514,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		}
 		else{
 			LOGGER.debug("Request {} cannot be served!", request);
-                        benchmark = new Benchmark();
+            benchmark = new Benchmark();
 			benchmark.measureTime(() ->	droppedDemandsAnalyzer.debugFail(request, usedVehiclesPerStation));
 			debugFailTime += benchmark.getDurationMs();
 		}

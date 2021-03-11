@@ -23,6 +23,8 @@ public class Vga {
 
   public String groupGeneratorLogFilepath;
 
+  public String modelExportFilePath;
+
   public Vga(Map vga) {
     this.solverMinGap = (Double) vga.get("solver_min_gap");
     this.logPlanComputationalTime = (Boolean) vga.get("log_plan_computational_time");
@@ -32,5 +34,6 @@ public class Vga {
     this.solverMaxTripsPerRequest = (Integer) vga.get("solver_max_trips_per_request");
     this.exportGroupData = (Boolean) vga.get("export_group_data");
     this.groupGeneratorLogFilepath = (String) vga.get("group_generator_log_filepath");
+    this.modelExportFilePath = (String) vga.get("model_export_file_path");
   }
 }

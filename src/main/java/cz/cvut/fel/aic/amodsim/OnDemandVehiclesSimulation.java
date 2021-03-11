@@ -19,6 +19,7 @@
 package cz.cvut.fel.aic.amodsim;
 
 import com.google.inject.Injector;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
@@ -46,6 +47,41 @@ public class OnDemandVehiclesSimulation {
 		new OnDemandVehiclesSimulation().run(args);
 	}
 
+	public static void checkPaths(AmodsimConfig config, AgentpolisConfig agentpolisConfig){
+		String[] pathsForRead = {
+			config.tripsPath,
+			config.stationPositionFilepath,
+			agentpolisConfig.mapNodesFilepath,
+			agentpolisConfig.mapEdgesFilepath
+		};
+		
+		String[] pathsForWrite = {
+			config.statistics.allEdgesLoadHistoryFilePath,
+			config.statistics.darpSolverComputationalTimesFilePath,
+			config.statistics.groupDataFilePath,
+			config.statistics.occupanciesFilePath,
+			config.statistics.resultFilePath,
+			config.statistics.ridesharingFilePath,
+			config.statistics.serviceFilePath,
+			config.statistics.transitStatisticFilePath,
+			config.statistics.tripDistancesFilePath,
+			config.ridesharing.vga.groupGeneratorLogFilepath
+		};
+		
+		try{
+			for(String pathForRead: pathsForRead){
+				FileUtils.checkFilePathForRead(pathForRead);
+			}
+			
+			for(String pathForWrite: pathsForWrite){
+				FileUtils.checkFilePathForWrite(pathForWrite);
+			}
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			System.exit(-1);
+		}
+	}
 
 	public void run(String[] args) {
 		AmodsimConfig config = new AmodsimConfig();
@@ -55,6 +91,9 @@ public class OnDemandVehiclesSimulation {
 			localConfigFile = new File(args[0]);
 		}               
 		Injector injector = new AgentPolisInitializer(new MainModule(config, localConfigFile)).initialize();
+		
+		checkPaths(config, injector.getInstance(AgentpolisConfig.class));
+		
 		SimulationCreator creator = injector.getInstance(SimulationCreator.class);         
 		// prepare map, entity storages...
 		creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());

@@ -255,20 +255,27 @@ public class GurobiSolver {
 				}
 			}
 			
-            boolean correct = true;
+            int droppedCount = 0;
 			// debug dropped demands
 			for (Map.Entry<GRBVar, PlanComputationRequest> entry : droppingVarsMap.entrySet()) {
 				GRBVar variable = entry.getKey();
 				PlanComputationRequest request = entry.getValue();
 				if(Math.round(variable.get(GRB.DoubleAttr.X)) == 1){     
-                    correct = false;
+                    droppedCount++;
 					droppedDemandsAnalyzer.debugFail(request, usedVehiclesPerStation);
 					LOGGER.debug("The request was part of {} group plans", requestVariableMap.get(request).size() - 1);
 				}
 			}
                         
-			if(!correct || model.get(GRB.IntAttr.Status) != 2){ //3 = INFEASIBLE state 2 = OPTIMAL
-				model.write(config.ridesharing.vga.groupGeneratorLogFilepath+"/model"+iteration+".lp");
+			if(droppedCount > 0 || model.get(GRB.IntAttr.Status) == 3){ //3 = INFEASIBLE state 2 = OPTIMAL
+				if(model.get(GRB.IntAttr.Status) == 3){
+					LOGGER.error("Failed to solve the passenger-vehicle asssignment, the problem is infeasible!");
+				}
+				else{
+					LOGGER.warn("{} demands were dropped", droppedCount);
+				}
+				LOGGER.info("Exporting model to: {}", config.ridesharing.vga.modelExportFilePath);
+				model.write(config.ridesharing.vga.modelExportFilePath);
 			}
 			
 			// check 1 plan for vehicle

@@ -266,10 +266,6 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	}
 
 	private void computeOptimalPlan(RideSharingOnDemandVehicle vehicle, DriverPlan currentPlan, PlanComputationRequest planComputationRequest) {
-		// if the plan was already changed
-		if(planMap.containsKey(vehicle)){
-			currentPlan = planMap.get(vehicle);
-		}
 		
 		int freeCapacity = vehicle.getFreeCapacity();
 		
@@ -481,7 +477,15 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	
 	private void processRequestVehicleCombination(PlanComputationRequest request, AgentPolisEntity tVvehicle){
 		RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
-		tryToAddRequestToPlan(request, vehicle, vehicle.getCurrentPlan());
+		
+		DriverPlan currentPlan = vehicle.getCurrentPlan();
+		
+		// if the plan was already changed
+		if(planMap.containsKey(vehicle)){
+			currentPlan = planMap.get(vehicle);
+		}
+		
+		tryToAddRequestToPlan(request, vehicle, currentPlan);
 	}
 	
 	public void tryToAddRequestToPlan(PlanComputationRequest request, RideSharingOnDemandVehicle vehicle, DriverPlan plan){

@@ -59,7 +59,7 @@ public class InsertionHeuristicSingleVehicleDARPSolver<V extends IOptimalPlanVeh
 			PlanComputationRequest request,
 			int startTime) {
 		insertionHeuristicSolver.resetBestPlan();
-		insertionHeuristicSolver.tryToAddRequestToPlan(request, (RideSharingOnDemandVehicle) vehicle, 
+		insertionHeuristicSolver.tryToAddRequestToPlan(request, (RideSharingOnDemandVehicle) vehicle.getRealVehicle(), 
 				currentPlan.toDriverPlan());
 		DriverPlan bestPlan = insertionHeuristicSolver.getBestPlan();
 		if(bestPlan == null){

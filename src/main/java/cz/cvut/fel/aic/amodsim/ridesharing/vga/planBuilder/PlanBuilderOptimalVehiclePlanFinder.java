@@ -26,7 +26,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.SingleVehicleDARPSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,7 +39,7 @@ import java.util.Stack;
  * @param <V>
  */
 @Singleton
-public class PlanBuilderOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extends OptimalVehiclePlanFinder<V>{
+public class PlanBuilderOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> extends SingleVehicleDARPSolver<V>{
 
 	@Inject
 	public PlanBuilderOptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation, AmodsimConfig config,

@@ -110,10 +110,10 @@ public class GurobiSolver {
 		
 		Collections.sort(feasiblePlans);
 		
-		// If the number of trips/vehicles/groups per request is limited
-		if(config.ridesharing.vga.solverMaxTripsPerRequest > 0){
-			
-		}
+//		// If the number of trips/vehicles/groups per request is limited
+//		if(config.ridesharing.vga.solverMaxTripsPerRequest > 0){
+//			
+//		}
 		
 		try {
 			// solver init

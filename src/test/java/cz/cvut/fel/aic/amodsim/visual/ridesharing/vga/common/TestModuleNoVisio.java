@@ -32,7 +32,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.SingleVehicleDARPSolver;
 import cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.mock.TestTimeProvider;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.io.File;
@@ -78,7 +78,7 @@ public class TestModuleNoVisio extends TestModule{
 		bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
 		install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
 				.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
-		bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);
+		bind(SingleVehicleDARPSolver.class).to(ArrayOptimalVehiclePlanFinder.class);
 	}
 	
 

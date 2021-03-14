@@ -47,7 +47,9 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 	
 
 
-	private final OptimalVehiclePlanFinder optimalVehiclePlanFinder;
+	private final SingleVehicleDARPSolver optimalVehiclePlanFinder;
+	
+	private final InsertionHeuristicSingleVehicleDARPSolver heuristicVehiclePlanFinder;
 	
 	private final int vehicleCapacity;
 	
@@ -60,6 +62,8 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 	private final Boolean exportGroupData;
 	
 	private final Provider<VehicleGroupAssignmentSolver> vgaSolverProvider;
+	
+	private final int maxOptimalGroupSize;
 	
 
 	private FlexArray groupCounts;
@@ -93,15 +97,20 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 	
 
 	@Inject
-	public GroupGenerator(OptimalVehiclePlanFinder optimalVehiclePlanFinder, AmodsimConfig config, 
-			Provider<VehicleGroupAssignmentSolver> vgaSolverProvider) {
+	public GroupGenerator(
+			SingleVehicleDARPSolver optimalVehiclePlanFinder, 
+			AmodsimConfig config, 
+			Provider<VehicleGroupAssignmentSolver> vgaSolverProvider,
+			InsertionHeuristicSingleVehicleDARPSolver heuristicSingleVehicleDARPSolver) {
 		this.optimalVehiclePlanFinder = optimalVehiclePlanFinder;
+		this.heuristicVehiclePlanFinder = heuristicSingleVehicleDARPSolver;
 		this.vgaSolverProvider = vgaSolverProvider;
 		vehicleCapacity = config.ridesharing.vehicleCapacity;
 		recordTime = config.ridesharing.vga.logPlanComputationalTime;
 		maxGroupSize = config.ridesharing.vga.maxGroupSize;
 		groupGenerationTimeLimitInNanoseconds = config.ridesharing.vga.groupGenerationTimeLimit * 1000;
-		exportGroupData = config.ridesharing.vga.exportGroupData;	
+		exportGroupData = config.ridesharing.vga.exportGroupData;
+		maxOptimalGroupSize = config.ridesharing.vga.maxOptimalGroupSize;
 	}
 
 	public List<Plan> generateGroupsForVehicle(V vehicle, Collection<PlanComputationRequest> requests, int startTime) {
@@ -173,7 +182,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 				feasibleRequests.add(request);
 				Set<PlanComputationRequest> singleRequestGroup = new HashSet<>(1);
 				singleRequestGroup.add(request);
-				currentGroups.add(new GroupData(singleRequestGroup, onBoardRequestLock));
+				currentGroups.add(new GroupData(singleRequestGroup, null, onBoardRequestLock));
 			}
 		}
 		
@@ -205,7 +214,7 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 
 			if(plan != null) {
 				feasibleRequests.add(request);
-				currentGroups.add(new GroupData(group, onBoardRequestLock));
+				currentGroups.add(new GroupData(group, plan, onBoardRequestLock));
 				//if the vehicle is empty, feasible requests are feasible plans and are used as base groups
 				if(vehicle.getRequestsOnBoard().isEmpty()){
 					groupPlans.add(plan);
@@ -266,9 +275,16 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 						if(recordTime){
 							groupCounts.increment(newGroupToCheck.size() - 1);
 							Benchmark benchmark = new Benchmark();
-							plan = benchmark.measureTime(() -> 
-									optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
-											vehicle, newGroupToCheck, startTime, false));
+							if(maxOptimalGroupSize > 0 && currentGroupSize >= maxOptimalGroupSize){
+								plan = benchmark.measureTime(() -> 
+										heuristicVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
+												vehicle, groupData.plan, request, startTime));
+							}
+							else{
+								plan = benchmark.measureTime(() -> 
+										optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
+												vehicle, newGroupToCheck, startTime, false));
+							}
 							int timeInMs = benchmark.getDurationMsInt();
 							if(plan != null){
 								groupCountsPlanExists.increment(newGroupToCheck.size() - 1);
@@ -277,8 +293,14 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 							computationalTimes.increment(newGroupToCheck.size() - 1, timeInMs);
 						}
 						else{
-							plan = optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
+							if(maxOptimalGroupSize > 0 && currentGroupSize >= maxOptimalGroupSize){
+								plan = heuristicVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
+									vehicle, groupData.plan, request, startTime);
+							}
+							else{
+								plan = optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(
 									vehicle, newGroupToCheck, startTime, false);
+							}
 						}
 						
 						if(exportGroupData && currentGroupSize >= 3){
@@ -288,15 +310,12 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 						if(plan != null) {
 			
 							if(groupData.onboardRequestLock == null || newGroupToCheck.containsAll(groupData.onboardRequestLock)){
-								newCurrentGroups.add(new GroupData(newGroupToCheck));
+								newCurrentGroups.add(new GroupData(newGroupToCheck, plan));
 								groupPlans.add(plan);
 							}
 							else{
-								newCurrentGroups.add(new GroupData(newGroupToCheck, groupData.onboardRequestLock));
+								newCurrentGroups.add(new GroupData(newGroupToCheck, plan, groupData.onboardRequestLock));
 							}
-//							if(groups.size() > 50){
-//								return groups;
-//							}
 						}
 					}
 				}
@@ -320,15 +339,22 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 		
 		private final Set<PlanComputationRequest> onboardRequestLock;
 		
+		private final Plan plan;
+		
 		private int hash;
 
-		private GroupData(Set<PlanComputationRequest> requests) {
-			this(requests, null);
+		private GroupData(
+				Set<PlanComputationRequest> requests,
+				Plan plan) {
+			this(requests, plan, null);
 		}
 		
-		private GroupData(Set<PlanComputationRequest> requests, 
+		private GroupData(
+				Set<PlanComputationRequest> requests, 
+				Plan plan,
 				Set<PlanComputationRequest> onboardRequestLock) {
 			this.requests = requests;
+			this.plan = plan;
 			this.onboardRequestLock = onboardRequestLock;
 			hash = 0;
 		}

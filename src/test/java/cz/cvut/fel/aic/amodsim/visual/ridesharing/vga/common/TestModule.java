@@ -39,7 +39,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTime
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.SingleVehicleDARPSolver;
 import java.io.File;
 
 /**
@@ -96,7 +96,7 @@ public class TestModule extends StandardAgentPolisModule{
 		bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
 		install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
 				.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
-		bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);
+		bind(SingleVehicleDARPSolver.class).to(ArrayOptimalVehiclePlanFinder.class);
 //		bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
 
 		bind(int.class).annotatedWith(Names.named("HighwayLayer edge width")).toInstance(roadWidth);

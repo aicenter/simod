@@ -30,7 +30,7 @@ import java.util.LinkedHashSet;
  * @author LocalAdmin
  * @param <V>
  */
-public abstract class OptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> {
+public abstract class SingleVehicleDARPSolver<V extends IOptimalPlanVehicle> {
 	
 	protected final StandardPlanCostProvider planCostComputation;
 	
@@ -39,7 +39,7 @@ public abstract class OptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> {
 	protected final TravelTimeProvider travelTimeProvider;
 	
 	
-	public OptimalVehiclePlanFinder(StandardPlanCostProvider planCostComputation, AmodsimConfig config,
+	public SingleVehicleDARPSolver(StandardPlanCostProvider planCostComputation, AmodsimConfig config,
 			TravelTimeProvider travelTimeProvider) {
 		this.planCostComputation = planCostComputation;
 		this.travelTimeProvider = travelTimeProvider;

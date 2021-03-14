@@ -18,6 +18,9 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.vga.model;
 
+import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
+import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionCurrentPosition;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import java.util.ArrayList;
@@ -90,5 +93,17 @@ public class Plan<V extends IOptimalPlanVehicle>{
 
 	public Plan duplicateForVehicle(V vehicle){
 		return new Plan(startTime, endTime, cost, actions, vehicle);
+	}
+	
+	
+	public DriverPlan toDriverPlan() {
+		List<PlanAction> tasks = new ArrayList<>(getActions().size() + 1);
+		tasks.add(new PlanActionCurrentPosition(getVehicle().getPosition()));
+		for(PlanRequestAction action: getActions()){
+			tasks.add(action);
+		}
+		DriverPlan driverPlan = new DriverPlan(tasks, getEndTime() - getStartTime(), getCost());
+		
+		return driverPlan;
 	}
 }

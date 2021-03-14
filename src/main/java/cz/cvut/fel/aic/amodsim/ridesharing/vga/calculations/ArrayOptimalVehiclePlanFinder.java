@@ -49,7 +49,7 @@ import java.util.logging.Logger;
  */
 @Singleton
 public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle> 
-		extends OptimalVehiclePlanFinder<V>{
+		extends SingleVehicleDARPSolver<V>{
 
 
 	@Inject
@@ -335,7 +335,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 			
 		}
 		int endTimeS = (int) Math.round((float) bestPlanEndTime / 1000);
-		return new Plan((int) startTime, endTimeS, (int) bestPlanCost, bestPlanActions, vehicle);
+		return new Plan(startTime, endTimeS, (int) bestPlanCost, bestPlanActions, vehicle);
 	}
 	
 	@Override

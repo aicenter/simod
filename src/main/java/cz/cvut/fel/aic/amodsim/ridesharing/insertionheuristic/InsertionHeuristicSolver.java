@@ -260,10 +260,12 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
                 
 		return canServe;
 	}
-
+	
 	private void computeOptimalPlan(RideSharingOnDemandVehicle vehicle, PlanComputationRequest planComputationRequest) {
-		DriverPlan currentPlan = vehicle.getCurrentPlan();
-		
+		computeOptimalPlan(vehicle, vehicle.getCurrentPlan(), planComputationRequest);
+	}
+
+	private void computeOptimalPlan(RideSharingOnDemandVehicle vehicle, DriverPlan currentPlan, PlanComputationRequest planComputationRequest) {
 		// if the plan was already changed
 		if(planMap.containsKey(vehicle)){
 			currentPlan = planMap.get(vehicle);
@@ -449,8 +451,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	}
 
 	private void computeBestPlanForRequest(PlanComputationRequest request) {
-		minCostIncrement = Double.MAX_VALUE;
-		bestPlan = null;
+		resetBestPlan();
 		
 		// in case of station system, add one vehicle from the nearest station
 		if(config.stations.on){ //!onDemandvehicleStationStorage.isEmpty()){ //
@@ -480,10 +481,13 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	
 	private void processRequestVehicleCombination(PlanComputationRequest request, AgentPolisEntity tVvehicle){
 		RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
-
+		tryToAddRequestToPlan(request, vehicle, vehicle.getCurrentPlan());
+	}
+	
+	public void tryToAddRequestToPlan(PlanComputationRequest request, RideSharingOnDemandVehicle vehicle, DriverPlan plan){
 		// fail fast
 		if(canServeRequest(vehicle, request)){
-			computeOptimalPlan(vehicle, request);
+			computeOptimalPlan(vehicle, plan, request);
 		}
 	}
 	
@@ -540,6 +544,18 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		}
 		
 		return vehiclesForPlanning;
+	}
+
+	public void resetBestPlan() {
+		minCostIncrement = Double.MAX_VALUE;
+		bestPlan = null;
+	}
+	
+	public DriverPlan getBestPlan(){
+		if(bestPlan == null){
+			return null;
+		}
+		return bestPlan.plan;
 	}
 	
 	private class PlanData{

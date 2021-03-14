@@ -11,6 +11,8 @@ public class Vga {
 
   public Boolean logPlanComputationalTime;
 
+  public Integer maxOptimalGroupSize;
+
   public Integer maxGroupSize;
 
   public Integer solverTimeLimit;
@@ -28,6 +30,7 @@ public class Vga {
   public Vga(Map vga) {
     this.solverMinGap = (Double) vga.get("solver_min_gap");
     this.logPlanComputationalTime = (Boolean) vga.get("log_plan_computational_time");
+    this.maxOptimalGroupSize = (Integer) vga.get("max_optimal_group_size");
     this.maxGroupSize = (Integer) vga.get("max_group_size");
     this.solverTimeLimit = (Integer) vga.get("solver_time_limit");
     this.groupGenerationTimeLimit = (Integer) vga.get("group_generation_time_limit");

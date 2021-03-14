@@ -222,7 +222,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		
 		Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new LinkedHashMap<>();
 		for(Plan<IOptimalPlanVehicle> plan : optimalPlans) {
-			DriverPlan driverPlan = toDriverPlan(plan);
+			DriverPlan driverPlan = plan.toDriverPlan();
 			
 			// normal vehicles (driving vehicles)
 			if(plan.getVehicle() instanceof VGAVehicle){
@@ -349,17 +349,6 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			}
 		}
 		return filteredVehiclesForPlanning;
-	}
-
-	private DriverPlan toDriverPlan(Plan<IOptimalPlanVehicle> plan) {
-		List<PlanAction> tasks = new ArrayList<>(plan.getActions().size() + 1);
-		tasks.add(new PlanActionCurrentPosition(plan.getVehicle().getPosition()));
-		for(PlanRequestAction action: plan.getActions()){
-			tasks.add(action);
-		}
-		DriverPlan driverPlan = new DriverPlan(tasks, plan.getEndTime() - plan.getStartTime(), plan.getCost());
-		
-		return driverPlan;
 	}
 
 	private List<Plan> computeGroupsForVehicle(VGAVehicle vehicle, Collection<PlanComputationRequest> waitingRequests) {

@@ -46,7 +46,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.*;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
-import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.OptimalVehiclePlanFinder;
+import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.SingleVehicleDARPSolver;
 import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
 import cz.cvut.fel.aic.amodsim.visio.AmodsimVisioInItializer;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayer;
@@ -134,7 +134,7 @@ public class MainModule extends StandardAgentPolisModule{
 					break;
 				case "vga":
 					bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
-					bind(OptimalVehiclePlanFinder.class).to(ArrayOptimalVehiclePlanFinder.class);
+					bind(SingleVehicleDARPSolver.class).to(ArrayOptimalVehiclePlanFinder.class);
 		//			bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
 					break;
 			}

@@ -104,9 +104,9 @@ public class VgaSolverFailTest {
 
 			assertEquals(6, eventOrderStorage.getOnDemandVehicleEvents().size());
 
-			LOGGER.info("Model saved to {}/model1.lp", config.ridesharing.vga.groupGeneratorLogFilepath);
+			LOGGER.info("Model saved to {}/model1.lp", config.ridesharing.vga.modelExportFilePath);
 
-			File file = new File(config.ridesharing.vga.groupGeneratorLogFilepath+"/model1.lp");
+			File file = new File(config.ridesharing.vga.modelExportFilePath);
 			Assert.assertTrue(file.exists());
 			file.delete();                       
         }

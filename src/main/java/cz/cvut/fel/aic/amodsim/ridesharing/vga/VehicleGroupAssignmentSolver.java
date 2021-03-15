@@ -114,12 +114,28 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	
 	private int insufficientCapacityCount;
 	
+	/**
+	 * Counts for groups for which plan compuation was attempted. There is only one empty group, therefore, these 
+	 * counts starts for group of size 1.
+	 */
 	private FlexArray groupCounts;
 	
+	/**
+	 * Counts for groups for which plan exists. There is only one empty group, therefore, these 
+	 * counts starts for group of size 1.
+	 */
 	private FlexArray groupCountsPlanExists;
 	
+	/**
+	 * Computational times for groups for which plan computation was attempted. There is only one empty group, 
+	 * therefore, these counts starts for group of size 1.
+	 */
 	private FlexArray computationalTimes;
 	
+	/**
+	 * Computational times for groups for which plan exists. There is only one empty group, therefore, these counts 
+	 * starts for group of size 1.
+	 */
 	private FlexArray computationalTimesPlanExists;
 	
 	private int[] usedVehiclesPerStation;
@@ -395,11 +411,10 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		record.add(Long.toString(Math.round(totalTimeNano / MILLION)));
 		record.add(Integer.toString(vehicle.getRequestsOnBoard().size()));
 		
-		int maxActionCount = groupCountsPlanExists.size() * 2 + 1;
-		int[] counts = new int[maxActionCount];
+		int maxActionCount = (groupCountsPlanExists.size() + 1) * 2;
+		int[] counts = new int[maxActionCount]; // counts of plans with a specific number of actions
 		for (int i = 0; i < counts.length; i++) {
 			counts[i] = 0;
-			
 		}
 		for (Plan feasibleGroupPlan : feasibleGroupPlans) {
 			counts[feasibleGroupPlan.getActions().size()]++;
@@ -409,7 +424,6 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 		for (int i = 0; i < counts.length; i++) {
 			record.add(Integer.toString(counts[i]));
-			
 		}
 		logRecords.add(record);
 	}
@@ -557,9 +571,6 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		List<Plan> feasibleGroupPlans = computeGroupsForVehicle(vehicle, waitingRequests);
 		VehiclePlanList vehiclePlanList = new VehiclePlanList(vehicle, feasibleGroupPlans);
 		updatePlans(vehiclePlanList, feasibleGroupPlans);
-	
-//			feasiblePlans.add(vehiclePlanList);
-//			planCount += feasibleGroupPlans.size();
 	}
 	
 	public void computeGroupForVehicleInStation(PlanComputationRequest request, 

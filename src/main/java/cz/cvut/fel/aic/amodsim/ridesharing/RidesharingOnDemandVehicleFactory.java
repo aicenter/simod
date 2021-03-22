@@ -44,16 +44,17 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 			StationsDispatcher onDemandVehicleStationsCentral,
 			VisioPositionUtil positionUtil, 
 			EventProcessor eventProcessor, StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, 
-			AmodsimConfig config) {
+			AmodsimConfig config,
+			IdGenerator idGenerator) {
 		super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral, positionUtil, 
-				eventProcessor, timeProvider, rebalancingIdGenerator, config);
+				eventProcessor, timeProvider, rebalancingIdGenerator, config, idGenerator);
 	}
 
 	@Override
 	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition) {
 		return new RideSharingOnDemandVehicle(vehicleStorage, tripsUtil, 
 				onDemandVehicleStationsCentral, driveActivityFactory, positionUtil,rebalancingIdGenerator, eventProcessor, timeProvider, 
-				rebalancingIdGenerator, config, vehicleId, startPosition);
+				rebalancingIdGenerator, config, idGenerator, vehicleId, startPosition);
 	}
 	
 	

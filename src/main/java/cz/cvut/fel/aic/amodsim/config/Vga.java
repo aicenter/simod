@@ -23,6 +23,8 @@ public class Vga {
 
   public Boolean exportGroupData;
 
+  public Integer maxVehiclesPerRequest;
+
   public String groupGeneratorLogFilepath;
 
   public String modelExportFilePath;
@@ -36,6 +38,7 @@ public class Vga {
     this.groupGenerationTimeLimit = (Integer) vga.get("group_generation_time_limit");
     this.solverMaxTripsPerRequest = (Integer) vga.get("solver_max_trips_per_request");
     this.exportGroupData = (Boolean) vga.get("export_group_data");
+    this.maxVehiclesPerRequest = (Integer) vga.get("max_vehicles_per_request");
     this.groupGeneratorLogFilepath = (String) vga.get("group_generator_log_filepath");
     this.modelExportFilePath = (String) vga.get("model_export_file_path");
   }

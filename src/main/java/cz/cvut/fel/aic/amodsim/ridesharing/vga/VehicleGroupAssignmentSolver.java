@@ -80,9 +80,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	private final AmodsimConfig config;
 	
 	private final GurobiSolver gurobiSolver;
-	
-
-	
+		
 	private final Map<String,VGAVehicle> vgaVehiclesMapBydemandOnDemandVehicles;
 	
 	private final TypedSimulation eventProcessor;
@@ -95,7 +93,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	
 	private final Boolean exportGroupData;
 	
-	
+
 	private List<VGAVehicle> vgaVehicles;
 	
 	private int startTime;
@@ -144,6 +142,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	
 	private CsvWriter groupRecordWriter = null;
 
+	private ArrayList<ArrayList<PlanComputationRequest>> requestsPerVehicle;
 	
 	
 
@@ -510,6 +509,10 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		LOGGER.info("Generating groups for vehicles.");
 		planCount = 0;
 		
+		if(config.ridesharing.vga.maxVehiclesPerRequest > 0){
+			generatePossibleVehicleRequestCombinations(waitingRequests);
+		}
+		
 //		// global groups
 //		LOGGER.info("Generating global groups");
 //		Set<Set<PlanComputationRequest>> globalFeasibleGroups 
@@ -568,6 +571,11 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	}
 	
 	private void computeGroupForDrivingVehicle(VGAVehicle vehicle, List<PlanComputationRequest> waitingRequests){
+		
+		if(config.ridesharing.vga.maxVehiclesPerRequest > 0){
+			waitingRequests = requestsPerVehicle.get(vehicle.getRidesharingVehicle().getIndex());
+		}
+
 		List<Plan> feasibleGroupPlans = computeGroupsForVehicle(vehicle, waitingRequests);
 		VehiclePlanList vehiclePlanList = new VehiclePlanList(vehicle, feasibleGroupPlans);
 		updatePlans(vehiclePlanList, feasibleGroupPlans);
@@ -583,6 +591,10 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		if(checkIfComputePlansFromStation(usedVehiclesPerStation, nearestStation, plansFromStation)){
 			OnDemandVehicle onDemandVehicle = nearestStation.getVehicle(0);
 			VGAVehicle vGAVehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(onDemandVehicle.getId());
+			
+			if(config.ridesharing.vga.maxVehiclesPerRequest > 0){
+				waitingRequests = requestsPerVehicle.get(onDemandVehicle.getIndex());
+			}
 
 			// all waiting request can be assigned to the waiting vehicle
 			List<Plan> feasibleGroupPlans = computeGroupsForVehicle(vGAVehicle, waitingRequests);
@@ -622,5 +634,22 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	private synchronized void updateGroupPlans(Map<OnDemandVehicleStation,List<Plan>> plansFromStation, 
 			OnDemandVehicleStation nearestStation, List<Plan> feasibleGroupPlans){
 		plansFromStation.put(nearestStation, feasibleGroupPlans);
+	}
+
+	private void generatePossibleVehicleRequestCombinations(List<PlanComputationRequest> waitingRequests) {
+		for(PlanComputationRequest request: waitingRequests){
+			vgaVehicles.sort((VGAVehicle vehicle1, VGAVehicle vehicle2) -> {
+				long dist1 = travelTimeProvider.getTravelTime(
+						vehicle1.getRealVehicle(), request.getPickUpAction().getPosition());
+				
+				long dist2 = travelTimeProvider.getTravelTime(
+						vehicle2.getRealVehicle(), request.getPickUpAction().getPosition());
+				
+				return (int) ((dist1 - dist2) / 100);
+			});
+			for (int i = 0; i < config.ridesharing.vga.maxVehiclesPerRequest; i++) {
+				requestsPerVehicle.get(((OnDemandVehicle) vgaVehicles.get(i).getRealVehicle()).getIndex()).add(request);
+			}
+		}
 	}
 }

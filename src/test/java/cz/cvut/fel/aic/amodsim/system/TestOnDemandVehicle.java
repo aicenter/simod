@@ -43,9 +43,9 @@ public class TestOnDemandVehicle extends OnDemandVehicle{
 			TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
 			StandardDriveFactory driveActivityFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor, 
 			StandardTimeProvider timeProvider, StatisticControl statisticControl,IdGenerator rebalancingIdGenerator, 
-			AmodsimConfig config, @Assisted String vehicleId, @Assisted SimulationNode startPosition) {
+			AmodsimConfig config, IdGenerator idGenerator, @Assisted String vehicleId, @Assisted SimulationNode startPosition) {
 		super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, 
-				eventProcessor, timeProvider, rebalancingIdGenerator, config, vehicleId, startPosition);
+				eventProcessor, timeProvider, rebalancingIdGenerator, config, idGenerator, vehicleId, startPosition);
 
 	}
 

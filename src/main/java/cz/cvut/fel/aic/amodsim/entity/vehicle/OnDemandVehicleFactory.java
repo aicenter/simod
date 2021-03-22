@@ -56,6 +56,8 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 	protected final PhysicalTransportVehicleStorage vehicleStorage;
 	
 	protected final AmodsimConfig config;
+	
+	protected final IdGenerator idGenerator;
 
 	
 	
@@ -64,7 +66,8 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 	public OnDemandVehicleFactory(PhysicalTransportVehicleStorage vehicleStorage, 
 			TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
 			VisioPositionUtil positionUtil, EventProcessor eventProcessor,
-			StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config) {
+			StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config,
+			IdGenerator idGenerator) {
 		this.tripsUtil = tripsUtil;
 		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
 		this.positionUtil = positionUtil;
@@ -73,6 +76,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 		this.rebalancingIdGenerator = rebalancingIdGenerator;
 		this.vehicleStorage = vehicleStorage;
 		this.config = config;
+		this.idGenerator = idGenerator;
 	}
 	
 	
@@ -81,6 +85,6 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition){
 		return new OnDemandVehicle(vehicleStorage, tripsUtil, 
 				onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, eventProcessor, timeProvider, 
-				rebalancingIdGenerator, config, vehicleId, startPosition);
+				rebalancingIdGenerator, config, idGenerator, vehicleId, startPosition);
 	}
 }

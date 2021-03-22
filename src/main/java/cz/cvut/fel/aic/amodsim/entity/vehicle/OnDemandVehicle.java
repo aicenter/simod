@@ -66,7 +66,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	private static final int LENGTH = 4;
 	
 	
-	
+	private final int index;
 	
 	protected PhysicalTransportVehicle vehicle;
 	
@@ -124,6 +124,10 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	
 	
 	
+	public int getIndex() {
+		return index;
+	}
+	
 	public VehicleTrip getCurrentTrips() {
 		return currentTrip;
 	}
@@ -174,6 +178,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 			TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
 			PhysicalVehicleDriveFactory driveFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor,
 			StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, 
+			IdGenerator idGenerator,
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
 		super(vehicleId, startPosition);
 		this.tripsUtil = tripsUtil;
@@ -184,6 +189,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		this.timeProvider = timeProvider;
 		this.rebalancingIdGenerator = rebalancingIdGenerator;
 		this.config = config;
+		
+		index = idGenerator.getId();
 		
 		vehicle = new PhysicalTransportVehicle(vehicleId + " - vehicle", 
 				DemandSimulationEntityType.VEHICLE, LENGTH, config.ridesharing.vehicleCapacity, 

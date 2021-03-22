@@ -637,6 +637,10 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	}
 
 	private void generatePossibleVehicleRequestCombinations(List<PlanComputationRequest> waitingRequests) {
+		requestsPerVehicle = new ArrayList<>();
+		for (int i = 0; i < vehicleStorage.size(); i++) {
+			requestsPerVehicle.add(new ArrayList<>());
+		}
 		for(PlanComputationRequest request: waitingRequests){
 			vgaVehicles.sort((VGAVehicle vehicle1, VGAVehicle vehicle2) -> {
 				long dist1 = travelTimeProvider.getTravelTime(
@@ -647,8 +651,16 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 				
 				return (int) ((dist1 - dist2) / 100);
 			});
-			for (int i = 0; i < config.ridesharing.vga.maxVehiclesPerRequest; i++) {
-				requestsPerVehicle.get(((OnDemandVehicle) vgaVehicles.get(i).getRealVehicle()).getIndex()).add(request);
+			long oldDist = Long.MAX_VALUE;
+			for (int i = 0; i < config.ridesharing.vga.maxVehiclesPerRequest; ) {
+				VGAVehicle vGAVehicle = vgaVehicles.get(i);
+				requestsPerVehicle.get(vGAVehicle.getRidesharingVehicle().getIndex()).add(request);
+				long dist = travelTimeProvider.getTravelTime(
+						vGAVehicle.getRealVehicle(), request.getPickUpAction().getPosition());
+				if(dist != oldDist){
+					oldDist = dist;
+					i++;
+				}
 			}
 		}
 	}

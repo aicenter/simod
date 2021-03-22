@@ -650,7 +650,13 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 				long dist2 = travelTimeProvider.getTravelTime(
 						vehicle2.getRealVehicle(), request.getPickUpAction().getPosition());
 				
-				return (int) ((dist1 - dist2) / 100);
+				if(dist1 < dist2){
+					return -1;
+				};
+				if(dist1 > dist2){
+					return 1;
+				}
+				return 0;
 			});
 			long oldDist = Long.MAX_VALUE;
 			for (int i = 0; i < config.ridesharing.vga.maxVehiclesPerRequest && i < drivingVehicles.size(); i++) {

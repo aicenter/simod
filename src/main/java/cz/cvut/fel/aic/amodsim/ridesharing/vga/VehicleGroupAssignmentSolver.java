@@ -411,7 +411,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		record.add(Integer.toString(vehicle.getRequestsOnBoard().size()));
 		
 		int maxActionCount = (groupCountsPlanExists.size() + 1) * 2;
-		int[] counts = new int[maxActionCount]; // counts of plans with a specific number of actions
+		int[] counts = new int[maxActionCount + 1]; // counts of plans with a specific number of actions
 		for (int i = 0; i < counts.length; i++) {
 			counts[i] = 0;
 		}

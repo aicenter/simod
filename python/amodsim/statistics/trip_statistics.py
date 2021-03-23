@@ -38,7 +38,7 @@ def format_timestamps(tick, tick_index):
 
 trips_data = trips.load()
 
-
+# trip start histogram
 fig, axis = plt.subplots(figsize=(6, 4))
 
 counts, bins, patches = axis.hist(trips_data["start_time"], HISTOGRAM_SAMPLES)
@@ -54,5 +54,18 @@ axis.get_xaxis().set_tick_params(direction='out')
 
 
 # plt.savefig(config.images.trip_start_histogram, bbox_inches='tight', transparent=True, pad_inches=0)
+
+fig, axis = plt.subplots(figsize=(6, 4))
+
+counts, bins, patches = axis.hist(trips_data["start_time"] - trips_data["end_time"], HISTOGRAM_SAMPLES)
+
+tick_interval = int(HISTOGRAM_SAMPLES / 16)
+
+axis.set_xticks(bins[0::tick_interval])
+axis.xaxis.set_major_formatter(FuncFormatter(format_timestamps))
+labels = axis.get_xticklabels()
+plt.setp(labels, rotation=90)
+plt.subplots_adjust(bottom=0.2)
+axis.get_xaxis().set_tick_params(direction='out')
 
 plt.show()

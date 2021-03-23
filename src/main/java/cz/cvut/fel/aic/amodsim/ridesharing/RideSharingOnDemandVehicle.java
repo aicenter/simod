@@ -243,7 +243,8 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			// demand trip length 0 - need to find out where the statistic is used, does it make sense with rebalancing?
 			eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
 					new PickupEventContent(timeProvider.getCurrentSimTime(), 
-							demandAgent.getSimpleId(), getId(), 0));
+							demandAgent.getSimpleId(), getId(), 
+							(int) Math.round(demandAgent.getMinDemandServiceDuration() / 1000)));
 			currentPlan.taskCompleted();
 			driveToNextTask();
 

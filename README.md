@@ -78,7 +78,7 @@ The geojson map files are now in `<data_dir>/maps` directory.
 ### Create Demand
 In this section, we describe how to generate demend data for the simulation from the New York City taxi data. 
 For your own demand data, you will need your custom transformation script. 
-To process the NYC data:
+To prepare the NYC data:
 
    1. Download trips data (in .csv format): the csv data of taxis in Manhattan can be downloaded from 
 	 [NYC Open Data](https://data.cityofnewyork.us/browse?q=taxi). 
@@ -87,9 +87,10 @@ To process the NYC data:
 
    2. Go to the cloned Demand processing directory and edit `config.py` file according to 
 	your project.
-	Specifically, in `data_dir` specify the path to the folder with the downloaded demand files.
+	Specifically, in `data_dir` specify the path to the folder with the downloaded demand `csv` file.
+	You may also want to change the `output_dir`.
 
-   3. Run the processing script: `python3 trips_process.py`. You should see a `trips.txt` in the specified data directory. This file contains demands for the simulation.
+   3. Run the processing script: `python trips_process.py`. You should see a `trips.txt` in the specified data directory. This file contains demands for the simulation.
    4. Finally, you need to move the `trips.txt` to <data_dir> specified in the Amodsim config.
 
    ​	*For additional information see the demand processign readme in https://github.com/horychtom/demand-processing repository.*
@@ -109,49 +110,61 @@ After ticking "**Show all nodes**" on the right, all nodes ID will be displayed.
 
 
 ### Simulation Configuration
-Add amodsim_data_dir line to the config file: `amodsim_data_dir: $data_dir`
+Add amodsim_data_dir line to the config file: `amodsim_data_dir: $data_dir`. This way, the simulation will use the same data folder that you've used for the data preparation.
 
+Also, you have to set the right SRID (EPSG) for your location, in order to get correct map transformations, you have to specify the SRID value into the agentpolis:{} block (because it is a configuration of the agentpolis library). SRID is natively set for simulation of Prague. For Manhattan, set SRID to 32618. For other areas, you can find what the corresponding UTM zone here: [https://mangomap.com/utm](https://mangomap.com/robertyoung/maps/69585/what-utm-zone-am-i-in-#) and then find relevant SRID.
+
+Your config file should now look like:
+
+    data_dir: "/my/data/dir"
+    
+    map_envelope:
+    [
+        40.70
+        -74.06
+        40.82
+        -73.87
+    ]
+
+    amodsim_data_dir: $data_dir
+    
+    
+    agentpolis:
+    {
+        # srid for New York
+        srid: 32618
+    }
+Also check whether the trip times (first value on each row in trips.txt) fit in your simulation time and change `start_time` if not.
 Then you can change anything you want in your local config, all changes will overwrite the default config file. 
-You can see the original master config for the project, it is located in `/src/main/resources/cz/cvut/fel/aic/amodsim/config/`. 
-Here is an example of data you may want to ajdust:
+Here is an example of data you may want to ajdust in your local config:
 
-     ```
-	 # 6:00 in milliseconds
-     start_time:  21600000
-	 
-     agentpolis:
-     {
-     	# srid for New York
-     	srid: 32618
-     	
-     	# length of simulation
-     	simulation_duration:
-     	{
-     		days: 0
-     		hours: 6
-     		minutes: 30
-     		seconds: 0
-     	}
-     
-     }
-     ```
+    
+    # 6:00 in milliseconds
+    start_time:  21600000
+    
+    agentpolis:
+    {
+        
+        # length of simulation
+        simulation_duration:
+        {
+            days: 0
+            hours: 6
+            minutes: 30
+            seconds: 0
+        }
+    
+    }
 
-	 * *Check, whether the trip times (first value on each row in trips.txt) fit in your simulation time, 
-	change **start_time** if not*  
-
-     * *You can see local configurations used by us in /amod-to-agentpolis/local_config_files*
-
-     **Important:** In order to get correct map transformations, you have to specify the srid value into the 
-	agentpolis:{} block. Srid is natively set for simulation of Prague. Find what UTM zone your target belongs to  
-	here: [https://mangomap.com/utm](https://mangomap.com/robertyoung/maps/69585/what-utm-zone-am-i-in-#)
-     and then find relevant srid value (EPSG).
+To see all possible options, look into the master config file. For Amodsim, the file is located in `/src/main/resources/cz/cvut/fel/aic/amodsim/config/`.
+You can see local configurations used by us in `/amod-to-agentpolis/local_config_files`
 
      
 ### Run the Simulation
 Run the amodsim `OnDemandVehiclesSimulation.java`  with `<path to your config>` as an argument:
 
 ```
-mvn exec:exec -Dexec.executable="java" -Dexec.args="-classpath %%classpath cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation C:/Workspaces/AIC/amod-to-agentpolis/local_config_files/fido-AIC.cfg" -Dfile.encoding=UTF-8
+mvn exec:exec -Dexec.executable="java" -Dexec.args="-classpath %%classpath cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation <path to your config>" -Dfile.encoding=UTF-8
 ```
 
 **Important:** If running this command from PowerShell, remeber to quote the arguments starting with `-` and containing dot: `'-Dexec.executable="java"'`

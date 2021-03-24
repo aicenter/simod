@@ -141,7 +141,7 @@ public class MainModule extends StandardAgentPolisModule{
 
 		}
 		else{
-                   bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
+			bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
 		}
 		install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
 			.build(DemandAgentFactory.class));

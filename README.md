@@ -18,19 +18,22 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 # Quick Start Guide
 
-## Prerequisities
+## Requirements
 - [JDK](https://www.oracle.com/cz/java/technologies/javase-downloads.html)
-- [Maven](https://maven.apache.org/)
-- [Gurobi](https://www.gurobi.com/products/gurobi-optimizer/) (Including the [Maven support](http://fido.ninja/manuals/add-gurobi-java-interface-maven))
 - [Python 3](https://www.python.org/)
+- [Maven](https://maven.apache.org/)
+- [Gurobi](https://www.gurobi.com/products/gurobi-optimizer/) (Including the [Maven support](http://fido.ninja/manuals/add-gurobi-java-interface-maven)!)
+
 
 
 
 ## Installation
 
-1. clone Amodsim (this repository)
+1. check that you have all the requirements installed, especialy [Maven support for Gurobi](http://fido.ninja/manuals/add-gurobi-java-interface-maven).
+2. clone Amodsim (this repository)
 2. clone the [demand processing repository](https://github.com/aicenter/demand-processing) (for demand generation scripts).
 3. Go to your Amodsim directory and compile the project: `mvn compile`
+5. Upgrade 'pip'
 4. In the Amodism dir, install the python package by `pip install ./python`
 
 
@@ -48,7 +51,7 @@ This project works with configuration files. Most of the config parameters can b
 ### Map Generation Configuration
 Our map downloader uses a rectangular boundaries to download the map. First, you need to find coordinates for your area of interest, and then you need to use them in the config file. Below is an example for New York - Manhattan:
 
-    ```commandline
+    
     map_envelope:
     [
         40.70
@@ -56,15 +59,15 @@ Our map downloader uses a rectangular boundaries to download the map. First, you
         40.82
         -73.87
     ]
-    ```
+    
 
 
 ### Map Generation
-Go to the `<AMODSIM DIR>/python` and run the following command:	
+Go to the `<AMODSIM DIR>/python/amodsim` and run the following command:	
 
-    ```
-    python3 create_map_for_ap.py -lc=<path to custom_config.cfg>
-    ```
+    
+    python create_map_for_ap.py -lc=<path to custom_config.cfg>
+    
 
 The geojson map files are now in `<data_dir>/maps` directory.
 

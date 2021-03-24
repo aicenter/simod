@@ -18,6 +18,13 @@
  */
 package cz.cvut.fel.aic.amodsim;
 
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.DistanceMatrixTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.TNRTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.TNRAFTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.CHTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.EuclideanTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.AstarTravelTimeProvider;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.FileAppender;
 import com.google.common.collect.Sets;
@@ -43,7 +50,6 @@ import cz.cvut.fel.aic.amodsim.rebalancing.RebalancingOnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.ridesharing.*;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.InsertionHeuristicSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.*;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.SingleVehicleDARPSolver;

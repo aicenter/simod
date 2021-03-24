@@ -24,7 +24,7 @@ import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.util.NearestElementUtil;
 import cz.cvut.fel.aic.geographtools.util.NearestElementUtilPair;

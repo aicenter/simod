@@ -23,7 +23,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import java.util.*;
 

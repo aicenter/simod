@@ -25,7 +25,7 @@ import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import org.slf4j.LoggerFactory;

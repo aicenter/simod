@@ -23,7 +23,7 @@ import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.DemandAgent;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.TravelTimeProvider;
 import java.util.Random;
 
 

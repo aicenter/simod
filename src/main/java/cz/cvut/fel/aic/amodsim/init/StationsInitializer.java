@@ -26,7 +26,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation.OnDemandVehicleStationFactory;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.DistanceMatrixTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.DistanceMatrixTravelTimeProvider;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

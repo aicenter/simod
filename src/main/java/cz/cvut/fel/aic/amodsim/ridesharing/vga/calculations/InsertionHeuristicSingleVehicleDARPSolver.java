@@ -26,7 +26,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.InsertionHeuristicSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.model.Plan;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;

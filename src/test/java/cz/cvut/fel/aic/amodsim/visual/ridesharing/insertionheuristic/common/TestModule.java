@@ -38,8 +38,8 @@ import cz.cvut.fel.aic.amodsim.ridesharing.RidesharingOnDemandVehicleFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.InsertionHeuristicSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.AstarTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.common.VGATestVisioInitializer;
 import java.io.File;
 

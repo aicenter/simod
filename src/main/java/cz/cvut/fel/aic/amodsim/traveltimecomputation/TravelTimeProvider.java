@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation;
+package cz.cvut.fel.aic.amodsim.traveltimecomputation;
 
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;

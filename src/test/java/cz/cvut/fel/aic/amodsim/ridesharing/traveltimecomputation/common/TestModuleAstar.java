@@ -28,8 +28,8 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.Map
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.AstarTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.TravelTimeProvider;
 import java.io.File;
 import org.jgrapht.alg.interfaces.AStarAdmissibleHeuristic;
 

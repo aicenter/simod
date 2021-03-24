@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation;
+package cz.cvut.fel.aic.amodsim.traveltimecomputation;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -29,27 +29,28 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.TransportNetworks;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.geographtools.Graph;
-import cz.cvut.fel.aic.shortestpaths.TNRAFDistanceQueryManagerAPI;
+import cz.cvut.fel.aic.shortestpaths.TNRDistanceQueryManagerAPI;
 import java.math.BigInteger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * This class implements an API that allows us to call the Transit Node Routing with Arc Flags query algorithm present
+ * This class implements an API that allows us to call the Transit Node Routing query algorithm present
  * in the C++ Shortest Paths library to answer queries.
  *
  * @author Michal Cvach
  */
 @Singleton
-public class TNRAFTravelTimeProvider extends TravelTimeProvider{
+public class TNRTravelTimeProvider extends TravelTimeProvider{
 	
-	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TNRAFTravelTimeProvider.class);
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TNRTravelTimeProvider.class);
 
     private final TripsUtil tripsUtil;
 
     private final AmodsimConfig config;
 
     private final Graph<SimulationNode, SimulationEdge> graph;
+
+    private TNRDistanceQueryManagerAPI dqm;
 
     private boolean closed = false;
 
@@ -58,10 +59,10 @@ public class TNRAFTravelTimeProvider extends TravelTimeProvider{
     private int freeQueryManagers;
 
     private boolean[] queryManagersOccupied;
-    private TNRAFDistanceQueryManagerAPI[] queryManagers;
+    private TNRDistanceQueryManagerAPI[] queryManagers;
 
     @Inject
-    public TNRAFTravelTimeProvider(TimeProvider timeProvider, TripsUtil tripsUtil, TransportNetworks transportNetworks, AmodsimConfig config) {
+    public TNRTravelTimeProvider(TimeProvider timeProvider, TripsUtil tripsUtil, TransportNetworks transportNetworks, AmodsimConfig config) {
         super(timeProvider);
         this.tripsUtil = tripsUtil;
         this.config = config;
@@ -73,14 +74,15 @@ public class TNRAFTravelTimeProvider extends TravelTimeProvider{
         // using an absolute path instead of trying to find in in the java.library.path.
         System.loadLibrary("shortestPaths");
         this.freeQueryManagers = this.queryManagersCount;
-        LOGGER.info("Initializing {} TNRAF query managers.", this.queryManagersCount);
-        this.queryManagers = new TNRAFDistanceQueryManagerAPI[this.queryManagersCount];
+        LOGGER.info("Initializing {} TNR query managers.", this.queryManagersCount);
+        this.queryManagers = new TNRDistanceQueryManagerAPI[this.queryManagersCount];
         this.queryManagersOccupied = new boolean[this.queryManagersCount];
         for(int i = 0; i < this.queryManagersCount; i++) {
-            this.queryManagers[i] = new TNRAFDistanceQueryManagerAPI();
-            this.queryManagers[i].initializeTNRAF(config.shortestpaths.tnrafFilePath, config.shortestpaths.mappingFilePath);
+            this.queryManagers[i] = new TNRDistanceQueryManagerAPI();
+            this.queryManagers[i].initializeTNR(config.shortestpaths.tnrFilePath, config.shortestpaths.mappingFilePath);
             this.queryManagersOccupied[i] = false;
         }
+
     }
 
     @Override

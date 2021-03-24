@@ -21,7 +21,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing;
 import cz.cvut.fel.aic.amodsim.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.statistics.content.RidesharingBatchStats;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import java.util.ArrayList;

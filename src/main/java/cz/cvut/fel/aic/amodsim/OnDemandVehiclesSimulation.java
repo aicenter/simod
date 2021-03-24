@@ -29,7 +29,7 @@ import cz.cvut.fel.aic.amodsim.init.StationsInitializer;
 import cz.cvut.fel.aic.amodsim.init.StatisticInitializer;
 import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import cz.cvut.fel.aic.amodsim.rebalancing.ReactiveRebalancing;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.statistics.Statistics;
 import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
 import java.io.File;

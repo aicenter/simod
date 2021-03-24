@@ -18,6 +18,8 @@
  */
 package cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation;
 
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.CHTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.AstarTravelTimeProvider;
 import com.google.inject.Injector;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.Graphs;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;

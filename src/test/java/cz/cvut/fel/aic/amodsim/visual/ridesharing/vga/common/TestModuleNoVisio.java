@@ -29,8 +29,8 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.Geo
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.DefaultPlanComputationRequest;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.AstarTravelTimeProvider;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.AstarTravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.SingleVehicleDARPSolver;
 import cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.mock.TestTimeProvider;

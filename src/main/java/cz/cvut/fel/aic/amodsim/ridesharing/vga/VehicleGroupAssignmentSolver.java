@@ -47,7 +47,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanActionCurrentPosition;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.amodsim.ridesharing.model.PlanRequestAction;
-import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
+import cz.cvut.fel.aic.amodsim.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GroupGenerator;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.GurobiSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.IOptimalPlanVehicle;

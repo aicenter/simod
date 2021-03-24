@@ -27,7 +27,7 @@ setup(
 	author_email='david.fido.fiedler@gmail.com',
 	license='MIT',
 	packages=setuptools.find_packages(),
-	install_requires=['roadmaptools>=4.1.0', 'agentpolis>=0.1.1', 'fconfig', 'numpy', 'pandas', 'matplotlib', 'tqdm', 'typing'],
+	install_requires=['roadmaptools>=4.1.0', 'agentpolis>=0.1.2', 'fconfig', 'numpy', 'pandas', 'matplotlib', 'tqdm', 'typing'],
 	python_requires='>=3',
 	package_data={'amodsim.resources': ['*.cfg']}
 )

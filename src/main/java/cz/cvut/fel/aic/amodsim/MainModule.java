@@ -103,32 +103,34 @@ public class MainModule extends StandardAgentPolisModule{
 		} else {
 				bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 		}
+	
+		switch(amodsimConfig.travelTimeProvider){
+			case "dm":
+				bind(TravelTimeProvider.class).to(DistanceMatrixTravelTimeProvider.class);
+				break;
+			case "euclidean":
+				bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
+				break;
+			case "ch":
+				bind(TravelTimeProvider.class).to(CHTravelTimeProvider.class);
+				break;
+			case "tnr":
+				bind(TravelTimeProvider.class).to(TNRTravelTimeProvider.class);
+				break;
+			case "tnraf":
+				bind(TravelTimeProvider.class).to(TNRAFTravelTimeProvider.class);
+				break;
+			case "astar":
+			default:
+				bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
+				break;
+		}
 
 		if(amodsimConfig.ridesharing.on){
 			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 			bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
 
-			switch(amodsimConfig.ridesharing.travelTimeProvider){
-				case "dm":
-					bind(TravelTimeProvider.class).to(DistanceMatrixTravelTimeProvider.class);
-					break;
-				case "euclidean":
-					bind(TravelTimeProvider.class).to(EuclideanTravelTimeProvider.class);
-					break;
-				case "ch":
-					bind(TravelTimeProvider.class).to(CHTravelTimeProvider.class);
-					break;
-				case "tnr":
-					bind(TravelTimeProvider.class).to(TNRTravelTimeProvider.class);
-					break;
-				case "tnraf":
-					bind(TravelTimeProvider.class).to(TNRAFTravelTimeProvider.class);
-					break;
-				case "astar":
-				default:
-					bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
-					break;
-			}
+			
 
 			bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
 			install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)

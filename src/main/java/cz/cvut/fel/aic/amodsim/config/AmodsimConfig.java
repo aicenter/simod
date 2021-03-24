@@ -26,6 +26,8 @@ public class AmodsimConfig implements GeneratedConfig {
 
   public String mapDir;
 
+  public String travelTimeProvider;
+
   public Shortestpaths shortestpaths;
 
   public Integer startTime;
@@ -65,6 +67,7 @@ public class AmodsimConfig implements GeneratedConfig {
     this.tripCacheFile = (String) amodsimConfig.get("trip_cache_file");
     this.stations = new Stations((Map) amodsimConfig.get("stations"));
     this.mapDir = (String) amodsimConfig.get("map_dir");
+    this.travelTimeProvider = (String) amodsimConfig.get("travel_time_provider");
     this.shortestpaths = new Shortestpaths((Map) amodsimConfig.get("shortestpaths"));
     this.startTime = (Integer) amodsimConfig.get("start_time");
     this.tripsPath = (String) amodsimConfig.get("trips_path");

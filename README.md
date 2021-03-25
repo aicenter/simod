@@ -1,7 +1,7 @@
 <!--
 Copyright (c) 2021 Czech Technical University in Prague.
 
-This file is part of Amodsim project.
+This file is part of SiMoD project.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -37,8 +37,8 @@ First you need to [download the test data for your first experiment](https://own
 ## Installation
 
 1. check that you have all the requirements installed, especialy [Maven support for Gurobi](http://fido.ninja/manuals/add-gurobi-java-interface-maven).
-2. clone Amodsim (this repository)
-3. Go to your Amodsim directory and compile the project: `mvn compile`
+2. clone SiMoD (this repository)
+3. Go to your SiMoD directory and compile the project: `mvn compile`
 4. Extract the downloaded data somewhere.
 
 
@@ -46,18 +46,18 @@ First you need to [download the test data for your first experiment](https://own
 This project works with configuration files (`test.cfg` in the test data folder). Most of the config parameters can be left as they are, but you need to configure the main data directory. It is on the first line of the config file: `data_dir: "FILL ME"`.
 You have to replace *FILL ME*  with the absolute path to the folder with the downloaded data. 
 
-To see all possible options, look into the master config file. For Amodsim, the file is located in `/src/main/resources/cz/cvut/fel/aic/amodsim/config/`.
+To see all possible options, look into the master config file. For SiMoD, the file is located in `/src/main/resources/cz/cvut/fel/aic/SiMoD/config/`.
 You can see local configurations used by us in `/amod-to-agentpolis/local_config_files`
 
      
 ### Run the Simulation
-Run the amodsim `OnDemandVehiclesSimulation.java`  with `<path to your config>` as an argument:
+Run the SiMoD `OnDemandVehiclesSimulation.java`  with `<path to your config>` as an argument:
 
 ```
-mvn exec:java -Dexec.mainClass=cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation -Dexec.args="<path to your config>" -Dfile.encoding=UTF-8
+mvn exec:java -Dexec.mainClass=cz.cvut.fel.aic.SiMoD.OnDemandVehiclesSimulation -Dexec.args="<path to your config>" -Dfile.encoding=UTF-8
 ```
 
-**Important:** If running this command from PowerShell, remeber to quote the arguments starting with `-` and containing dot, e.g.: `'-Dexec.mainClass=cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation'`
+**Important:** If running this command from PowerShell, remeber to quote the arguments starting with `-` and containing dot, e.g.: `'-Dexec.mainClass=cz.cvut.fel.aic.SiMoD.OnDemandVehiclesSimulation'`
 
 
 Simulation speed can be adjusted by '+' , '-' , '*' or 'Ctrl *' and paused by 'Space'
@@ -67,7 +67,7 @@ Simulation speed can be adjusted by '+' , '-' , '*' or 'Ctrl *' and paused by 'S
 
 # Usage
 
-## Install Amodsim Python Scripts
+## Install SiMoD Python Scripts
 For preprocessing data for the simulation, we are using Python scripts. To install them:
 1. Upgrade 'pip'
 2. In the Amodism dir, install the python package by `pip install ./python`
@@ -86,7 +86,7 @@ your project.
 Specifically, in `data_dir` specify the path to the folder with the downloaded demand `csv` file.
 You may also want to change the `output_dir`.
 3. Run the processing script: `python trips_process.py`. You should see a `trips.txt` in the specified data directory. This file contains demands for the simulation.
-4. Finally, you need to move the `trips.txt` to <data_dir> specified in the Amodsim config.
+4. Finally, you need to move the `trips.txt` to <data_dir> specified in the SiMoD config.
 
 For additional information see the demand processign readme in https://github.com/horychtom/demand-processing repository.
 
@@ -129,7 +129,7 @@ TODO: add a guide for station position generation.
 ## Prepare Your Own Map
 
 ### Map Generation Configuration
-Our map downloader uses a rectangular boundaries to download the map. First, you need to find coordinates for your area of interest, and then you need to use them in the Amodsim config file. Below is an example for New York - Manhattan:
+Our map downloader uses a rectangular boundaries to download the map. First, you need to find coordinates for your area of interest, and then you need to use them in the SiMoD config file. Below is an example for New York - Manhattan:
 
     
     map_envelope:
@@ -143,7 +143,7 @@ Our map downloader uses a rectangular boundaries to download the map. First, you
 
 
 ### Map Generation
-Go to the `<AMODSIM DIR>/python/amodsim` and run the following command:	
+Go to the `<SiMoD DIR>/python/SiMoD` and run the following command:	
 
     
     python create_map_for_ap.py -lc=<path to custom_config.cfg>
@@ -152,7 +152,7 @@ Go to the `<AMODSIM DIR>/python/amodsim` and run the following command:
 The geojson map files are now in `<data_dir>/maps` directory.
 
 ### Amodism Configuration
-For the new map to work in Amodsim you have to set the right SRID (EPSG) for your location, in order to get correct map transformations.
+For the new map to work in SiMoD you have to set the right SRID (EPSG) for your location, in order to get correct map transformations.
 You have to specify the SRID value into the agentpolis:{} block (because it is a configuration of the agentpolis library). SRID is natively set for simulation of Prague. For Manhattan, set SRID is set in the test config to 32618. For other areas, you can find what the corresponding UTM zone here: [https://mangomap.com/utm](https://mangomap.com/robertyoung/maps/69585/what-utm-zone-am-i-in-#) and then find relevant SRID.
 
 

@@ -164,10 +164,10 @@ You can see local configurations used by us in `/amod-to-agentpolis/local_config
 Run the amodsim `OnDemandVehiclesSimulation.java`  with `<path to your config>` as an argument:
 
 ```
-mvn exec:exec -Dexec.executable="java" -Dexec.args="-classpath %%classpath cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation <path to your config>" -Dfile.encoding=UTF-8
+mvn exec:java -Dexec.mainClass=cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation -Dexec.args="<path to your config>" -Dfile.encoding=UTF-8
 ```
 
-**Important:** If running this command from PowerShell, remeber to quote the arguments starting with `-` and containing dot: `'-Dexec.executable="java"'`
+**Important:** If running this command from PowerShell, remeber to quote the arguments starting with `-` and containing dot, e.g.: `'-Dexec.mainClass=cz.cvut.fel.aic.amodsim.OnDemandVehiclesSimulation'`
 
 
 Simulation speed can be adjusted by '+' , '-' , '*' or 'Ctrl *' and paused by 'Space'

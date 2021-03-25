@@ -50,11 +50,15 @@ def _get_data_for_kdtree(fc: FeatureCollection, projection: roadmaptools.utm.Tra
 # max prolongation
 max_traveltime_in_seconds = config.ridesharing.max_prolongation_in_seconds
 
+print("Maximum configured travel time: {} s", max_traveltime_in_seconds)
+
 # we have to take the batch length into account
 max_traveltime_in_seconds -= 30
 
 # max delta between distance matrix and astar
 max_traveltime_in_seconds -= 1
+
+print("Maximum effective travel time: {} s", max_traveltime_in_seconds)
 
 max_traveltime_in_ms = max_traveltime_in_seconds * 1000
 

@@ -94,6 +94,12 @@ public class OnDemandVehiclesSimulation {
 		
 		checkPaths(config, injector.getInstance(AgentpolisConfig.class));
 		
+		// overide the disfunctional old no ridesharing setup
+		if(!config.ridesharing.on){
+			config.ridesharing.on = true;
+			config.ridesharing.vehicleCapacity = 1;
+		}
+		
 		SimulationCreator creator = injector.getInstance(SimulationCreator.class);         
 		// prepare map, entity storages...
 		creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());

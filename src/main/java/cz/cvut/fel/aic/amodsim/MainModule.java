@@ -129,13 +129,9 @@ public class MainModule extends StandardAgentPolisModule{
 		if(amodsimConfig.ridesharing.on){
 			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 			bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
-
-			
-
 			bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
 			install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
-						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
-			
+						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));	
 			switch(amodsimConfig.ridesharing.method){
 				case "insertion-heuristic":
 					bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
@@ -146,7 +142,6 @@ public class MainModule extends StandardAgentPolisModule{
 		//			bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
 					break;
 			}
-
 		}
 		else{
 			bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);

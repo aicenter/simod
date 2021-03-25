@@ -39,6 +39,6 @@ compute_traveltime_from_edge.vehicle_velocity = config.vehicle_speed_in_meters_p
 
 nodes_path = config.agentpolis.map_nodes_filepath
 edges_path = config.agentpolis.map_edges_filepath
-out_path = out_path = config.data_dir + 'adj.csv'
+out_path = config.data_dir + 'adj.csv'
 
 roadmaptools.adjectancy.create_adj_matrix(nodes_path, edges_path, out_path, compute_traveltime_from_edge)

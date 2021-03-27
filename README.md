@@ -16,6 +16,10 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 -->
+SiMoD is a simulation tool for Mobility-on-Demand (MoD) based on [AgentPolis](https://github.com/aicenter/agentpolis) traffic simulation framework. It lets you build your own MoD system at a location of your choice. It is lightweight, highly customizable and it can run simulations with tens of thousands of vehicles and passengers with ease.
+
+However, SiMoD is a tool for researchers and engineers familiar with computer science. If you want a production-ready simulation tool check for example [SUMO](https://www.eclipse.org/sumo/).
+
 # Quick Start Guide
 
 ## Data

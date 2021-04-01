@@ -93,6 +93,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 	
 	private final Boolean exportGroupData;
 	
+	private final boolean optimizeParkedVehicles;
+	
 
 	private List<VGAVehicle> vgaVehicles;
 	
@@ -160,6 +162,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		this.timeProvider = timeProvider;
 		this.groupGeneratorProvider = groupGeneratorProvider;
 		exportGroupData = config.ridesharing.vga.exportGroupData;
+		optimizeParkedVehicles = config.ridesharing.vga.optimizeParkedVehicles;
 		activeRequests = new LinkedHashSet<>();
 		vgaVehiclesMapBydemandOnDemandVehicles = new HashMap<>();
 		MathUtils.setTravelTimeProvider(travelTimeProvider);
@@ -197,7 +200,11 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 
 		LOGGER.info("Total vehicle count: " + vgaVehicles.size());
-		List<VGAVehicle> drivingVehicles = filterVehicles(vgaVehicles);
+		
+		// filter driving vehicles
+		final List<VGAVehicle> drivingVehicles = optimizeParkedVehicles ? filterVehicles(vgaVehicles) : vgaVehicles;
+		int usedVehiclesCount = optimizeParkedVehicles 
+				? drivingVehicles.size() + 1 * waitingRequests.size() : drivingVehicles.size();
 
 		// active requests update
 		for (PlanComputationRequest newRequest : newRequests) {
@@ -205,7 +212,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 		}
 		
 		LOGGER.info("No. of active requests: {}", activeRequests.size());
-		LOGGER.info("Number of vehicles used for planning: {}", drivingVehicles.size() + 1 * waitingRequests.size());
+		LOGGER.info("Number of vehicles used for planning: {}",  usedVehiclesCount);
 		
 		if(activeRequests.isEmpty()){
 			return new LinkedHashMap<>();
@@ -524,7 +531,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 				.forEach(vehicle -> computeGroupForDrivingVehicle(vehicle, waitingRequests));
 		
 		// groups for vehicles in the station
-		if(!onDemandvehicleStationStorage.isEmpty()){ // or config.stations.on
+		if(!onDemandvehicleStationStorage.isEmpty() && optimizeParkedVehicles){ // or config.stations.on
 			usedVehiclesPerStation = new int[onDemandvehicleStationStorage.size()];
 			insufficientCapacityCount = 0;
 			

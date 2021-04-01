@@ -26,6 +26,7 @@ class Experiment(Enum):
 	IH = (2, "green", "///", "Insertion Heuristic")
 	VGA = (3, "blue", "\\\\\\", "VGA (optimal)")
 	VGA_LIMITED = (4, "orange", "***", "VGA (limited)")
+	VGA_PNAS = (4, "darkcyan", "---", "VGA (PNAS)")
 
 	def __init__(self, index, color, pattern, label):
 		self.color = color

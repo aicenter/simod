@@ -12,11 +12,12 @@ fig, axis = plt.subplots(figsize=(6, 4))
 
 trip_data_minutes = trips_data / 60
 
-print("Max trip length: {}".format(trip_data_minutes.max()))
+print("Max trip length: {} min".format(trip_data_minutes.max()))
+print("Min trip length: {} s".format(trips_data.min()))
 
-bins = np.arange(0.49, 25.51, 1)
+bins = np.arange(0.49, 37.51, 1)
 
-_counts, _bins, patches = axis.hist(trip_data_minutes, bins)
+_counts, _bins, patches = axis.hist(trip_data_minutes, bins, color="white", edgecolor="black")
 
 # tick_interval = int(HISTOGRAM_SAMPLES / 10)
 

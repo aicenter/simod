@@ -50,16 +50,19 @@ data_1 = occupancy.load(config.comparison.experiment_1_dir)
 data_2 = occupancy.load(config.comparison.experiment_2_dir)
 data_3 = occupancy.load(config.comparison.experiment_3_dir)
 data_4 = occupancy.load(config.comparison.experiment_4_dir)
+data_9 = occupancy.load(config.comparison.experiment_9_dir)
 
 occupancies_1 = occupancy.get_occupancies(data_1)
 occupancies_2 = occupancy.get_occupancies(data_2)
 occupancies_3 = occupancy.get_occupancies(data_3)
 occupancies_4 = occupancy.get_occupancies(data_4)
+occupancies_9 = occupancy.get_occupancies(data_9)
 
 occupancies_in_window_2 = occupancy.get_occupancies(data_1, True)
 occupancies_in_window_3 = occupancy.get_occupancies(data_2, True)
 occupancies_in_window_4 = occupancy.get_occupancies(data_3, True)
 occupancies_in_window_5 = occupancy.get_occupancies(data_4, True)
+occupancies_in_window_10 = occupancy.get_occupancies(data_9, True)
 occupancies_in_window_1 = pd.Series(1, index=np.arange(len(occupancies_in_window_2)))
 
 bins = np.arange(-0.5, 6.5, 1)
@@ -68,8 +71,8 @@ hatches = ['\\\\', '//', '++', '**']
 
 
 fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))
-_n, _bins, patches = axes.hist([occupancies_1, occupancies_2, occupancies_3, occupancies_4], bins,
-		  label=['No Ridesharing', 'Insertion Heuristic', 'VGA', 'VGA limited'])
+_n, _bins, patches = axes.hist([occupancies_1, occupancies_2, occupancies_3, occupancies_4, occupancies_9], bins,
+		  label=['No Ridesharing', 'Insertion Heuristic', 'VGA', 'VGA limited', 'VGA PNAS'])
 axes.yaxis.set_ticks(np.arange(0, 1200001, 120000))
 axes.yaxis.set_major_formatter(FuncFormatter(format_time))
 axes.set_ylabel("vehicle hours")
@@ -79,7 +82,7 @@ for patch_set, hatch in zip(patches, hatches):
 
 fig, axes = plt.subplots(1, 1, subplot_kw={"adjustable": 'box'}, figsize=(4, 3))
 _n, _bins, patches = axes.hist([occupancies_in_window_1, occupancies_in_window_2, occupancies_in_window_3,
-								occupancies_in_window_4, occupancies_in_window_4], bins,
+								occupancies_in_window_4, occupancies_in_window_4, occupancies_in_window_10], bins,
 		  label=common.labels)
 axes.yaxis.set_ticks(np.arange(0, 840001, 120000))
 axes.yaxis.set_major_formatter(FuncFormatter(format_time))
@@ -98,6 +101,7 @@ data_5 = occupancy.load(config.comparison.experiment_5_dir)
 data_6 = occupancy.load(config.comparison.experiment_6_dir)
 data_7 = occupancy.load(config.comparison.experiment_7_dir)
 data_8 = occupancy.load(config.comparison.experiment_8_dir)
+data_10 = occupancy.load(config.comparison.experiment_10_dir)
 
 # occupancies_1 = occupancy.get_occupancies(data_1)
 # occupancies_2 = occupancy.get_occupancies(data_2)
@@ -108,6 +112,7 @@ occupancies_in_window_7 = occupancy.get_occupancies(data_5, True)
 occupancies_in_window_8 = occupancy.get_occupancies(data_6, True)
 occupancies_in_window_9 = occupancy.get_occupancies(data_7, True)
 occupancies_in_window_10 = occupancy.get_occupancies(data_8, True)
+occupancies_in_window_11 = occupancy.get_occupancies(data_10, True)
 occupancies_in_window_6 = pd.Series(1, index=np.arange(len(occupancies_in_window_7)))
 
 fig, axes = plt.subplots(1, 2, figsize=(8, 3), sharex=True, sharey=True)
@@ -124,8 +129,9 @@ axis1.set_xlabel("persons per vehicle")
 axis2.set_xlabel("persons per vehicle")
 configure_subplot(axis1)
 
-_n, _bins, patches = axis1.hist([occupancies_in_window_1, occupancies_in_window_2, occupancies_in_window_3, occupancies_in_window_4,
-	occupancies_in_window_5], bins, label=common.labels, color=common.colors)
+_n, _bins, patches = axis1.hist([occupancies_in_window_1, occupancies_in_window_2, occupancies_in_window_3,
+								 occupancies_in_window_4, occupancies_in_window_5, occupancies_in_window_10], bins, label=common.labels,
+								color=common.colors)
 
 axis1.set_ylabel("vehicle hours")
 
@@ -137,7 +143,7 @@ plt.legend(loc='upper right')
 
 
 _n, _bins, patches = axis2.hist([occupancies_in_window_6, occupancies_in_window_7,
-	occupancies_in_window_8, occupancies_in_window_9, occupancies_in_window_10], bins,
+	occupancies_in_window_8, occupancies_in_window_9, occupancies_in_window_10, occupancies_in_window_11], bins,
 								label=common.labels, color=common.colors)
 
 configure_subplot(axis2)

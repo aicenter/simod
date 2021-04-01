@@ -7,6 +7,8 @@ import java.lang.String;
 import java.util.Map;
 
 public class Vga {
+  public Boolean optimizeParkedVehicles;
+
   public Double solverMinGap;
 
   public Boolean logPlanComputationalTime;
@@ -30,6 +32,7 @@ public class Vga {
   public String modelExportFilePath;
 
   public Vga(Map vga) {
+    this.optimizeParkedVehicles = (Boolean) vga.get("optimize_parked_vehicles");
     this.solverMinGap = (Double) vga.get("solver_min_gap");
     this.logPlanComputationalTime = (Boolean) vga.get("log_plan_computational_time");
     this.maxOptimalGroupSize = (Integer) vga.get("max_optimal_group_size");

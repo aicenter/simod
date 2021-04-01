@@ -63,13 +63,21 @@ def get_data_for_dir(experiment_dir: str, edge_data: DataFrame) -> Tuple[int, fl
 	return km_total_window, mean_delay
 
 
-def plot_data_for_window(axis, edge_data: DataFrame, dir_cap_1: str, dir_ih: str, dir_vga: str, dir_vga_limited: str):
-	labels = ['Current State', 'No Ridesharing', 'IH', 'VGA (optimal)', 'VGA (limited)']
-	label_offsets = [(0, 30), (-30, -35), (40, -25), (35, 25), (30, -40)]
+def plot_data_for_window(
+		axis,
+		edge_data: DataFrame,
+		dir_cap_1: str,
+		dir_ih: str,
+		dir_vga: str,
+		dir_vga_limited: str,
+		dir_vga_pnas: str
+):
+	labels = ['Current State', 'No Ridesharing', 'IH', 'VGA (optimal)', 'VGA (limited)', 'VGA (PNAS)']
+	label_offsets = [(0, 30), (-30, -35), (50, 0), (55, 30), (25, -50), (90, 0)]
 	distances = []
 	delays = []
 	cur_state = True
-	for dir in [dir_cap_1, dir_cap_1, dir_ih, dir_vga, dir_vga_limited]:
+	for dir in [dir_cap_1, dir_cap_1, dir_ih, dir_vga, dir_vga_limited, dir_vga_pnas]:
 		if cur_state:
 			distance, delay = get_data_for_dir_current(dir, edge_data)
 		else:
@@ -87,7 +95,7 @@ def plot_data_for_window(axis, edge_data: DataFrame, dir_cap_1: str, dir_ih: str
 				 xytext=label_offsets[index],  # distance from text to points (x,y)
 				 ha='center',  # horizontal alignment can be left, right or center
 				va='center',
-				arrowprops={'arrowstyle': '-', 'shrinkA': 0, 'shrinkB': 7})
+				arrowprops={'arrowstyle': '-', 'shrinkA': 0, 'shrinkB': 5})
 
 	axis.set_ylim(min(delays) - 10, max(delays) + 50)
 
@@ -102,6 +110,8 @@ exp_dir_5 = config.comparison.experiment_5_dir
 exp_dir_6 = config.comparison.experiment_6_dir
 exp_dir_7 = config.comparison.experiment_7_dir
 exp_dir_8 = config.comparison.experiment_8_dir
+exp_dir_9 = config.comparison.experiment_9_dir
+exp_dir_10 = config.comparison.experiment_10_dir
 
 fig, axes = plt.subplots(1, 2, figsize=(8, 3))
 
@@ -126,8 +136,8 @@ axis2.tick_params(
 axis1.set_xlim(330, 1100)
 axis2.set_xlim(150, 380)
 
-plot_data_for_window(axis1, edge_data, exp_dir_1, exp_dir_2, exp_dir_3, exp_dir_4)
-plot_data_for_window(axis2, edge_data, exp_dir_5, exp_dir_6, exp_dir_7, exp_dir_8)
+plot_data_for_window(axis1, edge_data, exp_dir_1, exp_dir_2, exp_dir_3, exp_dir_4, exp_dir_9)
+plot_data_for_window(axis2, edge_data, exp_dir_5, exp_dir_6, exp_dir_7, exp_dir_8, exp_dir_10)
 
 plt.savefig(config.images.distance_delay_tradeoff, bbox_inches='tight', transparent=True, pad_inches=0.0, dpi=fig.dpi)
 

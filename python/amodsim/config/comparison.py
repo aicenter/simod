@@ -18,4 +18,8 @@ class Comparison:
         self.experiment_7_dir = properties.get("experiment_7_dir")
         self.experiment_8_name = properties.get("experiment_8_name")
         self.experiment_8_dir = properties.get("experiment_8_dir")
+        self.experiment_9_name = properties.get("experiment_9_name")
+        self.experiment_9_dir = properties.get("experiment_9_dir")
+        self.experiment_10_name = properties.get("experiment_10_name")
+        self.experiment_10_dir = properties.get("experiment_10_dir")
         pass

@@ -17,4 +17,5 @@ class Images:
         self.vga_times = properties.get("vga_times")
         self.vga_group_size = properties.get("vga_group_size")
         self.demand_trip_duration_histogram = properties.get("demand_trip_duration_histogram")
+        self.demand_example = properties.get("demand_example")
         pass

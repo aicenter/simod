@@ -131,10 +131,12 @@ edge_object_data = edges.load_edges_mapped_by_id(loaded_edges)
 # exp_dir_2 = config.comparison.experiment_2_dir
 # exp_dir_3 = config.comparison.experiment_3_dir
 # exp_dir_4 = config.comparison.experiment_4_dir
+# exp_dir_5 = config.comparison.experiment_9_dir
 exp_dir_1 = config.comparison.experiment_5_dir
 exp_dir_2 = config.comparison.experiment_6_dir
 exp_dir_3 = config.comparison.experiment_7_dir
 exp_dir_4 = config.comparison.experiment_8_dir
+exp_dir_5 = config.comparison.experiment_10_dir
 
 # result json files
 results_ridesharing_off \
@@ -146,6 +148,8 @@ results_vga \
 
 results_vga_group_limit \
 	= roadmaptools.inout.load_json(exp_dir_4 + config.statistics.result_file_name)
+results_vga_pnas \
+	= roadmaptools.inout.load_json(exp_dir_5 + config.statistics.result_file_name)
 
 # traffic load
 loads_no_ridesharing = traffic_load.load_all_edges_load_history(
@@ -156,6 +160,8 @@ loads_vga = traffic_load.load_all_edges_load_history(
 	exp_dir_3 + config.statistics.all_edges_load_history_file_name)
 loads_vga_group_limit = traffic_load.load_all_edges_load_history(
 	exp_dir_4 + config.statistics.all_edges_load_history_file_name)
+loads_vga_pnas = traffic_load.load_all_edges_load_history(
+	exp_dir_5 + config.statistics.all_edges_load_history_file_name)
 
 histogram = TrafficDensityHistogram(edge_object_data)
 
@@ -170,16 +176,18 @@ vga_data = compute_stats(results_vga, histogram, loads_vga["ALL"], exp_dir_3,
 						 edge_data)
 vga_limited_data = compute_stats(results_vga_group_limit, histogram, loads_vga_group_limit["ALL"],
 								 exp_dir_4, edge_data)
+vga_pnas_data = compute_stats(results_vga_pnas, histogram, loads_vga_pnas["ALL"],
+								 exp_dir_5, edge_data)
 
-output_table = np.array([["X", "PRESENT STATE", "NO RIDESHARING", "INSERTION HEURISTIC", "VGA", "VGA limited"],
-						 ["Total veh. dist. traveled (km)", present_state_data[0], no_ridesharing_data[0], insertion_heuristic_data[0], vga_data[0], vga_limited_data[0]],
-						 ["avg. density", present_state_data[1], no_ridesharing_data[1], insertion_heuristic_data[1], vga_data[1], vga_limited_data[1]],
-						 ["cong. segments count", present_state_data[2], no_ridesharing_data[2], insertion_heuristic_data[2], vga_data[2], vga_limited_data[2]],
-						 ["dropped demand count", present_state_data[3], no_ridesharing_data[3], insertion_heuristic_data[3], vga_data[3], vga_limited_data[3]],
-						 ["half congested edges", present_state_data[4], no_ridesharing_data[4], insertion_heuristic_data[4], vga_data[4], vga_limited_data[4]],
-						 ["used car count", present_state_data[5], no_ridesharing_data[5], insertion_heuristic_data[5], vga_data[5], vga_limited_data[5]],
-						 ["avg. delay", present_state_data[7], no_ridesharing_data[7], insertion_heuristic_data[7], vga_data[7], vga_limited_data[7]],
-						 ["avg. comp. time", present_state_data[6], no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6], vga_limited_data[6]]])
+output_table = np.array([["X", "PRESENT STATE", "NO RIDESHARING", "INSERTION HEURISTIC", "VGA", "VGA limited", "VGA PNAS"],
+						 ["Total veh. dist. traveled (km)", present_state_data[0], no_ridesharing_data[0], insertion_heuristic_data[0], vga_data[0], vga_limited_data[0], vga_pnas_data[0]],
+						 ["avg. density", present_state_data[1], no_ridesharing_data[1], insertion_heuristic_data[1], vga_data[1], vga_limited_data[1], vga_pnas_data[1]],
+						 ["cong. segments count", present_state_data[2], no_ridesharing_data[2], insertion_heuristic_data[2], vga_data[2], vga_limited_data[2], vga_pnas_data[2]],
+						 ["dropped demand count", present_state_data[3], no_ridesharing_data[3], insertion_heuristic_data[3], vga_data[3], vga_limited_data[3], vga_pnas_data[3]],
+						 ["half congested edges", present_state_data[4], no_ridesharing_data[4], insertion_heuristic_data[4], vga_data[4], vga_limited_data[4], vga_pnas_data[4]],
+						 ["used car count", present_state_data[5], no_ridesharing_data[5], insertion_heuristic_data[5], vga_data[5], vga_limited_data[5], vga_pnas_data[5]],
+						 ["avg. delay", present_state_data[7], no_ridesharing_data[7], insertion_heuristic_data[7], vga_data[7], vga_limited_data[7], vga_pnas_data[7]],
+						 ["avg. comp. time", present_state_data[6], no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6], vga_limited_data[6], vga_pnas_data[6]]])
 
 # console results
 print("COMPARISON:")
@@ -190,43 +198,43 @@ print_table(output_table)
 # latex table
 print("Latex code:")
 print(r"{\renewcommand{\arraystretch}{1.2}%")
-print(r"\begin{tabular}{|+l|-r|-r|-r|-r|-r|}")
+print(r"\begin{tabular}{|+l|-r|-r|-r|-r|-r|-r|}")
 print(r"\hline")
-print(r" &  & \multicolumn{4}{c|}{Mobility-on-Demand}}")
-print(r"\tabularnewline}")
-print(r"\cline{3-6}}")
-print(r" & \thead{Present} & \thead{No Ridesh.} & \thead{IH} & \thead{VGA} & \thead{VGA lim}")
+print(r" &  & \multicolumn{5}{c|}{Mobility-on-Demand}")
+print(r"\tabularnewline")
+print(r"\cline{3-7}")
+print(r" & \thead{Present} & \thead{No Ridesh.} & \thead{IH} & \thead{VGA} & \thead{VGA lim} & \thead{VGA PNAS}")
 print(r"\tabularnewline")
 print(r"\hline")
 print(r"\hline")
 print(r"\rowstyle{\bfseries}")
-print("Total veh. dist. (km) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(present_state_data[0], no_ridesharing_data[0],
-	insertion_heuristic_data[0], vga_data[0], vga_limited_data[0]))
+print("Total veh. dist. (km) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}& \\num{{{}}}".format(present_state_data[0], no_ridesharing_data[0],
+	insertion_heuristic_data[0], vga_data[0], vga_limited_data[0], vga_pnas_data[0]))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Avg. delay (s) & {} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}& \\num{{{}}}".format("-", no_ridesharing_data[7], insertion_heuristic_data[7], vga_data[7],
-	vga_limited_data[7]))
+print("Avg. delay (s) & {} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format("-", no_ridesharing_data[7], insertion_heuristic_data[7], vga_data[7],
+	vga_limited_data[7], vga_pnas_data[7]))
 print(r"\tabularnewline")
 print(r"\hline")
 print(r"\hline")
-print("Avg. density (veh/km) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}& \\num{{{}}}".format(round(present_state_data[1], 4), round(no_ridesharing_data[1], 4),
-	 round(insertion_heuristic_data[1], 4), round(vga_data[1], 4), round(vga_limited_data[1], 4)))
+print("Avg. density (veh/km) & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(round(present_state_data[1], 4), round(no_ridesharing_data[1], 4),
+	 round(insertion_heuristic_data[1], 4), round(vga_data[1], 4), round(vga_limited_data[1], 4), round(vga_pnas_data[1], 4)))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Congested seg. & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}& \\num{{{}}}".format(present_state_data[2], no_ridesharing_data[2], insertion_heuristic_data[2], vga_data[2],
-	vga_limited_data[2] ))
+print("Congested seg. & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(present_state_data[2], no_ridesharing_data[2], insertion_heuristic_data[2], vga_data[2],
+	vga_limited_data[2], vga_pnas_data[2] ))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Heavily loaded seg.  & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}& \\num{{{}}}".format(round(present_state_data[4], 1), round(no_ridesharing_data[4], 1),
-	round(insertion_heuristic_data[4], 1), round(vga_data[4], 1), round(vga_limited_data[4], 1)))
+print("Heavily loaded seg.  & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(round(present_state_data[4], 1), round(no_ridesharing_data[4], 1),
+	round(insertion_heuristic_data[4], 1), round(vga_data[4], 1), round(vga_limited_data[4], 1), round(vga_pnas_data[4], 1)))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Used Vehicles  & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}& \\num{{{}}}".format(present_state_data[5], no_ridesharing_data[5], insertion_heuristic_data[5], vga_data[5],
-	vga_limited_data[5]))
+print("Used Vehicles  & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format(present_state_data[5], no_ridesharing_data[5], insertion_heuristic_data[5], vga_data[5],
+	vga_limited_data[5], vga_pnas_data[5]))
 print(r"\tabularnewline")
 print(r"\hline")
-print("Avg. comp. time (ms)  & {} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format("-", no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6],
-	vga_limited_data[6]))
+print("Avg. comp. time (ms)  & {} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}}".format("-", no_ridesharing_data[6], insertion_heuristic_data[6], vga_data[6],
+	vga_limited_data[6], vga_pnas_data[6]))
 print(r"\tabularnewline")
 print(r"\hline")
 print(r"\end{tabular}}")

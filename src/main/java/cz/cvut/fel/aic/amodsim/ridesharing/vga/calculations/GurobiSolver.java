@@ -227,7 +227,9 @@ public class GurobiSolver {
 //			model.set(GRB.DoubleParam.MIPGap, 0.01);
 		
 			// time limit
-			model.set(GRB.DoubleParam.TimeLimit, timeLimit);
+			if(timeLimit > 0){
+				model.set(GRB.DoubleParam.TimeLimit, timeLimit);
+			}
 			
 			// min gap
 			if(config.ridesharing.vga.solverMinGap > 0){

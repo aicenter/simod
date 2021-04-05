@@ -23,7 +23,7 @@ However, SiMoD is a tool for researchers and engineers familiar with computer sc
 # Quick Start Guide
 
 ## Data
-First you need to [download the test data for your first experiment](https://owncloud.cesnet.cz/index.php/s/GnwFj41o73natth). It is a experiment on Manhattan with real historical data from the taxi and limusine commision. Extract the folder anywhere in your computer. It conytains:
+First you need to [download the test data for your first experiment](https://owncloud.cesnet.cz/index.php/s/GnwFj41o73natth). It is a experiment on Manhattan with real historical data from the taxi and limusine commision. Extract the folder anywhere in your computer. It contains:
 - `maps` directory with files `nodes.geojson` and `edges.geojson`.
 - `dm.csv`: distance matrix needed for fats travel time computations.
 - `station_positions.csv`: file with positions of the parking/refueling stations for the MoD operator.

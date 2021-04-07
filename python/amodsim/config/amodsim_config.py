@@ -34,6 +34,7 @@ class AmodsimConfig(Config):
         self.vehicle_speed_in_meters_per_second = properties.get("vehicle_speed_in_meters_per_second")
         self.main_roads_graph_filepath = properties.get("main_roads_graph_filepath")
         self.trips_multiplier = properties.get("trips_multiplier")
+        self.uber_speeds_file_path = properties.get("uber_speeds_file_path")
         self.statistics = Statistics(properties.get("statistics"))
         self.analysis = Analysis(properties.get("analysis"))
         self.images = Images(properties.get("images"))

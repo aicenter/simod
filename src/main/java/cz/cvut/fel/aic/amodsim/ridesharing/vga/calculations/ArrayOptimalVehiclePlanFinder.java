@@ -181,9 +181,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 										|| action.getRequest().getMaxDropoffTime() + roundingExtraTime < endTimeS + durationS)
 									)){
 								allActionsFeasible = false;
-								if(onboardRequestsOnly){
-									int a = 1;
-								}
+								assert !onboardRequestsOnly;
 								break;
 							}
 						}

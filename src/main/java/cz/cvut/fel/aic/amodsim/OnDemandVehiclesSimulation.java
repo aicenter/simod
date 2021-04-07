@@ -84,6 +84,7 @@ public class OnDemandVehiclesSimulation {
 	}
 
 	public void run(String[] args) {
+		
 		AmodsimConfig config = new AmodsimConfig();
 		
 		File localConfigFile = null;
@@ -94,7 +95,8 @@ public class OnDemandVehiclesSimulation {
 		
 		checkPaths(config, injector.getInstance(AgentpolisConfig.class));
 		
-		SimulationCreator creator = injector.getInstance(SimulationCreator.class);         
+		SimulationCreator creator = injector.getInstance(SimulationCreator.class);        
+		
 		// prepare map, entity storages...
 		creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
 

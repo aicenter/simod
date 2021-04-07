@@ -23,11 +23,11 @@ However, SiMoD is a tool for researchers and engineers familiar with computer sc
 # Quick Start Guide
 
 ## Data
-First you need to [download the test data for your first experiment](https://owncloud.cesnet.cz/index.php/s/GnwFj41o73natth). It is a experiment on Manhattan with real historical data from the taxi and limusine commision. Extract the folder anywhere in your computer. It conytains:
+First you need to [download the test data for your first experiment](https://owncloud.cesnet.cz/index.php/s/GnwFj41o73natth). It is an experiment on Manhattan with real historical [data](https://data.cityofnewyork.us/dataset/Yellow-Tripdata-2015-January-June/2yzn-sicd) from the NYC Taxi and Limusine Commision. Extract the folder anywhere in your computer. It contains:
 - `maps` directory with files `nodes.geojson` and `edges.geojson`.
-- `dm.csv`: distance matrix needed for fats travel time computations.
+- `dm.csv`: distance matrix needed for fast travel time computations.
 - `station_positions.csv`: file with positions of the parking/refueling stations for the MoD operator.
-- `test.cfg`: configuration file.
+- `test.cfg`: SiMoD configuration file.
 - `trips.txt`: the file with the demand.
 
 
@@ -40,9 +40,9 @@ First you need to [download the test data for your first experiment](https://own
 
 ## Installation
 
-1. check that you have all the requirements installed, especialy [Maven support for Gurobi](http://fido.ninja/manuals/add-gurobi-java-interface-maven).
+1. check that you have all the requirements installed, especially [Maven support for Gurobi](http://fido.ninja/manuals/add-gurobi-java-interface-maven).
 2. clone SiMoD (this repository)
-3. Go to your SiMoD directory and compile the project: `mvn compile`
+3. Go to your SiMoD directory and compile the project: `mvn compile` (it takes some time to download the dependencies for the first time)
 4. Extract the downloaded data somewhere.
 
 
@@ -51,7 +51,7 @@ This project works with configuration files (`test.cfg` in the test data folder)
 You have to replace *FILL ME*  with the absolute path to the folder with the downloaded data. 
 
 To see all possible options, look into the master config file. For SiMoD, the file is located in `/src/main/resources/cz/cvut/fel/aic/SiMoD/config/`.
-You can see local configurations used by us in `/amod-to-agentpolis/local_config_files`
+You can see local configurations used by us in `simod/local_config_files`
 
      
 ### Run the Simulation
@@ -61,7 +61,7 @@ Run the SiMoD `OnDemandVehiclesSimulation.java`  with `<path to your config>` as
 mvn exec:java -Dexec.mainClass=cz.cvut.fel.aic.simod.OnDemandVehiclesSimulation -Dexec.args="<path to your config>" -Dfile.encoding=UTF-8
 ```
 
-**Important:** If running this command from PowerShell, remeber to quote the arguments starting with `-` and containing dot, e.g.: `'-Dexec.mainClass=cz.cvut.fel.aic.SiMoD.OnDemandVehiclesSimulation'`
+**Important:** If running this command from PowerShell, remember to quote the arguments starting with `-` and containing dot, e.g.: `'-Dexec.mainClass=cz.cvut.fel.aic.SiMoD.OnDemandVehiclesSimulation'`
 
 
 Simulation speed can be adjusted by '+' , '-' , '*' or 'Ctrl *' and paused by 'Space'
@@ -74,10 +74,10 @@ Simulation speed can be adjusted by '+' , '-' , '*' or 'Ctrl *' and paused by 'S
 ## Install SiMoD Python Scripts
 For preprocessing data for the simulation, we are using Python scripts. To install them:
 1. Upgrade 'pip'
-2. In the Amodism dir, install the python package by `pip install ./python`
+2. In the SiMoD dir, install the python package by `pip install ./python`
 
 ## Prepare Your Own Demand
-In this section, we describe how to generate demend data for the simulation from the New York City taxi data. 
+In this section, we describe how to generate demand data for the simulation from the New York City taxi data. 
 For other demand data, you will need your custom transformation script from to the format we use in our simulation. 
 
 To prepare the NYC data:
@@ -92,14 +92,14 @@ You may also want to change the `output_dir`.
 3. Run the processing script: `python trips_process.py`. You should see a `trips.txt` in the specified data directory. This file contains demands for the simulation.
 4. Finally, you need to move the `trips.txt` to <data_dir> specified in the SiMoD config.
 
-For additional information see the demand processign readme in https://github.com/horychtom/demand-processing repository.
+For additional information see the demand processing readme in https://github.com/horychtom/demand-processing repository.
 
 ### Demand Configuration
 You should always check whether the trip times (first value on each row in trips.txt) fit in your simulation time window. Specifically:
 1. `start_time` (in milliseconds) and
 2. `agentpolis.simulation_duration`
 
-Here is an example of how you may want to ajdust these values in your local config:
+Here is an example of how you may want to adjust these values in your local config:
 
     
     # 6:00 in milliseconds
@@ -147,7 +147,7 @@ Our map downloader uses a rectangular boundaries to download the map. First, you
 
 
 ### Map Generation
-Go to the `<SiMoD DIR>/python/SiMoD` and run the following command:	
+Go to the `<SiMoD DIR>/python/amodsim` and run the following command:	
 
     
     python create_map_for_ap.py -lc=<path to custom_config.cfg>
@@ -155,13 +155,13 @@ Go to the `<SiMoD DIR>/python/SiMoD` and run the following command:
 
 The geojson map files are now in `<data_dir>/maps` directory.
 
-### Amodism Configuration
+### SiMoD Configuration
 For the new map to work in SiMoD you have to set the right SRID (EPSG) for your location, in order to get correct map transformations.
-You have to specify the SRID value into the agentpolis:{} block (because it is a configuration of the agentpolis library). SRID is natively set for simulation of Prague. For Manhattan, set SRID is set in the test config to 32618. For other areas, you can find what the corresponding UTM zone here: [https://mangomap.com/utm](https://mangomap.com/robertyoung/maps/69585/what-utm-zone-am-i-in-#) and then find relevant SRID.
+You have to specify the SRID value into the agentpolis:{} block (because it is a configuration of the AgentPolis library). SRID is natively set for simulation of Prague. For Manhattan, set SRID is set in the test config to 32618. For other areas, you can find what the corresponding UTM zone here: [https://mangomap.com/utm](https://mangomap.com/robertyoung/maps/69585/what-utm-zone-am-i-in-#) and then find relevant SRID.
 
 
 ### Distance Matrix
-TODO: guide how to generate distace matrix.
+TODO: guide how to generate distance matrix.
 
 
 # FAQ

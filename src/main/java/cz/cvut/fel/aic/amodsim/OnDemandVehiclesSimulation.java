@@ -31,7 +31,7 @@ import cz.cvut.fel.aic.amodsim.io.TripTransform;
 import cz.cvut.fel.aic.amodsim.rebalancing.ReactiveRebalancing;
 import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.amodsim.statistics.Statistics;
-import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
+//import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
 import java.io.File;
 import java.net.MalformedURLException;
 import org.slf4j.LoggerFactory;
@@ -121,9 +121,9 @@ public class OnDemandVehiclesSimulation {
 		// start it up
 		creator.startSimulation();
 
-		if (config.useTripCache) {
-			injector.getInstance(TripsUtilCached.class).saveNewTrips();
-		}
+//		if (config.useTripCache) {
+//			injector.getInstance(TripsUtilCached.class).saveNewTrips();
+//		}
 		injector.getInstance(Statistics.class).simulationFinished();
 		injector.getInstance(TravelTimeProvider.class).printCalls();
 		injector.getInstance(TravelTimeProvider.class).close();

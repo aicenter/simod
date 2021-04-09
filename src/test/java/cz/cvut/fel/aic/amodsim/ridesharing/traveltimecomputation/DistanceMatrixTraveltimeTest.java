@@ -43,34 +43,34 @@ public class DistanceMatrixTraveltimeTest {
 	
 	@Test
 	public void test(){
-            AmodsimConfig config = new AmodsimConfig();
-            // Guice configuration
-            TestAgentPolisInitializer agentPolisInitializer 
-                            = new TestAgentPolisInitializer(new TestModule(config));
-            Injector injector = agentPolisInitializer.initialize();
+		AmodsimConfig config = new AmodsimConfig();
+		// Guice configuration
+		TestAgentPolisInitializer agentPolisInitializer 
+						= new TestAgentPolisInitializer(new TestModule(config));
+		Injector injector = agentPolisInitializer.initialize();
 
-            // prepare map
-            MapInitializer mapInitializer = injector.getInstance(MapInitializer.class);
-            MapData mapData = mapInitializer.getMap();
-            injector.getInstance(AllNetworkNodes.class).setAllNetworkNodes(mapData.nodesFromAllGraphs);
-            injector.getInstance(Graphs.class).setGraphs(mapData.graphByType);
-            Map<Integer, SimulationNode> map = injector.getInstance(AllNetworkNodes.class).getAllNetworkNodes();
-            // travel time providers
-            AstarTravelTimeProvider astarTravelTimeProvider = 
-                    injector.getInstance(AstarTravelTimeProvider.class);
-            TestDistanceMatrixTravelTimeProvider distanceMatrixTravelTimeProvider 
-                            = injector.getInstance(TestDistanceMatrixTravelTimeProvider.class);
-                            
-            for (int i = 0; i < map.size(); i++) {
-                SimulationNode from = map.get(i);
-                for (int j = 0; j < map.size(); j++) {
-                    SimulationNode to = map.get(j);
-                    double durationAstar = astarTravelTimeProvider.getExpectedTravelTime(from, to);
-                    double durationDm = distanceMatrixTravelTimeProvider.getExpectedTravelTime(from, to);
-                    LOGGER.trace("From {}(index {}) to {}(index {}), astar distance: {}, dm distance: {}, difference {}", from, 
-                                    from.getIndex(), to, to.getIndex(), durationAstar, durationDm, durationAstar - durationDm);
-                    Assert.assertEquals(durationAstar, durationDm, 30);
-                }
-            }			
+		// prepare map
+		MapInitializer mapInitializer = injector.getInstance(MapInitializer.class);
+		MapData mapData = mapInitializer.getMap();
+		injector.getInstance(AllNetworkNodes.class).setAllNetworkNodes(mapData.nodesFromAllGraphs);
+		injector.getInstance(Graphs.class).setGraphs(mapData.graphByType);
+		Map<Integer, SimulationNode> map = injector.getInstance(AllNetworkNodes.class).getAllNetworkNodes();
+		// travel time providers
+		AstarTravelTimeProvider astarTravelTimeProvider = 
+				injector.getInstance(AstarTravelTimeProvider.class);
+		TestDistanceMatrixTravelTimeProvider distanceMatrixTravelTimeProvider 
+						= injector.getInstance(TestDistanceMatrixTravelTimeProvider.class);
+
+		for (int i = 0; i < map.size(); i++) {
+			SimulationNode from = map.get(i);
+			for (int j = 0; j < map.size(); j++) {
+				SimulationNode to = map.get(j);
+				double durationAstar = astarTravelTimeProvider.getExpectedTravelTime(from, to);
+				double durationDm = distanceMatrixTravelTimeProvider.getExpectedTravelTime(from, to);
+				LOGGER.trace("From {}(index {}) to {}(index {}), astar distance: {}, dm distance: {}, difference {}", from, 
+								from.getIndex(), to, to.getIndex(), durationAstar, durationDm, durationAstar - durationDm);
+				Assert.assertEquals(durationAstar, durationDm, 30);
+			}
+		}			
 	}				
 }

@@ -23,6 +23,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.utils.CollectionUtil;
+import cz.cvut.fel.aic.amodsim.SimodException;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.ridesharing.DroppedDemandsAnalyzer;
 import cz.cvut.fel.aic.amodsim.ridesharing.StandardPlanCostProvider;
@@ -305,7 +306,7 @@ public class GurobiSolver {
 				if(Math.round(variable.get(GRB.DoubleAttr.X)) == 1 && plan.getVehicle() instanceof VGAVehicle){
 					if(vGAVehicles.contains(plan.getVehicle())){
 						try {
-							throw new Exception(String.format("More than one plan per vehicle %s", plan.getVehicle()));
+							throw new SimodException(String.format("More than one plan per vehicle %s", plan.getVehicle()));
 						} catch (Exception ex) {
 							Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
 						}
@@ -320,7 +321,7 @@ public class GurobiSolver {
 			if(vehiclePlanList.optimalPlanVehicle instanceof VGAVehicle 
 					&& !vGAVehicles.contains(vehiclePlanList.optimalPlanVehicle)){
 				try {
-						throw new Exception(String.format("No plan per vehicle %s", vehiclePlanList.optimalPlanVehicle));
+						throw new SimodException(String.format("No plan per vehicle %s", vehiclePlanList.optimalPlanVehicle));
 					} catch (Exception ex) {
 						Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
 					}

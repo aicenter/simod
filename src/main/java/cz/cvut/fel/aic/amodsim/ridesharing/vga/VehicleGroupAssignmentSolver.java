@@ -30,6 +30,7 @@ import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.amodsim.CsvWriter;
+import cz.cvut.fel.aic.amodsim.SimodException;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.amodsim.entity.OnDemandVehicleStation;
@@ -472,7 +473,7 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			&& onDemandVehicle.getState() != OnDemandVehicleState.REBALANCING){
 				if(!planMap.containsKey(onDemandVehicle)){
 					try {
-						throw new Exception("Driving vehicle is not replanned:" + onDemandVehicle);
+						throw new SimodException("Driving vehicle is not replanned:" + onDemandVehicle);
 					} catch (Exception ex) {
 						Logger.getLogger(VehicleGroupAssignmentSolver.class.getName()).log(Level.SEVERE, null, ex);
 						VGAVehicle vGAVehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(onDemandVehicle.getId());

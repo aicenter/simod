@@ -30,6 +30,7 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.amodsim.DemandData;
+import cz.cvut.fel.aic.amodsim.SimodException;
 import cz.cvut.fel.aic.amodsim.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.config.AmodsimConfig;
 import cz.cvut.fel.aic.amodsim.event.DemandEvent;
@@ -254,7 +255,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 				PlanComputationRequest request = requestsMapByDemandAgents.get(eventContent.getDemandId());
 				if(!waitingRequests.remove(request)){
 					try {
-						throw new Exception("Request picked up but it is not present in the waiting request queue!");
+						throw new SimodException("Request picked up but it is not present in the waiting request queue!");
 					} catch (Exception ex) {
 						Logger.getLogger(VehicleGroupAssignmentSolver.class.getName()).log(Level.SEVERE, null, ex);
 					}

@@ -35,7 +35,7 @@ public abstract class TravelTimeProvider {
 	
 	public TravelTimeProvider(TimeProvider timeProvider) {
 		this.timeProvider = timeProvider;
-                callCount = 0;
+		callCount = 0;
 	}
         
         public long getCallCount() {

@@ -47,7 +47,7 @@ import cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation.*;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.amodsim.ridesharing.vga.calculations.SingleVehicleDARPSolver;
-import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
+//import cz.cvut.fel.aic.amodsim.tripUtil.TripsUtilCached;
 import cz.cvut.fel.aic.amodsim.visio.AmodsimVisioInItializer;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayer;
 import cz.cvut.fel.aic.amodsim.visio.DemandLayerWithJitter;
@@ -87,9 +87,9 @@ public class MainModule extends StandardAgentPolisModule{
 		bind(EntityStorage.class).to(VehicleStorage.class);
 		bind(MapInitializer.class).to(GeojsonMapInitializer.class);
 		
-		if(amodsimConfig.useTripCache){
-			bind(TripsUtil.class).to(TripsUtilCached.class);
-		}
+//		if(amodsimConfig.useTripCache){
+//			bind(TripsUtil.class).to(TripsUtilCached.class);
+//		}
 		bind(DemandLayer.class).to(DemandLayerWithJitter.class);
 		
 		if(agentpolisConfig.congestionModel.on){

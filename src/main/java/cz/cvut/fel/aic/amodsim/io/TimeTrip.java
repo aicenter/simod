@@ -22,13 +22,14 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
+import cz.cvut.fel.aic.geographtools.WKTPrintableCoord;
 
 /**
  *
  * @author F-I-D-O
  * @param <L> location type
  */
-public class TimeTrip<L> extends Trip<L>{
+public class TimeTrip<L extends WKTPrintableCoord> extends Trip<L>{
 		
 	private final long startTime;
 	

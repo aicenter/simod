@@ -23,6 +23,7 @@ import pandas as pd
 
 import roadmaptools.adjectancy
 import roadmaptools.inout
+import roadmaptools.estimate_speed_from_osm
 
 
 class ComputeTravelTimeFromEdge:
@@ -37,7 +38,7 @@ class ComputeTravelTimeFromEdge:
 		:return: Edge traveltime in milliseconds.
 		"""
 		distance_cm = edge['properties']['length']
-		posted_speed_cm_per_second = int(round(self.get_speed(edge) / 3.6 * 1E2))
+		posted_speed_cm_per_second = self.get_speed(edge)
 		vehicle_max_speed_cm_per_second = self.vehicle_velocity * 1E2
 		velocity_cm_per_s = min(posted_speed_cm_per_second, vehicle_max_speed_cm_per_second)
 		return int(round(distance_cm / velocity_cm_per_s * 1E3))
@@ -57,12 +58,12 @@ class ComputeSpeedsFromUberData:
 		if len(filtered.index) == 0:
 			# raise Exception("No speed record per edge: from {} to {}".format(from_id, to_id))
 			self.missing_speed_record_count += 1
-			return edge['properties']['maxspeed']
+			return roadmaptools.estimate_speed_from_osm.get_speed_per_second_from_edge(edge, 1E2)
 		elif len(filtered.index) > 1:
 			raise Exception("Multiple speed records per edge: from {} to {}".format(from_id, to_id))
 
 		self.found_speed_record_count += 1
-		return filtered.iloc[0]["speed"]
+		return roadmaptools.estimate_speed_from_osm.get_speed_per_second(filtered.iloc[0]["speed"], "mph", 1E2)
 
 
 nodes_path = config.agentpolis.map_nodes_filepath
@@ -74,7 +75,7 @@ if config.uber_speeds_file_path:
 	speeds = roadmaptools.inout.load_csv_to_pandas(config.uber_speeds_file_path)
 	speed_function = ComputeSpeedsFromUberData(speeds)
 else:
-	speed_function = lambda edge: edge['properties']['maxspeed']
+	speed_function = lambda edge: roadmaptools.estimate_speed_from_osm.get_speed_per_second_from_edge(edge, 1E2)
 
 travel_time_functor = ComputeTravelTimeFromEdge(config.vehicle_speed_in_meters_per_second, speed_function)
 

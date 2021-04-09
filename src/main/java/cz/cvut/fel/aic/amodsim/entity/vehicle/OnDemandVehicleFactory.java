@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.amodsim.entity.vehicle;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
@@ -58,16 +59,24 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 	protected final AmodsimConfig config;
 	
 	protected final IdGenerator idGenerator;
+	
+	protected final AgentpolisConfig agentpolisConfig;
 
 	
 	
 	
 	@Inject
-	public OnDemandVehicleFactory(PhysicalTransportVehicleStorage vehicleStorage, 
-			TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
-			VisioPositionUtil positionUtil, EventProcessor eventProcessor,
-			StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config,
-			IdGenerator idGenerator) {
+	public OnDemandVehicleFactory(
+			PhysicalTransportVehicleStorage vehicleStorage, 
+			TripsUtil tripsUtil, 
+			StationsDispatcher onDemandVehicleStationsCentral, 
+			VisioPositionUtil positionUtil, 
+			EventProcessor eventProcessor,
+			StandardTimeProvider timeProvider, 
+			IdGenerator rebalancingIdGenerator, 
+			AmodsimConfig config,
+			IdGenerator idGenerator,
+			AgentpolisConfig agentpolisConfig) {
 		this.tripsUtil = tripsUtil;
 		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
 		this.positionUtil = positionUtil;
@@ -77,14 +86,26 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 		this.vehicleStorage = vehicleStorage;
 		this.config = config;
 		this.idGenerator = idGenerator;
+		this.agentpolisConfig = agentpolisConfig;
 	}
 	
 	
 	
 	@Override
 	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition){
-		return new OnDemandVehicle(vehicleStorage, tripsUtil, 
-				onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, eventProcessor, timeProvider, 
-				rebalancingIdGenerator, config, idGenerator, vehicleId, startPosition);
+		return new OnDemandVehicle(
+				vehicleStorage, 
+				tripsUtil, 
+				onDemandVehicleStationsCentral, 
+				driveActivityFactory,
+				positionUtil, 
+				eventProcessor, 
+				timeProvider, 
+				rebalancingIdGenerator, 
+				config, 
+				idGenerator, 
+				agentpolisConfig,
+				vehicleId, 
+				startPosition);
 	}
 }

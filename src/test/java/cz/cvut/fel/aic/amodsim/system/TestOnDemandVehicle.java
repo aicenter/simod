@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.amodsim.system;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
@@ -39,13 +40,34 @@ import cz.cvut.fel.aic.amodsim.storage.PhysicalTransportVehicleStorage;
 public class TestOnDemandVehicle extends OnDemandVehicle{
 	
 	@Inject
-	public TestOnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage,
-			TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
-			StandardDriveFactory driveActivityFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor, 
-			StandardTimeProvider timeProvider, StatisticControl statisticControl,IdGenerator rebalancingIdGenerator, 
-			AmodsimConfig config, IdGenerator idGenerator, @Assisted String vehicleId, @Assisted SimulationNode startPosition) {
-		super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral, driveActivityFactory, positionUtil, 
-				eventProcessor, timeProvider, rebalancingIdGenerator, config, idGenerator, vehicleId, startPosition);
+	public TestOnDemandVehicle(
+			PhysicalTransportVehicleStorage vehicleStorage,
+			TripsUtil tripsUtil, 
+			StationsDispatcher onDemandVehicleStationsCentral, 
+			StandardDriveFactory driveActivityFactory, 
+			VisioPositionUtil positionUtil, 
+			EventProcessor eventProcessor, 
+			StandardTimeProvider timeProvider,
+			StatisticControl statisticControl,
+			IdGenerator rebalancingIdGenerator, 
+			AmodsimConfig config, 
+			IdGenerator idGenerator, 
+			AgentpolisConfig agentpolisConfig,
+			@Assisted String vehicleId, 
+			@Assisted SimulationNode startPosition) {
+		super(vehicleStorage, 
+				tripsUtil, 
+				onDemandVehicleStationsCentral, 
+				driveActivityFactory, 
+				positionUtil, 
+				eventProcessor, 
+				timeProvider, 
+				rebalancingIdGenerator, 
+				config, 
+				idGenerator, 
+				agentpolisConfig,
+				vehicleId, 
+				startPosition);
 
 	}
 

@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.amodsim.entity.vehicle;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
@@ -174,11 +175,18 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	
 	
 	@Inject
-	public OnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
-			TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
-			PhysicalVehicleDriveFactory driveFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor,
-			StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, 
+	public OnDemandVehicle(
+			PhysicalTransportVehicleStorage vehicleStorage, 
+			TripsUtil tripsUtil, 
+			StationsDispatcher onDemandVehicleStationsCentral, 
+			PhysicalVehicleDriveFactory driveFactory, 
+			VisioPositionUtil positionUtil, 
+			EventProcessor eventProcessor,
+			StandardTimeProvider timeProvider, 
+			IdGenerator rebalancingIdGenerator, 
+			AmodsimConfig config, 
 			IdGenerator idGenerator,
+			AgentpolisConfig agentpolisConfig,
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
 		super(vehicleId, startPosition);
 		this.tripsUtil = tripsUtil;
@@ -195,7 +203,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		vehicle = new PhysicalTransportVehicle(vehicleId + " - vehicle", 
 				DemandSimulationEntityType.VEHICLE, LENGTH, config.ridesharing.vehicleCapacity, 
 				EGraphType.HIGHWAY, startPosition, 
-				config.vehicleSpeedInMeters);
+				agentpolisConfig.maxVehicleSpeedInMeters);
 		
 		vehicleStorage.addEntity(vehicle);
 		vehicle.setDriver(this);
@@ -364,7 +372,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
 	@Override
 	public double getVelocity() {
-		return (double) config.vehicleSpeedInMeters;
+		return (double) vehicle.getVelocity();
 	}
 	
 	public int getCapacity(){

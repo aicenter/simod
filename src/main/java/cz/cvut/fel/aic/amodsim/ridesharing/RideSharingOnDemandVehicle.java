@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
@@ -75,15 +76,34 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	
 	
 	@Inject
-	public RideSharingOnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
-			TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
-			PhysicalVehicleDriveFactory driveActivityFactory, VisioPositionUtil positionUtil,IdGenerator tripIdGenerator,
-			EventProcessor eventProcessor,StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, AmodsimConfig config, 
+	public RideSharingOnDemandVehicle(
+			PhysicalTransportVehicleStorage vehicleStorage, 
+			TripsUtil tripsUtil, 
+			StationsDispatcher onDemandVehicleStationsCentral, 
+			PhysicalVehicleDriveFactory driveActivityFactory, 
+			VisioPositionUtil positionUtil,
+			IdGenerator tripIdGenerator,
+			EventProcessor eventProcessor,
+			StandardTimeProvider timeProvider, 
+			IdGenerator rebalancingIdGenerator, 
+			AmodsimConfig config, 
 			IdGenerator idGenerator,
+			AgentpolisConfig agentpolisConfig,
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
-		super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
-				driveActivityFactory, positionUtil, eventProcessor, timeProvider, rebalancingIdGenerator, config, idGenerator,
-				vehicleId, startPosition);
+		super(
+				vehicleStorage, 
+				tripsUtil, 
+				onDemandVehicleStationsCentral,
+				driveActivityFactory, 
+				positionUtil, 
+				eventProcessor, 
+				timeProvider, 
+				rebalancingIdGenerator, 
+				config, 
+				idGenerator,
+				agentpolisConfig,
+				vehicleId, 
+				startPosition);
 		this.positionUtil = positionUtil;
 		this.tripIdGenerator = tripIdGenerator;
 		

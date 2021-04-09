@@ -51,8 +51,8 @@ public class PrecomputedDemandSimulation {
 	}
 	
 	public void run(){
-		try {
-			List<TimeTrip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(EXPERIMENT_DIR, INPUT_FILE_PATH), Long.class);
+//		try {
+//			List<TimeTrip<Long>> osmNodesList = TripTransform.jsonToTrips(new File(EXPERIMENT_DIR, INPUT_FILE_PATH), Long.class);
 
 //			SimpleEnvinromentFactory envinromentFactory = new SimpleEnvinromentFactory(new InfinityDelayingSegmentCapacityDeterminer());
 
@@ -83,9 +83,9 @@ public class PrecomputedDemandSimulation {
 
 			System.exit(0);
 			
-		} catch (IOException ex) {
-						LOGGER.error(null, ex);
-		}
+//		} catch (IOException ex) {
+//						LOGGER.error(null, ex);
+//		}
 	}
 	
 	

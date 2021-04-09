@@ -38,6 +38,7 @@ import cz.cvut.fel.aic.amodsim.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.amodsim.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Node;
+import cz.cvut.fel.aic.geographtools.WKTPrintableCoord;
 import cz.cvut.fel.aic.geographtools.util.NearestElementUtil;
 import cz.cvut.fel.aic.geographtools.util.NearestElementUtilPair;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
@@ -52,7 +53,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author fido
  */
-public class OnDemandVehicleStation extends AgentPolisEntity implements EventHandler{
+public class OnDemandVehicleStation extends AgentPolisEntity implements EventHandler, WKTPrintableCoord{
 
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OnDemandVehicleStation.class);
 	
@@ -245,6 +246,11 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 			}
 		}
 //		departureCards.remove(onDemandVehicle);
+	}
+
+	@Override
+	public String toWKTCoordinate() {
+		return getPosition().toWKTCoordinate();
 	}
 	
 	

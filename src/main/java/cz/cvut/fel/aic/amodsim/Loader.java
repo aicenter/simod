@@ -82,8 +82,11 @@ public class Loader {
                                                 LOGGER.info("count " + count);
 
 						while (resultSet.next()) {
-							trips.add(new TimeTrip(tripIdGenerator.getId(),resultSet.getLong("start_time"), resultSet.getLong("end_time"), 
-									getLocationsFromJson(resultSet.getString("path")).toArray()));
+							trips.add(new TimeTrip(
+									tripIdGenerator.getId(),
+									resultSet.getLong("start_time"), 
+									resultSet.getLong("end_time"), 
+									getLocationsFromJson(resultSet.getString("path")).toArray(new GPSLocation[0])));
 						}
 					}
 				}

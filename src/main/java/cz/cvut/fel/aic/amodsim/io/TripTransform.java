@@ -30,6 +30,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
+import cz.cvut.fel.aic.geographtools.WKTPrintableCoord;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -107,13 +108,13 @@ public class TripTransform {
 //		return osmNodeTrips;
 //	}
 	
-	public static <T> void tripsToJson(List<TimeTrip<T>> trips, File outputFile) throws IOException{
+	public static <T extends WKTPrintableCoord> void tripsToJson(List<TimeTrip<T>> trips, File outputFile) throws IOException{
 		ObjectMapper mapper = new ObjectMapper();
 		
 		mapper.writeValue(outputFile, trips);
 	}
 	
-	public static <T> List<TimeTrip<T>> jsonToTrips(File inputFile, Class<T> locationType) throws IOException{
+	public static <T extends WKTPrintableCoord> List<TimeTrip<T>> jsonToTrips(File inputFile, Class<T> locationType) throws IOException{
 		ObjectMapper mapper = new ObjectMapper();
 		TypeFactory typeFactory = mapper.getTypeFactory();
 		

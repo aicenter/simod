@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.amodsim.ridesharing.traveltimecomputation;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.MoveUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
@@ -45,11 +46,15 @@ public class EuclideanTravelTimeProvider extends TravelTimeProvider{
 	
 	
 	@Inject
-	public EuclideanTravelTimeProvider(TimeProvider timeProvider, PositionUtil positionUtil, AmodsimConfig config) {
+	public EuclideanTravelTimeProvider(
+			TimeProvider timeProvider, 
+			PositionUtil positionUtil, 
+			AmodsimConfig config,
+			AgentpolisConfig agentpolisConfig) {
 		super(timeProvider);
 		this.positionUtil = positionUtil;
 		this.config = config;
-		travelSpeedEstimateCmPerSecond = config.vehicleSpeedInMeters * 100;
+		travelSpeedEstimateCmPerSecond = agentpolisConfig.maxVehicleSpeedInMeters * 100;
 	}
 	
 	

@@ -18,6 +18,7 @@
  */
 package cz.cvut.fel.aic.amodsim.visual.ridesharing.vga.mock;
 
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.DelayData;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
@@ -36,19 +37,27 @@ public class TestOnDemandVehicle implements MovingEntity{
 	private final DelayData delayData;
 	
 	private final SimulationNode position;
+	
+	private final AgentpolisConfig agentpolisConfig;
 
-	public TestOnDemandVehicle(AmodsimConfig config, SimulationNode targetNode, DelayData delayData, SimulationNode position) {
+	public TestOnDemandVehicle(
+			AmodsimConfig config, 
+			SimulationNode targetNode, 
+			DelayData delayData, 
+			SimulationNode position,
+			AgentpolisConfig agentpolisConfig) {
 		this.config = config;
 		this.targetNode = targetNode;
 		this.delayData = delayData;
 		this.position = position;
+		this.agentpolisConfig = agentpolisConfig;
 	}
 	
 	
 
 	@Override
 	public double getVelocity() {
-		return (double) config.vehicleSpeedInMeters;
+		return (double) agentpolisConfig.maxVehicleSpeedInMeters;
 	}
 
 	@Override

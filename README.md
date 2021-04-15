@@ -16,14 +16,19 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 -->
-SiMoD is a simulation tool for Mobility-on-Demand (MoD) based on [AgentPolis](https://github.com/aicenter/agentpolis) traffic simulation framework. It lets you build your own MoD system at a location of your choice. It is lightweight, highly customizable and it can run simulations with tens of thousands of vehicles and passengers with ease.
+SiMoD is a simulation tool for Mobility-on-Demand (MoD) based on [AgentPolis](https://github.com/aicenter/agentpolis) traffic simulation framework developed by the [Smart Mobility group of AI Center, CTU, Prague](https://www.aic.fel.cvut.cz/research-areas/smart-mobility). It lets you build your own MoD system at a location of your choice. It is lightweight, highly customizable and it can run simulations with tens of thousands of vehicles and passengers with ease.
 
 However, SiMoD is a tool for researchers and engineers familiar with computer science. If you want a production-ready simulation tool check for example [SUMO](https://www.eclipse.org/sumo/).
 
+![SiMoD simulation of MoD system on Manhattan]("./simod_showcase.gif" "SiMoD simulation of MoD system on Manhattan")
+SiMoD simulation of MoD system on Manhattan (Speeded up 5 times)
+
+
 # Quick Start Guide
+This guide shows you how to use the simulation for simulating mobility-on-demand (MoD) with ridesharing in SiMoD. In this experiment travle requests appears and are served by MoD vehicles, so that the total travel distance is minimal.
 
 ## Data
-First you need to [download the test data for your first experiment](https://owncloud.cesnet.cz/index.php/s/GnwFj41o73natth). It is an experiment on Manhattan with real historical [data](https://data.cityofnewyork.us/dataset/Yellow-Tripdata-2015-January-June/2yzn-sicd) from the NYC Taxi and Limusine Commision. Extract the folder anywhere in your computer. It contains:
+First you need to [download the test data for your first experiment](https://owncloud.cesnet.cz/index.php/s/GnwFj41o73natth). It is an experiment on Manhattan with real historical [demand data](https://data.cityofnewyork.us/dataset/Yellow-Tripdata-2015-January-June/2yzn-sicd) from the NYC Taxi and Limusine Commision. Extract the folder anywhere in your computer. It contains:
 - `maps` directory with files `nodes.geojson` and `edges.geojson`.
 - `dm.csv`: distance matrix needed for fast travel time computations.
 - `station_positions.csv`: file with positions of the parking/refueling stations for the MoD operator.
@@ -32,9 +37,9 @@ First you need to [download the test data for your first experiment](https://own
 
 
 ## Requirements
-- [JDK](https://www.oracle.com/cz/java/technologies/javase-downloads.html)
+- [JDK](https://www.oracle.com/cz/java/technologies/javase-downloads.html) (java 8 or newer)
 - [Python 3](https://www.python.org/)
-- [Maven](https://maven.apache.org/)
+- [Maven](https://maven.apache.org/) (Version 3+)
 - [Gurobi](https://www.gurobi.com/products/gurobi-optimizer/) (Including the [Maven support](http://fido.ninja/manuals/add-gurobi-java-interface-maven)!)
 
 
@@ -48,7 +53,10 @@ First you need to [download the test data for your first experiment](https://own
 
 ## Configuration
 This project works with configuration files (`test.cfg` in the test data folder). Most of the config parameters can be left as they are, but you need to configure the main data directory. It is on the first line of the config file: `data_dir: "FILL ME"`.
-You have to replace *FILL ME*  with the absolute path to the folder with the downloaded data. 
+You have to replace *FILL ME*  with the absolute path to the folder with the downloaded data. Example:
+```
+data_dir: "C:/experiments/Manhattan/"
+```
 
 To see all possible options, look into the master config file. For SiMoD, the file is located in `/src/main/resources/cz/cvut/fel/aic/SiMoD/config/`.
 You can see local configurations used by us in `simod/local_config_files`
@@ -63,8 +71,11 @@ mvn exec:java -Dexec.mainClass=cz.cvut.fel.aic.simod.OnDemandVehiclesSimulation 
 
 **Important:** If running this command from PowerShell, remember to quote the arguments starting with `-` and containing dot, e.g.: `'-Dexec.mainClass=cz.cvut.fel.aic.SiMoD.OnDemandVehiclesSimulation'`
 
-
 Simulation speed can be adjusted by '+' , '-' , '*' or 'Ctrl *' and paused by 'Space'
+
+
+## Results
+If you let the simulation finish, you should see the reuslt files with various statistics in your experiment folder (inside `data_dir`).
 
 
 
@@ -127,7 +138,7 @@ The simulation requires a `station_positions.csv` file that contains two columns
 For manual stations placement you can run `MapVisualizer.java` (with path to the local config file) to view the map. 
 After ticking "**Show all nodes**" on the right, all nodes ID will be displayed. 
 
-TODO: add a guide for station position generation.
+*This section is incomplete and should present a guide for station position generation.*
 
 
 ## Prepare Your Own Map
@@ -161,7 +172,7 @@ You have to specify the SRID value into the agentpolis:{} block (because it is a
 
 
 ### Distance Matrix
-TODO: guide how to generate distance matrix.
+*This section is incomplete and should present a guide how to generate distance matrix.*
 
 
 # FAQ
@@ -170,3 +181,36 @@ TODO: guide how to generate distance matrix.
 **Solution**: You need to set path to gurobi lib as environment variable: Linux: `LD_LIBRARY_PATH="/path/to/gurobi/lib"`, Windows: `Path=<path/to/gurobi/lib>`
 
 - `ProjectionException: Latitude 90°00 N is too close to a pole)` is caused by mistake in generated maps. Double check your srid.
+
+# Publications
+In case you use this software in your research, please consider citing one of our papers using SiMoD:
+
+[1] D. Fiedler, M. Čáp, and M. Čertický, “Impact of mobility-on-demand on traffic congestion: Simulation-based study,” in *2017 IEEE 20th International Conference on Intelligent Transportation Systems (ITSC)*, Oct. 2017, pp. 1–6, doi: [10.1109/ITSC.2017.8317830](https://ieeexplore.ieee.org/document/8317830).
+
+[2]D. Fiedler, M. Čertický, J. Alonso-Mora, and M. Čáp, “The Impact of Ridesharing in Mobility-on-Demand Systems: Simulation Case Study in Prague,” in *2018 21st International Conference on Intelligent Transportation Systems (ITSC)*, Nov. 2018, pp. 1173–1178, doi: [10.1109/ITSC.2018.8569451](https://ieeexplore.ieee.org/document/8569451).
+
+
+# Project structure
+
+## Usefull executables
+All executables are in the root packegge (`cz.cvut.fel.aic.simod`)
+
+- `OnDemandVehiclesSimulation` Main Executable. It starts the Simulation.
+- `MapVisualizer`: For visualizing the map without running the simulation.
+
+
+## Most Important Packages
+This list is not complete. Packages are presented in alphabetical order, without the rouut package prefix (`cz.cvut.fel.aic.simod`).
+- `config`: auto-generated package with config classes representing the config file. Do not modify!
+- `entity`: Contains agents and other simulation objects specific to SiMoD.
+- `event`: Contains SiMoD specific events for the simulation engine.
+- `init`: Classes for event generation.
+- `rebalancing`: Everything related to rebalancing process, a process that transfer vehicles from areas with lower demand to areas with higher demand.
+- `ridesharing`: Ridesharing related stuff.
+- `statistics`: Classis for measuring, storing, and exporting simulation data (traveled distance, used vehicles, passenger delays...)
+- `traveltimecomputation` package for travel time providers
+- `visio`: Contains user interface classes specific to SiMoD.
+
+
+
+

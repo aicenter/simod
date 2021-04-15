@@ -20,7 +20,7 @@ SiMoD is a simulation tool for Mobility-on-Demand (MoD) based on [AgentPolis](ht
 
 However, SiMoD is a tool for researchers and engineers familiar with computer science. If you want a production-ready simulation tool check for example [SUMO](https://www.eclipse.org/sumo/).
 
-![SiMoD simulation of MoD system on Manhattan]("https://github.com/aicenter/simod/blob/master/simod_showcase.gif?raw=true" "SiMoD simulation of MoD system on Manhattan")
+![SiMoD simulation of MoD system on Manhattan]("./simod/blob/master/simod_showcase.gif?raw=true" "SiMoD simulation of MoD system on Manhattan")
 SiMoD simulation of MoD system on Manhattan (Speeded up 5 times)
 
 

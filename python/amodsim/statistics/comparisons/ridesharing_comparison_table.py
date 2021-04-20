@@ -127,16 +127,16 @@ edge_data = edges.make_data_frame(loaded_edges)
 edge_object_data = edges.load_edges_mapped_by_id(loaded_edges)
 
 
-# exp_dir_1 = config.comparison.experiment_1_dir
-# exp_dir_2 = config.comparison.experiment_2_dir
-# exp_dir_3 = config.comparison.experiment_3_dir
-# exp_dir_4 = config.comparison.experiment_4_dir
-# exp_dir_5 = config.comparison.experiment_9_dir
-exp_dir_1 = config.comparison.experiment_5_dir
-exp_dir_2 = config.comparison.experiment_6_dir
-exp_dir_3 = config.comparison.experiment_7_dir
-exp_dir_4 = config.comparison.experiment_8_dir
-exp_dir_5 = config.comparison.experiment_10_dir
+exp_dir_1 = config.comparison.experiment_1_dir
+exp_dir_2 = config.comparison.experiment_2_dir
+exp_dir_3 = config.comparison.experiment_3_dir
+exp_dir_4 = config.comparison.experiment_4_dir
+exp_dir_5 = config.comparison.experiment_9_dir
+# exp_dir_1 = config.comparison.experiment_5_dir
+# exp_dir_2 = config.comparison.experiment_6_dir
+# exp_dir_3 = config.comparison.experiment_7_dir
+# exp_dir_4 = config.comparison.experiment_8_dir
+# exp_dir_5 = config.comparison.experiment_10_dir
 
 # result json files
 results_ridesharing_off \
@@ -240,29 +240,31 @@ print(r"\hline")
 print(r"\end{tabular}}")
 
 # To text
+print("Abstract")
 percentage_reduction_compared_to_no_ridesharing \
 	= int(round((no_ridesharing_data[0] - vga_data[0]) / no_ridesharing_data[0] * 100))
-print("We found that ridesharing implemented using VGA method reduces "
-	  "the total distance driven in the system by \\SI{{{}}}{{\\percent}}".format(
+print("We found that the system that uses optimal ridesharing assignments subject to the maximum travel delay of "
+	  "4 minutes reduces the vehicle distance driven by \\SI{{{}}}{{\\percent}}".format(
 	percentage_reduction_compared_to_no_ridesharing))
 
 percentage_reduction_compared_to_ih \
 	= int(round((insertion_heuristic_data[0] - vga_data[0]) / insertion_heuristic_data[0] * 100))
-print("the assignments computed by VGA method lead to total  \\SI{{{}}}{{\\percent}} "
+print("Furthermore, we found that the optimal assignments result in a \\SI{{{}}}{{\\percent}} "
 	  " reduction in vehicle distance driven.".format(
 	percentage_reduction_compared_to_ih))
 
 delay_reduction \
 	= int(round((insertion_heuristic_data[7] - vga_data[7]) / insertion_heuristic_data[7] * 100))
-print("and the average passenger travel delay is decreased by  \\SI{{{}}}{{\\percent}} ".format(
-	delay_reduction))
+print("and \\SI{{{}}}{{\\percent}} lower average passenger travel delay compared to a system that uses "
+	  "insertion heuristic".format(delay_reduction))
 
-print("Our simulation revealed that ridesharing based on VGA method allows reducing the distance driven in the system by \\SI{{{}}}{{\\percent}} ".format(
-	percentage_reduction_compared_to_no_ridesharing))
+print("Our evaluation revealed that optimal ridesharing assignments can reduce the distance driven in the system by"
+	  " \\SI{{{}}}{{\\percent}} ".format(percentage_reduction_compared_to_no_ridesharing))
 
-print("Specifically, in the system that uses VGA, the vehicles drive \\SI{{{}}}{{\\percent}} less distance, "
-	  "and the average passenger travel delay is decreased by~\\SI{{{}}}{{\\percent}} compared to the "
-	  "system that uses IH.".format(percentage_reduction_compared_to_ih, delay_reduction))
+print("Specifically, in the system that uses optimal assignments, the total vehicle distance driven is reduced by"
+	  " \\SI{{{}}}{{\\percent}}, "
+	  "and simultaneously, average passenger travel delay is reduced by~\\SI{{{}}}{{\\percent}}".format(
+	percentage_reduction_compared_to_ih, delay_reduction))
 
 absolute_reduction_compared_to_ih = insertion_heuristic_data[0] - vga_data[0]
 print("We can see that when using the \\gls{{vga}} method instead of Insertion Heuristic during the morning peak, we can "

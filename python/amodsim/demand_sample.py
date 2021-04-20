@@ -25,8 +25,9 @@ matplotlib.use('TkAgg')  # or can use 'TkAgg'
 # ids = "4467147, 4467148, 4467149, 4467150, 4467862, 4467863, 4467864, 4467865, 4466195, 4466196, 4466197, 4466198, 4467378, 4467379, 4467380, 4467381, 4466473, 4466474, 4466475, 4466476"
 
 # ids = "4467862, 4467863, 4467864, 4467865, 4478770, 4478771, 4478772"
-ids = "4467862, 4467863, 4467864, 4467865, 4789903, 4789904, 4789905"
-
+# ids = "4467862, 4467863, 4467864, 4467865, 4789903, 4789904, 4789905"
+# ids = "4493897, 4493898, 4493899, 4493900, 4789903, 4789904, 4789905"
+ids = "4500942, 4500943, 4500944, 4500945, 4789903, 4789904, 4789905"
 
 connection = psycopg2.connect("dbname=demand_prague user=postgres password=fidofido")
 
@@ -76,16 +77,16 @@ columns = [
     "end_time",
     "duration",
     "previous_trip_duration",
+    "activity_type",
     "location_id",
     "attractor_id",
-    "activity_type",
     "mode",
     "id",
     "latitude",
     "longitude",
     "info"
 ]
-activities = pd.DataFrame(data, columns = columns)
+activities = pd.DataFrame(data, columns=columns)
 
 fig, axis = plt.subplots(1, 1, figsize=(7, 7))
 
@@ -98,7 +99,7 @@ projection = roadmaptools.utm.TransposedUTM.from_gps(activities["latitude"][0], 
 # latex table: trips
 print("Latex code:")
 print(r"{\renewcommand{\arraystretch}{1.2}%")
-print(r"\begin{tabular}{|-r|-r|-r|-r|-r|}")
+print(r"\begin{tabular}{|r|r|r|r|r|}")
 print(r"\hline")
 print(r"\thead{Trip} & \thead{Person} & \thead{From} & \thead{To} & \thead{Mode}")
 print(r"\tabularnewline")
@@ -116,21 +117,31 @@ for trip in trips.itertuples():
 print(r"\end{tabular}}")
 print()
 
+
+def format_time(milis: int):
+    seconds = int(round(milis / 1000)) % (24 * 3600)
+    hour = seconds // 3600
+    seconds %= 3600
+    minutes = seconds // 60
+    seconds %= 60
+
+    return "%02d:%02d" % (hour, minutes)
+
 # latex table: activities
 print("Activity table Latex code:")
 print(r"{\renewcommand{\arraystretch}{1.2}%")
-print(r"\begin{tabular}{|-r|-r|-r|-r|-r|-r|-r|}")
+print(r"\begin{tabular}{|r|r|r|r|r|r|r|}")
 print(r"\hline")
 print(r"\thead{Person} & \thead{Activity} & \thead{Start} & \thead{End} & \thead{Type} & \thead{Lat} & \thead{Lon}")
 print(r"\tabularnewline")
 print(r"\hline")
 print(r"\hline")
 for activity in activities.itertuples():
-    print("\\num{{{}}} & \\num{{{}}} & \\num{{{}}} & \\num{{{}}} & {} & \\num{{{}}} & \\num{{{}}}".format(
+    print("\\num{{{}}} & \\num{{{}}} & {} & {} & {} & \\num{{{}}} & \\num{{{}}}".format(
         activity.person_id,
         activity.activity_id,
-        activity.start_time,
-        activity.end_time,
+        format_time(activity.start_time),
+        format_time(activity.end_time),
         activity.activity_type,
         activity.latitude,
         activity.longitude
@@ -206,23 +217,23 @@ def plot_trip(trip, shift):
 
 shifts_trips = [
     (0, -550),
-    (0, 0),
-    (0, 50),
-    (100, 0),
-    (-1500, -200),
-    (-100, 100),
-    (0, 0)
+    (-400, 50),
+    (-400, 300),
+    (100, -300),
+    (-500, 200),
+    (-100, 150),
+    (50, 0)
 ]
 for index, trip in enumerate(trips.itertuples()):
     plot_trip(trip, shifts_trips[index])
 
 # Activity labels
 shifts_raw = [
-    (20, 40),
-    (200, 40),
-    (100, -20),
-    (10, -20),
-    (200, 15),
+    (55, -30),
+    (180, -20),
+    (100, -40),
+    (10, 40),
+    (55, 40),
     (180, -20),
     (50, 40),
     (200, 30),

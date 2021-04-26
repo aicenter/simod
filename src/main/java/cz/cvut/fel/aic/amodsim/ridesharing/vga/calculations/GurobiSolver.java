@@ -190,7 +190,7 @@ public class GurobiSolver {
 					GRBVar newVar = model.addVar(0.0, 1.0, 0.0, GRB.BINARY, newVarName);
 
 					// objective
-					objetive.addTerm(100_000, newVar);
+					objetive.addTerm(1_000_000_000, newVar);
 
 					// filling map for constraint 2 
 					CollectionUtil.addToListInMap(requestVariableMap, request, newVar);

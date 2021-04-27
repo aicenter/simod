@@ -64,8 +64,8 @@ public class CapacityScenario {
 		
 		// expected events
 		List<RidesharingEventData> expectedEvents = new LinkedList<>();
-		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DEMAND_PICKUP));
+		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DEMAND_DROP_OFF));
 		testEnvironment.run(graph, trips, vehicalInitPositions, expectedEvents);
 	}
 

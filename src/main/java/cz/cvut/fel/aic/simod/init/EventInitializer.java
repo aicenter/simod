@@ -28,6 +28,7 @@ import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandlerAdapter;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
+import cz.cvut.fel.aic.simod.DemandIdGenerator;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
@@ -141,7 +142,7 @@ public class EventInitializer {
 	
 	public static class DemandEventHandler extends EventHandlerAdapter{
 		
-		private final IdGenerator demandIdGenerator;
+		private final DemandIdGenerator demandIdGenerator;
  
 		private final DemandAgentFactory demandAgentFactory;
 		
@@ -149,7 +150,7 @@ public class EventInitializer {
 		
 		
 		@Inject
-		public DemandEventHandler(IdGenerator demandIdGenerator, DemandAgentFactory demandAgentFactory,
+		public DemandEventHandler(DemandIdGenerator demandIdGenerator, DemandAgentFactory demandAgentFactory,
 				SimulationCreator simulationCreator) {
 			this.demandIdGenerator = demandIdGenerator;
 			this.demandAgentFactory = demandAgentFactory;

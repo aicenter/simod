@@ -26,6 +26,7 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandlerAdapter;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
+import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
@@ -49,8 +50,12 @@ public class StationsDispatcher extends EventHandlerAdapter{
 	
 	
 	protected int numberOfDemandsDropped;
+
+	protected int numberOfParcelsDropped;
 	
 	private int demandsCount;
+
+	private int parcelsCount;
 	
 	private int rebalancingDropped;
 
@@ -106,6 +111,9 @@ public class StationsDispatcher extends EventHandlerAdapter{
 			case DEMAND:
 				processDemand(event);
 				break;
+			case PARCEL:
+				processParcel(event);
+				break;
 			case REBALANCING:
 				serveRebalancing(event);
 				break;
@@ -115,11 +123,18 @@ public class StationsDispatcher extends EventHandlerAdapter{
 
 	private void processDemand(Event event) {
 		demandsCount++;
-		DemandData demandData = (DemandData) event.getContent();
-		SimulationNode[] locations = demandData.locations;
+		DemandData simulationEntityData = (DemandData) event.getContent();
+		SimulationNode[] locations = simulationEntityData.locations;
 		SimulationNode startNode = locations[0];
-		
-		serveDemand(startNode, demandData);
+		serveDemand(startNode, simulationEntityData);
+	}
+
+	private void processParcel(Event event) {
+		parcelsCount++;
+		ParcelData simulationEntityData = (ParcelData) event.getContent();
+		SimulationNode[] locations = simulationEntityData.locations;
+		SimulationNode startNode = locations[0];
+		serveDemand(startNode, simulationEntityData);
 	}
 
 	private void serveRebalancing(Event event) {
@@ -164,13 +179,18 @@ public class StationsDispatcher extends EventHandlerAdapter{
 		return onDemandvehicleStationStorage.getEntityIds().size();
 	}
 
-	protected void serveDemand(SimulationNode startNode, DemandData demandData) {
+	protected void serveDemand(SimulationNode startNode, SimulationEntityData demandData) {
 		OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestReadyStation(startNode); 
 		if(nearestStation != null){
 			nearestStation.handleTripRequest(demandData);
 		}
-		else{
-			numberOfDemandsDropped++;
+		else {
+			if (demandData instanceof DemandData) {
+				numberOfDemandsDropped++;
+			}
+			else {
+				numberOfParcelsDropped++;
+			}
 		}
 	}
 

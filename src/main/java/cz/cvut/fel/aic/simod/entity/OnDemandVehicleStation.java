@@ -28,9 +28,7 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUti
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
-import cz.cvut.fel.aic.simod.DemandData;
-import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
-import cz.cvut.fel.aic.simod.StationsDispatcher;
+import cz.cvut.fel.aic.simod.*;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactorySpec;
@@ -151,11 +149,10 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 	public int getParkedVehiclesCount(){
 		return parkedVehicles.size();
 	}
-	
 
-	public void handleTripRequest(DemandData demandData) {
-		Node startLocation = demandData.locations[0];
-		Node targetLocation = demandData.locations[demandData.locations.length - 1];
+	public void handleTripRequest(SimulationEntityData simulationEntityData) {
+		Node startLocation = simulationEntityData.locations[0];
+		Node targetLocation = simulationEntityData.locations[simulationEntityData.locations.length - 1];
 		
 		// hack for demands that starts and ends in the same position
 		if(startLocation.equals(targetLocation)){
@@ -171,8 +168,8 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 		
 		if(vehicle != null){
 			vehicle.setDepartureStation(this);
-			eventProcessor.addEvent(null, vehicle, null, demandData);
-			eventProcessor.addEvent(null, demandData.demandAgent, null, vehicle);
+			eventProcessor.addEvent(null, vehicle, null, simulationEntityData);
+			eventProcessor.addEvent(null, simulationEntityData.simulationAgent, null, vehicle);
 		}
 		else{
 			try {

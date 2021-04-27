@@ -19,6 +19,7 @@
 package cz.cvut.fel.aic.simod.ridesharing.model;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.simod.entity.DemandAgent;
 
 public class PlanActionPickup extends PlanRequestAction {
 
@@ -36,7 +37,7 @@ public class PlanActionPickup extends PlanRequestAction {
 
 	@Override
 	public String toString() {
-		return String.format("Pick up demand %s at node %s", request.getDemandAgent().getId(), location.id);
+		return String.format("Pick up demand %s at node %s", request.getSimulationAgent().getId(), location.id);
 	}
 
 

@@ -68,16 +68,16 @@ public class ComplexScenario {
 		
 		// expected events
 		List<RidesharingEventData> expectedEvents = new LinkedList<>();
-		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new RidesharingEventData("1", 2, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new RidesharingEventData("1", 2, OnDemandVehicleEvent.DROP_OFF));
-		expectedEvents.add(new RidesharingEventData("0", 3, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new RidesharingEventData("1", 4, OnDemandVehicleEvent.PICKUP));
-		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.DROP_OFF));
-		expectedEvents.add(new RidesharingEventData("0", 3, OnDemandVehicleEvent.DROP_OFF));
-		expectedEvents.add(new RidesharingEventData("1", 4, OnDemandVehicleEvent.DROP_OFF));
-		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DROP_OFF));
+		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.DEMAND_PICKUP));
+		expectedEvents.add(new RidesharingEventData("1", 2, OnDemandVehicleEvent.DEMAND_PICKUP));
+		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DEMAND_PICKUP));
+		expectedEvents.add(new RidesharingEventData("1", 2, OnDemandVehicleEvent.DEMAND_DROP_OFF));
+		expectedEvents.add(new RidesharingEventData("0", 3, OnDemandVehicleEvent.DEMAND_PICKUP));
+		expectedEvents.add(new RidesharingEventData("1", 4, OnDemandVehicleEvent.DEMAND_PICKUP));
+		expectedEvents.add(new RidesharingEventData("0", 1, OnDemandVehicleEvent.DEMAND_DROP_OFF));
+		expectedEvents.add(new RidesharingEventData("0", 3, OnDemandVehicleEvent.DEMAND_DROP_OFF));
+		expectedEvents.add(new RidesharingEventData("1", 4, OnDemandVehicleEvent.DEMAND_DROP_OFF));
+		expectedEvents.add(new RidesharingEventData("0", 0, OnDemandVehicleEvent.DEMAND_DROP_OFF));
 		
 		testEnvironment.run(graph, trips, vehicalInitPositions, expectedEvents);
 	}

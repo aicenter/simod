@@ -228,7 +228,8 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	
 	private void setEventHandeling() {
 		List<Enum> typesToHandle = new LinkedList<>();
-		typesToHandle.add(OnDemandVehicleEvent.PICKUP);
+		typesToHandle.add(OnDemandVehicleEvent.DEMAND_PICKUP);
+		typesToHandle.add(OnDemandVehicleEvent.PARCEL_PICKUP);
 		eventProcessor.addEventHandler(this, typesToHandle);
 	}
 	

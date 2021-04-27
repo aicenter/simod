@@ -285,10 +285,10 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 			OnDemandVehicleEventContent eventContent = (OnDemandVehicleEventContent) event.getContent();
 			PlanComputationRequest request = ridesharingDispatcher.getRequest(eventContent.getDemandId());
 			VGAVehicle vehicle = vgaVehiclesMapBydemandOnDemandVehicles.get(eventContent.getOnDemandVehicleId());
-			if(eventType == OnDemandVehicleEvent.PICKUP){
+			if(eventType == OnDemandVehicleEvent.DEMAND_PICKUP){
 				vehicle.addRequestOnBoard(request);
 			}
-			else if(eventType == OnDemandVehicleEvent.DROP_OFF){
+			else if(eventType == OnDemandVehicleEvent.DEMAND_DROP_OFF){
 				vehicle.removeRequestOnBoard(request);
 				activeRequests.remove(request);
 			}
@@ -339,8 +339,8 @@ public class VehicleGroupAssignmentSolver extends DARPSolver implements EventHan
 
 	private void setEventHandeling() {
 		List<Enum> typesToHandle = new LinkedList<>();
-		typesToHandle.add(OnDemandVehicleEvent.PICKUP);
-		typesToHandle.add(OnDemandVehicleEvent.DROP_OFF);
+		typesToHandle.add(OnDemandVehicleEvent.DEMAND_PICKUP);
+		typesToHandle.add(OnDemandVehicleEvent.DEMAND_DROP_OFF);
 		typesToHandle.add(DemandEvent.LEFT);
 		eventProcessor.addEventHandler(this, typesToHandle);
 	}

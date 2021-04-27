@@ -24,5 +24,6 @@ package cz.cvut.fel.aic.simod.event;
  */
 public enum OnDemandVehicleStationsCentralEvent{
 	DEMAND,
-	REBALANCING
+	REBALANCING,
+    PARCEL;
 }

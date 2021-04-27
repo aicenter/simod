@@ -18,6 +18,7 @@
  */
 package cz.cvut.fel.aic.simod;
 
+import cz.cvut.fel.aic.simod.entity.ParcelAgent;
 import cz.cvut.fel.aic.simod.traveltimecomputation.DistanceMatrixTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TNRTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TNRAFTravelTimeProvider;
@@ -152,6 +153,8 @@ public class MainModule extends StandardAgentPolisModule{
 		}
 		install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
 			.build(DemandAgentFactory.class));
+		install(new FactoryModuleBuilder().implement(ParcelAgent.class, ParcelAgent.class)
+				.build(ParcelAgent.ParcelAgentFactory.class));
 		
 		if(SimodConfig.rebalancing.on){
 			install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, RebalancingOnDemandVehicleStation.class)

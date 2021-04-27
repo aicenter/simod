@@ -184,7 +184,9 @@ public class Statistics extends AliteEntity implements EventHandler{
 		else if(event.getType() instanceof OnDemandVehicleEvent){
 			OnDemandVehicleEvent onDemandVehicleEvent = (OnDemandVehicleEvent) event.getType();
 			addOndDemandVehicleEvent(onDemandVehicleEvent, (OnDemandVehicleEventContent) event.getContent());
-			if(onDemandVehicleEvent == OnDemandVehicleEvent.PICKUP){
+			if(onDemandVehicleEvent == OnDemandVehicleEvent.DEMAND_PICKUP){
+				tripDistances.add(((PickupEventContent) event.getContent()).getDemandTripLength());
+			} else if (onDemandVehicleEvent == OnDemandVehicleEvent.PARCEL_PICKUP) {
 				tripDistances.add(((PickupEventContent) event.getContent()).getDemandTripLength());
 			}
 		}
@@ -222,8 +224,9 @@ public class Statistics extends AliteEntity implements EventHandler{
 		
 		Result result = new Result(tickCount, averageLoadTotal, maxLoad, averageKmWithPassenger, 
 				averageKmToStartLocation, averageKmToStation, averageKmRebalancing, 
-				onDemandVehicleStationsCentral.getNumberOfDemandsNotServedFromNearestStation(), 
-				onDemandVehicleStationsCentral.getNumberOfDemandsDropped(), 
+				onDemandVehicleStationsCentral.getNumberOfDemandsNotServedFromNearestStation(),
+//				 dropped = odmítnutý
+				onDemandVehicleStationsCentral.getNumberOfDemandsDropped(),
 				onDemandVehicleStationsCentral.getDemandsCount(), numberOfVehicles,
 				onDemandVehicleStationsCentral.getNumberOfRebalancingDropped(), totalDistanceWithPassenger,
 		totalDistanceToStartLocation, totalDistanceToStation, totalDistanceRebalancing);
@@ -263,8 +266,10 @@ public class Statistics extends AliteEntity implements EventHandler{
 	@Override
 	protected List<Enum> getEventTypesToHandle() {
 		List<Enum> typesToHandle = new LinkedList<>();
-		typesToHandle.add(OnDemandVehicleEvent.PICKUP);
-		typesToHandle.add(OnDemandVehicleEvent.DROP_OFF);
+		typesToHandle.add(OnDemandVehicleEvent.DEMAND_PICKUP);
+		typesToHandle.add(OnDemandVehicleEvent.DEMAND_DROP_OFF);
+		typesToHandle.add(OnDemandVehicleEvent.PARCEL_PICKUP);
+		typesToHandle.add(OnDemandVehicleEvent.PARCEL_DROP_OFF);
 		typesToHandle.add(OnDemandVehicleEvent.START_REBALANCING);
 		typesToHandle.add(OnDemandVehicleEvent.FINISH_REBALANCING);
 		typesToHandle.add(OnDemandVehicleEvent.LEAVE_STATION);
@@ -533,10 +538,17 @@ public class Statistics extends AliteEntity implements EventHandler{
 				case LEAVE_STATION:
 					filepath = config.statistics.onDemandVehicleStatistic.leaveStationFilePath;
 					break;
-				case PICKUP:
+				case DEMAND_PICKUP:
 					filepath = config.statistics.onDemandVehicleStatistic.pickupFilePath;
 					break;
-				case DROP_OFF:
+				case DEMAND_DROP_OFF:
+					filepath = config.statistics.onDemandVehicleStatistic.dropOffFilePath;
+					break;
+				// todo add statistics for parcel pickup and drop off
+				case PARCEL_PICKUP:
+					filepath = config.statistics.onDemandVehicleStatistic.pickupFilePath;
+					break;
+				case PARCEL_DROP_OFF:
 					filepath = config.statistics.onDemandVehicleStatistic.dropOffFilePath;
 					break;
 				case REACH_NEAREST_STATION:

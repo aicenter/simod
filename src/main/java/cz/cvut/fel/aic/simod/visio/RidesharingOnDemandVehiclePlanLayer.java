@@ -26,6 +26,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioUtils;
 import cz.cvut.fel.aic.alite.vis.Vis;
+import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanRequestAction;
@@ -175,7 +176,7 @@ public class RidesharingOnDemandVehiclePlanLayer extends PlanLayer<RideSharingOn
 			canvas.fillOval(x1, y1, ACTION_MARKER_SIZE, ACTION_MARKER_SIZE);
 
 			String textIn = task instanceof PlanActionPickup ? "P" : "D";
-			String title = String.format("%s %s", textIn, task.getRequest().getDemandAgent().getSimpleId());
+			String title = String.format("%s %s", textIn, task.getRequest().getSimulationAgent().getSimpleId());
 			
 			VisioUtils.printTextWithBackgroud(canvas, title,
 						new Point(x1 + 15, y1 - 5), Color.BLACK, Color.WHITE);

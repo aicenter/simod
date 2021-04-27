@@ -153,7 +153,8 @@ public class DroppedDemandsAnalyzer {
 		
 		
 		int delta = 5000;
-		String requestId = request.getDemandAgent().getId();
+		// todo add support for parcels
+		String requestId = request.getSimulationAgent().getId();
 		if(!freeVehicle){
 			LOGGER.info("Request " + requestId + ": Cannot serve request - No free vehicle");
 		}

@@ -31,21 +31,15 @@ import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehi
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.DelayData;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.Driver;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
-import cz.cvut.fel.aic.simod.DemandData;
-import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
-import cz.cvut.fel.aic.simod.StationsDispatcher;
+import cz.cvut.fel.aic.simod.*;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
-import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
-import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
-import cz.cvut.fel.aic.simod.entity.PlanningAgent;
+import cz.cvut.fel.aic.simod.entity.*;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.event.RebalancingEventContent;
@@ -61,14 +55,14 @@ import java.util.List;
  * @author fido
  */
 public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgent,
-		Driver<PhysicalTransportVehicle>{
+		Driver<PhysicalTransportVehicleWithTrunk<DemandAgent, ParcelAgent>>{
 	
 	private static final int LENGTH = 4;
 	
 	
 	
 	
-	protected PhysicalTransportVehicle vehicle;
+	protected PhysicalTransportVehicleWithTrunk<DemandAgent, ParcelAgent> vehicle;
 	
 	protected final TripsUtil tripsUtil;
 	
@@ -115,7 +109,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	
 	private DelayData delayData;
 	
-	private DemandData currentlyServedDemmand;
+	private SimulationEntityData currentlyServedDemand;
 	
 	private int currentRebalancingId;
 	
@@ -185,10 +179,10 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		this.rebalancingIdGenerator = rebalancingIdGenerator;
 		this.config = config;
 		
-		vehicle = new PhysicalTransportVehicle(vehicleId + " - vehicle", 
+		vehicle = new PhysicalTransportVehicleWithTrunk<>(vehicleId + " - vehicle",
 				DemandSimulationEntityType.VEHICLE, LENGTH, config.ridesharing.vehicleCapacity, 
 				EGraphType.HIGHWAY, startPosition, 
-				config.vehicleSpeedInMeters);
+				config.vehicleSpeedInMeters, config.ridesharing.trunkCapacity);
 		
 		vehicleStorage.addEntity(vehicle);
 		vehicle.setDriver(this);
@@ -211,8 +205,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
 	@Override
 	public void handleEvent(Event event) {
-		currentlyServedDemmand = (DemandData) event.getContent();
-		SimulationNode[] locations = currentlyServedDemmand.locations;
+		currentlyServedDemand = (SimulationEntityData) event.getContent();
+		SimulationNode[] locations = currentlyServedDemand.locations;
 		
 		demandNodes = new ArrayList<>();
 		demandNodes.add(locations[0]);
@@ -351,7 +345,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	}
 
 	@Override
-	public PhysicalTransportVehicle getVehicle() {
+	public PhysicalTransportVehicleWithTrunk<DemandAgent, ParcelAgent> getVehicle() {
 		return vehicle;
 	}
 
@@ -364,10 +358,9 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		return vehicle.getCapacity();
 	}
 
-//	@Override
-//	public List<AgentPolisEntity> getTransportedEntities() {
-//		return cargo;
-//	}
+	public int getTrunkCapacity() {
+		return vehicle.getTrunkCapacity();
+	}
 
 	@Override
 	public void setTargetNode(SimulationNode targetNode) {
@@ -382,24 +375,42 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	protected void leavingStationEvent() {
 		eventProcessor.addEvent(OnDemandVehicleEvent.LEAVE_STATION, null, null, 
 				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-						currentlyServedDemmand.demandAgent.getSimpleId(), getId()));
+						currentlyServedDemand.simulationAgent.getSimpleId(), getId()));
 	}
 
 	protected void pickupDemand() {
-		currentlyServedDemmand.demandAgent.tripStarted(this);
-		vehicle.pickUp(currentlyServedDemmand.demandAgent);
-		eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
+		currentlyServedDemand.simulationAgent.tripStarted(this);
+		// TODO maybe fix with Strategy pattern
+		EntityType entityType = currentlyServedDemand.simulationAgent.getType();
+		OnDemandVehicleEvent eventType;
+		if (entityType == DemandSimulationEntityType.DEMAND) {
+			vehicle.pickUp((DemandAgent) currentlyServedDemand.simulationAgent);
+			eventType = OnDemandVehicleEvent.DEMAND_PICKUP;
+		} else {
+			vehicle.pickUp((ParcelAgent) currentlyServedDemand.simulationAgent);
+			eventType = OnDemandVehicleEvent.PARCEL_PICKUP;
+		}
+		eventProcessor.addEvent(eventType, null, null,
 				new PickupEventContent(timeProvider.getCurrentSimTime(), 
-						currentlyServedDemmand.demandAgent.getSimpleId(), getId(),
+						currentlyServedDemand.simulationAgent.getSimpleId(), getId(),
 						positionUtil.getTripLengthInMeters(demandTrip)));
 	}
 	
 	protected void dropOffDemand() {
-		currentlyServedDemmand.demandAgent.tripEnded();
-		vehicle.dropOff(currentlyServedDemmand.demandAgent);
-		eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
+		currentlyServedDemand.simulationAgent.tripEnded();
+		// TODO maybe fix with Strategy pattern
+		EntityType entityType = currentlyServedDemand.simulationAgent.getType();
+		OnDemandVehicleEvent eventType;
+		if (entityType == DemandSimulationEntityType.DEMAND) {
+			vehicle.dropOff((DemandAgent) currentlyServedDemand.simulationAgent);
+			eventType = OnDemandVehicleEvent.DEMAND_DROP_OFF;
+		} else {
+			vehicle.dropOff((ParcelAgent) currentlyServedDemand.simulationAgent);
+			eventType = OnDemandVehicleEvent.PARCEL_DROP_OFF;
+		}
+		eventProcessor.addEvent(eventType, null, null,
 				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-						currentlyServedDemmand.demandAgent.getSimpleId(), getId()));
+						currentlyServedDemand.simulationAgent.getSimpleId(), getId()));
 	}
 
 	@Override
@@ -416,7 +427,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
 
 	@Override
-	public void startDriving(PhysicalTransportVehicle vehicle){
+	public void startDriving(PhysicalTransportVehicleWithTrunk<DemandAgent, ParcelAgent> vehicle){
 		this.vehicle = vehicle;
 	}
 

@@ -25,10 +25,12 @@ import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.init.EventInitializer;
+import cz.cvut.fel.aic.simod.init.ParcelInitializer;
 import cz.cvut.fel.aic.simod.init.StationsInitializer;
 import cz.cvut.fel.aic.simod.init.StatisticInitializer;
 import cz.cvut.fel.aic.simod.io.TripTransform;
 import cz.cvut.fel.aic.simod.rebalancing.ReactiveRebalancing;
+import cz.cvut.fel.aic.simod.simulationState.SimulationStateProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.statistics.Statistics;
 import cz.cvut.fel.aic.simod.tripUtil.TripsUtilCached;
@@ -50,6 +52,7 @@ public class OnDemandVehiclesSimulation {
 	public static void checkPaths(SimodConfig config, AgentpolisConfig agentpolisConfig){
 		String[] pathsForRead = {
 			config.tripsPath,
+			config.parcelTripsPath,
 			config.stationPositionFilepath,
 			agentpolisConfig.mapNodesFilepath,
 			agentpolisConfig.mapEdgesFilepath
@@ -120,7 +123,18 @@ public class OnDemandVehiclesSimulation {
 		injector.getInstance(EventInitializer.class).initialize(
 		tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
 
+		// load parcel trips
+		injector.getInstance(ParcelInitializer.class).initialize(
+				tripTransform.loadTripsFromTxt(new File(config.parcelTripsPath)), null);
+
 		injector.getInstance(StatisticInitializer.class).initialize();
+
+		// initialize state provider for RL
+		LOGGER.info("state provider: {}", config.stateProvider.on);
+
+		if (config.stateProvider.on) {
+			injector.getInstance(SimulationStateProvider.class).initialize();
+		}
             
 		// start it up
 		creator.startSimulation();

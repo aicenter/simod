@@ -22,7 +22,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
+import cz.cvut.fel.aic.simod.entity.SimulationAgent;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import java.util.Random;
 
@@ -36,7 +36,7 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 	 */
 	private final int originTime;
 
-	private final DemandAgent demandAgent;
+	private final SimulationAgent simulationAgent;
 	
 	private final PlanActionPickup pickUpAction;
 	
@@ -46,7 +46,7 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 	 * Min travel time in seconds
 	 */
 	private final int minTravelTime;
-	
+
 
 	private boolean onboard;
 	
@@ -79,21 +79,19 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 	}
 	
 	@Override
-	public DemandAgent getDemandAgent() { 
-		return demandAgent; 
+	public SimulationAgent getSimulationAgent() {
+		return simulationAgent;
 	}
-	
-
 
 	@Inject
 	private DefaultPlanComputationRequest(TravelTimeProvider travelTimeProvider, @Assisted int id, 
 			SimodConfig SimodConfig, @Assisted("origin") SimulationNode origin, 
-			@Assisted("destination") SimulationNode destination, @Assisted DemandAgent demandAgent){
+			@Assisted("destination") SimulationNode destination, @Assisted SimulationAgent simulationAgent){
 		this.id = id;
 		
 		hash = 0;
-		
-		originTime = (int) Math.round(demandAgent.getDemandTime() / 1000.0);
+
+		originTime = (int) Math.round(simulationAgent.getDemandTime() / 1000.0);
 		minTravelTime = (int) Math.round(
 				travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
 		
@@ -108,8 +106,8 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 		
 		int maxPickUpTime = originTime + maxProlongation;
 		int maxDropOffTime = originTime + minTravelTime + maxProlongation;
-		
-		this.demandAgent = demandAgent;
+
+		this.simulationAgent = simulationAgent;
 		onboard = false;
 		
 		pickUpAction = new PlanActionPickup(this, origin, maxPickUpTime);
@@ -145,7 +143,7 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 			Random rand = new Random();
 			int a = rand.nextInt(p) + 1;
 			int b = rand.nextInt(p);
-			hash = (int) (((long) a * demandAgent.getSimpleId() + b) % p) % 1_200_000 ;
+			hash = (int) (((long) a * simulationAgent.getSimpleId() + b) % p) % 1_200_000 ;
 		}
 		return hash;
 	}
@@ -153,7 +151,7 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 
 	@Override
 	public String toString() {
-		return String.format("%s - from: %s to: %s", demandAgent, getFrom(), getTo());
+		return String.format("%s - from: %s to: %s", simulationAgent, getFrom(), getTo());
 	}
 
 	@Override
@@ -187,7 +185,7 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 	
 	public interface DefaultPlanComputationRequestFactory {
 		public DefaultPlanComputationRequest create(int id, @Assisted("origin") SimulationNode origin, 
-				@Assisted("destination") SimulationNode destination, DemandAgent demandAgent);
+				@Assisted("destination") SimulationNode destination, SimulationAgent simulationAgent);
 	}
 
 }

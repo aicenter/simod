@@ -44,6 +44,8 @@ import java.awt.Color;
  */
 @Singleton
 public class AmodsimVisioInItializer extends DefaultVisioInitializer{
+
+//	 pridat vrstvu do dependency injection
 	
 	private final OnDemandVehicleLayer onDemandVehicleLayer;
 	
@@ -77,6 +79,8 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 
 	private final SimpleBackgroundLayer simpleBackgroundLayer;
 
+	private final ParcelLayer parcelLayer;
+
 	
 	@Inject
 	public AmodsimVisioInItializer(Simulation simulation, PedestrianNetwork pedestrianNetwork, BikewayNetwork bikewayNetwork,
@@ -91,7 +95,8 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 								   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer,
 								   MapTilesLayer mapTilesLayer, AgentpolisConfig config, LayerManagementLayer layerManagementLayer,
 								   VehicleHighlightingLayer vehicleHighlightingLayer, ScreenRecordingLayer screenRecordingLayer,
-								   ScreenCaputreLayer screenCaputreLayer, SimpleBackgroundLayer simpleBackgroundLayer) {
+								   ScreenCaputreLayer screenCaputreLayer, SimpleBackgroundLayer simpleBackgroundLayer,
+								   ParcelLayer parcelLayer) {
 		super(simulation, highwayNetwork, simulationControlLayer, gridLayer);
 		this.onDemandVehicleLayer = onDemandVehicleLayer;
 		this.trafficDensityLayer = trafficDensityLayer;
@@ -109,13 +114,15 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 		this.screenRecordingLayer = screenRecordingLayer;
 		this.screenCaputreLayer = screenCaputreLayer;
 		this.simpleBackgroundLayer = simpleBackgroundLayer;
+		this.parcelLayer = parcelLayer;
 	}
 
 	@Override
 	protected void initEntityLayers(Simulation simulation) {
 		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Stations", onDemandVehicleStationsLayer));
 		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Vehicles", onDemandVehicleLayer));
-		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Passangers", demandLayer));
+		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Parcels", parcelLayer));
+		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Passengers", demandLayer));
 		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Vehicle Plan", onDemandVehiclePlanLayer));
 	}
 

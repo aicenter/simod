@@ -34,6 +34,7 @@ import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.DemandData;
 import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
+import cz.cvut.fel.aic.simod.entity.transportable.SeatTransportableEntity;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
@@ -48,7 +49,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author F-I-D-O
  */
-public class DemandAgent extends Agent implements EventHandler, TransportableEntity {
+public class DemandAgent extends Agent implements EventHandler, SeatTransportableEntity, SimulationAgent {
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandAgent.class);
 	
@@ -90,10 +91,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 //	private long currentServiceDuration;
 	
 	private boolean dropped;
-
-	
-	
-	
+	@Override
 	public int getSimpleId() {
 		return simpleId;
 	}
@@ -110,6 +108,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		return realPickupTime;
 	}
 
+	@Override
 	public long getDemandTime() {
 		return demandTime;
 	}
@@ -130,10 +129,12 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		return minDemandServiceDuration;
 	}
 
+	@Override
 	public void setDropped(boolean dropped) {
 		this.dropped = dropped;
 	}
 
+	@Override
 	public boolean isDropped() {
 		return dropped;
 	}
@@ -189,7 +190,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 //				onDemandVehicle.getDemandTrip(this), this);
 	}
 
-
+	@Override
 	public void tripEnded() {
 		if(!getPosition().equals(trip.getLastLocation())){
 			try {
@@ -205,6 +206,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		die();
 	}
 
+	@Override
 	public void tripStarted(OnDemandVehicle vehicle) {
 		if(state == DemandAgentState.DRIVING){
 			try {
@@ -252,5 +254,9 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	public interface DemandAgentFactory {
 		public DemandAgent create(String agentId, int id, TimeTrip<SimulationNode> osmNodeTrip);
 	}
-	
+
+	@Override
+	public String getId() {
+		return super.getId();
+	}
 }

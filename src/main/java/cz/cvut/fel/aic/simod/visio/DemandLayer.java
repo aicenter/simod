@@ -26,7 +26,10 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioUtils;
 import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.DemandAgentState;
+import cz.cvut.fel.aic.simod.entity.ParcelAgent;
 import cz.cvut.fel.aic.simod.storage.DemandStorage;
+import org.slf4j.LoggerFactory;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -42,6 +45,7 @@ import javax.vecmath.Point2d;
  */
 @Singleton
 public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandLayer.class);
 
 	private static final Color DEMAND_COLOR = new Color(194, 66, 74);
 
@@ -83,6 +87,13 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
 	}
 
 	protected Point2d getDrivingAgentPositionInTime(DemandAgent demandAgent, long time){
+		if (demandAgent.getTransportingEntity().getPosition() == null) {
+			try {
+				throw new Exception("transporting entity for agent # " + demandAgent.getId() + " is null!");
+			} catch (Exception ex) {
+				LOGGER.error("", ex);
+			}
+		}
 		return positionUtil.getCanvasPositionInterpolatedForVehicleInTime(demandAgent.getTransportingEntity(), time);
 	}
 

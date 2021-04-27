@@ -115,7 +115,7 @@ public class TestPlanRequest implements PlanComputationRequest
 	}
 
 	@Override
-	public DemandAgent getDemandAgent() {
+	public DemandAgent getSimulationAgent() {
 		return null;
 	}
 

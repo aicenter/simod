@@ -28,6 +28,7 @@ public enum DemandSimulationEntityType implements EntityType{
 
 	TEST_TYPE("testType"),
 	DEMAND("demand"),
+	PARCEL("parcel"),
 	ON_DEMAND_VEHICLE("on demand vehicle"),
 	VEHICLE("vehicle"),
 	ON_DEMAND_VEHICLE_STATION("on demand vehicle station");

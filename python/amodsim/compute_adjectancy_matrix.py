@@ -75,7 +75,7 @@ if config.uber_speeds_file_path:
 	speeds = roadmaptools.inout.load_csv_to_pandas(config.uber_speeds_file_path)
 	speed_function = ComputeSpeedsFromUberData(speeds)
 else:
-	speed_function = lambda edge: roadmaptools.estimate_speed_from_osm.get_speed_per_second_from_edge(edge, 1E2)
+	speed_function = lambda edge: roadmaptools.estimate_speed_from_osm.get_speed_per_second_from_edge(edge, 1E2, True)
 
 travel_time_functor = ComputeTravelTimeFromEdge(config.vehicle_speed_in_meters_per_second, speed_function)
 

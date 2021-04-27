@@ -167,7 +167,7 @@ for index, count in nearest_nodes_counts.items():
 	station_counts[nearest_station] = count if nearest_station not in station_counts \
 		else station_counts[nearest_station] + count
 
-ratio = 5
+ratio = 10
 # solution generation
 solution = []
 for index, count in station_counts.items():

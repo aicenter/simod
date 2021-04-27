@@ -26,6 +26,7 @@ from pandas import DataFrame
 
 def load(filepath: str) -> DataFrame:
 	columns = ["demand_time", "from_lat", "from_lon", "to_lat", "to_lon"]
+	print("Loading demand from: {}".format(filepath))
 	demand_data \
 		= pandas.read_csv(filepath, names=columns, delimiter=" ")
 	return demand_data

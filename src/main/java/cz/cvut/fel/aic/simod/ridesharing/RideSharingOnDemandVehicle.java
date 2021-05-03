@@ -341,7 +341,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 				: positionUtil.getTripLengthInMeters(currentTrip);
 		
 		if(getOnBoardCount() > 0){
-			metersWithPassenger += length;
+			metersWithOrder += length;
 		}
 		else{
 			switch(state){

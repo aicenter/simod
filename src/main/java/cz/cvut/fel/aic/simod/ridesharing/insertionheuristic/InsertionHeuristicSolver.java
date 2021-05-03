@@ -28,6 +28,7 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
+import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
@@ -269,11 +270,12 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	private void computeOptimalPlan(RideSharingOnDemandVehicle vehicle, DriverPlan currentPlan, PlanComputationRequest planComputationRequest) {
 		
 		int freeCapacity = vehicle.getFreeCapacity();
+		int freeTrunkCapacity = vehicle.getFreeTrunkCapacity();
 		
 		for(int pickupOptionIndex = 1; pickupOptionIndex <= currentPlan.getLength(); pickupOptionIndex++){
 			
 			// continue if the vehicle is full
-			if(freeCapacity == 0){
+			if(freeCapacity == 0 && freeTrunkCapacity == 0){
 				continue;
 			}
 			
@@ -291,10 +293,22 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			// change free capacity for next index
 			if(pickupOptionIndex < currentPlan.getLength()){
 				if(currentPlan.plan.get(pickupOptionIndex) instanceof PlanActionPickup){
-					freeCapacity--;
+					PlanComputationRequest request = ((PlanActionPickup)
+							currentPlan.plan.get(pickupOptionIndex)).getRequest();
+					if (request.getSimulationAgent().getType() == DemandSimulationEntityType.DEMAND) {
+						freeCapacity--;
+					} else {
+						freeTrunkCapacity--;
+					}
 				}
 				else{
-					freeCapacity++;
+					PlanComputationRequest request = ((PlanActionDropoff)
+							currentPlan.plan.get(pickupOptionIndex)).getRequest();
+					if (request.getSimulationAgent().getType() == DemandSimulationEntityType.DEMAND) {
+						freeCapacity++;
+					} else {
+						freeTrunkCapacity++;
+					}
 				}
 			}
 		}
@@ -330,6 +344,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		
 		Iterator<PlanAction> oldPlanIterator = currentPlan.iterator();
 		int freeCapacity = vehicle.getFreeCapacity();
+		int freeTrunkCapacity = vehicle.getFreeTrunkCapacity();
 		
 		for(int newPlanIndex = 0; newPlanIndex <= currentPlan.getLength() + 1; newPlanIndex++){
 			
@@ -400,20 +415,32 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			
 			/* pickup and drop off handeling */
 			if(newTask instanceof PlanActionDropoff){
-				freeCapacity++;
-				
-				// discomfort increment
 				PlanComputationRequest newRequest = ((PlanActionDropoff) newTask).getRequest();
+				if (newRequest.getSimulationAgent().getType() == DemandSimulationEntityType.DEMAND) {
+					freeCapacity++;
+				} else {
+					freeTrunkCapacity++;
+				}
+
+				// discomfort increment
 				long taskExecutionTime = timeProvider.getCurrentSimTime() + newPlanTravelTime;
 				newPlanDiscomfort += taskExecutionTime - newRequest.getOriginTime() * 1000 
 						- newRequest.getMinTravelTime() * 1000;
 			}
 			else if(newTask instanceof PlanActionPickup){
 				// capacity check
-				if(freeCapacity == 0){
-					return null;
+				PlanComputationRequest newRequest = ((PlanActionPickup) newTask).getRequest();
+				if (newRequest.getSimulationAgent().getType() == DemandSimulationEntityType.DEMAND) {
+					if(freeCapacity == 0){
+						return null;
+					}
+					freeCapacity--;
+				} else {
+					if (freeTrunkCapacity == 0) {
+						return null;
+					}
+					freeTrunkCapacity--;
 				}
-				freeCapacity--;
 			}
 
 			

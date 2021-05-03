@@ -97,8 +97,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	
 	private VehicleTrip completeTrip;
 	
-	protected int metersWithPassenger;
-	
+	protected int metersWithOrder;
+
 	protected int metersToStartLocation;
 	
 	protected int metersToStation;
@@ -130,8 +130,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		return state;
 	}
 
-	public int getMetersWithPassenger() {
-		return metersWithPassenger;
+	public int getMetersWithOrder() {
+		return metersWithOrder;
 	}
 
 	public int getMetersToStartLocation() {
@@ -188,7 +188,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		vehicle.setDriver(this);
 		state = OnDemandVehicleState.WAITING;
 		
-		metersWithPassenger = 0;
+		metersWithOrder = 0;
 		metersToStartLocation = 0;
 		metersToStation = 0;
 		metersRebalancing = 0;
@@ -244,7 +244,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 			metersToStartLocation += positionUtil.getTripLengthInMeters(currentTrip);
 		}
 		demandTrip = tripsUtil.createTrip(demandNodes.get(0), demandNodes.get(1), vehicle);
-		metersWithPassenger += positionUtil.getTripLengthInMeters(demandTrip);
+		metersWithOrder += positionUtil.getTripLengthInMeters(demandTrip);
 		
 		SimulationNode demandEndNode = demandNodes.get(demandNodes.size() - 1);
 		

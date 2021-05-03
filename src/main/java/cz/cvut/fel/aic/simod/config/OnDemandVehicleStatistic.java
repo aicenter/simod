@@ -8,11 +8,15 @@ public class OnDemandVehicleStatistic {
 
   public String reachNearestStationFilePath;
 
+  public String parcelDropOffFilePath;
+
   public String pickupFilePath;
 
   public String dropOffFilePath;
 
   public String finishRebalancingFilePath;
+
+  public String parcelPickupFilePath;
 
   public String dirPath;
 
@@ -21,9 +25,11 @@ public class OnDemandVehicleStatistic {
   public OnDemandVehicleStatistic(Map onDemandVehicleStatistic) {
     this.leaveStationFilePath = (String) onDemandVehicleStatistic.get("leave_station_file_path");
     this.reachNearestStationFilePath = (String) onDemandVehicleStatistic.get("reach_nearest_station_file_path");
+    this.parcelDropOffFilePath = (String) onDemandVehicleStatistic.get("parcel_drop_off_file_path");
     this.pickupFilePath = (String) onDemandVehicleStatistic.get("pickup_file_path");
     this.dropOffFilePath = (String) onDemandVehicleStatistic.get("drop_off_file_path");
     this.finishRebalancingFilePath = (String) onDemandVehicleStatistic.get("finish_rebalancing_file_path");
+    this.parcelPickupFilePath = (String) onDemandVehicleStatistic.get("parcel_pickup_file_path");
     this.dirPath = (String) onDemandVehicleStatistic.get("dir_path");
     this.startRebalancingFilePath = (String) onDemandVehicleStatistic.get("start_rebalancing_file_path");
   }

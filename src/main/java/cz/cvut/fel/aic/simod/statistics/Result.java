@@ -40,14 +40,18 @@ public class Result {
 	private final int numberOfDemandsNotServedFromNearestStation;
 	
 	private final int numberOfDemandsDropped;
+
+	private final int numberOfParcelsDropped;
 	
 	private final int demandsCount;
+
+	private final int parcelsCount;
 	
 	private final int numberOfVehicles;
 	
 	private final int numberOfRebalancingDropped;
 	
-	private final long totalDistanceWithPassenger;
+	private final long totalDistanceWithOrder;
 	
 	private final long totalDistanceToStartLocation;
 	
@@ -99,6 +103,14 @@ public class Result {
 		return demandsCount;
 	}
 
+	public int getNumberOfParcelsDropped() {
+		return numberOfParcelsDropped;
+	}
+
+	public int getParcelsCount() {
+		return parcelsCount;
+	}
+
 	public int getNumberOfVehicles() {
 		return numberOfVehicles;
 	}
@@ -107,8 +119,8 @@ public class Result {
 		return numberOfRebalancingDropped;
 	}
 
-	public long getTotalDistanceWithPassenger() {
-		return totalDistanceWithPassenger;
+	public long getTotalDistanceWithOrder() {
+		return totalDistanceWithOrder;
 	}
 
 	public long getTotalDistanceToStartLocation() {
@@ -130,11 +142,12 @@ public class Result {
 	
 	
 
-	public Result(long tickCount, double averageLoadTotal, int maxLoad, double averageKmWithPassenger, 
-			double averageKmToStartLocation, double averageKmToStation, double averageKmRebalancing,
-			int numberOfDemandsNotServedFromNearestStation, int numberOfDemandsDropped, int demandsCount,
-			int numberOfVehicles, int numberOfRebalancingDropped, long totalDistanceWithPassenger, 
-			long totalDistanceToStartLocation, long totalDistanceToStation, long totalDistanceRebalancing) {
+	public Result(long tickCount, double averageLoadTotal, int maxLoad, double averageKmWithPassenger,
+				  double averageKmToStartLocation, double averageKmToStation, double averageKmRebalancing,
+				  int numberOfDemandsNotServedFromNearestStation, int numberOfDemandsDropped, int demandsCount,
+				  int numberOfParcelsDropped, int parcelsCount, int numberOfVehicles, int numberOfRebalancingDropped,
+				  long totalDistanceWithOrder, long totalDistanceToStartLocation, long totalDistanceToStation,
+				  long totalDistanceRebalancing) {
 		this.tickCount = tickCount;
 		this.averageLoadTotal = averageLoadTotal;
 		this.maxLoad = maxLoad;
@@ -145,9 +158,11 @@ public class Result {
 		this.numberOfDemandsNotServedFromNearestStation = numberOfDemandsNotServedFromNearestStation;
 		this.numberOfDemandsDropped = numberOfDemandsDropped;
 		this.demandsCount = demandsCount;
+		this.numberOfParcelsDropped = numberOfParcelsDropped;
+		this.parcelsCount = parcelsCount;
 		this.numberOfVehicles = numberOfVehicles;
 		this.numberOfRebalancingDropped = numberOfRebalancingDropped;
-		this.totalDistanceWithPassenger = totalDistanceWithPassenger;
+		this.totalDistanceWithOrder = totalDistanceWithOrder;
 		this.totalDistanceToStartLocation = totalDistanceToStartLocation;
 		this.totalDistanceToStation = totalDistanceToStation;
 		this.totalDistanceRebalancing = totalDistanceRebalancing;

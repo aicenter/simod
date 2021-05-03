@@ -86,6 +86,8 @@ public class Statistics extends AliteEntity implements EventHandler{
 	private final LinkedList<Long> vehicleLeftStationToServeDemandTimes;
 	
 	private final LinkedList<DemandServiceStatistic> demandServiceStatistics;
+
+	private final LinkedList<DemandServiceStatistic> parcelServiceStatistics;
 	
 	private LinkedList<TransitRecord> allTransit;
 	
@@ -95,7 +97,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 	
 	private final LinkedList<Integer> tripDistances;
 	
-	private final List<Map<String,Integer>> vehicleOccupancy;
+	private final List<Map<String,Integer[]>> vehicleOccupancy;
 	
 	private final List<Long> darpSolverComputationalTimes;
 	
@@ -106,7 +108,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 	
 	private int maxLoad;
 	
-	private double averageKmWithPassenger;
+	private double averageKmWithOrder;
 	
 	private double averageKmToStartLocation;
 	
@@ -116,7 +118,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 	
 	private int numberOfVehicles;
 	
-	private long totalDistanceWithPassenger;
+	private long totalDistanceWithOrder;
 	
 	private long totalDistanceToStartLocation;
 	
@@ -141,6 +143,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 		allEdgesLoadHistoryPerState = new HashMap<>();
 		vehicleLeftStationToServeDemandTimes = new LinkedList<>();
 		demandServiceStatistics = new LinkedList<>();
+		parcelServiceStatistics = new LinkedList<>();
 		allTransit = new LinkedList<>();
 		onDemandVehicleEvents = new HashMap<>();
 		tripDistances = new LinkedList<>();
@@ -177,7 +180,10 @@ public class Statistics extends AliteEntity implements EventHandler{
 					handleTick();
 					break;
 				case DEMAND_DROPPED_OFF:
-					handleDemandDropoff((DemandServiceStatistic) event.getContent());
+					handleDemandDropOff((DemandServiceStatistic) event.getContent());
+					break;
+				case PARCEL_DROPPED_OFF:
+					handleParcelDropOff((DemandServiceStatistic) event.getContent());
 					break;
 			}
 		}
@@ -222,13 +228,14 @@ public class Statistics extends AliteEntity implements EventHandler{
 	private void saveResult(){
 		double averageLoadTotal = countAverageEdgeLoad();
 		
-		Result result = new Result(tickCount, averageLoadTotal, maxLoad, averageKmWithPassenger, 
+		Result result = new Result(tickCount, averageLoadTotal, maxLoad, averageKmWithOrder,
 				averageKmToStartLocation, averageKmToStation, averageKmRebalancing, 
 				onDemandVehicleStationsCentral.getNumberOfDemandsNotServedFromNearestStation(),
-//				 dropped = odmítnutý
 				onDemandVehicleStationsCentral.getNumberOfDemandsDropped(),
-				onDemandVehicleStationsCentral.getDemandsCount(), numberOfVehicles,
-				onDemandVehicleStationsCentral.getNumberOfRebalancingDropped(), totalDistanceWithPassenger,
+				onDemandVehicleStationsCentral.getDemandsCount(),
+				onDemandVehicleStationsCentral.getNumberOfParcelsDropped(),
+				onDemandVehicleStationsCentral.getParcelsCount(), numberOfVehicles,
+				onDemandVehicleStationsCentral.getNumberOfRebalancingDropped(), totalDistanceWithOrder,
 		totalDistanceToStartLocation, totalDistanceToStation, totalDistanceRebalancing);
 		
 		ObjectMapper mapper = new ObjectMapper();
@@ -319,14 +326,15 @@ public class Statistics extends AliteEntity implements EventHandler{
 	}
 
 	private void countAveragesFromAgents() {
-		totalDistanceWithPassenger = 0;
+		// TODO  distinguish between parcel and passenger
+		totalDistanceWithOrder = 0;
 		totalDistanceToStartLocation = 0;
 		totalDistanceToStation = 0;
 		totalDistanceRebalancing = 0;
 		
 		
 		for (OnDemandVehicle onDemandVehicle : onDemandVehicleStorage) {
-			totalDistanceWithPassenger += onDemandVehicle.getMetersWithPassenger();
+			totalDistanceWithOrder += onDemandVehicle.getMetersWithOrder();
 			totalDistanceToStartLocation += onDemandVehicle.getMetersToStartLocation();
 			totalDistanceToStation += onDemandVehicle.getMetersToStation();
 			totalDistanceRebalancing += onDemandVehicle.getMetersRebalancing();
@@ -334,7 +342,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 		
 		numberOfVehicles = onDemandVehicleStorage.getEntities().size();
 		
-		averageKmWithPassenger = (double) totalDistanceWithPassenger / numberOfVehicles / 1000;
+		averageKmWithOrder = (double) totalDistanceWithOrder / numberOfVehicles / 1000;
 		averageKmToStartLocation = (double) totalDistanceToStartLocation / numberOfVehicles / 1000;
 		averageKmToStation = (double) totalDistanceToStation / numberOfVehicles / 1000;
 		averageKmRebalancing = (double) totalDistanceRebalancing / numberOfVehicles / 1000;
@@ -388,9 +396,11 @@ public class Statistics extends AliteEntity implements EventHandler{
 			CsvWriter writer = new CsvWriter(
 					Common.getFileWriter(config.statistics.occupanciesFilePath));
 			int period = 0;
-			for (Map<String,Integer> occupanciesInPeriod: vehicleOccupancy) {
-				for(Map.Entry<String,Integer> entry: occupanciesInPeriod.entrySet()){
-					writer.writeLine(Integer.toString(period), entry.getKey(), Integer.toString(entry.getValue()));
+			for (Map<String,Integer[]> occupanciesInPeriod: vehicleOccupancy) {
+				for(Map.Entry<String,Integer[]> entry: occupanciesInPeriod.entrySet()){
+					// Added new column for trunk occupancy
+					writer.writeLine(Integer.toString(period), entry.getKey(),
+							Integer.toString(entry.getValue()[0]), Integer.toString(entry.getValue()[1]));
 				}
 				period++;
 			}
@@ -424,6 +434,13 @@ public class Statistics extends AliteEntity implements EventHandler{
 						demandServiceStatistic.getDemandId(), demandServiceStatistic.getVehicleId(), 
 						Long.toString(demandServiceStatistic.getPickupTime()), 
 						Long.toString(demandServiceStatistic.getDropoffTime()), 
+						Long.toString(demandServiceStatistic.getMinPossibleServiceDelay()));
+			}
+			for (DemandServiceStatistic demandServiceStatistic: parcelServiceStatistics) {
+				writer.writeLine(Long.toString(demandServiceStatistic.getDemandTime()),
+						demandServiceStatistic.getDemandId(), demandServiceStatistic.getVehicleId(),
+						Long.toString(demandServiceStatistic.getPickupTime()),
+						Long.toString(demandServiceStatistic.getDropoffTime()),
 						Long.toString(demandServiceStatistic.getMinPossibleServiceDelay()));
 			}
 			writer.close();
@@ -546,10 +563,10 @@ public class Statistics extends AliteEntity implements EventHandler{
 					break;
 				// todo add statistics for parcel pickup and drop off
 				case PARCEL_PICKUP:
-					filepath = config.statistics.onDemandVehicleStatistic.pickupFilePath;
+					filepath = config.statistics.onDemandVehicleStatistic.parcelPickupFilePath;
 					break;
 				case PARCEL_DROP_OFF:
-					filepath = config.statistics.onDemandVehicleStatistic.dropOffFilePath;
+					filepath = config.statistics.onDemandVehicleStatistic.parcelDropOffFilePath;
 					break;
 				case REACH_NEAREST_STATION:
 					filepath = config.statistics.onDemandVehicleStatistic.reachNearestStationFilePath;
@@ -575,18 +592,26 @@ public class Statistics extends AliteEntity implements EventHandler{
 	}
 
 	private void countVehicleOccupancyForInterval() {
-		Map<String,Integer> occupancies = new HashMap<>();
+		// todo correct tuple
+		Map<String, Integer[]> occupancies = new HashMap<>();
 		for(OnDemandVehicle onDemandVehicle: onDemandVehicleStorage){
 			if(onDemandVehicle.getState() != OnDemandVehicleState.WAITING 
 					&& onDemandVehicle.getState() != OnDemandVehicleState.REBALANCING){
-				occupancies.put(onDemandVehicle.getId(), onDemandVehicle.getVehicle().getTransportedEntities().size());
+				// Consider both seat and trunk transported entities
+				occupancies.put(onDemandVehicle.getId(), new Integer[] {
+						onDemandVehicle.getVehicle().getTransportedEntities().size(),
+						onDemandVehicle.getVehicle().getTransportedTrunkEntities().size()});
 			}
 		}
 		vehicleOccupancy.add(occupancies);
 	}
 
-	private void handleDemandDropoff(DemandServiceStatistic demandServiceStatistic) {
+	private void handleDemandDropOff(DemandServiceStatistic demandServiceStatistic) {
 		demandServiceStatistics.add(demandServiceStatistic);
+	}
+
+	private void handleParcelDropOff(DemandServiceStatistic parcelServiceStatistic) {
+		parcelServiceStatistics.add(parcelServiceStatistic);
 	}
 
 }

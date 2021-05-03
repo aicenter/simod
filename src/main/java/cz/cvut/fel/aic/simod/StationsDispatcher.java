@@ -75,6 +75,14 @@ public class StationsDispatcher extends EventHandlerAdapter{
 		return demandsCount;
 	}
 
+	public int getNumberOfParcelsDropped() {
+		return numberOfParcelsDropped;
+	}
+
+	public int getParcelsCount() {
+		return parcelsCount;
+	}
+
 	public int getNumberOfRebalancingDropped() {
 		return rebalancingDropped;
 	}
@@ -95,7 +103,9 @@ public class StationsDispatcher extends EventHandlerAdapter{
 		this.config = config;
 		this.tripIdGenerator = tripIdGenerator;
 		numberOfDemandsDropped = 0;
+		numberOfParcelsDropped = 0;
 		demandsCount = 0;
+		parcelsCount = 0;
 		rebalancingDropped = 0;
 	}
 

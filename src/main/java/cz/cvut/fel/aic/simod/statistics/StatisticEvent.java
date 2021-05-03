@@ -25,5 +25,6 @@ package cz.cvut.fel.aic.simod.statistics;
 public enum StatisticEvent {
 	TICK,
 	VEHICLE_LEFT_STATION_TO_SERVE_DEMAND,
-	DEMAND_DROPPED_OFF
+	DEMAND_DROPPED_OFF,
+	PARCEL_DROPPED_OFF
 }

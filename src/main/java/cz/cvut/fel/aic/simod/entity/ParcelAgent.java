@@ -156,7 +156,7 @@ public class ParcelAgent extends Agent implements EventHandler, TrunkTransportab
                 LOGGER.error(null, ex);
             }
         }
-        eventProcessor.addEvent(StatisticEvent.DEMAND_DROPPED_OFF, null, null,
+        eventProcessor.addEvent(StatisticEvent.PARCEL_DROPPED_OFF, null, null,
                 new DemandServiceStatistic(demandTime, realPickupTime, timeProvider.getCurrentSimTime(),
                         minDemandServiceDuration, getId(), onDemandVehicle.getId()));
 

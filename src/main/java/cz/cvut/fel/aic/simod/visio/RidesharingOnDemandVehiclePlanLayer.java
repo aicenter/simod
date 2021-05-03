@@ -109,8 +109,9 @@ public class RidesharingOnDemandVehiclePlanLayer extends PlanLayer<RideSharingOn
 		int y = (int) (entityPosition.getY());
 		currentFont = canvas.getFont();
 		canvas.setFont(currentFont.deriveFont(25f)); 
-		VisioUtils.printTextWithBackgroud(canvas, Integer.toString(entity.getVehicle().getTransportedEntities().size()),
-				new Point(x + 8, y - 8), NORMAL_COLOR, Color.WHITE);
+		VisioUtils.printTextWithBackgroud(canvas, entity.getVehicle().getTransportedEntities().size() + "/" +
+						entity.getVehicle().getTransportedTrunkEntities().size(), new Point(x + 8, y - 8),
+				NORMAL_COLOR, Color.WHITE);
 		canvas.setFont(currentFont); 
 		
 		// draw border

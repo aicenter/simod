@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.simod.ridesharing.traveltimecomputation;
+package cz.cvut.fel.aic.simod.traveltimecomputation;
 
 import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
 import com.google.inject.Injector;
@@ -26,9 +26,9 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.Map
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.AllNetworkNodes;
 import cz.cvut.fel.aic.agentpolis.simulator.MapData;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.ridesharing.traveltimecomputation.common.TestAgentPolisInitializer;
-import cz.cvut.fel.aic.simod.ridesharing.traveltimecomputation.common.TestDistanceMatrixTravelTimeProvider;
-import cz.cvut.fel.aic.simod.ridesharing.traveltimecomputation.common.TestModule;
+import cz.cvut.fel.aic.simod.traveltimecomputation.common.TestAgentPolisInitializer;
+import cz.cvut.fel.aic.simod.traveltimecomputation.common.TestDistanceMatrixTravelTimeProvider;
+import cz.cvut.fel.aic.simod.traveltimecomputation.common.TestModule;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;

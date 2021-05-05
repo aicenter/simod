@@ -16,9 +16,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.simod.ridesharing.traveltimecomputation;
+package cz.cvut.fel.aic.simod.traveltimecomputation;
 
-import cz.cvut.fel.aic.simod.traveltimecomputation.TNRTravelTimeProvider;
+import cz.cvut.fel.aic.simod.traveltimecomputation.TNRAFTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
 import com.google.inject.Injector;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.Graphs;
@@ -27,19 +27,20 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.Map
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.AllNetworkNodes;
 import cz.cvut.fel.aic.agentpolis.simulator.MapData;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.ridesharing.traveltimecomputation.common.ShortestPathsTestModule;
-import cz.cvut.fel.aic.simod.ridesharing.traveltimecomputation.common.TestAgentPolisInitializer;
+import cz.cvut.fel.aic.simod.traveltimecomputation.common.ShortestPathsTestModule;
+import cz.cvut.fel.aic.simod.traveltimecomputation.common.TestAgentPolisInitializer;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 /**
- * A test verifying that the Transit Node Routing provider returns the same distances as the A* provider.
+ * A test verifying that the Transit Node Routing with Arc Flags provider returns the same distances as the A* provider.
  *
  * @author Michal Cvach
  */
-public class TNRTraveltimeTest {
+public class TNRAFTraveltimeTest {
+
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DistanceMatrixTraveltimeTest.class);
 
     @Test
@@ -59,18 +60,18 @@ public class TNRTraveltimeTest {
         // travel time providers
         AstarTravelTimeProvider astarTravelTimeProvider =
                 injector.getInstance(AstarTravelTimeProvider.class);
-        TNRTravelTimeProvider tnrTravelTimeProvider
-                = injector.getInstance(TNRTravelTimeProvider.class);
+        TNRAFTravelTimeProvider tnrafTravelTimeProvider
+                = injector.getInstance(TNRAFTravelTimeProvider.class);
 
         for (int i = 0; i < 20; i++) {
             SimulationNode from = map.get((i * 1300) % map.size());
             for (int j = 0; j < 20; j++) {
                 SimulationNode to = map.get(((j * 897) + 2000) % map.size());
                 double durationAstar = astarTravelTimeProvider.getExpectedTravelTime(from, to);
-                double durationTNR = tnrTravelTimeProvider.getExpectedTravelTime(from, to);
-                LOGGER.trace("From {}(index {}) to {}(index {}), astar distance: {}, TNR distance: {}, difference {}", from,
-                        from.getIndex(), to, to.getIndex(), durationAstar, durationTNR, durationAstar - durationTNR);
-                Assert.assertEquals(durationAstar, durationTNR, 30);
+                double durationTNRAF = tnrafTravelTimeProvider.getExpectedTravelTime(from, to);
+                LOGGER.trace("From {}(index {}) to {}(index {}), astar distance: {}, TNRAF distance: {}, difference {}", from,
+                        from.getIndex(), to, to.getIndex(), durationAstar, durationTNRAF, durationAstar - durationTNRAF);
+                Assert.assertEquals(durationAstar, durationTNRAF, 30);
             }
         }
     }

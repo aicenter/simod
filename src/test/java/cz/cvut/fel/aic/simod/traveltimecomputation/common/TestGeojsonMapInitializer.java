@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.simod.ridesharing.traveltimecomputation.common;
+package cz.cvut.fel.aic.simod.traveltimecomputation.common;
 
 import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
@@ -51,7 +51,7 @@ public class TestGeojsonMapInitializer  extends MapInitializer{
 
 	@Override
 	protected Graph<SimulationNode, SimulationEdge> getGraph() {
-		String package_path = "cz/cvut/fel/aic/amodsim/ridesharing/traveltimecomputation/";
+		String package_path = "cz/cvut/fel/aic/simod/traveltimecomputation/";
 		String nodeFile = getClass().getClassLoader().getResource(package_path + "nodes.geojson").getPath();
 		String edgeFile = getClass().getClassLoader().getResource(package_path + "edges.geojson").getPath();
 		String serializedGraphFile = config.pathToSerializedGraph;

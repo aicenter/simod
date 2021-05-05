@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.simod.ridesharing.traveltimecomputation.common;
+package cz.cvut.fel.aic.simod.traveltimecomputation.common;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -61,7 +61,7 @@ public class TestDistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 	@Inject
 	public TestDistanceMatrixTravelTimeProvider(TimeProvider timeProvider) {
 		super(timeProvider);
-                String package_path = "cz/cvut/fel/aic/amodsim/ridesharing/traveltimecomputation/";
+                String package_path = "cz/cvut/fel/aic/simod/traveltimecomputation/";
                 String dmPath = getClass().getClassLoader().getResource(package_path + "dm.csv").getPath();
 		distanceMatrix = loadDistanceMatrix(dmPath);
 	}

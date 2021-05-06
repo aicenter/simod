@@ -104,7 +104,6 @@ public class OnDemandVehiclesSimulation {
 		// prepare map, entity storages...
 		creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
 
-		TripTransform tripTransform = injector.getInstance(TripTransform.class);
 		
 		// load stations
 		injector.getInstance(StationsInitializer.class).loadStations();
@@ -117,6 +116,7 @@ public class OnDemandVehiclesSimulation {
 		}
 		
 		// load trips
+		TripTransform tripTransform = injector.getInstance(TripTransform.class);
 		injector.getInstance(EventInitializer.class).initialize(
 		tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
 

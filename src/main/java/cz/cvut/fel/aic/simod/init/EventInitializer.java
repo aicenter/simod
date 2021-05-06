@@ -50,7 +50,7 @@ public class EventInitializer {
 //	private static final double TRIP_MULTIPLICATION_FACTOR = 1.615;
 //	private static final double TRIP_MULTIPLICATION_FACTOR = 3.433;
     
-        private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(EventInitializer.class);
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(EventInitializer.class);
 	
 	private static final long TRIP_MULTIPLICATION_TIME_SHIFT = 240_000;
 	
@@ -75,7 +75,7 @@ public class EventInitializer {
 	
 	private long eventCount;
         
-        private long impossibleTripsCount;
+	private long impossibleTripsCount;
 	
 	
 	@Inject
@@ -89,7 +89,7 @@ public class EventInitializer {
 		this.agentpolisConfig = agentpolisConfig;
 		this.simulationUtils = simulationUtils;
 		eventCount = 0;
-                impossibleTripsCount = 0;
+		impossibleTripsCount = 0;
 	}
 	
 	

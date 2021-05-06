@@ -123,6 +123,7 @@ public class TripTransform {
 	
 	public List<TimeTrip<SimulationNode>> loadTripsFromTxt(File inputFile){
 		List<TimeTrip<GPSLocation>> gpsTrips = new LinkedList<>();
+		LOGGER.info("Loading trips from: {}", inputFile);
 		try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
 			String line;
 			while ((line = br.readLine()) != null) {

@@ -100,7 +100,8 @@ public class OnDemandVehiclesSimulation {
 			config.ridesharing.vehicleCapacity = 1;
 		}
 		
-		SimulationCreator creator = injector.getInstance(SimulationCreator.class);         
+		SimulationCreator creator = injector.getInstance(SimulationCreator.class);        
+		
 		// prepare map, entity storages...
 		creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
 
@@ -125,9 +126,9 @@ public class OnDemandVehiclesSimulation {
 		// start it up
 		creator.startSimulation();
 
-		if (config.useTripCache) {
-			injector.getInstance(TripsUtilCached.class).saveNewTrips();
-		}
+//		if (config.useTripCache) {
+//			injector.getInstance(TripsUtilCached.class).saveNewTrips();
+//		}
 		injector.getInstance(Statistics.class).simulationFinished();
 		injector.getInstance(TravelTimeProvider.class).printCalls();
 		injector.getInstance(TravelTimeProvider.class).close();

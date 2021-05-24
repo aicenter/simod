@@ -44,14 +44,20 @@ public class AstarTravelTimeProvider extends TravelTimeProvider{
 	
 	private final TripsUtil tripsUtil;
 	
-	
 	private final Graph<SimulationNode, SimulationEdge> graph;
+	
+	private final MoveUtil moveUtil;
 
 	
 	@Inject
-	public AstarTravelTimeProvider(TimeProvider timeProvider, TripsUtil tripsUtil, TransportNetworks transportNetworks) {
+	public AstarTravelTimeProvider(
+			TimeProvider timeProvider, 
+			TripsUtil tripsUtil, 
+			TransportNetworks transportNetworks,
+			MoveUtil moveUtil) {
 		super(timeProvider);
 		this.tripsUtil = tripsUtil;
+		this.moveUtil = moveUtil;
 		this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
 	}
 	
@@ -77,7 +83,7 @@ public class AstarTravelTimeProvider extends TravelTimeProvider{
 				totalDuration += MoveUtil.computeMinDuration(edge);
 			}
 			else{
-				totalDuration += MoveUtil.computeDuration(entity, edge);
+				totalDuration += moveUtil.computeDuration(entity, edge);
 			}
 			
 			fromNode = toNode;

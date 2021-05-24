@@ -22,6 +22,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
+import cz.cvut.fel.aic.amodsim.SimodException;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.simod.ridesharing.StandardPlanCostProvider;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
@@ -181,9 +182,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 										|| action.getRequest().getMaxDropoffTime() + roundingExtraTime < endTimeS + durationS)
 									)){
 								allActionsFeasible = false;
-								if(onboardRequestsOnly){
-									int a = 1;
-								}
+								assert !onboardRequestsOnly;
 								break;
 							}
 						}
@@ -268,7 +267,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 				
 				if(onboardRequestsOnly){
 					try {
-						throw new Exception(String.format("Vehicle %s: Last plan is not feasible!", vehicle));
+						throw new SimodException(String.format("Vehicle %s: Last plan is not feasible!", vehicle));
 					} catch (Exception ex) {
 						Logger.getLogger(ArrayOptimalVehiclePlanFinder.class.getName()).log(Level.SEVERE, null, ex);
 						return null;
@@ -319,7 +318,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 		if(bestPlan == null){
 			if(onboardRequestsOnly){
 				try {
-					throw new Exception(String.format("Previous plan is not feasible for vehicle %s",
+					throw new SimodException(String.format("Previous plan is not feasible for vehicle %s",
 							vehicle));
 				} catch (Exception ex) {
 					Logger.getLogger(ArrayOptimalVehiclePlanFinder.class.getName()).log(Level.SEVERE, null, ex);

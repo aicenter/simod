@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.simod.ridesharing.insertionheuristic;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.utils.Benchmark;
@@ -120,11 +121,18 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	
 	
 	@Inject
-	public InsertionHeuristicSolver(TravelTimeProvider travelTimeProvider, PlanCostProvider travelCostProvider, 
-			OnDemandVehicleStorage vehicleStorage, PositionUtil positionUtil,
-			SimodConfig config, TimeProvider timeProvider, DefaultPlanComputationRequestFactory requestFactory,
-			TypedSimulation eventProcessor, DroppedDemandsAnalyzer droppedDemandsAnalyzer,
-			OnDemandvehicleStationStorage onDemandvehicleStationStorage) {
+	public InsertionHeuristicSolver(
+			TravelTimeProvider travelTimeProvider, 
+			PlanCostProvider travelCostProvider, 
+			OnDemandVehicleStorage vehicleStorage, 
+			PositionUtil positionUtil,
+			SimodConfig config, 
+			TimeProvider timeProvider, 
+			DefaultPlanComputationRequestFactory requestFactory,
+			TypedSimulation eventProcessor, 
+			DroppedDemandsAnalyzer droppedDemandsAnalyzer,
+			OnDemandvehicleStationStorage onDemandvehicleStationStorage,
+			AgentpolisConfig agentpolisConfig) {
 		super(vehicleStorage, travelTimeProvider, travelCostProvider, requestFactory);
 		this.positionUtil = positionUtil;
 		this.config = config;
@@ -136,7 +144,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		
 		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
 		maxDistance = (double) config.ridesharing.maxProlongationInSeconds 
-				* config.vehicleSpeedInMeters;
+				* agentpolisConfig.maxVehicleSpeedInMeters;
 		maxDistanceSquared = maxDistance * maxDistance;
 		
 		// the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the

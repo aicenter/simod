@@ -40,6 +40,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -52,7 +54,7 @@ public class TripsUtilCached extends TripsUtil {
 	
 	private static final int OUTPUT_BATCH_SIZE = 10000;
 
-	private final HashMap<StartTargetNodePair, SimpleJsonTrip> tripCache;
+	private final HashMap<StartTargetNodePair, int[]> tripCache;
 
 	private final File tripCacheFolder;
 	
@@ -61,7 +63,7 @@ public class TripsUtilCached extends TripsUtil {
 	private final NodesMappedByIndex nodesMappedByIndex;
 	
 	
-	private HashMap<StartTargetNodePair, SimpleJsonTrip> newTrips;
+	private HashMap<StartTargetNodePair, int[]> newTrips;
 	
 	private int cacheFileCounter;
 	
@@ -107,17 +109,17 @@ public class TripsUtilCached extends TripsUtil {
 		VehicleTrip<SimulationNode> finalTrip = null;
 
 		if (tripCache.containsKey(tripStartTargetPair)) {
-			SimulationNode[] locations = Arrays.stream(tripCache.get(tripStartTargetPair).getLocations())
-					.map(item -> nodesMappedByIndex.getNodeByIndex(item))
+			SimulationNode[] locations = Arrays.stream(tripCache.get(tripStartTargetPair))
+					.mapToObj(item -> nodesMappedByIndex.getNodeByIndex(item))
 					.toArray(SimulationNode[]::new);
 			finalTrip =
 					new VehicleTrip<>(tripIdGenerator.getId(),vehicle, locations);
 		} else {
 			finalTrip = super.createTrip(startNode, targetNode, vehicle);
-			Integer[] locationIndexes 
-					= Arrays.stream(finalTrip.getLocations()).map(node -> node.getIndex()).toArray(Integer[]::new);
-			tripCache.put(tripStartTargetPair, new SimpleJsonTrip(locationIndexes));
-			newTrips.put(tripStartTargetPair, new SimpleJsonTrip(locationIndexes));
+			int[] locationIndexes 
+					= Arrays.stream(finalTrip.getLocations()).map(node -> node.getIndex()).mapToInt(x -> x).toArray();
+			tripCache.put(tripStartTargetPair, locationIndexes);
+			newTrips.put(tripStartTargetPair, locationIndexes);
 			if(newTrips.size() > OUTPUT_BATCH_SIZE){
 				saveNewTrips();
 			}
@@ -127,13 +129,13 @@ public class TripsUtilCached extends TripsUtil {
 	}
 
 	private void loadTripCache() throws IOException {
-		TypeReference<HashMap<StartTargetNodePair, SimpleJsonTrip>> typeRef =
-				new TypeReference<HashMap<StartTargetNodePair, SimpleJsonTrip>>() {
+		TypeReference<HashMap<StartTargetNodePair, int[]>> typeRef =
+				new TypeReference<HashMap<StartTargetNodePair, int[]>>() {
 				};
 		
 		LOGGER.info("Loading cache start");
 		for (final File file : tripCacheFolder.listFiles()) {
-			HashMap<StartTargetNodePair, SimpleJsonTrip> tripCachePart = mapper.readValue(file, typeRef);
+			HashMap<StartTargetNodePair, int[]> tripCachePart = mapper.readValue(file, typeRef);
 			tripCache.putAll(tripCachePart);
 			cacheFileCounter++;
 		}
@@ -156,13 +158,13 @@ public class TripsUtilCached extends TripsUtil {
 	public void saveNewTrips() {
 		File outputFile = new File(tripCacheFolder + File.separator + cacheFileCounter + ".json");
 		cacheFileCounter++;
-		try {
-                        if(!newTrips.isEmpty()){
-                            mapper.writeValue(outputFile, newTrips);
-                            newTrips = new HashMap<>();
-                        }
-		} catch (IOException ex) {
-			LOGGER.error(null, ex);
+		if(!newTrips.isEmpty()){
+			try {
+				mapper.writeValue(outputFile, newTrips);
+				newTrips = new HashMap<>();
+			} catch (IOException ex) {
+				Logger.getLogger(TripsUtilCached.class.getName()).log(Level.SEVERE, null, ex);
+			}
 		}
 	}
 }

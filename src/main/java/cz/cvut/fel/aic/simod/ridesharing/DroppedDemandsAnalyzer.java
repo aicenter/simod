@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.simod.ridesharing;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
@@ -57,9 +58,13 @@ public class DroppedDemandsAnalyzer {
 	
 	
 	@Inject
-	public DroppedDemandsAnalyzer(OnDemandVehicleStorage vehicleStorage, PositionUtil positionUtil, 
-			TravelTimeProvider travelTimeProvider, SimodConfig config, 
-			OnDemandvehicleStationStorage onDemandvehicleStationStorage) {
+	public DroppedDemandsAnalyzer(
+			OnDemandVehicleStorage vehicleStorage, 
+			PositionUtil positionUtil, 
+			TravelTimeProvider travelTimeProvider, 
+			SimodConfig config, 
+			OnDemandvehicleStationStorage onDemandvehicleStationStorage,
+			AgentpolisConfig agentpolisConfig) {
 		this.vehicleStorage = vehicleStorage;
 		this.positionUtil = positionUtil;
 		this.travelTimeProvider = travelTimeProvider;
@@ -68,7 +73,7 @@ public class DroppedDemandsAnalyzer {
 		
 		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
 		maxDistance = (double) config.ridesharing.maxProlongationInSeconds 
-				* config.vehicleSpeedInMeters;
+				* agentpolisConfig.maxVehicleSpeedInMeters;
 		
 		// the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the
 		// vehicle to be considered to serve the request

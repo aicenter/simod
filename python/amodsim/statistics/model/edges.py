@@ -38,16 +38,18 @@ cols = ["id", "length"]
 # 	return roadmaptools.inout.load_json(config.edges_file_path + modifier + ".json")
 
 
-def load_edges_mapped_by_id():
-	geojson = roadmaptools.inout.load_geojson(config.agentpolis.map_edges_filepath)
-	edge_object_data = {}
-	for edge in geojson['features']:
-		edge_object_data[edge['properties']['id']] = edge['properties']
+# def load_edges_mapped_by_id():
+# 	geojson = roadmaptools.inout.load_geojson(config.agentpolis.map_edges_filepath)
+# 	edge_object_data = {}
+# 	for edge in geojson['features']:
+# 		edge_object_data[edge['properties']['id']] = edge['properties']
 
 
-def load_edges_mapped_by_id(geojson: geojson.feature.FeatureCollection):
+def load_edges_mapped_by_id(geojson_data: geojson.feature.FeatureCollection = None):
+	if not geojson_data:
+		geojson_data = roadmaptools.inout.load_geojson(config.agentpolis.map_edges_filepath)
 	edge_object_data = {}
-	for edge in geojson['features']:
+	for edge in geojson_data['features']:
 		edge_object_data[edge['properties']['id']] = edge['properties']
 	return edge_object_data
 

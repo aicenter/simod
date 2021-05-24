@@ -112,22 +112,22 @@ rm = np.less(dm, max_traveltime_filter)
 # rm[1][2] = 1
 # rm[2][2] = 1
 
-try:
-	# locations = [index for index, _ in enumerate(rm)]
+# try:
+# locations = [index for index, _ in enumerate(rm)]
 
-	# Create a new model
-	m = Model("Station Location Model")
+# Create a new model
+m = Model("Station Location Model")
 
-	# # vars
-	# stations = m.addVars(locations, obj=1, name="loc")
-	#
-	# # constr
-	# m.addConstrs((rm[l].sum() >= 1 for l in locations), "availability")
+# # vars
+# stations = m.addVars(locations, obj=1, name="loc")
+#
+# # constr
+# m.addConstrs((rm[l].sum() >= 1 for l in locations), "availability")
 
-	objective = LinExpr()
-	var_list = []
+objective = LinExpr()
+var_list = []
 
-	for row_index, _ in tqdm(enumerate(rm), desc="generating variables"):
+for row_index, _ in tqdm(enumerate(rm), desc="generating variables"):
 		# Create variables
 		var = m.addVar(vtype=GRB.BINARY, name="Station at position {}".format(row_index))
 		var_list.append(var)
@@ -135,31 +135,30 @@ try:
 		# Set objective
 		objective += var
 
-	m.setObjective(objective, GRB.MINIMIZE)
+m.setObjective(objective, GRB.MINIMIZE)
 
-	# Add constraint:
-	for column_index, _ in tqdm(enumerate(rm.T), desc="generating constraints"):
+# Add constraint:
+for column_index, _ in tqdm(enumerate(rm.T), desc="generating constraints"):
 		if column_index in nearest_nodes:
 			const = LinExpr()
 			for row_index, from_location in enumerate(rm.T[column_index]):
 				const.addTerms([from_location], [var_list[row_index]])
 			m.addConstr(const, GRB.GREATER_EQUAL, 1, "Row constraint 0")
 
-	# Optimize model
-	m.optimize()
+# Optimize model
+m.optimize()
 
-	print('Obj: %g' % m.objVal)
+print('Obj: %g' % m.objVal)
 
-	# Print solution
-	stations = []
-	for index, value in tqdm(enumerate(m.getVars()), desc="preparing solution for export"):
-		# print('%s %g' % (v.varName, v.x))
+# Print solution
+stations = []
+for index, value in tqdm(enumerate(m.getVars()), desc="preparing solution for export"):
 		if value.x == 1:
 			stations.append(index)
 
-	station_counts = {}
+station_counts = {}
 
-	for index, count in nearest_nodes_counts.items():
+for index, count in nearest_nodes_counts.items():
 		best_traveltime = 1_000_000
 		nearest_station = 99999
 
@@ -172,19 +171,19 @@ try:
 		station_counts[nearest_station] = count if nearest_station not in station_counts \
 			else station_counts[nearest_station] + count
 
-	ratio = 5
-	# solution generation
-	solution = []
-	for index, count in station_counts.items():
+ratio = 10
+# solution generation
+solution = []
+for index, count in station_counts.items():
 		final_count = max(int(round(count / ratio)), 1)
 		final_count += 100
 		solution.append([str(index), str(final_count)])
 
-	roadmaptools.inout.save_csv(solution, config.station_position_filepath)
+roadmaptools.inout.save_csv(solution, config.station_position_filepath)
 
-except GurobiError as e:
-	print('Error code ' + str(e.errno) + ": " + str(e))
-
-except AttributeError:
-	print('Encountered an attribute error')
+# except GurobiError as e:
+# 	print('Error code ' + str(e.errno) + ": " + str(e))
+#
+# except AttributeError:
+# 	print('Encountered an attribute error')
 

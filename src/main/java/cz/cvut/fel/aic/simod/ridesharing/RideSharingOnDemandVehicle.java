@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.simod.ridesharing;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
@@ -75,14 +76,34 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	
 	
 	@Inject
-	public RideSharingOnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
-			TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
-			PhysicalVehicleDriveFactory driveActivityFactory, VisioPositionUtil positionUtil,IdGenerator tripIdGenerator,
-			EventProcessor eventProcessor,StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, SimodConfig config, 
+	public RideSharingOnDemandVehicle(
+			PhysicalTransportVehicleStorage vehicleStorage, 
+			TripsUtil tripsUtil, 
+			StationsDispatcher onDemandVehicleStationsCentral, 
+			PhysicalVehicleDriveFactory driveActivityFactory, 
+			VisioPositionUtil positionUtil,
+			IdGenerator tripIdGenerator,
+			EventProcessor eventProcessor,
+			StandardTimeProvider timeProvider, 
+			IdGenerator rebalancingIdGenerator, 
+			SimodConfig config, 
+			IdGenerator idGenerator,
+			AgentpolisConfig agentpolisConfig,
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
-		super(vehicleStorage, tripsUtil, onDemandVehicleStationsCentral,
-				driveActivityFactory, positionUtil, eventProcessor, timeProvider, rebalancingIdGenerator, config, 
-				vehicleId, startPosition);
+		super(
+				vehicleStorage, 
+				tripsUtil, 
+				onDemandVehicleStationsCentral,
+				driveActivityFactory, 
+				positionUtil, 
+				eventProcessor, 
+				timeProvider, 
+				rebalancingIdGenerator, 
+				config, 
+				idGenerator,
+				agentpolisConfig,
+				vehicleId, 
+				startPosition);
 		this.positionUtil = positionUtil;
 		this.tripIdGenerator = tripIdGenerator;
 		
@@ -242,7 +263,8 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			// demand trip length 0 - need to find out where the statistic is used, does it make sense with rebalancing?
 			eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
 					new PickupEventContent(timeProvider.getCurrentSimTime(), 
-							demandAgent.getSimpleId(), getId(), 0));
+							demandAgent.getSimpleId(), getId(), 
+							(int) Math.round(demandAgent.getMinDemandServiceDuration() / 1000)));
 			currentPlan.taskCompleted();
 			driveToNextTask();
 

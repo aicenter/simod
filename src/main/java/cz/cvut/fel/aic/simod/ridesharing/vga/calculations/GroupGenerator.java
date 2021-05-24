@@ -175,6 +175,8 @@ public class GroupGenerator<V extends IOptimalPlanVehicle> {
 					= optimalVehiclePlanFinder.computeOptimalVehiclePlanForGroup(vehicle, group, startTime, true);
 			}
 			
+			assert initialPlan != null;
+			
 			groupPlans.add(initialPlan);
 	
 			/* we have to add onboard request to feasible requests set and to current groups of size 1 */

@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.simod.entity.vehicle;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
@@ -66,7 +67,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	private static final int LENGTH = 4;
 	
 	
-	
+	private final int index;
 	
 	protected PhysicalTransportVehicle vehicle;
 	
@@ -124,6 +125,10 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	
 	
 	
+	public int getIndex() {
+		return index;
+	}
+	
 	public VehicleTrip getCurrentTrips() {
 		return currentTrip;
 	}
@@ -170,10 +175,18 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	
 	
 	@Inject
-	public OnDemandVehicle(PhysicalTransportVehicleStorage vehicleStorage, 
-			TripsUtil tripsUtil, StationsDispatcher onDemandVehicleStationsCentral, 
-			PhysicalVehicleDriveFactory driveFactory, VisioPositionUtil positionUtil, EventProcessor eventProcessor,
-			StandardTimeProvider timeProvider, IdGenerator rebalancingIdGenerator, SimodConfig config, 
+	public OnDemandVehicle(
+			PhysicalTransportVehicleStorage vehicleStorage, 
+			TripsUtil tripsUtil, 
+			StationsDispatcher onDemandVehicleStationsCentral, 
+			PhysicalVehicleDriveFactory driveFactory, 
+			VisioPositionUtil positionUtil, 
+			EventProcessor eventProcessor,
+			StandardTimeProvider timeProvider, 
+			IdGenerator rebalancingIdGenerator, 
+			SimodConfig config, 
+			IdGenerator idGenerator,
+			AgentpolisConfig agentpolisConfig,
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
 		super(vehicleId, startPosition);
 		this.tripsUtil = tripsUtil;
@@ -185,10 +198,12 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		this.rebalancingIdGenerator = rebalancingIdGenerator;
 		this.config = config;
 		
+		index = idGenerator.getId();
+		
 		vehicle = new PhysicalTransportVehicle(vehicleId + " - vehicle", 
 				DemandSimulationEntityType.VEHICLE, LENGTH, config.ridesharing.vehicleCapacity, 
 				EGraphType.HIGHWAY, startPosition, 
-				config.vehicleSpeedInMeters);
+				agentpolisConfig.maxVehicleSpeedInMeters);
 		
 		vehicleStorage.addEntity(vehicle);
 		vehicle.setDriver(this);
@@ -357,7 +372,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
 	@Override
 	public double getVelocity() {
-		return (double) config.vehicleSpeedInMeters;
+		return (double) vehicle.getVelocity();
 	}
 	
 	public int getCapacity(){

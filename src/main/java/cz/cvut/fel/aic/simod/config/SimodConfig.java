@@ -8,8 +8,6 @@ import java.util.Map;
 import ninja.fido.config.GeneratedConfig;
 
 public class SimodConfig implements GeneratedConfig {
-  public Integer vehicleSpeedInMeters;
-
   public Boolean useTripCache;
 
   public String experimentName;
@@ -58,7 +56,6 @@ public class SimodConfig implements GeneratedConfig {
   }
 
   public SimodConfig fill(Map simodConfig) {
-    this.vehicleSpeedInMeters = (Integer) simodConfig.get("vehicle_speed_in_meters");
     this.useTripCache = (Boolean) simodConfig.get("use_trip_cache");
     this.experimentName = (String) simodConfig.get("experiment_name");
     this.tripsFilename = (String) simodConfig.get("trips_filename");

@@ -80,6 +80,6 @@ plt.axis([14308000, 14578000, 49970000, 50186000])
 
 # plt.colorbar()
 
-plt.savefig(config.images.traffic_density_map_comparison, bbox_inches='tight', transparent=True, pad_inches=0.0)
+plt.savefig(config.images.traffic_density_map_comparison, bbox_inches='tight', transparent=True, pad_inches=0.02)
 
 plt.show()

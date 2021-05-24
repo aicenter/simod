@@ -1,25 +1,9 @@
-#
-# Copyright (c) 2021 Czech Technical University in Prague.
-#
-# This file is part of Amodsim project.
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
-#
 
 import fconfig.configuration
 
 from fconfig.config import Config
+
+
 from amodsim.config.statistics import Statistics
 from amodsim.config.analysis import Analysis
 from amodsim.config.images import Images
@@ -29,8 +13,10 @@ from amodsim.config.agentpolis import Agentpolis
 import roadmaptools.config.roadmaptools_config
 from roadmaptools.config.roadmaptools_config import RoadmaptoolsConfig
 
+
 class AmodsimConfig(Config):
-    def __init__(self, properties: dict=None):
+
+    def __init__(self, properties: dict = None):
         self.data_dir = properties.get("data_dir")
         self.map_dir = properties.get("map_dir")
         self.experiments_dir = properties.get("experiments_dir")
@@ -48,7 +34,7 @@ class AmodsimConfig(Config):
         self.vehicle_speed_in_meters_per_second = properties.get("vehicle_speed_in_meters_per_second")
         self.main_roads_graph_filepath = properties.get("main_roads_graph_filepath")
         self.trips_multiplier = properties.get("trips_multiplier")
-
+        self.uber_speeds_file_path = properties.get("uber_speeds_file_path")
         self.statistics = Statistics(properties.get("statistics"))
         self.analysis = Analysis(properties.get("analysis"))
         self.images = Images(properties.get("images"))
@@ -57,9 +43,7 @@ class AmodsimConfig(Config):
         self.agentpolis = Agentpolis(properties.get("agentpolis"))
         self.roadmaptools = RoadmaptoolsConfig(properties.get("roadmaptools"))
         roadmaptools.config.roadmaptools_config.config = self.roadmaptools
-
         pass
 
+
 config: AmodsimConfig = fconfig.configuration.load((RoadmaptoolsConfig, 'roadmaptools'), (AmodsimConfig, None))
-
-

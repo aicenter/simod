@@ -24,6 +24,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.utils.CollectionUtil;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
+import cz.cvut.fel.aic.amodsim.SimodException;
 import cz.cvut.fel.aic.simod.ridesharing.DroppedDemandsAnalyzer;
 import cz.cvut.fel.aic.simod.ridesharing.StandardPlanCostProvider;
 import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;
@@ -189,7 +190,7 @@ public class GurobiSolver {
 					GRBVar newVar = model.addVar(0.0, 1.0, 0.0, GRB.BINARY, newVarName);
 
 					// objective
-					objetive.addTerm(100_000, newVar);
+					objetive.addTerm(1_000_000_000, newVar);
 
 					// filling map for constraint 2 
 					CollectionUtil.addToListInMap(requestVariableMap, request, newVar);
@@ -227,7 +228,9 @@ public class GurobiSolver {
 //			model.set(GRB.DoubleParam.MIPGap, 0.01);
 		
 			// time limit
-			model.set(GRB.DoubleParam.TimeLimit, timeLimit);
+			if(timeLimit > 0){
+				model.set(GRB.DoubleParam.TimeLimit, timeLimit);
+			}
 			
 			// min gap
 			if(config.ridesharing.vga.solverMinGap > 0){
@@ -303,7 +306,7 @@ public class GurobiSolver {
 				if(Math.round(variable.get(GRB.DoubleAttr.X)) == 1 && plan.getVehicle() instanceof VGAVehicle){
 					if(vGAVehicles.contains(plan.getVehicle())){
 						try {
-							throw new Exception(String.format("More than one plan per vehicle %s", plan.getVehicle()));
+							throw new SimodException(String.format("More than one plan per vehicle %s", plan.getVehicle()));
 						} catch (Exception ex) {
 							Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
 						}
@@ -318,7 +321,7 @@ public class GurobiSolver {
 			if(vehiclePlanList.optimalPlanVehicle instanceof VGAVehicle 
 					&& !vGAVehicles.contains(vehiclePlanList.optimalPlanVehicle)){
 				try {
-						throw new Exception(String.format("No plan per vehicle %s", vehiclePlanList.optimalPlanVehicle));
+						throw new SimodException(String.format("No plan per vehicle %s", vehiclePlanList.optimalPlanVehicle));
 					} catch (Exception ex) {
 						Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
 					}

@@ -95,9 +95,12 @@ def get_group_counts_per_row(row: pd.Series, max_group_size: int = 11) -> pd.Ser
 
     return pd.Series(counts[0:max_group_size + 1])
 
+ridesharing_filepath = r"C:/AIC Experiment Data/VGA/experiments/vga_gap_0002/ridesharing.csv"
+ridesharing_filepath_lim = r"C:/AIC Experiment Data/VGA/experiments/vga-lim_gap_005_gg_60ms/ridesharing.csv"
 
-ridesharing_filepath = r"O:/AIC data/Shared/amod-data/VGA Evaluation/experiments/icreased_trip_multiplication_time_shift/vga-weight0/ridesharing.csv"
-ridesharing_filepath_lim = r"O:/AIC data/Shared/amod-data/VGA Evaluation/experiments/icreased_trip_multiplication_time_shift/vga-limited-weight0-lim30ms/ridesharing.csv"
+
+# ridesharing_filepath = r"O:/AIC data/Shared/amod-data/VGA Evaluation/experiments/icreased_trip_multiplication_time_shift/vga-weight0/ridesharing.csv"
+# ridesharing_filepath_lim = r"O:/AIC data/Shared/amod-data/VGA Evaluation/experiments/icreased_trip_multiplication_time_shift/vga-limited-weight0-lim30ms/ridesharing.csv"
 
 # ridesharing_filepath = r"C:/AIC data/Shared/amod-data/VGA Evaluation/experiments/icreased_trip_multiplication_time_shift/vga-weight0/ridesharing.csv"
 # ridesharing_filepath_lim = r"C:/AIC data/Shared/amod-data/VGA Evaluation/experiments/icreased_trip_multiplication_time_shift/vga-limited-weight0-lim30ms/ridesharing.csv"

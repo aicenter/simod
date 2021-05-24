@@ -33,11 +33,19 @@ from matplotlib.colors import LogNorm
 from roadmaptools.printer import print_info
 from roadmaptools.graph import RoadGraph
 
-MIN_LAT = 5_530_000
-MAX_LAT = 5_560_000
-MIN_LON = 445_000
-MAX_LON = 480_000
 HEATMAP_RESOLUTION = 200
+
+# Prague
+# MIN_LAT = 5_530_000
+# MAX_LAT = 5_560_000
+# MIN_LON = 445_000
+# MAX_LON = 480_000
+
+# Manhtattan
+MIN_LAT = 4_505_000
+MAX_LAT = 4_527_000
+MIN_LON = 582_000
+MAX_LON = 593_000
 
 matplotlib.rcParams.update({'font.size': 18})
 
@@ -48,9 +56,9 @@ fig.subplots_adjust(wspace=0.01)
 # map_axis = axes[0]
 # colorbar_axis = axes[1]
 
-# # road network
+# road network
 fc = roadmaptools.inout.load_geojson(config.main_roads_graph_filepath)
-xList, yList = roadmaptools.plotting.export_edges_for_matplotlib(roadmaptools.plotting.geojson_iterator(fc))
+xList, yList = roadmaptools.plotting.export_edges_for_matplotlib(roadmaptools.plotting.geojson_edges_iterator(fc))
 map_axis.plot(xList, yList, linewidth=0.2, color='black', zorder=1)
 
 # demand

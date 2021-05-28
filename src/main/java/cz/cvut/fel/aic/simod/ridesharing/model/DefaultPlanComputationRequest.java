@@ -21,6 +21,7 @@ package cz.cvut.fel.aic.simod.ridesharing.model;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.SimulationAgent;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
@@ -96,13 +97,23 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 				travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
 		
 		int maxProlongation;
-		if(SimodConfig.ridesharing.discomfortConstraint.equals("absolute")){
-			maxProlongation = SimodConfig.ridesharing.maxProlongationInSeconds;
+		if (simulationAgent.getType() == DemandSimulationEntityType.DEMAND) {
+			if(SimodConfig.ridesharing.discomfortConstraint.equals("absolute")){
+				maxProlongation = SimodConfig.ridesharing.maxProlongationInSeconds;
+			}
+			else{
+				maxProlongation = (int) Math.round(
+						SimodConfig.ridesharing.maximumRelativeDiscomfort * minTravelTime);
+			}
+		} else {
+			if(SimodConfig.ridesharing.discomfortConstraint.equals("absolute")){
+				maxProlongation = SimodConfig.ridesharing.parcelMaxProlongationInSeconds;
+			}
+			else{
+				maxProlongation = (int) Math.round(
+						SimodConfig.ridesharing.parcelMaximumRelativeDiscomfort * minTravelTime);
+			}
 		}
-		else{
-			maxProlongation = (int) Math.round(
-				SimodConfig.ridesharing.maximumRelativeDiscomfort * minTravelTime);
-		}		
 		
 		int maxPickUpTime = originTime + maxProlongation;
 		int maxDropOffTime = originTime + minTravelTime + maxProlongation;

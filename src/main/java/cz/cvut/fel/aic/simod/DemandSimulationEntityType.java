@@ -26,23 +26,29 @@ import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
  */
 public enum DemandSimulationEntityType implements EntityType{
 
-	TEST_TYPE("testType"),
-	DEMAND("demand"),
-	PARCEL("parcel"),
-	ON_DEMAND_VEHICLE("on demand vehicle"),
-	VEHICLE("vehicle"),
-	ON_DEMAND_VEHICLE_STATION("on demand vehicle station");
+	TEST_TYPE("testType", 0),
+	DEMAND("demand", 1),
+	PARCEL("parcel", 2),
+	ON_DEMAND_VEHICLE("on demand vehicle", 3),
+	VEHICLE("vehicle", 4),
+	ON_DEMAND_VEHICLE_STATION("on demand vehicle station", 5);
 	
 	private final String entityType;
+	private final int id;
 	
 
-	private DemandSimulationEntityType(String entityType) {
+	private DemandSimulationEntityType(String entityType, int id) {
 		this.entityType = entityType;
+		this.id = id;
 	}	
 
 	@Override
 	public String getDescriptionEntityType() {
 		return entityType;
+	}
+
+	public int getId() {
+		return id;
 	}
 	
 }

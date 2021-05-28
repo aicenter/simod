@@ -82,7 +82,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	private final PositionUtil positionUtil;
 	
 	
-	private List<PlanComputationRequest> newRequests;
+	private LinkedList<PlanComputationRequest> newRequests;
 	
 	private int requestCounter;
 	
@@ -111,7 +111,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		this.requestFactory = requestFactory;
 		this.positionUtil = positionUtil;
 		this.tripIdGenerator = tripIdGenerator;
-		newRequests = new ArrayList<>();
+		newRequests = new LinkedList<>();
 		waitingRequests = new LinkedHashSet<>();
 		darpSolverComputationalTimes = new ArrayList();
 		requestsMapByDemandAgents = new HashMap<>();

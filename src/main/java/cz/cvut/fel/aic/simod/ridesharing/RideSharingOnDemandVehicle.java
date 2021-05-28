@@ -108,6 +108,10 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		return vehicle.getTransportedEntities().size();
 	}
 
+	public int getTrunkCount() {
+		return vehicle.getTransportedTrunkEntities().size();
+	}
+
 	// need to distinguish between parcels and passengers
 	public int getFreeCapacity(){
 		return vehicle.getCapacity() - vehicle.getTransportedEntities().size();
@@ -162,7 +166,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	protected void driveToTargetLocation() {
 		state = OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION;
 		if(getPosition().id == currentTask.getPosition().id){
-			LOGGER.info("driveToTargetLocation: Vehicle id: " + getVehicleId() + ", current position: " + getPosition().id + ", task position: " + currentTask.getPosition().id);
+//			LOGGER.info("driveToTargetLocation: Vehicle id: " + getVehicleId() + ", current position: " + getPosition().id + ", task position: " + currentTask.getPosition().id);
 			dropOffAndContinue();
 		}
 		else{
@@ -198,7 +202,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 					pickupAndContinue();
 					break;
 				case DRIVING_TO_TARGET_LOCATION:
-					LOGGER.info("finishedDriving (wasStopped=" + wasStopped + "): Vehicle id: " + getVehicleId() + ", current position: " + getPosition().id + ", task position: " + currentTask.getPosition().id);
+//					LOGGER.info("finishedDriving (wasStopped=" + wasStopped + "): Vehicle id: " + getVehicleId() + ", current position: " + getPosition().id + ", task position: " + currentTask.getPosition().id);
 					dropOffAndContinue();
 					break;
 				case DRIVING_TO_STATION:
@@ -256,7 +260,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 				vehicle.pickUp((DemandAgent) simulationAgent);
 				eventType = OnDemandVehicleEvent.DEMAND_PICKUP;
 			} else {
-				LOGGER.info("Vehicle " + getVehicleId() + " picking up parcel " + simulationAgent.getSimpleId() + " at position: " + getPosition().id);
+//				LOGGER.info("Vehicle " + getVehicleId() + " picking up parcel " + simulationAgent.getSimpleId() + " at position: " + getPosition().id);
 				vehicle.pickUp((ParcelAgent) simulationAgent);
 				eventType = OnDemandVehicleEvent.PARCEL_PICKUP;
 			}
@@ -277,11 +281,11 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
 	private void dropOffAndContinue() {
 		SimulationAgent simulationAgent = ((PlanActionDropoff) currentTask).getRequest().getSimulationAgent();
-		LOGGER.info(simulationAgent.getType() + " " + simulationAgent.getSimpleId() + ", state: " + simulationAgent.getState() + ", agent vehicle id: " +
-				simulationAgent.getOnDemandVehicle().getVehicleId() + ", vehicle id: " + getVehicleId() + ", from: " +
-				((PlanActionDropoff) currentTask).getRequest().getFrom().id + ", to: " +
-				((PlanActionDropoff) currentTask).getRequest().getTo().id + " current position: " + getPosition().id +
-				" remaining orders: " + getOnBoardCount());
+//		LOGGER.info(simulationAgent.getType() + " " + simulationAgent.getSimpleId() + ", state: " + simulationAgent.getState() + ", agent vehicle id: " +
+//				simulationAgent.getOnDemandVehicle().getVehicleId() + ", vehicle id: " + getVehicleId() + ", from: " +
+//				((PlanActionDropoff) currentTask).getRequest().getFrom().id + ", to: " +
+//				((PlanActionDropoff) currentTask).getRequest().getTo().id + " current position: " + getPosition().id +
+//				" remaining orders: " + getOnBoardCount());
 		simulationAgent.tripEnded();
 		// TODO maybe fix with Strategy pattern
 		EntityType entityType = simulationAgent.getType();
@@ -340,7 +344,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		int length = wasStopped ? positionUtil.getTripLengthInMeters(currentTrip, getPosition())
 				: positionUtil.getTripLengthInMeters(currentTrip);
 		
-		if(getOnBoardCount() > 0){
+		if(getOnBoardCount() > 0 || getTrunkCount() > 0){
 			metersWithOrder += length;
 		}
 		else{

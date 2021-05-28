@@ -49,11 +49,8 @@ import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStatsIH;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import me.tongfei.progressbar.ProgressBar;
 import org.slf4j.LoggerFactory;
@@ -162,7 +159,11 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		
 		List<PlanComputationRequest> requests = config.ridesharing.insertionHeuristic.recomputeWaitingRequests 
 				? waitingRequests : newRequests;
-		
+
+		// Sort requests in way so that passenger requests are first
+		requests.sort(Comparator.comparingInt(r ->
+				((DemandSimulationEntityType) r.getSimulationAgent().getType()).getId()));
+
 		// discard current plans if the recomputing is on
 		if(config.ridesharing.insertionHeuristic.recomputeWaitingRequests){
 			for(AgentPolisEntity tVvehicle: vehicleStorage.getEntitiesForIteration()){

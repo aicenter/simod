@@ -146,8 +146,8 @@ public class ParcelAgent extends Agent implements EventHandler, TrunkTransportab
     // TODO rework
     @Override
     public void tripEnded() {
-        LOGGER.info("Parcel #{} dropped at: {}, last position of the trip should be: {}, {}",
-                simpleId, getPosition().id, trip.getLastLocation().id, getPosition().equals(trip.getLastLocation()));
+//        LOGGER.info("Parcel #{} dropped at: {}, last position of the trip should be: {}, {}",
+//                simpleId, getPosition().id, trip.getLastLocation().id, getPosition().equals(trip.getLastLocation()));
         if(!getPosition().equals(trip.getLastLocation())){
             try {
                 throw new Exception("Demand not served properly for id: " + simpleId + " at position " +
@@ -156,6 +156,7 @@ public class ParcelAgent extends Agent implements EventHandler, TrunkTransportab
                 LOGGER.error(null, ex);
             }
         }
+//        LOGGER.info("adding new event");
         eventProcessor.addEvent(StatisticEvent.PARCEL_DROPPED_OFF, null, null,
                 new DemandServiceStatistic(demandTime, realPickupTime, timeProvider.getCurrentSimTime(),
                         minDemandServiceDuration, getId(), onDemandVehicle.getId()));

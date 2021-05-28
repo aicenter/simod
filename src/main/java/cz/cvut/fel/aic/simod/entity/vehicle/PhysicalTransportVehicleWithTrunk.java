@@ -40,10 +40,10 @@ public class PhysicalTransportVehicleWithTrunk<S extends SeatTransportableEntity
     }
 
     public void pickUp(T entity) {
-        LOGGER.info("pickUp: before pickup -- transported parcels: " + this.transportedTrunkEntities.size());
+//        LOGGER.info("pickUp: before pickup -- transported parcels: " + this.transportedTrunkEntities.size());
         PickUp.pickUp(entity, this.transportedTrunkEntities.size() == this.vehicleTrunkCapacity, this,
                 this.transportedTrunkEntities);
-        LOGGER.info("pickUp: after pickup -- transported parcels: " + this.transportedTrunkEntities.size());
+//        LOGGER.info("pickUp: after pickup -- transported parcels: " + this.transportedTrunkEntities.size());
     }
 
     public void dropOff(T entityToDropOff) {

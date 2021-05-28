@@ -283,6 +283,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 		typesToHandle.add(OnDemandVehicleEvent.REACH_NEAREST_STATION);
 		typesToHandle.add(DriveEvent.VEHICLE_ENTERED_EDGE);
 		typesToHandle.add(StatisticEvent.DEMAND_DROPPED_OFF);
+		typesToHandle.add(StatisticEvent.PARCEL_DROPPED_OFF);
 		return typesToHandle;
 	}
 	

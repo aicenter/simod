@@ -29,7 +29,7 @@ public class Result {
 	
 	private final int maxLoad;
 	
-	private final double averageKmWithPassenger;
+	private final double averageKmWithOrder;
 	
 	private final double averageKmToStartLocation;
 	
@@ -75,8 +75,8 @@ public class Result {
 		return maxLoad;
 	}
 
-	public double getAverageKmWithPassenger() {
-		return averageKmWithPassenger;
+	public double getAverageKmWithOrder() {
+		return averageKmWithOrder;
 	}
 
 	public double getAverageKmToStartLocation() {
@@ -142,7 +142,7 @@ public class Result {
 	
 	
 
-	public Result(long tickCount, double averageLoadTotal, int maxLoad, double averageKmWithPassenger,
+	public Result(long tickCount, double averageLoadTotal, int maxLoad, double averageKmWithOrder,
 				  double averageKmToStartLocation, double averageKmToStation, double averageKmRebalancing,
 				  int numberOfDemandsNotServedFromNearestStation, int numberOfDemandsDropped, int demandsCount,
 				  int numberOfParcelsDropped, int parcelsCount, int numberOfVehicles, int numberOfRebalancingDropped,
@@ -151,7 +151,7 @@ public class Result {
 		this.tickCount = tickCount;
 		this.averageLoadTotal = averageLoadTotal;
 		this.maxLoad = maxLoad;
-		this.averageKmWithPassenger = averageKmWithPassenger;
+		this.averageKmWithOrder = averageKmWithOrder;
 		this.averageKmToStartLocation = averageKmToStartLocation;
 		this.averageKmToStation = averageKmToStation;
 		this.averageKmRebalancing = averageKmRebalancing;

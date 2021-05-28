@@ -30,7 +30,6 @@ import cz.cvut.fel.aic.simod.init.StationsInitializer;
 import cz.cvut.fel.aic.simod.init.StatisticInitializer;
 import cz.cvut.fel.aic.simod.io.TripTransform;
 import cz.cvut.fel.aic.simod.rebalancing.ReactiveRebalancing;
-import cz.cvut.fel.aic.simod.simulationState.SimulationStateProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.statistics.Statistics;
 import cz.cvut.fel.aic.simod.tripUtil.TripsUtilCached;
@@ -129,13 +128,6 @@ public class OnDemandVehiclesSimulation {
 
 		injector.getInstance(StatisticInitializer.class).initialize();
 
-		// initialize state provider for RL
-		LOGGER.info("state provider: {}", config.stateProvider.on);
-
-		if (config.stateProvider.on) {
-			injector.getInstance(SimulationStateProvider.class).initialize();
-		}
-            
 		// start it up
 		creator.startSimulation();
 

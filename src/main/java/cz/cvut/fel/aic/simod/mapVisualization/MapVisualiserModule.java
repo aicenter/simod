@@ -47,6 +47,12 @@ public class MapVisualiserModule  extends MainModule{
 		this.SimodConfig = SimodConfig;
         this.SimodConfig.startTime = 0;
 	}
+
+	@Override
+	protected void init() {
+		
+	}
+	
 	
 	@Override
 	protected void bindVisioInitializer() {

@@ -63,6 +63,9 @@ import cz.cvut.fel.aic.simod.ridesharing.RidesharingDispatcher;
 import cz.cvut.fel.aic.simod.ridesharing.RidesharingOnDemandVehicleFactory;
 import cz.cvut.fel.aic.simod.ridesharing.StandardPlanCostProvider;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Set;
 import org.slf4j.LoggerFactory;
 
@@ -80,9 +83,7 @@ public class MainModule extends StandardAgentPolisModule{
 		super(SimodConfig, localConfigFile, "agentpolis");
 		setLoggerFilePath(SimodConfig.amodsimExperimentDir);
 		this.SimodConfig = SimodConfig;      
-		//clean experiment folder (for merging, must be before setting logger file path in branch feature/saveLogToExperiments)
-		deleteFiles(new File(SimodConfig.amodsimExperimentDir));
-		//set logger file path (for merging, must be after cleanup folder in branch feature/clear_exp_folder)
+		init();
 	}
 
 	@Override
@@ -162,6 +163,7 @@ public class MainModule extends StandardAgentPolisModule{
 				.build(OnDemandVehicleStation.OnDemandVehicleStationFactory.class));
 		}
 	} 
+	
 	private void deleteFiles(File folder) {
 		if(folder.exists()){
 			File[] files = folder.listFiles();
@@ -170,7 +172,11 @@ public class MainModule extends StandardAgentPolisModule{
 					deleteFiles(fileEntry);
 					fileEntry.delete();
 				} else if(!fileEntry.isDirectory()){
-					fileEntry.delete();
+					try {
+						Files.delete(Paths.get(fileEntry.getAbsolutePath()));
+					} catch (IOException ex) {
+						LOGGER.error(ex.getMessage());
+					}
 				}
 			}
 		}
@@ -183,6 +189,10 @@ public class MainModule extends StandardAgentPolisModule{
 			LOGGER.info("Setting log filepath to: {}", logPath);
 			appender.setFile(logPath);
 			appender.start();
+	}
+
+	protected void init() {
+		deleteFiles(new File(SimodConfig.amodsimExperimentDir));
 	}
            
 }

@@ -18,7 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 SiMoD is a simulation tool for Mobility-on-Demand (MoD) based on [AgentPolis](https://github.com/aicenter/agentpolis) traffic simulation framework developed by the [Smart Mobility group of AI Center, CTU, Prague](https://www.aic.fel.cvut.cz/research-areas/smart-mobility). It lets you build your own MoD system at a location of your choice. It is lightweight, highly customizable and it can run simulations with tens of thousands of vehicles and passengers with ease.
 
-However, SiMoD is a tool for researchers and engineers familiar with computer science. If you want a production-ready simulation tool check for example [SUMO](https://www.eclipse.org/sumo/).
+However, customizing SiMoD for your use case requires some programming sckills. If you want a more universal and estblished simulation tool check for example [SUMO](https://www.eclipse.org/sumo/).
 
 ![SiMoD simulation of MoD system on Manhattan](https://github.com/aicenter/simod/blob/master/simod_showcase.gif?raw=true)
 SiMoD simulation of MoD system on Manhattan (Speeded up 5 times)

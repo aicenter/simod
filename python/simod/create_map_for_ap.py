@@ -16,18 +16,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import setuptools
-from setuptools import setup
 
-setup(
-	name='simod',
-	version='1.0.0',
-	description='service scripts for SiMoD agentpolis simulation',
-	author='David Fiedler',
-	author_email='david.fido.fiedler@gmail.com',
-	license='MIT',
-	packages=setuptools.find_packages(),
-	install_requires=['roadmaptools>=4.1.0', 'agentpolis>=0.1.2', 'fconfig', 'numpy', 'pandas', 'matplotlib', 'tqdm', 'typing'],
-	python_requires='>=3',
-	package_data={'simod.resources': ['*.cfg']}
-)
+from simod.init import config
+
+import agentpolis.prepare_map
+
+agentpolis.prepare_map.prepare_map()

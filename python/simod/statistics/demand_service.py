@@ -16,18 +16,32 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import setuptools
-from setuptools import setup
 
-setup(
-	name='simod',
-	version='1.0.0',
-	description='service scripts for SiMoD agentpolis simulation',
-	author='David Fiedler',
-	author_email='david.fido.fiedler@gmail.com',
-	license='MIT',
-	packages=setuptools.find_packages(),
-	install_requires=['roadmaptools>=4.1.0', 'agentpolis>=0.1.2', 'fconfig', 'numpy', 'pandas', 'matplotlib', 'tqdm', 'typing'],
-	python_requires='>=3',
-	package_data={'simod.resources': ['*.cfg']}
-)
+from simod.init import config, roadmaptools_config
+
+from tqdm import tqdm
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib
+import roadmaptools.inout
+import simod.utils
+
+from matplotlib.ticker import FuncFormatter
+from pandas import DataFrame, Series
+
+
+data = np.genfromtxt(config.simod.statistics.service_file_path, delimiter=',')
+
+df = DataFrame(data, columns=["demand_time", "demand_id", "vehicle_id", "pickup_time", "dropoff_time", "min_possible_delay"])
+
+delays = df["dropoff_time"] - df["demand_time"]
+
+min_delays = df["min_possible_delay"]
+
+prolongations = delays - min_delays
+
+print("Average prolongation: {}".format(Series.mean(prolongations)))
+
+plt.hist(prolongations / 60000, bins=30)
+
+plt.show()

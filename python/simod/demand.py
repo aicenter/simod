@@ -16,18 +16,17 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import setuptools
-from setuptools import setup
+from simod.init import config
 
-setup(
-	name='simod',
-	version='1.0.0',
-	description='service scripts for SiMoD agentpolis simulation',
-	author='David Fiedler',
-	author_email='david.fido.fiedler@gmail.com',
-	license='MIT',
-	packages=setuptools.find_packages(),
-	install_requires=['roadmaptools>=4.1.0', 'agentpolis>=0.1.2', 'fconfig', 'numpy', 'pandas', 'matplotlib', 'tqdm', 'typing'],
-	python_requires='>=3',
-	package_data={'simod.resources': ['*.cfg']}
-)
+import pandas
+
+from pandas import DataFrame
+# from typing import
+
+
+def load(filepath: str) -> DataFrame:
+	columns = ["demand_time", "from_lat", "from_lon", "to_lat", "to_lon"]
+	print("Loading demand from: {}".format(filepath))
+	demand_data \
+		= pandas.read_csv(filepath, names=columns, delimiter=" ")
+	return demand_data

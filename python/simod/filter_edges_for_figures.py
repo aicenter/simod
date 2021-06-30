@@ -16,18 +16,24 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import setuptools
-from setuptools import setup
+from simod.init import config
 
-setup(
-	name='simod',
-	version='1.0.0',
-	description='service scripts for SiMoD agentpolis simulation',
-	author='David Fiedler',
-	author_email='david.fido.fiedler@gmail.com',
-	license='MIT',
-	packages=setuptools.find_packages(),
-	install_requires=['roadmaptools>=4.1.0', 'agentpolis>=0.1.2', 'fconfig', 'numpy', 'pandas', 'matplotlib', 'tqdm', 'typing'],
-	python_requires='>=3',
-	package_data={'simod.resources': ['*.cfg']}
-)
+import roadmaptools.inout
+import roadmaptools.filter
+
+ROAD_TYPES_TO_DISPLAY = {"motorway", "trunk", "primary", "secondary",}
+# ROAD_TYPES_TO_DISPLAY = {"motorway", "motorway_link", "trunk", "trunk_link", "primary", "primary_link", "secondary",
+# 						 "secondary_link"}
+							# |tertiary|tertiary_link|unclassified|unclassified_link|residential|residential_link|living_street)")
+
+
+def main_roads_filter(edge: dict) -> bool:
+	road_type = edge['properties']['highway']
+	return road_type in ROAD_TYPES_TO_DISPLAY
+
+
+edges = roadmaptools.inout.load_geojson(config.agentpolis.map_edges_filepath)
+
+roadmaptools.filter.filter_edges(edges, main_roads_filter)
+
+roadmaptools.inout.save_geojson(edges, config.main_roads_graph_filepath)

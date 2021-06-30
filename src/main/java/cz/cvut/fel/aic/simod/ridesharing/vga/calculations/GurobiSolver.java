@@ -98,7 +98,7 @@ public class GurobiSolver {
 		// env init
 		env = null;           
 		try {                       
-			env = new GRBEnv(config.amodsimExperimentDir +"/log/mip.log");
+			env = new GRBEnv(config.simodExperimentDir +"/log/mip.log");
 		} catch (GRBException ex) {
 			Logger.getLogger(GurobiSolver.class.getName()).log(Level.SEVERE, null, ex);
 		}

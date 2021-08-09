@@ -26,7 +26,7 @@ SiMoD simulation of MoD system on Manhattan (Speeded up 5 times)
 
 
 # Quick Start Guide
-This guide shows you how to use the simulation for simulating mobility-on-demand (MoD) with ridesharing in SiMoD. In this experiment travle requests appears and are served by MoD vehicles, so that the total travel distance is minimal.
+This guide shows you how to use the simulation for simulating mobility-on-demand (MoD) with ridesharing in SiMoD. In this experiment travel requests appears and are served by MoD vehicles, so that the total travel distance is minimal.
 
 ## Data
 First you need to [download the test data for your first experiment](https://owncloud.cesnet.cz/index.php/s/GnwFj41o73natth). It is an experiment on Manhattan with real historical [demand data](https://data.cityofnewyork.us/dataset/Yellow-Tripdata-2015-January-June/2yzn-sicd) from the NYC Taxi and Limusine Commision. Extract the folder anywhere in your computer. It contains:

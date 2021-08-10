@@ -18,7 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 SiMoD is a simulation tool for Mobility-on-Demand (MoD) based on [AgentPolis](https://github.com/aicenter/agentpolis) traffic simulation framework developed by the [Smart Mobility group of AI Center, CTU, Prague](https://www.aic.fel.cvut.cz/research-areas/smart-mobility). It lets you build your own MoD system at a location of your choice. It is lightweight, highly customizable and it can run simulations with tens of thousands of vehicles and passengers with ease.
 
-However, customizing SiMoD for your use case requires some programming sckills. If you want a more universal and estblished simulation tool check for example [SUMO](https://www.eclipse.org/sumo/).
+However, customizing SiMoD for your use case requires some programming skills. If you want a more universal and estblished simulation tool check for example [SUMO](https://www.eclipse.org/sumo/).
 
 ![SiMoD simulation of MoD system on Manhattan](https://github.com/aicenter/simod/blob/master/simod_showcase.gif?raw=true)
 
@@ -26,7 +26,7 @@ SiMoD simulation of MoD system on Manhattan (Speeded up 5 times)
 
 
 # Quick Start Guide
-This guide shows you how to use the simulation for simulating mobility-on-demand (MoD) with ridesharing in SiMoD. In this experiment travle requests appears and are served by MoD vehicles, so that the total travel distance is minimal.
+This guide shows you how to use the simulation for simulating mobility-on-demand (MoD) with ridesharing in SiMoD. In this experiment travel requests appears and are served by MoD vehicles, so that the total travel distance is minimal.
 
 ## Data
 First you need to [download the test data for your first experiment](https://owncloud.cesnet.cz/index.php/s/GnwFj41o73natth). It is an experiment on Manhattan with real historical [demand data](https://data.cityofnewyork.us/dataset/Yellow-Tripdata-2015-January-June/2yzn-sicd) from the NYC Taxi and Limusine Commision. Extract the folder anywhere in your computer. It contains:

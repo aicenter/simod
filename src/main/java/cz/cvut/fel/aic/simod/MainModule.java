@@ -81,9 +81,9 @@ public class MainModule extends StandardAgentPolisModule{
 	
 	public MainModule(SimodConfig SimodConfig, File localConfigFile) {
 		super(SimodConfig, localConfigFile, "agentpolis");
+		deleteFiles(new File(SimodConfig.simodExperimentDir));
 		setLoggerFilePath(SimodConfig.simodExperimentDir);
 		this.SimodConfig = SimodConfig;      
-		init();
 	}
 
 	@Override
@@ -189,10 +189,6 @@ public class MainModule extends StandardAgentPolisModule{
 			LOGGER.info("Setting log filepath to: {}", logPath);
 			appender.setFile(logPath);
 			appender.start();
-	}
-
-	protected void init() {
-		deleteFiles(new File(SimodConfig.simodExperimentDir));
 	}
            
 }

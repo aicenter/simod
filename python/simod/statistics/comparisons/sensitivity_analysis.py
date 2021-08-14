@@ -16,18 +16,21 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from amodsim.init import config
+from simod.init import config
 
 from typing import List, Tuple
 import roadmaptools.inout
-import amodsim.statistics.model.edges as edges
-import amodsim.statistics.model.transit as transit
-import amodsim.statistics.model.ridesharing as ridesharing
-import amodsim.statistics.model.service as service
+import simod.statistics.model.edges as edges
+import simod.statistics.model.transit as transit
+import simod.statistics.model.ridesharing as ridesharing
+import simod.statistics.model.service as service
 import matplotlib.pyplot as plt
 
-delay_experiments = ["sw-vga-max_delay_3_min", "sw-vga", "sw-vga-max_delay_5_min", "sw-vga-max_delay_6_min"]
-batch_experiments = ["sw-vga", "sw-vga-batch_60s", "sw-vga-batch_90s", "sw-vga-batch_120s"]
+# delay_experiments = ["sw-vga-max_delay_3_min", "sw-vga", "sw-vga-max_delay_5_min", "sw-vga-max_delay_6_min"]
+# batch_experiments = ["sw-vga", "sw-vga-batch_60s", "sw-vga-batch_90s", "sw-vga-batch_120s"]
+
+delay_experiments = ["vga-max_delay_3_min", "vga", "vga-max_delay_5_min", "vga-max_delay_6_min", "vga-max_delay_7_min"]
+batch_experiments = ["vga", "vga-batch_60s", "vga-batch_90s", "vga-batch_120s"]
 
 loaded_edges = roadmaptools.inout.load_geojson(config.agentpolis.map_edges_filepath)
 edge_data = edges.make_data_frame(loaded_edges)

@@ -183,12 +183,12 @@ public class MainModule extends StandardAgentPolisModule{
 	}
 	
 	private void setLoggerFilePath(String experiments_path) {         
-			LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-			FileAppender appender = (FileAppender) lc.getLogger("ROOT").getAppender("FILE");
-			String logPath = experiments_path+"/log/log.txt";
-			LOGGER.info("Setting log filepath to: {}", logPath);
-			appender.setFile(logPath);
-			appender.start();
+		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+		FileAppender appender = (FileAppender) lc.getLogger("ROOT").getAppender("FILE");
+		String logPath = experiments_path+"/log/log.txt";
+		LOGGER.info("Setting log filepath to: {}", logPath);
+		appender.setFile(logPath);
+		appender.start();
 	}
            
 }

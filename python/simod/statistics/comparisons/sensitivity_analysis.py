@@ -123,7 +123,7 @@ def plot_sensitivity_analysis(
 
             from_index = to_index
 
-    axes[0][0].legend(loc=1, fontsize='small', borderaxespad=0.2)
+    axes[0][2].legend(loc=2, fontsize='small', borderaxespad=0.2)
     plt.savefig(
         f"{config.images.images_dir}/sensitivity_analysis-{exp_set_name}.pdf",
         bbox_inches='tight',

@@ -32,17 +32,17 @@ import simod.statistics.model.service as service
 import simod.statistics.comparisons.common as common
 
 
-def check_experiments(experiments: Dict[str, List[List[str]]]):
+def check_experiments(experiments: Dict[str, List[List[str]]], exp_dir: str = config.experiments_dir):
     for experiment_set in experiments.values():
         for method in experiment_set:
             for exp_name in method:
-                experiment_dir = "{}/{}/".format(config.experiments_dir, exp_name)
+                experiment_dir = "{}/{}/".format(exp_dir, exp_name)
                 if not os.path.exists(experiment_dir):
                     raise Exception(f"experiment {experiment_dir} not found")
 
 
-def load_experiment_data(experiment_name: str, edge_data: pd.DataFrame):
-    experiment_dir = "{}/{}/".format(config.experiments_dir, experiment_name)
+def load_experiment_data(experiment_name: str, edge_data: pd.DataFrame, exp_dir: str):
+    experiment_dir = "{}/{}/".format(exp_dir, experiment_name)
 
     # distance
     transit_data = transit.load(experiment_dir)
@@ -62,7 +62,10 @@ def load_experiment_data(experiment_name: str, edge_data: pd.DataFrame):
     return km_total_window, avg_time, mean_delay
 
 
-def load_experiments(experiments: Dict[str, List[List[str]]], edge_data: pd.DataFrame):
+def load_experiments(
+        experiments: Dict[str, List[List[str]]],
+        edge_data: pd.DataFrame,
+        exp_dir: str = config.experiments_dir):
     distance_data = []
     comp_time_data = []
     delay_data = []
@@ -70,13 +73,13 @@ def load_experiments(experiments: Dict[str, List[List[str]]], edge_data: pd.Data
     for experiment_set in experiments.values():
         for method in experiment_set:
             for exp_name in method:
-                record = load_experiment_data(exp_name, edge_data)
+                record = load_experiment_data(exp_name, edge_data, exp_dir)
                 distance_data.append(record[0])
                 comp_time_data.append(record[1])
                 delay_data.append(record[2])
 
-    speed_data = [rec / 1000 for rec in distance_data]
-    tt_data = [rec / 1000 for rec in comp_time_data]
+    distance_data = [rec / 1000 for rec in distance_data]
+    comp_time_data = [rec / 1000 for rec in comp_time_data]
 
     return distance_data, comp_time_data, delay_data
 
@@ -94,6 +97,9 @@ def plot_sensitivity_analysis(
         exp_set_name: str = "peak"
 ):
     fig, axes = plt.subplots(3, 3, sharex='col')
+
+    fig.tight_layout()
+
     axes[0][0].set_ylabel("Avg. comp. \n time [s]")
     axes[1][0].set_ylabel("Total Distance \n" r"[km $\cdot 10^3$]")
     axes[2][0].set_ylabel("Avg. delay [s]")

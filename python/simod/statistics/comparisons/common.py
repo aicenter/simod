@@ -23,7 +23,7 @@ from enum import Enum
 class Experiment(Enum):
 	PRESENT_STATE = (0, "grey", "ooo", "Present State", 'o')
 	NO_RIDESHARING = (1, "red", "+++", "No Ridesharing", '+')
-	IH = (2, "green", "///", "Insertion Heuristic", '/')
+	IH = (2, "green", "///", "Insertion Heuristic", 'P')
 	VGA = (3, "blue", "\\\\\\", "VGA (optimal)", 'v')
 	VGA_LIMITED = (4, "orange", "***", "VGA (limited)", '*')
 	VGA_PNAS = (4, "darkcyan", "---", "VGA (PNAS)", 's')

@@ -50,7 +50,10 @@ def load_experiment_data(experiment_name: str, edge_data: pd.DataFrame, exp_dir:
 
     # time
     performance_data = ridesharing.load(experiment_dir)
-    avg_time = performance_data['Group Generation Time'].mean() + performance_data['Solver Time'].mean()
+    if 'Group Generation Time' in performance_data:
+        avg_time = performance_data['Group Generation Time'].mean() + performance_data['Solver Time'].mean()
+    else:
+        avg_time = performance_data['Insertion Heuristic Time'].mean()
     # avg_time = int(round(avg_time / 1000))
     avg_time = int(round(avg_time))
 
@@ -114,7 +117,7 @@ def plot_sensitivity_analysis(
     from_index = 0
     for experiment_set, axis_index in zip(experiments.values(), [1, 0, 2]):
         x_values_l = x_values[axis_index]
-        for method, experiment in zip(experiment_set, islice(common.Experiment, 3, 6)):
+        for method, experiment in zip(experiment_set, islice(common.Experiment, 2, 6)):
             to_index += len(method)
 
             plot_ax(x_values_l[:len(method)], comp_time_data[from_index:to_index], axes[0][axis_index], experiment)

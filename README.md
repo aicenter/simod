@@ -188,10 +188,13 @@ In case you use this software in your research, please consider citing one of ou
 
 [1] D. Fiedler, M. Čáp, and M. Čertický, “Impact of mobility-on-demand on traffic congestion: Simulation-based study,” in *2017 IEEE 20th International Conference on Intelligent Transportation Systems (ITSC)*, Oct. 2017, pp. 1–6, doi: [10.1109/ITSC.2017.8317830](https://ieeexplore.ieee.org/document/8317830).
 
-[2]D. Fiedler, M. Čertický, J. Alonso-Mora, and M. Čáp, “The Impact of Ridesharing in Mobility-on-Demand Systems: Simulation Case Study in Prague,” in *2018 21st International Conference on Intelligent Transportation Systems (ITSC)*, Nov. 2018, pp. 1173–1178, doi: [10.1109/ITSC.2018.8569451](https://ieeexplore.ieee.org/document/8569451).
+[2] D. Fiedler, M. Čertický, J. Alonso-Mora, and M. Čáp, “The Impact of Ridesharing in Mobility-on-Demand Systems: Simulation Case Study in Prague,” in *2018 21st International Conference on Intelligent Transportation Systems (ITSC)*, Nov. 2018, pp. 1173–1178, doi: [10.1109/ITSC.2018.8569451](https://ieeexplore.ieee.org/document/8569451).
 
 
 # Project structure
+
+## Java vs Python
+The simulation is written in Java. The Python scripts are only for result processing and for input data processing. while all the simulation code should be fully functional, the same cannot be said about Python scripts, many of them are obsolete/non functional.
 
 ## Usefull executables
 All executables are in the root packegge (`cz.cvut.fel.aic.simod`)

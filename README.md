@@ -58,16 +58,22 @@ You have to replace *FILL ME*  with the absolute path to the folder with the dow
 ```
 data_dir: "C:/experiments/Manhattan/"
 ```
+---
+**NOTE**
 
-To see all possible options, look into the master config file. For SiMoD, the file is located in `/src/main/resources/cz/cvut/fel/aic/SiMoD/config/`.
-You can see local configurations used by us in `simod/local_config_files`
+Do not forgat the slash in the end!
+
+---
+To see all possible options, you can look into the master config file. For SiMoD, the file is located in `/src/main/resources/cz/cvut/fel/aic/SiMoD/config/`. 
+But be sure to *not* modify the master config file! 
+You can see local configurations used by us in `simod/local_config_files`.
 
      
 ### Run the Simulation
 Run the SiMoD `OnDemandVehiclesSimulation.java`  with `<path to your config>` as an argument:
 
 ```
-mvn exec:java -Dexec.mainClass=cz.cvut.fel.aic.simod.OnDemandVehiclesSimulation -Dexec.args="<path to your config>" -Dfile.encoding=UTF-8
+mvn exec:java -Dexec.mainClass=cz.cvut.fel.aic.simod.OnDemandVehiclesSimulation -Dexec.args="<path to your local config>" -Dfile.encoding=UTF-8
 ```
 
 **Important:** If running this command from PowerShell, remember to quote the arguments starting with `-` and containing dot, e.g.: `'-Dexec.mainClass=cz.cvut.fel.aic.SiMoD.OnDemandVehiclesSimulation'`

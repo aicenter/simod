@@ -21,6 +21,10 @@ package cz.cvut.fel.aic.simod.ridesharing.insertionheuristic;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionCurrentPosition;
+import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
+import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
+
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -75,6 +79,27 @@ public class DriverPlan implements Iterable<PlanAction>{
 		}
 		sb.append("]");
 		return sb.toString();
+	}
+
+	// TODO: check if that works
+	public List<PlanAction> getPickupActions() {
+		List<PlanAction> pickups = new ArrayList<>();
+		for(PlanAction action : plan) {
+			if(action instanceof PlanActionPickup) {
+				pickups.add(action);
+			}
+		}
+		return pickups;
+	}
+
+	public List<PlanAction> getDropoffActions() {
+		List<PlanAction> dropoffs = new ArrayList<>();
+		for(PlanAction action : plan) {
+			if(action instanceof PlanActionDropoff) {
+				dropoffs.add(action);
+			}
+		}
+		return dropoffs;
 	}
 	
 	

@@ -298,6 +298,10 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		return currentTrip;
 	}
 
+	public PlanAction getCurrentTask() {
+		return currentTask;
+	}
+
 	public boolean hasFreeCapacity() {
 		return getFreeCapacity() > 0;
 	}

@@ -46,38 +46,62 @@ public class DroppedDemandsAnalyzer {
 	
 	private final PositionUtil positionUtil;
 	
-	private final double maxDistance;
+//	private final double maxDistance;
+	private final double maxDistance = 1000;
 	
 	protected final TravelTimeProvider travelTimeProvider;
 	
-	private final int maxDelayTime;
+//	private final int maxDelayTime;
+	private final int maxDelayTime = 10;
 	
 	private final OnDemandvehicleStationStorage onDemandvehicleStationStorage;
 
-	
-	
-	
+
+
+
+//	@Inject
+//	public DroppedDemandsAnalyzer(
+//			OnDemandVehicleStorage vehicleStorage,
+//			PositionUtil positionUtil,
+//			TravelTimeProvider travelTimeProvider,
+//			SimodConfig config,
+//			OnDemandvehicleStationStorage onDemandvehicleStationStorage,
+//			AgentpolisConfig agentpolisConfig) {
+//		this.vehicleStorage = vehicleStorage;
+//		this.positionUtil = positionUtil;
+//		this.travelTimeProvider = travelTimeProvider;
+//		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
+//                this.config = config;
+//
+//		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
+//		maxDistance = (double) config.ridesharing.maxProlongationInSeconds
+//				* agentpolisConfig.maxVehicleSpeedInMeters;
+//
+//		// the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the
+//		// vehicle to be considered to serve the request
+//		maxDelayTime = config.ridesharing.maxProlongationInSeconds  * 1000;
+//	}
 	@Inject
 	public DroppedDemandsAnalyzer(
-			OnDemandVehicleStorage vehicleStorage, 
-			PositionUtil positionUtil, 
-			TravelTimeProvider travelTimeProvider, 
-			SimodConfig config, 
+			OnDemandVehicleStorage vehicleStorage,
+			PositionUtil positionUtil,
+			TravelTimeProvider travelTimeProvider,
+			SimodConfig config,
 			OnDemandvehicleStationStorage onDemandvehicleStationStorage,
 			AgentpolisConfig agentpolisConfig) {
 		this.vehicleStorage = vehicleStorage;
 		this.positionUtil = positionUtil;
 		this.travelTimeProvider = travelTimeProvider;
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
-                this.config = config;
-		
-		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
-		maxDistance = (double) config.ridesharing.maxProlongationInSeconds 
-				* agentpolisConfig.maxVehicleSpeedInMeters;
-		
-		// the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the
-		// vehicle to be considered to serve the request
-		maxDelayTime = config.ridesharing.maxProlongationInSeconds  * 1000;
+		this.config = config;
+
+//		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
+//		maxDistance = (double) config.ridesharing.maxProlongationInSeconds
+//				* agentpolisConfig.maxVehicleSpeedInMeters;
+//
+//		// the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the
+//		// vehicle to be considered to serve the request
+//		maxDelayTime = config.ridesharing.maxProlongationInSeconds  * 1000;
 	}
 	
 	

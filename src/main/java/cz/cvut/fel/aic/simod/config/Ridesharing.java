@@ -1,5 +1,7 @@
 package cz.cvut.fel.aic.simod.config;
 
+import cz.cvut.fel.aic.simod.ridesharing.greedyTASeT.GreedyTASeTSolver;
+
 import java.lang.Boolean;
 import java.lang.Double;
 import java.lang.Integer;
@@ -7,6 +9,8 @@ import java.lang.String;
 import java.util.Map;
 
 public class Ridesharing {
+  public GreedyTASeT greedytaset;
+
   public Vga vga;
 
   public Integer batchPeriod;
@@ -28,6 +32,7 @@ public class Ridesharing {
   public Boolean on;
 
   public Ridesharing(Map ridesharing) {
+    this.greedytaset = new GreedyTASeT((Map) ridesharing.get("greedy_taset"));
     this.vga = new Vga((Map) ridesharing.get("vga"));
     this.batchPeriod = (Integer) ridesharing.get("batch_period");
     this.method = (String) ridesharing.get("method");

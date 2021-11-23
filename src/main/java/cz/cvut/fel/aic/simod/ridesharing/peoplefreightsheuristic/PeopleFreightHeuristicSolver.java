@@ -128,7 +128,6 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
     }
 
 
-
     @Override
     public Map<RideSharingOnDemandVehicle, cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan> solve(List<PlanComputationRequestPeople> newRequestsPeople,
                                                                                                                   List<PlanComputationRequestPeople> waitingRequestsPeople,
@@ -136,26 +135,31 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
                                                                                                                   List<PlanComputationRequestFreight> waitingRequestsFreight)
     {
         // sortedRequestsList = sort pickup requests (V_fo U V_po) incrementally by time windows - maxPickupTime
-        PlanComputationRequestPeople[] arrRequestsPeople = newRequestsPeople.toArray(new PlanComputationRequestPeople[0]);
-        Arrays.sort(arrRequestsPeople, new SortByPickupTime());
+        Collections.sort(newRequestsPeople, new SortByPickupTime());
 
-        // for i in sortedRequestList:
-        // update all status of taxis K and parking places by time e_i
-        // availableTaxis = findAvailableTaxis()
-        // f_opt = best total benefit, if request i is served
-        // k_opt = taxi to serve request i to get the best total benefit
+        for (int i = 0; i < newRequestsPeople.size(); i++)
+        {
+            // update all status of taxis K (and parking places) by time e_i
+            List<PFvehicle> availableTaxis = new ArrayList<>();
+//            availableTaxis = findAvailableTaxis();
 
-        // if availableTaxis.size() > 0:
-        // f_opt = -inf
-        // for k_i in availableTaxis:
-        // f_k_i = new total benefit if taxi k serves request i
-        // if f_k_i > f_opt:
-        // f_opt = f_k_i
-        // k_opt = k_i
-        // k_opt.route.add(request i)
-        // update total benefit
-        // else:
-        // reject request i
+            // f_opt - best total benefit, if request i is served
+            // k_opt - taxi to serve request i to get the best total benefit
+            long bestBenefit = 0;
+            int bestTaxiIdx = 0;
+
+            // if availableTaxis.size() > 0:
+            // f_opt = -inf
+            // for k_i in availableTaxis:
+            // f_k_i = new total benefit if taxi k serves request i
+            // if f_k_i > f_opt:
+            // f_opt = f_k_i
+            // k_opt = k_i
+            // k_opt.route.add(request i)
+            // update total benefit
+            // else:
+            // reject request i
+        }
         return null;
     }
 

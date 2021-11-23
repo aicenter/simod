@@ -1,4 +1,4 @@
-package cz.cvut.fel.aic.simod.ridesharing.peopleparcelsheuristic;
+package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic;
 
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
@@ -12,8 +12,6 @@ import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
-
-import java.util.List;
 
 public class PFvehicle extends RideSharingOnDemandVehicle
 {

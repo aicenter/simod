@@ -46,11 +46,11 @@ public class DroppedDemandsAnalyzer {
 	
 	private final PositionUtil positionUtil;
 	
-	private final double maxDistance;
+	private final double maxDistance = 10;
 	
 	protected final TravelTimeProvider travelTimeProvider;
 	
-	private final int maxDelayTime;
+	private final int maxDelayTime = 1000;
 	
 	private final OnDemandvehicleStationStorage onDemandvehicleStationStorage;
 
@@ -72,12 +72,12 @@ public class DroppedDemandsAnalyzer {
                 this.config = config;
 		
 		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
-		maxDistance = (double) config.ridesharing.maxProlongationInSeconds 
-				* agentpolisConfig.maxVehicleSpeedInMeters;
+//		maxDistance = (double) config.ridesharing.maxProlongationInSeconds
+//				* agentpolisConfig.maxVehicleSpeedInMeters;
 		
 		// the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the
 		// vehicle to be considered to serve the request
-		maxDelayTime = config.ridesharing.maxProlongationInSeconds  * 1000;
+//		maxDelayTime = config.ridesharing.maxProlongationInSeconds  * 1000;
 	}
 	
 	

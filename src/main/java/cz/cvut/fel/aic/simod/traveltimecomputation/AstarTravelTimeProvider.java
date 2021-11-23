@@ -26,11 +26,13 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.MoveUtil;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.Utils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.TransportNetworks;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.Node;
+import cz.cvut.fel.aic.geographtools.util.Transformer;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -59,6 +61,18 @@ public class AstarTravelTimeProvider extends TravelTimeProvider{
 		this.tripsUtil = tripsUtil;
 		this.moveUtil = moveUtil;
 		this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
+	}
+
+	@Inject
+	public AstarTravelTimeProvider(
+			TimeProvider timeProvider,
+			TripsUtil tripsUtil,
+			Graph graph,
+			MoveUtil moveUtil) {
+		super(timeProvider);
+		this.tripsUtil = tripsUtil;
+		this.moveUtil = moveUtil;
+		this.graph = graph;
 	}
 	
 	

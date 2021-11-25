@@ -26,6 +26,7 @@ import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.storage.PeopleFreightVehicleStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
@@ -40,9 +41,11 @@ public class DroppedDemandsAnalyzer {
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DroppedDemandsAnalyzer.class);
 		
-        private final SimodConfig config;
+	private final SimodConfig config;
 	
 	protected final OnDemandVehicleStorage vehicleStorage;
+
+	protected final PeopleFreightVehicleStorage vehiclePFStorage;
 	
 	private final PositionUtil positionUtil;
 	
@@ -66,6 +69,7 @@ public class DroppedDemandsAnalyzer {
 			OnDemandvehicleStationStorage onDemandvehicleStationStorage,
 			AgentpolisConfig agentpolisConfig) {
 		this.vehicleStorage = vehicleStorage;
+		this.vehiclePFStorage = null;
 		this.positionUtil = positionUtil;
 		this.travelTimeProvider = travelTimeProvider;
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
@@ -75,6 +79,30 @@ public class DroppedDemandsAnalyzer {
 //		maxDistance = (double) config.ridesharing.maxProlongationInSeconds
 //				* agentpolisConfig.maxVehicleSpeedInMeters;
 		
+		// the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the
+		// vehicle to be considered to serve the request
+//		maxDelayTime = config.ridesharing.maxProlongationInSeconds  * 1000;
+	}
+
+	@Inject
+	public DroppedDemandsAnalyzer(
+			PeopleFreightVehicleStorage vehicleStorage,
+			PositionUtil positionUtil,
+			TravelTimeProvider travelTimeProvider,
+			SimodConfig config,
+			OnDemandvehicleStationStorage onDemandvehicleStationStorage,
+			AgentpolisConfig agentpolisConfig) {
+		this.vehicleStorage = null;
+		this.vehiclePFStorage = vehicleStorage;
+		this.positionUtil = positionUtil;
+		this.travelTimeProvider = travelTimeProvider;
+		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
+		this.config = config;
+
+		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
+//		maxDistance = (double) config.ridesharing.maxProlongationInSeconds
+//				* agentpolisConfig.maxVehicleSpeedInMeters;
+
 		// the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the
 		// vehicle to be considered to serve the request
 //		maxDelayTime = config.ridesharing.maxProlongationInSeconds  * 1000;

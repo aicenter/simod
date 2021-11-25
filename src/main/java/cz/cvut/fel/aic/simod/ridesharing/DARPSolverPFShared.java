@@ -22,6 +22,8 @@ import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;  //.DefaultPlanComputationRequestFactory;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestFreight;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestPeople;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightVehicle;
+import cz.cvut.fel.aic.simod.storage.PeopleFreightVehicleStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStats;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
@@ -34,7 +36,7 @@ import java.util.Map;
 
 public abstract class DARPSolverPFShared {
 
-    protected final OnDemandVehicleStorage vehicleStorage;
+    protected final PeopleFreightVehicleStorage vehicleStorage;
 
     protected final TravelTimeProvider travelTimeProvider;
 
@@ -62,8 +64,8 @@ public abstract class DARPSolverPFShared {
 
 
 
-    public DARPSolverPFShared(OnDemandVehicleStorage vehicleStorage, TravelTimeProvider travelTimeProvider,
-                      PlanCostProvider travelCostProvider, DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory) {
+    public DARPSolverPFShared(PeopleFreightVehicleStorage vehicleStorage, TravelTimeProvider travelTimeProvider,
+                              PlanCostProvider travelCostProvider, DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory) {
         this.vehicleStorage = vehicleStorage;
         this.travelTimeProvider = travelTimeProvider;
         this.planCostProvider = travelCostProvider;
@@ -74,9 +76,9 @@ public abstract class DARPSolverPFShared {
 
 
 
-    public abstract Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<PlanComputationRequestPeople> newPeopleRequests,
-                                                                      List<PlanComputationRequestPeople> waitingPeopleRequests,
-                                                                      List<PlanComputationRequestFreight> newFreightRequests,
-                                                                      List<PlanComputationRequestFreight> waitingFreightRequests);
+    public abstract Map<PeopleFreightVehicle, DriverPlan> solve(List<PlanComputationRequestPeople> newPeopleRequests,
+                                                                List<PlanComputationRequestPeople> waitingPeopleRequests,
+                                                                List<PlanComputationRequestFreight> newFreightRequests,
+                                                                List<PlanComputationRequestFreight> waitingFreightRequests);
 }
 

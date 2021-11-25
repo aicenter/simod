@@ -29,7 +29,7 @@ public abstract class PlanRequestAction extends PlanAction{
 	/**
 	 * Time constraint in seconds
 	 */
-	private final int maxTime;
+	private final int maxTime;   // do kdy
 	
 	public PlanComputationRequest getRequest() { 
 		return request; 

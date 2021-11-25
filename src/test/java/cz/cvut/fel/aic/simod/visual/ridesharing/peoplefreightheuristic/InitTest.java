@@ -20,6 +20,7 @@ import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightHeuristicSolver;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
+import cz.cvut.fel.aic.simod.storage.PeopleFreightVehicleStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import org.junit.Test;
@@ -31,7 +32,7 @@ public class InitTest
     @Test
     public void run() throws Throwable
     {
-        OnDemandVehicleStorage vehicleStorage = new OnDemandVehicleStorage();
+        PeopleFreightVehicleStorage vehicleStorage = new PeopleFreightVehicleStorage();
 //        TravelTimeProvider travelTimeProvider = null;
 //        TimeProvider timeProvider = null;
 //        PlanCostProvider travelCostProvider = null;
@@ -54,7 +55,7 @@ public class InitTest
         MoveUtil moveUtil = new MoveUtil(agentpolisConfig);
         AstarTravelTimeProvider astarTravelTimeProvider = new AstarTravelTimeProvider(timeProvider1, null, graph, moveUtil);
         OnDemandvehicleStationStorage onDemandvehicleStationStorage = new OnDemandvehicleStationStorage(transformer);
-        DroppedDemandsAnalyzer droppedDemandsAnalyzer = new DroppedDemandsAnalyzer(vehicleStorage, positionUtil, astarTravelTimeProvider, config, onDemandvehicleStationStorage, agentpolisConfig);
+        DroppedDemandsAnalyzer droppedDemandsAnalyzer = new DroppedDemandsAnalyzer( vehicleStorage, positionUtil, astarTravelTimeProvider, config, onDemandvehicleStationStorage, agentpolisConfig);
 
 
 

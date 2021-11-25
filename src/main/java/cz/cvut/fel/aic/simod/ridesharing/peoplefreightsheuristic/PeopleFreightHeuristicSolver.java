@@ -15,9 +15,8 @@ import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.ridesharing.*;
 import cz.cvut.fel.aic.simod.ridesharing.model.*;
 import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
+import cz.cvut.fel.aic.simod.storage.PeopleFreightVehicleStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
-import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStatsIH;
-import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 
 import java.lang.*;
@@ -78,8 +77,6 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 
     private int failFastTime;
 
-    private int insertionHeuristicTime;
-
     private int debugFailTime;
 
     private double minCostIncrement;
@@ -89,14 +86,14 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
     private int[] usedVehiclesPerStation;
 
 
-    private List<OnDemandVehicle> vehiclesForPlanning;
+    private List<PeopleFreightVehicle> vehiclesForPlanning;
 
 
     @Inject
     public PeopleFreightHeuristicSolver(
             TravelTimeProvider travelTimeProvider,
             PlanCostProvider travelCostProvider,
-            OnDemandVehicleStorage vehicleStorage,
+            PeopleFreightVehicleStorage vehicleStorage,
             PositionUtil positionUtil,
             SimodConfig config,
             TimeProvider timeProvider,
@@ -114,73 +111,116 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
         this.droppedDemandsAnalyzer = droppedDemandsAnalyzer;
         this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
 
-
+/*
         // max distance in meters between vehicle and request for the vehicle to be considered to serve the request
-//        maxDistance = (double) config.ridesharing.maxProlongationInSeconds
-//                * agentpolisConfig.maxVehicleSpeedInMeters;
-//        maxDistanceSquared = maxDistance * maxDistance;
+        maxDistance = (double) config.ridesharing.maxProlongationInSeconds
+                * agentpolisConfig.maxVehicleSpeedInMeters;
+        maxDistanceSquared = maxDistance * maxDistance;
 
         // the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the
         // vehicle to be considered to serve the request
-//        maxDelayTime = config.ridesharing.maxProlongationInSeconds * 1000;
+        maxDelayTime = config.ridesharing.maxProlongationInSeconds * 1000;
+*/
+        // casting given vehicles to actual PeopleFreightVehicles
+        vehiclesForPlanning = new ArrayList<>();
+        List<OnDemandVehicle> oldTaxis = new ArrayList<>();
+        oldTaxis.addAll(vehicleStorage.getEntities());
+        for (int i = 0; i < oldTaxis.size(); i++)
+        {
+            OnDemandVehicle oldTaxi = oldTaxis.get(i);
+            PeopleFreightVehicle newTaxi = (PeopleFreightVehicle) oldTaxi;
+            vehiclesForPlanning.add(newTaxi);
+        }
 
         setEventHandeling();
     }
 
 
     @Override
-    public Map<RideSharingOnDemandVehicle, cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan> solve(List<PlanComputationRequestPeople> newRequestsPeople,
-                                                                                                                  List<PlanComputationRequestPeople> waitingRequestsPeople,
-                                                                                                                  List<PlanComputationRequestFreight> newRequestsFreight,
-                                                                                                                  List<PlanComputationRequestFreight> waitingRequestsFreight)
+    public Map<PeopleFreightVehicle, cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan> solve(List<PlanComputationRequestPeople> newRequestsPeople,
+                                                                                                              List<PlanComputationRequestPeople> waitingRequestsPeople,
+                                                                                                              List<PlanComputationRequestFreight> newRequestsFreight,
+                                                                                                              List<PlanComputationRequestFreight> waitingRequestsFreight)
     {
-        // sortedRequestsList = sort pickup requests (V_fo U V_po) incrementally by time windows - maxPickupTime
+        // TODO put together people and freight requests - how???
+        List<? extends PlanComputationRequestPeople> newReqPpl = newRequestsPeople;
+        List<? extends DefaultPlanComputationRequest> newRequestAll = newReqPpl; //new ArrayList<>();
+//        newRequestAll.addAll(newReqPpl);
+
+
+        // sort pickup requests (V_fo U V_po) incrementally by time windows - maxPickupTime
         Collections.sort(newRequestsPeople, new SortByPickupTime());
 
         for (int i = 0; i < newRequestsPeople.size(); i++)
         {
+            DefaultPlanComputationRequest currentRequest = newRequestsPeople.get(i);
             // update all status of taxis K (and parking places) by time e_i
-            List<PFvehicle> availableTaxis = new ArrayList<>();
-//            availableTaxis = findAvailableTaxis();
+            // find available taxis
+            List<PeopleFreightVehicle> availableTaxis = new ArrayList<>();
+            for (int j = 0; j < vehiclesForPlanning.size(); j++)
+            {
+                if (isAvailable(vehiclesForPlanning.get(i)))
+                {
+                    availableTaxis.add(vehiclesForPlanning.get(i));
+                }
+            }
 
-            // f_opt - best total benefit, if request i is served
-            // k_opt - taxi to serve request i to get the best total benefit
-            long bestBenefit = 0;
-            int bestTaxiIdx = 0;
+            double bestBenefit;         // f_opt - best total benefit, if request i is served
+            int bestTaxiIdx = 0;        // k_opt - taxi to serve request i to get the best total benefit
 
-            // if availableTaxis.size() > 0:
-            // f_opt = -inf
-            // for k_i in availableTaxis:
-            // f_k_i = new total benefit if taxi k serves request i
-            // if f_k_i > f_opt:
-            // f_opt = f_k_i
-            // k_opt = k_i
-            // k_opt.route.add(request i)
-            // update total benefit
-            // else:
-            // reject request i
+            if (availableTaxis.size() > 0)
+            {
+                bestBenefit = Double.NEGATIVE_INFINITY;
+                for (int k = 0; k < availableTaxis.size(); k++)
+                {
+                    // benefit_k_i = new total benefit if taxi k serves request i
+                    double benefit_k_i = 0;
+//                    benefit_k_i = calcNewBenefit();  //TODO TravelCostProvider
+                    if (benefit_k_i > bestBenefit)
+                    {
+                        bestBenefit = benefit_k_i;
+                        bestTaxiIdx = k;            // updating the idx of best taxi so far
+                    }
+                }
+                // k_opt.route.add(request i)
+                //TODO add both request origin and destination to DrivePlan
+                PlanAction newActionFrom = makeActionFrom(newReqPpl.get(i));
+                PlanAction newActionTo = makeActionTo(newReqPpl.get(i));
+
+                vehiclesForPlanning.get(bestTaxiIdx).getCurrentPlan().plan.add(newActionFrom);
+                vehiclesForPlanning.get(bestTaxiIdx).getCurrentPlan().plan.add(newActionTo);
+                // update total benefit
+            }
+            else
+            {
+                // reject request i
+            }
         }
-        return null;
+        //TODO create hashmap with vehicles and their plans
+        Map<PeopleFreightVehicle, cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan> retMap = new HashMap<>();
+        return retMap;
     }
 
-//
 
-    // sorts given requests by their time windows
-//    private sortRequests()
+    private PlanAction makeActionFrom(DefaultPlanComputationRequest request)
+    {
+        return new PlanAction(request.getFrom());
+    }
 
-    // finds best taxi to serve request i
-//    public findBestTaxi(List<Taxi> availableTaxis, Request request_i)
+    private PlanAction makeActionTo(DefaultPlanComputationRequest request)
+    {
+        return new PlanAction(request.getTo());
+    }
 
-    // finds nearest parking
-//    public Node findBestParking(List<Node> parkings, first_stop, second_stop)
-
+    // TODO check if there is feasible schedule for taxi k serving the request i = Algorithm 3
     // calculates new benefit
-//    public calcNewBenefit()
+//    public double calcNewBenefit(taxi_k, request i)
+        // check if there is feasible schedule for taxi k serving the request i
 
-    private boolean canServeRequest(RideSharingOnDemandVehicle vehicle)
+    private boolean isAvailable(PeopleFreightVehicle vehicle)
     {
         // return true, if vehicle has no passenger onboard
-        return true;
+        return vehicle.isPassengerOnboard();
     }
 
     @Override

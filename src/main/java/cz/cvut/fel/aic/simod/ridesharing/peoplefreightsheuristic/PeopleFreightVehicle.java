@@ -13,19 +13,21 @@ import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 
-public class PFvehicle extends RideSharingOnDemandVehicle
+public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
 {
     private boolean passengerOnboard;
 
 //    private int numParcels;
 
-    private int maxParcelsCapacity;
+    private final int maxParcelsCapacity;
+
+
 
     private int curParcelsWeight;
 
 
 
-    public PFvehicle(
+    public PeopleFreightVehicle(
             PhysicalTransportVehicleStorage vehicleStorage,
             TripsUtil tripsUtil,
             StationsDispatcher onDemandVehicleStationsCentral,
@@ -52,10 +54,35 @@ public class PFvehicle extends RideSharingOnDemandVehicle
         this.passengerOnboard = false;
     }
 
+    public int getMaxParcelsCapacity()
+    {
+        return maxParcelsCapacity;
+    }
+
+    public int getCurParcelsWeight()
+    {
+        return curParcelsWeight;
+    }
+
+    public boolean isPassengerOnboard()
+    {
+        return passengerOnboard;
+    }
+
+    public void setPassengerOnboard(boolean passengerOnboard)
+    {
+        this.passengerOnboard = passengerOnboard;
+    }
+
+    public void setCurParcelsWeight(int curWeight)
+    {
+        this.curParcelsWeight = curWeight;
+    }
+
     // potrebuji urcit vzdalenost a min/max rychlost mezi dvema uzly = TRAVELtimeProvider
 
 
-//    private void findSchedule()
+//    public bool findSchedule()
 //    {
     // for i in range(Trajectory.size()):
         // d_i_i+1 = shortest distance from Trajectory[i] to Trajectory[i+1]

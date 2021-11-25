@@ -103,14 +103,22 @@ def plot_sensitivity_analysis(
 
     fig.tight_layout()
 
+    # top graph labels: static values
+    axes[0][0].set_title("$ \delta $ = 4 min, cap. 5", fontsize=10)
+    axes[0][1].set_title("batch 30 s, cap. 5", fontsize=10)
+    axes[0][2].set_title("$ \delta $ = 4 min, batch 30 s", fontsize=10)
+
+    # y labels: units
     axes[0][0].set_ylabel("Avg. comp. \n time [s]")
     axes[1][0].set_ylabel("Total Distance \n" r"[km $\cdot 10^3$]")
     axes[2][0].set_ylabel("Avg. delay [s]")
+
+    # bottom lables and ticks: examined parameter variation
     axes[2][0].set_xlabel(r"Batch length [s]")
     axes[2][0].set_xticks(x_values[0])
     axes[2][1].set_xlabel(r"Max delay [min]")
     axes[2][1].set_xticks(x_values[1])
-    axes[2][2].set_xlabel(r"Capacity")
+    axes[2][2].set_xlabel(r"Veh. capacity")
     axes[2][2].set_xticks(x_values[2])
 
     to_index = 0
@@ -126,7 +134,16 @@ def plot_sensitivity_analysis(
 
             from_index = to_index
 
-    axes[0][2].legend(loc=2, fontsize='small', borderaxespad=0.2)
+    axes[0][2].legend(
+        loc='lower center',
+        ncol=4,
+        fontsize='small',
+        borderaxespad=0.1,
+        borderpad=0.3,
+        bbox_to_anchor=(-1, 1.25),
+        framealpha=1,
+        edgecolor='black'
+    )
     plt.savefig(
         f"{config.images.images_dir}/sensitivity_analysis-{exp_set_name}.pdf",
         bbox_inches='tight',

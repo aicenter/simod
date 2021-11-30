@@ -17,13 +17,9 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
 {
     private boolean passengerOnboard;
 
-//    private int numParcels;
-
     private final int maxParcelsCapacity;
 
-
-
-    private int curParcelsWeight;
+    private int currentParcelsWeight;
 
 
 
@@ -50,7 +46,7 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
                 rebalancingIdGenerator, config, idGenerator,
                 agentpolisConfig, vehicleId, startPosition);
         this.maxParcelsCapacity = maxParcelsCapacity;
-        this.curParcelsWeight = 0;
+        this.currentParcelsWeight = 0;
         this.passengerOnboard = false;
     }
 
@@ -59,9 +55,9 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
         return maxParcelsCapacity;
     }
 
-    public int getCurParcelsWeight()
+    public int getCurrentParcelsWeight()
     {
-        return curParcelsWeight;
+        return currentParcelsWeight;
     }
 
     public boolean isPassengerOnboard()
@@ -74,9 +70,9 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
         this.passengerOnboard = passengerOnboard;
     }
 
-    public void setCurParcelsWeight(int curWeight)
+    public void setCurrentParcelsWeight(int curWeight)
     {
-        this.curParcelsWeight = curWeight;
+        this.currentParcelsWeight = curWeight;
     }
 
     // potrebuji urcit vzdalenost a min/max rychlost mezi dvema uzly = TRAVELtimeProvider

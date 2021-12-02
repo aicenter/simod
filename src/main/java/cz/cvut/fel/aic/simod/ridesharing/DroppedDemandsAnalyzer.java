@@ -84,7 +84,7 @@ public class DroppedDemandsAnalyzer {
 //		maxDelayTime = config.ridesharing.maxProlongationInSeconds  * 1000;
 	}
 
-	@Inject
+
 	public DroppedDemandsAnalyzer(
 			PeopleFreightVehicleStorage vehicleStorage,
 			PositionUtil positionUtil,

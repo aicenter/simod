@@ -21,11 +21,8 @@ import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 
 import java.lang.*;
-import java.net.Inet4Address;
 import java.util.*;
 
-import jdk.internal.net.http.common.Pair;
-import org.apache.commons.lang3.tuple.MutablePair;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -44,6 +41,17 @@ class SortActionsByMaxTime implements Comparator<PlanRequestAction>
     public int compare(PlanRequestAction a, PlanRequestAction b)
     {
         return a.request.getMaxPickupTime() - b.request.getMaxPickupTime();
+    }
+}
+
+class ScheduleWithDuration
+{
+    public final List<PlanRequestAction> schedule;
+    public final int duration;
+    public ScheduleWithDuration(List<PlanRequestAction> schedule, int duration)
+    {
+        this.schedule = schedule;
+        this.duration = duration;
     }
 }
 
@@ -99,7 +107,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 
     long totalBenefit = 0;
 
-    private List<PeopleFreightVehicle> vehiclesForPlanning;
+    private final List<PeopleFreightVehicle> vehiclesForPlanning;
 
 
     @Inject
@@ -124,6 +132,8 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
         this.droppedDemandsAnalyzer = droppedDemandsAnalyzer;
         this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
 
+        setEventHandeling();
+
 /*
         // max distance in meters between vehicle and request for the vehicle to be considered to serve the request
         maxDistance = (double) config.ridesharing.maxProlongationInSeconds
@@ -140,11 +150,9 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
         List<OnDemandVehicle> oldTaxis = new ArrayList<>(vehicleStorage.getEntities());
         for (OnDemandVehicle oldTaxi : oldTaxis)
         {
-            PeopleFreightVehicle newTaxi = (PeopleFreightVehicle) oldTaxi;
-            vehiclesForPlanning.add(newTaxi);
+            vehiclesForPlanning.add((PeopleFreightVehicle) oldTaxi);
         }
 
-        setEventHandeling();
     }
 
 
@@ -204,7 +212,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
                 {
                     PeopleFreightVehicle currentTaxi = availableTaxis.get(k);
                     // check if schedule is feasible
-                    Pair<List<PlanRequestAction>, Integer> possibleSchedule = trySchedule(taxiSchedules.get(vehiclesForPlanning.indexOf(currentTaxi)), currentRequest);
+                    ScheduleWithDuration possibleSchedule = trySchedule(taxiSchedules.get(vehiclesForPlanning.indexOf(currentTaxi)), currentRequest);
                     // if not feasible, continue to next taxi
                     if (possibleSchedule == null)
                     {
@@ -214,7 +222,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
                     // benefit_k_i = new total benefit if taxi k serves request i
                     // TODO implement - calculate passenger's revenue
                     double passengerRevenue = 0;
-                    double benefit_k_i = passengerRevenue - planCostProvider.calculatePlanCost(planDiscomfort, possibleSchedule.second);
+                    double benefit_k_i = passengerRevenue - planCostProvider.calculatePlanCost(planDiscomfort, possibleSchedule.duration);
                     if (benefit_k_i > bestBenefit)
                     {
                         bestBenefit = benefit_k_i;
@@ -225,9 +233,9 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
                 if (bestTaxiIdx != -1)
                 {
                     // Insert request i into route of taxi k∗
-                    Pair<List<PlanRequestAction>, Integer> newSchedule = trySchedule(taxiSchedules.get(bestTaxiIdx), currentRequest);
-                    taxiSchedules.set(i, newSchedule.first);
-                    planDurations.set(i, newSchedule.second);
+                    ScheduleWithDuration newSchedule = trySchedule(taxiSchedules.get(bestTaxiIdx), currentRequest);
+                    taxiSchedules.set(i, newSchedule.schedule);  // NullPointerException won't happen, because this block happens only if some taxi was found
+                    planDurations.set(i, newSchedule.duration);
 
                     // update total benefit
                     totalBenefit += bestBenefit;
@@ -256,7 +264,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
     /**
      * returns sorted list of new taxi schedule (or null if the schedule is not feasible) and duration of this schedule
      */
-    private Pair<List<PlanRequestAction>, Integer> trySchedule(List<PlanRequestAction> taxiSchedule, DefaultPlanComputationRequest newRequest)
+    private ScheduleWithDuration trySchedule(List<PlanRequestAction> taxiSchedule, DefaultPlanComputationRequest newRequest)
     {
         taxiSchedule.add(newRequest.getPickUpAction());
         taxiSchedule.add(newRequest.getDropOffAction());
@@ -290,7 +298,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
         // planTime = earlyTime of last time window - earlyTime of first time window
         int planTime = timeWindows.get(timeWindows.size() - 1).get(0) - timeWindows.get(0).get(0);
 
-        return new Pair<>(taxiSchedule, planTime);
+        return new ScheduleWithDuration(taxiSchedule, planTime);
     }
 
 

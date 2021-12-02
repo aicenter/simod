@@ -63,7 +63,7 @@ public class AstarTravelTimeProvider extends TravelTimeProvider{
 		this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
 	}
 
-	@Inject
+
 	public AstarTravelTimeProvider(
 			TimeProvider timeProvider,
 			TripsUtil tripsUtil,

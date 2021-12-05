@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
@@ -147,8 +148,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 
         // casting given vehicles to actual PeopleFreightVehicles
         vehiclesForPlanning = new ArrayList<>();
-        List<OnDemandVehicle> oldTaxis = new ArrayList<>(vehicleStorage.getEntities());
-        for (OnDemandVehicle oldTaxi : oldTaxis)
+        for (AgentPolisEntity oldTaxi : vehicleStorage.getEntitiesForIteration())
         {
             vehiclesForPlanning.add((PeopleFreightVehicle) oldTaxi);
         }

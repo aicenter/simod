@@ -4,7 +4,6 @@ import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.MoveUtil;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.GraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.Utils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
@@ -15,14 +14,11 @@ import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.ridesharing.DroppedDemandsAnalyzer;
-import cz.cvut.fel.aic.simod.ridesharing.PlanCostProvider;
-import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightHeuristicSolver;
-import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
-import cz.cvut.fel.aic.simod.storage.PeopleFreightVehicleStorage;
+import cz.cvut.fel.aic.simod.storage.PhysicalPFVehicleStorage;
+import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
-import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import org.junit.Test;
 
 import java.util.Map;
@@ -32,7 +28,7 @@ public class InitTest
     @Test
     public void run() throws Throwable
     {
-        PeopleFreightVehicleStorage vehicleStorage = new PeopleFreightVehicleStorage();
+        PhysicalTransportVehicleStorage vehicleStorage = new PhysicalTransportVehicleStorage();
 
 
 

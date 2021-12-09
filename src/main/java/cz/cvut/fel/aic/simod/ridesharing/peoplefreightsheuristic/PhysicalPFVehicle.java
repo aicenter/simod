@@ -13,6 +13,8 @@ import java.util.List;
 
 public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTransportVehicle
 {
+
+
     protected final List<T> transportedEntities;
     private final int vehiclePassengerCapacity;
 

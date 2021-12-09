@@ -8,10 +8,10 @@ import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PhysicalPFVehic
 
 
 @Singleton
-public class PeopleFreightVehicleStorage extends EntityStorage<PhysicalPFVehicle>{
+public class PhysicalPFVehicleStorage extends EntityStorage<PhysicalPFVehicle>{
 
     @Inject
-    public PeopleFreightVehicleStorage() {
+    public PhysicalPFVehicleStorage() {
         super();
     }
 

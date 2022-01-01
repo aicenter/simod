@@ -21,7 +21,6 @@ import cz.cvut.fel.aic.simod.ridesharing.model.*;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
-import jdk.internal.util.xml.impl.Pair;
 import jdk.nashorn.internal.ir.RuntimeNode;
 
 import java.util.*;
@@ -54,8 +53,6 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
 
     //copied from insertionHeuristicSolver
     private GreedyTASeTSolver.PlanData bestPlan;
-
-
 
 
 
@@ -113,8 +110,6 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
         eventProcessor.addEventHandler(this, typesToHandle);
     }
 
-
-
     /**
      * Transfer-allowed scheduling solver
      * @return Map
@@ -129,9 +124,10 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
             taxis.add(vehicle);
         }
         // TODO
-        List<DriverPlan> driverPlans = dispatch(taxis, newRequests);
-        for (int i = 0; i < driverPlans.size(); i++) {
-            planMap.put(taxis.get(i), driverPlans.get(i));
+        List<RideSharingOnDemandVehicle> vehiclesWithPlans = dispatch(taxis, newRequests);
+
+        for (int i = 0; i < vehiclesWithPlans.size(); i++) {
+            planMap.put(vehiclesWithPlans.get(i), vehiclesWithPlans.get(i).getCurrentPlan());
         }
 
         return planMap;
@@ -141,19 +137,19 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
      * Transfer-allowed scheduling function
      * @return
      */
-    private List<DriverPlan> dispatch(List<RideSharingOnDemandVehicle> taxis, List<PlanComputationRequest> requests) {
-        List<RequestPlan> lst1 = dispatchVacantTaxi(taxis, requests);
+    private List<RideSharingOnDemandVehicle> dispatch(List<RideSharingOnDemandVehicle> taxis, List<PlanComputationRequest> requests) {
+        // because all passengers allow ridesharing, only greedy taset will be called
+//        List<RequestPlan> lst1 = dispatchVacantTaxi(taxis, requests);
         List<RideSharingOnDemandVehicle> carpoolAcceptingTaxis = taxis;
         List<PlanComputationRequest> carpoolAcceptingPassengers = requests;
-        List<RequestPlan> lst2 = heuristics(carpoolAcceptingTaxis, carpoolAcceptingPassengers);
-        for(PlanComputationRequest request : requests) {
-            // TODO: check duplicates
+        List<RideSharingOnDemandVehicle> lst2 = heuristics(carpoolAcceptingTaxis, carpoolAcceptingPassengers);
+//        for(PlanComputationRequest request : requests) {
             // is request served by both lst?
-        }
-        // todo prevest na driver plany
+//        }
+
 //        lst1.addAll(lst2);
-        List<DriverPlan> convertedlist = convertRequestPlansToDriverPlans(lst1, taxis);
-        return convertedlist;
+        return lst2;
+//        return convertedlist;
     }
 
     /**
@@ -162,7 +158,7 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
      */
     private List<RequestPlan> dispatchVacantTaxi(List<RideSharingOnDemandVehicle> taxis, List<PlanComputationRequest> requests) {
         //taxi dispatch strategy that schedules taxis based on the shortest waiting time for the passengers
-        //TODO: implement method
+        //TODO: implement method???
         //function can be changed to any dispatch strategy that a taxi company may currently be using (e.g., shortest waiting time and shortest cruising distance)
 //        taxis.get(0).getPosition()
         // while mám volné taxíky
@@ -171,12 +167,12 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
         return null;
     }
 
-
     /**
      * Greedy TASeT heuristics function
      * @return
      */
-    private List<RequestPlan> heuristics(List<RideSharingOnDemandVehicle> taxis, List<PlanComputationRequest> requests) {
+//    private List<RequestPlan> heuristics(List<RideSharingOnDemandVehicle> taxis, List<PlanComputationRequest> requests) {
+    private List<RideSharingOnDemandVehicle> heuristics(List<RideSharingOnDemandVehicle> taxis, List<PlanComputationRequest> requests) {
         //transfer points = charging stations
         List<SimulationNode> transferPoints = this.transferPoints;
 
@@ -185,7 +181,7 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
         int taxisCount = taxis.size();
         long[][] LT = new long[stationsCount][taxisCount];
         //fill the LT table
-        for(int i = 0; i < taxisCount; i++) {
+        for (int i = 0; i < taxisCount; i++) {
             RideSharingOnDemandVehicle taxi = taxis.get(i);
             SimulationNode taxiPosition = taxis.get(i).getPosition();
             Set<PlanComputationRequest> requestsOnBoardSet = new HashSet<>();
@@ -386,10 +382,10 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                 List<List<PlanAction>> plansForVehicles = entry.getKey();
                 List<RideSharingOnDemandVehicle> vehicles = entry.getValue();
                 for (int q = 0; q < vehicles.size(); q++) {
-                    RideSharingOnDemandVehicle veh = vehicles.get(q);
+//                    RideSharingOnDemandVehicle veh = vehicles.get(q);
                     List<PlanAction> vehPlan = plansForVehicles.get(q);
                     DriverPlan dp = new DriverPlan(vehPlan, 0, 0);
-                    veh.setCurrentPlan(dp);
+                    vehicles.get(q).setCurrentPlan(dp);
                 }
             }
 
@@ -411,7 +407,7 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                 for(int j = 0; j < stationsCount; j++) {
                     //timeProvider is set to null so getCurrentSimTime() wont work
                     //the idea is to fill LT with times of arrival of taxis
-//                LT[j][i] = this.timeProvider.getCurrentSimTime() + travelTime;
+                    //LT[j][i] = this.timeProvider.getCurrentSimTime() + travelTime;
                     //check if taxi has free seat
                     if (!taxiFree) {
                         LT[j][q] = Long.MAX_VALUE;
@@ -445,7 +441,8 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
             }
 
         }
-        return itinerarylist;
+//        return itinerarylist;
+        return taxis;
     }
 
      private long getTravelTime(PlanComputationRequest request, List<PlanAction> planOfCar) {
@@ -645,7 +642,6 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
          }
      }
 
-
     /**
      * Find DriverPlan with smallest delay without transfer allowed.
      * @return valid DriverPlan with smallest delay.
@@ -668,7 +664,6 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
         }
         List<PlanAction> bestPlan = findItineraryWithMinimumDelay(lst);
         return bestPlan;
-
     }
 
     private List<PlanAction> getActionsForRequestFromActionsForDriver(List<PlanAction> planActionsVehicle, PlanComputationRequest request, RideSharingOnDemandVehicle vehicle) {
@@ -749,7 +744,6 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                 }
             }
         }
-
         return requestPlans;
     }
 
@@ -791,10 +785,8 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
 //                TODO: resolve Wait Actions
             }
         }
-
         return driverPlans;
     }
-
 
     /**
      * Checks time constraints and counts delay among DriverPlans.

@@ -5,41 +5,29 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.ShortestPathPlanner;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.MoveUtil;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.GraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.Utils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.TransportNetworks;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
-import cz.cvut.fel.aic.alite.common.event.Event;
-import cz.cvut.fel.aic.alite.common.event.EventHandler;
-import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
-import cz.cvut.fel.aic.simod.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.simod.ridesharing.DroppedDemandsAnalyzer;
 import cz.cvut.fel.aic.simod.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
-import cz.cvut.fel.aic.simod.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.ridesharing.greedyTASeT.GreedyTASeTSolver;
 import cz.cvut.fel.aic.simod.visual.ridesharing.vga.mock.TestPlanRequest;
-import jdk.nashorn.internal.runtime.Debug;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.junit.Test;
 
 import java.util.*;
@@ -75,6 +63,8 @@ public class GreedyTASeTSolverTest {
         Graph<SimulationNode, SimulationEdge>  graph = Utils.getCompleteGraph(4, transformer);
         AgentpolisConfig agentpolisConfig = new AgentpolisConfig();
         MoveUtil moveUtil = new MoveUtil(agentpolisConfig);
+//        AStarShortestPathPlanner astarShortestPathPlanner =
+
         AstarTravelTimeProvider astarTravelTimeProvider = new AstarTravelTimeProvider(timeProvider1, null, graph, moveUtil);
         OnDemandvehicleStationStorage onDemandvehicleStationStorage = new OnDemandvehicleStationStorage(transformer);
         DroppedDemandsAnalyzer droppedDemandsAnalyzer = new DroppedDemandsAnalyzer(vehicleStorage, positionUtil, astarTravelTimeProvider, config, onDemandvehicleStationStorage, agentpolisConfig);
@@ -82,7 +72,10 @@ public class GreedyTASeTSolverTest {
 
         GreedyTASeTSolver solver = new GreedyTASeTSolver(vehicleStorage, astarTravelTimeProvider, null, null,
                 eventProcessor, config, timeProvider1, positionUtil, null,
-                onDemandvehicleStationStorage, agentpolisConfig);
+                onDemandvehicleStationStorage, agentpolisConfig, transferPoints);
+
+//        TODO idk
+//        requestFactory =
 
         SimulationNode origin = new SimulationNode(1, 2, 55, 45, 55, 45, 200, 0);
         SimulationNode destination = new SimulationNode(2, 3, 56, 46, 56, 46, 210, 0);
@@ -97,7 +90,7 @@ public class GreedyTASeTSolverTest {
         req.add(rp1);
         req.add(rp2);
         List<PlanComputationRequest> rr = new ArrayList<>();
-
+//
         Map<RideSharingOnDemandVehicle, DriverPlan> retMap = solver.solve(req, rr);
         
 

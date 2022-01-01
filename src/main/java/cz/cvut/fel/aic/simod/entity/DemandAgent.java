@@ -214,6 +214,10 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 				Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
 			}
 		}
+//		TODO to do
+//		else if(state == DemandAgentState.TRANSFERING) {
+//
+//		}
 		else{
 			state = DemandAgentState.DRIVING;
 			realPickupTime = timeProvider.getCurrentSimTime();

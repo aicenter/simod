@@ -255,6 +255,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		}
 	}
 
+//	TODO add method with wait activity
+
 	protected void driveToDemandStartLocation() {
 		
 		if(getPosition() == demandNodes.get(0)){

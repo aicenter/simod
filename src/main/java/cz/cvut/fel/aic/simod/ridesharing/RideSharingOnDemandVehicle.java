@@ -26,7 +26,10 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.PhysicalVehicleDrive;
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.Wait;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
+
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.WaitActivityFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
@@ -39,11 +42,7 @@ import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanAction;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionCurrentPosition;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanRequestAction;
+import cz.cvut.fel.aic.simod.ridesharing.model.*;
 import cz.cvut.fel.aic.simod.statistics.PickupEventContent;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 import cz.cvut.fel.aic.simod.visio.PlanLayerTrip;
@@ -67,9 +66,15 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
 	private IdGenerator tripIdGenerator;
 
+	private final WaitActivityFactory waitActivityFactory;
+
 	public DriverPlan getCurrentPlan() {
 		currentPlan.updateCurrentPosition(getPosition());
 		return currentPlan;
+	}
+	public void setCurrentPlan(DriverPlan driverPlan) {
+		currentPlan = driverPlan;
+		currentPlan.updateCurrentPosition(getPosition());
 	}
 	
 	
@@ -89,6 +94,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			SimodConfig config, 
 			IdGenerator idGenerator,
 			AgentpolisConfig agentpolisConfig,
+			WaitActivityFactory waitActivityFactory,
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
 		super(
 				vehicleStorage, 
@@ -106,6 +112,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 				startPosition);
 		this.positionUtil = positionUtil;
 		this.tripIdGenerator = tripIdGenerator;
+		this.waitActivityFactory = waitActivityFactory;
 		
 //		empty plan
 		LinkedList<PlanAction> plan = new LinkedList<>();
@@ -238,6 +245,9 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			if(currentTask instanceof PlanActionPickup){
 				driveToDemandStartLocation();
 			}
+			else if(currentTask instanceof PlanActionWait) {
+				waitActivityFactory.runActivity(this, ((PlanActionWait) currentTask).getWaitTime());
+			}
 			else{
 				driveToTargetLocation();
 			}
@@ -258,6 +268,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			vehicle.pickUp(demandAgent);
 
 			// statistics TODO demand tirp?
+
 	//		demandTrip = tripsUtil.createTrip(currentTask.getDemandAgent().getPosition().id,
 	//				currentTask.getLocation().id, vehicle);
 			// demand trip length 0 - need to find out where the statistic is used, does it make sense with rebalancing?

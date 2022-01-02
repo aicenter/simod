@@ -3,7 +3,9 @@ package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
+import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
@@ -17,6 +19,7 @@ import cz.cvut.fel.aic.simod.ridesharing.*;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.simod.ridesharing.model.*;
 import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
+import cz.cvut.fel.aic.simod.storage.OnDemandPFVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.PhysicalPFVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
@@ -116,7 +119,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
     public PeopleFreightHeuristicSolver(
             TravelTimeProvider travelTimeProvider,
             PlanCostProvider travelCostProvider,
-            PhysicalTransportVehicleStorage vehicleStorage,
+            OnDemandPFVehicleStorage vehicleStorage,
             PositionUtil positionUtil,
             SimodConfig config,
             TimeProvider timeProvider,
@@ -149,11 +152,11 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 
         // casting given vehicles to actual PeopleFreightVehicles
         vehiclesForPlanning = new ArrayList<>();
-        for (AgentPolisEntity oldTaxi : vehicleStorage.getEntitiesForIteration())
+        for (AgentPolisEntity taxiEntity : vehicleStorage.getEntitiesForIteration())
         {
-            vehiclesForPlanning.add((PeopleFreightVehicle) oldTaxi);
+            PeopleFreightVehicle newTaxi = (PeopleFreightVehicle) taxiEntity;
+            vehiclesForPlanning.add(newTaxi);
         }
-
     }
 
 
@@ -168,38 +171,50 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 
         // list of lists of requests for each taxi
         List<List<PlanRequestAction>> taxiSchedules = new ArrayList<>();
+        for (int i = 0; i < vehiclesForPlanning.size(); i++)
+        {
+            taxiSchedules.add(new ArrayList<>());
+        }
         // list of plan durations for each taxi
-        List<Integer> planDurations = new ArrayList<>();
+        List<Integer> planDurations = new ArrayList<>(Arrays.asList(new Integer[vehiclesForPlanning.size()]));
+        Collections.fill(planDurations, 0);
 
         // all requests have default minTime = 0
         List<DefaultPlanComputationRequest> newRequestsAll = new ArrayList<>();
-        newRequestsAll.addAll(newRequestsPeople);
-        newRequestsAll.addAll(newRequestsFreight);
+        if (newRequestsPeople != null)
+        {
+            newRequestsAll.addAll(newRequestsPeople);
+        }
+        if (newRequestsFreight != null)
+        {
+            newRequestsAll.addAll(newRequestsFreight);
+        }
+        System.out.println("all requests:" + newRequestsAll.toString());
 
         // sort pickup requests (V_fo U V_po) incrementally by time windows - maxPickupTime
-        newRequestsPeople.sort(new SortRequestsByMaxPickupTime());
+        newRequestsAll.sort(new SortRequestsByMaxPickupTime());
 
-        for (int i = 0; i < newRequestsPeople.size(); i++)
+        for (int i = 0; i < newRequestsAll.size(); i++)
         {
-            DefaultPlanComputationRequest currentRequest = newRequestsPeople.get(i);
+            DefaultPlanComputationRequest currentRequest = newRequestsAll.get(i);
             // find available taxis
             List<PeopleFreightVehicle> availableTaxis = new ArrayList<>();
             for (int j = 0; j < vehiclesForPlanning.size(); j++)
             {
-                if (isAvailable(vehiclesForPlanning.get(i)))
+                if (isAvailable(vehiclesForPlanning.get(j)))
                 {
                     // if request is of type package: check if vehicle has enough space for the package
                     if (currentRequest instanceof PlanComputationRequestFreight)
                     {
-                        if ( ((PlanComputationRequestFreight) currentRequest).getWeight() <= vehiclesForPlanning.get(i).getMaxParcelsCapacity()
-                                                                                           - vehiclesForPlanning.get(i).getCurrentParcelsWeight() )
+                        if ( ((PlanComputationRequestFreight) currentRequest).getWeight() <= vehiclesForPlanning.get(j).getMaxParcelsCapacity()
+                                                                                           - vehiclesForPlanning.get(j).getCurrentParcelsWeight() )
                         {
-                            availableTaxis.add(vehiclesForPlanning.get(i));
+                            availableTaxis.add(vehiclesForPlanning.get(j));
                         }
                     }
                     else
                     {
-                        availableTaxis.add(vehiclesForPlanning.get(i));
+                        availableTaxis.add(vehiclesForPlanning.get(j));
                     }
                 }
             }
@@ -235,14 +250,14 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
                 {
                     // Insert request i into route of taxi k∗
                     ScheduleWithDuration newSchedule = trySchedule(taxiSchedules.get(bestTaxiIdx), currentRequest);
-                    taxiSchedules.set(i, newSchedule.schedule);  // NullPointerException won't happen, because this block happens only if some taxi was found
-                    planDurations.set(i, newSchedule.duration);
+                    taxiSchedules.set(bestTaxiIdx, newSchedule.schedule);  // NullPointerException won't happen, because this block happens only if some taxi was found
+                    planDurations.set(bestTaxiIdx, newSchedule.duration);
 
                     // update total benefit
                     totalBenefit += bestBenefit;
                 }
             }
-            // else: reject request i = DO nothing
+            // else: reject request i => DO nothing
         }
 
 
@@ -267,25 +282,37 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
      */
     private ScheduleWithDuration trySchedule(List<PlanRequestAction> taxiSchedule, DefaultPlanComputationRequest newRequest)
     {
-        taxiSchedule.add(newRequest.getPickUpAction());
-        taxiSchedule.add(newRequest.getDropOffAction());
-        taxiSchedule.sort(new SortActionsByMaxTime());
+        List<PlanRequestAction> possibleTaxiSchedule = new ArrayList<>(taxiSchedule);
+        possibleTaxiSchedule.add(newRequest.getPickUpAction());
+        possibleTaxiSchedule.add(newRequest.getDropOffAction());
+        possibleTaxiSchedule.sort(new SortActionsByMaxTime());
 
         // pairs of EarlyTime and LateTime
         List<List<Integer>> timeWindows = new ArrayList<>();
 
         // setup time windows
-        for (PlanRequestAction planRequestAction : taxiSchedule)
+        for (PlanRequestAction planRequestAction : possibleTaxiSchedule)
         {
             timeWindows.add(new ArrayList<Integer>( Arrays.asList (0, planRequestAction.getMaxTime()) ));
         }
 
-        // for every Node check the timeWindow and whether it's possible to get to the next node
-        for (int i = 0; i < taxiSchedule.size() - 1; i++)   // size-1 ... check for the last Node of taxi is not needed
+        // for every Node: check if taxi is capable of carrying the passenger or package and whether it's possible to get to the next node and also
+        boolean personOnBoard = false;
+        int curFreightWeight = 0;
+        int taxiIndex = 0;  // TODO: get index of current taxi
+        int taxiMaxCapacity = vehiclesForPlanning.get(taxiIndex).getMaxParcelsCapacity();
+        for (int i = 0; i < possibleTaxiSchedule.size() - 1; i++)   // size-1 ... check for the last Node of taxi is not needed
         {
+            // TODO: check for sufficient capacity
+
+
+
+
+
+
             List<Integer> currentTimeWindow = timeWindows.get(i);
-            int earlyTime = currentTimeWindow.get(0) + (int)(travelTimeProvider.getExpectedTravelTime(taxiSchedule.get(i).getPosition(), taxiSchedule.get(i + 1).getPosition()) / 1000);
-            int lateTime = currentTimeWindow.get(1) + (int)(travelTimeProvider.getExpectedTravelTime(taxiSchedule.get(i).getPosition(), taxiSchedule.get(i + 1).getPosition()) / 1000);
+            int earlyTime = currentTimeWindow.get(0) + (int)(travelTimeProvider.getExpectedTravelTime(possibleTaxiSchedule.get(i).getPosition(), possibleTaxiSchedule.get(i + 1).getPosition()) / 1000);
+            int lateTime = currentTimeWindow.get(1) + (int)(travelTimeProvider.getExpectedTravelTime(possibleTaxiSchedule.get(i).getPosition(), possibleTaxiSchedule.get(i + 1).getPosition()) / 1000);
 
             // if getting to the next Node after maxTime of the Node
             if (earlyTime > currentTimeWindow.get(1))
@@ -299,7 +326,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
         // planTime = earlyTime of last time window - earlyTime of first time window
         int planTime = timeWindows.get(timeWindows.size() - 1).get(0) - timeWindows.get(0).get(0);
 
-        return new ScheduleWithDuration(taxiSchedule, planTime);
+        return new ScheduleWithDuration(possibleTaxiSchedule, planTime);
     }
 
 
@@ -310,7 +337,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
     private boolean isAvailable(PeopleFreightVehicle vehicle)
     {
         // return true, if vehicle has no passenger onboard
-        return vehicle.isPassengerOnboard();
+        return !(vehicle.isPassengerOnboard());
     }
 
     @Override

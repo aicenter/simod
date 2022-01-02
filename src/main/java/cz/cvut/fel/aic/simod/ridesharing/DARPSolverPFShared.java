@@ -23,8 +23,7 @@ import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;  /
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestFreight;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestPeople;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightVehicle;
-import cz.cvut.fel.aic.simod.storage.PhysicalPFVehicleStorage;
-import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
+import cz.cvut.fel.aic.simod.storage.OnDemandPFVehicleStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStats;
 
@@ -36,7 +35,7 @@ import java.util.Map;
 
 public abstract class DARPSolverPFShared {
 
-    protected final PhysicalTransportVehicleStorage vehicleStorage;
+    protected final OnDemandPFVehicleStorage vehicleStorage;
 
     protected final TravelTimeProvider travelTimeProvider;
 
@@ -64,7 +63,7 @@ public abstract class DARPSolverPFShared {
 
 
 
-    public DARPSolverPFShared(PhysicalTransportVehicleStorage vehicleStorage, TravelTimeProvider travelTimeProvider,
+    public DARPSolverPFShared(OnDemandPFVehicleStorage vehicleStorage, TravelTimeProvider travelTimeProvider,
                               PlanCostProvider travelCostProvider, DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory) {
         this.vehicleStorage = vehicleStorage;
         this.travelTimeProvider = travelTimeProvider;

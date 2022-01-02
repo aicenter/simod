@@ -66,15 +66,18 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
 	private IdGenerator tripIdGenerator;
 
-	private final WaitActivityFactory waitActivityFactory;
+//	private final WaitActivityFactory waitActivityFactory;
 
 	public DriverPlan getCurrentPlan() {
 		currentPlan.updateCurrentPosition(getPosition());
 		return currentPlan;
 	}
 	public void setCurrentPlan(DriverPlan driverPlan) {
-		currentPlan = driverPlan;
+		List<PlanAction> newPlan = new ArrayList<>();
+		newPlan.add(currentPlan.plan.get(0));
+		currentPlan.plan = newPlan;
 		currentPlan.updateCurrentPosition(getPosition());
+		currentPlan.plan.addAll(driverPlan.plan);
 	}
 	
 	
@@ -94,7 +97,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			SimodConfig config, 
 			IdGenerator idGenerator,
 			AgentpolisConfig agentpolisConfig,
-			WaitActivityFactory waitActivityFactory,
+//			WaitActivityFactory waitActivityFactory,
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
 		super(
 				vehicleStorage, 
@@ -112,7 +115,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 				startPosition);
 		this.positionUtil = positionUtil;
 		this.tripIdGenerator = tripIdGenerator;
-		this.waitActivityFactory = waitActivityFactory;
+//		this.waitActivityFactory = waitActivityFactory;
 		
 //		empty plan
 		LinkedList<PlanAction> plan = new LinkedList<>();
@@ -245,9 +248,9 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			if(currentTask instanceof PlanActionPickup){
 				driveToDemandStartLocation();
 			}
-			else if(currentTask instanceof PlanActionWait) {
-				waitActivityFactory.runActivity(this, ((PlanActionWait) currentTask).getWaitTime());
-			}
+//			else if(currentTask instanceof PlanActionWait) {
+//				waitActivityFactory.runActivity(this, ((PlanActionWait) currentTask).getWaitTime());
+//			}
 			else{
 				driveToTargetLocation();
 			}

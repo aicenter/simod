@@ -34,7 +34,7 @@ import java.util.List;
  * @author F.I.D.O.
  */
 public class DriverPlan implements Iterable<PlanAction>{
-	public final List<PlanAction> plan;
+	public List<PlanAction> plan;
 
 	public final long totalTime;
 	
@@ -104,26 +104,6 @@ public class DriverPlan implements Iterable<PlanAction>{
 		return sb.toString();
 	}
 
-	// TODO: check if that works
-	public List<PlanAction> getPickupActions() {
-		List<PlanAction> pickups = new ArrayList<>();
-		for(PlanAction action : plan) {
-			if(action instanceof PlanActionPickup) {
-				pickups.add(action);
-			}
-		}
-		return pickups;
-	}
-
-	public List<PlanAction> getDropoffActions() {
-		List<PlanAction> dropoffs = new ArrayList<>();
-		for(PlanAction action : plan) {
-			if(action instanceof PlanActionDropoff) {
-				dropoffs.add(action);
-			}
-		}
-		return dropoffs;
-	}
 	
 	
 }

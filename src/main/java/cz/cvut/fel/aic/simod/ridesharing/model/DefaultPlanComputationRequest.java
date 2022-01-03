@@ -86,7 +86,7 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 
 
 	@Inject
-	protected DefaultPlanComputationRequest(TravelTimeProvider travelTimeProvider, @Assisted int id,
+	public DefaultPlanComputationRequest(TravelTimeProvider travelTimeProvider, @Assisted int id,
 			SimodConfig SimodConfig, @Assisted("origin") SimulationNode origin, 
 			@Assisted("destination") SimulationNode destination, @Assisted DemandAgent demandAgent){
 		this.id = id;

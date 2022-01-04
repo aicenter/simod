@@ -15,6 +15,7 @@ import cz.cvut.fel.aic.geographtools.util.Transformer;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.ridesharing.DroppedDemandsAnalyzer;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightHeuristicSolver;
+import cz.cvut.fel.aic.simod.storage.OnDemandPFVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.simod.storage.PhysicalPFVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
@@ -28,7 +29,7 @@ public class InitTest
     @Test
     public void run() throws Throwable
     {
-        PhysicalTransportVehicleStorage vehicleStorage = new PhysicalTransportVehicleStorage();
+        OnDemandPFVehicleStorage vehicleStorage = new OnDemandPFVehicleStorage();
 
 
 

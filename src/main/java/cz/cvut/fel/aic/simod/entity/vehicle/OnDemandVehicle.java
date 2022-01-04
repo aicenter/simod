@@ -187,7 +187,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 			SimodConfig config, 
 			IdGenerator idGenerator,
 			AgentpolisConfig agentpolisConfig,
-			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
+			@Assisted String vehicleId, @Assisted SimulationNode startPosition)
+	{
 		super(vehicleId, startPosition);
 		this.tripsUtil = tripsUtil;
 		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
@@ -197,17 +198,20 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		this.timeProvider = timeProvider;
 		this.rebalancingIdGenerator = rebalancingIdGenerator;
 		this.config = config;
-		
+
 		index = idGenerator.getId();
-		
-		vehicle = new PhysicalTransportVehicle(vehicleId + " - vehicle", 
-				DemandSimulationEntityType.VEHICLE, LENGTH, config.ridesharing.vehicleCapacity, 
-				EGraphType.HIGHWAY, startPosition, 
-				agentpolisConfig.maxVehicleSpeedInMeters);
-		
-		vehicleStorage.addEntity(vehicle);
-		vehicle.setDriver(this);
-		state = OnDemandVehicleState.WAITING;
+
+		if (!vehicleId.contains("PFVehicle"))
+		{
+			vehicle = new PhysicalTransportVehicle(vehicleId + " - vehicle",
+					DemandSimulationEntityType.VEHICLE, LENGTH, config.ridesharing.vehicleCapacity,
+					EGraphType.HIGHWAY, startPosition,
+					agentpolisConfig.maxVehicleSpeedInMeters);
+
+			vehicleStorage.addEntity(vehicle);
+			vehicle.setDriver(this);
+			state = OnDemandVehicleState.WAITING;
+		}
 		
 		metersWithPassenger = 0;
 		metersToStartLocation = 0;

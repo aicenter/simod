@@ -127,7 +127,7 @@ public class SimpleTestNo2
                 simodConfig,
                 idGenerator3,
                 agentpolisConfig,
-                "1",
+                "PFVehicle_1",
                 startPos_1,
                 10
         );
@@ -148,7 +148,7 @@ public class SimpleTestNo2
                 simodConfig,
                 idGenerator3,
                 agentpolisConfig,
-                "2",
+                "PFVehicle2",
                 startPos_2,
                 20
         );

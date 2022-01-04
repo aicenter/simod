@@ -26,7 +26,7 @@ import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
-import cz.cvut.fel.aic.simod.storage.PeopleFreightVehicleStorage;
+import cz.cvut.fel.aic.simod.storage.OnDemandPFVehicleStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
@@ -45,7 +45,7 @@ public class DroppedDemandsAnalyzer {
 	
 	protected final OnDemandVehicleStorage vehicleStorage;
 
-	protected final PeopleFreightVehicleStorage vehiclePFStorage;
+	protected final OnDemandPFVehicleStorage vehiclePFStorage;
 	
 	private final PositionUtil positionUtil;
 	
@@ -86,7 +86,7 @@ public class DroppedDemandsAnalyzer {
 
 
 	public DroppedDemandsAnalyzer(
-			PeopleFreightVehicleStorage vehicleStorage,
+			OnDemandPFVehicleStorage vehicleStorage,
 			PositionUtil positionUtil,
 			TravelTimeProvider travelTimeProvider,
 			SimodConfig config,

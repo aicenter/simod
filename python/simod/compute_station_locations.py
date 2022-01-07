@@ -148,7 +148,7 @@ for column_index, _ in tqdm(enumerate(rm.T), desc="generating constraints"):
 # Optimize model
 m.optimize()
 
-print('Obj: %g' % m.objVal)
+
 
 # Print solution
 stations = []

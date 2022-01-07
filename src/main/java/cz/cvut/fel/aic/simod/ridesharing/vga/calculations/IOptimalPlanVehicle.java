@@ -29,7 +29,7 @@ import java.util.LinkedHashSet;
  *
  * @author LocalAdmin
  */
-@JsonIncludeProperties({"index", "init_position", "capacity"})
+@JsonIncludeProperties({"id", "init_position", "capacity"})
 public interface IOptimalPlanVehicle {
 
 	public LinkedHashSet<PlanComputationRequest> getRequestsOnBoard();
@@ -39,7 +39,7 @@ public interface IOptimalPlanVehicle {
 
 	public int getCapacity();
 	
-	@JsonProperty("index")
+	@JsonProperty("id")
 	public String getId();
 	
 	public MovingEntity getRealVehicle();

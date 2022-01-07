@@ -39,5 +39,10 @@ public class PlanActionPickup extends PlanRequestAction {
 		return String.format("Pick up demand %s at node %s", request.getDemandAgent().getId(), location.id);
 	}
 
+	@Override
+	public String getType() {
+		return "pickup";
+	}
+
 
 }

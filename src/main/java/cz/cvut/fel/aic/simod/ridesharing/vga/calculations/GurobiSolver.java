@@ -96,7 +96,7 @@ public class GurobiSolver {
 		this.planCostComputation = planCostComputation;
 		this.droppedDemandsAnalyzer = droppedDemandsAnalyzer;
                 this.config = config;
-		iteration = 1;
+		iteration = 0;
 		timeLimit = config.ridesharing.vga.solverTimeLimit;
 		
 		// env init
@@ -110,8 +110,11 @@ public class GurobiSolver {
 	}
 	
 	public List<Plan<IOptimalPlanVehicle>> assignOptimallyFeasiblePlans(
-			List<VehiclePlanList> feasiblePlans, LinkedHashSet<PlanComputationRequest> requests, 
-			int[] usedVehiclesPerStation) {
+			List<VehiclePlanList> feasiblePlans, 
+			LinkedHashSet<PlanComputationRequest> requests, 
+			int[] usedVehiclesPerStation
+	) {
+		++iteration;
 		
 		Collections.sort(feasiblePlans);
 		

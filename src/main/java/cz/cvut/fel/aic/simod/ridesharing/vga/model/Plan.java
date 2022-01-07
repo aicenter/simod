@@ -18,6 +18,8 @@
  */
 package cz.cvut.fel.aic.simod.ridesharing.vga.model;
 
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionCurrentPosition;
@@ -32,8 +34,11 @@ import java.util.List;
  * @param <V>
  */
 public class Plan<V extends IOptimalPlanVehicle>{
+	
+	@JsonProperty("departure_time")
 	private final int startTime;
 	
+	@JsonProperty("arrival_time")
 	private final int endTime;
 
 	private final int cost;

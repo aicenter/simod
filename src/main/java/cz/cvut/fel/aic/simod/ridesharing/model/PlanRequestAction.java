@@ -18,9 +18,16 @@
  */
 package cz.cvut.fel.aic.simod.ridesharing.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import java.util.Objects;
 
+@JsonTypeName(value = "action")
+@JsonTypeInfo(include=As.WRAPPER_OBJECT, use=Id.CUSTOM)
 public abstract class PlanRequestAction extends PlanAction{
 
 	public final PlanComputationRequest request;
@@ -29,6 +36,7 @@ public abstract class PlanRequestAction extends PlanAction{
 	/**
 	 * Time constraint in seconds
 	 */
+	@JsonProperty("max_time")
 	private final int maxTime;
 	
 	public PlanComputationRequest getRequest() { 

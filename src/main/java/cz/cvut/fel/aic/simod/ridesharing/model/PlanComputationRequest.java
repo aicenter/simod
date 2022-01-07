@@ -18,6 +18,8 @@
  */
 package cz.cvut.fel.aic.simod.ridesharing.model;
 
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
 
@@ -25,6 +27,7 @@ import cz.cvut.fel.aic.simod.entity.DemandAgent;
  *
  * @author LocalAdmin
  */
+@JsonIncludeProperties({"index"})
 public interface PlanComputationRequest {
 
 	@Override
@@ -67,6 +70,7 @@ public interface PlanComputationRequest {
 	
 	public DemandAgent getDemandAgent();
 	
+	@JsonProperty("index")
 	public int getId();
 	
 	public void setOnboard(boolean onboard);

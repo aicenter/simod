@@ -18,6 +18,8 @@
  */
 package cz.cvut.fel.aic.simod.ridesharing.vga.calculations;
 
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
@@ -27,14 +29,17 @@ import java.util.LinkedHashSet;
  *
  * @author LocalAdmin
  */
+@JsonIncludeProperties({"index", "init_position", "capacity"})
 public interface IOptimalPlanVehicle {
 
 	public LinkedHashSet<PlanComputationRequest> getRequestsOnBoard();
 
+	@JsonProperty("init_position")
 	public SimulationNode getPosition();
 
 	public int getCapacity();
 	
+	@JsonProperty("index")
 	public String getId();
 	
 	public MovingEntity getRealVehicle();

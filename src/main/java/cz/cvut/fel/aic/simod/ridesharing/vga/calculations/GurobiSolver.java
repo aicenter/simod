@@ -20,6 +20,8 @@ package cz.cvut.fel.aic.simod.ridesharing.vga.calculations;
 
 //import gurobi.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.utils.CollectionUtil;
@@ -41,6 +43,8 @@ import gurobi.GRBException;
 import gurobi.GRBLinExpr;
 import gurobi.GRBModel;
 import gurobi.GRBVar;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -255,6 +259,20 @@ public class GurobiSolver {
 				
 				if(Math.round(variable.get(GRB.DoubleAttr.X)) == 1){
 					optimalPlans.add(plan);
+				}
+			}
+			
+			// serialize plans
+			if(config.statistics.vgaExportCompletePlans){
+				ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+				try {
+					String outFilePath = String.format("%s/vga_plans/plans_iteration_%d.json", 
+							config.simodExperimentDir, iteration);
+					File outFile = new File(outFilePath);
+					outFile.getParentFile().mkdirs();
+					mapper.writeValue(outFile, optimalPlans);
+				} catch (IOException ex) {
+					LOGGER.error(null, ex);
 				}
 			}
 			

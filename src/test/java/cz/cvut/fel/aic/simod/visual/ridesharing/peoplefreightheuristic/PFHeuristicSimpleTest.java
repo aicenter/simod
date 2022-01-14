@@ -25,7 +25,7 @@ import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
 import cz.cvut.fel.aic.simod.ridesharing.DroppedDemandsAnalyzer;
 import cz.cvut.fel.aic.simod.ridesharing.StandardPlanCostProvider;
-import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;
+import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestFreight;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestPeople;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightHeuristicSolver;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightVehicle;
@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 // simple testing instance with 2 cars and 2 requests
-public class SimpleTestNo2
+public class PFHeuristicSimpleTest
 {
     private static final int LENGTH = 4;
 
@@ -154,8 +154,9 @@ public class SimpleTestNo2
         );
         onDemandPFvehicleStorage.addEntity(vehicle_2);
 
-    // list of requests
+    // lists of requests
         List<PlanComputationRequestPeople> requestsPeople = new ArrayList<>();
+        List<PlanComputationRequestFreight> requestsFreight = new ArrayList<>();
     // create request 1
         SimulationNode origin_1= graph.getNode(1);
         SimulationNode destination_1 = graph.getNode(3);
@@ -185,6 +186,7 @@ public class SimpleTestNo2
         SimulationNode destination_2 = graph.getNode(11);
         long startTime_2 = 0;
         long endTime_2 = 1000;
+        int weight_2 = 15;
         SimulationNode[] locations_2 = {origin_2, destination_2};
         DemandAgent demandAgent_2 = new DemandAgent(
                 null,
@@ -192,7 +194,7 @@ public class SimpleTestNo2
                 null,
                 standardTimeProvider,
                 tripsUtil,
-                "person_02",
+                "parcel_02",
                 2,
                 new TimeTrip<SimulationNode>(
                         2,
@@ -201,8 +203,8 @@ public class SimpleTestNo2
                         locations_2
                 )
         );
-        PlanComputationRequestPeople request_2 = new PlanComputationRequestPeople(astarTravelTimeProvider, 2, simodConfig, origin_2, destination_2, demandAgent_2);
-        requestsPeople.add(request_2);
+        PlanComputationRequestFreight request_2 = new PlanComputationRequestFreight(astarTravelTimeProvider, 2, simodConfig, origin_2, destination_2, demandAgent_2, weight_2);
+        requestsFreight.add(request_2);
 
     // SOLVER init
         PeopleFreightHeuristicSolver solver = new PeopleFreightHeuristicSolver(
@@ -220,7 +222,7 @@ public class SimpleTestNo2
         );
 
     // SOLVE
-        Map<PeopleFreightVehicle, cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan> solution = solver.solve(requestsPeople, null, null, null);
+        Map<PeopleFreightVehicle, cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan> solution = solver.solve(requestsPeople, null, requestsFreight, null);
     // print
         System.out.println("Solution:");
         System.out.println(solution.values());

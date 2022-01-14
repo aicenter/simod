@@ -191,33 +191,36 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
         }
         System.out.println("all requests:" + newRequestsAll.toString());
 
-        // sort pickup requests (V_fo U V_po) incrementally by time windows - maxPickupTime
+        // sort requests incrementally by time windows - maxPickupTime
         newRequestsAll.sort(new SortRequestsByMaxPickupTime());
+
+        List<PeopleFreightVehicle> availableTaxis = new ArrayList<>();
+        availableTaxis.addAll(vehiclesForPlanning);
 
         for (int i = 0; i < newRequestsAll.size(); i++)
         {
             DefaultPlanComputationRequest currentRequest = newRequestsAll.get(i);
-            // find available taxis
-            List<PeopleFreightVehicle> availableTaxis = new ArrayList<>();
-            for (int j = 0; j < vehiclesForPlanning.size(); j++)
-            {
-                if (isAvailable(vehiclesForPlanning.get(j)))
-                {
-                    // if request is of type package: check if vehicle has enough space for the package
-                    if (currentRequest instanceof PlanComputationRequestFreight)
-                    {
-                        if ( ((PlanComputationRequestFreight) currentRequest).getWeight() <= vehiclesForPlanning.get(j).getMaxParcelsCapacity()
-                                                                                           - vehiclesForPlanning.get(j).getCurrentParcelsWeight() )
-                        {
-                            availableTaxis.add(vehiclesForPlanning.get(j));
-                        }
-                    }
-                    else
-                    {
-                        availableTaxis.add(vehiclesForPlanning.get(j));
-                    }
-                }
-            }
+
+            // TODO: find available taxis - move availability-check from trySchedule to here
+//            for (int j = 0; j < vehiclesForPlanning.size(); j++)
+//            {
+//                if (isAvailable(vehiclesForPlanning.get(j)))
+//                {
+//                    // if request is of type package: check if vehicle has enough space for the package
+//                    if (currentRequest instanceof PlanComputationRequestFreight)
+//                    {
+//                        if ( ((PlanComputationRequestFreight) currentRequest).getWeight() <= vehiclesForPlanning.get(j).getMaxParcelsCapacity()
+//                                                                                           - vehiclesForPlanning.get(j).getCurrentParcelsWeight() )
+//                        {
+//                            availableTaxis.add(vehiclesForPlanning.get(j));
+//                        }
+//                    }
+//                    else
+//                    {
+//                        availableTaxis.add(vehiclesForPlanning.get(j));
+//                    }
+//                }
+//            }
             double bestBenefit;         // f_i* - best total benefit, if request i is served
             int bestTaxiIdx = -1;        // k* - taxi to serve request i to get the best total benefit
 
@@ -296,14 +299,14 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
             timeWindows.add(new ArrayList<Integer>( Arrays.asList (0, planRequestAction.getMaxTime()) ));
         }
 
-        // for every Node: check if taxi is capable of carrying the passenger or package and whether it's possible to get to the next node and also
+        // for every Node: check if taxi is capable of carrying the passenger or package and whether it's possible to get to the next node
         boolean personOnBoard = false;
         String personOnBoardId = "";
         int curFreightWeight = 0;
         int taxiMaxCapacity = vehiclesForPlanning.get(taxiIndex).getMaxParcelsCapacity();
-        for (int i = 0; i < possibleTaxiSchedule.size() - 1; i++)   // size-1 ... check for the last Node of taxi is not needed
+        for (int i = 0; i < possibleTaxiSchedule.size() - 1; i++)   // size-1 ... the last Node of taxi has no following Node to be checked
         {
-            // TODO: check for sufficient capacity
+            // check for sufficient capacity
             PlanAction action = possibleTaxiSchedule.get(i);
             if (action instanceof PlanActionPickup)
             {

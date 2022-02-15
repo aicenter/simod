@@ -27,8 +27,10 @@ import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.init.EventInitializer;
 import cz.cvut.fel.aic.simod.init.StationsInitializer;
 import cz.cvut.fel.aic.simod.init.StatisticInitializer;
+import cz.cvut.fel.aic.simod.init.TransferPointsInitializer;
 import cz.cvut.fel.aic.simod.io.TripTransform;
 import cz.cvut.fel.aic.simod.rebalancing.ReactiveRebalancing;
+import cz.cvut.fel.aic.simod.ridesharing.greedyTASeT.GreedyTASeTSolver;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.statistics.Statistics;
 import cz.cvut.fel.aic.simod.tripUtil.TripsUtilCached;
@@ -51,6 +53,7 @@ public class OnDemandVehiclesSimulation {
 		String[] pathsForRead = {
 			config.tripsPath,
 			config.stationPositionFilepath,
+			config.transferPointsFilepath,
 			agentpolisConfig.mapNodesFilepath,
 			agentpolisConfig.mapEdgesFilepath
 		};
@@ -108,6 +111,10 @@ public class OnDemandVehiclesSimulation {
 		
 		// load stations
 		injector.getInstance(StationsInitializer.class).loadStations();
+
+		// load transfer points
+//		injector.getInstance(TransferPointsInitializer.class).loadTransferPoints();
+		injector.getInstance(GreedyTASeTSolver.class).setTransferPoints(injector.getInstance(TransferPointsInitializer.class).loadTransferPoints());
 
 		if(config.rebalancing.on){
 

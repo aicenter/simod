@@ -48,6 +48,8 @@ public class SimodConfig implements GeneratedConfig {
 
   public String stationPositionFilepath;
 
+  public String transferPointsFilepath;
+
   public Rebalancing rebalancing;
 
   public Statistics statistics;
@@ -76,6 +78,7 @@ public class SimodConfig implements GeneratedConfig {
     this.simplifyGraph = (Boolean) simodConfig.get("simplify_graph");
     this.ridesharing = new Ridesharing((Map) simodConfig.get("ridesharing"));
     this.stationPositionFilepath = (String) simodConfig.get("station_position_filepath");
+    this.transferPointsFilepath = (String) simodConfig.get("transfer_points_filepath");
     this.rebalancing = new Rebalancing((Map) simodConfig.get("rebalancing"));
     this.statistics = new Statistics((Map) simodConfig.get("statistics"));
     return this;

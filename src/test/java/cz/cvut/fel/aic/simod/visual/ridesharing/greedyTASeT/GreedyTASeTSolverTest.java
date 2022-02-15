@@ -139,9 +139,10 @@ public class GreedyTASeTSolverTest {
                 positionUtil,
                 droppedDemandsAnalyzer,
                 onDemandvehicleStationStorage,
-                agentpolisConfig,
-                transferPoints
+                agentpolisConfig
                 );
+
+        solver.setTransferPoints(transferPoints);
 
         // create requests
         SimulationNode origin_1 = graph.getNode(1);
@@ -189,8 +190,8 @@ public class GreedyTASeTSolverTest {
         DefaultPlanComputationRequest request_1 = new DefaultPlanComputationRequest(astarTravelTimeProvider, 0, simodConfig, origin_1, destination_1, demandAgent_0);
         DefaultPlanComputationRequest request_2 = new DefaultPlanComputationRequest(astarTravelTimeProvider, 1, simodConfig, origin_2, destination_2, demandAgent_1);
         List<PlanComputationRequest> requestsPeople = new ArrayList<>();
-        requestsPeople.add(request_1);
         requestsPeople.add(request_2);
+        requestsPeople.add(request_1);
 
         // call solve method
         Map<RideSharingOnDemandVehicle, cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan> solution = solver.solve(requestsPeople, null);

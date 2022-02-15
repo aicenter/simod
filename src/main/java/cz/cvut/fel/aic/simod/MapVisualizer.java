@@ -25,6 +25,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.Map
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.init.StationsInitializer;
+import cz.cvut.fel.aic.simod.init.TransferPointsInitializer;
 import cz.cvut.fel.aic.simod.mapVisualization.MapVisualiserModule;
 import cz.cvut.fel.aic.simod.mapVisualization.MapVisualizationCreator;
 import java.io.File;
@@ -59,6 +60,9 @@ public class MapVisualizer {
 		
 		// load stations
 		injector.getInstance(StationsInitializer.class).loadStations();
+
+		// load transfer points
+		injector.getInstance(TransferPointsInitializer.class).loadTransferPoints();
 
 
 		creator.startSimulation();

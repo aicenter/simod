@@ -224,6 +224,8 @@ public class PFHeuristicSimpleTest
     // SOLVE
         Map<PeopleFreightVehicle, cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan> solution = solver.solve(requestsPeople, null, requestsFreight, null);
     // print
+
+
         System.out.println("Solution:");
         System.out.println(solution.values());
     }

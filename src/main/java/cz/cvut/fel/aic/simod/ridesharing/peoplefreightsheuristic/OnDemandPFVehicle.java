@@ -141,10 +141,15 @@ public class OnDemandPFVehicle extends OnDemandVehicle
 
         index = idGenerator.getId();
 
-        vehicle = new PhysicalPFVehicle(vehicleId + " - vehicle",
-                DemandSimulationEntityType.VEHICLE, LENGTH, 0,
-                EGraphType.HIGHWAY, startPosition,
-                agentpolisConfig.maxVehicleSpeedInMeters, config.ridesharing.vehicleCapacity);
+        vehicle = new PhysicalPFVehicle(
+                vehicleId + " - vehicle",
+                DemandSimulationEntityType.VEHICLE,
+                LENGTH,
+                0,
+                EGraphType.HIGHWAY,
+                startPosition,
+                agentpolisConfig.maxVehicleSpeedInMeters,
+                config.ridesharing.vehicleCapacity);
 
         vehicleStorage.addEntity(vehicle);
         vehicle.setDriver(this);

@@ -33,6 +33,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.agent.DelayData;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.Driver;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
@@ -61,15 +62,15 @@ import java.util.List;
  *
  * @author fido
  */
-public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgent,
-		Driver<PhysicalTransportVehicle>{
+public class OnDemandVehicle<V extends PhysicalTransportVehicle> extends Agent implements EventHandler, PlanningAgent,
+		Driver<V>{
 	
 	private static final int LENGTH = 4;
 	
 	
 	private final int index;
 	
-	protected PhysicalTransportVehicle vehicle;
+	protected V vehicle;
 	
 	protected final TripsUtil tripsUtil;
 	
@@ -187,7 +188,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 			SimodConfig config, 
 			IdGenerator idGenerator,
 			AgentpolisConfig agentpolisConfig,
-			@Assisted String vehicleId, @Assisted SimulationNode startPosition)
+			@Assisted String vehicleId,
+			@Assisted SimulationNode startPosition)
 	{
 		super(vehicleId, startPosition);
 		this.tripsUtil = tripsUtil;
@@ -200,30 +202,35 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		this.config = config;
 
 		index = idGenerator.getId();
+		initPhysicalVehicle(vehicleId, startPosition, agentpolisConfig, vehicleStorage);
 
-		if (!vehicleId.contains("PFVehicle"))
-		{
-			vehicle = new PhysicalTransportVehicle(vehicleId + " - vehicle",
-					DemandSimulationEntityType.VEHICLE, LENGTH, config.ridesharing.vehicleCapacity,
-					EGraphType.HIGHWAY, startPosition,
-					agentpolisConfig.maxVehicleSpeedInMeters);
-
-			vehicleStorage.addEntity(vehicle);
-			vehicle.setDriver(this);
-			state = OnDemandVehicleState.WAITING;
-		}
-		
 		metersWithPassenger = 0;
 		metersToStartLocation = 0;
 		metersToStation = 0;
 		metersRebalancing = 0;
 	}
 
+	// create new PhysicalTranportVehicle
+	public void initPhysicalVehicle(String vehicleId, SimulationNode startPosition, AgentpolisConfig agentpolisConfig, PhysicalTransportVehicleStorage vehicleStorage)
+	{
+		vehicle = new PhysicalTransportVehicle(
+				vehicleId + " - vehicle",
+				DemandSimulationEntityType.VEHICLE,
+				LENGTH,
+				config.ridesharing.vehicleCapacity,
+				EGraphType.HIGHWAY,
+				startPosition,
+				agentpolisConfig.maxVehicleSpeedInMeters);
+		vehicleStorage.addEntity(vehicle);
+		vehicle.setDriver(this);
+		state = OnDemandVehicleState.WAITING;
+	}
+
 	@Override
 	public EventProcessor getEventProcessor() {
 		return null;
 	}
-	
+
 	public String getVehicleId(){
 		return vehicle.getId();
 	}
@@ -232,15 +239,15 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	public void handleEvent(Event event) {
 		currentlyServedDemmand = (DemandData) event.getContent();
 		SimulationNode[] locations = currentlyServedDemmand.locations;
-		
+
 		demandNodes = new ArrayList<>();
 		demandNodes.add(locations[0]);
 		demandNodes.add(locations[locations.length - 1]);
-		
+
 		leavingStationEvent();
 		driveToDemandStartLocation();
 	}
-	
+
 	public void finishedDriving(boolean wasStopped) {
 		switch(state){
 			case DRIVING_TO_START_LOCATION:
@@ -370,7 +377,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	}
 
 	@Override
-	public PhysicalTransportVehicle getVehicle() {
+	public V getVehicle() {
 		return vehicle;
 	}
 

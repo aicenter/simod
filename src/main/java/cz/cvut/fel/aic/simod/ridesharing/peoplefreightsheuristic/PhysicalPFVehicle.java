@@ -14,7 +14,6 @@ import java.util.List;
 public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTransportVehicle
 {
 
-
     protected final List<T> transportedEntities;
     private final int vehiclePassengerCapacity;
 
@@ -34,7 +33,7 @@ public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTr
             int vehiclePassengerCapacity
     )
     {
-        super(vehicleId, type, lengthInMeters, 1, usingGraphTypeForMoving, position, maxVelocity);
+        super(vehicleId, type, lengthInMeters, vehiclePassengerCapacity, usingGraphTypeForMoving, position, maxVelocity);
 
         transportedEntities = new ArrayList<>();
         this.vehiclePassengerCapacity = 1;

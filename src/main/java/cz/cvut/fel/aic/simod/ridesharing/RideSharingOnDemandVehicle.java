@@ -27,6 +27,8 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.PhysicalVehicleDrive;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
@@ -57,7 +59,7 @@ import java.util.logging.Logger;
 /**
  * @author fido
  */
-public class RideSharingOnDemandVehicle extends OnDemandVehicle
+public class RideSharingOnDemandVehicle<V extends PhysicalTransportVehicle> extends OnDemandVehicle<V>
 {
 
     private final VisioPositionUtil positionUtil;
@@ -89,7 +91,8 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle
             SimodConfig config,
             IdGenerator idGenerator,
             AgentpolisConfig agentpolisConfig,
-            @Assisted String vehicleId, @Assisted SimulationNode startPosition)
+            @Assisted String vehicleId,
+            @Assisted SimulationNode startPosition)
     {
         super(
                 vehicleStorage,
@@ -105,6 +108,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle
                 agentpolisConfig,
                 vehicleId,
                 startPosition);
+
         this.positionUtil = positionUtil;
         this.tripIdGenerator = tripIdGenerator;
 

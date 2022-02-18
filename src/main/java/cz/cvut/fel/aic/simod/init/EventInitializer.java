@@ -91,7 +91,9 @@ public class EventInitializer {
 		eventCount = 0;
 		impossibleTripsCount = 0;
 	}
-	
+
+	//
+	// TODO: initializePackages()
 	
 	public void initialize(List<TimeTrip<SimulationNode>> trips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips){
 		Random random = new Random(RANDOM_SEED);

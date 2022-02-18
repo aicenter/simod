@@ -182,7 +182,7 @@ public class PFHeuristicSimpleTest
         requestsPeople.add(request_1);
 
     // create request 2
-        SimulationNode origin_2= graph.getNode(9);
+        SimulationNode origin_2 = graph.getNode(9);
         SimulationNode destination_2 = graph.getNode(11);
         long startTime_2 = 0;
         long endTime_2 = 1000;

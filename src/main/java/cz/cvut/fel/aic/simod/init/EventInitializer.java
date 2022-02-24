@@ -32,11 +32,15 @@ import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.DemandAgent.DemandAgentFactory;
+import cz.cvut.fel.aic.simod.entity.DemandPackage;
+import cz.cvut.fel.aic.simod.entity.DemandPackage.DemandPackageFactory;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
 import java.util.List;
 import java.util.Random;
+
+import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestFreight;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -67,7 +71,7 @@ public class EventInitializer {
 	
 	private final StationsDispatcher onDemandVehicleStationsCentral;
 	
-	private final SimodConfig SimodConfig;
+	private final SimodConfig simodConfig;
 	
 	private final AgentpolisConfig agentpolisConfig;
 	
@@ -85,7 +89,7 @@ public class EventInitializer {
 		this.eventProcessor = eventProcessor;
 		this.demandEventHandler = demandEventHandler;
 		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
-		this.SimodConfig = config;
+		this.simodConfig = config;
 		this.agentpolisConfig = agentpolisConfig;
 		this.simulationUtils = simulationUtils;
 		eventCount = 0;
@@ -94,12 +98,16 @@ public class EventInitializer {
 
 	//
 	// TODO: initializePackages()
+	public void initializePackages(List<TimeTrip<SimulationNode>> trips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips)
+	{
+
+	}
 	
 	public void initialize(List<TimeTrip<SimulationNode>> trips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips){
 		Random random = new Random(RANDOM_SEED);
 		
 		for (TimeTrip<SimulationNode> trip : trips) {
-			long startTime = trip.getStartTime() - SimodConfig.startTime;
+			long startTime = trip.getStartTime() - simodConfig.startTime;
 			// trip have to start at least 1ms after start of the simulation and no later then last
 			if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
 				impossibleTripsCount++;
@@ -107,10 +115,10 @@ public class EventInitializer {
 				continue;
 			}
 			
-			for(int i = 0; i < SimodConfig.tripsMultiplier; i++){
-				if(i + 1 >= SimodConfig.tripsMultiplier){
+			for(int i = 0; i < simodConfig.tripsMultiplier; i++){
+				if(i + 1 >= simodConfig.tripsMultiplier){
 					double randomNum = random.nextDouble();
-					if(randomNum > SimodConfig.tripsMultiplier - i){
+					if(randomNum > simodConfig.tripsMultiplier - i){
 						break;
 					}
 				}
@@ -125,7 +133,7 @@ public class EventInitializer {
 		}
 		if(rebalancingTrips != null){
 			for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
-				long startTime = rebalancingTrip.getStartTime() - SimodConfig.startTime;
+				long startTime = rebalancingTrip.getStartTime() - simodConfig.startTime;
 			if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
 				impossibleTripsCount++;
 				continue;
@@ -147,29 +155,47 @@ public class EventInitializer {
  
 		private final DemandAgentFactory demandAgentFactory;
 		
-		
-		
-		
+		private final DemandPackageFactory demandPackageFactory;
+
+
 		@Inject
 		public DemandEventHandler(IdGenerator demandIdGenerator, DemandAgentFactory demandAgentFactory,
 				SimulationCreator simulationCreator) {
 			this.demandIdGenerator = demandIdGenerator;
 			this.demandAgentFactory = demandAgentFactory;
+			demandPackageFactory = null;
 		}
 
-		
+		@Inject
+		public DemandEventHandler(IdGenerator demandIdGenerator, DemandAgentFactory demandAgentFactory,
+								  SimulationCreator simulationCreator, DemandPackageFactory demandPackageFactory) {
+			this.demandIdGenerator = demandIdGenerator;
+			this.demandAgentFactory = demandAgentFactory;
+			this.demandPackageFactory = demandPackageFactory;
+		}
 		
 		
 
 		@Override
-		public void handleEvent(Event event) {
-			TimeTrip<SimulationNode> trip = (TimeTrip<SimulationNode>) event.getContent();
-			
+		public void handleEvent(Event event)
+		{
 			int id = demandIdGenerator.getId();
-			
-			DemandAgent demandAgent = demandAgentFactory.create("Demand " + Integer.toString(id), id, trip);
-			
-			demandAgent.born();
+
+			if (event.getContent() instanceof PlanComputationRequestFreight)
+			{
+//				DemandPackage demandPackage = demandPackageFactory.create("Package " + Integer.toString(id), id, );
+//				demandPackage.create();
+			}
+			else if (event.getContent() instanceof TimeTrip)
+			{
+				TimeTrip<SimulationNode> trip = (TimeTrip<SimulationNode>) event.getContent();
+
+				DemandAgent demandAgent = demandAgentFactory.create("Demand " + Integer.toString(id), id, trip);
+
+				demandAgent.born();
+			}
 		}
+
+
 	}	
 }

@@ -11,80 +11,54 @@ import java.util.*;
 
 import java.util.List;
 
+
+
 public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTransportVehicle
 {
 
-    protected final List<T> transportedEntities;
-    private final int vehiclePassengerCapacity;
+	protected final List<T> transportedPackages;
+	private final int vehiclePackagesCapacity;
 
-    protected final List<T> transportedPackages;
-    private final int vehiclePackagesCapacity;
+	public PhysicalPFVehicle(
+			String vehicleId,
+			EntityType type,
+			float lengthInMeters,
+			int vehiclePackagesCapacity,
+			GraphType usingGraphTypeForMoving,
+			SimulationNode position,
+			int maxVelocity)
+	{
+		// the vehiclePassengerCapacity is always 1 for PF vehicles
+		super(vehicleId, type, lengthInMeters, 1, usingGraphTypeForMoving, position, maxVelocity);
 
-    private boolean highlited;
-
-    public PhysicalPFVehicle(
-            String vehicleId,
-            EntityType type,
-            float lengthInMeters,
-            int vehiclePackagesCapacity,
-            GraphType usingGraphTypeForMoving,
-            SimulationNode position,
-            int maxVelocity,
-            int vehiclePassengerCapacity
-    )
-    {
-        super(vehicleId, type, lengthInMeters, vehiclePassengerCapacity, usingGraphTypeForMoving, position, maxVelocity);
-
-        transportedEntities = new ArrayList<>();
-        this.vehiclePassengerCapacity = 1;
-        transportedPackages = new ArrayList<>();
-        this.vehiclePackagesCapacity = vehiclePackagesCapacity;
-
-    }
+		transportedPackages = new ArrayList<>();
+		this.vehiclePackagesCapacity = vehiclePackagesCapacity;
+	}
 
 
-    public void setPosition(SimulationNode position)
-    {
-        super.setPosition(position);
-        Iterator var2 = this.transportedEntities.iterator();
+	public List<T> getTransportedPackages()
+	{
+		return this.transportedPackages;
+	}
 
-        while (var2.hasNext())
-        {
-            T transportedEntity = (T) var2.next();        // originally was (TransportableEntity)
-            transportedEntity.setPosition(position);
-        }
-    }
+	public int getPassengerCapacity()
+	{
+		// the vehiclePassengerCapacity is always 1 for PF vehicles
+		return 1;
+	}
 
+	public int getVehiclePackagesCapacity()
+	{
+		return this.vehiclePackagesCapacity;
+	}
 
-    @Override
-    public List<T> getTransportedEntities()
-    {
-        return transportedEntities;
-    }
+	public boolean isHighlited()
+	{
+		return super.isHighlited();
+	}
 
-    public List<T> getTransportedPackages()
-    {
-        return transportedPackages;
-    }
-
-    public int getPassengerCapacity()
-    {
-        return this.vehiclePassengerCapacity;
-    }
-
-    public int getVehiclePackagesCapacity()
-    {
-        return vehiclePackagesCapacity;
-    }
-
-
-    public boolean isHighlited()
-    {
-        return this.highlited;
-    }
-
-    public void setHighlited(boolean highlited)
-    {
-        this.highlited = highlited;
-    }
+	public void setHighlited(boolean highlited)
+	{
+		super.setHighlited(highlited);
+	}
 }

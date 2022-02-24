@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.simod;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
+import cz.cvut.fel.aic.simod.entity.DemandPackage;
 
 /**
  *
@@ -29,11 +30,18 @@ public class DemandData {
 	public SimulationNode[] locations;
 	
 	public DemandAgent demandAgent;
+	public DemandPackage demandPackage;
 
 	public DemandData(SimulationNode[] locList, DemandAgent demandAgent) {
 		this.locations = locList;
 		this.demandAgent = demandAgent;
+		this.demandPackage = null;
 	}
 
+	public DemandData(SimulationNode[] locList, DemandPackage demandPackage) {
+		this.locations = locList;
+		this.demandPackage = demandPackage;
+		this.demandAgent = null;
+	}
 	
 }

@@ -5,6 +5,8 @@ import java.lang.Double;
 import java.lang.Integer;
 import java.lang.String;
 import java.util.Map;
+
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import ninja.fido.config.GeneratedConfig;
 
 public class SimodConfig implements GeneratedConfig {
@@ -52,6 +54,10 @@ public class SimodConfig implements GeneratedConfig {
 
   public Statistics statistics;
 
+  public Boolean packagesOn;
+
+  public String packagesPath;
+
   public SimodConfig() {
   }
 
@@ -78,6 +84,8 @@ public class SimodConfig implements GeneratedConfig {
     this.stationPositionFilepath = (String) simodConfig.get("station_position_filepath");
     this.rebalancing = new Rebalancing((Map) simodConfig.get("rebalancing"));
     this.statistics = new Statistics((Map) simodConfig.get("statistics"));
+    this.packagesOn = (Boolean) simodConfig.get("packages_on");
+    this.packagesPath = (String) simodConfig.get("packages_path");
     return this;
   }
 }

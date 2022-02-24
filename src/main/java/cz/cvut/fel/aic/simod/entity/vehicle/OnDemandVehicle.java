@@ -189,7 +189,8 @@ public class OnDemandVehicle<V extends PhysicalTransportVehicle> extends Agent i
 			IdGenerator idGenerator,
 			AgentpolisConfig agentpolisConfig,
 			@Assisted String vehicleId,
-			@Assisted SimulationNode startPosition)
+			@Assisted SimulationNode startPosition,
+			@Assisted Class<V> vClass)
 	{
 		super(vehicleId, startPosition);
 		this.tripsUtil = tripsUtil;
@@ -202,7 +203,16 @@ public class OnDemandVehicle<V extends PhysicalTransportVehicle> extends Agent i
 		this.config = config;
 
 		index = idGenerator.getId();
-		initPhysicalVehicle(vehicleId, startPosition, agentpolisConfig, vehicleStorage);
+//		initPhysicalVehicle(vehicleId, startPosition, agentpolisConfig, vehicleStorage);
+
+		try
+		{
+			vehicle = vClass.getDeclaredConstructor().newInstance();
+		}
+		catch (Exception e)
+		{
+			System.out.println(e);
+		}
 
 		metersWithPassenger = 0;
 		metersToStartLocation = 0;
@@ -211,20 +221,24 @@ public class OnDemandVehicle<V extends PhysicalTransportVehicle> extends Agent i
 	}
 
 	// create new PhysicalTranportVehicle
-	public void initPhysicalVehicle(String vehicleId, SimulationNode startPosition, AgentpolisConfig agentpolisConfig, PhysicalTransportVehicleStorage vehicleStorage)
-	{
-		vehicle = new PhysicalTransportVehicle(
-				vehicleId + " - vehicle",
-				DemandSimulationEntityType.VEHICLE,
-				LENGTH,
-				config.ridesharing.vehicleCapacity,
-				EGraphType.HIGHWAY,
-				startPosition,
-				agentpolisConfig.maxVehicleSpeedInMeters);
-		vehicleStorage.addEntity(vehicle);
-		vehicle.setDriver(this);
-		state = OnDemandVehicleState.WAITING;
-	}
+//	public void initPhysicalVehicle(String vehicleId,
+//									SimulationNode startPosition,
+//									AgentpolisConfig agentpolisConfig,
+//									PhysicalTransportVehicleStorage vehicleStorage,
+//									@Assisted Class<V> vClass)
+//	{
+//		vehicle = new V(
+//				vehicleId + " - vehicle",
+//				DemandSimulationEntityType.VEHICLE,
+//				LENGTH,
+//				config.ridesharing.vehicleCapacity,
+//				EGraphType.HIGHWAY,
+//				startPosition,
+//				agentpolisConfig.maxVehicleSpeedInMeters);
+//		vehicleStorage.addEntity(vehicle);
+//		vehicle.setDriver(this);
+//		state = OnDemandVehicleState.WAITING;
+//	}
 
 	@Override
 	public EventProcessor getEventProcessor() {
@@ -442,7 +456,7 @@ public class OnDemandVehicle<V extends PhysicalTransportVehicle> extends Agent i
 
 
 	@Override
-	public void startDriving(PhysicalTransportVehicle vehicle){
+	public void startDriving(V vehicle){
 		this.vehicle = vehicle;
 	}
 

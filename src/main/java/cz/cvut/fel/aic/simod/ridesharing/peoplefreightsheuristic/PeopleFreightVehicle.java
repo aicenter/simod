@@ -1,5 +1,6 @@
 package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic;
 
+import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
@@ -20,103 +21,83 @@ import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 
 public class PeopleFreightVehicle extends RideSharingOnDemandVehicle<PhysicalPFVehicle>
 {
-    public final int vehiclePassengerCapacity = 1;
+	public final int vehiclePassengerCapacity = 1;
 
-    private static final int LENGTH = 4;
+	private static final int LENGTH = 4;
 
-    private boolean passengerOnboard;
+	private boolean passengerOnboard;
 
-    private final int maxParcelsCapacity;
+	private final int maxParcelsCapacity;
 
-    private int currentParcelsWeight;
-
-
-
-    public PeopleFreightVehicle(
-            PhysicalTransportVehicleStorage vehicleStorage,
-            TripsUtil tripsUtil,
-            StationsDispatcher onDemandVehicleStationsCentral,
-            PhysicalVehicleDriveFactory driveActivityFactory,
-            VisioPositionUtil positionUtil,
-            IdGenerator tripIdGenerator,
-            EventProcessor eventProcessor,
-            StandardTimeProvider timeProvider,
-            IdGenerator rebalancingIdGenerator,
-            SimodConfig config,
-            IdGenerator idGenerator,
-            AgentpolisConfig agentpolisConfig,
-            String vehicleId,
-            SimulationNode startPosition,
-            int maxParcelsCapacity)
-    {
-        super(
-                vehicleStorage,
-                tripsUtil,
-                onDemandVehicleStationsCentral,
-                driveActivityFactory,
-                positionUtil,
-                tripIdGenerator,
-                eventProcessor,
-                timeProvider,
-                rebalancingIdGenerator,
-                config,
-                idGenerator,
-                agentpolisConfig,
-                vehicleId,
-                startPosition);
-
-        initPhysicalVehicle(vehicleId, startPosition, agentpolisConfig, vehicleStorage);
-
-        this.maxParcelsCapacity = maxParcelsCapacity;
-        this.currentParcelsWeight = 0;
-        this.passengerOnboard = false;
-    }
+	private int currentParcelsWeight;
 
 
-    // create new PhysicalPFVehicle
-    @Override
-    public void initPhysicalVehicle(String vehicleId, SimulationNode startPosition, AgentpolisConfig agentpolisConfig, PhysicalTransportVehicleStorage vehicleStorage)
-    {
-        vehicle = new PhysicalPFVehicle(
-                vehicleId + " - vehicle",
-                DemandSimulationEntityType.VEHICLE,
-                LENGTH,
-                maxParcelsCapacity,
-                EGraphType.HIGHWAY,
-                startPosition,
-                agentpolisConfig.maxVehicleSpeedInMeters,
-                vehiclePassengerCapacity);
-        vehicleStorage.addEntity(vehicle);
-        vehicle.setDriver(this);
-        state = OnDemandVehicleState.WAITING;
-    }
-
-    public int getMaxParcelsCapacity()
-    {
-        return maxParcelsCapacity;
-    }
-
-    public int getCurrentParcelsWeight()
-    {
-        return currentParcelsWeight;
-    }
-
-    public boolean isPassengerOnboard()
-    {
-        return passengerOnboard;
-    }
-
-    public void setPassengerOnboard(boolean passengerOnboard)
-    {
-        this.passengerOnboard = passengerOnboard;
-    }
-
-    public void setCurrentParcelsWeight(int curWeight)
-    {
-        this.currentParcelsWeight = curWeight;
-    }
+	public PeopleFreightVehicle(
+			PhysicalTransportVehicleStorage vehicleStorage,
+			TripsUtil tripsUtil,
+			StationsDispatcher onDemandVehicleStationsCentral,
+			PhysicalVehicleDriveFactory driveActivityFactory,
+			VisioPositionUtil positionUtil,
+			IdGenerator tripIdGenerator,
+			EventProcessor eventProcessor,
+			StandardTimeProvider timeProvider,
+			IdGenerator rebalancingIdGenerator,
+			SimodConfig config,
+			IdGenerator idGenerator,
+			AgentpolisConfig agentpolisConfig,
+			String vehicleId,
+			SimulationNode startPosition,
+			int maxParcelsCapacity,
+			@Assisted Class<PhysicalPFVehicle> vClass)
+	{
+		super(
+				vehicleStorage,
+				tripsUtil,
+				onDemandVehicleStationsCentral,
+				driveActivityFactory,
+				positionUtil,
+				tripIdGenerator,
+				eventProcessor,
+				timeProvider,
+				rebalancingIdGenerator,
+				config,
+				idGenerator,
+				agentpolisConfig,
+				vehicleId,
+				startPosition,
+				vClass);
 
 
+		this.maxParcelsCapacity = maxParcelsCapacity;
+		this.currentParcelsWeight = 0;
+		this.passengerOnboard = false;
+	}
+
+
+	public int getMaxParcelsCapacity()
+	{
+		return maxParcelsCapacity;
+	}
+
+	public int getCurrentParcelsWeight()
+	{
+		return currentParcelsWeight;
+	}
+
+	public boolean isPassengerOnboard()
+	{
+		return passengerOnboard;
+	}
+
+	public void setPassengerOnboard(boolean passengerOnboard)
+	{
+		this.passengerOnboard = passengerOnboard;
+	}
+
+	public void setCurrentParcelsWeight(int curWeight)
+	{
+		this.currentParcelsWeight = curWeight;
+	}
 
 
 }

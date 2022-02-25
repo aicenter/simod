@@ -154,8 +154,7 @@ public class EventInitializer {
 		private final IdGenerator demandIdGenerator;
  
 		private final DemandAgentFactory demandAgentFactory;
-		
-		private final DemandPackageFactory demandPackageFactory;
+
 
 
 		@Inject
@@ -163,15 +162,6 @@ public class EventInitializer {
 				SimulationCreator simulationCreator) {
 			this.demandIdGenerator = demandIdGenerator;
 			this.demandAgentFactory = demandAgentFactory;
-			demandPackageFactory = null;
-		}
-
-		@Inject
-		public DemandEventHandler(IdGenerator demandIdGenerator, DemandAgentFactory demandAgentFactory,
-								  SimulationCreator simulationCreator, DemandPackageFactory demandPackageFactory) {
-			this.demandIdGenerator = demandIdGenerator;
-			this.demandAgentFactory = demandAgentFactory;
-			this.demandPackageFactory = demandPackageFactory;
 		}
 		
 		
@@ -197,5 +187,8 @@ public class EventInitializer {
 		}
 
 
-	}	
+	}
+
+
+
 }

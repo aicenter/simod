@@ -190,7 +190,7 @@ public class OnDemandVehicle<V extends PhysicalTransportVehicle> extends Agent i
 			AgentpolisConfig agentpolisConfig,
 			@Assisted String vehicleId,
 			@Assisted SimulationNode startPosition,
-			@Assisted Class<V> vClass)
+			@Assisted V physVehicle)
 	{
 		super(vehicleId, startPosition);
 		this.tripsUtil = tripsUtil;
@@ -207,7 +207,7 @@ public class OnDemandVehicle<V extends PhysicalTransportVehicle> extends Agent i
 
 		try
 		{
-			vehicle = vClass.getDeclaredConstructor().newInstance();
+			this.vehicle = physVehicle;
 		}
 		catch (Exception e)
 		{

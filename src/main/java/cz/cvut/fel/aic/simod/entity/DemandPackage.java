@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DemandPackage extends AgentPolisEntity implements EventHandler, TransportableEntity
+public class DemandPackage extends AgentPolisEntity implements TransportableEntity
 {
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandAgent.class);
 
@@ -156,18 +156,6 @@ public class DemandPackage extends AgentPolisEntity implements EventHandler, Tra
 		return dropped;
 	}
 
-	@Override
-	public EventProcessor getEventProcessor() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}
-
-	@Override
-	public void handleEvent(Event event) {
-		onDemandVehicle = (OnDemandVehicle) event.getContent();
-//		vehicle = onDemandVehicle.getVehicle();
-//		rideAsPassengerActivity.usingVehicleAsPassenger(this.getId(), onDemandVehicle.getVehicleId(),
-//				onDemandVehicle.getDemandTrip(this), this);
-	}
 
 	public void tripEnded()
 	{

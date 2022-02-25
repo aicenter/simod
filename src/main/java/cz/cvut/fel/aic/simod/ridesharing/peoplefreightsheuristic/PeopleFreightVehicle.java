@@ -36,7 +36,7 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle<PhysicalPFV
 			PhysicalTransportVehicleStorage vehicleStorage,
 			TripsUtil tripsUtil,
 			StationsDispatcher onDemandVehicleStationsCentral,
-			PhysicalVehicleDriveFactory driveActivityFactory,
+			PhysicalVehicleDriveFactory driveActivityFactory,	// TODO: upravit factory pro tvoreni
 			VisioPositionUtil positionUtil,
 			IdGenerator tripIdGenerator,
 			EventProcessor eventProcessor,
@@ -48,7 +48,7 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle<PhysicalPFV
 			String vehicleId,
 			SimulationNode startPosition,
 			int maxParcelsCapacity,
-			@Assisted Class<PhysicalPFVehicle> vClass)
+			@Assisted PhysicalPFVehicle vClass)
 	{
 		super(
 				vehicleStorage,

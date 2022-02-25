@@ -36,8 +36,7 @@ public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTr
 	}
 
 
-	public List<T> getTransportedPackages()
-	{
+	public List<T> getTransportedPackages(){
 		return this.transportedPackages;
 	}
 

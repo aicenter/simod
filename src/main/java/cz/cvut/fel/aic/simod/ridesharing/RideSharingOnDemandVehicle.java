@@ -93,7 +93,7 @@ public class RideSharingOnDemandVehicle<V extends PhysicalTransportVehicle> exte
 			AgentpolisConfig agentpolisConfig,
 			@Assisted String vehicleId,
 			@Assisted SimulationNode startPosition,
-			@Assisted Class<V> vClass)
+			@Assisted V physVehicle)
 	{
 		super(
 				vehicleStorage,
@@ -109,7 +109,7 @@ public class RideSharingOnDemandVehicle<V extends PhysicalTransportVehicle> exte
 				agentpolisConfig,
 				vehicleId,
 				startPosition,
-				vClass);
+				physVehicle);
 
 		this.positionUtil = positionUtil;
 		this.tripIdGenerator = tripIdGenerator;
@@ -282,6 +282,7 @@ public class RideSharingOnDemandVehicle<V extends PhysicalTransportVehicle> exte
 		}
 	}
 
+	// TODO: pickup and dropoff - vlastni metody, nebo doplnit IF do stavajici metody
 	private void pickupAndContinue()
 	{
 		try
@@ -298,7 +299,7 @@ public class RideSharingOnDemandVehicle<V extends PhysicalTransportVehicle> exte
 			demandAgent.tripStarted(this);
 			vehicle.pickUp(demandAgent);
 
-			// statistics TODO demand tirp?
+			// statistics TODO demand trip?
 			//		demandTrip = tripsUtil.createTrip(currentTask.getDemandAgent().getPosition().id,
 			//				currentTask.getLocation().id, vehicle);
 			// demand trip length 0 - need to find out where the statistic is used, does it make sense with rebalancing?

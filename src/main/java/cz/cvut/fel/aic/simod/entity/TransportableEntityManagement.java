@@ -5,13 +5,15 @@ import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehic
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
 
 public interface TransportableEntityManagement<T extends TransportableEntity> {
-	boolean isDropped();
-
-	long getDemandTime();
-
 	void tripStarted(OnDemandVehicle vehicle);
 
 	void tripEnded();
+
+	T getEntity();
+
+	boolean isDropped();
+
+	long getDemandTime();
 
 	int getSimpleId();
 

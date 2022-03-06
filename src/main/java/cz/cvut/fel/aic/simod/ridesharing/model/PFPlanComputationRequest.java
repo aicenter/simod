@@ -11,7 +11,7 @@ import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 
 import java.util.Random;
 
-public class PFPlanComputationRequest<T extends TransportableEntityManagement> implements PlanComputationRequest{
+public class PFPlanComputationRequest<T extends TransportableEntityManagement<TransportableEntity>> implements PlanComputationRequest{
 
 	public final int id;
 

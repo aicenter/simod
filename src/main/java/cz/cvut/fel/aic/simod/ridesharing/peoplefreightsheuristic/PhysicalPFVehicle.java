@@ -19,7 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTransportVehicle
+public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTransportVehicle<T> implements TransportEntity<T>
 {
 	private static final int vehiclePassengerCapacity = 1;
 
@@ -57,31 +57,24 @@ public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTr
 	@Override
 	public void dropOff(T entityToDropOff) {
 		// if entity is Agent
+		boolean success;
 		if (entityToDropOff instanceof DemandAgent) {
-			boolean success = this.transportedEntities.remove(entityToDropOff);
-			if (!success) {
-				try {
-					throw new Exception(String.format("Cannot drop off entity, it is not transported! [%s]", entityToDropOff));
-				} catch (Exception var4) {
-					Logger.getLogger(PhysicalTransportVehicle.class.getName()).log(Level.SEVERE, (String)null, var4);
-				}
-			}
-
-			entityToDropOff.setTransportingEntity((TransportEntity)null);
+			success = this.transportedEntities.remove(entityToDropOff);
 		}
 		// if entity is Package
 		else {
-			boolean success = this.transportedPackages.remove(entityToDropOff);
-			if (!success) {
-				try {
-					throw new Exception(String.format("Cannot drop off entity, it is not transported! [%s]", entityToDropOff));
-				} catch (Exception var4) {
-					Logger.getLogger(PhysicalPFVehicle.class.getName()).log(Level.SEVERE, (String)null, var4);
-				}
-			}
-
-			entityToDropOff.setTransportingEntity((TransportEntity)null);
+			success = this.transportedPackages.remove(entityToDropOff);
 		}
+
+		if (!success) {
+			try {
+				throw new Exception(String.format("Cannot drop off entity, it is not transported! [%s]", entityToDropOff));
+			} catch (Exception var4) {
+				Logger.getLogger(PhysicalTransportVehicle.class.getName()).log(Level.SEVERE, (String)null, var4);
+			}
+		}
+
+		entityToDropOff.setTransportingEntity(null);
 	}
 
 

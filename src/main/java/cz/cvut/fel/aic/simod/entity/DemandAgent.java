@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author F-I-D-O
  */
-public class DemandAgent<T extends TransportEntity> extends Agent implements EventHandler, TransportableEntity, TransportableEntityManagement {
+public class DemandAgent<T extends TransportEntity> extends Agent implements EventHandler, TransportableEntity, TransportableEntityManagement<TransportableEntity> {
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandAgent.class);
 	
@@ -138,7 +138,9 @@ public class DemandAgent<T extends TransportEntity> extends Agent implements Eve
 		return dropped;
 	}
 	
-	
+	public TransportableEntity getEntity() {
+		return this;
+	}
 
 	
 	

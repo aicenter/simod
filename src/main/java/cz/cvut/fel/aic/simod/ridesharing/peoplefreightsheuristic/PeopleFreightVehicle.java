@@ -16,12 +16,19 @@ import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
+import cz.cvut.fel.aic.simod.entity.TransportableEntityManagement;
+import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
+import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
+import cz.cvut.fel.aic.simod.ridesharing.model.PFPlanComputationRequest;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
-import cz.cvut.fel.aic.simod.storage.PhysicalPFVehicleStorage;
+import cz.cvut.fel.aic.simod.statistics.PickupEventContent;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 
-public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSharingOnDemandVehicle<PhysicalPFVehicle>
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSharingOnDemandVehicle<PhysicalPFVehicle<T>>
 {
 	public final int vehiclePassengerCapacity = 1;
 
@@ -35,10 +42,10 @@ public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSha
 
 
 	public PeopleFreightVehicle(
-			PhysicalTransportVehicleStorage vehicleStorage,
+			PhysicalTransportVehicleStorage<PhysicalPFVehicle<T>> vehicleStorage,
 			TripsUtil tripsUtil,
 			StationsDispatcher onDemandVehicleStationsCentral,
-			PhysicalVehicleDriveFactory driveActivityFactory,	// TODO: upravit factory pro tvoreni
+			PhysicalVehicleDriveFactory driveActivityFactory,	// TODO: upravit factory pro tvoreni ??
 			VisioPositionUtil positionUtil,
 			IdGenerator tripIdGenerator,
 			EventProcessor eventProcessor,
@@ -50,7 +57,7 @@ public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSha
 			String vehicleId,
 			SimulationNode startPosition,
 			int maxParcelsCapacity,
-			@Assisted PhysicalPFVehicle vClass)
+			@Assisted PhysicalPFVehicle<T> vClass)
 	{
 		super(
 				vehicleStorage,
@@ -102,6 +109,41 @@ public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSha
 	}
 
 	private void pickupAndContinue() {
-		T transportedEntity = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
+		try {
+			PFPlanComputationRequest request = (PFPlanComputationRequest) ((PlanActionPickup) currentTask).getRequest();
+			TransportableEntityManagement<T> demandEntity = request.getDemandEntity();
+			if (demandEntity.isDropped()) {
+				long currentTime = timeProvider.getCurrentSimTime();
+				long droppTime = demandEntity.getDemandTime() + config.ridesharing.maxProlongationInSeconds * 1000;
+				throw new Exception(
+						String.format("Demand agent %s cannot be picked up, he is already dropped! Current simulation "
+								+ "time: %s, drop time: %s", demandEntity, currentTime, droppTime));
+			}
+			demandEntity.tripStarted(this);
+			vehicle.pickUp(demandEntity.getEntity());
+
+			eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null,
+					new PickupEventContent(timeProvider.getCurrentSimTime(),
+							demandEntity.getSimpleId(), getId(),
+							(int) Math.round(demandEntity.getMinDemandServiceDuration() / 1000)));
+			currentPlan.taskCompleted();
+			driveToNextTask();
+		}
+		catch (Exception ex) {
+			Logger.getLogger(PhysicalTransportVehicle.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	}
+
+	private void dropOffAndContinue() {
+		PFPlanComputationRequest request = (PFPlanComputationRequest) ((PlanActionPickup) currentTask).getRequest();
+		TransportableEntityManagement<T> demandEntity = request.getDemandEntity();
+		demandEntity.tripEnded();
+		vehicle.dropOff(demandEntity.getEntity());
+
+		eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null,
+				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(),
+						demandEntity.getSimpleId(), getId()));
+		currentPlan.taskCompleted();
+		driveToNextTask();
 	}
 }

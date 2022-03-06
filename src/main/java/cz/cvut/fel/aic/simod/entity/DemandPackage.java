@@ -111,6 +111,10 @@ public class DemandPackage extends AgentPolisEntity implements TransportableEnti
 	}
 
 
+	public TransportableEntity getEntity() {
+		return this;
+	}
+
 	public int getSimpleId() {
 		return simpleId;
 	}

@@ -63,9 +63,9 @@ public class RideSharingOnDemandVehicle<V extends PhysicalTransportVehicle> exte
 
 	private final VisioPositionUtil positionUtil;
 
-	private DriverPlan currentPlan;
+	protected DriverPlan currentPlan;
 
-	private PlanAction currentTask;
+	protected PlanAction currentTask;
 
 	private IdGenerator tripIdGenerator;
 
@@ -222,7 +222,7 @@ public class RideSharingOnDemandVehicle<V extends PhysicalTransportVehicle> exte
 		}
 	}
 
-	private void driveToNextTask() {
+	protected void driveToNextTask() {
 		if (currentPlan.getLength() == 1) {
 			currentTask = null;
 			if (state != OnDemandVehicleState.WAITING) {

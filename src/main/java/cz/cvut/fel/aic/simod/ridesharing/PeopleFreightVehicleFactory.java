@@ -14,12 +14,14 @@ import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
+import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightVehicle;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PhysicalPFVehicle;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 
 @Singleton
-public class PeopleFreightVehicleFactory {
+public class PeopleFreightVehicleFactory implements OnDemandVehicleFactorySpec {
 
 	private static final int LENGTH = 4;
 
@@ -70,7 +72,7 @@ public class PeopleFreightVehicleFactory {
 		this.agentpolisConfig = agentpolisConfig;
 	}
 
-	public PeopleFreightVehicle create(String vehicleId, SimulationNode startPosition, int parcelCapacity) {
+	public PeopleFreightVehicle create(String vehicleId, SimulationNode startPosition, int freightCapacity) {
 		return	new PeopleFreightVehicle(
 				vehicleStorage,
 				tripsUtil,
@@ -86,15 +88,20 @@ public class PeopleFreightVehicleFactory {
 				agentpolisConfig,
 				vehicleId,
 				startPosition,
-				parcelCapacity,
+				freightCapacity,
 				new PhysicalPFVehicle<>(
 						vehicleId,
 						DemandSimulationEntityType.VEHICLE,
 						LENGTH,
-						parcelCapacity,
+						freightCapacity,
 						EGraphType.HIGHWAY,
 						startPosition,
 						agentpolisConfig.maxVehicleSpeedInMeters));
+	}
+
+	@Override
+	public PeopleFreightVehicle create(String vehicleId, SimulationNode startPosition) {
+		return null;
 	}
 }
 

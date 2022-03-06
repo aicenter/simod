@@ -124,10 +124,8 @@ public class OnDemandVehiclesSimulation {
 		// if packages are existing -> load packages
 		if (config.packagesOn)
 		{
-			// TODO: tady nacitani tripu pro balicky
-			// new File(config.packagesPath)
 			injector.getInstance(EventInitializer.class).initializePackages(
-					tripTransform.loadTripsFromTxt(new File(config.packagesPath)), null
+					tripTransform.loadPackagesFromTxt(new File(config.packagesPath)), null
 			);
 		}
 

@@ -6,6 +6,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
@@ -16,10 +17,11 @@ import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
+import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.simod.storage.PhysicalPFVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 
-public class PeopleFreightVehicle extends RideSharingOnDemandVehicle<PhysicalPFVehicle>
+public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSharingOnDemandVehicle<PhysicalPFVehicle>
 {
 	public final int vehiclePassengerCapacity = 1;
 
@@ -99,5 +101,7 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle<PhysicalPFV
 		this.currentParcelsWeight = curWeight;
 	}
 
-
+	private void pickupAndContinue() {
+		T transportedEntity = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
+	}
 }

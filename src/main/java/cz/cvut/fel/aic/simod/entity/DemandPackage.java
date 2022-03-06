@@ -28,8 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DemandPackage extends AgentPolisEntity implements TransportableEntity
-{
+public class DemandPackage extends AgentPolisEntity implements TransportableEntity, TransportableEntityManagement {
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandAgent.class);
 
 	private final int simpleId;
@@ -104,7 +103,7 @@ public class DemandPackage extends AgentPolisEntity implements TransportableEnti
 		demandStorage.addEntity(this);
 
 		eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.DEMAND, onDemandVehicleStationsCentral, null,
-				new DemandData(trip.getLocations(), this));	// TODO: upravit v eventProcessoru
+				new DemandData(trip.getLocations(), this));    // TODO: upravit v eventProcessoru
 	}
 
 	public void destroy() {
@@ -156,13 +155,17 @@ public class DemandPackage extends AgentPolisEntity implements TransportableEnti
 		return dropped;
 	}
 
+	public int getWeight() {
+		return weight;
+	}
 
-	public void tripEnded()
-	{
-		if(!getPosition().equals(trip.getLastLocation())){
+
+	public void tripEnded() {
+		if (!getPosition().equals(trip.getLastLocation())) {
 			try {
 				throw new Exception("Demand package not served properly");
-			} catch (Exception ex) {
+			}
+			catch (Exception ex) {
 				LOGGER.error(null, ex);
 			}
 		}
@@ -173,22 +176,17 @@ public class DemandPackage extends AgentPolisEntity implements TransportableEnti
 		destroy();
 	}
 
-	public void tripStarted(OnDemandVehicle vehicle)
-	{
-		if (state == DemandAgentState.DRIVING)
-		{
-			try
-			{
+	public void tripStarted(OnDemandVehicle vehicle) {
+		if (state == DemandAgentState.DRIVING) {
+			try {
 				throw new Exception(String.format("Demand Package %s already driving in vehicle %s, it cannot be picked up by"
 						+ "another vehicle %s", this, onDemandVehicle, vehicle));
 			}
-			catch (Exception ex)
-			{
+			catch (Exception ex) {
 				Logger.getLogger(DemandPackage.class.getName()).log(Level.SEVERE, null, ex);
 			}
 		}
-		else
-		{
+		else {
 			state = DemandAgentState.DRIVING;
 			realPickupTime = timeProvider.getCurrentSimTime();
 			this.onDemandVehicle = vehicle;
@@ -220,9 +218,11 @@ public class DemandPackage extends AgentPolisEntity implements TransportableEnti
 		minDemandServiceDuration = tripsUtil.getTripDuration(minTrip);
 	}
 
-
+	public String toString() {
+		return "Package " + this.getType().toString() + " " + this.getId();
+	}
 
 	public interface DemandPackageFactory {
-		DemandPackage create(String packageId, int id, TimeTrip<SimulationNode> osmNodeTrip);
+		DemandPackage create(String packageId, int id, TimeTrip<SimulationNode> osmNodeTrip, int weight);
 	}
 }

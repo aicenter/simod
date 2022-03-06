@@ -20,6 +20,7 @@ import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
+import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
@@ -29,7 +30,8 @@ import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestFreight;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestPeople;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightHeuristicSolver;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightVehicle;
-import cz.cvut.fel.aic.simod.storage.OnDemandPFVehicleStorage;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PhysicalPFVehicle;
+import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
@@ -104,7 +106,7 @@ public class PFHeuristicSimpleTest
 
 
     // Storages
-        OnDemandPFVehicleStorage onDemandPFvehicleStorage = new OnDemandPFVehicleStorage();
+        OnDemandVehicleStorage onDemandVehicleStorage = new OnDemandVehicleStorage();
         PhysicalTransportVehicleStorage physicalVehicleStorage = new PhysicalTransportVehicleStorage();
         OnDemandvehicleStationStorage onDemandvehicleStationStorage = new OnDemandvehicleStationStorage(transformer);
 
@@ -114,6 +116,7 @@ public class PFHeuristicSimpleTest
 
     // create Vehicle_1
         SimulationNode startPos_1 = graph.getNode(0);  // [0, 0]
+        int parcelCapacity_1 = 10;
         PeopleFreightVehicle vehicle_1 = new PeopleFreightVehicle(
                 physicalVehicleStorage,
                 tripsUtil,
@@ -129,12 +132,21 @@ public class PFHeuristicSimpleTest
                 agentpolisConfig,
                 "PFVehicle_1",
                 startPos_1,
-                10
+                parcelCapacity_1,
+                new PhysicalPFVehicle<>(
+                        "PFVehicle_1",
+                        DemandSimulationEntityType.VEHICLE,
+                        LENGTH,
+                        parcelCapacity_1,
+                        EGraphType.HIGHWAY,
+                        startPos_1,
+                        agentpolisConfig.maxVehicleSpeedInMeters)
         );
-        onDemandPFvehicleStorage.addEntity(vehicle_1);
+        onDemandVehicleStorage.addEntity(vehicle_1);
 
     // create Vehicle_2
         SimulationNode startPos_2 = graph.getNode(8);  // [0, 2]
+        int parcelCapacity_2 = 20;
         PeopleFreightVehicle vehicle_2 = new PeopleFreightVehicle(
                 physicalVehicleStorage,
                 tripsUtil,
@@ -150,9 +162,17 @@ public class PFHeuristicSimpleTest
                 agentpolisConfig,
                 "PFVehicle2",
                 startPos_2,
-                20
+                parcelCapacity_2,
+                new PhysicalPFVehicle<>(
+                        "PFVehicle_2",
+                        DemandSimulationEntityType.VEHICLE,
+                        LENGTH,
+                        parcelCapacity_2,
+                        EGraphType.HIGHWAY,
+                        startPos_2,
+                        agentpolisConfig.maxVehicleSpeedInMeters)
         );
-        onDemandPFvehicleStorage.addEntity(vehicle_2);
+        onDemandVehicleStorage.addEntity(vehicle_2);
 
     // lists of requests
         List<PlanComputationRequestPeople> requestsPeople = new ArrayList<>();
@@ -210,7 +230,7 @@ public class PFHeuristicSimpleTest
         PeopleFreightHeuristicSolver solver = new PeopleFreightHeuristicSolver(
                 astarTravelTimeProvider,
                 travelCostProvider,
-                onDemandPFvehicleStorage,
+                onDemandVehicleStorage,
                 positionUtil,
                 simodConfig,
                 timeProvider1,

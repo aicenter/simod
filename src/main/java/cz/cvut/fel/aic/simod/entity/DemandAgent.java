@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author F-I-D-O
  */
-public class DemandAgent extends Agent implements EventHandler, TransportableEntity {
+public class DemandAgent<T extends TransportEntity> extends Agent implements EventHandler, TransportableEntity, TransportableEntityManagement {
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandAgent.class);
 	

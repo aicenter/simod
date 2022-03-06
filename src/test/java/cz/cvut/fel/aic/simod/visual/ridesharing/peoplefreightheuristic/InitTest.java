@@ -15,10 +15,7 @@ import cz.cvut.fel.aic.geographtools.util.Transformer;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.ridesharing.DroppedDemandsAnalyzer;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightHeuristicSolver;
-import cz.cvut.fel.aic.simod.storage.OnDemandPFVehicleStorage;
-import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
-import cz.cvut.fel.aic.simod.storage.PhysicalPFVehicleStorage;
-import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
+import cz.cvut.fel.aic.simod.storage.*;
 import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
 import org.junit.Test;
 
@@ -29,9 +26,7 @@ public class InitTest
     @Test
     public void run() throws Throwable
     {
-        OnDemandPFVehicleStorage vehicleStorage = new OnDemandPFVehicleStorage();
-
-
+        OnDemandVehicleStorage vehicleStorage = new OnDemandVehicleStorage();
 
 //        TravelTimeProvider travelTimeProvider = null;
 //        TimeProvider timeProvider = null;

@@ -4,13 +4,10 @@ import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.AStarShortestPathPlanner;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.EuclideanTraveltimeHeuristic;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
-import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.MoveUtil;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.GraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
@@ -19,7 +16,6 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.TransportNetworks;
-import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.geographtools.Graph;
@@ -29,13 +25,12 @@ import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
 import cz.cvut.fel.aic.simod.ridesharing.DroppedDemandsAnalyzer;
-import cz.cvut.fel.aic.simod.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.simod.ridesharing.StandardPlanCostProvider;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestPeople;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightHeuristicSolver;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightVehicle;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PhysicalPFVehicle;
-import cz.cvut.fel.aic.simod.storage.OnDemandPFVehicleStorage;
+import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
@@ -108,15 +103,16 @@ public class SimpleTest
 
 
         // Storages
-        OnDemandPFVehicleStorage onDemandPFvehicleStorage = new OnDemandPFVehicleStorage();
+        OnDemandVehicleStorage onDemandVehicleStorage = new OnDemandVehicleStorage();
         PhysicalTransportVehicleStorage physicalVehicleStorage = new PhysicalTransportVehicleStorage();
         OnDemandvehicleStationStorage onDemandvehicleStationStorage = new OnDemandvehicleStationStorage(transformer);
 
         DroppedDemandsAnalyzer droppedDemandsAnalyzer = null; // new DroppedDemandsAnalyzer( vehicleStorage, positionUtil, astarTravelTimeProvider, config, onDemandvehicleStationStorage, agentpolisConfig);
 
         // start position of 1st vehicle
-        SimulationNode startPos = graph.getNode(0);  // top left corner
-        // create new PF Vehicles
+        // create Vehicle_1
+        SimulationNode startPos_1 = graph.getNode(0);  // [0, 0]
+        int parcelCapacity_1 = 10;
         PeopleFreightVehicle vehicle_1 = new PeopleFreightVehicle(
                 physicalVehicleStorage,
                 tripsUtil,
@@ -130,25 +126,33 @@ public class SimpleTest
                 simodConfig,
                 idGenerator3,
                 agentpolisConfig,
-                "1",
-                startPos,
-                10
+                "PFVehicle_1",
+                startPos_1,
+                parcelCapacity_1,
+                new PhysicalPFVehicle<>(
+                        "PFVehicle_1",
+                        DemandSimulationEntityType.VEHICLE,
+                        LENGTH,
+                        parcelCapacity_1,
+                        EGraphType.HIGHWAY,
+                        startPos_1,
+                        agentpolisConfig.maxVehicleSpeedInMeters)
         );
-        onDemandPFvehicleStorage.addEntity(vehicle_1);
+        onDemandVehicleStorage.addEntity(vehicle_1);
 
         PeopleFreightHeuristicSolver solver = new PeopleFreightHeuristicSolver(
-                                                    astarTravelTimeProvider,
-                                                    travelCostProvider,
-                                                    onDemandPFvehicleStorage,
-                                                    positionUtil,
-                                                    simodConfig,
-                                                    timeProvider1,
-                                                    null,
-                                                    eventProcessor,
-                                                    droppedDemandsAnalyzer,
-                                                    onDemandvehicleStationStorage,
-                                                    agentpolisConfig
-                );
+                astarTravelTimeProvider,
+                travelCostProvider,
+                onDemandVehicleStorage,
+                positionUtil,
+                simodConfig,
+                timeProvider1,
+                null,
+                eventProcessor,
+                droppedDemandsAnalyzer,
+                onDemandvehicleStationStorage,
+                agentpolisConfig
+        );
 
         // simple testing instance
         // create requests

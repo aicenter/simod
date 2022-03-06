@@ -25,6 +25,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.StandardDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
@@ -37,7 +38,7 @@ import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
  *
  * @author fido
  */
-public class TestOnDemandVehicle extends OnDemandVehicle{
+public class TestOnDemandVehicle<V extends PhysicalTransportVehicle>  extends OnDemandVehicle{
 	
 	@Inject
 	public TestOnDemandVehicle(
@@ -54,7 +55,8 @@ public class TestOnDemandVehicle extends OnDemandVehicle{
 			IdGenerator idGenerator, 
 			AgentpolisConfig agentpolisConfig,
 			@Assisted String vehicleId, 
-			@Assisted SimulationNode startPosition) {
+			@Assisted SimulationNode startPosition,
+			@Assisted V physVehicle) {
 		super(vehicleStorage, 
 				tripsUtil, 
 				onDemandVehicleStationsCentral, 
@@ -67,7 +69,8 @@ public class TestOnDemandVehicle extends OnDemandVehicle{
 				idGenerator, 
 				agentpolisConfig,
 				vehicleId, 
-				startPosition);
+				startPosition,
+				physVehicle);
 
 	}
 

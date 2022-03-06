@@ -17,7 +17,7 @@ import cz.cvut.fel.aic.simod.ridesharing.*;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.simod.ridesharing.model.*;
 import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
-import cz.cvut.fel.aic.simod.storage.OnDemandPFVehicleStorage;
+import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 
@@ -130,7 +130,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
     public PeopleFreightHeuristicSolver(
             TravelTimeProvider travelTimeProvider,
             PlanCostProvider travelCostProvider,
-            OnDemandPFVehicleStorage vehicleStorage,
+            OnDemandVehicleStorage vehicleStorage,
             PositionUtil positionUtil,
             SimodConfig config,
             TimeProvider timeProvider,

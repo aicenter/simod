@@ -18,6 +18,8 @@
  */
 package cz.cvut.fel.aic.simod;
 
+import cz.cvut.fel.aic.simod.ridesharing.*;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightHeuristicSolver;
 import cz.cvut.fel.aic.simod.traveltimecomputation.DistanceMatrixTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TNRTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TNRAFTravelTimeProvider;
@@ -57,11 +59,7 @@ import cz.cvut.fel.aic.simod.visio.AmodsimVisioInItializer;
 import cz.cvut.fel.aic.simod.visio.DemandLayer;
 import cz.cvut.fel.aic.simod.visio.DemandLayerWithJitter;
 import cz.cvut.fel.aic.geographtools.TransportMode;
-import cz.cvut.fel.aic.simod.ridesharing.DARPSolver;
-import cz.cvut.fel.aic.simod.ridesharing.PlanCostProvider;
-import cz.cvut.fel.aic.simod.ridesharing.RidesharingDispatcher;
-import cz.cvut.fel.aic.simod.ridesharing.RidesharingOnDemandVehicleFactory;
-import cz.cvut.fel.aic.simod.ridesharing.StandardPlanCostProvider;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -151,7 +149,9 @@ public class MainModule extends StandardAgentPolisModule{
 					bind(SingleVehicleDARPSolver.class).to(ArrayOptimalVehiclePlanFinder.class);
 		//			bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
 					break;
-				// TODO: pridat muj solver
+				case "people-freight-heuristic":
+					bind(DARPSolverPFShared.class).to(PeopleFreightHeuristicSolver.class);
+					break;
 			}
 		}
 		else{

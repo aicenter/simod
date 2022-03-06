@@ -6,7 +6,7 @@ import java.lang.Integer;
 import java.lang.String;
 import java.util.Map;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
+//import com.sun.org.apache.xpath.internal.operations.Bool;
 import ninja.fido.config.GeneratedConfig;
 
 public class SimodConfig implements GeneratedConfig {

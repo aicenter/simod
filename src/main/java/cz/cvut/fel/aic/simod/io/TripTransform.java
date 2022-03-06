@@ -38,6 +38,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import cz.cvut.fel.aic.simod.init.PackageContent;
 import me.tongfei.progressbar.ProgressBar;
 import org.slf4j.LoggerFactory;
 
@@ -142,7 +144,8 @@ public class TripTransform {
 							new TimeTrip<>(tripIdGenerator.getId(),Long.parseLong(parts[0].split("\\.")[0]), startLocation, targetLocation));
 			   }
 			}
-		} catch (IOException ex) {
+		}
+		catch (IOException ex) {
 			LOGGER.error(null, ex);
 		}
 		
@@ -156,6 +159,51 @@ public class TripTransform {
 		LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
 		
 		return trips; 
+	}
+
+	public List<PackageContent> loadPackagesFromTxt(File inputFile){
+		List<TimeTrip<GPSLocation>> gpsTrips = new LinkedList<>();
+		List<Integer> weights = new ArrayList<>();
+		LOGGER.info("Loading trips from: {}", inputFile);
+		try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				String[] parts = line.split(" ");
+				GPSLocation startLocation
+						= new GPSLocation(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), 0, 0);
+				GPSLocation targetLocation
+						= new GPSLocation(Double.parseDouble(parts[3]), Double.parseDouble(parts[4]), 0, 0);
+
+				if(startLocation.equals(targetLocation)){
+					sameStartAndTargetInDataCount++;
+				}
+				else{
+					gpsTrips.add(
+							new TimeTrip<>(tripIdGenerator.getId(),Long.parseLong(parts[0].split("\\.")[0]), startLocation, targetLocation));
+					weights.add(Integer.parseInt(parts[6]));	// loading package weight
+				}
+			}
+		}
+		catch (IOException ex) {
+			LOGGER.error(null, ex);
+		}
+
+		List<TimeTrip<SimulationNode>> trips = new ArrayList<>();
+
+		for (TimeTrip<GPSLocation> trip : ProgressBar.wrap(gpsTrips, "Process GPS trip: ")) {
+			processGpsTrip(trip, trips);
+		}
+
+		LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);
+		LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
+
+		// putting together the trips and weights
+		List<PackageContent> contents = new ArrayList<>();
+		for (int i = 0; i < trips.size(); i++) {
+			contents.add(new PackageContent(trips.get(i), weights.get(i)));
+		}
+
+		return contents;
 	}
 	
 	private void processGpsTrip(TimeTrip<GPSLocation> gpsTrip, List<TimeTrip<SimulationNode>>trips) {

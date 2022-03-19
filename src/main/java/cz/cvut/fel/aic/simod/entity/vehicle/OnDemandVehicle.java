@@ -32,6 +32,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehi
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.DelayData;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.Driver;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
@@ -62,7 +63,7 @@ import java.util.List;
  *
  * @author fido
  */
-public class OnDemandVehicle<V extends PhysicalTransportVehicle> extends Agent implements EventHandler, PlanningAgent,
+public class OnDemandVehicle<T extends TransportableEntity, V extends PhysicalTransportVehicle<T>> extends Agent implements EventHandler, PlanningAgent,
 		Driver<V>{
 	
 	private static final int LENGTH = 4;
@@ -134,7 +135,7 @@ public class OnDemandVehicle<V extends PhysicalTransportVehicle> extends Agent i
 		return currentTrip;
 	}
 
-	public VehicleTrip getDemandTrip(DemandAgent agent) {
+	public VehicleTrip getDemandTrip(DemandAgent<T> agent) {
 		return new VehicleTrip(rebalancingIdGenerator.getId(),demandTrip.getVehicle(), demandTrip.getLocations().clone());
 	}
 
@@ -427,7 +428,7 @@ public class OnDemandVehicle<V extends PhysicalTransportVehicle> extends Agent i
 
 	protected void pickupDemand() {
 		currentlyServedDemmand.demandAgent.tripStarted(this);
-		vehicle.pickUp(currentlyServedDemmand.demandAgent);
+		vehicle.pickUp((T) currentlyServedDemmand.demandAgent);			// TODO:  pretypovani na T - je to OK?
 		eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
 				new PickupEventContent(timeProvider.getCurrentSimTime(), 
 						currentlyServedDemmand.demandAgent.getSimpleId(), getId(),

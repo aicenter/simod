@@ -28,7 +28,7 @@ import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSharingOnDemandVehicle<PhysicalPFVehicle<T>>
+public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSharingOnDemandVehicle<T, PhysicalPFVehicle<T>>
 {
 	public final int vehiclePassengerCapacity = 1;
 
@@ -111,7 +111,7 @@ public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSha
 	private void pickupAndContinue() {
 		try {
 			PFPlanComputationRequest request = (PFPlanComputationRequest) ((PlanActionPickup) currentTask).getRequest();
-			TransportableEntityManagement<T> demandEntity = request.getDemandEntity();
+			TransportableEntityManagement demandEntity = request.getDemandEntity();
 			if (demandEntity.isDropped()) {
 				long currentTime = timeProvider.getCurrentSimTime();
 				long droppTime = demandEntity.getDemandTime() + config.ridesharing.maxProlongationInSeconds * 1000;
@@ -120,7 +120,7 @@ public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSha
 								+ "time: %s, drop time: %s", demandEntity, currentTime, droppTime));
 			}
 			demandEntity.tripStarted(this);
-			vehicle.pickUp(demandEntity.getEntity());
+			vehicle.pickUp((TransportableEntity) demandEntity);
 
 			eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null,
 					new PickupEventContent(timeProvider.getCurrentSimTime(),
@@ -136,9 +136,9 @@ public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSha
 
 	private void dropOffAndContinue() {
 		PFPlanComputationRequest request = (PFPlanComputationRequest) ((PlanActionPickup) currentTask).getRequest();
-		TransportableEntityManagement<T> demandEntity = request.getDemandEntity();
+		TransportableEntityManagementdemandEntity = request.getDemandEntity();
 		demandEntity.tripEnded();
-		vehicle.dropOff(demandEntity.getEntity());
+		vehicle.dropOff(demandEntity);
 
 		eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null,
 				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(),

@@ -3,6 +3,7 @@ package cz.cvut.fel.aic.simod.ridesharing.model;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
@@ -11,7 +12,8 @@ import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 
 import java.util.Random;
 
-public class PFPlanComputationRequest<T extends TransportableEntityManagement<TransportableEntity>> implements PlanComputationRequest{
+
+public class PFPlanComputationRequest<T extends TransportableEntityManagement> implements PlanComputationRequest{
 
 	public final int id;
 
@@ -20,7 +22,7 @@ public class PFPlanComputationRequest<T extends TransportableEntityManagement<Tr
 	 */
 	private final int originTime;
 
-	private final T demandEntity;
+	private final T demandEntity;		// TODO zjistit kde a jak to budu pouzivat
 
 	private final PlanActionPickup pickUpAction;
 

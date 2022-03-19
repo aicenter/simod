@@ -21,6 +21,10 @@ package cz.cvut.fel.aic.simod.visio;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
+import cz.cvut.fel.aic.agentpolis.simmodel.agent.TransportEntity;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.Vehicle;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.ClickableEntityLayer;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioUtils;
 import cz.cvut.fel.aic.alite.vis.Vis;
@@ -41,7 +45,7 @@ import javax.vecmath.Point2d;
  * @author fido
  */
 @Singleton
-public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
+public class DemandLayer<E extends TransportableEntity, V extends PhysicalTransportVehicle<E>> extends ClickableEntityLayer<DemandAgent<E,V>>  {
 
 	private static final Color DEMAND_COLOR = new Color(194, 66, 74);
 
@@ -79,11 +83,11 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
 
 
 	protected Point2d getDrivingAgentPosition(DemandAgent demandAgent){
-		return positionUtil.getCanvasPositionInterpolatedForVehicle(demandAgent.getTransportingEntity());
+		return positionUtil.getCanvasPositionInterpolatedForVehicle((Vehicle) demandAgent.getTransportingEntity());
 	}
 
 	protected Point2d getDrivingAgentPositionInTime(DemandAgent demandAgent, long time){
-		return positionUtil.getCanvasPositionInterpolatedForVehicleInTime(demandAgent.getTransportingEntity(), time);
+		return positionUtil.getCanvasPositionInterpolatedForVehicleInTime((Vehicle) demandAgent.getTransportingEntity(), time);
 	}
 
 	protected Point2d getWaitingAgentPosition(DemandAgent demandAgent){
@@ -141,7 +145,7 @@ public class DemandLayer extends ClickableEntityLayer<DemandAgent>  {
 	}
 
 	@Override
-	protected void drawEntities(List<DemandAgent> demandAgents, Point2d entityPosition, Graphics2D canvas,
+	protected void drawEntities(List<DemandAgent<E,V>> demandAgents, Point2d entityPosition, Graphics2D canvas,
 								Dimension dim) {
 		super.drawEntities(demandAgents, entityPosition, canvas, dim);
 		if(demandsWithPrintedInfo.contains(demandAgents.get(0))){

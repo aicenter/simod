@@ -45,7 +45,7 @@ public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTr
 	// implements pickUp() for both Agents and Packages
 
 	@Override
-	public void pickUp(T entity) {
+	public void pickUp(TransportableEntity entity) {
 		if (entity instanceof DemandAgent) {
 			PickUp.pickUp(entity, this.transportedEntities.size() == this.vehiclePassengerCapacity, this, this.transportedEntities);
 		}

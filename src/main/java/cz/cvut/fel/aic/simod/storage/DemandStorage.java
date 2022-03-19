@@ -19,6 +19,8 @@
 package cz.cvut.fel.aic.simod.storage;
 
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
 

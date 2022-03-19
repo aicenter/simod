@@ -27,6 +27,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.Agent;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.TransportEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
@@ -48,7 +49,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author F-I-D-O
  */
-public class DemandAgent<T extends TransportEntity> extends Agent implements EventHandler, TransportableEntity, TransportableEntityManagement<TransportableEntity> {
+
+// TODO: vytvorit rozhrani jen pro DemandAgenta
+public class DemandAgent extends Agent implements EventHandler, TransportableEntityManagement {
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandAgent.class);
 	
@@ -74,9 +77,9 @@ public class DemandAgent<T extends TransportEntity> extends Agent implements Eve
 	
 	private DemandAgentState state;
 	
-	private OnDemandVehicle onDemandVehicle;
+	private OnDemandVehicle onDemandVehicle;   // TODO misto vozidla dat rozhrani
 	
-	private TransportEntity transportEntity;
+	private TransportEntity<DemandAgent> transportEntity;
 	
 	private SimulationNode lastFromPosition;
 	
@@ -137,10 +140,7 @@ public class DemandAgent<T extends TransportEntity> extends Agent implements Eve
 	public boolean isDropped() {
 		return dropped;
 	}
-	
-	public TransportableEntity getEntity() {
-		return this;
-	}
+
 
 	
 	
@@ -191,7 +191,7 @@ public class DemandAgent<T extends TransportEntity> extends Agent implements Eve
 //				onDemandVehicle.getDemandTrip(this), this);
 	}
 
-
+	@Override
 	public void tripEnded() {
 		if(!getPosition().equals(trip.getLastLocation())){
 			try {
@@ -207,9 +207,10 @@ public class DemandAgent<T extends TransportEntity> extends Agent implements Eve
 		die();
 	}
 
+	@Override
 	public void tripStarted(OnDemandVehicle vehicle) {
-		if(state == DemandAgentState.DRIVING){
-			try {
+			if(state == DemandAgentState.DRIVING){
+				try {
 				throw new Exception(String.format("Demand Agent %s already driving in vehicle %s, it cannot be picked up by"
 						+ "another vehicle %s", this, onDemandVehicle, vehicle));
 			} catch (Exception ex) {

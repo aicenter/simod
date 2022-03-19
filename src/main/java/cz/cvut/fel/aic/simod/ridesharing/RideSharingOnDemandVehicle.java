@@ -27,6 +27,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.PhysicalVehicleDrive;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
@@ -59,7 +60,7 @@ import java.util.logging.Logger;
 /**
  * @author fido
  */
-public class RideSharingOnDemandVehicle<V extends PhysicalTransportVehicle> extends OnDemandVehicle<V> {
+public class RideSharingOnDemandVehicle<E extends TransportableEntity, V extends PhysicalTransportVehicle<E>> extends OnDemandVehicle<E, V> {
 
 	private final VisioPositionUtil positionUtil;
 

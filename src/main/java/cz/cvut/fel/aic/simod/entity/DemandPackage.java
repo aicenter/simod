@@ -9,6 +9,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.agent.TransportEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
@@ -22,13 +23,12 @@ import cz.cvut.fel.aic.simod.io.TimeTrip;
 import cz.cvut.fel.aic.simod.statistics.DemandServiceStatistic;
 import cz.cvut.fel.aic.simod.statistics.StatisticEvent;
 import cz.cvut.fel.aic.simod.storage.DemandPackageStorage;
-import cz.cvut.fel.aic.simod.storage.DemandStorage;
 import org.slf4j.LoggerFactory;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DemandPackage extends AgentPolisEntity implements TransportableEntity, TransportableEntityManagement {
+public class DemandPackage extends AgentPolisEntity implements TransportableEntityManagement {
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandAgent.class);
 
 	private final int simpleId;
@@ -103,7 +103,7 @@ public class DemandPackage extends AgentPolisEntity implements TransportableEnti
 		demandStorage.addEntity(this);
 
 		eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.DEMAND, onDemandVehicleStationsCentral, null,
-				new DemandData(trip.getLocations(), this));    // TODO: upravit v eventProcessoru
+				new DemandData(trip.getLocations(), this));
 	}
 
 	public void destroy() {

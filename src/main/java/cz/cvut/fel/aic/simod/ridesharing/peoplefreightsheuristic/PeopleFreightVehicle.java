@@ -57,7 +57,7 @@ public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSha
 			String vehicleId,
 			SimulationNode startPosition,
 			int maxParcelsCapacity,
-			@Assisted PhysicalPFVehicle<T> vClass)
+			@Assisted PhysicalPFVehicle<T> physVehicle)
 	{
 		super(
 				vehicleStorage,
@@ -74,8 +74,7 @@ public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSha
 				agentpolisConfig,
 				vehicleId,
 				startPosition,
-				vClass);
-
+				physVehicle);
 
 		this.maxParcelsCapacity = maxParcelsCapacity;
 		this.currentParcelsWeight = 0;
@@ -120,7 +119,7 @@ public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSha
 								+ "time: %s, drop time: %s", demandEntity, currentTime, droppTime));
 			}
 			demandEntity.tripStarted(this);
-			vehicle.pickUp((TransportableEntity) demandEntity);
+			vehicle.pickUp(demandEntity);
 
 			eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null,
 					new PickupEventContent(timeProvider.getCurrentSimTime(),
@@ -136,7 +135,7 @@ public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSha
 
 	private void dropOffAndContinue() {
 		PFPlanComputationRequest request = (PFPlanComputationRequest) ((PlanActionPickup) currentTask).getRequest();
-		TransportableEntityManagementdemandEntity = request.getDemandEntity();
+		TransportableEntityManagement demandEntity = request.getDemandEntity();
 		demandEntity.tripEnded();
 		vehicle.dropOff(demandEntity);
 

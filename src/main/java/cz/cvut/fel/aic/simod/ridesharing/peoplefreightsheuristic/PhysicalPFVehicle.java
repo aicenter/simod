@@ -23,7 +23,7 @@ public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTr
 {
 	private static final int vehiclePassengerCapacity = 1;
 
-	protected final List<T> transportedPackages;
+	protected final List<DemandPackage> transportedPackages;
 	private final int vehiclePackagesCapacity;
 
 	public PhysicalPFVehicle(
@@ -43,19 +43,18 @@ public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTr
 	}
 
 	// implements pickUp() for both Agents and Packages
-
 	@Override
 	public void pickUp(TransportableEntity entity) {
 		if (entity instanceof DemandAgent) {
-			PickUp.pickUp(entity, this.transportedEntities.size() == this.vehiclePassengerCapacity, this, this.transportedEntities);
+			PickUp.pickUp((T) entity, this.transportedEntities.size() == this.vehiclePassengerCapacity, this, this.transportedEntities);
 		}
 		else {
-			PickUp.pickUp(entity, this.transportedPackages.size() == this.vehiclePackagesCapacity, this, this.transportedPackages);
+			PickUp.pickUp((T) entity, this.transportedPackages.size() == this.vehiclePackagesCapacity, this, this.transportedPackages);
 		}
 	}
 
 	@Override
-	public void dropOff(T entityToDropOff) {
+	public void dropOff(TransportableEntity entityToDropOff) {
 		// if entity is Agent
 		boolean success;
 		if (entityToDropOff instanceof DemandAgent) {
@@ -78,7 +77,7 @@ public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTr
 	}
 
 
-	public List<T> getTransportedPackages(){
+	public List<DemandPackage> getTransportedPackages(){
 		return this.transportedPackages;
 	}
 
@@ -88,7 +87,7 @@ public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTr
 		return vehiclePassengerCapacity;
 	}
 
-	public int getVehiclePackagesCapacity()
+	public int getPackagesCapacity()
 	{
 		return this.vehiclePackagesCapacity;
 	}

@@ -63,12 +63,12 @@ import java.util.List;
  *
  * @author fido
  */
-public class OnDemandVehicle<T extends TransportableEntity, V extends PhysicalTransportVehicle<T>> extends Agent implements EventHandler, PlanningAgent,
+public class OnDemandVehicle<T extends TransportableEntity, V extends PhysicalTransportVehicle<T>> extends Agent implements EventHandler, PlanningAgent, OnDemandVehicleInterface,
 		Driver<V>{
 	
 	private static final int LENGTH = 4;
-	
-	
+
+
 	private final int index;
 	
 	protected V vehicle;
@@ -135,7 +135,7 @@ public class OnDemandVehicle<T extends TransportableEntity, V extends PhysicalTr
 		return currentTrip;
 	}
 
-	public VehicleTrip getDemandTrip(DemandAgent<T> agent) {
+	public VehicleTrip getDemandTrip(DemandAgent agent) {
 		return new VehicleTrip(rebalancingIdGenerator.getId(),demandTrip.getVehicle(), demandTrip.getLocations().clone());
 	}
 
@@ -178,7 +178,7 @@ public class OnDemandVehicle<T extends TransportableEntity, V extends PhysicalTr
 	
 	@Inject
 	public OnDemandVehicle(
-			PhysicalTransportVehicleStorage vehicleStorage, 
+			PhysicalTransportVehicleStorage<V> vehicleStorage,		// TODO this argument is now useless??
 			TripsUtil tripsUtil, 
 			StationsDispatcher onDemandVehicleStationsCentral, 
 			PhysicalVehicleDriveFactory driveFactory, 
@@ -204,15 +204,15 @@ public class OnDemandVehicle<T extends TransportableEntity, V extends PhysicalTr
 		this.config = config;
 
 		index = idGenerator.getId();
-//		initPhysicalVehicle(vehicleId, startPosition, agentpolisConfig, vehicleStorage);
 
+		// set the physical vehicle
 		try
 		{
 			this.vehicle = physVehicle;
 		}
 		catch (Exception e)
 		{
-			System.out.println(e);
+			System.out.println(e.toString());
 		}
 
 		metersWithPassenger = 0;
@@ -221,25 +221,8 @@ public class OnDemandVehicle<T extends TransportableEntity, V extends PhysicalTr
 		metersRebalancing = 0;
 	}
 
-	// create new PhysicalTranportVehicle
-//	public void initPhysicalVehicle(String vehicleId,
-//									SimulationNode startPosition,
-//									AgentpolisConfig agentpolisConfig,
-//									PhysicalTransportVehicleStorage vehicleStorage,
-//									@Assisted Class<V> vClass)
-//	{
-//		vehicle = new V(
-//				vehicleId + " - vehicle",
-//				DemandSimulationEntityType.VEHICLE,
-//				LENGTH,
-//				config.ridesharing.vehicleCapacity,
-//				EGraphType.HIGHWAY,
-//				startPosition,
-//				agentpolisConfig.maxVehicleSpeedInMeters);
-//		vehicleStorage.addEntity(vehicle);
-//		vehicle.setDriver(this);
-//		state = OnDemandVehicleState.WAITING;
-//	}
+
+
 
 	@Override
 	public EventProcessor getEventProcessor() {
@@ -437,7 +420,7 @@ public class OnDemandVehicle<T extends TransportableEntity, V extends PhysicalTr
 	
 	protected void dropOffDemand() {
 		currentlyServedDemmand.demandAgent.tripEnded();
-		vehicle.dropOff(currentlyServedDemmand.demandAgent);
+		vehicle.dropOff((T) currentlyServedDemmand.demandAgent);
 		eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
 				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
 						currentlyServedDemmand.demandAgent.getSimpleId(), getId()));

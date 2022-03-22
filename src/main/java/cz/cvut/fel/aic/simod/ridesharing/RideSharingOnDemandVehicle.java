@@ -78,7 +78,7 @@ public class RideSharingOnDemandVehicle<E extends TransportableEntity, V extends
 
 	@Inject
 	public RideSharingOnDemandVehicle(
-			PhysicalTransportVehicleStorage vehicleStorage,
+			PhysicalTransportVehicleStorage<V> vehicleStorage,
 			TripsUtil tripsUtil,
 			StationsDispatcher onDemandVehicleStationsCentral,
 			PhysicalVehicleDriveFactory driveActivityFactory,
@@ -250,7 +250,6 @@ public class RideSharingOnDemandVehicle<E extends TransportableEntity, V extends
 		}
 	}
 
-	// TODO: pickup and dropoff - vlastni metody, nebo doplnit IF do stavajici metody
 	private void pickupAndContinue() {
 		try {
 			DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
@@ -262,7 +261,7 @@ public class RideSharingOnDemandVehicle<E extends TransportableEntity, V extends
 								+ "time: %s, drop time: %s", demandAgent, currentTime, droppTime));
 			}
 			demandAgent.tripStarted(this);
-			vehicle.pickUp(demandAgent);
+			vehicle.pickUp((E) demandAgent);
 
 			// statistics TODO demand trip?
 			//		demandTrip = tripsUtil.createTrip(currentTask.getDemandAgent().getPosition().id,
@@ -284,7 +283,7 @@ public class RideSharingOnDemandVehicle<E extends TransportableEntity, V extends
 	private void dropOffAndContinue() {
 		DemandAgent demandAgent = ((PlanActionDropoff) currentTask).getRequest().getDemandAgent();
 		demandAgent.tripEnded();
-		vehicle.dropOff(demandAgent);
+		vehicle.dropOff((E) demandAgent);
 
 		// statistics
 		eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null,

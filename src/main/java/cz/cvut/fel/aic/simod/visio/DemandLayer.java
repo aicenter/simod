@@ -31,6 +31,7 @@ import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.DemandAgentState;
 import cz.cvut.fel.aic.simod.storage.DemandStorage;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -41,11 +42,10 @@ import java.util.Set;
 import javax.vecmath.Point2d;
 
 /**
- *
  * @author fido
  */
 @Singleton
-public class DemandLayer<E extends TransportableEntity, V extends PhysicalTransportVehicle<E>> extends ClickableEntityLayer<DemandAgent<E,V>>  {
+public class DemandLayer<E extends TransportableEntity, V extends PhysicalTransportVehicle<E>> extends ClickableEntityLayer<DemandAgent<E, V>> {
 
 	private static final Color DEMAND_COLOR = new Color(194, 66, 74);
 
@@ -60,12 +60,7 @@ public class DemandLayer<E extends TransportableEntity, V extends PhysicalTransp
 	private static final Color TEXT_BACKGROUND_COLOR = Color.WHITE;
 
 
-
-
 	protected final Set<DemandAgent> demandsWithPrintedInfo;
-
-
-
 
 
 	@Inject
@@ -82,42 +77,42 @@ public class DemandLayer<E extends TransportableEntity, V extends PhysicalTransp
 	}
 
 
-	protected Point2d getDrivingAgentPosition(DemandAgent demandAgent){
+	protected Point2d getDrivingAgentPosition(DemandAgent demandAgent) {
 		return positionUtil.getCanvasPositionInterpolatedForVehicle((Vehicle) demandAgent.getTransportingEntity());
 	}
 
-	protected Point2d getDrivingAgentPositionInTime(DemandAgent demandAgent, long time){
+	protected Point2d getDrivingAgentPositionInTime(DemandAgent demandAgent, long time) {
 		return positionUtil.getCanvasPositionInterpolatedForVehicleInTime((Vehicle) demandAgent.getTransportingEntity(), time);
 	}
 
-	protected Point2d getWaitingAgentPosition(DemandAgent demandAgent){
+	protected Point2d getWaitingAgentPosition(DemandAgent demandAgent) {
 		return positionUtil.getCanvasPosition(demandAgent.getPosition());
 	}
 
 
 	@Override
 	protected Point2d getEntityPosition(DemandAgent demandAgent) {
-		if(demandAgent.getState() == DemandAgentState.DRIVING){
+		if (demandAgent.getState() == DemandAgentState.DRIVING) {
 			return getDrivingAgentPosition(demandAgent);
 		}
-		else{
+		else {
 			return getWaitingAgentPosition(demandAgent);
 		}
 	}
 
 	@Override
 	protected Point2d getEntityPositionInTime(DemandAgent demandAgent, long time) {
-		if(demandAgent.getState() == DemandAgentState.DRIVING){
+		if (demandAgent.getState() == DemandAgentState.DRIVING) {
 			return getDrivingAgentPositionInTime(demandAgent, time);
 		}
-		else{
+		else {
 			return getWaitingAgentPosition(demandAgent);
 		}
 	}
 
 	@Override
 	protected Color getEntityDrawColor(DemandAgent demandAgent) {
-		if(demandAgent.isDropped()){
+		if (demandAgent.isDropped()) {
 			return DROPPED_COLOR;
 		}
 
@@ -145,10 +140,10 @@ public class DemandLayer<E extends TransportableEntity, V extends PhysicalTransp
 	}
 
 	@Override
-	protected void drawEntities(List<DemandAgent<E,V>> demandAgents, Point2d entityPosition, Graphics2D canvas,
+	protected void drawEntities(List<DemandAgent<E, V>> demandAgents, Point2d entityPosition, Graphics2D canvas,
 								Dimension dim) {
 		super.drawEntities(demandAgents, entityPosition, canvas, dim);
-		if(demandsWithPrintedInfo.contains(demandAgents.get(0))){
+		if (demandsWithPrintedInfo.contains(demandAgents.get(0))) {
 			double radius = getRadius(demandAgents.get(0));
 
 			int x1 = (int) (entityPosition.getX() - radius);

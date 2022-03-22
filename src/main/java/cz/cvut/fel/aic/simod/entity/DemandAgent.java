@@ -36,6 +36,7 @@ import cz.cvut.fel.aic.simod.DemandData;
 import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleInterface;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
 import cz.cvut.fel.aic.simod.statistics.DemandServiceStatistic;
@@ -77,7 +78,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	
 	private DemandAgentState state;
 	
-	private OnDemandVehicle onDemandVehicle;   // TODO misto vozidla dat rozhrani
+	private OnDemandVehicleInterface onDemandVehicle;   // TODO misto vozidla dat rozhrani
 	
 	private TransportEntity<DemandAgent> transportEntity;
 	
@@ -121,13 +122,13 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		return state;
 	}
 
-	public OnDemandVehicle getVehicle() {
+	public OnDemandVehicleInterface getVehicleInterface() {
 		return onDemandVehicle;
 	}
 
-	public OnDemandVehicle getOnDemandVehicle() {
-		return onDemandVehicle;
-	}
+//	public OnDemandVehicle getOnDemandVehicle() {
+//		return onDemandVehicle;
+//	}
 
 	public long getMinDemandServiceDuration() {
 		return minDemandServiceDuration;
@@ -185,7 +186,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 
 	@Override
 	public void handleEvent(Event event) {
-		onDemandVehicle = (OnDemandVehicle) event.getContent();
+		this.onDemandVehicle = (OnDemandVehicleInterface) event.getContent();	// TODO muze tu byt natvrdo ten Interface ???
 //		vehicle = onDemandVehicle.getVehicle();
 //		rideAsPassengerActivity.usingVehicleAsPassenger(this.getId(), onDemandVehicle.getVehicleId(), 
 //				onDemandVehicle.getDemandTrip(this), this);
@@ -208,7 +209,9 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	}
 
 	@Override
-	public void tripStarted(OnDemandVehicle vehicle) {
+	public void tripStarted(OnDemandVehicle vehicle) {}		// TODO this method is necessary to implement, but not used, so it's empty
+
+	public void tripStarted(OnDemandVehicleInterface vehicle) {
 			if(state == DemandAgentState.DRIVING){
 				try {
 				throw new Exception(String.format("Demand Agent %s already driving in vehicle %s, it cannot be picked up by"

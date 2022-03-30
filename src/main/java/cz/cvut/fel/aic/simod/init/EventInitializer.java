@@ -32,8 +32,6 @@ import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.DemandAgent.DemandAgentFactory;
-import cz.cvut.fel.aic.simod.entity.DemandPackage;
-import cz.cvut.fel.aic.simod.entity.DemandPackage.DemandPackageFactory;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
@@ -41,7 +39,7 @@ import cz.cvut.fel.aic.simod.io.TimeTrip;
 import java.util.List;
 import java.util.Random;
 
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestFreight;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PackageContent;
 import org.slf4j.LoggerFactory;
 
 /**

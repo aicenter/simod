@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import cz.cvut.fel.aic.simod.init.PackageContent;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PackageContent;
 import me.tongfei.progressbar.ProgressBar;
 import org.slf4j.LoggerFactory;
 

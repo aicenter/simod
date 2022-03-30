@@ -1,4 +1,4 @@
-package cz.cvut.fel.aic.simod.visual.ridesharing.peoplefreightheuristic;
+package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.tests;
 
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.AStarShortestPathPlanner;
@@ -26,8 +26,8 @@ import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
 import cz.cvut.fel.aic.simod.ridesharing.DroppedDemandsAnalyzer;
 import cz.cvut.fel.aic.simod.ridesharing.StandardPlanCostProvider;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestFreight;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestPeople;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PlanComputationRequestFreight;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PlanComputationRequestPeople;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightHeuristicSolver;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightVehicle;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PhysicalPFVehicle;

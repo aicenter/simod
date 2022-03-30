@@ -19,7 +19,10 @@
 package cz.cvut.fel.aic.simod;
 
 import cz.cvut.fel.aic.simod.ridesharing.*;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.DARPSolverPFShared;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightHeuristicSolver;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightVehicle;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightVehicleFactory;
 import cz.cvut.fel.aic.simod.traveltimecomputation.DistanceMatrixTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TNRTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TNRAFTravelTimeProvider;
@@ -131,10 +134,14 @@ public class MainModule extends StandardAgentPolisModule{
 
 		if(SimodConfig.ridesharing.on){
 			// if balicky existuji -> nactu moje factory pro vozidla
-				//
-				// doplnit pro moje requesty a ostatni moje tridy
-			// else:
-			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
+			if (false /*SimodConfig.packagesOn*/) {
+				// TODO: doplnit pro moje requesty a ostatni moje tridy
+				bind(OnDemandVehicleFactorySpec.class).to(PeopleFreightVehicleFactory.class);
+				bind(RideSharingOnDemandVehicle.class).to(PeopleFreightVehicle.class);
+			}
+			else {
+				bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
+			}
 
 			bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
 			bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
@@ -150,6 +157,8 @@ public class MainModule extends StandardAgentPolisModule{
 		//			bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
 					break;
 				case "people-freight-heuristic":
+					// TODO vlastni RidesharingDispatcher s DARPsolveremPFshared
+//					bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
 					bind(DARPSolverPFShared.class).to(PeopleFreightHeuristicSolver.class);
 					break;
 			}

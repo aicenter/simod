@@ -20,7 +20,7 @@ package cz.cvut.fel.aic.simod;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
-import cz.cvut.fel.aic.simod.entity.DemandPackage;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.DemandPackage;
 
 /**
  *

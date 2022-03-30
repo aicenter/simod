@@ -8,19 +8,14 @@ import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
-import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
-import cz.cvut.fel.aic.simod.entity.TransportableEntityManagement;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
-import cz.cvut.fel.aic.simod.ridesharing.model.PFPlanComputationRequest;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.simod.statistics.PickupEventContent;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
@@ -28,7 +23,7 @@ import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSharingOnDemandVehicle<T, PhysicalPFVehicle<T>>
+public class PeopleFreightVehicle extends RideSharingOnDemandVehicle<TransportableEntity, PhysicalPFVehicle<TransportableEntity>>
 {
 	public final int vehiclePassengerCapacity = 1;
 
@@ -42,10 +37,10 @@ public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSha
 
 
 	public PeopleFreightVehicle(
-			PhysicalTransportVehicleStorage<PhysicalPFVehicle<T>> vehicleStorage,
+			PhysicalTransportVehicleStorage<PhysicalPFVehicle<TransportableEntity>> vehicleStorage,
 			TripsUtil tripsUtil,
 			StationsDispatcher onDemandVehicleStationsCentral,
-			PhysicalVehicleDriveFactory driveActivityFactory,	// TODO: upravit factory pro tvoreni ??
+			PhysicalVehicleDriveFactory driveActivityFactory,
 			VisioPositionUtil positionUtil,
 			IdGenerator tripIdGenerator,
 			EventProcessor eventProcessor,
@@ -57,7 +52,7 @@ public class PeopleFreightVehicle<T extends TransportableEntity> extends RideSha
 			String vehicleId,
 			SimulationNode startPosition,
 			int maxParcelsCapacity,
-			@Assisted PhysicalPFVehicle<T> physVehicle)
+			@Assisted PhysicalPFVehicle<TransportableEntity> physVehicle)
 	{
 		super(
 				vehicleStorage,

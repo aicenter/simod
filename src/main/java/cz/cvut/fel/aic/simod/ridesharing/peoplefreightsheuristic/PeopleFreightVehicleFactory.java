@@ -1,4 +1,4 @@
-package cz.cvut.fel.aic.simod.ridesharing;
+package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -7,6 +7,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
@@ -40,7 +41,7 @@ public class PeopleFreightVehicleFactory implements OnDemandVehicleFactorySpec {
 
 	protected final IdGenerator rebalancingIdGenerator;
 
-	protected final PhysicalTransportVehicleStorage vehicleStorage;
+	protected final PhysicalTransportVehicleStorage<PhysicalPFVehicle<TransportableEntity>>vehicleStorage;
 
 	protected final SimodConfig config;
 
@@ -50,7 +51,7 @@ public class PeopleFreightVehicleFactory implements OnDemandVehicleFactorySpec {
 
 	@Inject
 	public PeopleFreightVehicleFactory(
-			PhysicalTransportVehicleStorage vehicleStorage,
+			PhysicalTransportVehicleStorage<PhysicalPFVehicle<TransportableEntity>> vehicleStorage,
 			TripsUtil tripsUtil,
 			StationsDispatcher onDemandVehicleStationsCentral,
 			VisioPositionUtil positionUtil,

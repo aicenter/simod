@@ -26,8 +26,6 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.Agent;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.TransportEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
@@ -39,6 +37,7 @@ import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleInterface;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.TransportableEntityManagement;
 import cz.cvut.fel.aic.simod.statistics.DemandServiceStatistic;
 import cz.cvut.fel.aic.simod.statistics.StatisticEvent;
 import cz.cvut.fel.aic.simod.storage.DemandStorage;
@@ -78,7 +77,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	
 	private DemandAgentState state;
 	
-	private OnDemandVehicleInterface onDemandVehicle;   // TODO misto vozidla dat rozhrani
+	private OnDemandVehicleInterface onDemandVehicle;
 	
 	private TransportEntity<DemandAgent> transportEntity;
 	
@@ -207,9 +206,6 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		
 		die();
 	}
-
-	@Override
-	public void tripStarted(OnDemandVehicle vehicle) {}		// TODO this method is necessary to implement, but not used, so it's empty
 
 	public void tripStarted(OnDemandVehicleInterface vehicle) {
 			if(state == DemandAgentState.DRIVING){

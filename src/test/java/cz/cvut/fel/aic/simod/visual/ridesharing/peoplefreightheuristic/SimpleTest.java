@@ -26,7 +26,7 @@ import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
 import cz.cvut.fel.aic.simod.ridesharing.DroppedDemandsAnalyzer;
 import cz.cvut.fel.aic.simod.ridesharing.StandardPlanCostProvider;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestPeople;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PlanComputationRequestPeople;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightHeuristicSolver;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightVehicle;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PhysicalPFVehicle;
@@ -35,7 +35,6 @@ import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
 import ninja.fido.config.Configuration;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +45,6 @@ public class SimpleTest
 {
     private static final int LENGTH = 4;
 
-    @Test
     public void run() throws Throwable
     {
 //        TravelTimeProvider travelTimeProvider = null;

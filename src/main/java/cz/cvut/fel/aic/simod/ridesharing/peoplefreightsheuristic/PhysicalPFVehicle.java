@@ -9,8 +9,6 @@ import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PickUp;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.GraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
-import cz.cvut.fel.aic.simod.entity.DemandPackage;
-import cz.cvut.fel.aic.simod.entity.TransportableEntityManagement;
 
 import java.util.*;
 
@@ -22,6 +20,8 @@ import java.util.logging.Logger;
 public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTransportVehicle<T> implements TransportEntity<T>
 {
 	private static final int vehiclePassengerCapacity = 1;
+
+	protected final List<TransportableEntity> transportedEntities;
 
 	protected final List<DemandPackage> transportedPackages;
 	private final int vehiclePackagesCapacity;
@@ -38,18 +38,20 @@ public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTr
 		// the vehiclePassengerCapacity is always 1 for PF vehicles
 		super(vehicleId, type, lengthInMeters, vehiclePassengerCapacity, usingGraphTypeForMoving, position, maxVelocity);
 
+		transportedEntities = new ArrayList<>();
 		transportedPackages = new ArrayList<>();
 		this.vehiclePackagesCapacity = vehiclePackagesCapacity;
 	}
 
 	// implements pickUp() for both Agents and Packages
 	@Override
+	// TODO upravit pickUp aby nebyl genericky
 	public void pickUp(TransportableEntity entity) {
-		if (entity instanceof DemandAgent) {
-			PickUp.pickUp((T) entity, this.transportedEntities.size() == this.vehiclePassengerCapacity, this, this.transportedEntities);
+		if (entity instanceof DemandPackage) {
+			PickUp.pickUp(entity, this.transportedEntities.size() == this.vehiclePassengerCapacity, this , this.transportedEntities);
 		}
 		else {
-			PickUp.pickUp((T) entity, this.transportedPackages.size() == this.vehiclePackagesCapacity, this, this.transportedPackages);
+			PickUp.pickUp(entity, this.transportedPackages.size() == this.vehiclePackagesCapacity, this, this.transportedPackages);
 		}
 	}
 
@@ -77,7 +79,7 @@ public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTr
 	}
 
 
-	public List<DemandPackage> getTransportedPackages(){
+	public List<TransportableEntity> getTransportedPackages(){
 		return this.transportedPackages;
 	}
 

@@ -1,4 +1,4 @@
-package cz.cvut.fel.aic.simod.entity;
+package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -9,20 +9,19 @@ import cz.cvut.fel.aic.agentpolis.simmodel.agent.TransportEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.alite.common.event.Event;
-import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.DemandData;
 import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
+import cz.cvut.fel.aic.simod.entity.DemandAgent;
+import cz.cvut.fel.aic.simod.entity.DemandAgentState;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleInterface;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
 import cz.cvut.fel.aic.simod.statistics.DemandServiceStatistic;
 import cz.cvut.fel.aic.simod.statistics.StatisticEvent;
-import cz.cvut.fel.aic.simod.storage.DemandPackageStorage;
 import org.slf4j.LoggerFactory;
 
 import java.util.logging.Level;
@@ -53,7 +52,7 @@ public class DemandPackage extends AgentPolisEntity implements TransportableEnti
 
 	private DemandAgentState state;
 
-	private OnDemandVehicle onDemandVehicle;
+	private OnDemandVehicleInterface onDemandVehicle;
 
 	private TransportEntity transportEntity;
 
@@ -139,11 +138,7 @@ public class DemandPackage extends AgentPolisEntity implements TransportableEnti
 		return state;
 	}
 
-	public OnDemandVehicle getVehicle() {
-		return onDemandVehicle;
-	}
-
-	public OnDemandVehicle getOnDemandVehicle() {
+	public OnDemandVehicleInterface getOnDemandVehicle() {
 		return onDemandVehicle;
 	}
 
@@ -180,7 +175,7 @@ public class DemandPackage extends AgentPolisEntity implements TransportableEnti
 		destroy();
 	}
 
-	public void tripStarted(OnDemandVehicle vehicle) {
+	public void tripStarted(OnDemandVehicleInterface vehicle) {
 		if (state == DemandAgentState.DRIVING) {
 			try {
 				throw new Exception(String.format("Demand Package %s already driving in vehicle %s, it cannot be picked up by"

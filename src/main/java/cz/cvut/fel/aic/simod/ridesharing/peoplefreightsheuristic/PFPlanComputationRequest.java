@@ -1,19 +1,19 @@
-package cz.cvut.fel.aic.simod.ridesharing.model;
+package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
-import cz.cvut.fel.aic.simod.entity.TransportableEntityManagement;
+import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
+import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
+import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 
 import java.util.Random;
 
 
-public class PFPlanComputationRequest<T extends TransportableEntityManagement> implements PlanComputationRequest{
+public class PFPlanComputationRequest implements PlanComputationRequest {
 
 	public final int id;
 
@@ -22,7 +22,7 @@ public class PFPlanComputationRequest<T extends TransportableEntityManagement> i
 	 */
 	private final int originTime;
 
-	private final T demandEntity;		// TODO zjistit kde a jak to budu pouzivat
+	private final TransportableEntityManagement demandEntity;		// TODO zjistit kde a jak to budu pouzivat
 
 	private final PlanActionPickup pickUpAction;
 
@@ -41,7 +41,7 @@ public class PFPlanComputationRequest<T extends TransportableEntityManagement> i
 	@Inject
 	public PFPlanComputationRequest(TravelTimeProvider travelTimeProvider, @Assisted int id,
 										 SimodConfig SimodConfig, @Assisted("origin") SimulationNode origin,
-										 @Assisted("destination") SimulationNode destination, @Assisted T demandEntity){
+										 @Assisted("destination") SimulationNode destination, @Assisted TransportableEntityManagement demandEntity){
 		this.id = id;
 
 		hash = 0;
@@ -99,7 +99,7 @@ public class PFPlanComputationRequest<T extends TransportableEntityManagement> i
 		return (DemandAgent) null;
 	}
 
-	public T getDemandEntity() {
+	public TransportableEntityManagement getDemandEntity() {
 		return demandEntity;
 	}
 
@@ -157,8 +157,8 @@ public class PFPlanComputationRequest<T extends TransportableEntityManagement> i
 
 
 
-	public interface PFPlanComputationRequestFactory<T extends TransportableEntityManagement> {
+	public interface PFPlanComputationRequestFactory {
 		PFPlanComputationRequest create(int id, @Assisted("origin") SimulationNode origin,
-													@Assisted("destination") SimulationNode destination, T demandEntity);
+													@Assisted("destination") SimulationNode destination, TransportableEntityManagement demandEntity);
 	}
 }

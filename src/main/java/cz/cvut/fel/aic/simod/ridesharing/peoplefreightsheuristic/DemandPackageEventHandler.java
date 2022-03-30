@@ -1,11 +1,10 @@
-package cz.cvut.fel.aic.simod.init;
+package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic;
 
 import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandlerAdapter;
-import cz.cvut.fel.aic.simod.entity.DemandPackage;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
 
 public class DemandPackageEventHandler extends EventHandlerAdapter {

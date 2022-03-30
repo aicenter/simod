@@ -1,4 +1,4 @@
-package cz.cvut.fel.aic.simod.init;
+package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.io.TimeTrip;

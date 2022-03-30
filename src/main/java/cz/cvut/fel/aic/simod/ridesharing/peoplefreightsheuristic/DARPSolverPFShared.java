@@ -16,13 +16,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.simod.ridesharing;
+package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic;
 
+import cz.cvut.fel.aic.simod.ridesharing.PlanCostProvider;
+import cz.cvut.fel.aic.simod.ridesharing.RidesharingDispatcher;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;  //.DefaultPlanComputationRequestFactory;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestFreight;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestPeople;
-import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightVehicle;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStats;

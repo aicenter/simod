@@ -45,7 +45,7 @@ import javax.vecmath.Point2d;
  * @author fido
  */
 @Singleton
-public class DemandLayer<E extends TransportableEntity, V extends PhysicalTransportVehicle<E>> extends ClickableEntityLayer<DemandAgent<E, V>> {
+public class DemandLayer extends ClickableEntityLayer<DemandAgent> {
 
 	private static final Color DEMAND_COLOR = new Color(194, 66, 74);
 
@@ -140,7 +140,7 @@ public class DemandLayer<E extends TransportableEntity, V extends PhysicalTransp
 	}
 
 	@Override
-	protected void drawEntities(List<DemandAgent<E, V>> demandAgents, Point2d entityPosition, Graphics2D canvas,
+	protected void drawEntities(List<DemandAgent> demandAgents, Point2d entityPosition, Graphics2D canvas,
 								Dimension dim) {
 		super.drawEntities(demandAgents, entityPosition, canvas, dim);
 		if (demandsWithPrintedInfo.contains(demandAgents.get(0))) {

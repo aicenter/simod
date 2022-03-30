@@ -115,7 +115,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		this.tripIdGenerator = tripIdGenerator;
 		newRequests = new ArrayList<>();
 		waitingRequests = new LinkedHashSet<>();
-		darpSolverComputationalTimes = new ArrayList();
+		darpSolverComputationalTimes = new ArrayList<>();
 		requestsMapByDemandAgents = new HashMap<>();
 		requestCounter = 0;
 		if(config.ridesharing.batchPeriod != 0){
@@ -269,7 +269,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		return requestsMapByDemandAgents.get(demandId);
 	}
 	
-	private void setEventHandeling() {
+	protected void setEventHandeling() {
 		List<Enum> typesToHandle = new LinkedList<>();
 		typesToHandle.add(OnDemandVehicleEvent.PICKUP);
 		eventProcessor.addEventHandler(this, typesToHandle);

@@ -18,6 +18,11 @@
  */
 package cz.cvut.fel.aic.simod;
 
+import cz.cvut.fel.aic.simod.ridesharing.*;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.DARPSolverPFShared;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightHeuristicSolver;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightVehicle;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightVehicleFactory;
 import cz.cvut.fel.aic.simod.traveltimecomputation.DistanceMatrixTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TNRTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TNRAFTravelTimeProvider;
@@ -57,11 +62,7 @@ import cz.cvut.fel.aic.simod.visio.AmodsimVisioInItializer;
 import cz.cvut.fel.aic.simod.visio.DemandLayer;
 import cz.cvut.fel.aic.simod.visio.DemandLayerWithJitter;
 import cz.cvut.fel.aic.geographtools.TransportMode;
-import cz.cvut.fel.aic.simod.ridesharing.DARPSolver;
-import cz.cvut.fel.aic.simod.ridesharing.PlanCostProvider;
-import cz.cvut.fel.aic.simod.ridesharing.RidesharingDispatcher;
-import cz.cvut.fel.aic.simod.ridesharing.RidesharingOnDemandVehicleFactory;
-import cz.cvut.fel.aic.simod.ridesharing.StandardPlanCostProvider;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -132,11 +133,20 @@ public class MainModule extends StandardAgentPolisModule{
 		}
 
 		if(SimodConfig.ridesharing.on){
-			bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
+			// if balicky existuji -> nactu moje factory pro vozidla
+			if (false /*SimodConfig.packagesOn*/) {
+				// TODO: doplnit pro moje requesty a ostatni moje tridy
+				bind(OnDemandVehicleFactorySpec.class).to(PeopleFreightVehicleFactory.class);
+				bind(RideSharingOnDemandVehicle.class).to(PeopleFreightVehicle.class);
+			}
+			else {
+				bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
+			}
+
 			bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
 			bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
 			install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
-						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));	
+						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
 			switch(SimodConfig.ridesharing.method){
 				case "insertion-heuristic":
 					bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
@@ -145,6 +155,11 @@ public class MainModule extends StandardAgentPolisModule{
 					bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
 					bind(SingleVehicleDARPSolver.class).to(ArrayOptimalVehiclePlanFinder.class);
 		//			bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
+					break;
+				case "people-freight-heuristic":
+					// TODO vlastni RidesharingDispatcher s DARPsolveremPFshared
+//					bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
+					bind(DARPSolverPFShared.class).to(PeopleFreightHeuristicSolver.class);
 					break;
 			}
 		}

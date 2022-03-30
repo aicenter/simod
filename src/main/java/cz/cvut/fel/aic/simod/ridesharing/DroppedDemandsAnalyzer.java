@@ -40,7 +40,7 @@ public class DroppedDemandsAnalyzer {
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DroppedDemandsAnalyzer.class);
 		
-        private final SimodConfig config;
+	private final SimodConfig config;
 	
 	protected final OnDemandVehicleStorage vehicleStorage;
 	
@@ -64,7 +64,8 @@ public class DroppedDemandsAnalyzer {
 			TravelTimeProvider travelTimeProvider, 
 			SimodConfig config, 
 			OnDemandvehicleStationStorage onDemandvehicleStationStorage,
-			AgentpolisConfig agentpolisConfig) {
+			AgentpolisConfig agentpolisConfig)
+	{
 		this.vehicleStorage = vehicleStorage;
 		this.positionUtil = positionUtil;
 		this.travelTimeProvider = travelTimeProvider;
@@ -72,16 +73,15 @@ public class DroppedDemandsAnalyzer {
                 this.config = config;
 		
 		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
-		maxDistance = (double) config.ridesharing.maxProlongationInSeconds 
+		maxDistance = (double) config.ridesharing.maxProlongationInSeconds
 				* agentpolisConfig.maxVehicleSpeedInMeters;
 		
 		// the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the
 		// vehicle to be considered to serve the request
 		maxDelayTime = config.ridesharing.maxProlongationInSeconds  * 1000;
 	}
-	
-	
-	
+
+
 	
 	
 	public void debugFail(PlanComputationRequest request, int[] usedVehiclesPerStation) {

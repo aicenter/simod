@@ -26,7 +26,6 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.Agent;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.TransportEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
@@ -35,8 +34,10 @@ import cz.cvut.fel.aic.simod.DemandData;
 import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleInterface;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.TransportableEntityManagement;
 import cz.cvut.fel.aic.simod.statistics.DemandServiceStatistic;
 import cz.cvut.fel.aic.simod.statistics.StatisticEvent;
 import cz.cvut.fel.aic.simod.storage.DemandStorage;
@@ -48,7 +49,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author F-I-D-O
  */
-public class DemandAgent extends Agent implements EventHandler, TransportableEntity {
+
+// TODO: vytvorit rozhrani jen pro DemandAgenta
+public class DemandAgent extends Agent implements EventHandler, TransportableEntityManagement {
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandAgent.class);
 	
@@ -74,9 +77,9 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	
 	private DemandAgentState state;
 	
-	private OnDemandVehicle onDemandVehicle;
+	private OnDemandVehicleInterface onDemandVehicle;
 	
-	private TransportEntity transportEntity;
+	private TransportEntity<DemandAgent> transportEntity;
 	
 	private SimulationNode lastFromPosition;
 	
@@ -118,13 +121,13 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		return state;
 	}
 
-	public OnDemandVehicle getVehicle() {
+	public OnDemandVehicleInterface getVehicleInterface() {
 		return onDemandVehicle;
 	}
 
-	public OnDemandVehicle getOnDemandVehicle() {
-		return onDemandVehicle;
-	}
+//	public OnDemandVehicle getOnDemandVehicle() {
+//		return onDemandVehicle;
+//	}
 
 	public long getMinDemandServiceDuration() {
 		return minDemandServiceDuration;
@@ -137,8 +140,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	public boolean isDropped() {
 		return dropped;
 	}
-	
-	
+
 
 	
 	
@@ -183,13 +185,13 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 
 	@Override
 	public void handleEvent(Event event) {
-		onDemandVehicle = (OnDemandVehicle) event.getContent();
+		this.onDemandVehicle = (OnDemandVehicleInterface) event.getContent();	// TODO muze tu byt natvrdo ten Interface ???
 //		vehicle = onDemandVehicle.getVehicle();
 //		rideAsPassengerActivity.usingVehicleAsPassenger(this.getId(), onDemandVehicle.getVehicleId(), 
 //				onDemandVehicle.getDemandTrip(this), this);
 	}
 
-
+	@Override
 	public void tripEnded() {
 		if(!getPosition().equals(trip.getLastLocation())){
 			try {
@@ -205,9 +207,9 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		die();
 	}
 
-	public void tripStarted(OnDemandVehicle vehicle) {
-		if(state == DemandAgentState.DRIVING){
-			try {
+	public void tripStarted(OnDemandVehicleInterface vehicle) {
+			if(state == DemandAgentState.DRIVING){
+				try {
 				throw new Exception(String.format("Demand Agent %s already driving in vehicle %s, it cannot be picked up by"
 						+ "another vehicle %s", this, onDemandVehicle, vehicle));
 			} catch (Exception ex) {

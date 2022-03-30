@@ -32,7 +32,9 @@ import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehi
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.DelayData;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.Driver;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
@@ -61,15 +63,15 @@ import java.util.List;
  *
  * @author fido
  */
-public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgent,
-		Driver<PhysicalTransportVehicle>{
+public class OnDemandVehicle<T extends TransportableEntity, V extends PhysicalTransportVehicle<T>> extends Agent implements EventHandler, PlanningAgent, OnDemandVehicleInterface,
+		Driver<V>{
 	
 	private static final int LENGTH = 4;
-	
-	
+
+
 	private final int index;
 	
-	protected PhysicalTransportVehicle vehicle;
+	protected V vehicle;
 	
 	protected final TripsUtil tripsUtil;
 	
@@ -176,7 +178,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	
 	@Inject
 	public OnDemandVehicle(
-			PhysicalTransportVehicleStorage vehicleStorage, 
+			PhysicalTransportVehicleStorage<V> vehicleStorage,		// TODO this argument is now useless??
 			TripsUtil tripsUtil, 
 			StationsDispatcher onDemandVehicleStationsCentral, 
 			PhysicalVehicleDriveFactory driveFactory, 
@@ -187,7 +189,10 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 			SimodConfig config, 
 			IdGenerator idGenerator,
 			AgentpolisConfig agentpolisConfig,
-			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
+			@Assisted String vehicleId,
+			@Assisted SimulationNode startPosition,
+			@Assisted V physVehicle)
+	{
 		super(vehicleId, startPosition);
 		this.tripsUtil = tripsUtil;
 		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
@@ -197,29 +202,33 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		this.timeProvider = timeProvider;
 		this.rebalancingIdGenerator = rebalancingIdGenerator;
 		this.config = config;
-		
+
 		index = idGenerator.getId();
-		
-		vehicle = new PhysicalTransportVehicle(vehicleId + " - vehicle", 
-				DemandSimulationEntityType.VEHICLE, LENGTH, config.ridesharing.vehicleCapacity, 
-				EGraphType.HIGHWAY, startPosition, 
-				agentpolisConfig.maxVehicleSpeedInMeters);
-		
-		vehicleStorage.addEntity(vehicle);
-		vehicle.setDriver(this);
-		state = OnDemandVehicleState.WAITING;
-		
+
+		// set the physical vehicle
+		try
+		{
+			this.vehicle = physVehicle;
+		}
+		catch (Exception e)
+		{
+			System.out.println(e.toString());
+		}
+
 		metersWithPassenger = 0;
 		metersToStartLocation = 0;
 		metersToStation = 0;
 		metersRebalancing = 0;
 	}
 
+
+
+
 	@Override
 	public EventProcessor getEventProcessor() {
 		return null;
 	}
-	
+
 	public String getVehicleId(){
 		return vehicle.getId();
 	}
@@ -228,15 +237,15 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	public void handleEvent(Event event) {
 		currentlyServedDemmand = (DemandData) event.getContent();
 		SimulationNode[] locations = currentlyServedDemmand.locations;
-		
+
 		demandNodes = new ArrayList<>();
 		demandNodes.add(locations[0]);
 		demandNodes.add(locations[locations.length - 1]);
-		
+
 		leavingStationEvent();
 		driveToDemandStartLocation();
 	}
-	
+
 	public void finishedDriving(boolean wasStopped) {
 		switch(state){
 			case DRIVING_TO_START_LOCATION:
@@ -366,7 +375,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	}
 
 	@Override
-	public PhysicalTransportVehicle getVehicle() {
+	public V getVehicle() {
 		return vehicle;
 	}
 
@@ -402,7 +411,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
 	protected void pickupDemand() {
 		currentlyServedDemmand.demandAgent.tripStarted(this);
-		vehicle.pickUp(currentlyServedDemmand.demandAgent);
+		vehicle.pickUp((T) currentlyServedDemmand.demandAgent);			// TODO:  pretypovani na T - je to OK?
 		eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
 				new PickupEventContent(timeProvider.getCurrentSimTime(), 
 						currentlyServedDemmand.demandAgent.getSimpleId(), getId(),
@@ -411,7 +420,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	
 	protected void dropOffDemand() {
 		currentlyServedDemmand.demandAgent.tripEnded();
-		vehicle.dropOff(currentlyServedDemmand.demandAgent);
+		vehicle.dropOff((T) currentlyServedDemmand.demandAgent);
 		eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
 				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
 						currentlyServedDemmand.demandAgent.getSimpleId(), getId()));
@@ -431,7 +440,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
 
 	@Override
-	public void startDriving(PhysicalTransportVehicle vehicle){
+	public void startDriving(V vehicle){
 		this.vehicle = vehicle;
 	}
 

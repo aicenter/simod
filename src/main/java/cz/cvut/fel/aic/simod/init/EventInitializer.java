@@ -35,12 +35,14 @@ import cz.cvut.fel.aic.simod.entity.DemandAgent.DemandAgentFactory;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
+
 import java.util.List;
 import java.util.Random;
+
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PackageContent;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * @author fido
  */
 @Singleton
@@ -49,125 +51,147 @@ public class EventInitializer {
 //	private static final double TRIP_MULTIPLICATION_FACTOR = 13.63;
 //	private static final double TRIP_MULTIPLICATION_FACTOR = 1.615;
 //	private static final double TRIP_MULTIPLICATION_FACTOR = 3.433;
-    
+
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(EventInitializer.class);
-	
+
 	private static final long TRIP_MULTIPLICATION_TIME_SHIFT = 240_000;
-	
+
 	private static final long MAX_EVENTS = 0;
-	
+
 	private static final int RANDOM_SEED = 1;
-	
-	
-	
-	
+
+
 	private final EventProcessor eventProcessor;
 
 	private final DemandEventHandler demandEventHandler;
-	
+
 	private final StationsDispatcher onDemandVehicleStationsCentral;
-	
-	private final SimodConfig SimodConfig;
-	
+
+	private final SimodConfig simodConfig;
+
 	private final AgentpolisConfig agentpolisConfig;
-	
+
 	private final SimulationUtils simulationUtils;
-	
+
 	private long eventCount;
-        
+
 	private long impossibleTripsCount;
-	
-	
+
+
 	@Inject
-	public EventInitializer(EventProcessor eventProcessor, 
-			StationsDispatcher onDemandVehicleStationsCentral, SimodConfig config, 
-			DemandEventHandler demandEventHandler, AgentpolisConfig agentpolisConfig, SimulationUtils simulationUtils) {
+	public EventInitializer(EventProcessor eventProcessor,
+							StationsDispatcher onDemandVehicleStationsCentral, SimodConfig config,
+							DemandEventHandler demandEventHandler, AgentpolisConfig agentpolisConfig, SimulationUtils simulationUtils) {
 		this.eventProcessor = eventProcessor;
 		this.demandEventHandler = demandEventHandler;
 		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
-		this.SimodConfig = config;
+		this.simodConfig = config;
 		this.agentpolisConfig = agentpolisConfig;
 		this.simulationUtils = simulationUtils;
 		eventCount = 0;
 		impossibleTripsCount = 0;
 	}
-	
-	
-	public void initialize(List<TimeTrip<SimulationNode>> trips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips){
+
+	// PackageContent contains the trip and weight
+	public void initializePackages(List<PackageContent> contents, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips) {
 		Random random = new Random(RANDOM_SEED);
-		
-		for (TimeTrip<SimulationNode> trip : trips) {
-			long startTime = trip.getStartTime() - SimodConfig.startTime;
-			// trip have to start at least 1ms after start of the simulation and no later then last
-			if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
+
+		for (PackageContent packageContent : contents) {
+			TimeTrip<SimulationNode> trip = packageContent.trip;
+			long startTime = trip.getStartTime() - simodConfig.startTime;
+			// trip has to start at least 1ms after start of the simulation and no later then last
+			if (startTime < 1 || startTime > simulationUtils.computeSimulationDuration()) {
 				impossibleTripsCount++;
 //				LOGGER.info("Trip out of simulation time. Total: {}", impossibleTripsCount);
 				continue;
 			}
-			
-			for(int i = 0; i < SimodConfig.tripsMultiplier; i++){
-				if(i + 1 >= SimodConfig.tripsMultiplier){
+
+			for (int i = 0; i < simodConfig.tripsMultiplier; i++) {
+				if (i + 1 >= simodConfig.tripsMultiplier) {
 					double randomNum = random.nextDouble();
-					if(randomNum > SimodConfig.tripsMultiplier - i){
+					if (randomNum > simodConfig.tripsMultiplier - i) {
 						break;
 					}
 				}
-				
+
 				startTime = startTime + i * TRIP_MULTIPLICATION_TIME_SHIFT;
-				eventProcessor.addEvent(null, demandEventHandler, null, trip, startTime);
+				eventProcessor.addEvent(null, demandEventHandler, null, packageContent, startTime);
 				eventCount++;
-				if(MAX_EVENTS != 0 && eventCount >= MAX_EVENTS){
+				if (MAX_EVENTS != 0 && eventCount >= MAX_EVENTS) {
 					return;
 				}
 			}
 		}
-		if(rebalancingTrips != null){
-			for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
-				long startTime = rebalancingTrip.getStartTime() - SimodConfig.startTime;
-			if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
+	}
+
+	public void initialize(List<TimeTrip<SimulationNode>> trips, List<TimeTrip<OnDemandVehicleStation>> rebalancingTrips) {
+		Random random = new Random(RANDOM_SEED);
+
+		for (TimeTrip<SimulationNode> trip : trips) {
+			long startTime = trip.getStartTime() - simodConfig.startTime;
+			// trip have to start at least 1ms after start of the simulation and no later then last
+			if (startTime < 1 || startTime > simulationUtils.computeSimulationDuration()) {
 				impossibleTripsCount++;
+//				LOGGER.info("Trip out of simulation time. Total: {}", impossibleTripsCount);
 				continue;
 			}
-				eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral, 
+
+			for (int i = 0; i < simodConfig.tripsMultiplier; i++) {
+				if (i + 1 >= simodConfig.tripsMultiplier) {
+					double randomNum = random.nextDouble();
+					if (randomNum > simodConfig.tripsMultiplier - i) {
+						break;
+					}
+				}
+
+				startTime = startTime + i * TRIP_MULTIPLICATION_TIME_SHIFT;
+				eventProcessor.addEvent(null, demandEventHandler, null, trip, startTime);
+				eventCount++;
+				if (MAX_EVENTS != 0 && eventCount >= MAX_EVENTS) {
+					return;
+				}
+			}
+		}
+		if (rebalancingTrips != null) {
+			for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
+				long startTime = rebalancingTrip.getStartTime() - simodConfig.startTime;
+				if (startTime < 1 || startTime > simulationUtils.computeSimulationDuration()) {
+					impossibleTripsCount++;
+					continue;
+				}
+				eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, onDemandVehicleStationsCentral,
 						null, rebalancingTrip, startTime);
 			}
 		}
-		
+
 		LOGGER.info("{} trips discarded because they are not within simulation time bounds", impossibleTripsCount);
 	}
-	
-	
-	
-	
-	public static class DemandEventHandler extends EventHandlerAdapter{
-		
+
+
+	public static class DemandEventHandler extends EventHandlerAdapter {
+
 		private final IdGenerator demandIdGenerator;
- 
+
 		private final DemandAgentFactory demandAgentFactory;
-		
-		
-		
-		
+
+
 		@Inject
 		public DemandEventHandler(IdGenerator demandIdGenerator, DemandAgentFactory demandAgentFactory,
-				SimulationCreator simulationCreator) {
+								  SimulationCreator simulationCreator) {
 			this.demandIdGenerator = demandIdGenerator;
 			this.demandAgentFactory = demandAgentFactory;
 		}
 
-		
-		
-		
 
 		@Override
 		public void handleEvent(Event event) {
 			TimeTrip<SimulationNode> trip = (TimeTrip<SimulationNode>) event.getContent();
-			
+
 			int id = demandIdGenerator.getId();
-			
+
 			DemandAgent demandAgent = demandAgentFactory.create("Demand " + Integer.toString(id), id, trip);
-			
+
 			demandAgent.born();
 		}
-	}	
+	}
 }

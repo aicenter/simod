@@ -15,6 +15,8 @@ public class Ridesharing {
 
   public InsertionHeuristic insertionHeuristic;
 
+  public PeopleFreightHeuristic peopleFreightHeuristic;
+
   public String discomfortConstraint;
 
   public Double maximumRelativeDiscomfort;
@@ -32,6 +34,7 @@ public class Ridesharing {
     this.batchPeriod = (Integer) ridesharing.get("batch_period");
     this.method = (String) ridesharing.get("method");
     this.insertionHeuristic = new InsertionHeuristic((Map) ridesharing.get("insertion_heuristic"));
+    this.peopleFreightHeuristic = new PeopleFreightHeuristic((Map) ridesharing.get("people_freight_heuristic"));
     this.discomfortConstraint = (String) ridesharing.get("discomfort_constraint");
     this.maximumRelativeDiscomfort = (Double) ridesharing.get("maximum_relative_discomfort");
     this.maxProlongationInSeconds = (Integer) ridesharing.get("max_prolongation_in_seconds");

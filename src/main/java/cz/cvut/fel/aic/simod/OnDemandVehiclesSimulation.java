@@ -119,7 +119,15 @@ public class OnDemandVehiclesSimulation {
 		// load trips
 		TripTransform tripTransform = injector.getInstance(TripTransform.class);
 		injector.getInstance(EventInitializer.class).initialize(
-		tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
+			tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
+
+		// if packages are existing -> load packages
+		if (config.packagesOn)
+		{
+			injector.getInstance(EventInitializer.class).initializePackages(
+					tripTransform.loadPackagesFromTxt(new File(config.packagesPath)), null
+			);
+		}
 
 		injector.getInstance(StatisticInitializer.class).initialize();
             

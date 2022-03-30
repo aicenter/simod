@@ -21,6 +21,7 @@ package cz.cvut.fel.aic.simod.storage;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage;
 
 /**
@@ -28,7 +29,8 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage;
  * @author fido
  */
 @Singleton
-public class PhysicalTransportVehicleStorage extends EntityStorage<PhysicalTransportVehicle>{
+														// the type of physical transportable entity is irrelevant here
+public class PhysicalTransportVehicleStorage<V extends PhysicalTransportVehicle<?>> extends EntityStorage<V>{
 	
 	@Inject
 	public PhysicalTransportVehicleStorage() {

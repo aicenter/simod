@@ -24,10 +24,12 @@ import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.WaitActivityFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
+import cz.cvut.fel.aic.simod.WaitTransferActivityFactory;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactory;
@@ -39,19 +41,24 @@ import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
  */
 @Singleton
 public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
+
+	WaitTransferActivityFactory waitTransferActivityFactory;
 	
 	@Inject
 	public RidesharingOnDemandVehicleFactory(
-			PhysicalTransportVehicleStorage vehicleStorage, 
-			TripsUtil tripsUtil, 
+			PhysicalTransportVehicleStorage vehicleStorage,
+			TripsUtil tripsUtil,
 			StationsDispatcher onDemandVehicleStationsCentral,
-			VisioPositionUtil positionUtil, 
-			EventProcessor eventProcessor, 
-			StandardTimeProvider timeProvider, 
-			IdGenerator rebalancingIdGenerator, 
+			VisioPositionUtil positionUtil,
+			EventProcessor eventProcessor,
+			StandardTimeProvider timeProvider,
+			IdGenerator rebalancingIdGenerator,
 			SimodConfig config,
 			IdGenerator idGenerator,
-			AgentpolisConfig agentpolisConfig) {
+			AgentpolisConfig agentpolisConfig,
+			WaitTransferActivityFactory waitTransferActivityFactory,
+			WaitActivityFactory waitActivityFactory
+			) {
 		super(
 				vehicleStorage, 
 				tripsUtil, 
@@ -60,9 +67,12 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 				eventProcessor, 
 				timeProvider, 
 				rebalancingIdGenerator, 
-				config, 
+				config,
+				waitTransferActivityFactory,
+				waitActivityFactory,
 				idGenerator,
 				agentpolisConfig);
+		this.waitTransferActivityFactory = waitTransferActivityFactory;
 	}
 
 	@Override
@@ -80,8 +90,11 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 				config, 
 				idGenerator, 
 				agentpolisConfig,
+				waitTransferActivityFactory,
+				waitActivityFactory,
 				vehicleId, 
-				startPosition);
+				startPosition)
+				;
 	}
 	
 	

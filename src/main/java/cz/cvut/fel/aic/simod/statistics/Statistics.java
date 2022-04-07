@@ -548,6 +548,8 @@ public class Statistics extends AliteEntity implements EventHandler{
 				case FINISH_REBALANCING:
 					filepath = config.statistics.onDemandVehicleStatistic.finishRebalancingFilePath;
 					break;
+				case WAIT:
+					filepath = config.statistics.onDemandVehicleStatistic.waitFilePath;
 			}
 			
 			try {

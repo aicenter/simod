@@ -205,6 +205,36 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		die();
 	}
 
+	public void tripPaused() {
+		if (state == DemandAgentState.WAITING) {
+			try {
+				throw new Exception(String.format("Demand Agent %s already stopped", this));
+			} catch (Exception ex) {
+				Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
+		else{
+			state = DemandAgentState.TRANSFERING;
+//			this.onDemandVehicle = null;
+		}
+	}
+
+	public void tripRePaused(OnDemandVehicle vehicle) {
+//		if(state == DemandAgentState.DRIVING){
+//			try {
+//				throw new Exception(String.format("Demand Agent %s already repaused in vehicle %s, it cannot be picked up by"
+//						+ "another vehicle %s", this, onDemandVehicle, vehicle));
+//			} catch (Exception ex) {
+//				Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
+//			}
+//		}
+//		else{
+			state = DemandAgentState.DRIVING;
+			realPickupTime = timeProvider.getCurrentSimTime();
+			this.onDemandVehicle = vehicle;
+//		}
+	}
+
 	public void tripStarted(OnDemandVehicle vehicle) {
 		if(state == DemandAgentState.DRIVING){
 			try {
@@ -214,10 +244,6 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 				Logger.getLogger(DemandAgent.class.getName()).log(Level.SEVERE, null, ex);
 			}
 		}
-//		TODO to do
-//		else if(state == DemandAgentState.TRANSFERING) {
-//
-//		}
 		else{
 			state = DemandAgentState.DRIVING;
 			realPickupTime = timeProvider.getCurrentSimTime();

@@ -78,10 +78,11 @@ public class StationsInitializer {
 				discarded++;
 			}
 			else{
-				int initCount = Integer.parseInt(row[1]) + 100;
-				if(initCount < 500){
-					initCount += 100;
-				}
+				// tady vznika tech 200 aut v kazde stanici
+				int initCount = Integer.parseInt(row[1]);
+//				if(initCount < 500){
+//					initCount += 100;
+//				}
 				createStation(node, initCount, counter++);
 			}
 		}

@@ -149,7 +149,7 @@ public class MainModule extends StandardAgentPolisModule{
 					break;
 				case "greedy-taset":
 					bind(DARPSolver.class).to(GreedyTASeTSolver.class);
-					// nabindovat i nove tridy (treba waiting akci)
+					// nabindovat i nove tridy
 					break;
 			}
 		}

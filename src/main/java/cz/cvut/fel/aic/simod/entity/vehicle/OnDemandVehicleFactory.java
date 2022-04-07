@@ -25,10 +25,12 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.WaitActivityFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
+import cz.cvut.fel.aic.simod.WaitTransferActivityFactory;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 
@@ -62,6 +64,9 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 	
 	protected final AgentpolisConfig agentpolisConfig;
 
+	protected final WaitTransferActivityFactory waitTransferActivityFactory;
+
+	protected final WaitActivityFactory waitActivityFactory;
 	
 	
 	
@@ -75,6 +80,8 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 			StandardTimeProvider timeProvider, 
 			IdGenerator rebalancingIdGenerator, 
 			SimodConfig config,
+			WaitTransferActivityFactory waitTransferActivityFactory,
+			WaitActivityFactory waitActivityFactory,
 			IdGenerator idGenerator,
 			AgentpolisConfig agentpolisConfig) {
 		this.tripsUtil = tripsUtil;
@@ -87,6 +94,8 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 		this.config = config;
 		this.idGenerator = idGenerator;
 		this.agentpolisConfig = agentpolisConfig;
+		this.waitTransferActivityFactory = waitTransferActivityFactory;
+		this.waitActivityFactory = waitActivityFactory;
 	}
 	
 	
@@ -105,6 +114,8 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 				config, 
 				idGenerator, 
 				agentpolisConfig,
+				waitTransferActivityFactory,
+				waitActivityFactory,
 				vehicleId, 
 				startPosition);
 	}

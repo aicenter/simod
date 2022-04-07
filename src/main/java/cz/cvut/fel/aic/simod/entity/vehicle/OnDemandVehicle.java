@@ -28,7 +28,9 @@ import cz.cvut.fel.aic.agentpolis.simmodel.Activity;
 import cz.cvut.fel.aic.agentpolis.simmodel.Agent;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.PhysicalVehicleDrive;
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.Wait;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.WaitActivityFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.DelayData;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.Driver;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
@@ -42,6 +44,7 @@ import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.DemandData;
 import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
+import cz.cvut.fel.aic.simod.WaitTransferActivityFactory;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
@@ -50,6 +53,8 @@ import cz.cvut.fel.aic.simod.entity.PlanningAgent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.event.RebalancingEventContent;
+import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
+import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionWait;
 import cz.cvut.fel.aic.simod.statistics.PickupEventContent;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Node;
@@ -122,6 +127,10 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	
 	protected OnDemandVehicleStation parkedIn;
 
+	public WaitTransferActivityFactory waitTransferActivityFactory;
+
+	private WaitActivityFactory waitActivityFactory;
+
 	
 	
 	
@@ -187,6 +196,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 			SimodConfig config, 
 			IdGenerator idGenerator,
 			AgentpolisConfig agentpolisConfig,
+			WaitTransferActivityFactory waitTransferActivityFactory,
+			WaitActivityFactory waitActivityFactory,
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
 		super(vehicleId, startPosition);
 		this.tripsUtil = tripsUtil;
@@ -197,6 +208,8 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		this.timeProvider = timeProvider;
 		this.rebalancingIdGenerator = rebalancingIdGenerator;
 		this.config = config;
+		this.waitTransferActivityFactory = waitTransferActivityFactory;
+		this.waitActivityFactory = waitActivityFactory;
 		
 		index = idGenerator.getId();
 		
@@ -252,10 +265,11 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 			case REBALANCING:
 				finishRebalancing();
 				break;
+//			case WAITINGFORTRANSFER:
+//				waitForTransfer();
+//				break;
 		}
 	}
-
-//	TODO add method with wait activity
 
 	protected void driveToDemandStartLocation() {
 		
@@ -422,9 +436,21 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	@Override
 	protected void onActivityFinish(Activity activity) {
 		super.onActivityFinish(activity);
-		PhysicalVehicleDrive drive = (PhysicalVehicleDrive) activity;
-		finishedDriving(drive.isStoped());
+		if (activity instanceof PhysicalVehicleDrive) {
+			PhysicalVehicleDrive drive = (PhysicalVehicleDrive) activity;
+			finishedDriving(drive.isStoped());
+		}
+		else if (activity instanceof Wait) {
+			finishedWaiting();
+		}
+		else {
+			finishedDriving(true);
+		}
 	}
+
+	public void finishedWaiting() {
+
+	};
 
 	@Override
 	public EntityType getType() {

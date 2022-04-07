@@ -22,6 +22,6 @@ public class PlanActionWait extends PlanRequestAction {
 
     @Override
     public String toString() {
-        return String.format("Wait demand %s at node %s", request.getDemandAgent().getId(), location.id);
+        return String.format("Wait for demand %s at node %s", request.getDemandAgent().getId(), location.id);
     }
 }

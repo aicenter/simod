@@ -16,19 +16,29 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.simod.entity;
+package cz.cvut.fel.aic.simod.ridesharing.model;
 
-/**
- *
- * @author fido
- */
-public enum OnDemandVehicleState {
-	WAITING,
-	WAITINGFORTRANSFER,
-	DRIVING_TO_START_LOCATION,
-	DRIVING_TO_TARGET_LOCATION,
-	DRIVING_TO_STATION,
-	DRIVING_TO_TRANSFER_POINT_TARGET,
-	DRIVING_TO_TRANSFER_POINT_START,
-	REBALANCING;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+
+public class PlanActionDropoffTransfer extends PlanRequestAction {
+
+    /**
+     * DropoffTransfer action.
+     * @param request Request
+     * @param node Position where action takes place.
+     * @param maxTime Time constraint in seconds.
+     */
+    public PlanActionDropoffTransfer(PlanComputationRequest request, SimulationNode node, int maxTime) {
+        super(request, node, maxTime);
+    }
+
+
+
+    @Override
+    public String toString() {
+        return String.format("Drop off demand %s at node %s", request.getDemandAgent().getId(), location.id);
+    }
+
+
+
 }

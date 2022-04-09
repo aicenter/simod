@@ -6,7 +6,6 @@ import java.lang.Integer;
 import java.lang.String;
 import java.util.Map;
 
-//import com.sun.org.apache.xpath.internal.operations.Bool;
 import ninja.fido.config.GeneratedConfig;
 
 public class SimodConfig implements GeneratedConfig {
@@ -28,6 +27,8 @@ public class SimodConfig implements GeneratedConfig {
 
   public Stations stations;
 
+  public String packagesFilename;
+
   public String mapDir;
 
   public String travelTimeProvider;
@@ -39,6 +40,8 @@ public class SimodConfig implements GeneratedConfig {
   public String tripsPath;
 
   public String edgesFilePath;
+
+  public String packagesPath;
 
   public Double tripsMultiplier;
 
@@ -56,8 +59,6 @@ public class SimodConfig implements GeneratedConfig {
 
   public Boolean packagesOn;
 
-  public String packagesPath;
-
   public SimodConfig() {
   }
 
@@ -71,12 +72,14 @@ public class SimodConfig implements GeneratedConfig {
     this.edgePairsFilePath = (String) simodConfig.get("edge_pairs_file_path");
     this.tripCacheFile = (String) simodConfig.get("trip_cache_file");
     this.stations = new Stations((Map) simodConfig.get("stations"));
+    this.packagesFilename = (String) simodConfig.get("packages_filename");
     this.mapDir = (String) simodConfig.get("map_dir");
     this.travelTimeProvider = (String) simodConfig.get("travel_time_provider");
     this.shortestpaths = new Shortestpaths((Map) simodConfig.get("shortestpaths"));
     this.startTime = (Integer) simodConfig.get("start_time");
     this.tripsPath = (String) simodConfig.get("trips_path");
     this.edgesFilePath = (String) simodConfig.get("edges_file_path");
+    this.packagesPath = (String) simodConfig.get("packages_path");
     this.tripsMultiplier = (Double) simodConfig.get("trips_multiplier");
     this.vehiclesPerStation = (Integer) simodConfig.get("vehicles_per_station");
     this.simplifyGraph = (Boolean) simodConfig.get("simplify_graph");
@@ -85,7 +88,6 @@ public class SimodConfig implements GeneratedConfig {
     this.rebalancing = new Rebalancing((Map) simodConfig.get("rebalancing"));
     this.statistics = new Statistics((Map) simodConfig.get("statistics"));
     this.packagesOn = (Boolean) simodConfig.get("packages_on");
-    this.packagesPath = (String) simodConfig.get("packages_path");
     return this;
   }
 }

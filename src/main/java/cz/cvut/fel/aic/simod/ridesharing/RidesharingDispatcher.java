@@ -122,8 +122,10 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 			ticker.registerRoutine(this, config.ridesharing.batchPeriod * 1000);
 		}
 		setEventHandeling();
-		
-		solver.setDispatcher(this);
+
+		if (!config.packagesOn) {
+			solver.setDispatcher(this);
+		}
 	}
 
 	

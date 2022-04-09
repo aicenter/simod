@@ -1,5 +1,6 @@
 package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic;
 
+import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
@@ -23,7 +24,7 @@ import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PeopleFreightVehicle extends RideSharingOnDemandVehicle<TransportableEntity, PhysicalPFVehicle<TransportableEntity>>
+public class PeopleFreightVehicle extends RideSharingOnDemandVehicle<PhysicalPFVehicle>
 {
 	public final int vehiclePassengerCapacity = 1;
 
@@ -35,9 +36,9 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle<Transportab
 
 	private int currentParcelsWeight;
 
-
+	@Inject
 	public PeopleFreightVehicle(
-			PhysicalTransportVehicleStorage<PhysicalPFVehicle<TransportableEntity>> vehicleStorage,
+			PhysicalTransportVehicleStorage<PhysicalPFVehicle> vehicleStorage,
 			TripsUtil tripsUtil,
 			StationsDispatcher onDemandVehicleStationsCentral,
 			PhysicalVehicleDriveFactory driveActivityFactory,
@@ -52,7 +53,7 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle<Transportab
 			String vehicleId,
 			SimulationNode startPosition,
 			int maxParcelsCapacity,
-			@Assisted PhysicalPFVehicle<TransportableEntity> physVehicle)
+			@Assisted PhysicalPFVehicle physVehicle)
 	{
 		super(
 				vehicleStorage,
@@ -104,8 +105,8 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle<Transportab
 
 	private void pickupAndContinue() {
 		try {
-			PFPlanComputationRequest request = (PFPlanComputationRequest) ((PlanActionPickup) currentTask).getRequest();
-			TransportableEntityManagement demandEntity = request.getDemandEntity();
+			DefaultPFPlanCompRequest request = (DefaultPFPlanCompRequest) ((PlanActionPickup) currentTask).getRequest();
+			TransportableEntity_2 demandEntity = request.getDemandAgent();
 			if (demandEntity.isDropped()) {
 				long currentTime = timeProvider.getCurrentSimTime();
 				long droppTime = demandEntity.getDemandTime() + config.ridesharing.maxProlongationInSeconds * 1000;
@@ -129,8 +130,8 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle<Transportab
 	}
 
 	private void dropOffAndContinue() {
-		PFPlanComputationRequest request = (PFPlanComputationRequest) ((PlanActionPickup) currentTask).getRequest();
-		TransportableEntityManagement demandEntity = request.getDemandEntity();
+		DefaultPFPlanCompRequest request = (DefaultPFPlanCompRequest) ((PlanActionPickup) currentTask).getRequest();
+		TransportableEntity_2 demandEntity = request.getDemandAgent();
 		demandEntity.tripEnded();
 		vehicle.dropOff(demandEntity);
 

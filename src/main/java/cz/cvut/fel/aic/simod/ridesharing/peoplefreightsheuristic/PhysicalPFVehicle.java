@@ -1,5 +1,6 @@
 package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic;
 
+import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.TransportEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
 
@@ -17,13 +18,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTransportVehicle<T> implements TransportEntity<T>
+public class PhysicalPFVehicle extends PhysicalTransportVehicle implements TransportEntity
 {
 	private static final int vehiclePassengerCapacity = 1;
 
 	protected final List<TransportableEntity> transportedEntities;
 
-	protected final List<DemandPackage> transportedPackages;
+	protected final List<TransportableEntity> transportedPackages;
 	private final int vehiclePackagesCapacity;
 
 	public PhysicalPFVehicle(
@@ -44,9 +45,7 @@ public class PhysicalPFVehicle<T extends TransportableEntity> extends PhysicalTr
 	}
 
 	// implements pickUp() for both Agents and Packages
-	@Override
-	// TODO upravit pickUp aby nebyl genericky
-	public void pickUp(TransportableEntity entity) {
+	public void pickUp(TransportableEntity entity) {	// todo maybe use TransportableEntity_2
 		if (entity instanceof DemandPackage) {
 			PickUp.pickUp(entity, this.transportedEntities.size() == this.vehiclePassengerCapacity, this , this.transportedEntities);
 		}

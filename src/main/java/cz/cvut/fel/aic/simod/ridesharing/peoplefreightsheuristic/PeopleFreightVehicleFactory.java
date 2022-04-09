@@ -41,7 +41,7 @@ public class PeopleFreightVehicleFactory implements OnDemandVehicleFactorySpec {
 
 	protected final IdGenerator rebalancingIdGenerator;
 
-	protected final PhysicalTransportVehicleStorage<PhysicalPFVehicle<TransportableEntity>>vehicleStorage;
+	protected final PhysicalTransportVehicleStorage<PhysicalPFVehicle>vehicleStorage;
 
 	protected final SimodConfig config;
 
@@ -51,7 +51,7 @@ public class PeopleFreightVehicleFactory implements OnDemandVehicleFactorySpec {
 
 	@Inject
 	public PeopleFreightVehicleFactory(
-			PhysicalTransportVehicleStorage<PhysicalPFVehicle<TransportableEntity>> vehicleStorage,
+			PhysicalTransportVehicleStorage<PhysicalPFVehicle> vehicleStorage,
 			TripsUtil tripsUtil,
 			StationsDispatcher onDemandVehicleStationsCentral,
 			VisioPositionUtil positionUtil,
@@ -90,7 +90,7 @@ public class PeopleFreightVehicleFactory implements OnDemandVehicleFactorySpec {
 				vehicleId,
 				startPosition,
 				freightCapacity,
-				new PhysicalPFVehicle<>(
+				new PhysicalPFVehicle(
 						vehicleId,
 						DemandSimulationEntityType.VEHICLE,
 						LENGTH,

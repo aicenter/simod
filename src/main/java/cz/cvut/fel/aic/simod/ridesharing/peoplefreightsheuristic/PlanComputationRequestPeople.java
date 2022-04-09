@@ -9,7 +9,7 @@ import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 
-public class PlanComputationRequestPeople extends DefaultPlanComputationRequest
+public class PlanComputationRequestPeople extends DefaultPFPlanCompRequest
 {
     @Inject
     public PlanComputationRequestPeople(TravelTimeProvider travelTimeProvider, @Assisted int id,

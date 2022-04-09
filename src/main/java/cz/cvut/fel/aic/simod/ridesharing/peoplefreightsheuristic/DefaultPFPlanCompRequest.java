@@ -7,13 +7,12 @@ import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 
 import java.util.Random;
 
 
-public class PFPlanComputationRequest implements PlanComputationRequest {
+public class DefaultPFPlanCompRequest implements PFPlanCompRequest {
 
 	public final int id;
 
@@ -22,7 +21,7 @@ public class PFPlanComputationRequest implements PlanComputationRequest {
 	 */
 	private final int originTime;
 
-	private final TransportableEntityManagement demandEntity;		// TODO zjistit kde a jak to budu pouzivat
+	private final TransportableEntity_2 demandEntity;		// TODO zjistit kde a jak to budu pouzivat
 
 	private final PlanActionPickup pickUpAction;
 
@@ -39,9 +38,9 @@ public class PFPlanComputationRequest implements PlanComputationRequest {
 
 
 	@Inject
-	public PFPlanComputationRequest(TravelTimeProvider travelTimeProvider, @Assisted int id,
-										 SimodConfig SimodConfig, @Assisted("origin") SimulationNode origin,
-										 @Assisted("destination") SimulationNode destination, @Assisted TransportableEntityManagement demandEntity){
+	public DefaultPFPlanCompRequest(TravelTimeProvider travelTimeProvider, @Assisted int id,
+									SimodConfig SimodConfig, @Assisted("origin") SimulationNode origin,
+									@Assisted("destination") SimulationNode destination, @Assisted TransportableEntity_2 demandEntity){
 		this.id = id;
 
 		hash = 0;
@@ -96,10 +95,11 @@ public class PFPlanComputationRequest implements PlanComputationRequest {
 
 	@Override
 	public DemandAgent getDemandAgent() {
-		return (DemandAgent) null;
+		return null;
 	}
 
-	public TransportableEntityManagement getDemandEntity() {
+	@Override
+	public TransportableEntity_2 getDemandEntity() {
 		return demandEntity;
 	}
 
@@ -157,8 +157,8 @@ public class PFPlanComputationRequest implements PlanComputationRequest {
 
 
 
-	public interface PFPlanComputationRequestFactory {
-		PFPlanComputationRequest create(int id, @Assisted("origin") SimulationNode origin,
-													@Assisted("destination") SimulationNode destination, TransportableEntityManagement demandEntity);
+	public interface DefaultPFPlanComputationRequestFactory {
+		public DefaultPFPlanCompRequest create(int id, @Assisted("origin") SimulationNode origin,
+										@Assisted("destination") SimulationNode destination, TransportableEntity_2 demandEntity);
 	}
 }

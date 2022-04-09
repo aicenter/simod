@@ -29,7 +29,6 @@ import cz.cvut.fel.aic.agentpolis.simmodel.activity.PhysicalVehicleDrive;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
@@ -60,7 +59,7 @@ import java.util.logging.Logger;
 /**
  * @author fido
  */
-public class RideSharingOnDemandVehicle<E extends TransportableEntity, V extends PhysicalTransportVehicle<E>> extends OnDemandVehicle<E, V> {
+public class RideSharingOnDemandVehicle<V extends PhysicalTransportVehicle> extends OnDemandVehicle<V> {
 
 	private final VisioPositionUtil positionUtil;
 
@@ -167,7 +166,7 @@ public class RideSharingOnDemandVehicle<E extends TransportableEntity, V extends
 		}
 		else {
 			currentTrip = tripsUtil.createTrip(getPosition(), currentTask.getPosition(), vehicle);
-			DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
+//			DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
 			driveFactory.runActivity(this, vehicle, currentTrip);
 		}
 	}
@@ -258,10 +257,10 @@ public class RideSharingOnDemandVehicle<E extends TransportableEntity, V extends
 				long droppTime = demandAgent.getDemandTime() + config.ridesharing.maxProlongationInSeconds * 1000;
 				throw new Exception(
 						String.format("Demand agent %s cannot be picked up, he is already dropped! Current simulation "
-								+ "time: %s, drop time: %s", demandAgent, currentTime, droppTime));
+								+ "time: %s, drop time: %s", demandAgent.toString(), currentTime, droppTime));
 			}
 			demandAgent.tripStarted(this);
-			vehicle.pickUp((E) demandAgent);
+			vehicle.pickUp(demandAgent);		// TODO build with new PickUp how??
 
 			// statistics TODO demand trip?
 			//		demandTrip = tripsUtil.createTrip(currentTask.getDemandAgent().getPosition().id,
@@ -283,7 +282,7 @@ public class RideSharingOnDemandVehicle<E extends TransportableEntity, V extends
 	private void dropOffAndContinue() {
 		DemandAgent demandAgent = ((PlanActionDropoff) currentTask).getRequest().getDemandAgent();
 		demandAgent.tripEnded();
-		vehicle.dropOff((E) demandAgent);
+		vehicle.dropOff(demandAgent);
 
 		// statistics
 		eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null,

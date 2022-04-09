@@ -32,8 +32,10 @@ import cz.cvut.fel.aic.simod.rebalancing.ReactiveRebalancing;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.statistics.Statistics;
 import cz.cvut.fel.aic.simod.tripUtil.TripsUtilCached;
+
 import java.io.File;
 import java.net.MalformedURLException;
+
 import org.slf4j.LoggerFactory;
 
 /**
@@ -42,42 +44,42 @@ import org.slf4j.LoggerFactory;
 public class OnDemandVehiclesSimulation {
 
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OnDemandVehiclesSimulation.class);
-	
+
 	public static void main(String[] args) throws MalformedURLException {
 		new OnDemandVehiclesSimulation().run(args);
 	}
 
-	public static void checkPaths(SimodConfig config, AgentpolisConfig agentpolisConfig){
+	public static void checkPaths(SimodConfig config, AgentpolisConfig agentpolisConfig) {
 		String[] pathsForRead = {
-			config.tripsPath,
-			config.stationPositionFilepath,
-			agentpolisConfig.mapNodesFilepath,
-			agentpolisConfig.mapEdgesFilepath
+				config.tripsPath,
+				config.stationPositionFilepath,
+				agentpolisConfig.mapNodesFilepath,
+				agentpolisConfig.mapEdgesFilepath
 		};
-		
+
 		String[] pathsForWrite = {
-			config.statistics.allEdgesLoadHistoryFilePath,
-			config.statistics.darpSolverComputationalTimesFilePath,
-			config.statistics.groupDataFilePath,
-			config.statistics.occupanciesFilePath,
-			config.statistics.resultFilePath,
-			config.statistics.ridesharingFilePath,
-			config.statistics.serviceFilePath,
-			config.statistics.transitStatisticFilePath,
-			config.statistics.tripDistancesFilePath,
-			config.ridesharing.vga.groupGeneratorLogFilepath
+				config.statistics.allEdgesLoadHistoryFilePath,
+				config.statistics.darpSolverComputationalTimesFilePath,
+				config.statistics.groupDataFilePath,
+				config.statistics.occupanciesFilePath,
+				config.statistics.resultFilePath,
+				config.statistics.ridesharingFilePath,
+				config.statistics.serviceFilePath,
+				config.statistics.transitStatisticFilePath,
+				config.statistics.tripDistancesFilePath,
+				config.ridesharing.vga.groupGeneratorLogFilepath
 		};
-		
-		try{
-			for(String pathForRead: pathsForRead){
+
+		try {
+			for (String pathForRead : pathsForRead) {
 				FileUtils.checkFilePathForRead(pathForRead);
 			}
-			
-			for(String pathForWrite: pathsForWrite){
+
+			for (String pathForWrite : pathsForWrite) {
 				FileUtils.checkFilePathForWrite(pathForWrite);
 			}
 		}
-		catch(Exception e){
+		catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1);
 		}
@@ -85,52 +87,51 @@ public class OnDemandVehiclesSimulation {
 
 	public void run(String[] args) {
 		SimodConfig config = new SimodConfig();
-		
+
 		File localConfigFile = null;
-		if(args.length > 0){
+		if (args.length > 0) {
 			localConfigFile = new File(args[0]);
-		}               
+		}
 		Injector injector = new AgentPolisInitializer(new MainModule(config, localConfigFile)).initialize();
-		
+
 		checkPaths(config, injector.getInstance(AgentpolisConfig.class));
-		
+
 		// overide the disfunctional old no ridesharing setup
-		if(!config.ridesharing.on){
+		if (!config.ridesharing.on) {
 			config.ridesharing.on = true;
 			config.ridesharing.vehicleCapacity = 1;
 		}
-		
-		SimulationCreator creator = injector.getInstance(SimulationCreator.class);        
-		
+
+		SimulationCreator creator = injector.getInstance(SimulationCreator.class);
+
 		// prepare map, entity storages...
 		creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
 
-		
+
 		// load stations
 		injector.getInstance(StationsInitializer.class).loadStations();
 
-		if(config.rebalancing.on){
+		if (config.rebalancing.on) {
 
 			// start rebalancing
 			injector.getInstance(ReactiveRebalancing.class).start();
 
 		}
-		
+
 		// load trips
 		TripTransform tripTransform = injector.getInstance(TripTransform.class);
 		injector.getInstance(EventInitializer.class).initialize(
-			tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
+				tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
 
 		// if packages are existing -> load packages
-		if (config.packagesOn)
-		{
+		if (config.packagesOn) {
 			injector.getInstance(EventInitializer.class).initializePackages(
 					tripTransform.loadPackagesFromTxt(new File(config.packagesPath)), null
 			);
 		}
 
 		injector.getInstance(StatisticInitializer.class).initialize();
-            
+
 		// start it up
 		creator.startSimulation();
 

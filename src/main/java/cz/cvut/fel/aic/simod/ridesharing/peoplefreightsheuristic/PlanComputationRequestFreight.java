@@ -8,7 +8,7 @@ import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 
-public class PlanComputationRequestFreight extends DefaultPlanComputationRequest
+public class PlanComputationRequestFreight extends DefaultPFPlanCompRequest
 {
     private final int weight;
 

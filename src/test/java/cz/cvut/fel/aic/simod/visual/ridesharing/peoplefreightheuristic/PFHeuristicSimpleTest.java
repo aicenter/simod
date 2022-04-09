@@ -1,4 +1,4 @@
-package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.tests;
+package cz.cvut.fel.aic.simod.visual.ridesharing.peoplefreightheuristic;
 
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.AStarShortestPathPlanner;
@@ -133,7 +133,7 @@ public class PFHeuristicSimpleTest
                 "PFVehicle_1",
                 startPos_1,
                 parcelCapacity_1,
-                new PhysicalPFVehicle<>(
+                new PhysicalPFVehicle(
                         "PFVehicle_1",
                         DemandSimulationEntityType.VEHICLE,
                         LENGTH,
@@ -163,7 +163,7 @@ public class PFHeuristicSimpleTest
                 "PFVehicle2",
                 startPos_2,
                 parcelCapacity_2,
-                new PhysicalPFVehicle<>(
+                new PhysicalPFVehicle(
                         "PFVehicle_2",
                         DemandSimulationEntityType.VEHICLE,
                         LENGTH,

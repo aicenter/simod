@@ -8,7 +8,6 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.TransportEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.DemandData;
@@ -16,7 +15,6 @@ import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.DemandAgentState;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleInterface;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
@@ -27,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DemandPackage extends AgentPolisEntity implements TransportableEntityManagement {
+public class DemandPackage extends AgentPolisEntity implements TransportableEntity_2 {
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandAgent.class);
 
 	private final int simpleId;
@@ -78,9 +76,9 @@ public class DemandPackage extends AgentPolisEntity implements TransportableEnti
 						 DemandPackageStorage demandStorage,
 						 StandardTimeProvider timeProvider,
 						 TripsUtil tripsUtil,
-						 int packageWeight,
+						 @Assisted("weight") int packageWeight,
 						 @Assisted String packageId,
-						 @Assisted int id,
+						 @Assisted("id") int id,
 						 @Assisted TimeTrip<SimulationNode> trip) {
 		super(packageId, trip.getLocations()[0]);
 		this.simpleId = id;
@@ -110,9 +108,9 @@ public class DemandPackage extends AgentPolisEntity implements TransportableEnti
 	}
 
 
-	public TransportableEntity getEntity() {
-		return this;
-	}
+//	public TransportableEntity_2 getEntity() {
+//		return this;
+//	}
 
 	public int getSimpleId() {
 		return simpleId;
@@ -222,6 +220,6 @@ public class DemandPackage extends AgentPolisEntity implements TransportableEnti
 	}
 
 	public interface DemandPackageFactory {
-		DemandPackage create(String packageId, int id, TimeTrip<SimulationNode> osmNodeTrip, int weight);
+		DemandPackage create(String packageId, @Assisted("id") int id, TimeTrip<SimulationNode> osmNodeTrip, @Assisted("weight") int weight);
 	}
 }

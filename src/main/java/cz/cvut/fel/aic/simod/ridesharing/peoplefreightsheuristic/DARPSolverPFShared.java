@@ -40,7 +40,7 @@ public abstract class DARPSolverPFShared {
 
     protected final PlanCostProvider planCostProvider;
 
-    protected final DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory;
+    protected final DefaultPFPlanCompRequest.DefaultPFPlanComputationRequestFactory requestFactory;
 
     protected final List<RidesharingBatchStats> ridesharingStats;
 
@@ -63,7 +63,7 @@ public abstract class DARPSolverPFShared {
 
 
     public DARPSolverPFShared(OnDemandVehicleStorage vehicleStorage, TravelTimeProvider travelTimeProvider,
-                              PlanCostProvider travelCostProvider, DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory) {
+                              PlanCostProvider travelCostProvider, DefaultPFPlanCompRequest.DefaultPFPlanComputationRequestFactory requestFactory) {
         this.vehicleStorage = vehicleStorage;
         this.travelTimeProvider = travelTimeProvider;
         this.planCostProvider = travelCostProvider;

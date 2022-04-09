@@ -63,7 +63,7 @@ import java.util.List;
  *
  * @author fido
  */
-public class OnDemandVehicle<T extends TransportableEntity, V extends PhysicalTransportVehicle<T>> extends Agent implements EventHandler, PlanningAgent, OnDemandVehicleInterface,
+public class OnDemandVehicle<V extends PhysicalTransportVehicle> extends Agent implements EventHandler, PlanningAgent, OnDemandVehicleInterface,
 		Driver<V>{
 	
 	private static final int LENGTH = 4;
@@ -411,7 +411,7 @@ public class OnDemandVehicle<T extends TransportableEntity, V extends PhysicalTr
 
 	protected void pickupDemand() {
 		currentlyServedDemmand.demandAgent.tripStarted(this);
-		vehicle.pickUp((T) currentlyServedDemmand.demandAgent);			// TODO:  pretypovani na T - je to OK?
+		vehicle.pickUp(currentlyServedDemmand.demandAgent);			// TODO:  pretypovani na T - je to OK?
 		eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
 				new PickupEventContent(timeProvider.getCurrentSimTime(), 
 						currentlyServedDemmand.demandAgent.getSimpleId(), getId(),
@@ -420,7 +420,7 @@ public class OnDemandVehicle<T extends TransportableEntity, V extends PhysicalTr
 	
 	protected void dropOffDemand() {
 		currentlyServedDemmand.demandAgent.tripEnded();
-		vehicle.dropOff((T) currentlyServedDemmand.demandAgent);
+		vehicle.dropOff(currentlyServedDemmand.demandAgent);
 		eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
 				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
 						currentlyServedDemmand.demandAgent.getSimpleId(), getId()));

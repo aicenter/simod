@@ -26,6 +26,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.Agent;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.TransportEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
@@ -33,11 +34,10 @@ import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.DemandData;
 import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleInterface;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
-import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.TransportableEntityManagement;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.TransportableEntity_2;
 import cz.cvut.fel.aic.simod.statistics.DemandServiceStatistic;
 import cz.cvut.fel.aic.simod.statistics.StatisticEvent;
 import cz.cvut.fel.aic.simod.storage.DemandStorage;
@@ -50,8 +50,7 @@ import org.slf4j.LoggerFactory;
  * @author F-I-D-O
  */
 
-// TODO: vytvorit rozhrani jen pro DemandAgenta
-public class DemandAgent extends Agent implements EventHandler, TransportableEntityManagement {
+public class DemandAgent extends Agent implements EventHandler, TransportableEntity_2 {
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandAgent.class);
 	
@@ -79,7 +78,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	
 	private OnDemandVehicleInterface onDemandVehicle;
 	
-	private TransportEntity<DemandAgent> transportEntity;
+	private TransportEntity transportEntity;
 	
 	private SimulationNode lastFromPosition;
 	
@@ -146,9 +145,14 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	
 	
 	@Inject
-	public DemandAgent(StationsDispatcher onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
-			DemandStorage demandStorage, StandardTimeProvider timeProvider, TripsUtil tripsUtil,
-			@Assisted String agentId, @Assisted int id, @Assisted TimeTrip<SimulationNode> trip) {
+	public DemandAgent(StationsDispatcher onDemandVehicleStationsCentral,
+					   EventProcessor eventProcessor,
+					   DemandStorage demandStorage,
+					   StandardTimeProvider timeProvider,
+					   TripsUtil tripsUtil,
+					   @Assisted String agentId,
+					   @Assisted int id,
+					   @Assisted TimeTrip<SimulationNode> trip) {
 		super(agentId, trip.getLocations()[0]);
 		this.simpleId = id;
 		this.trip = trip;

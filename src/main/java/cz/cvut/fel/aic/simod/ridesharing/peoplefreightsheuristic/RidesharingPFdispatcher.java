@@ -6,23 +6,14 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
-import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.simod.DemandData;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
-import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
-import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.ridesharing.RidesharingDispatcher;
-import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.DARPSolverPFShared;
-import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PFPlanComputationRequest;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
-import cz.cvut.fel.aic.simod.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class RidesharingPFdispatcher extends RidesharingDispatcher {
 
@@ -34,7 +25,7 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 
 	IdGenerator tripIdGenerator;
 
-	protected final PFPlanComputationRequest.PFPlanComputationRequestFactory requestFactory;
+	protected final DefaultPFPlanCompRequest.DefaultPFPlanComputationRequestFactory requestFactory;
 
 	private List<PlanComputationRequest> newRequests;
 
@@ -50,7 +41,7 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 								   SimodConfig config,
 								   DARPSolverPFShared solver,
 								   PeriodicTicker ticker,
-								   PFPlanComputationRequest.PFPlanComputationRequestFactory requestFactory,
+								   DefaultPFPlanCompRequest.DefaultPFPlanComputationRequestFactory requestFactory,
 								   TimeProvider timeProvider,
 								   PositionUtil positionUtil,
 								   IdGenerator tripIdGenerator) {
@@ -72,9 +63,10 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 	}
 
 
-	@Override protected void serveDemand(SimulationNode startNode, DemandData demandData) {
+	@Override
+	protected void serveDemand(SimulationNode startNode, DemandData demandData) {
 		SimulationNode requestStartPosition = demandData.locations[0];
-		PFPlanComputationRequest newRequest;
+		DefaultPFPlanCompRequest newRequest;
 		// if request is Agent
 		if (demandData.demandAgent != null)
 		{
@@ -89,7 +81,7 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 
 		waitingRequests.add(newRequest);	// TODO jak funguji waitingReuqests??? (viz replan() )
 		newRequests.add(newRequest);
-		requestsMapByDemandEntities.put(newRequest.getDemandEntity().getSimpleId(), newRequest);
+		requestsMapByDemandEntities.put(newRequest.getDemandAgent().getSimpleId(), newRequest);
 		// TODO replan() ???
 	}
 

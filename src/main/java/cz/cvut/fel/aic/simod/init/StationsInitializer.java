@@ -78,7 +78,7 @@ public class StationsInitializer {
 				discarded++;
 			}
 			else{
-				int initCount = Integer.parseInt(row[1]) + 100;
+				int initCount = Integer.parseInt(row[1]) + 100;		// tady se random pridava 200 aut
 				if(initCount < 500){
 					initCount += 100;
 				}

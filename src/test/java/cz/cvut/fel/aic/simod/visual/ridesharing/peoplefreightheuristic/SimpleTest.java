@@ -127,7 +127,7 @@ public class SimpleTest
                 "PFVehicle_1",
                 startPos_1,
                 parcelCapacity_1,
-                new PhysicalPFVehicle<>(
+                new PhysicalPFVehicle(
                         "PFVehicle_1",
                         DemandSimulationEntityType.VEHICLE,
                         LENGTH,

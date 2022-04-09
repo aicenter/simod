@@ -29,8 +29,8 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage;
  * @author fido
  */
 @Singleton
-														// the type of physical transportable entity is irrelevant here
-public class PhysicalTransportVehicleStorage<V extends PhysicalTransportVehicle<?>> extends EntityStorage<V>{
+
+public class PhysicalTransportVehicleStorage<V extends PhysicalTransportVehicle> extends EntityStorage<V>{
 	
 	@Inject
 	public PhysicalTransportVehicleStorage() {

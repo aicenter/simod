@@ -19,10 +19,7 @@
 package cz.cvut.fel.aic.simod;
 
 import cz.cvut.fel.aic.simod.ridesharing.*;
-import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.DARPSolverPFShared;
-import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightHeuristicSolver;
-import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightVehicle;
-import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightVehicleFactory;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.*;
 import cz.cvut.fel.aic.simod.traveltimecomputation.DistanceMatrixTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TNRTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TNRAFTravelTimeProvider;
@@ -78,12 +75,12 @@ public class MainModule extends StandardAgentPolisModule{
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(MainModule.class);
 	
-	private final SimodConfig SimodConfig;
-	
-	public MainModule(SimodConfig SimodConfig, File localConfigFile) {
-		super(SimodConfig, localConfigFile, "agentpolis");
-		setLoggerFilePath(SimodConfig.simodExperimentDir);
-		this.SimodConfig = SimodConfig;      
+	private final SimodConfig simodConfig;
+
+	public MainModule(SimodConfig simodConfig, File localConfigFile) {
+		super(simodConfig, localConfigFile, "agentpolis");
+		setLoggerFilePath(simodConfig.simodExperimentDir);
+		this.simodConfig = simodConfig;
 		init();
 	}
 
@@ -95,11 +92,11 @@ public class MainModule extends StandardAgentPolisModule{
 	@Override
 	protected void configureNext() {	  
 		bind(new TypeLiteral<Set<TransportMode>>(){}).toInstance(Sets.immutableEnumSet(TransportMode.CAR));
-		bind(SimodConfig.class).toInstance(SimodConfig);
+		bind(SimodConfig.class).toInstance(simodConfig);
 		bind(EntityStorage.class).to(VehicleStorage.class);
 		bind(MapInitializer.class).to(GeojsonMapInitializer.class);
 		
-		if(SimodConfig.useTripCache){
+		if(simodConfig.useTripCache){
 			bind(TripsUtil.class).to(TripsUtilCached.class);
 		}
 		bind(DemandLayer.class).to(DemandLayerWithJitter.class);
@@ -110,7 +107,7 @@ public class MainModule extends StandardAgentPolisModule{
 				bind(PhysicalVehicleDriveFactory.class).to(StandardDriveFactory.class);
 		}
 	
-		switch(SimodConfig.travelTimeProvider){
+		switch(simodConfig.travelTimeProvider){
 			case "dm":
 				bind(TravelTimeProvider.class).to(DistanceMatrixTravelTimeProvider.class);
 				break;
@@ -132,22 +129,35 @@ public class MainModule extends StandardAgentPolisModule{
 				break;
 		}
 
-		if(SimodConfig.ridesharing.on){
-			// if balicky existuji -> nactu moje factory pro vozidla
-			if (false /*SimodConfig.packagesOn*/) {
-				// TODO: doplnit pro moje requesty a ostatni moje tridy
+		if(simodConfig.ridesharing.on) {
+			if (simodConfig.packagesOn) {
 				bind(OnDemandVehicleFactorySpec.class).to(PeopleFreightVehicleFactory.class);
-				bind(RideSharingOnDemandVehicle.class).to(PeopleFreightVehicle.class);
+				bind(StationsDispatcher.class).to(RidesharingPFdispatcher.class);
+
+//				install(new FactoryModuleBuilder().implement(DefaultPFPlanCompRequest.class, DefaultPFPlanCompRequest.class)
+//						.build(DefaultPFPlanCompRequest.DefaultPFPlanComputationRequestFactory.class));
+
 			}
 			else {
 				bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
+				bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
+
+//				install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
+//						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
 			}
 
-			bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
 			bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
-			install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
+
+			if (simodConfig.packagesOn) {
+				install(new FactoryModuleBuilder().implement(DefaultPFPlanCompRequest.class, DefaultPFPlanCompRequest.class)
+						.build(DefaultPFPlanCompRequest.DefaultPFPlanComputationRequestFactory.class));
+			}
+			else {
+				install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
 						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
-			switch(SimodConfig.ridesharing.method){
+			}
+
+			switch(simodConfig.ridesharing.method){
 				case "insertion-heuristic":
 					bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
 					break;
@@ -157,7 +167,6 @@ public class MainModule extends StandardAgentPolisModule{
 		//			bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
 					break;
 				case "people-freight-heuristic":
-					// TODO vlastni RidesharingDispatcher s DARPsolveremPFshared
 //					bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
 					bind(DARPSolverPFShared.class).to(PeopleFreightHeuristicSolver.class);
 					break;
@@ -166,10 +175,15 @@ public class MainModule extends StandardAgentPolisModule{
 		else{
 			bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
 		}
+
 		install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
 			.build(DemandAgentFactory.class));
+		if (simodConfig.packagesOn) {
+			install(new FactoryModuleBuilder().implement(DemandPackage.class, DemandPackage.class)
+					.build(DemandPackage.DemandPackageFactory.class));
+		}
 		
-		if(SimodConfig.rebalancing.on){
+		if(simodConfig.rebalancing.on){
 			install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, RebalancingOnDemandVehicleStation.class)
 				.build(RebalancingOnDemandVehicleStation.OnDemandVehicleStationFactory.class));
 		}
@@ -207,7 +221,7 @@ public class MainModule extends StandardAgentPolisModule{
 	}
 
 	protected void init() {
-		deleteFiles(new File(SimodConfig.simodExperimentDir));
+		deleteFiles(new File(simodConfig.simodExperimentDir));
 	}
            
 }

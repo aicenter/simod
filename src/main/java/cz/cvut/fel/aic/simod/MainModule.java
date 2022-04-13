@@ -132,30 +132,31 @@ public class MainModule extends StandardAgentPolisModule{
 		if(simodConfig.ridesharing.on) {
 			if (simodConfig.packagesOn) {
 				bind(OnDemandVehicleFactorySpec.class).to(PeopleFreightVehicleFactory.class);
+				bind(PeopleFreightVehicleFactorySpec.class).to(PeopleFreightVehicleFactory.class);
 				bind(StationsDispatcher.class).to(RidesharingPFdispatcher.class);
 
-//				install(new FactoryModuleBuilder().implement(DefaultPFPlanCompRequest.class, DefaultPFPlanCompRequest.class)
-//						.build(DefaultPFPlanCompRequest.DefaultPFPlanComputationRequestFactory.class));
+				install(new FactoryModuleBuilder().implement(DefaultPFPlanCompRequest.class, DefaultPFPlanCompRequest.class)
+						.build(DefaultPFPlanCompRequest.DefaultPFPlanComputationRequestFactory.class));
 
 			}
 			else {
 				bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);
 				bind(StationsDispatcher.class).to(RidesharingDispatcher.class);
 
-//				install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
-//						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
+				install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
+						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
 			}
 
 			bind(PlanCostProvider.class).to(StandardPlanCostProvider.class);
 
-			if (simodConfig.packagesOn) {
-				install(new FactoryModuleBuilder().implement(DefaultPFPlanCompRequest.class, DefaultPFPlanCompRequest.class)
-						.build(DefaultPFPlanCompRequest.DefaultPFPlanComputationRequestFactory.class));
-			}
-			else {
-				install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
-						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
-			}
+//			if (simodConfig.packagesOn) {
+//				install(new FactoryModuleBuilder().implement(DefaultPFPlanCompRequest.class, DefaultPFPlanCompRequest.class)
+//						.build(DefaultPFPlanCompRequest.DefaultPFPlanComputationRequestFactory.class));
+//			}
+//			else {
+//				install(new FactoryModuleBuilder().implement(DefaultPlanComputationRequest.class, DefaultPlanComputationRequest.class)
+//						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
+//			}
 
 			switch(simodConfig.ridesharing.method){
 				case "insertion-heuristic":
@@ -168,7 +169,7 @@ public class MainModule extends StandardAgentPolisModule{
 					break;
 				case "people-freight-heuristic":
 //					bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
-					bind(DARPSolverPFShared.class).to(PeopleFreightHeuristicSolver.class);
+					bind(DARPSolver.class).to(PeopleFreightHeuristicSolver.class);
 					break;
 			}
 		}

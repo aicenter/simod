@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>cz.cvut.fel.aic.simod.visual.ridesharing.peoplefreightheuristic.SimpleTest</OriginalElement>
+  <nodes>
+    <node x="931.0" y="357.0">cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup</node>
+    <node x="349.0" y="517.0">cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestFreight</node>
+    <node x="172.0" y="0.0">cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest</node>
+    <node x="0.0" y="543.0">cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestPeople</node>
+    <node x="652.0" y="357.0">cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff</node>
+    <node x="500.0" y="645.0">cz.cvut.fel.aic.simod.visual.ridesharing.peoplefreightheuristic.SimpleTest</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestFreight" target="cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest" relationship="GENERALIZATION">
+      <point x="0.0" y="-41.5" />
+      <point x="516.5" y="492.0" />
+      <point x="340.5" y="492.0" />
+      <point x="0.0" y="233.5" />
+    </edge>
+    <edge source="cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequestPeople" target="cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest" relationship="GENERALIZATION">
+      <point x="0.0" y="-15.5" />
+      <point x="164.5" y="492.0" />
+      <point x="340.5" y="492.0" />
+      <point x="0.0" y="233.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic" zoom="1.0" showDependencies="false" x="683.0" y="481.0" />
+  <SelectedNodes>
+    <node>cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Fields</Category>
+    <Category>Properties</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

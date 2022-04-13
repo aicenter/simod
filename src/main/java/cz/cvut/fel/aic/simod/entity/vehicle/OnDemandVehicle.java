@@ -63,15 +63,15 @@ import java.util.List;
  *
  * @author fido
  */
-public class OnDemandVehicle<V extends PhysicalTransportVehicle> extends Agent implements EventHandler, PlanningAgent, OnDemandVehicleInterface,
-		Driver<V>{
+public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgent, OnDemandVehicleInterface,
+		Driver<PhysicalTransportVehicle>{
 	
 	private static final int LENGTH = 4;
 
 
 	private final int index;
 	
-	protected V vehicle;
+	protected PhysicalTransportVehicle vehicle;
 	
 	protected final TripsUtil tripsUtil;
 	
@@ -178,7 +178,7 @@ public class OnDemandVehicle<V extends PhysicalTransportVehicle> extends Agent i
 	
 	@Inject
 	public OnDemandVehicle(
-			PhysicalTransportVehicleStorage<V> vehicleStorage,		// TODO this argument is now useless??
+			PhysicalTransportVehicleStorage vehicleStorage,		// TODO this argument is now useless??
 			TripsUtil tripsUtil, 
 			StationsDispatcher onDemandVehicleStationsCentral, 
 			PhysicalVehicleDriveFactory driveFactory, 
@@ -191,7 +191,7 @@ public class OnDemandVehicle<V extends PhysicalTransportVehicle> extends Agent i
 			AgentpolisConfig agentpolisConfig,
 			@Assisted String vehicleId,
 			@Assisted SimulationNode startPosition,
-			@Assisted V physVehicle)
+			@Assisted PhysicalTransportVehicle physVehicle)
 	{
 		super(vehicleId, startPosition);
 		this.tripsUtil = tripsUtil;
@@ -375,7 +375,7 @@ public class OnDemandVehicle<V extends PhysicalTransportVehicle> extends Agent i
 	}
 
 	@Override
-	public V getVehicle() {
+	public PhysicalTransportVehicle getVehicle() {
 		return vehicle;
 	}
 
@@ -411,7 +411,7 @@ public class OnDemandVehicle<V extends PhysicalTransportVehicle> extends Agent i
 
 	protected void pickupDemand() {
 		currentlyServedDemmand.demandAgent.tripStarted(this);
-		vehicle.pickUp(currentlyServedDemmand.demandAgent);			// TODO:  pretypovani na T - je to OK?
+		vehicle.pickUp(currentlyServedDemmand.demandAgent);
 		eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
 				new PickupEventContent(timeProvider.getCurrentSimTime(), 
 						currentlyServedDemmand.demandAgent.getSimpleId(), getId(),
@@ -440,7 +440,7 @@ public class OnDemandVehicle<V extends PhysicalTransportVehicle> extends Agent i
 
 
 	@Override
-	public void startDriving(V vehicle){
+	public void startDriving(PhysicalTransportVehicle vehicle){
 		this.vehicle = vehicle;
 	}
 

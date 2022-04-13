@@ -128,9 +128,12 @@ public class Statistics extends AliteEntity implements EventHandler{
 	
 	
 	@Inject
-	public Statistics(TypedSimulation eventProcessor, Provider<EdgesLoadByState> allEdgesLoadProvider, 
-			OnDemandVehicleStorage onDemandVehicleStorage, 
-			StationsDispatcher onDemandVehicleStationsCentral, SimodConfig config, DARPSolver dARPSolver) throws IOException {
+	public Statistics(TypedSimulation eventProcessor,
+					  Provider<EdgesLoadByState> allEdgesLoadProvider,
+					  OnDemandVehicleStorage onDemandVehicleStorage,
+					  StationsDispatcher onDemandVehicleStationsCentral,
+					  SimodConfig config,
+					  DARPSolver dARPSolver) throws IOException {
 		this.eventProcessor = eventProcessor;
 		this.allEdgesLoadProvider = allEdgesLoadProvider;
 		this.onDemandVehicleStorage = onDemandVehicleStorage;

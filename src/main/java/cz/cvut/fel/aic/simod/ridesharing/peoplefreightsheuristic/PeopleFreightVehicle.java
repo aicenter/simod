@@ -24,7 +24,7 @@ import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PeopleFreightVehicle extends RideSharingOnDemandVehicle<PhysicalPFVehicle>
+public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
 {
 	public final int vehiclePassengerCapacity = 1;
 
@@ -38,7 +38,7 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle<PhysicalPFV
 
 	@Inject
 	public PeopleFreightVehicle(
-			PhysicalTransportVehicleStorage<PhysicalPFVehicle> vehicleStorage,
+			PhysicalTransportVehicleStorage vehicleStorage,
 			TripsUtil tripsUtil,
 			StationsDispatcher onDemandVehicleStationsCentral,
 			PhysicalVehicleDriveFactory driveActivityFactory,
@@ -111,7 +111,7 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle<PhysicalPFV
 				long currentTime = timeProvider.getCurrentSimTime();
 				long droppTime = demandEntity.getDemandTime() + config.ridesharing.maxProlongationInSeconds * 1000;
 				throw new Exception(
-						String.format("Demand agent %s cannot be picked up, he is already dropped! Current simulation "
+						String.format("Demand entity %s cannot be picked up, it is already dropped! Current simulation "
 								+ "time: %s, drop time: %s", demandEntity, currentTime, droppTime));
 			}
 			demandEntity.tripStarted(this);
@@ -125,7 +125,7 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle<PhysicalPFV
 			driveToNextTask();
 		}
 		catch (Exception ex) {
-			Logger.getLogger(PhysicalTransportVehicle.class.getName()).log(Level.SEVERE, null, ex);
+			Logger.getLogger(PhysicalPFVehicle.class.getName()).log(Level.SEVERE, null, ex);
 		}
 	}
 

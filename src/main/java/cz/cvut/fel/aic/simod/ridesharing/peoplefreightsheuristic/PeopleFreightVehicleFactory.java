@@ -7,7 +7,6 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
@@ -16,13 +15,10 @@ import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactorySpec;
-import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightVehicle;
-import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PhysicalPFVehicle;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 
 @Singleton
-public class PeopleFreightVehicleFactory implements OnDemandVehicleFactorySpec {
+public class PeopleFreightVehicleFactory implements PeopleFreightVehicleFactorySpec {
 
 	private static final int LENGTH = 4;
 
@@ -41,7 +37,7 @@ public class PeopleFreightVehicleFactory implements OnDemandVehicleFactorySpec {
 
 	protected final IdGenerator rebalancingIdGenerator;
 
-	protected final PhysicalTransportVehicleStorage<PhysicalPFVehicle>vehicleStorage;
+	protected final PhysicalTransportVehicleStorage vehicleStorage;
 
 	protected final SimodConfig config;
 
@@ -51,7 +47,7 @@ public class PeopleFreightVehicleFactory implements OnDemandVehicleFactorySpec {
 
 	@Inject
 	public PeopleFreightVehicleFactory(
-			PhysicalTransportVehicleStorage<PhysicalPFVehicle> vehicleStorage,
+			PhysicalTransportVehicleStorage vehicleStorage,
 			TripsUtil tripsUtil,
 			StationsDispatcher onDemandVehicleStationsCentral,
 			VisioPositionUtil positionUtil,
@@ -73,7 +69,7 @@ public class PeopleFreightVehicleFactory implements OnDemandVehicleFactorySpec {
 		this.agentpolisConfig = agentpolisConfig;
 	}
 
-	public PeopleFreightVehicle create(String vehicleId, SimulationNode startPosition, int freightCapacity) {
+	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition, int freightCapacity) {
 		return	new PeopleFreightVehicle(
 				vehicleStorage,
 				tripsUtil,
@@ -101,7 +97,7 @@ public class PeopleFreightVehicleFactory implements OnDemandVehicleFactorySpec {
 	}
 
 	@Override
-	public PeopleFreightVehicle create(String vehicleId, SimulationNode startPosition) {
+	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition) {
 		return null;
 	}
 }

@@ -24,7 +24,10 @@ import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 import java.lang.*;
 import java.util.*;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.LoggerFactory;
+
+// -Djava.library.path="/opt/gurobi950"
 
 /**
  * comparator for sorting Requests at the start of solver algorithm
@@ -41,7 +44,7 @@ class SortActionsByMaxTime implements Comparator<PlanRequestAction> {
 	}
 }
 
-// custom structure to store a taxi schedule and it's duration
+// structure to store a taxi schedule and it's duration
 class ScheduleWithDuration {
 	public final List<PlanRequestAction> schedule;
 	public final int duration;
@@ -52,6 +55,7 @@ class ScheduleWithDuration {
 	}
 }
 
+// structure to store a taxi's free capacity and whether it currently carries person
 class TaxiStatus {
 	public int freeCapacity;
 	public boolean personOnBoard;
@@ -105,7 +109,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 
 	private double minCostIncrement;
 
-	OnDemandVehicle<PhysicalPFVehicle> vehicleFromNearestStation;
+	OnDemandVehicle vehicleFromNearestStation;
 
 	private int[] usedVehiclesPerStation;
 
@@ -176,7 +180,12 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 			PeopleFreightVehicle newTaxi = (PeopleFreightVehicle) taxiEntity;
 			allVehicles.add(newTaxi);
 		}
+
+		// init of empty lists of requests for each taxi
 		taxiSchedules = new ArrayList<>();
+		for (int i = 0; i < allVehicles.size(); i++) {
+			taxiSchedules.add(new ArrayList<>());
+		}
 
 		// initializing taxi statuses
 		taxiStatuses = new ArrayList<>();
@@ -192,10 +201,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 		// maybe in future: calculate plan discomfort
 		int planDiscomfort = 0;
 
-		// init of empty lists of requests for each taxi
-		for (int i = 0; i < allVehicles.size(); i++) {
-			taxiSchedules.add(new ArrayList<>());
-		}
+
 
 		// list of plan durations for each taxi
 		List<Integer> planDurations = new ArrayList<>(Arrays.asList(new Integer[allVehicles.size()]));
@@ -445,6 +451,12 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 		List<Enum> typesToHandle = new LinkedList<>();
 		typesToHandle.add(OnDemandVehicleEvent.PICKUP);
 		eventProcessor.addEventHandler(this, typesToHandle);
+	}
+
+	@Override
+	public Map<RideSharingOnDemandVehicle,DriverPlan> solve(List<PlanComputationRequest> newRequests,
+																	 List<PlanComputationRequest> waitingRequests) {
+		throw new NotImplementedException("Not implemented here.");
 	}
 
 }

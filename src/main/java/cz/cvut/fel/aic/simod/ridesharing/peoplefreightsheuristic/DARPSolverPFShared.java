@@ -18,6 +18,7 @@
  */
 package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic;
 
+import cz.cvut.fel.aic.simod.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.simod.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.simod.ridesharing.RidesharingDispatcher;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
@@ -32,7 +33,7 @@ import java.util.Map;
 
 
 
-public abstract class DARPSolverPFShared {
+public abstract class DARPSolverPFShared extends DARPSolver {
 
     protected final OnDemandVehicleStorage vehicleStorage;
 
@@ -64,6 +65,7 @@ public abstract class DARPSolverPFShared {
 
     public DARPSolverPFShared(OnDemandVehicleStorage vehicleStorage, TravelTimeProvider travelTimeProvider,
                               PlanCostProvider travelCostProvider, DefaultPFPlanCompRequest.DefaultPFPlanComputationRequestFactory requestFactory) {
+        super(vehicleStorage, travelTimeProvider, travelCostProvider, null);
         this.vehicleStorage = vehicleStorage;
         this.travelTimeProvider = travelTimeProvider;
         this.planCostProvider = travelCostProvider;

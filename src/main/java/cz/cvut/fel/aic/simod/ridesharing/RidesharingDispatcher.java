@@ -66,16 +66,16 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class RidesharingDispatcher extends StationsDispatcher implements Routine, EventHandler{
 	
-	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RidesharingDispatcher.class);
+	protected static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RidesharingDispatcher.class);
 	
 	
 	private final TimeProvider timeProvider;
 	
 	protected final DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory;
 	
-	private final DARPSolver solver;
+	protected final DARPSolver solver;
 	
-	private final List darpSolverComputationalTimes;
+	protected final List darpSolverComputationalTimes;
 	
 	private final LinkedHashSet<PlanComputationRequest> waitingRequests;
 	
@@ -169,7 +169,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		}		
 		LOGGER.info("Demands dropped in this batch: {}", droppedDemandsThisBatch);
 		LOGGER.info("Total dropped demands count: {}", numberOfDemandsDropped);
-		
+
 		// DARP solving
 		long startTime = System.nanoTime();
 		Map<RideSharingOnDemandVehicle,DriverPlan> newPlans 

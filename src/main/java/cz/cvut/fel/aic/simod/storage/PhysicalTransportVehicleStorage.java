@@ -30,7 +30,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage;
  */
 @Singleton
 
-public class PhysicalTransportVehicleStorage<V extends PhysicalTransportVehicle> extends EntityStorage<V>{
+public class PhysicalTransportVehicleStorage extends EntityStorage<PhysicalTransportVehicle>{
 	
 	@Inject
 	public PhysicalTransportVehicleStorage() {

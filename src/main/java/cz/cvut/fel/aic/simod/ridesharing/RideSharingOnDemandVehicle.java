@@ -59,7 +59,7 @@ import java.util.logging.Logger;
 /**
  * @author fido
  */
-public class RideSharingOnDemandVehicle<V extends PhysicalTransportVehicle> extends OnDemandVehicle<V> {
+public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 
 	private final VisioPositionUtil positionUtil;
 
@@ -77,7 +77,7 @@ public class RideSharingOnDemandVehicle<V extends PhysicalTransportVehicle> exte
 
 	@Inject
 	public RideSharingOnDemandVehicle(
-			PhysicalTransportVehicleStorage<V> vehicleStorage,
+			PhysicalTransportVehicleStorage vehicleStorage,
 			TripsUtil tripsUtil,
 			StationsDispatcher onDemandVehicleStationsCentral,
 			PhysicalVehicleDriveFactory driveActivityFactory,
@@ -91,7 +91,7 @@ public class RideSharingOnDemandVehicle<V extends PhysicalTransportVehicle> exte
 			AgentpolisConfig agentpolisConfig,
 			@Assisted String vehicleId,
 			@Assisted SimulationNode startPosition,
-			@Assisted V physVehicle) {
+			@Assisted PhysicalTransportVehicle physVehicle) {
 		super(
 				vehicleStorage,
 				tripsUtil,
@@ -257,10 +257,10 @@ public class RideSharingOnDemandVehicle<V extends PhysicalTransportVehicle> exte
 				long droppTime = demandAgent.getDemandTime() + config.ridesharing.maxProlongationInSeconds * 1000;
 				throw new Exception(
 						String.format("Demand agent %s cannot be picked up, he is already dropped! Current simulation "
-								+ "time: %s, drop time: %s", demandAgent.toString(), currentTime, droppTime));
+								+ "time: %s, drop time: %s", demandAgent, currentTime, droppTime));
 			}
 			demandAgent.tripStarted(this);
-			vehicle.pickUp(demandAgent);		// TODO build with new PickUp how??
+			vehicle.pickUp(demandAgent);
 
 			// statistics TODO demand trip?
 			//		demandTrip = tripsUtil.createTrip(currentTask.getDemandAgent().getPosition().id,

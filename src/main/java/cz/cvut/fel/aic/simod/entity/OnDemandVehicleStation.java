@@ -22,7 +22,6 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
@@ -35,7 +34,7 @@ import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactorySpec;
-import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PhysicalPFVehicle;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightVehicleFactorySpec;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
@@ -49,7 +48,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 import org.locationtech.jts.geom.Coordinate;
 import org.slf4j.LoggerFactory;
 
@@ -88,26 +86,29 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 		this.eventProcessor = eventProcessor;
 		parkedVehicles = new ArrayList<>();
 //		initialVehicleCount = 10;
-		int vehicleCapacity = 50;
-		for (int i = 0; i < initialVehicleCount; i++) {
-			String onDemandVehicleId = String.format("%s-%d", id, i);
 
-			if (config.packagesOn) {
-				OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicleId, getPosition(), vehicleCapacity);
+
+		if (config.packagesOn) {
+			int vehicleCapacity = 50;
+			PeopleFreightVehicleFactorySpec PFVehicleFactory = (PeopleFreightVehicleFactorySpec) onDemandVehicleFactory;
+			for (int i = 0; i < initialVehicleCount; i++) {
+				String onDemandVehicleId = String.format("%s-%d", id, i);
+				OnDemandVehicle newVehicle = PFVehicleFactory.create(onDemandVehicleId, getPosition(), vehicleCapacity);
 				parkedVehicles.add(newVehicle);
 				newVehicle.setParkedIn(this);
 				onDemandVehicleStorage.addEntity(newVehicle);
 			}
-			else {
-				OnDemandVehicle<PhysicalTransportVehicle> newVehicle = onDemandVehicleFactory.create(onDemandVehicleId, getPosition());
-				parkedVehicles.add(newVehicle);
-				newVehicle.setParkedIn(this);
-				onDemandVehicleStorage.addEntity(newVehicle);
-			}
-//			parkedVehicles.add(newVehicle);
-//			newVehicle.setParkedIn(this);
-//			onDemandVehicleStorage.addEntity(newVehicle);
 		}
+		else {
+			for (int i = 0; i < initialVehicleCount; i++) {
+				String onDemandVehicleId = String.format("%s-%d", id, i);
+				OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicleId, getPosition());
+				parkedVehicles.add(newVehicle);
+				newVehicle.setParkedIn(this);
+				onDemandVehicleStorage.addEntity(newVehicle);
+			}
+		}
+
 		onDemandVehicleStationStorage.addEntity(this);
 		this.departureCards = new LinkedList<>();
 		this.transformer = transformer;

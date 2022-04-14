@@ -150,7 +150,6 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 		else {
 			((PhysicalVehicleDrive) getCurrentTopLevelActivity()).end();
 		}
-
 	}
 
 	@Override
@@ -322,7 +321,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 		return trips;
 	}
 
-	private void logTraveledDistance(boolean wasStopped) {
+	protected void logTraveledDistance(boolean wasStopped) {
 		int length = wasStopped ? positionUtil.getTripLengthInMeters(currentTrip, getPosition())
 				: positionUtil.getTripLengthInMeters(currentTrip);
 

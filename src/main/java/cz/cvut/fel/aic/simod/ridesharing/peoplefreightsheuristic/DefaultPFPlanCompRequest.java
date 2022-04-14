@@ -8,6 +8,7 @@ import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
+import org.apache.commons.lang.NotImplementedException;
 
 import java.util.Random;
 
@@ -95,7 +96,7 @@ public class DefaultPFPlanCompRequest implements PFPlanCompRequest {
 
 	@Override
 	public DemandAgent getDemandAgent() {
-		return null;
+		throw new NotImplementedException("DemandAgent not implemented in default PF plan request.");
 	}
 
 	@Override

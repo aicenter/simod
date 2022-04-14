@@ -170,6 +170,7 @@ public class MainModule extends StandardAgentPolisModule{
 				case "people-freight-heuristic":
 //					bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
 					bind(DARPSolver.class).to(PeopleFreightHeuristicSolver.class);
+					bind(DARPSolverPFShared.class).to(PeopleFreightHeuristicSolver.class);
 					break;
 			}
 		}

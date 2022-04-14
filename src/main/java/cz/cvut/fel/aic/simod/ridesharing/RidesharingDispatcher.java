@@ -69,26 +69,26 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	protected static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RidesharingDispatcher.class);
 	
 	
-	private final TimeProvider timeProvider;
+	protected final TimeProvider timeProvider;
 	
-	protected final DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory;
+	private final DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory;
 	
 	protected final DARPSolver solver;
 	
 	protected final List darpSolverComputationalTimes;
+
+	protected List<PlanComputationRequest> newRequests;
+
+	protected final LinkedHashSet<PlanComputationRequest> waitingRequests;
+
+	protected final Map<Integer,PlanComputationRequest> requestsMapByDemandAgents;
+
+	protected final PositionUtil positionUtil;
+
+
+	protected int requestCounter;
 	
-	private final LinkedHashSet<PlanComputationRequest> waitingRequests;
-	
-	private final Map<Integer,PlanComputationRequest> requestsMapByDemandAgents;
-	
-	private final PositionUtil positionUtil;
-	
-	
-	private List<PlanComputationRequest> newRequests;
-	
-	private int requestCounter;
-	
-	private IdGenerator tripIdGenerator;
+	protected IdGenerator tripIdGenerator;
 	
 	
 
@@ -178,9 +178,9 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		darpSolverComputationalTimes.add(totalTime);
 
 		// executing new plans
-		for(Entry<RideSharingOnDemandVehicle,DriverPlan> entry: newPlans.entrySet()){
+		for(Entry<RideSharingOnDemandVehicle,DriverPlan> entry : newPlans.entrySet()){
 			RideSharingOnDemandVehicle vehicle = entry.getKey();
-    			DriverPlan plan = entry.getValue();
+			DriverPlan plan = entry.getValue();
 			vehicle.replan(plan);
 		}
 		

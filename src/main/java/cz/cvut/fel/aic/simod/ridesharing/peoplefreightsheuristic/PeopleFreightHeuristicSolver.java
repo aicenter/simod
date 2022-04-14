@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 /**
  * comparator for sorting Requests at the start of solver algorithm
  */
-class SortRequestsByOriginTime implements Comparator<DefaultPFPlanCompRequest> {
-	public int compare(DefaultPFPlanCompRequest a, DefaultPFPlanCompRequest b) {
+class SortRequestsByOriginTime implements Comparator<PlanComputationRequest> {
+	public int compare(PlanComputationRequest a, PlanComputationRequest b) {
 		return a.getPickUpAction().getMaxTime() - b.getPickUpAction().getMaxTime();
 	}
 }
@@ -168,10 +168,10 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 	 */
 	@Override
 	public Map<PeopleFreightVehicle, cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan> solve(
-			List<PlanComputationRequestPeople> newRequestsPeople,
-			List<PlanComputationRequestPeople> waitingRequestsPeople,
-			List<PlanComputationRequestFreight> newRequestsFreight,
-			List<PlanComputationRequestFreight> waitingRequestsFreight) {
+			List<PlanComputationRequest> newRequestsPeople,
+			List<PlanComputationRequest> waitingRequestsPeople,
+			List<PlanComputationRequest> newRequestsFreight,
+			List<PlanComputationRequest> waitingRequestsFreight) {
 
 		// INIT ----------------------
 		// casting given vehicles to actual PeopleFreightVehicles
@@ -189,10 +189,8 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 
 		// initializing taxi statuses
 		taxiStatuses = new ArrayList<>();
-		int x = 0;
-		for (int i = 0; i < allVehicles.size(); i++) {
-			x += 1;
-			taxiStatuses.add(new TaxiStatus(allVehicles.get(i).getMaxParcelsCapacity(), false));
+		for (PeopleFreightVehicle vehicle : allVehicles) {
+			taxiStatuses.add(new TaxiStatus(vehicle.getMaxParcelsCapacity(), false));
 		}
 		// END INIT -------------------
 
@@ -208,7 +206,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 		Collections.fill(planDurations, 0);
 
 		// all requests have default minTime = 0
-		List<DefaultPFPlanCompRequest> newRequestsAll = new ArrayList<>();
+		List<PlanComputationRequest> newRequestsAll = new ArrayList<>();
 		if (newRequestsPeople != null) {
 			newRequestsAll.addAll(newRequestsPeople);
 		}
@@ -223,7 +221,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 		List<PeopleFreightVehicle> availableTaxis = new ArrayList<>();
 
 		for (int i = 0; i < newRequestsAll.size(); i++) {
-			DefaultPFPlanCompRequest currentRequest = newRequestsAll.get(i);
+			PFPlanCompRequest currentRequest = (PFPlanCompRequest) newRequestsAll.get(i);
 
 			// update algorithmTime
 			curAlgorithmTime = currentRequest.getPickUpAction().getMaxTime();
@@ -349,7 +347,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 	/**
 	 * returns sorted list of new taxi schedule (or null if the schedule is not feasible) and duration of this schedule
 	 */
-	private ScheduleWithDuration trySchedule(int taxiIndex, DefaultPFPlanCompRequest newRequest) {
+	private ScheduleWithDuration trySchedule(int taxiIndex, PFPlanCompRequest newRequest) {
 		List<PlanRequestAction> possibleTaxiSchedule = new ArrayList<>(taxiSchedules.get(taxiIndex));
 		possibleTaxiSchedule.add(newRequest.getPickUpAction());
 		possibleTaxiSchedule.add(newRequest.getDropOffAction());

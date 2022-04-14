@@ -5,7 +5,7 @@
 *.pyc
 
 data
-/data.zip
+/data/data.zip
 
 nbactions*.xml
 nb-configuration.xml

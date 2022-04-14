@@ -68,7 +68,6 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	
 	private static final int LENGTH = 4;
 
-
 	private final int index;
 	
 	protected PhysicalTransportVehicle vehicle;
@@ -203,8 +202,10 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		this.rebalancingIdGenerator = rebalancingIdGenerator;
 		this.config = config;
 
+
 		index = idGenerator.getId();
 
+		state = OnDemandVehicleState.WAITING;
 		// set the physical vehicle
 		try
 		{

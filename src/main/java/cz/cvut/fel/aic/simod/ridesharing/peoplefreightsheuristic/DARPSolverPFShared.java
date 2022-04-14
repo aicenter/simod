@@ -21,8 +21,10 @@ package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic;
 import cz.cvut.fel.aic.simod.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.simod.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.simod.ridesharing.RidesharingDispatcher;
+//import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.RidesharingPFDispatcher;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;  //.DefaultPlanComputationRequestFactory;
+import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStats;
@@ -46,8 +48,7 @@ public abstract class DARPSolverPFShared extends DARPSolver {
     protected final List<RidesharingBatchStats> ridesharingStats;
 
 
-    protected RidesharingDispatcher ridesharingDispatcher;
-
+    protected RidesharingPFdispatcher ridesharingDispatcher;
 
 
 
@@ -55,7 +56,8 @@ public abstract class DARPSolverPFShared extends DARPSolver {
         return ridesharingStats;
     }
 
-    public void setDispatcher(RidesharingDispatcher ridesharingDispatcher){
+
+    public void setDispatcher(RidesharingPFdispatcher ridesharingDispatcher){
         this.ridesharingDispatcher = ridesharingDispatcher;
     }
 
@@ -76,9 +78,9 @@ public abstract class DARPSolverPFShared extends DARPSolver {
 
 
 
-    public abstract Map<PeopleFreightVehicle, DriverPlan> solve(List<PlanComputationRequestPeople> newPeopleRequests,
-                                                                List<PlanComputationRequestPeople> waitingPeopleRequests,
-                                                                List<PlanComputationRequestFreight> newFreightRequests,
-                                                                List<PlanComputationRequestFreight> waitingFreightRequests);
+    public abstract Map<PeopleFreightVehicle, DriverPlan> solve(List<PlanComputationRequest> newPeopleRequests,
+                                                                List<PlanComputationRequest> waitingPeopleRequests,
+                                                                List<PlanComputationRequest> newFreightRequests,
+                                                                List<PlanComputationRequest> waitingFreightRequests);
 }
 

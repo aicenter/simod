@@ -6,6 +6,8 @@ import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.Drive;
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.PhysicalVehicleDrive;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
@@ -14,10 +16,13 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUti
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
+import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
+import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
+import cz.cvut.fel.aic.simod.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.simod.statistics.PickupEventContent;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 
@@ -26,10 +31,6 @@ import java.util.logging.Logger;
 
 public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
 {
-	public final int vehiclePassengerCapacity = 1;
-
-	private static final int LENGTH = 4;
-
 	private boolean passengerOnboard;
 
 	private final int maxParcelsCapacity;
@@ -101,6 +102,44 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
 	public void setCurrentParcelsWeight(int curWeight)
 	{
 		this.currentParcelsWeight = curWeight;
+	}
+
+
+	@Override
+	protected void leavingStationEvent() {
+		eventProcessor.addEvent(OnDemandVehicleEvent.LEAVE_STATION, null, null,
+				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(),
+						((PFPlanCompRequest) ((PlanRequestAction) currentTask).getRequest()).getDemandEntity().getSimpleId(), getId()));
+	}
+
+	@Override
+	protected void driveToDemandStartLocation() {
+		// safety check that prevents request from being picked up twice because of the delayed pickup event
+		if (((PlanActionPickup) currentTask).request.isOnboard()) {
+			currentPlan.taskCompleted();
+			driveToNextTask();
+		}
+		state = OnDemandVehicleState.DRIVING_TO_START_LOCATION;
+		if (getPosition().id == currentTask.getPosition().id) {
+			pickupAndContinue();
+		}
+		else {
+			currentTrip = tripsUtil.createTrip(getPosition(), currentTask.getPosition(), vehicle);
+//			DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
+			driveFactory.runActivity(this, vehicle, currentTrip);
+		}
+	}
+
+	@Override
+	protected void driveToTargetLocation() {
+		state = OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION;
+		if (getPosition().id == currentTask.getPosition().id) {
+			dropOffAndContinue();
+		}
+		else {
+			currentTrip = tripsUtil.createTrip(getPosition(), currentTask.getPosition(), vehicle);
+			driveFactory.runActivity(this, vehicle, currentTrip);
+		}
 	}
 
 	private void pickupAndContinue() {

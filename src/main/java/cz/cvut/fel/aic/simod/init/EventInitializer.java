@@ -39,6 +39,7 @@ import cz.cvut.fel.aic.simod.io.TimeTrip;
 import java.util.List;
 import java.util.Random;
 
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.DemandPackageEventHandler;
 import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PackageContent;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +66,8 @@ public class EventInitializer {
 
 	private final DemandEventHandler demandEventHandler;
 
+	private final DemandPackageEventHandler packageEventHandler;
+
 	private final StationsDispatcher onDemandVehicleStationsCentral;
 
 	private final SimodConfig simodConfig;
@@ -81,9 +84,10 @@ public class EventInitializer {
 	@Inject
 	public EventInitializer(EventProcessor eventProcessor,
 							StationsDispatcher onDemandVehicleStationsCentral, SimodConfig config,
-							DemandEventHandler demandEventHandler, AgentpolisConfig agentpolisConfig, SimulationUtils simulationUtils) {
+							DemandEventHandler demandEventHandler, AgentpolisConfig agentpolisConfig, SimulationUtils simulationUtils, DemandPackageEventHandler packageEventHandler) {
 		this.eventProcessor = eventProcessor;
 		this.demandEventHandler = demandEventHandler;
+		this.packageEventHandler = packageEventHandler;
 		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
 		this.simodConfig = config;
 		this.agentpolisConfig = agentpolisConfig;
@@ -115,7 +119,7 @@ public class EventInitializer {
 				}
 
 				startTime = startTime + i * TRIP_MULTIPLICATION_TIME_SHIFT;
-				eventProcessor.addEvent(null, demandEventHandler, null, packageContent, startTime);
+				eventProcessor.addEvent(null, packageEventHandler, null, packageContent, startTime);		// demand package handler
 				eventCount++;
 				if (MAX_EVENTS != 0 && eventCount >= MAX_EVENTS) {
 					return;

@@ -22,6 +22,7 @@ import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
+import cz.cvut.fel.aic.simod.DriveToTransferStationActivityFactory;
 import cz.cvut.fel.aic.simod.WaitTransferActivityFactory;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
@@ -110,7 +111,7 @@ public class GreedyTASeTSolverTest {
 
         WaitTransferActivityFactory waitTransferActivityFactory = new WaitTransferActivityFactory();
         WaitActivityFactory waitActivityFactory = new WaitActivityFactory();
-
+        DriveToTransferStationActivityFactory driveToTransferStationActivityFactory = null;
 
         RideSharingOnDemandVehicle vehicle_1 = new RideSharingOnDemandVehicle(
                 physicalVehicleStorage,
@@ -127,9 +128,9 @@ public class GreedyTASeTSolverTest {
                 agentpolisConfig,
                 waitTransferActivityFactory,
                 waitActivityFactory,
+                null,
                 "1",
                 startPos
-
         );
         RideSharingOnDemandVehicle vehicle_2 = new RideSharingOnDemandVehicle(
                 physicalVehicleStorage,
@@ -146,6 +147,7 @@ public class GreedyTASeTSolverTest {
                 agentpolisConfig,
                 waitTransferActivityFactory,
                 waitActivityFactory,
+                null,
                 "2",
                 startPos
         );

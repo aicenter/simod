@@ -3,6 +3,7 @@ package cz.cvut.fel.aic.simod.ridesharing.greedyTASeT;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
@@ -52,6 +53,8 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
     private List<SimulationNode> transferPoints;
 
     protected final DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory;
+
+    private Map<RideSharingOnDemandVehicle, DriverPlan> planMap;
 
 
 
@@ -120,6 +123,7 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
     @Override
     public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<PlanComputationRequest> newRequests, List<PlanComputationRequest> waitingRequests) {
         Map<RideSharingOnDemandVehicle, DriverPlan> planMap = new ConcurrentHashMap<>();
+        Map<RideSharingOnDemandVehicle, DriverPlan> planMapReturn = new ConcurrentHashMap<>();
         List<RideSharingOnDemandVehicle> taxis = new ArrayList<>();
 
         for(AgentPolisEntity tVvehicle: vehicleStorage.getEntitiesForIteration()) {
@@ -127,11 +131,9 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
             taxis.add(vehicle);
         }
 
-        List<RideSharingOnDemandVehicle> vehiclesWithPlans = dispatch(taxis, newRequests);
+        planMap = dispatch(taxis, newRequests);
 
-        for (int i = 0; i < vehiclesWithPlans.size(); i++) {
-            planMap.put(vehiclesWithPlans.get(i), vehiclesWithPlans.get(i).getCurrentPlanNoUpdate());
-        }
+
 
         return planMap;
     }
@@ -140,12 +142,12 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
      * Transfer-allowed scheduling function
      * @return
      */
-    private List<RideSharingOnDemandVehicle> dispatch(List<RideSharingOnDemandVehicle> taxis, List<PlanComputationRequest> requests) {
+    private Map<RideSharingOnDemandVehicle, DriverPlan> dispatch(List<RideSharingOnDemandVehicle> taxis, List<PlanComputationRequest> requests) {
         // because all passengers allow ridesharing, only greedy taset will be called
         List<RideSharingOnDemandVehicle> carpoolAcceptingTaxis = taxis;
         List<PlanComputationRequest> carpoolAcceptingPassengers = requests;
-        List<RideSharingOnDemandVehicle> lst2 = heuristics(carpoolAcceptingTaxis, carpoolAcceptingPassengers);
-        return lst2;
+        Map<RideSharingOnDemandVehicle, DriverPlan> map = heuristics(carpoolAcceptingTaxis, carpoolAcceptingPassengers);
+        return map;
     }
 
 
@@ -191,9 +193,15 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
     }
 
     private long countTimeToNewPickup(RideSharingOnDemandVehicle taxi, PlanComputationRequest request, List<PlanComputationRequest> requestsOnBoard) {
-        if (isWithTransfer(taxi.getCurrentPlanNoUpdate())) {
+        DriverPlan taxiPlan;
+        if (planMap.containsKey(taxi)) {
+            taxiPlan = planMap.get(taxi);
+        } else {
+            taxiPlan = taxi.getCurrentPlanNoUpdate();
+        }
+        if (isWithTransfer(taxiPlan)) {
             // nekdo prestupuje
-            int indexLastTransferAction = findLastTransferActionIndex(taxi.getCurrentPlanNoUpdate());
+            int indexLastTransferAction = findLastTransferActionIndex(taxiPlan);
             long timeToFinishCurrentEdge = 0;
             SimulationNode previousPos = taxi.getPosition();
             if (taxi.getCurrentTask() != null) {
@@ -202,19 +210,19 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
             }
             long timeToLastTransferAction = 0;
             for (int q = 0; q < indexLastTransferAction + 1; q++) {
-                if (taxi.getCurrentPlanNoUpdate().plan.get(q) instanceof PlanActionWait) {
-                    PlanActionWait wait = (PlanActionWait) taxi.getCurrentPlanNoUpdate().plan.get(q);
+                if (taxiPlan.plan.get(q) instanceof PlanActionWait) {
+                    PlanActionWait wait = (PlanActionWait) taxiPlan.plan.get(q);
                     timeToLastTransferAction = timeToLastTransferAction + wait.getWaitTime();
                 } else {
-                    timeToLastTransferAction = timeToLastTransferAction + travelTimeProvider.getExpectedTravelTime(previousPos, taxi.getCurrentPlanNoUpdate().plan.get(q).getPosition());
+                    timeToLastTransferAction = timeToLastTransferAction + travelTimeProvider.getExpectedTravelTime(previousPos, taxiPlan.plan.get(q).getPosition());
                 }
-                previousPos = taxi.getCurrentPlanNoUpdate().plan.get(q).getPosition();
+                previousPos = taxiPlan.plan.get(q).getPosition();
             }
             // ted potrebuju najit posledni pickup ve zbyvajicim driver planu po prestupu
-            List<PlanAction> segmentAfterTransfer = taxi.getCurrentPlanNoUpdate().plan.subList(indexLastTransferAction+1, taxi.getCurrentPlanNoUpdate().plan.size());
+            List<PlanAction> segmentAfterTransfer = taxiPlan.plan.subList(indexLastTransferAction+1, taxiPlan.plan.size());
             int indexLastPickupSegment = findLastPickupIndexList(segmentAfterTransfer);
             long timeToLastPickup = 0;
-            SimulationNode previousPos2 = taxi.getCurrentPlanNoUpdate().plan.get(taxi.getCurrentPlanNoUpdate().plan.size()-1).getPosition();
+            SimulationNode previousPos2 = taxiPlan.plan.get(taxiPlan.plan.size()-1).getPosition();
             if (segmentAfterTransfer.size() > 0) {
                 previousPos2 = segmentAfterTransfer.get(0).getPosition();
                 for (int q = 0; q < indexLastPickupSegment + 1; q++) {
@@ -223,28 +231,28 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                 }
             }
             SimulationNode newPickupFrom = request.getFrom();
-            long timeToNewPick = travelTimeProvider.getExpectedTravelTime(previousPos, newPickupFrom);
+            long timeToNewPick = travelTimeProvider.getExpectedTravelTime(previousPos2, newPickupFrom);
             long estimatedArrivalToPickup = timeProvider.getCurrentSimTime() + timeToFinishCurrentEdge + timeToLastTransferAction + timeToLastPickup + timeToNewPick;
             // zkontrolovat, zda arrival je v pohode z hlediska delay - kontroluju pro requesty po ukonceni prestupu
-            Set<PlanComputationRequest> requestsInSegmentSet = new HashSet<>();
-            for(PlanAction action : segmentAfterTransfer) {
-                if(action instanceof PlanRequestAction) {
-                    PlanRequestAction requestAction = (PlanRequestAction) action;
-                    requestsInSegmentSet.add(requestAction.request);
-                }
-            }
-            List<PlanComputationRequest> requestsInSegment = new ArrayList<>(requestsInSegmentSet);
-            for (PlanComputationRequest req : requestsInSegment) {
-                long maxTime = req.getMaxDropoffTime() * 1000;
+//            Set<PlanComputationRequest> requestsInSegmentSet = new HashSet<>();
+//            for(PlanAction action : segmentAfterTransfer) {
+//                if(action instanceof PlanRequestAction) {
+//                    PlanRequestAction requestAction = (PlanRequestAction) action;
+//                    requestsInSegmentSet.add(requestAction.request);
+//                }
+//            }
+//            List<PlanComputationRequest> requestsInSegment = new ArrayList<>(requestsInSegmentSet);
+//            for (PlanComputationRequest req : requestsInSegment) {
+                long maxTime = request.getMaxDropoffTime() * 1000;
                 if (estimatedArrivalToPickup > maxTime) {
                     return Long.MAX_VALUE;
-                }
+//                }
             }
             return estimatedArrivalToPickup;
         }
         else {
             //neprestupuje nikdo
-            int indexLastPickup = findLastPickupIndex(taxi.getCurrentPlanNoUpdate());
+            int indexLastPickup = findLastPickupIndex(taxiPlan);
             long timeToFinishCurrentEdge = 0;
             SimulationNode previousPos = taxi.getPosition();
             if (taxi.getCurrentTask() != null) {
@@ -253,19 +261,19 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
             }
             long timeToLastPickup = 0;
             for (int q = 0; q < indexLastPickup + 1; q++) {
-                timeToLastPickup = timeToLastPickup + travelTimeProvider.getExpectedTravelTime(previousPos, taxi.getCurrentPlanNoUpdate().plan.get(q).getPosition());
-                previousPos = taxi.getCurrentPlanNoUpdate().plan.get(q).getPosition();
+                timeToLastPickup = timeToLastPickup + travelTimeProvider.getExpectedTravelTime(previousPos, taxiPlan.plan.get(q).getPosition());
+                previousPos = taxiPlan.plan.get(q).getPosition();
             }
             SimulationNode newPickupFrom = request.getFrom();
             long timeToNewPick = travelTimeProvider.getExpectedTravelTime(previousPos, newPickupFrom);
             long estimatedArrivalToNewPickup = timeProvider.getCurrentSimTime() + timeToFinishCurrentEdge + timeToLastPickup + timeToNewPick;
             // zkontrolovat, zda arrival je v pohode z hlediska delay
-            for (PlanComputationRequest req : requestsOnBoard) {
+//            for (PlanComputationRequest req : requestsOnBoard) {
                 long maxTime = request.getMaxDropoffTime() * 1000;
                 if (estimatedArrivalToNewPickup > maxTime) {
                     return Long.MAX_VALUE;
                 }
-            }
+//            }
             return estimatedArrivalToNewPickup;
         }
     }
@@ -274,7 +282,7 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
      * Greedy TASeT heuristics function
      * @return
      */
-    private List<RideSharingOnDemandVehicle> heuristics(List<RideSharingOnDemandVehicle> taxis, List<PlanComputationRequest> requests) {
+    private Map<RideSharingOnDemandVehicle, DriverPlan> heuristics(List<RideSharingOnDemandVehicle> taxis, List<PlanComputationRequest> requests) {
         //transfer points = charging stations
         List<SimulationNode> transferPoints = this.transferPoints;
 
@@ -418,6 +426,8 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
         //order to descending order
         Collections.reverse(requests);
 
+        planMap = new ConcurrentHashMap<>();
+
 
         for(PlanComputationRequest request : requests) {
             List<Pair<List<List<PlanAction>>, List<RideSharingOnDemandVehicle>>> templistP = new ArrayList<>();
@@ -430,21 +440,28 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                 // pokud neexistuje ani jeden validni itinerar, tak je posbitnry null
                 // tehdy ho nebudu pridavat do templistu
                 if (posbitnry != null) {
-                    List<List<PlanAction>> tmp = new ArrayList<>();
-                    List<RideSharingOnDemandVehicle> tmpVehs = new ArrayList<>();
-                    tmpVehs.add(taxi);
-                    tmp.add(posbitnry);
-                    Pair<List<List<PlanAction>>, List<RideSharingOnDemandVehicle>> pair = new Pair<>(tmp, tmpVehs);
-                    templistP.add(pair);
-                    long minimalArrivalTime = timeProvider.getCurrentSimTime() + travelTimeProvider.getExpectedTravelTime(request.getFrom(), request.getTo());
-                    HashMap<PlanComputationRequest, Long> dropoffs = getEstimatedTimesOfDropoff(posbitnry, taxi);
-                    long realArrivalTime = dropoffs.get(request);
-                    long delay = realArrivalTime - minimalArrivalTime;
-                    delays.add(delay);
-                    transferTimes.add((long) 0);
+                    if (checkValidItinerary(posbitnry, taxi)) {
+                        List<List<PlanAction>> tmp = new ArrayList<>();
+                        List<RideSharingOnDemandVehicle> tmpVehs = new ArrayList<>();
+                        tmpVehs.add(taxi);
+                        tmp.add(posbitnry);
+                        Pair<List<List<PlanAction>>, List<RideSharingOnDemandVehicle>> pair = new Pair<>(tmp, tmpVehs);
+                        templistP.add(pair);
+                        long minimalArrivalTime = timeProvider.getCurrentSimTime() + travelTimeProvider.getExpectedTravelTime(request.getFrom(), request.getTo());
+                        HashMap<PlanComputationRequest, Long> dropoffs = getEstimatedTimesOfDropoff(posbitnry, taxi);
+                        long realArrivalTime = dropoffs.get(request);
+                        long delay = realArrivalTime - minimalArrivalTime;
+                        delays.add(delay);
+                        transferTimes.add((long) 0);
+                    }
                 }
                 Set<PlanComputationRequest> requestsOnBoardSet = new HashSet<>();
-                DriverPlan actualPlan = taxi.getCurrentPlanNoUpdate();
+                DriverPlan actualPlan;
+                if (planMap.containsKey(taxi)) {
+                    actualPlan = planMap.get(taxi);
+                } else {
+                    actualPlan = taxi.getCurrentPlanNoUpdate();
+                }
                 for(PlanAction action : actualPlan) {
                     if(action instanceof PlanRequestAction) {
                         PlanRequestAction requestAction = (PlanRequestAction) action;
@@ -472,6 +489,10 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                         } else if(LT[stationIndex][k] > request.getMaxDropoffTime() * 1000 - travelTimeProvider.getExpectedTravelTime(station, request.getTo())) {
                             continue;
                         } else if(taxi.equals(taxis.get(k))) {
+                            continue;
+                        } else if (station == request.getTo()) {
+                            continue;
+                        } else if (station == request.getFrom()) {
                             continue;
                         } else {
                             // split request to two requests with transfer point
@@ -556,13 +577,24 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
             else
             {
                 // ziskam entry ktery je nejlepsi podle heuristiky
+                if (sublistTransferPlans.get(0).delay == Long.MAX_VALUE || sublistTransferPlans.get(0).trasferTime < 0) {
+                    continue;
+                }
                 Pair<List<List<PlanAction>>, List<RideSharingOnDemandVehicle>> key = sublistTransferPlans.get(0).pair;
                 List<List<PlanAction>> plansForVehicles = key.getFirst();
                 List<RideSharingOnDemandVehicle> vehicles = key.getSecond();
                 for (int q = 0; q < vehicles.size(); q++) {
                     List<PlanAction> vehPlan = plansForVehicles.get(q);
-                    DriverPlan dp = new DriverPlan(vehPlan, 0, 0);
-                    vehicles.get(q).setCurrentPlan(dp);
+                    List<PlanAction> planWithPos = new ArrayList<>();
+                    planWithPos.add(vehicles.get(q).getCurrentPlanNoUpdate().plan.get(0));
+                    planWithPos.addAll(vehPlan);
+                    DriverPlan dp = new DriverPlan(planWithPos, 0, 0);
+//                    vehicles.get(q).setCurrentPlan(dp);
+//                    dp.plan.set(0, new PlanActionCurrentPosition(vehicles.get(q).getPosition()));
+//                    dp.plan.addAll(vehPlan);
+//                    dp.updateCurrentPosition(vehicles.get(q).getPosition());
+
+                    planMap.put(vehicles.get(q), dp);
                 }
             }
 
@@ -572,7 +604,12 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                 RideSharingOnDemandVehicle taxi = taxis.get(z);
                 SimulationNode taxiPosition = taxis.get(z).getPosition();
                 Set<PlanComputationRequest> requestsOnBoardSet = new HashSet<>();
-                DriverPlan actualPlan = taxi.getCurrentPlanNoUpdate();
+                DriverPlan actualPlan;
+                if (planMap.containsKey(taxis.get(z))) {
+                    actualPlan = planMap.get(taxi);
+                } else {
+                    actualPlan = taxi.getCurrentPlanNoUpdate();
+                }
                 for(PlanAction action : actualPlan) {
                     if(action instanceof PlanRequestAction) {
                         PlanRequestAction requestAction = (PlanRequestAction) action;
@@ -591,9 +628,9 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                     if (!taxiFree) {
                         LT[j][z] = Long.MAX_VALUE;
                     } else {
-                        if (isWithTransfer(taxi.getCurrentPlanNoUpdate())) {
+                        if (isWithTransfer(actualPlan)) {
                             // nekdo prestupuje
-                            int indexLastTransferAction = findLastTransferActionIndex(taxi.getCurrentPlanNoUpdate());
+                            int indexLastTransferAction = findLastTransferActionIndex(actualPlan);
                             long timeToFinishCurrentEdge = 0;
                             SimulationNode previousPos = taxi.getPosition();
                             if (taxi.getCurrentTask() != null) {
@@ -602,19 +639,19 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                             }
                             long timeToLastTransferAction = 0;
                             for (int q = 0; q < indexLastTransferAction + 1; q++) {
-                                if (taxi.getCurrentPlanNoUpdate().plan.get(q) instanceof PlanActionWait) {
-                                    PlanActionWait wait = (PlanActionWait) taxi.getCurrentPlanNoUpdate().plan.get(q);
+                                if (actualPlan.plan.get(q) instanceof PlanActionWait) {
+                                    PlanActionWait wait = (PlanActionWait) actualPlan.plan.get(q);
                                     timeToLastTransferAction = timeToLastTransferAction + wait.getWaitTime();
                                 } else {
-                                    timeToLastTransferAction = timeToLastTransferAction + travelTimeProvider.getExpectedTravelTime(previousPos, taxi.getCurrentPlanNoUpdate().plan.get(q).getPosition());
+                                    timeToLastTransferAction = timeToLastTransferAction + travelTimeProvider.getExpectedTravelTime(previousPos, actualPlan.plan.get(q).getPosition());
                                 }
-                                previousPos = taxi.getCurrentPlanNoUpdate().plan.get(q).getPosition();
+                                previousPos = actualPlan.plan.get(q).getPosition();
                             }
                             // ted potrebuju najit posledni pickup ve zbyvajicim driver planu po prestupu
-                            List<PlanAction> segmentAfterTransfer = taxi.getCurrentPlanNoUpdate().plan.subList(indexLastTransferAction + 1, taxi.getCurrentPlanNoUpdate().plan.size());
+                            List<PlanAction> segmentAfterTransfer = actualPlan.plan.subList(indexLastTransferAction + 1, actualPlan.plan.size());
                             int indexLastPickupSegment = findLastPickupIndexList(segmentAfterTransfer);
                             long timeToLastPickup = 0;
-                            SimulationNode previousPos2 = taxi.getCurrentPlanNoUpdate().plan.get(taxi.getCurrentPlanNoUpdate().plan.size()-1).getPosition();
+                            SimulationNode previousPos2 = actualPlan.plan.get(actualPlan.plan.size()-1).getPosition();
                             if (segmentAfterTransfer.size() > 0) {
                                 previousPos2 = segmentAfterTransfer.get(0).getPosition();
                                 for (int q = 0; q < indexLastPickupSegment + 1; q++) {
@@ -623,7 +660,7 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                                 }
                             }
                             SimulationNode station = transferPoints.get(j);
-                            long timeToStation = travelTimeProvider.getExpectedTravelTime(previousPos, station);
+                            long timeToStation = travelTimeProvider.getExpectedTravelTime(previousPos2, station);
                             long estimatedArrivalToStation = timeProvider.getCurrentSimTime() + timeToFinishCurrentEdge + timeToLastTransferAction + timeToLastPickup + timeToStation;
                             LT[j][z] = estimatedArrivalToStation;
                             // zkontrolovat, zda arrival je v pohode z hlediska delay - kontroluju pro requesty po ukonceni prestupu
@@ -644,7 +681,7 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                             }
                         } else {
                             //neprestupuje nikdo
-                            int indexLastPickup = findLastPickupIndex(taxi.getCurrentPlanNoUpdate());
+                            int indexLastPickup = findLastPickupIndex(actualPlan);
                             long timeToFinishCurrentEdge = 0;
                             SimulationNode previousPos = taxi.getPosition();
                             if (taxi.getCurrentTask() != null) {
@@ -653,8 +690,8 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                             }
                             long timeToLastPickup = 0;
                             for (int q = 0; q < indexLastPickup + 1; q++) {
-                                timeToLastPickup = timeToLastPickup + travelTimeProvider.getExpectedTravelTime(previousPos, taxi.getCurrentPlanNoUpdate().plan.get(q).getPosition());
-                                previousPos = taxi.getCurrentPlanNoUpdate().plan.get(q).getPosition();
+                                timeToLastPickup = timeToLastPickup + travelTimeProvider.getExpectedTravelTime(previousPos, actualPlan.plan.get(q).getPosition());
+                                previousPos = actualPlan.plan.get(q).getPosition();
                             }
                             SimulationNode station = transferPoints.get(j);
                             long timeToStation = travelTimeProvider.getExpectedTravelTime(previousPos, station);
@@ -673,7 +710,84 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                 }
             }
         }
-        return taxis;
+//        return taxis;
+        return planMap;
+    }
+
+    private boolean checkValidItinerary(List<PlanAction> itinerary, RideSharingOnDemandVehicle vehicle) {
+        SimulationNode previousDestination = vehicle.getPosition();
+        boolean ret = true;
+        long time = timeProvider.getCurrentSimTime();
+        long timeToFinishEdge = 0;
+        previousDestination = vehicle.getPosition();
+
+        // podivam se na trip plan
+        if (vehicle.getCurrentTripPlan() != null) {
+            if (vehicle.getCurrentTripPlan().getSize() == 0) {
+                SimulationNode stopLoc = (SimulationNode) vehicle.getCurrentTripPlan().getLastLocation();
+                // protoze je size trip planu 0, tak to znamena, ze uz je auto rozjete do posledni destinace tripu
+                // je ale mozne, ze tam jeste nedojelo, tedy jeho pozice je jina nez pozice posledniho bodu v trip planu
+                timeToFinishEdge += travelTimeProvider.getTravelTime(vehicle, stopLoc);
+                previousDestination = stopLoc;
+            }
+            else if (vehicle.getCurrentTripPlan().getSize() > 0) {
+                SimulationNode stopLoc = (SimulationNode) vehicle.getCurrentTripPlan().getFirstLocation();
+                SimulationNode currLoc = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[0];
+                boolean currLocIsVehiclePosition = false;
+                int curridx = 0;
+                while (currLoc != stopLoc) {
+                    if (currLocIsVehiclePosition) {
+                        timeToFinishEdge += travelTimeProvider.getTravelTime(vehicle, currLoc);
+                    }
+                    if (currLoc == vehicle.getPosition()) {
+                        currLocIsVehiclePosition = true;
+                    }
+                    previousDestination = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[curridx];
+                    curridx++;
+                    currLoc = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[curridx];
+                }
+            }
+        }
+        time += timeToFinishEdge;
+
+        for (PlanAction action : itinerary) {
+            if (action instanceof PlanRequestAction) {
+                PlanComputationRequest pcq = ((PlanRequestAction) action).getRequest();
+                if (action instanceof PlanActionPickup) {
+                    SimulationNode dest = pcq.getFrom();
+                    time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    if (!(time < pcq.getMaxPickupTime()*1000)) {
+                        //not valid itinerary
+                        ret = false;
+                        break;
+                    }
+                    previousDestination = dest;
+                } else if(action instanceof PlanActionPickupTransfer) {
+                    PlanActionPickupTransfer pickupTransfer = (PlanActionPickupTransfer) action;
+                    SimulationNode dest = pickupTransfer.getPosition();
+                    time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    previousDestination = dest;
+                } else if(action instanceof PlanActionDropoffTransfer) {
+                    PlanActionDropoffTransfer dropoffTransfer = (PlanActionDropoffTransfer) action;
+                    SimulationNode dest = dropoffTransfer.getPosition();
+                    time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    previousDestination = dest;
+                } else if (action instanceof PlanActionDropoff) {
+                    SimulationNode dest = pcq.getTo();
+                    time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    if (!(time < pcq.getMaxDropoffTime()*1000)) {
+                        //not valid itinerary
+                        ret = false;
+                        break;
+                    }
+                    previousDestination = dest;
+                } else if (action instanceof PlanActionWait) {
+                    PlanActionWait wait = (PlanActionWait) action;
+                    time = time + wait.getWaitTime();
+                }
+            }
+        }
+        return ret;
     }
 
      private long getTravelTime(PlanComputationRequest request, List<PlanAction> planOfCar) {
@@ -770,17 +884,39 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
         long time1 = 0;
         long timeToFinishEdge1 = 0;
         SimulationNode previousDestination = veh1.getPosition();
-        if (veh1.getCurrentTask() != null) {
-            timeToFinishEdge1 = travelTimeProvider.getTravelTime(veh1, veh1.getCurrentTask().getPosition());
-            previousDestination = veh1.getCurrentTask().getPosition();
+
+        // podivam se na trip plan
+        if (veh1.getCurrentTripPlan() != null) {
+            // pokud je get size u current trip planu vetsi nez nula, tak get first location vybere nejblizsi node kde se auto muze zastavit a je to spravne
+            // pokud je ale delka current trip nula, tak vyberu posledni akci z tripu - auto tam jeste nemuselo dojet a to zpusobuje chybku
+            // proto demand 298 neni vyzvednut vcas, protoze se tam neuvazuje cas ktere auto potrebuje na dokonceni trupu
+            if (veh1.getCurrentTripPlan().getSize() == 0) {
+                SimulationNode stopLoc = (SimulationNode) veh1.getCurrentTripPlan().getLastLocation();
+                // protoze je size trip planu 0, tak to znamena, ze uz je auto rozjete do posledni destinace tripu
+                // je ale mozne, ze tam jeste nedojelo, tedy jeho pozice je jina nez pozice posledniho bodu v trip planu
+                timeToFinishEdge1 += travelTimeProvider.getTravelTime(veh1, stopLoc);
+                previousDestination = stopLoc;
+            }
+            else if (veh1.getCurrentTripPlan().getSize() > 0) {
+                SimulationNode stopLoc = (SimulationNode) veh1.getCurrentTripPlan().getFirstLocation();
+                SimulationNode currLoc = (SimulationNode) veh1.getCurrentTripPlan().getAllLocations()[0];
+                boolean currLocIsVehiclePosition = false;
+                int curridx = 0;
+                while (currLoc != stopLoc) {
+                    if (currLocIsVehiclePosition) {
+                        timeToFinishEdge1 += travelTimeProvider.getTravelTime(veh1, currLoc);
+                    }
+                    if (currLoc == veh1.getPosition()) {
+                        currLocIsVehiclePosition = true;
+                    }
+                    previousDestination = (SimulationNode) veh1.getCurrentTripPlan().getAllLocations()[curridx];
+                    curridx++;
+                    currLoc = (SimulationNode) veh1.getCurrentTripPlan().getAllLocations()[curridx];
+                }
+            }
         }
         time1 = timeToFinishEdge1;
-        long time2 = 0;
-        long timeToFinishEdge2 = 0;
-        if (veh2.getCurrentTask() != null) {
-            timeToFinishEdge2 = travelTimeProvider.getTravelTime(veh2, veh2.getCurrentTask().getPosition());
-        }
-        time2 = timeToFinishEdge2;
+
         // nemusim pricitat current sim time, protoze budu od sebe oba casy odecitat, jde mi jen o jejich rozdil
         long transferTime = 0;
         //expected arrival time of first car
@@ -818,8 +954,40 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
         }
         // expected arrival of second car
         int indexPickupSecondCar = 0;
+        long time2 = 0;
+        long timeToFinishEdge2 = 0;
         PlanActionPickupTransfer pickup = null;
         previousDestination = veh2.getPosition();
+
+        // podivam se na trip plan
+        if (veh2.getCurrentTripPlan() != null) {
+            if (veh2.getCurrentTripPlan().getSize() == 0) {
+                SimulationNode stopLoc = (SimulationNode) veh2.getCurrentTripPlan().getLastLocation();
+                // protoze je size trip planu 0, tak to znamena, ze uz je auto rozjete do posledni destinace tripu
+                // je ale mozne, ze tam jeste nedojelo, tedy jeho pozice je jina nez pozice posledniho bodu v trip planu
+                timeToFinishEdge2 += travelTimeProvider.getTravelTime(veh2, stopLoc);
+                previousDestination = stopLoc;
+            } else if (veh2.getCurrentTripPlan().getSize() > 0) {
+                SimulationNode stopLoc = (SimulationNode) veh2.getCurrentTripPlan().getFirstLocation();
+                SimulationNode currLoc = (SimulationNode) veh2.getCurrentTripPlan().getAllLocations()[0];
+                boolean currLocIsVehiclePosition = false;
+                int curridx = 0;
+                while (currLoc != stopLoc) {
+                    if (currLocIsVehiclePosition) {
+                        timeToFinishEdge2 += travelTimeProvider.getTravelTime(veh2, currLoc);
+                    }
+                    if (currLoc == veh2.getPosition()) {
+                        currLocIsVehiclePosition = true;
+                    }
+                    previousDestination = (SimulationNode) veh2.getCurrentTripPlan().getAllLocations()[curridx];
+                    curridx++;
+                    currLoc = (SimulationNode) veh2.getCurrentTripPlan().getAllLocations()[curridx];
+                }
+            }
+        }
+        time2 = timeToFinishEdge2;
+//        previousDestination = veh2.getPosition();
+
         for (PlanAction action : itnryp2) {
             if (action instanceof PlanRequestAction) {
                 PlanComputationRequest pcq = ((PlanRequestAction) action).getRequest();
@@ -858,21 +1026,129 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
         // pokud je kladny, tak to znamena ze prvni auto prijede drive nez druhe - bude cekat cestujici
 
         boolean valid = true;
+        // todo edit
+//        pridat wait i pro druhe auto tam, kde je rozdil mensi nez 10 s
+//        aby tam byla rezerva
+        if (waitTime > 0 && waitTime < 5000) {
+            // ceka aspon 5 sekund
+            long newWait = 5000 - waitTime;
+            PlanActionWait waitAction = new PlanActionWait(request, pickup.getPosition(), pickup.getMaxTime(), newWait);
+            transferTime = newWait;
+            itnryp2.add(indexPickupSecondCar, waitAction);
+
+            //check tolerable delay for passengers in vehicle2
+            long time = 0;
+            previousDestination = veh2.getPosition();
+            // podivam se na trip plan
+            if (veh2.getCurrentTripPlan() != null) {
+                if (veh2.getCurrentTripPlan().getSize() == 0) {
+                    SimulationNode stopLoc = (SimulationNode) veh2.getCurrentTripPlan().getLastLocation();
+                    // protoze je size trip planu 0, tak to znamena, ze uz je auto rozjete do posledni destinace tripu
+                    // je ale mozne, ze tam jeste nedojelo, tedy jeho pozice je jina nez pozice posledniho bodu v trip planu
+                    time += travelTimeProvider.getTravelTime(veh2, stopLoc);
+                    previousDestination = stopLoc;
+                }
+                else if (veh2.getCurrentTripPlan().getSize() > 0) {
+                    SimulationNode stopLoc = (SimulationNode) veh2.getCurrentTripPlan().getFirstLocation();
+                    SimulationNode currLoc = (SimulationNode) veh2.getCurrentTripPlan().getAllLocations()[0];
+                    boolean currLocIsVehiclePosition = false;
+                    int curridx = 0;
+                    while (currLoc != stopLoc) {
+                        if (currLocIsVehiclePosition) {
+                            time += travelTimeProvider.getTravelTime(veh2, currLoc);
+                        }
+                        if (currLoc == veh2.getPosition()) {
+                            currLocIsVehiclePosition = true;
+                        }
+                        previousDestination = (SimulationNode) veh2.getCurrentTripPlan().getAllLocations()[curridx];
+                        curridx++;
+                        currLoc = (SimulationNode) veh2.getCurrentTripPlan().getAllLocations()[curridx];
+                    }
+                }
+            }
+
+            for (PlanAction action : itnryp2) {
+                if (action instanceof PlanRequestAction) {
+                    PlanComputationRequest pcq = ((PlanRequestAction) action).getRequest();
+                    if (action instanceof PlanActionPickup) {
+                        SimulationNode dest = pcq.getFrom();
+                        time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                        if (!(time < pcq.getMaxPickupTime()*1000)) {
+                            //not valid itinerary - check new driver plan
+                            valid = false;
+                            break;
+                        }
+                        previousDestination = dest;
+                    } else if (action instanceof PlanActionDropoff) {
+                        SimulationNode dest = pcq.getTo();
+                        time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                        if (!(time < pcq.getMaxDropoffTime()*1000)) {
+                            //not valid itinerary - check new driver plan
+                            valid = false;
+                            break;
+                        }
+                        previousDestination = dest;
+                    } else if (action instanceof PlanActionWait) {
+                        PlanActionWait wait = (PlanActionWait) action;
+                        time = time + wait.getWaitTime();
+                        previousDestination = wait.getPosition();
+                    } else if (action instanceof PlanActionPickupTransfer) {
+                        PlanActionPickupTransfer p = (PlanActionPickupTransfer) action;
+                        SimulationNode dest = p.getPosition();
+                        time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                        previousDestination = dest;
+                    } else if(action instanceof PlanActionDropoffTransfer) {
+                        PlanActionDropoffTransfer p = (PlanActionDropoffTransfer) action;
+                        SimulationNode dest = p.getPosition();
+                        time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                        previousDestination = dest;
+                    }
+                }
+            }
+        }
         // pridam wait time do planu pro druhe auto pokud je wait time zaporny
-        if (waitTime < 0) {
+        // pozor, pokud bych chtela smazat casovou rezervu 5 s, tak je tam nekde problem s wait akci s casem 0
+        // - tak na to by bylo potreba udelat zvlast podminku a nejaky minimalni wait time tam nastavit, aby bylo zajistene poradi pri pruchodu algoritmem
+        if (waitTime <= 0) {
             waitTime = waitTime - 5000;
             //transfer time je -waitTime
+            // pickup by nemel byt null protoze se nastavi v predeslem loopu
+            assert pickup != null;
             PlanActionWait waitAction = new PlanActionWait(request, pickup.getPosition(), pickup.getMaxTime(), -waitTime);
             transferTime = -waitTime;
             itnryp2.add(indexPickupSecondCar, waitAction);
 
             //check tolerable delay for passengers in vehicle2
             long time = 0;
-            time = timeToFinishEdge2;
             previousDestination = veh2.getPosition();
-            if (veh2.getCurrentTask() != null) {
-                previousDestination = veh2.getCurrentTask().getPosition();
+            // podivam se na trip plan
+            if (veh2.getCurrentTripPlan() != null) {
+                if (veh2.getCurrentTripPlan().getSize() == 0) {
+                    SimulationNode stopLoc = (SimulationNode) veh2.getCurrentTripPlan().getLastLocation();
+                    // protoze je size trip planu 0, tak to znamena, ze uz je auto rozjete do posledni destinace tripu
+                    // je ale mozne, ze tam jeste nedojelo, tedy jeho pozice je jina nez pozice posledniho bodu v trip planu
+                    time += travelTimeProvider.getTravelTime(veh2, stopLoc);
+                    previousDestination = stopLoc;
+                }
+                else if (veh2.getCurrentTripPlan().getSize() > 0) {
+                    SimulationNode stopLoc = (SimulationNode) veh2.getCurrentTripPlan().getFirstLocation();
+                    SimulationNode currLoc = (SimulationNode) veh2.getCurrentTripPlan().getAllLocations()[0];
+                    boolean currLocIsVehiclePosition = false;
+                    int curridx = 0;
+                    while (currLoc != stopLoc) {
+                        if (currLocIsVehiclePosition) {
+                            time += travelTimeProvider.getTravelTime(veh2, currLoc);
+                        }
+                        if (currLoc == veh2.getPosition()) {
+                            currLocIsVehiclePosition = true;
+                        }
+                        previousDestination = (SimulationNode) veh2.getCurrentTripPlan().getAllLocations()[curridx];
+                        curridx++;
+                        currLoc = (SimulationNode) veh2.getCurrentTripPlan().getAllLocations()[curridx];
+                    }
+                }
             }
+
             for (PlanAction action : itnryp2) {
                 if (action instanceof PlanRequestAction) {
                     PlanComputationRequest pcq = ((PlanRequestAction) action).getRequest();
@@ -1104,30 +1380,75 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
         return bestPlan;
     }
 
+    private SimulationNode getStopLocFromTripPlan(VehicleTrip trip, RideSharingOnDemandVehicle vehicle) {
+        SimulationNode currentLoc;
+        int stopIdx = 0;
+        SimulationNode stopLoc;
+        for (int i = 0; i < trip.getAllLocations().length; i++) {
+            currentLoc = (SimulationNode) trip.getAllLocations()[i];
+            if (currentLoc == vehicle.getPosition()) {
+                stopIdx = i;
+                break;
+            }
+        }
+        stopLoc = (SimulationNode) trip.getAllLocations()[stopIdx+1];
+        return stopLoc;
+    }
+
     private HashMap<PlanComputationRequest, Long> getEstimatedTimesOfDropoff(List<PlanAction> itinerary, RideSharingOnDemandVehicle vehicle) {
         long time = timeProvider.getCurrentSimTime();
-        long timeToFinishEdge = travelTimeProvider.getTravelTime(vehicle, itinerary.get(0).getPosition());
+        long timeToFinishEdge = 0;
+        SimulationNode previousDestination = vehicle.getPosition();
+        if (vehicle.getCurrentTripPlan() != null) {
+            if (vehicle.getCurrentTripPlan().getSize() == 0) {
+                SimulationNode stopLoc = (SimulationNode) vehicle.getCurrentTripPlan().getLastLocation();
+                // protoze je size trip planu 0, tak to znamena, ze uz je auto rozjete do posledni destinace tripu
+                // je ale mozne, ze tam jeste nedojelo, tedy jeho pozice je jina nez pozice posledniho bodu v trip planu
+                timeToFinishEdge += travelTimeProvider.getTravelTime(vehicle, stopLoc);
+                previousDestination = stopLoc;
+            }
+            else if (vehicle.getCurrentTripPlan().getSize() > 0) {
+                SimulationNode stopLoc = (SimulationNode) vehicle.getCurrentTripPlan().getFirstLocation();
+                SimulationNode currLoc = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[0];
+                boolean currLocIsVehiclePosition = false;
+                int curridx = 0;
+                while (currLoc != stopLoc) {
+                    if (currLocIsVehiclePosition) {
+                        timeToFinishEdge += travelTimeProvider.getTravelTime(vehicle, currLoc);
+                    }
+                    if (currLoc == vehicle.getPosition()) {
+                        currLocIsVehiclePosition = true;
+                    }
+                    previousDestination = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[curridx];
+                    curridx++;
+                    currLoc = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[curridx];
+                }
+            }
+        }
+
         time = time + timeToFinishEdge;
+
         HashMap<PlanComputationRequest, Long> times = new HashMap<>();
-        SimulationNode previousPosition = itinerary.get(0).getPosition();
         for (PlanAction action : itinerary) {
             if (action instanceof PlanActionPickup || action instanceof PlanActionPickupTransfer) {
-                time = time + travelTimeProvider.getExpectedTravelTime(previousPosition, action.getPosition());
+                time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, action.getPosition());
                 if (time > ((PlanRequestAction) action).request.getMaxPickupTime() * 1000) {
                     //not valid
                     return null;
                 }
+                previousDestination = action.getPosition();
             } else if (action instanceof PlanActionDropoff || action instanceof PlanActionDropoffTransfer) {
-                time = time + travelTimeProvider.getExpectedTravelTime(previousPosition, action.getPosition());
+                time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, action.getPosition());
                 if (time > ((PlanRequestAction) action).request.getMaxDropoffTime() * 1000) {
                     //not valid
                     return null;
                 }
                 times.put(((PlanRequestAction) action).getRequest(), time);
+                previousDestination = action.getPosition();
             } else if (action instanceof PlanActionWait) {
                 time = time + ((PlanActionWait) action).getWaitTime();
             }
-            previousPosition = action.getPosition();
+
         }
         return times;
     }
@@ -1170,6 +1491,7 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
             long difference = Math.abs(entry.getValue() - newMap.get(entry.getKey()));
             time = time + difference;
         }
+        // todo maybe add delay for a new passenger?
         return time;
     }
 
@@ -1186,15 +1508,21 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
 
 
     private List<PlanAction> findPlanWithNoTransferNew(PlanComputationRequest newRequest, RideSharingOnDemandVehicle vehicle) {
-        if (isWithTransfer(vehicle.getCurrentPlanNoUpdate())) {
+        DriverPlan vehiclePlan;
+        if (planMap.containsKey(vehicle)) {
+            vehiclePlan = planMap.get(vehicle);
+        } else {
+            vehiclePlan = vehicle.getCurrentPlanNoUpdate();
+        }
+        if (isWithTransfer(vehiclePlan)) {
             // v aute nekdo prestupuje
             // musim oddelit segment s prestupem
             // ze zbytku vezmu pickups, pridam novy a potom hledam permutace dropoff akci
-            int indexLastTransfer = findLastTransferActionIndex(vehicle.getCurrentPlanNoUpdate());
-            List<PlanAction> segmentWithTransfer = vehicle.getCurrentPlanNoUpdate().plan.subList(0, indexLastTransfer+1);
+            int indexLastTransfer = findLastTransferActionIndex(vehiclePlan);
+            List<PlanAction> segmentWithTransfer = vehiclePlan.plan.subList(0, indexLastTransfer+1);
             List<PlanAction> segmentWithTransferWithoutPositionAction = removeCurrentPositionActions(segmentWithTransfer);
 
-            List<PlanAction> segmentAfterTransfer = vehicle.getCurrentPlanNoUpdate().plan.subList(indexLastTransfer+1, vehicle.getCurrentPlanNoUpdate().plan.size());
+            List<PlanAction> segmentAfterTransfer = vehiclePlan.plan.subList(indexLastTransfer+1, vehiclePlan.plan.size());
             List<List<PlanAction>> lstTemp = new ArrayList<>();
             List<List<PlanAction>> lst = new ArrayList<>();
             List<PlanAction> newPlan = new ArrayList<>();
@@ -1218,15 +1546,13 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                 newList.addAll(itnry);
                 lst.add(newList);
             }
-            return findItineraryWithMinimumDelayNew(lst, vehicle.getCurrentPlanNoUpdate().plan, vehicle);
+            return findItineraryWithMinimumDelayNew(lst, vehiclePlan.plan, vehicle);
 
         } else {
             //neni prestup v aute
             List<List<PlanAction>> lst = new ArrayList<>();
             List<PlanAction> newPlan = new ArrayList<>();
-            for (PlanAction action : vehicle.getCurrentPlanNoUpdate().plan) {
-                newPlan.add(action);
-            }
+            newPlan.addAll(vehiclePlan.plan);
             //add pickup and dropoff for new request
             newPlan.add(newRequest.getPickUpAction());
             newPlan.add(newRequest.getDropOffAction());
@@ -1238,26 +1564,30 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
             for (List<PlanAction> dropoffPlan : dropoffOrders) {
                 lst.add(createItineraryList(pickups, dropoffPlan));
             }
-            return findItineraryWithMinimumDelayNew(lst, vehicle.getCurrentPlanNoUpdate().plan, vehicle);
+            return findItineraryWithMinimumDelayNew(lst, vehiclePlan.plan, vehicle);
         }
     }
 
     private List<PlanAction> findPlanWithNoTransferActionsNew(PlanAction pickup, PlanAction dropoff, RideSharingOnDemandVehicle vehicle) {
-        if (isWithTransfer(vehicle.getCurrentPlanNoUpdate())) {
+        DriverPlan vehiclePlan;
+        if (planMap.containsKey(vehicle)) {
+            vehiclePlan = planMap.get(vehicle);
+        } else {
+            vehiclePlan = vehicle.getCurrentPlanNoUpdate();
+        }
+        if (isWithTransfer(vehiclePlan)) {
             // v aute nekdo prestupuje
             // musim oddelit segment s prestupem
             // ze zbytku vezmu pickups, pridam novy a potom hledam permutace dropoff akci
-            int indexLastTransfer = findLastTransferActionIndex(vehicle.getCurrentPlanNoUpdate());
-            List<PlanAction> segmentWithTransfer = vehicle.getCurrentPlanNoUpdate().plan.subList(0, indexLastTransfer+1);
+            int indexLastTransfer = findLastTransferActionIndex(vehiclePlan);
+            List<PlanAction> segmentWithTransfer = vehiclePlan.plan.subList(0, indexLastTransfer+1);
             List<PlanAction> segmentWithTransferWithoutPositionAction = removeCurrentPositionActions(segmentWithTransfer);
 
-            List<PlanAction> segmentAfterTransfer = vehicle.getCurrentPlanNoUpdate().plan.subList(indexLastTransfer+1, vehicle.getCurrentPlanNoUpdate().plan.size());
+            List<PlanAction> segmentAfterTransfer = vehiclePlan.plan.subList(indexLastTransfer+1, vehiclePlan.plan.size());
             List<List<PlanAction>> lstTemp = new ArrayList<>();
             List<List<PlanAction>> lst = new ArrayList<>();
             List<PlanAction> newPlan = new ArrayList<>();
-            for (PlanAction action : segmentAfterTransfer) {
-                newPlan.add(action);
-            }
+            newPlan.addAll(segmentAfterTransfer);
             //add pickup and dropoff for new request
             newPlan.add(pickup);
             newPlan.add(dropoff);
@@ -1275,15 +1605,13 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                 newList.addAll(itnry);
                 lst.add(newList);
             }
-            return findItineraryWithMinimumDelayNew(lst, vehicle.getCurrentPlanNoUpdate().plan, vehicle);
+            return findItineraryWithMinimumDelayNew(lst, vehiclePlan.plan, vehicle);
 
         } else {
             //neni prestup v aute
             List<List<PlanAction>> lst = new ArrayList<>();
             List<PlanAction> newPlan = new ArrayList<>();
-            for (PlanAction action : vehicle.getCurrentPlanNoUpdate().plan) {
-                newPlan.add(action);
-            }
+            newPlan.addAll(vehiclePlan.plan);
             //add pickup and dropoff for new request
             newPlan.add(pickup);
             newPlan.add(dropoff);
@@ -1295,7 +1623,7 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
             for (List<PlanAction> dropoffPlan : dropoffOrders) {
                 lst.add(createItineraryList(pickups, dropoffPlan));
             }
-            return findItineraryWithMinimumDelayNew(lst, vehicle.getCurrentPlanNoUpdate().plan, vehicle);
+            return findItineraryWithMinimumDelayNew(lst, vehiclePlan.plan, vehicle);
         }
     }
 
@@ -1440,6 +1768,7 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
      * Checks time constraints and counts delay among DriverPlans.
      * @return valid DriverPlan with smallest delay.
      */
+    // pouziva se jenom v metodach ktere nepouzivam
     private List<PlanAction> findItineraryWithMinimumDelay(List<DriverPlan> plans)
     {
         long[] delays = new long[plans.size()];

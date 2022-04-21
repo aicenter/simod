@@ -28,6 +28,8 @@ import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.WaitActivity
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
+import cz.cvut.fel.aic.simod.DriveToTransferStation;
+import cz.cvut.fel.aic.simod.DriveToTransferStationActivityFactory;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.WaitTransferActivityFactory;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
@@ -43,6 +45,8 @@ import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 
 	WaitTransferActivityFactory waitTransferActivityFactory;
+
+	DriveToTransferStationActivityFactory driveToTransferStationActivityFactory;
 	
 	@Inject
 	public RidesharingOnDemandVehicleFactory(
@@ -57,7 +61,8 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 			IdGenerator idGenerator,
 			AgentpolisConfig agentpolisConfig,
 			WaitTransferActivityFactory waitTransferActivityFactory,
-			WaitActivityFactory waitActivityFactory
+			WaitActivityFactory waitActivityFactory,
+			DriveToTransferStationActivityFactory driveToTransferStationActivityFactory
 			) {
 		super(
 				vehicleStorage, 
@@ -73,6 +78,8 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 				idGenerator,
 				agentpolisConfig);
 		this.waitTransferActivityFactory = waitTransferActivityFactory;
+		this.driveToTransferStationActivityFactory = driveToTransferStationActivityFactory;
+
 	}
 
 	@Override
@@ -92,6 +99,7 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 				agentpolisConfig,
 				waitTransferActivityFactory,
 				waitActivityFactory,
+				driveToTransferStationActivityFactory,
 				vehicleId, 
 				startPosition)
 				;

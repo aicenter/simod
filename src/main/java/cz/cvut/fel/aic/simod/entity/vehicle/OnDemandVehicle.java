@@ -41,10 +41,7 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUti
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
-import cz.cvut.fel.aic.simod.DemandData;
-import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
-import cz.cvut.fel.aic.simod.StationsDispatcher;
-import cz.cvut.fel.aic.simod.WaitTransferActivityFactory;
+import cz.cvut.fel.aic.simod.*;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
@@ -433,9 +430,24 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 						currentlyServedDemmand.demandAgent.getSimpleId(), getId()));
 	}
 
+	public void startWaiting() {
+		// pokud je auto jinde nez ve stanici, tak chcu vytvorit trip ke stanici, spustit jizdu a az dojede,
+		// tak spustit cekani, ktere je kratsi o cas dojezdu na stanici
+//		waitActivityFactory.runActivity(this, ((PlanActionWait) currentTask).getWaitTime());
+		state = OnDemandVehicleState.WAITINGFORTRANSFER;
+//		currentPlan.taskCompleted();
+//		currentTask = currentPlan.getNextTask();
+	}
+
 	@Override
 	protected void onActivityFinish(Activity activity) {
 		super.onActivityFinish(activity);
+		if (activity instanceof DriveToTransferStation) {
+			startWaiting();
+			return;
+
+			// try to do nothing
+		}
 		if (activity instanceof PhysicalVehicleDrive) {
 			PhysicalVehicleDrive drive = (PhysicalVehicleDrive) activity;
 			finishedDriving(drive.isStoped());
@@ -443,6 +455,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		else if (activity instanceof Wait) {
 			finishedWaiting();
 		}
+
 		else {
 			finishedDriving(true);
 		}

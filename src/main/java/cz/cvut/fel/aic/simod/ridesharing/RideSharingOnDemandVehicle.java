@@ -22,8 +22,10 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
+import cz.cvut.fel.aic.agentpolis.simmodel.Activity;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.PhysicalVehicleDrive;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.Wait;
@@ -31,6 +33,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.CongestedDri
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.WaitActivityFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PickUp;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.SimpleMapInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
@@ -38,9 +41,7 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUti
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
-import cz.cvut.fel.aic.simod.MainModule;
-import cz.cvut.fel.aic.simod.StationsDispatcher;
-import cz.cvut.fel.aic.simod.WaitTransferActivityFactory;
+import cz.cvut.fel.aic.simod.*;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
@@ -52,6 +53,7 @@ import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.simod.ridesharing.model.*;
 import cz.cvut.fel.aic.simod.statistics.PickupEventContent;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
+import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.visio.PlanLayerTrip;
 import org.opengis.filter.PropertyIsGreaterThanOrEqualTo;
 
@@ -76,9 +78,13 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
 	private IdGenerator tripIdGenerator;
 
-	private WaitTransferActivityFactory waitTransferActivityFactory;
-
 	private WaitActivityFactory waitActivityFactory;
+
+	private TravelTimeProvider travelTimeProvider;
+
+	private DriveToTransferStationActivityFactory driveToTransferStationActivityFactory;
+
+	public boolean tripAlreadyPlanned = false;
 
 	public DriverPlan getCurrentPlan() {
 		currentPlan.updateCurrentPosition(getPosition());
@@ -116,6 +122,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			AgentpolisConfig agentpolisConfig,
 			WaitTransferActivityFactory waitTransferActivityFactory,
 			WaitActivityFactory waitActivityFactory,
+			DriveToTransferStationActivityFactory driveToTransferStationActivityFactory,
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
 		super(
 				vehicleStorage, 
@@ -138,7 +145,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
 		this.waitTransferActivityFactory = waitTransferActivityFactory;
 		this.waitActivityFactory = waitActivityFactory;
-
+		this.driveToTransferStationActivityFactory = driveToTransferStationActivityFactory;
 		
 //		empty plan
 		LinkedList<PlanAction> plan = new LinkedList<>();
@@ -181,35 +188,6 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		
 	}
 
-//
-//	protected void driveToDemandTransferStartLocation() {
-//		// safety check that prevents request from being picked up twice because of the delayed pickup event
-//		if(((PlanActionPickupTransfer) currentTask).request.isOnboard()){
-//			currentPlan.taskCompleted();
-//			driveToNextTask();
-//		}
-//		state = OnDemandVehicleState.DRIVING_TO_TRANSFER_POINT_START;
-//		if(getPosition().id == currentTask.getPosition().id){
-//			pickupAndContinue();
-//		}
-//		else{
-//			currentTrip = tripsUtil.createTrip(getPosition(), currentTask.getPosition(), vehicle);
-//			DemandAgent demandAgent = ((PlanActionPickupTransfer) currentTask).getRequest().getDemandAgent();
-//			driveFactory.runActivity(this, vehicle, currentTrip);
-//		}
-//	}
-//
-//	protected void driveToDemandTransferTargetLocation() {
-//		state = OnDemandVehicleState.DRIVING_TO_TRANSFER_POINT_TARGET;
-//		if(getPosition().id == currentTask.getPosition().id){
-//			dropoffTransferAndContinue();
-//		}
-//		else{
-//			currentTrip = tripsUtil.createTrip(getPosition(), currentTask.getPosition(), vehicle);
-//			driveFactory.runActivity(this, vehicle, currentTrip);
-//		}
-//	}
-
 	@Override
 	protected void driveToDemandStartLocation() {
 		// safety check that prevents request from being picked up twice because of the delayed pickup event
@@ -218,12 +196,13 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 				currentPlan.taskCompleted();
 				driveToNextTask();
 			}
-		} else {
-			if(((PlanActionPickupTransfer) currentTask).request.isOnboard()){
-				currentPlan.taskCompleted();
-				driveToNextTask();
-			}
 		}
+//		else {
+//			if(((PlanActionPickupTransfer) currentTask).request.isOnboard()){
+//				currentPlan.taskCompleted();
+//				driveToNextTask();
+//			}
+//		}
 
 		state = OnDemandVehicleState.DRIVING_TO_START_LOCATION;
 		if(getPosition().id == currentTask.getPosition().id){
@@ -270,15 +249,16 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	public void finishedWaiting() {
 		currentPlan.taskCompleted();
 		currentTask = currentPlan.getNextTask();
-//		driveToNextTask();
 		pickupAndContinue();
 	}
 
+	@Override
 	public void startWaiting() {
+		// pokud je auto jinde nez ve stanici, tak chcu vytvorit trip ke stanici, spustit jizdu a az dojede,
+		// tak spustit cekani, ktere je kratsi o cas dojezdu na stanici
+//		state = OnDemandVehicleState.WAITINGFORTRANSFER;
 		waitActivityFactory.runActivity(this, ((PlanActionWait) currentTask).getWaitTime());
-		state = OnDemandVehicleState.WAITINGFORTRANSFER;
-//		currentPlan.taskCompleted();
-//		currentTask = currentPlan.getNextTask();
+
 	}
 
 	@Override
@@ -338,7 +318,23 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 				driveToDemandStartLocation();
 			}
 			else if(currentTask instanceof PlanActionWait) {
-				startWaiting();
+				if (currentTask.getPosition() == this.getPosition()) {
+					startWaiting();
+				} else {
+					// drive to station and begin waiting
+					if (this.tripAlreadyPlanned) {
+						return;
+					}
+						// else make new trip and start driving with edited wait time
+						VehicleTrip newTrip = tripsUtil.createTrip(this.getPosition(), currentTask.getPosition(), vehicle);
+						this.currentTrip = newTrip;
+						driveToTransferStationActivityFactory.create(this, vehicle, currentTrip).run();
+						this.tripAlreadyPlanned = true;
+
+
+
+				}
+
 			}
 			else if(currentTask instanceof PlanActionPickupTransfer) {
 				driveToDemandStartLocation();
@@ -354,6 +350,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	}
 
 	private void pickupAndContinue() {
+//		state = OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION;
 		try {
 			DemandAgent demandAgent;
 			if (currentTask instanceof PlanActionPickup) {
@@ -367,7 +364,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 				}
 				demandAgent.tripStarted(this);
 			}
-			else {
+			else if (currentTask instanceof PlanActionPickupTransfer) {
 				demandAgent = ((PlanActionPickupTransfer) currentTask).getRequest().getDemandAgent();
 				if(demandAgent.isDropped()){
 					long currentTime = timeProvider.getCurrentSimTime();
@@ -377,6 +374,10 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 									+ "time: %s, dropp time: %s", demandAgent, currentTime, droppTime));
 				}
 				demandAgent.tripRePaused(this);
+			} else {
+				// should not be
+				throw new Exception(String.format("Wrong action order in plan"));
+
 			}
 
 //			if(demandAgent.isDropped()){
@@ -425,30 +426,6 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 						demandAgent.getSimpleId(), getId()));
 		currentPlan.taskCompleted();
 		driveToNextTask();
-	}
-
-	private void pickupTransferAndContinue() {
-		try {
-			DemandAgent demandAgent = ((PlanActionPickupTransfer) currentTask).getRequest().getDemandAgent();
-
-			vehicle.pickUp(demandAgent);
-			demandAgent.tripRePaused(this);
-			currentPlan.taskCompleted();
-			driveToNextTask();
-
-		} catch (Exception ex) {
-			Logger.getLogger(RideSharingOnDemandVehicle.class.getName()).log(Level.SEVERE, null, ex);
-		}
-	}
-
-	private void dropoffTransferAndContinue() {
-		DemandAgent demandAgent = ((PlanActionDropoffTransfer) currentTask).getRequest().getDemandAgent();
-		vehicle.dropOff(demandAgent);
-		demandAgent.tripPaused();
-
-		currentPlan.taskCompleted();
-		driveToNextTask();
-
 	}
 
 	@Override

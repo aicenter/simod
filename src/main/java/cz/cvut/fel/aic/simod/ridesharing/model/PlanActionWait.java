@@ -4,12 +4,16 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 
 public class PlanActionWait extends PlanRequestAction {
 
-    protected final long waitTime;
+    protected long waitTime;
 
 
 
     public long getWaitTime(){
         return waitTime;
+    }
+
+    public void setWaitTime(long waitTime) {
+        this.waitTime = waitTime;
     }
 
 

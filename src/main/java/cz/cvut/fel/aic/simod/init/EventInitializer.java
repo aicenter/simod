@@ -119,7 +119,7 @@ public class EventInitializer {
 				}
 
 				startTime = startTime + i * TRIP_MULTIPLICATION_TIME_SHIFT;
-				eventProcessor.addEvent(null, packageEventHandler, null, packageContent, startTime);		// demand package handler
+				eventProcessor.addEvent(null, packageEventHandler, null, packageContent, startTime);  // demand package handler
 				eventCount++;
 				if (MAX_EVENTS != 0 && eventCount >= MAX_EVENTS) {
 					return;

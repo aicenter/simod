@@ -74,6 +74,10 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 		return currentPlan;
 	}
 
+	public DriverPlan getCurrentPlanNoUpdate() {
+		return currentPlan;
+	}
+
 
 	@Inject
 	public RideSharingOnDemandVehicle(
@@ -118,10 +122,10 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 	}
 
 
-	@Override
-	public void handleEvent(Event event) {
-
-	}
+//	@Override
+//	public void handleEvent(Event event) {
+//
+//	}
 
 	public int getOnBoardCount() {
 		return vehicle.getTransportedEntities().size();
@@ -248,7 +252,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 		}
 	}
 
-	private void pickupAndContinue() {
+	protected void pickupAndContinue() {
 		try {
 			DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
 			if (demandAgent.isDropped()) {
@@ -278,7 +282,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 		}
 	}
 
-	private void dropOffAndContinue() {
+	protected void dropOffAndContinue() {
 		DemandAgent demandAgent = ((PlanActionDropoff) currentTask).getRequest().getDemandAgent();
 		demandAgent.tripEnded();
 		vehicle.dropOff(demandAgent);

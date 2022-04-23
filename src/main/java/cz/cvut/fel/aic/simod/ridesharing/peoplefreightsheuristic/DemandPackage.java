@@ -98,7 +98,6 @@ public class DemandPackage extends AgentPolisEntity implements TransportableEnti
 
 	public void create() {
 		demandStorage.addEntity(this);
-
 		eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.DEMAND, onDemandVehicleStationsCentral, null,
 				new DemandData(trip.getLocations(), this));
 	}
@@ -106,11 +105,6 @@ public class DemandPackage extends AgentPolisEntity implements TransportableEnti
 	public void destroy() {
 		demandStorage.removeEntity(this);
 	}
-
-
-//	public TransportableEntity_2 getEntity() {
-//		return this;
-//	}
 
 	public int getSimpleId() {
 		return simpleId;

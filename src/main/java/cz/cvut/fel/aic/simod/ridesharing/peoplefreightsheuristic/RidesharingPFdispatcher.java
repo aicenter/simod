@@ -1,15 +1,20 @@
 package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.ticker.PeriodicTicker;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
+import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.simod.DemandData;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.event.DemandEvent;
+import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
+import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
+import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.simod.ridesharing.RidesharingDispatcher;
@@ -18,10 +23,14 @@ import cz.cvut.fel.aic.simod.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+@Singleton
 public class RidesharingPFdispatcher extends RidesharingDispatcher {
 
 //	TimeProvider timeProvider;
@@ -30,11 +39,15 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 
 //	IdGenerator tripIdGenerator;
 
-	protected final DefaultPFPlanCompRequest.DefaultPFPlanComputationRequestFactory requestFactory;
+//	protected final DefaultPFPlanCompRequest.DefaultPFPlanComputationRequestFactory requestFactory;
+
+	protected final PlanComputationRequestPeople.PlanComputationRequestPeopleFactory peopleRequestFactory;
+
+	protected final PlanComputationRequestFreight.PlanComputationRequestFreightFactory freightRequestFactory;
 
 	private List<PlanComputationRequest> newRequestsPackages;
 
-	private final LinkedHashSet<PlanComputationRequest> waitingRequestsPackages;
+	private final LinkedHashSet<PFPlanCompRequest> waitingRequestsPackages;
 
 	private final Map<Integer, PFPlanCompRequest> requestsMapByDemandPackages;
 
@@ -48,7 +61,8 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 								   SimodConfig config,
 								   DARPSolverPFShared solver,
 								   PeriodicTicker ticker,
-								   DefaultPFPlanCompRequest.DefaultPFPlanComputationRequestFactory requestFactory,
+								   PlanComputationRequestPeople.PlanComputationRequestPeopleFactory peopleRequestFactory,
+								   PlanComputationRequestFreight.PlanComputationRequestFreightFactory freightRequestFactory,
 								   TimeProvider timeProvider,
 								   PositionUtil positionUtil,
 								   IdGenerator tripIdGenerator) {
@@ -56,7 +70,8 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 
 //		this.timeProvider = timeProvider;
 //		this.positionUtil = positionUtil;
-		this.requestFactory = requestFactory;
+		this.peopleRequestFactory = peopleRequestFactory;
+		this.freightRequestFactory = freightRequestFactory;
 		this.tripIdGenerator = tripIdGenerator;
 		newRequestsPackages = new ArrayList<>();
 		waitingRequestsPackages = new LinkedHashSet<>();
@@ -74,36 +89,42 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 		DefaultPFPlanCompRequest newRequest;
 		// if request is Agent
 		if (demandData.demandAgent != null) {
-			newRequest = this.requestFactory.create(requestCounter++, requestStartPosition,
+			newRequest = this.peopleRequestFactory.create(requestCounter++, requestStartPosition,
 					demandData.locations[1], demandData.demandAgent);
+//			waitingRequests.add(newRequest);
+			newRequests.add(newRequest);
+			requestsMapByDemandAgents.put(newRequest.getDemandEntity().getSimpleId(), newRequest);
 		}
 		// if request is Package
 		else {
-			newRequest = this.requestFactory.create(requestCounter++, requestStartPosition,
-					demandData.locations[1], demandData.demandPackage);
+			newRequest = this.freightRequestFactory.create(requestCounter++, requestStartPosition,
+					demandData.locations[1], demandData.demandPackage, demandData.demandPackage.getWeight());
+//			waitingRequestsPackages.add(newRequest);    					// TODO jak funguji waitingReuqests???
+			newRequestsPackages.add(newRequest);
+			requestsMapByDemandPackages.put(newRequest.getDemandEntity().getSimpleId(), newRequest);
 		}
-
-		waitingRequestsPackages.add(newRequest);    // TODO jak funguji waitingReuqests??? (viz replan() )
-		newRequestsPackages.add(newRequest);
-		requestsMapByDemandPackages.put(newRequest.getDemandAgent().getSimpleId(), newRequest);
 	}
+
+	// TODO PlanActionPickup/Dropoff implementovat toString()
 
 	@Override
 	protected void replan() {
 		int droppedDemandsThisBatch = 0;
+		int droppedPackageDemandsThisBatch = 0;
 
 		// logger info
 		int currentTimeSec = (int) Math.round(timeProvider.getCurrentSimTime() / 1000.0);
 		LOGGER.info("Current sim time is: {} seconds", currentTimeSec);
-		LOGGER.info("No. of new requests: {}", newRequestsPackages.size());
-		LOGGER.info("No. of waiting requests: {}", waitingRequestsPackages.size());
+		LOGGER.info("No. of new requests: {}", newRequests.size() + newRequestsPackages.size());
+		LOGGER.info("No. of waiting requests: {}", waitingRequests.size() + waitingRequestsPackages.size());
+
 
 		// dropping demands that waits too long
-		Iterator<PlanComputationRequest> waitingRequestIterator = waitingRequestsPackages.iterator();
-		while (waitingRequestIterator.hasNext()) {
+		Iterator<PlanComputationRequest> waitingRequestIterator = waitingRequests.iterator();
+		while(waitingRequestIterator.hasNext()){
 			PlanComputationRequest request = waitingRequestIterator.next();
-			if (request.getMaxPickupTime() + 5 < currentTimeSec) {
-				request.getDemandAgent().setDropped(true);
+			if(request.getMaxPickupTime() + 5  < currentTimeSec){
+				((PFPlanCompRequest)request).getDemandEntity().setDropped(true);
 				numberOfDemandsDropped++;
 				droppedDemandsThisBatch++;
 				waitingRequestIterator.remove();
@@ -111,7 +132,22 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 				LOGGER.info("Demand {} dropped", request.getId());
 			}
 		}
-		LOGGER.info("Demands dropped in this batch: {}", droppedDemandsThisBatch);
+		LOGGER.info("People-Demands dropped in this batch: {}", droppedDemandsThisBatch);
+
+		// dropping package-demands that waits too long
+		Iterator<PFPlanCompRequest> waitingPackageRequestIterator = waitingRequestsPackages.iterator();
+		while (waitingRequestIterator.hasNext()) {
+			PFPlanCompRequest request = waitingPackageRequestIterator.next();
+			if (request.getMaxPickupTime() + 5 < currentTimeSec) {
+				request.getDemandEntity().setDropped(true);
+				numberOfDemandsDropped++;
+				droppedPackageDemandsThisBatch++;
+				waitingRequestIterator.remove();
+				eventProcessor.addEvent(DemandEvent.LEFT, null, null, request);
+				LOGGER.info("Demand {} dropped", request.getId());
+			}
+		}
+		LOGGER.info("Package-Demands dropped in this batch: {}", droppedPackageDemandsThisBatch);
 		LOGGER.info("Total dropped demands count: {}", numberOfDemandsDropped);
 
 		// DARP solving
@@ -186,11 +222,56 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 		}
 
 		// reseting new request for next iteration
+		newRequests = new LinkedList<>();
 		newRequestsPackages = new LinkedList<>();
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		// dispatcher common events
+		if(event.getType() instanceof OnDemandVehicleStationsCentralEvent){
+			super.handleEvent(event);
+		}
+		// pickup event
+		else{
+			OnDemandVehicleEvent eventType = (OnDemandVehicleEvent) event.getType();
+			if(eventType == OnDemandVehicleEvent.PICKUP){
+				OnDemandVehicleEventContent eventContent = (OnDemandVehicleEventContent) event.getContent();
+
+				PlanComputationRequest request = requestsMapByDemandAgents.get(eventContent.getDemandId());
+				if (request != null) {
+					if(!waitingRequests.remove(request)){
+						try {
+							throw new cz.cvut.fel.aic.amodsim.SimodException("Request picked up but it is not present in the waiting request queue!");
+						} catch (Exception ex) {
+							Logger.getLogger(VehicleGroupAssignmentSolver.class.getName()).log(Level.SEVERE, null, ex);
+						}
+					};
+					request.setOnboard(true);
+				}
+				else {
+					PFPlanCompRequest packageRequest = requestsMapByDemandPackages.get(eventContent.getDemandId());
+					if(!waitingRequestsPackages.remove(packageRequest)){
+						try {
+							throw new cz.cvut.fel.aic.amodsim.SimodException("PackageRequest picked up but it is not present in the waiting request queue!");
+						} catch (Exception ex) {
+							Logger.getLogger(VehicleGroupAssignmentSolver.class.getName()).log(Level.SEVERE, null, ex);
+						}
+					};
+					packageRequest.setOnboard(true);
+				}
+			}
+		}
 	}
 
 
 	public PlanComputationRequest getRequest(int demandId) {    // TODO mozna bude potreba upravit na PFPlanComputationRequest
 		return requestsMapByDemandPackages.get(demandId);
+	}
+
+	protected void setEventHandeling() {
+		List<Enum> typesToHandle = new LinkedList<>();
+		typesToHandle.add(OnDemandVehicleEvent.PICKUP);
+		eventProcessor.addEventHandler(this, typesToHandle);
 	}
 }

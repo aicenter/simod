@@ -22,7 +22,7 @@ public class DefaultPFPlanCompRequest implements PFPlanCompRequest {
 	 */
 	private final int originTime;
 
-	private final TransportableEntity_2 demandEntity;		// TODO zjistit kde a jak to budu pouzivat
+	private final TransportableEntity_2 demandEntity;
 
 	private final PlanActionPickup pickUpAction;
 

@@ -123,8 +123,17 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	
 	protected OnDemandVehicleStation parkedIn;
 
-	
-	
+
+
+	@Override
+	public String toString() {
+		return "Agent " + getType().toString() + " " + getId();
+	}
+
+	@Override
+	public String getId() {
+		return super.getId();
+	}
 	
 	public int getIndex() {
 		return index;

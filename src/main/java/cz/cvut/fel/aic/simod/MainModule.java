@@ -137,7 +137,10 @@ public class MainModule extends StandardAgentPolisModule{
 
 				install(new FactoryModuleBuilder().implement(DefaultPFPlanCompRequest.class, DefaultPFPlanCompRequest.class)
 						.build(DefaultPFPlanCompRequest.DefaultPFPlanComputationRequestFactory.class));
-
+				install(new FactoryModuleBuilder().implement(PlanComputationRequestPeople.class, PlanComputationRequestPeople.class)
+						.build(PlanComputationRequestPeople.PlanComputationRequestPeopleFactory.class));
+				install(new FactoryModuleBuilder().implement(PlanComputationRequestFreight.class, PlanComputationRequestFreight.class)
+						.build(PlanComputationRequestFreight.PlanComputationRequestFreightFactory.class));
 			}
 			else {
 				bind(OnDemandVehicleFactorySpec.class).to(RidesharingOnDemandVehicleFactory.class);

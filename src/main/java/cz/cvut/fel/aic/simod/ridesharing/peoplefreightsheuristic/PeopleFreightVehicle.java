@@ -21,6 +21,7 @@ import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
+import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.simod.statistics.PickupEventContent;
@@ -36,6 +37,8 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
 	private final int maxParcelsCapacity;
 
 	private int currentParcelsWeight;
+
+	// TODO najit vrstvu ktera zobrazuje vozidla - natvrdo zadany defaultni storage??
 
 	@Inject
 	public PeopleFreightVehicle(
@@ -77,6 +80,8 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
 		this.currentParcelsWeight = 0;
 		this.passengerOnboard = false;
 	}
+
+
 
 
 	public int getMaxParcelsCapacity()
@@ -142,10 +147,11 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
 		}
 	}
 
-	private void pickupAndContinue() {
+	@Override
+	protected void pickupAndContinue() {
 		try {
 			DefaultPFPlanCompRequest request = (DefaultPFPlanCompRequest) ((PlanActionPickup) currentTask).getRequest();
-			TransportableEntity_2 demandEntity = request.getDemandAgent();
+			TransportableEntity_2 demandEntity = request.getDemandEntity();
 			if (demandEntity.isDropped()) {
 				long currentTime = timeProvider.getCurrentSimTime();
 				long droppTime = demandEntity.getDemandTime() + config.ridesharing.maxProlongationInSeconds * 1000;
@@ -155,6 +161,9 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
 			}
 			demandEntity.tripStarted(this);
 			vehicle.pickUp(demandEntity);
+			if (request instanceof PlanComputationRequestFreight) {
+				currentParcelsWeight += ((PlanComputationRequestFreight) request).getWeight();
+			}
 
 			eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null,
 					new PickupEventContent(timeProvider.getCurrentSimTime(),
@@ -168,9 +177,10 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
 		}
 	}
 
-	private void dropOffAndContinue() {
-		DefaultPFPlanCompRequest request = (DefaultPFPlanCompRequest) ((PlanActionPickup) currentTask).getRequest();
-		TransportableEntity_2 demandEntity = request.getDemandAgent();
+	@Override
+	protected void dropOffAndContinue() {
+		DefaultPFPlanCompRequest request = (DefaultPFPlanCompRequest) ((PlanActionDropoff) currentTask).getRequest();
+		TransportableEntity_2 demandEntity = request.getDemandEntity();
 		demandEntity.tripEnded();
 		vehicle.dropOff(demandEntity);
 

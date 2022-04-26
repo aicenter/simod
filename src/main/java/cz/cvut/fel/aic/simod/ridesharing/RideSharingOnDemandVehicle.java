@@ -112,6 +112,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 				startPosition,
 				physVehicle);
 
+//		vehicle.setDriver(this);
 		this.positionUtil = positionUtil;
 		this.tripIdGenerator = tripIdGenerator;
 

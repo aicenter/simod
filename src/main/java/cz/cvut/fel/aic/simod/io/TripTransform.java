@@ -127,8 +127,7 @@ public class TripTransform {
 			String line;
 			int counter = 0;
 			while ((line = br.readLine()) != null) {
-				counter++;
-				if (counter > 20) {		// TODO odstranit counter
+				if (++counter > 0) {		// TODO odstranit counter
 					break;
 				}
 
@@ -171,8 +170,7 @@ public class TripTransform {
 			String line;
 			int counter = 0;
 			while ((line = br.readLine()) != null) {
-				counter++;
-				if (counter > 20) {		// TODO odstranit counter
+				if (++counter > 200) {		// TODO odstranit counter
 					break;
 				}
 

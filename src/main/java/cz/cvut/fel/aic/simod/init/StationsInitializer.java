@@ -74,19 +74,25 @@ public class StationsInitializer {
 		for (String[] row : stationRows) {
 			int index = Integer.parseInt(row[0]);
 			SimulationNode node = nodesMappedByIndex.getNodeByIndex(index);
+
+			int cars_limit = 4;		// TODO toto je docasne nastaveni pro debugging
+			int stations_limit = 10;
+
 			if (node == null) {
 				LOGGER.info("Station at node with index {} discarded as it is not in the Agentpolis road graph", index);
 				discarded++;
 			}
+
 			else {
 //				int initCount = Integer.parseInt(row[1]) + 100;        // TODO: odkomentovat puvodni kod
 //				if (initCount < 500) {
 //					initCount += 100;
 //				}
-				int initCount = 1;
+				int initCount = cars_limit;
 				createStation(node, initCount, counter++);
 			}
-			if (++i > 4) {
+
+			if (++i >= stations_limit) {
 				break;
 			}
 		}

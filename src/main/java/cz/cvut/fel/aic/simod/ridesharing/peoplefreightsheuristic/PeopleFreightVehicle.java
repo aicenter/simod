@@ -76,6 +76,8 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
 				startPosition,
 				physVehicle);
 
+
+//		vehicle.setDriver(this);
 		this.maxParcelsCapacity = maxParcelsCapacity;
 		this.currentParcelsWeight = 0;
 		this.passengerOnboard = false;

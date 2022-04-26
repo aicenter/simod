@@ -183,7 +183,7 @@ public class MainModule extends StandardAgentPolisModule{
 
 		install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
 			.build(DemandAgentFactory.class));
-		if (simodConfig.packagesOn) {
+		if (true) { // (simodConfig.packagesOn)
 			install(new FactoryModuleBuilder().implement(DemandPackage.class, DemandPackage.class)
 					.build(DemandPackage.DemandPackageFactory.class));
 		}

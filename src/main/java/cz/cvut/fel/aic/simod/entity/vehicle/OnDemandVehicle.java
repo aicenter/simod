@@ -186,7 +186,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	
 	@Inject
 	public OnDemandVehicle(
-			PhysicalTransportVehicleStorage vehicleStorage,		// TODO this argument is now useless??
+			PhysicalTransportVehicleStorage vehicleStorage,
 			TripsUtil tripsUtil, 
 			StationsDispatcher onDemandVehicleStationsCentral, 
 			PhysicalVehicleDriveFactory driveFactory, 
@@ -210,6 +210,9 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		this.timeProvider = timeProvider;
 		this.rebalancingIdGenerator = rebalancingIdGenerator;
 		this.config = config;
+		vehicleStorage.addEntity(physVehicle);
+
+		physVehicle.setDriver(this);
 
 
 		index = idGenerator.getId();
@@ -224,6 +227,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		{
 			System.out.println(e.toString());
 		}
+		vehicle.setDriver(this);
 
 		metersWithPassenger = 0;
 		metersToStartLocation = 0;

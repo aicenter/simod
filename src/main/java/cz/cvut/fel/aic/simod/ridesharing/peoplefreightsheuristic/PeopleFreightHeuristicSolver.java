@@ -175,6 +175,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 		// casting given vehicles to actual PeopleFreightVehicles
 		allVehicles = new ArrayList<>();
 		taxiSchedules = new ArrayList<>();
+
 		List<PlanActionCurrentPosition> taxiCurrentPositions = new ArrayList<>();
 		for (AgentPolisEntity taxiEntity : vehicleStorage.getEntitiesForIteration()) {
 			PeopleFreightVehicle newTaxi = (PeopleFreightVehicle) taxiEntity;
@@ -182,6 +183,9 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 			taxiCurrentPositions.add((PlanActionCurrentPosition) newTaxi.getCurrentPlanNoUpdate().plan.get(0));
 			taxiSchedules.add(new ArrayList<>());
 		}
+
+
+
 
 		// initializing taxi statuses
 		taxiStatuses = new ArrayList<>();
@@ -284,7 +288,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 
 		for (int i = 0; i < taxiSchedules.size(); i++) {
 			List<PlanAction> actionsList = new ArrayList<>(taxiSchedules.get(i));
-			actionsList.add(0, taxiCurrentPositions.get(0));
+			actionsList.add(0, taxiCurrentPositions.get(i));
 			int planTime = planDurations.get(i);
 			double planCost = planCostProvider.calculatePlanCost(planDiscomfort, planTime);
 

@@ -28,10 +28,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.WaitActivity
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
-import cz.cvut.fel.aic.simod.DriveToTransferStation;
-import cz.cvut.fel.aic.simod.DriveToTransferStationActivityFactory;
-import cz.cvut.fel.aic.simod.StationsDispatcher;
-import cz.cvut.fel.aic.simod.WaitTransferActivityFactory;
+import cz.cvut.fel.aic.simod.*;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactory;
@@ -44,7 +41,7 @@ import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 @Singleton
 public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 
-	WaitTransferActivityFactory waitTransferActivityFactory;
+	WaitWithStopActivityFactory waitWithStopActivityFactory;
 
 	DriveToTransferStationActivityFactory driveToTransferStationActivityFactory;
 	
@@ -60,7 +57,7 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 			SimodConfig config,
 			IdGenerator idGenerator,
 			AgentpolisConfig agentpolisConfig,
-			WaitTransferActivityFactory waitTransferActivityFactory,
+			WaitWithStopActivityFactory waitWithStopActivityFactory,
 			WaitActivityFactory waitActivityFactory,
 			DriveToTransferStationActivityFactory driveToTransferStationActivityFactory
 			) {
@@ -73,11 +70,11 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 				timeProvider, 
 				rebalancingIdGenerator, 
 				config,
-				waitTransferActivityFactory,
+				waitWithStopActivityFactory,
 				waitActivityFactory,
 				idGenerator,
 				agentpolisConfig);
-		this.waitTransferActivityFactory = waitTransferActivityFactory;
+		this.waitWithStopActivityFactory = waitWithStopActivityFactory;
 		this.driveToTransferStationActivityFactory = driveToTransferStationActivityFactory;
 
 	}
@@ -97,7 +94,7 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 				config, 
 				idGenerator, 
 				agentpolisConfig,
-				waitTransferActivityFactory,
+				waitWithStopActivityFactory,
 				waitActivityFactory,
 				driveToTransferStationActivityFactory,
 				vehicleId, 

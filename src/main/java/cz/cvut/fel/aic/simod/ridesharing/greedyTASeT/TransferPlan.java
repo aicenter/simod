@@ -12,7 +12,7 @@ public class TransferPlan {
     public final long delay;
     public final Pair<List<List<PlanAction>>, List<RideSharingOnDemandVehicle>> pair;
 
-    TransferPlan(long trasferTime, long delay, Pair<List<List<PlanAction>>, List<RideSharingOnDemandVehicle>> pair) {
+    public TransferPlan(long trasferTime, long delay, Pair<List<List<PlanAction>>, List<RideSharingOnDemandVehicle>> pair) {
         this.trasferTime = trasferTime;
         this.delay = delay;
         this.pair = pair;

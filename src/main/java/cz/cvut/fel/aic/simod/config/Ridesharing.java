@@ -1,6 +1,5 @@
 package cz.cvut.fel.aic.simod.config;
 
-import cz.cvut.fel.aic.simod.ridesharing.greedyTASeT.GreedyTASeTSolver;
 
 import java.lang.Boolean;
 import java.lang.Double;
@@ -9,6 +8,10 @@ import java.lang.String;
 import java.util.Map;
 
 public class Ridesharing {
+  public TransferInsertion transferInsertion;
+
+  public GreedyTASeTNoFreeze greedyTASeTNoFreeze;
+
   public GreedyTASeT greedytaset;
 
   public Vga vga;
@@ -32,6 +35,8 @@ public class Ridesharing {
   public Boolean on;
 
   public Ridesharing(Map ridesharing) {
+    this.transferInsertion = new TransferInsertion((Map) ridesharing.get("transfer-insertion"));
+    this.greedyTASeTNoFreeze = new GreedyTASeTNoFreeze((Map) ridesharing.get("greedy_taset_no_freeze"));
     this.greedytaset = new GreedyTASeT((Map) ridesharing.get("greedy_taset"));
     this.vga = new Vga((Map) ridesharing.get("vga"));
     this.batchPeriod = (Integer) ridesharing.get("batch_period");

@@ -124,7 +124,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	
 	protected OnDemandVehicleStation parkedIn;
 
-	public WaitTransferActivityFactory waitTransferActivityFactory;
+	public WaitWithStopActivityFactory waitWithStopActivityFactory;
 
 	private WaitActivityFactory waitActivityFactory;
 
@@ -193,7 +193,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 			SimodConfig config, 
 			IdGenerator idGenerator,
 			AgentpolisConfig agentpolisConfig,
-			WaitTransferActivityFactory waitTransferActivityFactory,
+			WaitWithStopActivityFactory waitWithStopActivityFactory,
 			WaitActivityFactory waitActivityFactory,
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
 		super(vehicleId, startPosition);
@@ -205,7 +205,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		this.timeProvider = timeProvider;
 		this.rebalancingIdGenerator = rebalancingIdGenerator;
 		this.config = config;
-		this.waitTransferActivityFactory = waitTransferActivityFactory;
+		this.waitWithStopActivityFactory = waitWithStopActivityFactory;
 		this.waitActivityFactory = waitActivityFactory;
 		
 		index = idGenerator.getId();
@@ -442,8 +442,14 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	@Override
 	protected void onActivityFinish(Activity activity) {
 		super.onActivityFinish(activity);
-		if (activity instanceof DriveToTransferStation) {
-			startWaiting();
+		if (activity instanceof DriveToTransferStation && ((DriveToTransferStation) activity).trip.isEmpty()) {
+			PhysicalVehicleDrive drive = (PhysicalVehicleDrive) activity;
+			if (drive.isStoped()) {
+				finishedDriving(drive.isStoped());
+			}
+			else {
+				startWaiting();
+			}
 			return;
 
 			// try to do nothing
@@ -452,8 +458,9 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 			PhysicalVehicleDrive drive = (PhysicalVehicleDrive) activity;
 			finishedDriving(drive.isStoped());
 		}
-		else if (activity instanceof Wait) {
-			finishedWaiting();
+		else if (activity instanceof WaitWithStop) {
+			WaitWithStop wait = (WaitWithStop) activity;
+			finishedWaiting(wait.isStoped());
 		}
 
 		else {
@@ -461,7 +468,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		}
 	}
 
-	public void finishedWaiting() {
+	public void finishedWaiting(boolean wasStopped) {
 
 	};
 

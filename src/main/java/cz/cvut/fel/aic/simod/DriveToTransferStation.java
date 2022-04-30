@@ -29,7 +29,7 @@ public class DriveToTransferStation<A extends Agent & Driver> extends PhysicalVe
 
     private final Vehicle vehicle;
 
-    private final Trip<SimulationNode> trip;
+    public final Trip<SimulationNode> trip;
 
     private final VehicleMoveActivityFactory moveActivityFactory;
 
@@ -42,7 +42,7 @@ public class DriveToTransferStation<A extends Agent & Driver> extends PhysicalVe
 
     private SimulationNode from;
 
-    private SimulationNode to;
+    public SimulationNode to;
 
 
 
@@ -71,7 +71,6 @@ public class DriveToTransferStation<A extends Agent & Driver> extends PhysicalVe
     protected void onChildActivityFinish(Activity activity) {
         if (trip.isEmpty() || stoped) {
             agent.endDriving();
-            // todo: nastavit tripalreadyplanned na false
             if (agent instanceof RideSharingOnDemandVehicle) {
                 ((RideSharingOnDemandVehicle) agent).tripAlreadyPlanned = false;
             }

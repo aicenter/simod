@@ -24,6 +24,8 @@ import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import cz.cvut.fel.aic.simod.DriveToTransferStationActivityFactory;
 import cz.cvut.fel.aic.simod.WaitTransferActivityFactory;
+import cz.cvut.fel.aic.simod.WaitWithStop;
+import cz.cvut.fel.aic.simod.WaitWithStopActivityFactory;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
@@ -109,7 +111,7 @@ public class GreedyTASeTSolverTest {
         // start position of 1st vehicle
         SimulationNode startPos = graph.getNode(6);  // top left corner
 
-        WaitTransferActivityFactory waitTransferActivityFactory = new WaitTransferActivityFactory();
+        WaitWithStopActivityFactory waitWithStopActivityFactory = new WaitWithStopActivityFactory();
         WaitActivityFactory waitActivityFactory = new WaitActivityFactory();
         DriveToTransferStationActivityFactory driveToTransferStationActivityFactory = null;
 
@@ -126,7 +128,7 @@ public class GreedyTASeTSolverTest {
                 simodConfig,
                 idGenerator3,
                 agentpolisConfig,
-                waitTransferActivityFactory,
+                waitWithStopActivityFactory,
                 waitActivityFactory,
                 null,
                 "1",
@@ -145,7 +147,7 @@ public class GreedyTASeTSolverTest {
                 simodConfig,
                 idGenerator3,
                 agentpolisConfig,
-                waitTransferActivityFactory,
+                waitWithStopActivityFactory,
                 waitActivityFactory,
                 null,
                 "2",

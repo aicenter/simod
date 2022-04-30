@@ -120,7 +120,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			SimodConfig config, 
 			IdGenerator idGenerator,
 			AgentpolisConfig agentpolisConfig,
-			WaitTransferActivityFactory waitTransferActivityFactory,
+			WaitWithStopActivityFactory waitWithStopActivityFactory,
 			WaitActivityFactory waitActivityFactory,
 			DriveToTransferStationActivityFactory driveToTransferStationActivityFactory,
 			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
@@ -136,14 +136,14 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 				config, 
 				idGenerator,
 				agentpolisConfig,
-				waitTransferActivityFactory,
+				waitWithStopActivityFactory,
 				waitActivityFactory,
 				vehicleId, 
 				startPosition);
 		this.positionUtil = positionUtil;
 		this.tripIdGenerator = tripIdGenerator;
 
-		this.waitTransferActivityFactory = waitTransferActivityFactory;
+		this.waitWithStopActivityFactory = waitWithStopActivityFactory;
 		this.waitActivityFactory = waitActivityFactory;
 		this.driveToTransferStationActivityFactory = driveToTransferStationActivityFactory;
 		
@@ -167,10 +167,34 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	}
 	
 	public void replan(DriverPlan plan){
-		currentPlan = plan;
+ 		currentPlan = plan;
 		// The vehicle now waits, we have to start moving.
 		if(state == OnDemandVehicleState.WAITING && plan.getLength() > 1){
 			driveToNextTask();
+		}
+		if (state == OnDemandVehicleState.WAITINGFORTRANSFER) {
+			// if top akce neni stejna jako currentTask (currentTask je cekani)
+			if (currentPlan.getNextTask() != currentTask) {
+				((PlanActionWait) currentTask).setWaitingPaused(true);
+				((PlanActionWait) currentTask).setWaitingPausedAt(timeProvider.getCurrentSimTime());
+				((WaitWithStop) getCurrentTopLevelActivity()).end();
+				// ted potrebuji aktivitu ukoncit, ona ale stale bezi
+				driveToNextTask();
+			}
+			// jinak pokracovat v aktivite
+			// todo priradit stop time
+			// a ukoncit aktivitu
+			// todo tam kde se spousti cekani, tak reagovat na start a stop time
+			// auto je v prubehu vykonavani wait akce
+		}
+		if (state == OnDemandVehicleState.DRIVING_TO_TRANSFER_STATION_TO_WAIT) {
+			if (currentPlan.getNextTask() != currentTask) {
+				// pokud se zmenila current task, tak ukoncim cestu na stanici
+				((PhysicalVehicleDrive) getCurrentTopLevelActivity()).end();
+			}
+			// jinak necham aktivitu pokracovat
+
+//			driveToNextTask();
 		}
 		// SPECIAL CASES - we don't have to do anything and let the current Drive action continue.
 		
@@ -245,26 +269,49 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 			driveFactory.runActivity(this, vehicle, currentTrip);
 		}
 	}
+
 	@Override
-	public void finishedWaiting() {
-		currentPlan.taskCompleted();
-		currentTask = currentPlan.getNextTask();
-		pickupAndContinue();
+	public void finishedWaiting(boolean wasStopped) {
+		if (wasStopped) {
+//			driveToNextTask();
+		} else {
+			currentPlan.taskCompleted();
+			currentTask = currentPlan.getNextTask();
+			if (currentTask instanceof PlanActionWait) {
+				startWaiting();
+			} else if (currentTask instanceof PlanActionPickup || currentTask instanceof PlanActionPickupTransfer) {
+				pickupAndContinue();
+			} else if (currentTask instanceof PlanActionDropoff || currentTask instanceof PlanActionDropoffTransfer) {
+				dropOffAndContinue();
+			}
+		}
 	}
 
 	@Override
 	public void startWaiting() {
 		// pokud je auto jinde nez ve stanici, tak chcu vytvorit trip ke stanici, spustit jizdu a az dojede,
 		// tak spustit cekani, ktere je kratsi o cas dojezdu na stanici
-//		state = OnDemandVehicleState.WAITINGFORTRANSFER;
-		waitActivityFactory.runActivity(this, ((PlanActionWait) currentTask).getWaitTime());
+		state = OnDemandVehicleState.WAITINGFORTRANSFER;
+		if (currentTask instanceof PlanActionWait) {
+			long substractTime = 0;
+			if (((PlanActionWait) currentTask).isWaitingPaused()) {
+				substractTime = ((PlanActionWait) currentTask).getWaitingPausedAt() - ((PlanActionWait) currentTask).getWaitingStartedAt();
+			}
+			((PlanActionWait) currentTask).setWaitingStarted(true);
+			((PlanActionWait) currentTask).setWaitingStartedAt(timeProvider.getCurrentSimTime());
+			((PlanActionWait) currentTask).setWaitingPaused(false);
+			long waitTime = ((PlanActionWait) currentTask).getWaitTime();
+			waitWithStopActivityFactory.runActivity(this, waitTime - substractTime);
+		} else {
+			driveToNextTask();
+		}
+
 
 	}
 
 	@Override
 	public void finishedDriving(boolean wasStopped) {
-//		logTraveledDistance(wasStopped);
-		
+
 		if(wasStopped){
 			driveToNextTask();
 		}
@@ -289,9 +336,6 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 					logTraveledDistance(wasStopped);
 					finishRebalancing();
 					break;
-//				case WAITINGFORTRANSFER:
-//					waitForTransfer();
-//					break;
 			}
 		}
 	}
@@ -328,6 +372,8 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 						// else make new trip and start driving with edited wait time
 						VehicleTrip newTrip = tripsUtil.createTrip(this.getPosition(), currentTask.getPosition(), vehicle);
 						this.currentTrip = newTrip;
+						state = OnDemandVehicleState.DRIVING_TO_TRANSFER_STATION_TO_WAIT;
+//						driveFactory.create(this, vehicle, currentTrip).run();
 						driveToTransferStationActivityFactory.create(this, vehicle, currentTrip).run();
 						this.tripAlreadyPlanned = true;
 

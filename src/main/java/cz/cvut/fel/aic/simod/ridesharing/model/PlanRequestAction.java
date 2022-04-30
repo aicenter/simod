@@ -29,7 +29,7 @@ public abstract class PlanRequestAction extends PlanAction{
 	/**
 	 * Time constraint in seconds
 	 */
-	private final int maxTime;
+	private int maxTime;
 	
 	public PlanComputationRequest getRequest() { 
 		return request; 
@@ -41,6 +41,10 @@ public abstract class PlanRequestAction extends PlanAction{
 	 */
 	public int getMaxTime() {
 		return maxTime;
+	}
+
+	public void setMaxTime(int maxTime) {
+		this.maxTime = maxTime;
 	}
 	
 	

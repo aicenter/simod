@@ -461,7 +461,7 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                             if (itnryp1 == null || itnryp2 == null) {
                                 continue;
                             }
-                            Pair<List<List<PlanAction>>, Long> p = createChargePlanNoNewRequests(itnryp1, itnryp2, taxi, taxis.get(k), request);
+                            Pair<List<List<PlanAction>>, Long> p = createChargePlanNoNewRequestsWithRounding(itnryp1, itnryp2, taxi, taxis.get(k), request);
                             if (p == null) {
                                 continue;
                             } else {
@@ -1141,13 +1141,12 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
             }
             indexPickupSecondCar++;
         }
-        long waitTime = time2 - time1;
         int waitTimeInt = time2Int - time1Int;
 
         boolean valid = true;
 
-        if (waitTime > 0) {
-            PlanActionWait waitAction = new PlanActionWait(request, pickup.getPosition(), pickup.getMaxTime(), waitTimeInt * 1000);
+        if (waitTimeInt < 0) {
+            PlanActionWait waitAction = new PlanActionWait(request, pickup.getPosition(), pickup.getMaxTime(), -waitTimeInt * 1000);
             transferTime = waitTimeInt * 1000;
             itnryp2.add(indexPickupSecondCar, waitAction);
 
@@ -1215,149 +1214,6 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                 }
             }
         }
-
-//        if (waitTime > 0 && waitTime < 2000) {
-//            long newWait = 2000 - waitTime;
-//            PlanActionWait waitAction = new PlanActionWait(request, pickup.getPosition(), pickup.getMaxTime(), newWait);
-//            transferTime = newWait;
-//            itnryp2.add(indexPickupSecondCar, waitAction);
-//
-//            //check tolerable delay for passengers in vehicle2
-//            long time = 0;
-//            previousDestination = veh2.getPosition();
-//            if (veh2.getCurrentTripPlan() != null) {
-//                if (veh2.getCurrentTripPlan().getSize() == 0) {
-//                    SimulationNode stopLoc = (SimulationNode) veh2.getCurrentTripPlan().getLastLocation();
-//                    time += travelTimeProvider.getTravelTime(veh2, stopLoc);
-//                    previousDestination = stopLoc;
-//                }
-//                else if (veh2.getCurrentTripPlan().getSize() > 0) {
-//                    SimulationNode stopLoc = (SimulationNode) veh2.getCurrentTripPlan().getFirstLocation();
-//                    SimulationNode currLoc = (SimulationNode) veh2.getCurrentTripPlan().getAllLocations()[0];
-//                    boolean currLocIsVehiclePosition = false;
-//                    int curridx = 0;
-//                    while (currLoc != stopLoc) {
-//                        if (currLocIsVehiclePosition) {
-//                            time += travelTimeProvider.getTravelTime(veh2, currLoc);
-//                        }
-//                        if (currLoc == veh2.getPosition()) {
-//                            currLocIsVehiclePosition = true;
-//                        }
-//                        previousDestination = (SimulationNode) veh2.getCurrentTripPlan().getAllLocations()[curridx];
-//                        curridx++;
-//                        currLoc = (SimulationNode) veh2.getCurrentTripPlan().getAllLocations()[curridx];
-//                    }
-//                }
-//            }
-//
-//            for (PlanAction action : itnryp2) {
-//                if (action instanceof PlanRequestAction) {
-//                    PlanComputationRequest pcq = ((PlanRequestAction) action).getRequest();
-//                    if (action instanceof PlanActionPickup) {
-//                        SimulationNode dest = pcq.getFrom();
-//                        time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
-//                        if (!(time < pcq.getMaxPickupTime()*1000)) {
-//                            valid = false;
-//                            break;
-//                        }
-//                        previousDestination = dest;
-//                    } else if (action instanceof PlanActionDropoff) {
-//                        SimulationNode dest = pcq.getTo();
-//                        time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
-//                        if (!(time < pcq.getMaxDropoffTime()*1000)) {
-//                            valid = false;
-//                            break;
-//                        }
-//                        previousDestination = dest;
-//                    } else if (action instanceof PlanActionWait) {
-//                        PlanActionWait wait = (PlanActionWait) action;
-//                        time = time + wait.getWaitTime();
-//                        previousDestination = wait.getPosition();
-//                    } else if (action instanceof PlanActionPickupTransfer) {
-//                        PlanActionPickupTransfer p = (PlanActionPickupTransfer) action;
-//                        SimulationNode dest = p.getPosition();
-//                        time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
-//                        previousDestination = dest;
-//                    } else if(action instanceof PlanActionDropoffTransfer) {
-//                        PlanActionDropoffTransfer p = (PlanActionDropoffTransfer) action;
-//                        SimulationNode dest = p.getPosition();
-//                        time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
-//                        previousDestination = dest;
-//                    }
-//                }
-//            }
-//        }
-//        if (waitTime <= 0) {
-//            waitTime = waitTime - 2000;
-//            assert pickup != null;
-//            PlanActionWait waitAction = new PlanActionWait(request, pickup.getPosition(), pickup.getMaxTime(), -waitTime);
-//            transferTime = -waitTime;
-//            itnryp2.add(indexPickupSecondCar, waitAction);
-//
-//            long time = 0;
-//            previousDestination = veh2.getPosition();
-//            if (veh2.getCurrentTripPlan() != null) {
-//                if (veh2.getCurrentTripPlan().getSize() == 0) {
-//                    SimulationNode stopLoc = (SimulationNode) veh2.getCurrentTripPlan().getLastLocation();
-//                    time += travelTimeProvider.getTravelTime(veh2, stopLoc);
-//                    previousDestination = stopLoc;
-//                }
-//                else if (veh2.getCurrentTripPlan().getSize() > 0) {
-//                    SimulationNode stopLoc = (SimulationNode) veh2.getCurrentTripPlan().getFirstLocation();
-//                    SimulationNode currLoc = (SimulationNode) veh2.getCurrentTripPlan().getAllLocations()[0];
-//                    boolean currLocIsVehiclePosition = false;
-//                    int curridx = 0;
-//                    while (currLoc != stopLoc) {
-//                        if (currLocIsVehiclePosition) {
-//                            time += travelTimeProvider.getTravelTime(veh2, currLoc);
-//                        }
-//                        if (currLoc == veh2.getPosition()) {
-//                            currLocIsVehiclePosition = true;
-//                        }
-//                        previousDestination = (SimulationNode) veh2.getCurrentTripPlan().getAllLocations()[curridx];
-//                        curridx++;
-//                        currLoc = (SimulationNode) veh2.getCurrentTripPlan().getAllLocations()[curridx];
-//                    }
-//                }
-//            }
-//
-//            for (PlanAction action : itnryp2) {
-//                if (action instanceof PlanRequestAction) {
-//                    PlanComputationRequest pcq = ((PlanRequestAction) action).getRequest();
-//                    if (action instanceof PlanActionPickup) {
-//                        SimulationNode dest = pcq.getFrom();
-//                        time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
-//                        if (!(time < pcq.getMaxPickupTime()*1000)) {
-//                            valid = false;
-//                            break;
-//                        }
-//                        previousDestination = dest;
-//                    } else if (action instanceof PlanActionDropoff) {
-//                        SimulationNode dest = pcq.getTo();
-//                        time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
-//                        if (!(time < pcq.getMaxDropoffTime()*1000)) {
-//                            valid = false;
-//                            break;
-//                        }
-//                        previousDestination = dest;
-//                    } else if (action instanceof PlanActionWait) {
-//                        PlanActionWait wait = (PlanActionWait) action;
-//                        time = time + wait.getWaitTime();
-//                        previousDestination = wait.getPosition();
-//                    } else if (action instanceof PlanActionPickupTransfer) {
-//                        PlanActionPickupTransfer p = (PlanActionPickupTransfer) action;
-//                        SimulationNode dest = p.getPosition();
-//                        time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
-//                        previousDestination = dest;
-//                    } else if(action instanceof PlanActionDropoffTransfer) {
-//                        PlanActionDropoffTransfer p = (PlanActionDropoffTransfer) action;
-//                        SimulationNode dest = p.getPosition();
-//                        time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
-//                        previousDestination = dest;
-//                    }
-//                }
-//            }
-//        }
         if(valid) {
             List<List<PlanAction>> itnrys = new ArrayList<>();
             itnrys.add(itnryp1);

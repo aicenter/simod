@@ -25,7 +25,6 @@ import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import org.jgrapht.alg.util.Pair;
 
-import java.awt.image.AreaAveragingScaleFilter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -137,7 +136,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
 
         planMap = new ConcurrentHashMap<>();
 
-        // zkusim najit plan bez prestupu
         for (PlanComputationRequest request : requests) {
             List<Pair<List<List<PlanAction>>, List<RideSharingOnDemandVehicle>>> itinerariesPairs = new ArrayList<>();
             List<RideSharingOnDemandVehicle> canPickupRequestTaxis = possiblePickupTaxisMap.get(request);
@@ -148,14 +146,13 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
             for (RideSharingOnDemandVehicle taxi : canPickupRequestTaxis) {
                 List<PlanAction> positnry = findItineraryBestInsertion(request.getPickUpAction(), request.getDropOffAction(), taxi);
                 if (positnry != null) {
-                    // pridat plan do nejakeho seznamu vsech validnich planu
                     Long dropoffTime = getDropoffTimeForRequest(positnry, taxi, request);
                     if (dropoffTime == null) {
                         // chyba
                         continue;
                     }
                     delays.add(dropoffTime - timeProvider.getCurrentSimTime() - minimalTravelTime);
-                    waitTimes.add(Long.MAX_VALUE);
+                    waitTimes.add((long)0);
                     List<List<PlanAction>> listItinerary = new ArrayList<>();
                     listItinerary.add(positnry);
                     List<RideSharingOnDemandVehicle> vehicles = new ArrayList<>();
@@ -185,21 +182,14 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                             PlanActionDropoffTransfer dropoffActionTransfer = new PlanActionDropoffTransfer(request, station, maxDropOffTime);
                             PlanActionPickupTransfer pickupActionTransfer = new PlanActionPickupTransfer(request, station, maxDropOffTime);
 
-                            // TODO prvni usek = ceil
+                            // prvni usek = ceil
                             List<PlanAction> itnryp1 = findItineraryBestInsertionFirstSegment(request.getPickUpAction(), dropoffActionTransfer, taxi);
                             if (itnryp1 == null) {
                                 continue;
                             }
                             Integer dropTime = getDropoffTimeForRequestFirstSegment(itnryp1, taxi, request);
 
-                            //vytvorim plan pro prvni usek cesty
-//                            List<PlanAction> itnryp1 = findItineraryBestInsertion(request.getPickUpAction(), dropoffActionTransfer, taxi);
-//                            if (itnryp1 == null) {
-//                                continue;
-//                            }
-//                            Long dropTime = getDropoffTimeForRequest(itnryp1, taxi, request);
-
-                            // TODO druhy usek = floor
+                            // druhy usek = floor
                             List<PlanAction> itnryp2 = findTransferItineraryBestInsertionSecondSegment(pickupActionTransfer, request.getDropOffAction(), taxis.get(k), dropTime);
                             if (itnryp2 == null) {
                                 continue;
@@ -217,27 +207,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                             }
                             delays.add(dropoffTime * 1000 - timeProvider.getCurrentSimTime() - minimalTravelTime);
 
-
-                            //vytvorim plan pro druhy usek cesty
-//                            List<PlanAction> itnryp2 = findTransferItineraryBestInsertion(pickupActionTransfer, request.getDropOffAction(), taxis.get(k), dropTime);
-//                            if (itnryp2 == null) {
-//                                continue;
-//                            }
-//                            int maxTransferTime = countMaxTimeTransfer(itnryp1, taxi, itnryp2, taxis.get(k), request);
-//
-//                            for (PlanAction action : itnryp1) {
-//                                if (action.equals(dropoffActionTransfer)) {
-//                                    ((PlanActionDropoffTransfer)action).setMaxTime(maxTransferTime);
-//                                }
-//                            }
-//
-//                            Long dropoffTime = getDropoffTimeForRequest(itnryp2, taxis.get(k), request);
-//                            if (dropoffTime == null) {
-//                                // chyba
-//                                continue;
-//                            }
-//                            delays.add(dropoffTime - timeProvider.getCurrentSimTime() - minimalTravelTime);
-
                             long waitTime = getWaitTimeForRequest(itnryp2, request);
                             waitTimes.add(waitTime);
 
@@ -254,31 +223,13 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                 }
             }
 
-            // vyberu nejlepsi a dam ho do mapy
-            // ted budu chtit plany seradit podle delay
-            // vyberu z nich treba 20 %
-            // ty dale seradim podle waitTime
-            // budu se snazit vybrat takove, co maji wait time 0 a vetsi (uplatnuji prestup),
-            // pokud zadne takove nebudou, vezmu i ty s wait Time -1 (to jsou ty bez prestupu)
-
-//            List<TransferPlan> transferPlans = new ArrayList<>();
-//            for (int j = 0; j < itinerariesPairs.size(); j++) {
-//                TransferPlan t = new TransferPlan(waitTimes.get(j), delays.get(j), itinerariesPairs.get(j));
-//                transferPlans.add(t);
-//            }
-
             List<TransferPlan> transferPlans = new ArrayList<>();
             for (int j = 0; j < itinerariesPairs.size(); j++) {
-                if (waitTimes.get(j) != Long.MAX_VALUE && waitTimes.get(j) > 10000) {
-
-                } else {
+                if (waitTimes.get(j) < 10000) {
                     TransferPlan t = new TransferPlan(waitTimes.get(j), delays.get(j), itinerariesPairs.get(j));
                     transferPlans.add(t);
                 }
             }
-
-
-//            verze1
             transferPlans.sort(TransferPlan::compareByTransferTime);
             double beta = 0.2;
             int numOfTaken = (int) (transferPlans.size() * beta);
@@ -294,54 +245,20 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
             }
             sublistTransferPlans.sort(TransferPlan::compareByDelay);
 
-
             if (!sublistTransferPlans.isEmpty()) {
                 Pair<List<List<PlanAction>>, List<RideSharingOnDemandVehicle>> key = sublistTransferPlans.get(0).pair;
                 List<List<PlanAction>> plansForVehicles = key.getFirst();
                 List<RideSharingOnDemandVehicle> vehicles = key.getSecond();
                 for (int q = 0; q < vehicles.size(); q++) {
                     List<PlanAction> vehPlan = plansForVehicles.get(q);
-//                    List<PlanAction> planWithPos = new ArrayList<>();
-//                    planWithPos.add(vehicles.get(q).getCurrentPlanNoUpdate().plan.get(0));
-//                    planWithPos.addAll(vehPlan);
                     DriverPlan dp = new DriverPlan(vehPlan, 0, 0);
                     planMap.put(vehicles.get(q), dp);
                 }
 
-//                DriverPlan newPlan = new DriverPlan(s.get(0).getFirst().get(0), 0, 0);
-//                planMap.put(itinerariesPairs.get(0).getSecond().get(0), newPlan);
             }
         }
-
-
-            // jak hledat plan bez prestupu?
-                // v planu nikdo neprestupuje - provedu insertion metodu
-                // v planu prestupuje, ale je to prvni cast - provedu insertion metodu, ale musim mit spravne nastaveny maxTime dropoffTransfer akce
-                // v planu prestupuje, ale je to druhy usek - muzu zkusit udelat to same, ale nesmim prekrocit maxTime u pickupTransfer akce
-
-        // potom budu hledat stanice ve kterych je mozne prestoupit
-        // zkusim vytvorit prestupni plan
-                // prvni usek budu vytvaret uplne stejne jako je hledani planu bez prestupu
-                    // zjistim cas prijezdu auta na stanici s prestupujicim cestujicim
-                // na druhy usek vyzkousim vsechny moznosti kam akce zaradit
-                    // do planu pridam waitAkci - spocitam cas prijezdu druheho auta na stanici a cas dorovnam wait akci, aby to sedelo
-                    // nastavim maxTransferTime
-                    // zkontroluju jestli je plan validni, nevalidni plany zahodim
-                    // z validnich planu vyberu ten, co bude mit nejmensi zpozdeni
-                // zkombinuji tyto dva plany ?
-
-        // ze vsech planu vyberu nekolik s nejmensim delay
-
-        // budu chtit uprednostnit plany s prestupem
-
-        // zaroven ale budu vybirat takove plany, co maji kratky wait time, aby auta zbytecne nestala ve stanici
-
         return planMap;
     }
-
-
-
-
 
 
 
@@ -398,17 +315,10 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                 Integer arrivalTime = getArrivalTimeToStationIntFloor(tempPlan, vehicle, ((PlanRequestAction)pickup).request);
                 assert arrivalTime != null;
                 int waitTime = arrivalToStationForVeh1 - arrivalTime;
-                // wait time budu mit v sekundach
                 if (waitTime > 0) {
-//                    waitTime += 3000;
                     PlanActionWait waitAction = new PlanActionWait(((PlanRequestAction)pickup).request, pickup.getPosition(), ((PlanRequestAction) pickup).getMaxTime(), waitTime * 1000);
                     tempPlan.add(i, waitAction);
                 }
-//                else if (waitTime < 0 && waitTime > -3000) {
-//                    waitTime -= 3000;
-//                    PlanActionWait waitAction = new PlanActionWait(((PlanRequestAction)pickup).request, pickup.getPosition(), ((PlanRequestAction) pickup).getMaxTime(), -waitTime);
-//                    tempPlan.add(i, waitAction);
-//                }
                 Pair<Boolean, Integer> p = checkValidItineraryAndCountPlanDurationSecondPart(tempPlan, vehicle);
                 if (p.getFirst()) {
                     if (checkCapacityNotExceeded(tempPlan, vehicle)) {
@@ -492,12 +402,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     PlanActionWait waitAction = new PlanActionWait(((PlanRequestAction)pickup).request, pickup.getPosition(), ((PlanRequestAction) pickup).getMaxTime(), -waitTime);
                     tempPlan.add(i, waitAction);
                 }
-//                else if (waitTime < 0 && waitTime > -2000) {
-//                    waitTime += 2000;
-//                    PlanActionWait waitAction = new PlanActionWait(((PlanRequestAction)pickup).request, pickup.getPosition(), ((PlanRequestAction) pickup).getMaxTime(), waitTime);
-//                    tempPlan.add(i, waitAction);
-//
-//                }
                 Pair<Boolean, Long> p = checkValidItineraryAndCountPlanDuration(tempPlan, vehicle);
                 if (p.getFirst()) {
                     if (checkCapacityNotExceeded(tempPlan, vehicle)) {
@@ -526,7 +430,7 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                 }
             }
         }
-        return 0;
+        return -1;
     }
 
     public int countMaxTimeTransfer(List<PlanAction> itnryp1, RideSharingOnDemandVehicle veh1, List<PlanAction> itnryp2, RideSharingOnDemandVehicle veh2, PlanComputationRequest request) {
@@ -560,27 +464,21 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
         }
         if (isWaitInItnryp2) {
             Integer dropTime = getDropoffTimeForRequestFirstSegment(itnryp1, veh1, request);
-//            int time = (int) Math.round(dropTime / 1000.0);
             return dropTime;
         } else {
             Integer dropTime = getArrivalTimeToStationIntFloor(itnryp2, veh2, request);
-//            int time = (int) Math.round(dropTime / 1000.0);
             return dropTime - 1;
         }
     }
 
     public boolean canPickupRequestInTime(RideSharingOnDemandVehicle vehicle, PlanComputationRequest request) {
-        // cas prijezdu auta k pickup pozici je mensi nez maxPickupTime requestu
         long time = timeProvider.getCurrentSimTime();
         long timeToFinishEdge = 0;
         SimulationNode previousDestination = vehicle.getPosition();
 
-        // podivam se na current trip plan a spocitam cas potrebny na dokonceni cesty po aktualni hrane
         if (vehicle.getCurrentTripPlan() != null) {
             if (vehicle.getCurrentTripPlan().getSize() == 0) {
                 SimulationNode stopLoc = (SimulationNode) vehicle.getCurrentTripPlan().getLastLocation();
-                // protoze je size trip planu 0, tak to znamena, ze uz je auto rozjete do posledni destinace tripu
-                // je ale mozne, ze tam jeste nedojelo, tedy jeho pozice je jina nez pozice posledniho bodu v trip planu
                 timeToFinishEdge += travelTimeProvider.getTravelTime(vehicle, stopLoc);
                 previousDestination = stopLoc;
             }
@@ -637,12 +535,9 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
         long timeToFinishEdge = 0;
         previousDestination = vehicle.getPosition();
 
-        // podivam se na current trip plan a spocitam cas potrebny na dokonceni cesty po aktualni hrane
         if (vehicle.getCurrentTripPlan() != null) {
             if (vehicle.getCurrentTripPlan().getSize() == 0) {
                 SimulationNode stopLoc = (SimulationNode) vehicle.getCurrentTripPlan().getLastLocation();
-                // protoze je size trip planu 0, tak to znamena, ze uz je auto rozjete do posledni destinace tripu
-                // je ale mozne, ze tam jeste nedojelo, tedy jeho pozice je jina nez pozice posledniho bodu v trip planu
                 timeToFinishEdge += travelTimeProvider.getTravelTime(vehicle, stopLoc);
                 previousDestination = stopLoc;
             }
@@ -665,7 +560,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
             }
         }
         time += timeToFinishEdge;
-//        int timeRounded = (int) Math.round(time / 1000.0);
 
         for (PlanAction action : itinerary) {
             if (action instanceof PlanRequestAction) {
@@ -673,7 +567,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                 if (action instanceof PlanActionPickup) {
                     SimulationNode dest = pcq.getFrom();
                     time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
-//                    timeRounded += (int) Math.round(time / 1000.0);
                     if (!(time < pcq.getMaxPickupTime() * 1000)) {
                         ret = false;
                         break;
@@ -683,7 +576,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     PlanActionPickupTransfer pickupTransfer = (PlanActionPickupTransfer) action;
                     SimulationNode dest = pickupTransfer.getPosition();
                     time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
-//                    timeRounded += (int) Math.round(time / 1000.0);
                     if (!(time < pickupTransfer.getMaxTime() * 1000)) {
                         ret = false;
                         break;
@@ -693,7 +585,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     PlanActionDropoffTransfer dropoffTransfer = (PlanActionDropoffTransfer) action;
                     SimulationNode dest = dropoffTransfer.getPosition();
                     time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
-//                    timeRounded += (int) Math.round(time / 1000.0);
                     if (!(time < dropoffTransfer.getMaxTime() * 1000)) {
                         ret = false;
                         break;
@@ -702,7 +593,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                 } else if (action instanceof PlanActionDropoff) {
                     SimulationNode dest = pcq.getTo();
                     time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
-//                    timeRounded += (int) Math.round(time / 1000.0);
                     if (!(time < pcq.getMaxDropoffTime() * 1000)) {
                         ret = false;
                         break;
@@ -713,9 +603,7 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     PlanActionWait wait = (PlanActionWait) action;
                     if (!(wait.isWaitingStarted())) {
                         time += wait.getWaitTime();
-//                        time = time + wait.getWaitTime();
                         time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
-//                        timeRounded += (int) Math.round(time / 1000.0);
                         previousDestination = action.getPosition();
                     } else {
                         long substract;
@@ -725,12 +613,9 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                             waitTime = wait.getWaitTime() - substract;
                         } else {
                             waitTime = wait.getWaitTime() - (timeProvider.getCurrentSimTime() - wait.getWaitingStartedAt());
-
                         }
-//                        timeRounded += (int) Math.round(waitTime / 1000.0);
                         time = time + waitTime;
                         time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
-//                        timeRounded += (int) Math.round(time / 1000.0);
                         previousDestination = action.getPosition();
                     }
                 }
@@ -748,12 +633,9 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
         previousDestination = vehicle.getPosition();
         int timeRounded = (int) Math.ceil(timeProvider.getCurrentSimTime() / 1000.0);
 
-        // podivam se na current trip plan a spocitam cas potrebny na dokonceni cesty po aktualni hrane
         if (vehicle.getCurrentTripPlan() != null) {
             if (vehicle.getCurrentTripPlan().getSize() == 0) {
                 SimulationNode stopLoc = (SimulationNode) vehicle.getCurrentTripPlan().getLastLocation();
-                // protoze je size trip planu 0, tak to znamena, ze uz je auto rozjete do posledni destinace tripu
-                // je ale mozne, ze tam jeste nedojelo, tedy jeho pozice je jina nez pozice posledniho bodu v trip planu
                 timeToFinishEdge += travelTimeProvider.getTravelTime(vehicle, stopLoc);
                 previousDestination = stopLoc;
             }
@@ -836,7 +718,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                             waitTime = wait.getWaitTime() - substract;
                         } else {
                             waitTime = wait.getWaitTime() - (timeProvider.getCurrentSimTime() - wait.getWaitingStartedAt());
-
                         }
                         time = time + waitTime;
                         timeRounded += (int) Math.ceil(wait.getWaitTime() / 1000.0);
@@ -859,12 +740,9 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
         previousDestination = vehicle.getPosition();
         int timeRounded = (int) Math.floor(timeProvider.getCurrentSimTime() / 1000.0);
 
-        // podivam se na current trip plan a spocitam cas potrebny na dokonceni cesty po aktualni hrane
         if (vehicle.getCurrentTripPlan() != null) {
             if (vehicle.getCurrentTripPlan().getSize() == 0) {
                 SimulationNode stopLoc = (SimulationNode) vehicle.getCurrentTripPlan().getLastLocation();
-                // protoze je size trip planu 0, tak to znamena, ze uz je auto rozjete do posledni destinace tripu
-                // je ale mozne, ze tam jeste nedojelo, tedy jeho pozice je jina nez pozice posledniho bodu v trip planu
                 timeToFinishEdge += travelTimeProvider.getTravelTime(vehicle, stopLoc);
                 previousDestination = stopLoc;
             }
@@ -947,7 +825,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                             waitTime = wait.getWaitTime() - substract;
                         } else {
                             waitTime = wait.getWaitTime() - (timeProvider.getCurrentSimTime() - wait.getWaitingStartedAt());
-
                         }
                         time = time + waitTime;
                         timeRounded += (int) Math.floor(wait.getWaitTime() / 1000.0);
@@ -1005,7 +882,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                 if (((PlanRequestAction) action).getRequest() == request) {
                     return timeInt;
                 }
-
                 previousDestination = action.getPosition();
             } else if (action instanceof PlanActionWait) {
                 SimulationNode dest = action.getPosition();
@@ -1032,7 +908,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     previousDestination = action.getPosition();
                 }
             }
-
         }
         return null;
     }
@@ -1077,7 +952,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                 if (((PlanRequestAction) action).getRequest() == request) {
                     return time;
                 }
-
                 previousDestination = action.getPosition();
             } else if (action instanceof PlanActionWait) {
                 SimulationNode dest = action.getPosition();
@@ -1100,7 +974,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     previousDestination = action.getPosition();
                 }
             }
-
         }
         return null;
     }
@@ -1153,9 +1026,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
                     previousDestination = action.getPosition();
                 } else {
-                    // aktivita uz zacala
-                    // podivam se jestli uz je i pauznuta
-                    // odectu uz odcekany cas
                     long substract;
                     long waitTime;
                     if (wait.isWaitingPaused()) {
@@ -1229,9 +1099,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     timeInt += (int) Math.floor(travelTimeProvider.getExpectedTravelTime(previousDestination, action.getPosition())/1000.0);
                     previousDestination = action.getPosition();
                 } else {
-                    // aktivita uz zacala
-                    // podivam se jestli uz je i pauznuta
-                    // odectu uz odcekany cas
                     long substract;
                     long waitTime;
                     if (wait.isWaitingPaused()) {
@@ -1252,6 +1119,4 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
         }
         return null;
     }
-
-
 }

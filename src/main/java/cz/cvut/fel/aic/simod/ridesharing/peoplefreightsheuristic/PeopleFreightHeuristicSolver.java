@@ -180,8 +180,9 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 		for (AgentPolisEntity taxiEntity : vehicleStorage.getEntitiesForIteration()) {
 			PeopleFreightVehicle newTaxi = (PeopleFreightVehicle) taxiEntity;
 			allVehicles.add(newTaxi);
-			taxiCurrentPositions.add((PlanActionCurrentPosition) newTaxi.getCurrentPlanNoUpdate().plan.get(0));
-			taxiSchedules.add(new ArrayList<>());
+			List<PlanAction> newTaxiCurrentPlan = newTaxi.getCurrentPlanNoUpdate().plan;
+			taxiCurrentPositions.add((PlanActionCurrentPosition) newTaxiCurrentPlan.remove(0));
+			taxiSchedules.add(new ArrayList<>(newTaxiCurrentPlan));
 		}
 
 

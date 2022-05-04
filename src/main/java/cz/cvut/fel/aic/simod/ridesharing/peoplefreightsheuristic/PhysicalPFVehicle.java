@@ -45,8 +45,8 @@ public class PhysicalPFVehicle extends PhysicalTransportVehicle implements Trans
 	}
 
 	// implements pickUp() for both Agents and Packages
-	public void pickUp(TransportableEntity entity) {	// todo maybe use TransportableEntity_2
-		if (entity instanceof DemandPackage) {
+	public void pickUp(TransportableEntity entity) {
+		if (entity instanceof DemandAgent) {
 			PickUp.pickUp(entity, this.transportedEntities.size() == this.vehiclePassengerCapacity, this , this.transportedEntities);
 		}
 		else {

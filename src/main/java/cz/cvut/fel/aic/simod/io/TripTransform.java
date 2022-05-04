@@ -64,6 +64,9 @@ public class TripTransform {
 
 	private IdGenerator tripIdGenerator;
 
+	private final int people_limit = 500;			// TODO docasne pro debugging
+	private final int packages_limit = 1000;
+
 
 	@Inject
 	public TripTransform(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils, IdGenerator tripIdGenerator) {
@@ -127,7 +130,7 @@ public class TripTransform {
 			String line;
 			int counter = 0;
 			while ((line = br.readLine()) != null) {
-				if (++counter > 0) {		// TODO odstranit counter
+				if (++counter > people_limit) {		// TODO odstranit counter
 					break;
 				}
 
@@ -170,7 +173,7 @@ public class TripTransform {
 			String line;
 			int counter = 0;
 			while ((line = br.readLine()) != null) {
-				if (++counter > 200) {		// TODO odstranit counter
+				if (++counter > packages_limit) {		// TODO odstranit counter
 					break;
 				}
 

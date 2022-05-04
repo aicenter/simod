@@ -36,6 +36,8 @@ import cz.cvut.fel.aic.alite.simulation.Simulation;
 import cz.cvut.fel.aic.alite.vis.VisManager;
 import cz.cvut.fel.aic.alite.vis.layer.VisLayer;
 import cz.cvut.fel.aic.alite.vis.layer.common.ColorLayer;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PackageLayer;
+
 import java.awt.Color;
 
 /**
@@ -52,6 +54,8 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 	protected final NodeIdLayer nodeIdLayer;
 	
 	private final DemandLayer demandLayer;
+
+	private final PackageLayer packageLayer;
 	
 	private final OnDemandVehicleStationsLayer onDemandVehicleStationsLayer;
 	
@@ -91,13 +95,15 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 								   TrafficDensityByDirectionLayer trafficDensityByDirectionLayer, GridLayer gridLayer,
 								   MapTilesLayer mapTilesLayer, AgentpolisConfig config, LayerManagementLayer layerManagementLayer,
 								   VehicleHighlightingLayer vehicleHighlightingLayer, ScreenRecordingLayer screenRecordingLayer,
-								   ScreenCaputreLayer screenCaputreLayer, SimpleBackgroundLayer simpleBackgroundLayer) {
+								   ScreenCaputreLayer screenCaputreLayer, SimpleBackgroundLayer simpleBackgroundLayer,
+								   PackageLayer packageLayer) {
 		super(simulation, highwayNetwork, simulationControlLayer, gridLayer);
 		this.onDemandVehicleLayer = onDemandVehicleLayer;
 		this.trafficDensityLayer = trafficDensityLayer;
 		this.nodeIdLayer = nodeIdLayer;
 		this.onDemandVehicleStationsLayer = onDemandVehicleStationsLayer;
 		this.demandLayer = demandLayer;
+		this.packageLayer = packageLayer;
 		this.onDemandVehiclePlanLayer = onDemandVehiclePlanLayer;
 		this.highwayLayer = highwayLayer;
 		this.bufferedHighwayLayer = bufferedHighwayLayer;
@@ -116,6 +122,7 @@ public class AmodsimVisioInItializer extends DefaultVisioInitializer{
 		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Stations", onDemandVehicleStationsLayer));
 		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Vehicles", onDemandVehicleLayer));
 		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Passangers", demandLayer));
+		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Packages", packageLayer));
 		VisManager.registerLayer(layerManagementLayer.createManageableLayer("Vehicle Plan", onDemandVehiclePlanLayer));
 	}
 

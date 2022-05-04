@@ -175,6 +175,7 @@ public class RidesharingOnDemandVehiclePlanLayer extends PlanLayer<RideSharingOn
 			canvas.fillOval(x1, y1, ACTION_MARKER_SIZE, ACTION_MARKER_SIZE);
 
 			String textIn = task instanceof PlanActionPickup ? "P" : "D";
+			if ()
 			String title = String.format("%s %s", textIn, task.getRequest().getDemandAgent().getSimpleId());
 			
 			VisioUtils.printTextWithBackgroud(canvas, title,

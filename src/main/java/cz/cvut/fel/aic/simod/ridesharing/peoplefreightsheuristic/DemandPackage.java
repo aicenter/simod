@@ -152,7 +152,7 @@ public class DemandPackage extends AgentPolisEntity implements TransportableEnti
 
 
 	public void tripEnded() {
-		if (!getPosition().equals(trip.getLastLocation())) {
+		if (!transportEntity.getPosition().equals(trip.getLastLocation())) {
 			try {
 				throw new Exception("Demand package not served properly");
 			}

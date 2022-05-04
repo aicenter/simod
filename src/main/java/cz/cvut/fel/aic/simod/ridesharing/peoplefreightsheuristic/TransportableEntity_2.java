@@ -1,5 +1,6 @@
 package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic;
 
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleInterface;
 

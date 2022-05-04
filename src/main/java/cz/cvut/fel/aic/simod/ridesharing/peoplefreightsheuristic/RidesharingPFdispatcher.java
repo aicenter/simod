@@ -91,7 +91,7 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 		if (demandData.demandAgent != null) {
 			newRequest = this.peopleRequestFactory.create(requestCounter++, requestStartPosition,
 					demandData.locations[1], demandData.demandAgent);
-//			waitingRequests.add(newRequest);
+			waitingRequests.add(newRequest);
 			newRequests.add(newRequest);
 			requestsMapByDemandAgents.put(newRequest.getDemandEntity().getSimpleId(), newRequest);
 		}
@@ -99,7 +99,7 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 		else {
 			newRequest = this.freightRequestFactory.create(requestCounter++, requestStartPosition,
 					demandData.locations[1], demandData.demandPackage, demandData.demandPackage.getWeight());
-//			waitingRequestsPackages.add(newRequest);    					// TODO jak funguji waitingReuqests???
+			waitingRequestsPackages.add(newRequest);    					// TODO jak funguji waitingReuqests???
 			newRequestsPackages.add(newRequest);
 			requestsMapByDemandPackages.put(newRequest.getDemandEntity().getSimpleId(), newRequest);
 		}
@@ -246,7 +246,7 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 						} catch (Exception ex) {
 							Logger.getLogger(VehicleGroupAssignmentSolver.class.getName()).log(Level.SEVERE, null, ex);
 						}
-					};
+					}
 					request.setOnboard(true);
 				}
 				else {
@@ -257,7 +257,7 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 						} catch (Exception ex) {
 							Logger.getLogger(VehicleGroupAssignmentSolver.class.getName()).log(Level.SEVERE, null, ex);
 						}
-					};
+					}
 					packageRequest.setOnboard(true);
 				}
 			}

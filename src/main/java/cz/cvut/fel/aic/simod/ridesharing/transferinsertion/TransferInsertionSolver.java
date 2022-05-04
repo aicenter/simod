@@ -155,7 +155,7 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                         continue;
                     }
                     delays.add(dropoffTime - timeProvider.getCurrentSimTime() - minimalTravelTime);
-                    waitTimes.add((long) Long.MAX_VALUE);
+                    waitTimes.add(Long.MAX_VALUE);
                     List<List<PlanAction>> listItinerary = new ArrayList<>();
                     listItinerary.add(positnry);
                     List<RideSharingOnDemandVehicle> vehicles = new ArrayList<>();
@@ -182,36 +182,61 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                         } else {
                             int maxDropOffTime = request.getMaxDropoffTime() - (int) Math.round(travelTimeProvider.getExpectedTravelTime(station, request.getTo()) / 1000.0);
 
-                            // todo: mozna u dropoff akce upravit max time o dve sekundy driv?
                             PlanActionDropoffTransfer dropoffActionTransfer = new PlanActionDropoffTransfer(request, station, maxDropOffTime);
                             PlanActionPickupTransfer pickupActionTransfer = new PlanActionPickupTransfer(request, station, maxDropOffTime);
 
-                            //vytvorim plan pro prvni usek cesty
-                            List<PlanAction> itnryp1 = findItineraryBestInsertion(request.getPickUpAction(), dropoffActionTransfer, taxi);
+                            // TODO prvni usek = ceil
+                            List<PlanAction> itnryp1 = findItineraryBestInsertionFirstSegment(request.getPickUpAction(), dropoffActionTransfer, taxi);
                             if (itnryp1 == null) {
                                 continue;
                             }
-                            Long dropTime = getDropoffTimeForRequest(itnryp1, taxi, request);
+                            Integer dropTime = getDropoffTimeForRequestFirstSegment(itnryp1, taxi, request);
 
-                            //vytvorim plan pro druhy usek cesty
-                            List<PlanAction> itnryp2 = findTransferItineraryBestInsertion(pickupActionTransfer, request.getDropOffAction(), taxis.get(k), dropTime);
+                            //vytvorim plan pro prvni usek cesty
+//                            List<PlanAction> itnryp1 = findItineraryBestInsertion(request.getPickUpAction(), dropoffActionTransfer, taxi);
+//                            if (itnryp1 == null) {
+//                                continue;
+//                            }
+//                            Long dropTime = getDropoffTimeForRequest(itnryp1, taxi, request);
+
+                            // TODO druhy usek = floor
+                            List<PlanAction> itnryp2 = findTransferItineraryBestInsertionSecondSegment(pickupActionTransfer, request.getDropOffAction(), taxis.get(k), dropTime);
                             if (itnryp2 == null) {
                                 continue;
                             }
-                            int maxTransferTime = countMaxTimeTransfer(itnryp1, taxi, itnryp2, taxis.get(k), request);
-
+                            int maxTransferTime = countMaxTimeTransferRound(itnryp1, taxi, itnryp2, taxis.get(k), request);
                             for (PlanAction action : itnryp1) {
                                 if (action.equals(dropoffActionTransfer)) {
                                     ((PlanActionDropoffTransfer)action).setMaxTime(maxTransferTime);
                                 }
                             }
-
-                            Long dropoffTime = getDropoffTimeForRequest(itnryp2, taxis.get(k), request);
+                            Integer dropoffTime = getDropoffTimeForRequestFirstSegment(itnryp2, taxis.get(k), request);
                             if (dropoffTime == null) {
                                 // chyba
                                 continue;
                             }
-                            delays.add(dropoffTime - timeProvider.getCurrentSimTime() - minimalTravelTime);
+                            delays.add(dropoffTime * 1000 - timeProvider.getCurrentSimTime() - minimalTravelTime);
+
+
+                            //vytvorim plan pro druhy usek cesty
+//                            List<PlanAction> itnryp2 = findTransferItineraryBestInsertion(pickupActionTransfer, request.getDropOffAction(), taxis.get(k), dropTime);
+//                            if (itnryp2 == null) {
+//                                continue;
+//                            }
+//                            int maxTransferTime = countMaxTimeTransfer(itnryp1, taxi, itnryp2, taxis.get(k), request);
+//
+//                            for (PlanAction action : itnryp1) {
+//                                if (action.equals(dropoffActionTransfer)) {
+//                                    ((PlanActionDropoffTransfer)action).setMaxTime(maxTransferTime);
+//                                }
+//                            }
+//
+//                            Long dropoffTime = getDropoffTimeForRequest(itnryp2, taxis.get(k), request);
+//                            if (dropoffTime == null) {
+//                                // chyba
+//                                continue;
+//                            }
+//                            delays.add(dropoffTime - timeProvider.getCurrentSimTime() - minimalTravelTime);
 
                             long waitTime = getWaitTimeForRequest(itnryp2, request);
                             waitTimes.add(waitTime);
@@ -236,15 +261,27 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
             // budu se snazit vybrat takove, co maji wait time 0 a vetsi (uplatnuji prestup),
             // pokud zadne takove nebudou, vezmu i ty s wait Time -1 (to jsou ty bez prestupu)
 
+//            List<TransferPlan> transferPlans = new ArrayList<>();
+//            for (int j = 0; j < itinerariesPairs.size(); j++) {
+//                TransferPlan t = new TransferPlan(waitTimes.get(j), delays.get(j), itinerariesPairs.get(j));
+//                transferPlans.add(t);
+//            }
+
             List<TransferPlan> transferPlans = new ArrayList<>();
             for (int j = 0; j < itinerariesPairs.size(); j++) {
-                TransferPlan t = new TransferPlan(waitTimes.get(j), delays.get(j), itinerariesPairs.get(j));
-                transferPlans.add(t);
+                if (waitTimes.get(j) != Long.MAX_VALUE && waitTimes.get(j) > 10000) {
+
+                } else {
+                    TransferPlan t = new TransferPlan(waitTimes.get(j), delays.get(j), itinerariesPairs.get(j));
+                    transferPlans.add(t);
+                }
             }
-            transferPlans.sort(TransferPlan::compareByDelay);
-            //vezmu hornich beta procent
+
+
+//            verze1
+            transferPlans.sort(TransferPlan::compareByTransferTime);
             double beta = 0.2;
-            int numOfTaken = (int) (delays.size() * beta);
+            int numOfTaken = (int) (transferPlans.size() * beta);
             if (numOfTaken == 0) {
                 numOfTaken = 1;
             }
@@ -255,7 +292,7 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     sublistTransferPlans.add(transferPlans.get(q));
                 }
             }
-            sublistTransferPlans.sort(TransferPlan::compareByTransferTime);
+            sublistTransferPlans.sort(TransferPlan::compareByDelay);
 
 
             if (!sublistTransferPlans.isEmpty()) {
@@ -308,6 +345,89 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
 
 
 
+    public List<PlanAction> findItineraryBestInsertionFirstSegment(PlanAction pickup, PlanAction dropoff, RideSharingOnDemandVehicle vehicle) {
+        DriverPlan currentVehiclePlan;
+        if (planMap.containsKey(vehicle)) {
+            currentVehiclePlan = planMap.get(vehicle);
+        } else {
+            currentVehiclePlan = vehicle.getCurrentPlanNoUpdate();
+        }
+        List<List<PlanAction>> allPosibleActionsOrder = new ArrayList<>();
+        List<Integer> planDurations = new ArrayList<>();
+
+        for (int i = 1; i < currentVehiclePlan.plan.size()+1; i++) {
+            for (int j = i+1; j < currentVehiclePlan.plan.size()+2; j++) {
+                List<PlanAction> tempPlan = new ArrayList<>(currentVehiclePlan.plan);
+                tempPlan.add(i, pickup);
+                tempPlan.add(j, dropoff);
+                Pair<Boolean, Integer> p = checkValidItineraryAndCountPlanDurationFirstPart(tempPlan, vehicle);
+                if (p.getFirst()) {
+                    if (checkCapacityNotExceeded(tempPlan, vehicle)) {
+                        allPosibleActionsOrder.add(tempPlan);
+                        planDurations.add(p.getSecond());
+                    }
+                }
+            }
+        }
+
+        if (allPosibleActionsOrder.isEmpty()) {
+            return null;
+        }
+
+        int minIndex = planDurations.indexOf(Collections.min(planDurations));
+        List<PlanAction> selectedPlan = allPosibleActionsOrder.get(minIndex);
+
+        return selectedPlan;
+    }
+
+    public List<PlanAction> findTransferItineraryBestInsertionSecondSegment(PlanAction pickup, PlanAction dropoff, RideSharingOnDemandVehicle vehicle, int arrivalToStationForVeh1) {
+        DriverPlan currentVehiclePlan;
+        if (planMap.containsKey(vehicle)) {
+            currentVehiclePlan = planMap.get(vehicle);
+        } else {
+            currentVehiclePlan = vehicle.getCurrentPlanNoUpdate();
+        }
+        List<List<PlanAction>> allPosibleActionsOrder = new ArrayList<>();
+        List<Integer> planDurations = new ArrayList<>();
+
+        for (int i = 1; i < currentVehiclePlan.plan.size()+1; i++) {
+            for (int j = i+1; j < currentVehiclePlan.plan.size()+2; j++) {
+                List<PlanAction> tempPlan = new ArrayList<>(currentVehiclePlan.plan);
+                tempPlan.add(i, pickup);
+                tempPlan.add(j, dropoff);
+                Integer arrivalTime = getArrivalTimeToStationIntFloor(tempPlan, vehicle, ((PlanRequestAction)pickup).request);
+                assert arrivalTime != null;
+                int waitTime = arrivalToStationForVeh1 - arrivalTime;
+                // wait time budu mit v sekundach
+                if (waitTime > 0) {
+//                    waitTime += 3000;
+                    PlanActionWait waitAction = new PlanActionWait(((PlanRequestAction)pickup).request, pickup.getPosition(), ((PlanRequestAction) pickup).getMaxTime(), waitTime * 1000);
+                    tempPlan.add(i, waitAction);
+                }
+//                else if (waitTime < 0 && waitTime > -3000) {
+//                    waitTime -= 3000;
+//                    PlanActionWait waitAction = new PlanActionWait(((PlanRequestAction)pickup).request, pickup.getPosition(), ((PlanRequestAction) pickup).getMaxTime(), -waitTime);
+//                    tempPlan.add(i, waitAction);
+//                }
+                Pair<Boolean, Integer> p = checkValidItineraryAndCountPlanDurationSecondPart(tempPlan, vehicle);
+                if (p.getFirst()) {
+                    if (checkCapacityNotExceeded(tempPlan, vehicle)) {
+                        allPosibleActionsOrder.add(tempPlan);
+                        planDurations.add(p.getSecond());
+                    }
+                }
+            }
+        }
+
+        if (allPosibleActionsOrder.isEmpty()) {
+            return null;
+        }
+
+        int minIndex = planDurations.indexOf(Collections.min(planDurations));
+        List<PlanAction> selectedPlan = allPosibleActionsOrder.get(minIndex);
+
+        return selectedPlan;
+    }
 
     public List<PlanAction> findItineraryBestInsertion(PlanAction pickup, PlanAction dropoff, RideSharingOnDemandVehicle vehicle) {
         DriverPlan currentVehiclePlan;
@@ -362,7 +482,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                 Long arrivalTime = getArrivalTimeToStation(tempPlan, vehicle, ((PlanRequestAction)pickup).request);
                 assert arrivalTime != null;
                 long waitTime = arrivalToStationForVeh1 - arrivalTime;
-//                int waitTime = (int) (Math.round(arrivalToStationForVeh1 / 1000.0) - Math.round(arrivalTime / 1000.0));
                 if (waitTime >= 0) {
                     waitTime += 3000;
                     PlanActionWait waitAction = new PlanActionWait(((PlanRequestAction)pickup).request, pickup.getPosition(), ((PlanRequestAction) pickup).getMaxTime(), waitTime);
@@ -373,6 +492,12 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     PlanActionWait waitAction = new PlanActionWait(((PlanRequestAction)pickup).request, pickup.getPosition(), ((PlanRequestAction) pickup).getMaxTime(), -waitTime);
                     tempPlan.add(i, waitAction);
                 }
+//                else if (waitTime < 0 && waitTime > -2000) {
+//                    waitTime += 2000;
+//                    PlanActionWait waitAction = new PlanActionWait(((PlanRequestAction)pickup).request, pickup.getPosition(), ((PlanRequestAction) pickup).getMaxTime(), waitTime);
+//                    tempPlan.add(i, waitAction);
+//
+//                }
                 Pair<Boolean, Long> p = checkValidItineraryAndCountPlanDuration(tempPlan, vehicle);
                 if (p.getFirst()) {
                     if (checkCapacityNotExceeded(tempPlan, vehicle)) {
@@ -421,6 +546,26 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
             Long dropTime = getArrivalTimeToStation(itnryp2, veh2, request);
             int time = (int) Math.round(dropTime / 1000.0);
             return time - 2;
+        }
+    }
+
+    public int countMaxTimeTransferRound(List<PlanAction> itnryp1, RideSharingOnDemandVehicle veh1, List<PlanAction> itnryp2, RideSharingOnDemandVehicle veh2, PlanComputationRequest request) {
+        boolean isWaitInItnryp2 = false;
+        for (PlanAction action : itnryp2) {
+            if (action instanceof PlanActionWait) {
+                if (((PlanActionWait) action).request == request) {
+                    isWaitInItnryp2 = true;
+                }
+            }
+        }
+        if (isWaitInItnryp2) {
+            Integer dropTime = getDropoffTimeForRequestFirstSegment(itnryp1, veh1, request);
+//            int time = (int) Math.round(dropTime / 1000.0);
+            return dropTime;
+        } else {
+            Integer dropTime = getArrivalTimeToStationIntFloor(itnryp2, veh2, request);
+//            int time = (int) Math.round(dropTime / 1000.0);
+            return dropTime - 1;
         }
     }
 
@@ -520,13 +665,15 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
             }
         }
         time += timeToFinishEdge;
+//        int timeRounded = (int) Math.round(time / 1000.0);
 
         for (PlanAction action : itinerary) {
             if (action instanceof PlanRequestAction) {
                 PlanComputationRequest pcq = ((PlanRequestAction) action).getRequest();
                 if (action instanceof PlanActionPickup) {
                     SimulationNode dest = pcq.getFrom();
-                    time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+//                    timeRounded += (int) Math.round(time / 1000.0);
                     if (!(time < pcq.getMaxPickupTime() * 1000)) {
                         ret = false;
                         break;
@@ -535,7 +682,8 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                 } else if(action instanceof PlanActionPickupTransfer) {
                     PlanActionPickupTransfer pickupTransfer = (PlanActionPickupTransfer) action;
                     SimulationNode dest = pickupTransfer.getPosition();
-                    time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+//                    timeRounded += (int) Math.round(time / 1000.0);
                     if (!(time < pickupTransfer.getMaxTime() * 1000)) {
                         ret = false;
                         break;
@@ -544,7 +692,8 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                 } else if(action instanceof PlanActionDropoffTransfer) {
                     PlanActionDropoffTransfer dropoffTransfer = (PlanActionDropoffTransfer) action;
                     SimulationNode dest = dropoffTransfer.getPosition();
-                    time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+//                    timeRounded += (int) Math.round(time / 1000.0);
                     if (!(time < dropoffTransfer.getMaxTime() * 1000)) {
                         ret = false;
                         break;
@@ -552,7 +701,8 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     previousDestination = dest;
                 } else if (action instanceof PlanActionDropoff) {
                     SimulationNode dest = pcq.getTo();
-                    time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+//                    timeRounded += (int) Math.round(time / 1000.0);
                     if (!(time < pcq.getMaxDropoffTime() * 1000)) {
                         ret = false;
                         break;
@@ -562,8 +712,121 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     SimulationNode dest = action.getPosition();
                     PlanActionWait wait = (PlanActionWait) action;
                     if (!(wait.isWaitingStarted())) {
-                        time = time + wait.getWaitTime();
+                        time += wait.getWaitTime();
+//                        time = time + wait.getWaitTime();
                         time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+//                        timeRounded += (int) Math.round(time / 1000.0);
+                        previousDestination = action.getPosition();
+                    } else {
+                        long substract;
+                        long waitTime;
+                        if (wait.isWaitingPaused()) {
+                            substract = wait.getWaitingPausedAt() - wait.getWaitingStartedAt();
+                            waitTime = wait.getWaitTime() - substract;
+                        } else {
+                            waitTime = wait.getWaitTime() - (timeProvider.getCurrentSimTime() - wait.getWaitingStartedAt());
+
+                        }
+//                        timeRounded += (int) Math.round(waitTime / 1000.0);
+                        time = time + waitTime;
+                        time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+//                        timeRounded += (int) Math.round(time / 1000.0);
+                        previousDestination = action.getPosition();
+                    }
+                }
+            }
+        }
+        Pair<Boolean, Long> p = new Pair<>(ret, time);
+        return p;
+    }
+
+    private Pair<Boolean, Integer> checkValidItineraryAndCountPlanDurationFirstPart(List<PlanAction> itinerary, RideSharingOnDemandVehicle vehicle) {
+        SimulationNode previousDestination;
+        boolean ret = true;
+        long time = timeProvider.getCurrentSimTime();
+        long timeToFinishEdge = 0;
+        previousDestination = vehicle.getPosition();
+        int timeRounded = (int) Math.ceil(timeProvider.getCurrentSimTime() / 1000.0);
+
+        // podivam se na current trip plan a spocitam cas potrebny na dokonceni cesty po aktualni hrane
+        if (vehicle.getCurrentTripPlan() != null) {
+            if (vehicle.getCurrentTripPlan().getSize() == 0) {
+                SimulationNode stopLoc = (SimulationNode) vehicle.getCurrentTripPlan().getLastLocation();
+                // protoze je size trip planu 0, tak to znamena, ze uz je auto rozjete do posledni destinace tripu
+                // je ale mozne, ze tam jeste nedojelo, tedy jeho pozice je jina nez pozice posledniho bodu v trip planu
+                timeToFinishEdge += travelTimeProvider.getTravelTime(vehicle, stopLoc);
+                previousDestination = stopLoc;
+            }
+            else if (vehicle.getCurrentTripPlan().getSize() > 0) {
+                SimulationNode stopLoc = (SimulationNode) vehicle.getCurrentTripPlan().getFirstLocation();
+                SimulationNode currLoc = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[0];
+                boolean currLocIsVehiclePosition = false;
+                int curridx = 0;
+                while (currLoc != stopLoc) {
+                    if (currLocIsVehiclePosition) {
+                        timeToFinishEdge += travelTimeProvider.getTravelTime(vehicle, currLoc);
+                    }
+                    if (currLoc == vehicle.getPosition()) {
+                        currLocIsVehiclePosition = true;
+                    }
+                    previousDestination = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[curridx];
+                    curridx++;
+                    currLoc = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[curridx];
+                }
+            }
+        }
+        time += timeToFinishEdge;
+        timeRounded += (int) Math.ceil(timeToFinishEdge / 1000.0);
+
+        for (PlanAction action : itinerary) {
+            if (action instanceof PlanRequestAction) {
+                PlanComputationRequest pcq = ((PlanRequestAction) action).getRequest();
+                if (action instanceof PlanActionPickup) {
+                    SimulationNode dest = pcq.getFrom();
+                    time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    timeRounded += (int) Math.ceil(travelTimeProvider.getExpectedTravelTime(previousDestination, dest) / 1000.0);
+                    if (!(timeRounded < pcq.getMaxPickupTime())) {
+                        ret = false;
+                        break;
+                    }
+                    previousDestination = dest;
+                } else if(action instanceof PlanActionPickupTransfer) {
+                    PlanActionPickupTransfer pickupTransfer = (PlanActionPickupTransfer) action;
+                    SimulationNode dest = pickupTransfer.getPosition();
+                    time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    timeRounded += (int) Math.ceil(travelTimeProvider.getExpectedTravelTime(previousDestination, dest) / 1000.0);
+                    if (!(timeRounded < pickupTransfer.getMaxTime())) {
+                        ret = false;
+                        break;
+                    }
+                    previousDestination = dest;
+                } else if(action instanceof PlanActionDropoffTransfer) {
+                    PlanActionDropoffTransfer dropoffTransfer = (PlanActionDropoffTransfer) action;
+                    SimulationNode dest = dropoffTransfer.getPosition();
+                    time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    timeRounded += (int) Math.ceil(travelTimeProvider.getExpectedTravelTime(previousDestination, dest) / 1000.0);
+                    if (!(timeRounded < dropoffTransfer.getMaxTime())) {
+                        ret = false;
+                        break;
+                    }
+                    previousDestination = dest;
+                } else if (action instanceof PlanActionDropoff) {
+                    SimulationNode dest = pcq.getTo();
+                    time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    timeRounded += (int) Math.ceil(travelTimeProvider.getExpectedTravelTime(previousDestination, dest) / 1000.0);
+                    if (!(timeRounded < pcq.getMaxDropoffTime())) {
+                        ret = false;
+                        break;
+                    }
+                    previousDestination = dest;
+                } else if (action instanceof PlanActionWait) {
+                    SimulationNode dest = action.getPosition();
+                    PlanActionWait wait = (PlanActionWait) action;
+                    if (!(wait.isWaitingStarted())) {
+                        time += wait.getWaitTime();
+                        timeRounded += (int) Math.ceil(wait.getWaitTime() / 1000.0);
+                        time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                        timeRounded += (int) Math.ceil(travelTimeProvider.getExpectedTravelTime(previousDestination, dest) / 1000.0);
                         previousDestination = action.getPosition();
                     } else {
                         long substract;
@@ -576,15 +839,204 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
 
                         }
                         time = time + waitTime;
+                        timeRounded += (int) Math.ceil(wait.getWaitTime() / 1000.0);
                         time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                        timeRounded += (int) Math.ceil(travelTimeProvider.getExpectedTravelTime(previousDestination, dest) / 1000.0);
                         previousDestination = action.getPosition();
                     }
                 }
             }
         }
-        Pair<Boolean, Long> p = new Pair<>(ret, time);
+        Pair<Boolean, Integer> p = new Pair<>(ret, timeRounded);
         return p;
     }
+
+    private Pair<Boolean, Integer> checkValidItineraryAndCountPlanDurationSecondPart(List<PlanAction> itinerary, RideSharingOnDemandVehicle vehicle) {
+        SimulationNode previousDestination;
+        boolean ret = true;
+        long time = timeProvider.getCurrentSimTime();
+        long timeToFinishEdge = 0;
+        previousDestination = vehicle.getPosition();
+        int timeRounded = (int) Math.floor(timeProvider.getCurrentSimTime() / 1000.0);
+
+        // podivam se na current trip plan a spocitam cas potrebny na dokonceni cesty po aktualni hrane
+        if (vehicle.getCurrentTripPlan() != null) {
+            if (vehicle.getCurrentTripPlan().getSize() == 0) {
+                SimulationNode stopLoc = (SimulationNode) vehicle.getCurrentTripPlan().getLastLocation();
+                // protoze je size trip planu 0, tak to znamena, ze uz je auto rozjete do posledni destinace tripu
+                // je ale mozne, ze tam jeste nedojelo, tedy jeho pozice je jina nez pozice posledniho bodu v trip planu
+                timeToFinishEdge += travelTimeProvider.getTravelTime(vehicle, stopLoc);
+                previousDestination = stopLoc;
+            }
+            else if (vehicle.getCurrentTripPlan().getSize() > 0) {
+                SimulationNode stopLoc = (SimulationNode) vehicle.getCurrentTripPlan().getFirstLocation();
+                SimulationNode currLoc = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[0];
+                boolean currLocIsVehiclePosition = false;
+                int curridx = 0;
+                while (currLoc != stopLoc) {
+                    if (currLocIsVehiclePosition) {
+                        timeToFinishEdge += travelTimeProvider.getTravelTime(vehicle, currLoc);
+                    }
+                    if (currLoc == vehicle.getPosition()) {
+                        currLocIsVehiclePosition = true;
+                    }
+                    previousDestination = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[curridx];
+                    curridx++;
+                    currLoc = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[curridx];
+                }
+            }
+        }
+        time += timeToFinishEdge;
+        timeRounded += (int) Math.floor(timeToFinishEdge / 1000.0);
+
+        for (PlanAction action : itinerary) {
+            if (action instanceof PlanRequestAction) {
+                PlanComputationRequest pcq = ((PlanRequestAction) action).getRequest();
+                if (action instanceof PlanActionPickup) {
+                    SimulationNode dest = pcq.getFrom();
+                    time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    timeRounded += (int) Math.floor(travelTimeProvider.getExpectedTravelTime(previousDestination, dest) / 1000.0);
+                    if (!(timeRounded < pcq.getMaxPickupTime())) {
+                        ret = false;
+                        break;
+                    }
+                    previousDestination = dest;
+                } else if(action instanceof PlanActionPickupTransfer) {
+                    PlanActionPickupTransfer pickupTransfer = (PlanActionPickupTransfer) action;
+                    SimulationNode dest = pickupTransfer.getPosition();
+                    time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    timeRounded += (int) Math.floor(travelTimeProvider.getExpectedTravelTime(previousDestination, dest) / 1000.0);
+                    if (!(timeRounded < pickupTransfer.getMaxTime())) {
+                        ret = false;
+                        break;
+                    }
+                    previousDestination = dest;
+                } else if(action instanceof PlanActionDropoffTransfer) {
+                    PlanActionDropoffTransfer dropoffTransfer = (PlanActionDropoffTransfer) action;
+                    SimulationNode dest = dropoffTransfer.getPosition();
+                    time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    timeRounded += (int) Math.floor(travelTimeProvider.getExpectedTravelTime(previousDestination, dest) / 1000.0);
+                    if (!(timeRounded < dropoffTransfer.getMaxTime())) {
+                        ret = false;
+                        break;
+                    }
+                    previousDestination = dest;
+                } else if (action instanceof PlanActionDropoff) {
+                    SimulationNode dest = pcq.getTo();
+                    time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    timeRounded += (int) Math.floor(travelTimeProvider.getExpectedTravelTime(previousDestination, dest) / 1000.0);
+                    if (!(timeRounded < pcq.getMaxDropoffTime())) {
+                        ret = false;
+                        break;
+                    }
+                    previousDestination = dest;
+                } else if (action instanceof PlanActionWait) {
+                    SimulationNode dest = action.getPosition();
+                    PlanActionWait wait = (PlanActionWait) action;
+                    if (!(wait.isWaitingStarted())) {
+                        time += wait.getWaitTime();
+                        timeRounded += (int) Math.floor(wait.getWaitTime() / 1000.0);
+                        time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                        timeRounded += (int) Math.floor(travelTimeProvider.getExpectedTravelTime(previousDestination, dest) / 1000.0);
+                        previousDestination = action.getPosition();
+                    } else {
+                        long substract;
+                        long waitTime;
+                        if (wait.isWaitingPaused()) {
+                            substract = wait.getWaitingPausedAt() - wait.getWaitingStartedAt();
+                            waitTime = wait.getWaitTime() - substract;
+                        } else {
+                            waitTime = wait.getWaitTime() - (timeProvider.getCurrentSimTime() - wait.getWaitingStartedAt());
+
+                        }
+                        time = time + waitTime;
+                        timeRounded += (int) Math.floor(wait.getWaitTime() / 1000.0);
+                        time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                        timeRounded += (int) Math.floor(travelTimeProvider.getExpectedTravelTime(previousDestination, dest) / 1000.0);
+                        previousDestination = action.getPosition();
+                    }
+                }
+            }
+        }
+        Pair<Boolean, Integer> p = new Pair<>(ret, timeRounded);
+        return p;
+    }
+
+    private Integer getDropoffTimeForRequestFirstSegment(List<PlanAction> itinerary, RideSharingOnDemandVehicle vehicle, PlanComputationRequest request) {
+        long time = timeProvider.getCurrentSimTime();
+        long timeToFinishEdge = 0;
+        int timeInt = (int) Math.ceil(timeProvider.getCurrentSimTime() / 1000.0);
+        SimulationNode previousDestination = vehicle.getPosition();
+        if (vehicle.getCurrentTripPlan() != null) {
+            if (vehicle.getCurrentTripPlan().getSize() == 0) {
+                SimulationNode stopLoc = (SimulationNode) vehicle.getCurrentTripPlan().getLastLocation();
+                timeToFinishEdge += travelTimeProvider.getTravelTime(vehicle, stopLoc);
+                previousDestination = stopLoc;
+            }
+            else if (vehicle.getCurrentTripPlan().getSize() > 0) {
+                SimulationNode stopLoc = (SimulationNode) vehicle.getCurrentTripPlan().getFirstLocation();
+                SimulationNode currLoc = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[0];
+                boolean currLocIsVehiclePosition = false;
+                int curridx = 0;
+                while (currLoc != stopLoc) {
+                    if (currLocIsVehiclePosition) {
+                        timeToFinishEdge += travelTimeProvider.getTravelTime(vehicle, currLoc);
+                    }
+                    if (currLoc == vehicle.getPosition()) {
+                        currLocIsVehiclePosition = true;
+                    }
+                    previousDestination = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[curridx];
+                    curridx++;
+                    currLoc = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[curridx];
+                }
+            }
+        }
+        time = time + timeToFinishEdge;
+        timeInt += (int) Math.ceil(timeToFinishEdge / 1000.0);
+
+        for (PlanAction action : itinerary) {
+            if (action instanceof PlanActionPickup || action instanceof PlanActionPickupTransfer) {
+                time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, action.getPosition());
+                timeInt += (int) Math.ceil(travelTimeProvider.getExpectedTravelTime(previousDestination, action.getPosition()) / 1000.0);
+                previousDestination = action.getPosition();
+            } else if (action instanceof PlanActionDropoff || action instanceof PlanActionDropoffTransfer) {
+                time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, action.getPosition());
+                timeInt += (int) Math.ceil(travelTimeProvider.getExpectedTravelTime(previousDestination, action.getPosition()) / 1000.0);
+                if (((PlanRequestAction) action).getRequest() == request) {
+                    return timeInt;
+                }
+
+                previousDestination = action.getPosition();
+            } else if (action instanceof PlanActionWait) {
+                SimulationNode dest = action.getPosition();
+                PlanActionWait wait = (PlanActionWait) action;
+                if (!(wait.isWaitingStarted())) {
+                    time = time + wait.getWaitTime();
+                    timeInt += (int) Math.ceil(wait.getWaitTime());
+                    time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    timeInt += (int) Math.ceil(travelTimeProvider.getExpectedTravelTime(previousDestination, action.getPosition()) / 1000.0);
+                    previousDestination = action.getPosition();
+                } else {
+                    long substract;
+                    long waitTime;
+                    if (wait.isWaitingPaused()) {
+                        substract = wait.getWaitingPausedAt() - wait.getWaitingStartedAt();
+                        waitTime = wait.getWaitTime() - substract;
+                    } else {
+                        waitTime = wait.getWaitTime() - (timeProvider.getCurrentSimTime() - wait.getWaitingStartedAt());
+                    }
+                    time = time + waitTime;
+                    timeInt += (int) Math.ceil(wait.getWaitTime());
+                    time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    timeInt += (int) Math.ceil(travelTimeProvider.getExpectedTravelTime(previousDestination, action.getPosition()) / 1000.0);
+                    previousDestination = action.getPosition();
+                }
+            }
+
+        }
+        return null;
+    }
+
 
     private Long getDropoffTimeForRequest(List<PlanAction> itinerary, RideSharingOnDemandVehicle vehicle, PlanComputationRequest request) {
         long time = timeProvider.getCurrentSimTime();
@@ -642,7 +1094,6 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                         waitTime = wait.getWaitTime() - substract;
                     } else {
                         waitTime = wait.getWaitTime() - (timeProvider.getCurrentSimTime() - wait.getWaitingStartedAt());
-
                     }
                     time = time + waitTime;
                     time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
@@ -716,6 +1167,84 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     }
                     time = time + waitTime;
                     time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    previousDestination = action.getPosition();
+                }
+            }
+
+        }
+        return null;
+    }
+
+    private Integer getArrivalTimeToStationIntFloor(List<PlanAction> itinerary, RideSharingOnDemandVehicle vehicle, PlanComputationRequest request) {
+        long time = timeProvider.getCurrentSimTime();
+        int timeInt = (int) Math.floor(timeProvider.getCurrentSimTime() / 1000.0);
+        long timeToFinishEdge = 0;
+        SimulationNode previousDestination = vehicle.getPosition();
+        if (vehicle.getCurrentTripPlan() != null) {
+            if (vehicle.getCurrentTripPlan().getSize() == 0) {
+                SimulationNode stopLoc = (SimulationNode) vehicle.getCurrentTripPlan().getLastLocation();
+                timeToFinishEdge += travelTimeProvider.getTravelTime(vehicle, stopLoc);
+                previousDestination = stopLoc;
+            }
+            else if (vehicle.getCurrentTripPlan().getSize() > 0) {
+                SimulationNode stopLoc = (SimulationNode) vehicle.getCurrentTripPlan().getFirstLocation();
+                SimulationNode currLoc = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[0];
+                boolean currLocIsVehiclePosition = false;
+                int curridx = 0;
+                while (currLoc != stopLoc) {
+                    if (currLocIsVehiclePosition) {
+                        timeToFinishEdge += travelTimeProvider.getTravelTime(vehicle, currLoc);
+                    }
+                    if (currLoc == vehicle.getPosition()) {
+                        currLocIsVehiclePosition = true;
+                    }
+                    previousDestination = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[curridx];
+                    curridx++;
+                    currLoc = (SimulationNode) vehicle.getCurrentTripPlan().getAllLocations()[curridx];
+                }
+            }
+        }
+        time = time + timeToFinishEdge;
+        timeInt += (int) Math.floor(timeToFinishEdge / 1000.0);
+
+        for (PlanAction action : itinerary) {
+            if (action instanceof PlanActionPickup || action instanceof PlanActionPickupTransfer) {
+                time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, action.getPosition());
+                timeInt += (int) Math.floor(travelTimeProvider.getExpectedTravelTime(previousDestination, action.getPosition())/1000.0);
+                if (((PlanRequestAction) action).getRequest() == request) {
+                    return timeInt;
+                }
+                previousDestination = action.getPosition();
+            } else if (action instanceof PlanActionDropoff || action instanceof PlanActionDropoffTransfer) {
+                time = time + travelTimeProvider.getExpectedTravelTime(previousDestination, action.getPosition());
+                timeInt += (int) Math.floor(travelTimeProvider.getExpectedTravelTime(previousDestination, action.getPosition())/1000.0);
+                previousDestination = action.getPosition();
+            } else if (action instanceof PlanActionWait) {
+                PlanActionWait wait = (PlanActionWait) action;
+                SimulationNode dest = action.getPosition();
+                if (!(wait.isWaitingStarted())) {
+                    time = time + wait.getWaitTime();
+                    timeInt += (int) Math.floor(wait.getWaitTime() / 1000.0);
+                    time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    timeInt += (int) Math.floor(travelTimeProvider.getExpectedTravelTime(previousDestination, action.getPosition())/1000.0);
+                    previousDestination = action.getPosition();
+                } else {
+                    // aktivita uz zacala
+                    // podivam se jestli uz je i pauznuta
+                    // odectu uz odcekany cas
+                    long substract;
+                    long waitTime;
+                    if (wait.isWaitingPaused()) {
+                        substract = wait.getWaitingPausedAt() - wait.getWaitingStartedAt();
+                        waitTime = wait.getWaitTime() - substract;
+                    } else {
+                        waitTime = wait.getWaitTime() - (timeProvider.getCurrentSimTime() - wait.getWaitingStartedAt());
+
+                    }
+                    time = time + waitTime;
+                    timeInt += (int) Math.floor(waitTime / 1000.0);
+                    time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
+                    timeInt += (int) Math.floor(travelTimeProvider.getExpectedTravelTime(previousDestination, action.getPosition())/1000.0);
                     previousDestination = action.getPosition();
                 }
             }

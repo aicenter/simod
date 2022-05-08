@@ -224,10 +224,8 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
 
             List<TransferPlan> transferPlans = new ArrayList<>();
             for (int j = 0; j < itinerariesPairs.size(); j++) {
-                if (waitTimes.get(j) < 10000) {
                     TransferPlan t = new TransferPlan(waitTimes.get(j), delays.get(j), itinerariesPairs.get(j));
                     transferPlans.add(t);
-                }
             }
             transferPlans.sort(TransferPlan::compareByTransferTime);
             double beta = 0.2;

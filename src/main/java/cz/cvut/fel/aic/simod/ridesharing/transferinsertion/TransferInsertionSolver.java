@@ -268,6 +268,8 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
         }
         List<List<PlanAction>> allPosibleActionsOrder = new ArrayList<>();
         List<Integer> planDurations = new ArrayList<>();
+        Pair<Boolean, Integer> originalPlanPair = checkValidItineraryAndCountPlanDurationFirstPart(currentVehiclePlan.plan, vehicle);
+        Integer durationOriginalPlan = originalPlanPair.getSecond();
 
         for (int i = 1; i < currentVehiclePlan.plan.size()+1; i++) {
             for (int j = i+1; j < currentVehiclePlan.plan.size()+2; j++) {
@@ -278,7 +280,7 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                 if (p.getFirst()) {
                     if (checkCapacityNotExceeded(tempPlan, vehicle)) {
                         allPosibleActionsOrder.add(tempPlan);
-                        planDurations.add(p.getSecond());
+                        planDurations.add(p.getSecond() - durationOriginalPlan);
                     }
                 }
             }
@@ -303,6 +305,9 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
         }
         List<List<PlanAction>> allPosibleActionsOrder = new ArrayList<>();
         List<Integer> planDurations = new ArrayList<>();
+        Pair<Boolean, Integer> originalPlanPair = checkValidItineraryAndCountPlanDurationSecondPart(currentVehiclePlan.plan, vehicle);
+        Integer durationOriginalPlan = originalPlanPair.getSecond();
+
 
         for (int i = 1; i < currentVehiclePlan.plan.size()+1; i++) {
             for (int j = i+1; j < currentVehiclePlan.plan.size()+2; j++) {
@@ -320,7 +325,7 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                 if (p.getFirst()) {
                     if (checkCapacityNotExceeded(tempPlan, vehicle)) {
                         allPosibleActionsOrder.add(tempPlan);
-                        planDurations.add(p.getSecond());
+                        planDurations.add(p.getSecond() - durationOriginalPlan);
                     }
                 }
             }
@@ -345,6 +350,9 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
         }
         List<List<PlanAction>> allPosibleActionsOrder = new ArrayList<>();
         List<Long> planDurations = new ArrayList<>();
+        Pair<Boolean, Long> originalPlanPair = checkValidItineraryAndCountPlanDuration(currentVehiclePlan.plan, vehicle);
+        Long durationOriginalPlan = originalPlanPair.getSecond();
+
 
         for (int i = 1; i < currentVehiclePlan.plan.size()+1; i++) {
             for (int j = i+1; j < currentVehiclePlan.plan.size()+2; j++) {
@@ -355,7 +363,7 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                 if (p.getFirst()) {
                     if (checkCapacityNotExceeded(tempPlan, vehicle)) {
                         allPosibleActionsOrder.add(tempPlan);
-                        planDurations.add(p.getSecond());
+                        planDurations.add(p.getSecond() - durationOriginalPlan);
                     }
                 }
             }

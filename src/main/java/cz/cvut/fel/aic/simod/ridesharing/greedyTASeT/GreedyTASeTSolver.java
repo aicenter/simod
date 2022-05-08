@@ -384,8 +384,8 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
         //sort R by the number of possible pickup taxis
         List<PlanComputationRequest> requestsCopy = new ArrayList<>(requests);
         requests.sort(Comparator.comparing(x -> possiblePickupTaxisCounts[requestsCopy.indexOf(x)]));
-        //order to descending order
-        Collections.reverse(requests);
+        //order to descending order - ve skutecnosti to ma byt ascending, i kdyz pisou descending :]]]
+//        Collections.reverse(requests);
 
         planMap = new ConcurrentHashMap<>();
 

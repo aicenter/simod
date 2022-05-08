@@ -131,8 +131,7 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
         //sort R by the number of possible pickup taxis
         List<PlanComputationRequest> requestsCopy = new ArrayList<>(requests);
         requests.sort(Comparator.comparing(x -> possiblePickupTaxisCounts[requestsCopy.indexOf(x)]));
-        //order to descending order
-        Collections.reverse(requests);
+
 
         planMap = new ConcurrentHashMap<>();
 

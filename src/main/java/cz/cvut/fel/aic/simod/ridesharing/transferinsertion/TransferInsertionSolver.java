@@ -472,7 +472,7 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
             return dropTime;
         } else {
             Integer dropTime = getArrivalTimeToStationIntFloor(itnryp2, veh2, request);
-            return dropTime - 1;
+            return dropTime;
         }
     }
 
@@ -581,7 +581,7 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     PlanActionPickupTransfer pickupTransfer = (PlanActionPickupTransfer) action;
                     SimulationNode dest = pickupTransfer.getPosition();
                     time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
-                    if (!(time < pickupTransfer.getMaxTime() * 1000)) {
+                    if (!(time <= pickupTransfer.getMaxTime() * 1000)) {
                         ret = false;
                         break;
                     }
@@ -590,7 +590,7 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     PlanActionDropoffTransfer dropoffTransfer = (PlanActionDropoffTransfer) action;
                     SimulationNode dest = dropoffTransfer.getPosition();
                     time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
-                    if (!(time < dropoffTransfer.getMaxTime() * 1000)) {
+                    if (!(time <= dropoffTransfer.getMaxTime() * 1000)) {
                         ret = false;
                         break;
                     }
@@ -682,7 +682,7 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     SimulationNode dest = pickupTransfer.getPosition();
                     time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
                     timeRounded += (int) Math.ceil(travelTimeProvider.getExpectedTravelTime(previousDestination, dest) / 1000.0);
-                    if (!(timeRounded < pickupTransfer.getMaxTime())) {
+                    if (!(timeRounded <= pickupTransfer.getMaxTime())) {
                         ret = false;
                         break;
                     }
@@ -692,7 +692,7 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     SimulationNode dest = dropoffTransfer.getPosition();
                     time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
                     timeRounded += (int) Math.ceil(travelTimeProvider.getExpectedTravelTime(previousDestination, dest) / 1000.0);
-                    if (!(timeRounded < dropoffTransfer.getMaxTime())) {
+                    if (!(timeRounded <= dropoffTransfer.getMaxTime())) {
                         ret = false;
                         break;
                     }
@@ -789,7 +789,7 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     SimulationNode dest = pickupTransfer.getPosition();
                     time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
                     timeRounded += (int) Math.floor(travelTimeProvider.getExpectedTravelTime(previousDestination, dest) / 1000.0);
-                    if (!(timeRounded < pickupTransfer.getMaxTime())) {
+                    if (!(timeRounded <= pickupTransfer.getMaxTime())) {
                         ret = false;
                         break;
                     }
@@ -799,7 +799,7 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                     SimulationNode dest = dropoffTransfer.getPosition();
                     time += travelTimeProvider.getExpectedTravelTime(previousDestination, dest);
                     timeRounded += (int) Math.floor(travelTimeProvider.getExpectedTravelTime(previousDestination, dest) / 1000.0);
-                    if (!(timeRounded < dropoffTransfer.getMaxTime())) {
+                    if (!(timeRounded <= dropoffTransfer.getMaxTime())) {
                         ret = false;
                         break;
                     }

@@ -17,7 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from simod.init import config
+from python.simod.init import config
 
 import csv
 import pandas as pd
@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker, gridspec
 from typing import Tuple
 
-from simod.statistics.comparisons.common import Experiment
+from python.simod.statistics.comparisons.common import Experiment
 
 
 def get_max_group_size_row(row: pd.Series, max_group_size: int = 11) -> int:

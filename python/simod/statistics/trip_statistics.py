@@ -16,12 +16,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from simod.init import config
+from python.simod.init import config
 
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
-from simod.statistics.model import trips
+from python.simod.statistics.model import trips
 
 HOURS_IN_DAY = 24
 

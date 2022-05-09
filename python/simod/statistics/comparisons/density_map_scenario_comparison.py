@@ -17,17 +17,17 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from simod.init import config
+from python.simod.init import config
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-import simod.statistics.model.traffic_load as traffic_load
-import simod.statistics.model.edges as edges
-import simod.statistics.trafic_density_map as trafic_density_map
+import python.simod.statistics.model.traffic_load as traffic_load
+import python.simod.statistics.model.edges as edges
+import python.simod.statistics.trafic_density_map as trafic_density_map
 
 from roadmaptools.printer import print_info
-from simod.statistics.model.vehicle_state import VehicleState
+from python.simod.statistics.model.vehicle_state import VehicleState
 
 FONT_SIZE = 14
 

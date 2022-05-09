@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from simod.init import config
+from python.simod.init import config
 
 import numpy as np
 import pandas.errors
@@ -31,8 +31,8 @@ import simod.statistics.model.occupancy as occupancy
 from typing import List, Dict, Iterable
 from pandas import DataFrame
 from roadmaptools.printer import print_table, print_info
-from simod.statistics.traffic_density_histogram import TrafficDensityHistogram
-from simod.statistics.model.vehicle_state import VehicleState
+from python.simod.statistics.traffic_density_histogram import TrafficDensityHistogram
+from python.simod.statistics.model.vehicle_state import VehicleState
 
 
 def compute_stats_current_state(experiment_dir: str, result: Dict, histogram: TrafficDensityHistogram, load) -> List:

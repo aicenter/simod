@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from simod.init import config, roadmaptools_config
+from python.simod.init import config, roadmaptools_config
 
 import numpy as np
 import json

@@ -204,9 +204,11 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 	}
 
 	private OnDemandVehicle getAndRemoveVehicle() {
-		OnDemandVehicle nearestVehicle;
+		OnDemandVehicle nearestVehicle = null;
 
-		nearestVehicle = parkedVehicles.remove(0);
+		if (parkedVehicles.size() > 0) {
+			nearestVehicle = parkedVehicles.remove(0);
+		}
 		
 		return nearestVehicle;
 	}

@@ -18,6 +18,9 @@
  */
 package cz.cvut.fel.aic.simod;
 
+import cz.cvut.fel.aic.simod.ridesharing.greedyTASeT.GreedyTASeTNoFreezeSolver;
+import cz.cvut.fel.aic.simod.ridesharing.greedyTASeT.GreedyTASeTSolver;
+import cz.cvut.fel.aic.simod.ridesharing.transferinsertion.TransferInsertionSolver;
 import cz.cvut.fel.aic.simod.traveltimecomputation.DistanceMatrixTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TNRTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TNRAFTravelTimeProvider;
@@ -145,6 +148,16 @@ public class MainModule extends StandardAgentPolisModule{
 					bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
 					bind(SingleVehicleDARPSolver.class).to(ArrayOptimalVehiclePlanFinder.class);
 		//			bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
+					break;
+				case "greedy-taset":
+					bind(DARPSolver.class).to(GreedyTASeTSolver.class);
+					// nabindovat i nove tridy
+					break;
+				case "greedy-taset-no-freeze":
+					bind(DARPSolver.class).to(GreedyTASeTNoFreezeSolver.class);
+					break;
+				case "transfer-insertion":
+					bind(DARPSolver.class).to(TransferInsertionSolver.class);
 					break;
 			}
 		}

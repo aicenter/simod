@@ -17,7 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from simod.init import config
+from python.simod.init import config
 
 import agentpolis.prepare_map
 

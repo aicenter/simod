@@ -20,8 +20,8 @@ import os
 import sys
 import roadmaptools.init
 
-import simod.config.simod_config
+import python.simod.config.simod_config
 
 # roadmaptools_config = roadmaptools.init.load_config(config, "roadmaptools", local_config,
 # 	r"C:\Workspaces\AIC\amod-to-agentpolis\src\main\resources\cz\cvut\fel\aic\amodsim\config/config.cfg")
-config = simod.config.simod_config.config
+config = python.simod.config.simod_config.config

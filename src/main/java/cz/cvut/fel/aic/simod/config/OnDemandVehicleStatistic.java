@@ -14,6 +14,8 @@ public class OnDemandVehicleStatistic {
 
   public String finishRebalancingFilePath;
 
+  public String waitFilePath;
+
   public String dirPath;
 
   public String startRebalancingFilePath;
@@ -26,5 +28,6 @@ public class OnDemandVehicleStatistic {
     this.finishRebalancingFilePath = (String) onDemandVehicleStatistic.get("finish_rebalancing_file_path");
     this.dirPath = (String) onDemandVehicleStatistic.get("dir_path");
     this.startRebalancingFilePath = (String) onDemandVehicleStatistic.get("start_rebalancing_file_path");
+    this.waitFilePath = (String) onDemandVehicleStatistic.get("wait_file_path");
   }
 }

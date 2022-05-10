@@ -24,8 +24,8 @@ from __future__ import print_function, division
 
 
 
-from simod.common import *
-from simod.shapes import load_shapes, plot_borders, plot_motorways, plot_roads, plot_trips
+from python.simod.common import *
+from python.simod.shapes import load_shapes, plot_borders, plot_motorways, plot_roads, plot_trips
 
 PRAGUE_DATA = '../../../data/prague/'
 SCK_SCALING_FACTOR = 2

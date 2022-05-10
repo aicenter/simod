@@ -19,8 +19,13 @@
 package cz.cvut.fel.aic.simod.ridesharing.insertionheuristic;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionCurrentPosition;
+import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
+import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
+
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -29,11 +34,15 @@ import java.util.List;
  * @author F.I.D.O.
  */
 public class DriverPlan implements Iterable<PlanAction>{
-	public final List<PlanAction> plan;
+	public List<PlanAction> plan;
 
 	public final long totalTime;
 	
 	public final double cost;
+
+	public int vehicleIndex = -1;
+
+	public RideSharingOnDemandVehicle vehicle;
 
 	
 	
@@ -65,6 +74,24 @@ public class DriverPlan implements Iterable<PlanAction>{
 		plan.remove(1);
 	}
 
+	public void setVehicleIndex(int vehicleIndex) {
+		this.vehicleIndex = vehicleIndex;
+	}
+
+	public void setVehicle(RideSharingOnDemandVehicle vehicle) {
+		this.vehicle = vehicle;
+	}
+
+	public RideSharingOnDemandVehicle getVehicle() {
+		return this.vehicle;
+	}
+
+	public int getVehicleIndex() {
+		return this.vehicleIndex;
+	}
+
+
+
 	@Override
 	public String toString() {
 		StringBuilder sb  = new StringBuilder("[");
@@ -76,6 +103,7 @@ public class DriverPlan implements Iterable<PlanAction>{
 		sb.append("]");
 		return sb.toString();
 	}
+
 	
 	
 }

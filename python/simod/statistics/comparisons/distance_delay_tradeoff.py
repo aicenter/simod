@@ -16,17 +16,17 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from simod.init import config
+from python.simod.init import config
 
 import matplotlib
 import matplotlib.pyplot as plt
-import simod.statistics.model.edges as edges
-import simod.statistics.model.transit as transit
-import simod.statistics.model.service as service
+import python.simod.statistics.model.edges as edges
+import python.simod.statistics.model.transit as transit
+import python.simod.statistics.model.service as service
 
 from typing import Tuple, List
 from pandas import DataFrame
-from simod.statistics.model.vehicle_state import VehicleState
+from python.simod.statistics.model.vehicle_state import VehicleState
 
 FONT_SIZE = 18
 

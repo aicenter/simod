@@ -24,5 +24,6 @@ package cz.cvut.fel.aic.simod.entity;
  */
 public enum DemandAgentState {
 	WAITING,
-	DRIVING
+	DRIVING,
+	TRANSFERING
 }

@@ -21,8 +21,8 @@ from __future__ import print_function, division
 import numpy as np
 import os
 
-from simod.common import tutm2latlon
-from simod.common import load_trips
+from python.simod.common import tutm2latlon
+from python.simod.common import load_trips
 
 
 def export_data_for_amodsim(config, projection):

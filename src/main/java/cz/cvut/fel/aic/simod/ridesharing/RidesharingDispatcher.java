@@ -253,13 +253,16 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 			if(eventType == OnDemandVehicleEvent.PICKUP){
 				OnDemandVehicleEventContent eventContent = (OnDemandVehicleEventContent) event.getContent();
 				PlanComputationRequest request = requestsMapByDemandAgents.get(eventContent.getDemandId());
-				if(!waitingRequests.remove(request)){
-					try {
-						throw new SimodException("Request picked up but it is not present in the waiting request queue!");
-					} catch (Exception ex) {
-						Logger.getLogger(VehicleGroupAssignmentSolver.class.getName()).log(Level.SEVERE, null, ex);
+				if (waitingRequests.contains(request)) {
+					if (!waitingRequests.remove(request)) {
+						try {
+							throw new SimodException("Request picked up but it is not present in the waiting request queue!");
+						} catch (Exception ex) {
+							Logger.getLogger(VehicleGroupAssignmentSolver.class.getName()).log(Level.SEVERE, null, ex);
+						}
 					}
-				};
+					;
+				}
 				request.setOnboard(true);
 			}
 		}

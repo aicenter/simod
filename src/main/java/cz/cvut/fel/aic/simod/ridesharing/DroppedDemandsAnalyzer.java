@@ -54,15 +54,15 @@ public class DroppedDemandsAnalyzer {
 	
 	private final OnDemandvehicleStationStorage onDemandvehicleStationStorage;
 
-	
-	
-	
+
+
+
 	@Inject
 	public DroppedDemandsAnalyzer(
-			OnDemandVehicleStorage vehicleStorage, 
-			PositionUtil positionUtil, 
-			TravelTimeProvider travelTimeProvider, 
-			SimodConfig config, 
+			OnDemandVehicleStorage vehicleStorage,
+			PositionUtil positionUtil,
+			TravelTimeProvider travelTimeProvider,
+			SimodConfig config,
 			OnDemandvehicleStationStorage onDemandvehicleStationStorage,
 			AgentpolisConfig agentpolisConfig) {
 		this.vehicleStorage = vehicleStorage;
@@ -70,18 +70,15 @@ public class DroppedDemandsAnalyzer {
 		this.travelTimeProvider = travelTimeProvider;
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
                 this.config = config;
-		
+
 		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
-		maxDistance = (double) config.ridesharing.maxProlongationInSeconds 
+		maxDistance = (double) config.ridesharing.maxProlongationInSeconds
 				* agentpolisConfig.maxVehicleSpeedInMeters;
-		
+
 		// the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the
 		// vehicle to be considered to serve the request
 		maxDelayTime = config.ridesharing.maxProlongationInSeconds  * 1000;
 	}
-	
-	
-	
 	
 	
 	public void debugFail(PlanComputationRequest request, int[] usedVehiclesPerStation) {

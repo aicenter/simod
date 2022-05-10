@@ -4,12 +4,12 @@ import fconfig.configuration
 from fconfig.config import Config
 
 
-from simod.config.statistics import Statistics
-from simod.config.analysis import Analysis
-from simod.config.images import Images
-from simod.config.comparison import Comparison
-from simod.config.ridesharing import Ridesharing
-from simod.config.agentpolis import Agentpolis
+from python.simod.config.statistics import Statistics
+from python.simod.config.analysis import Analysis
+from python.simod.config.images import Images
+from python.simod.config.comparison import Comparison
+from python.simod.config.ridesharing import Ridesharing
+from python.simod.config.agentpolis import Agentpolis
 import roadmaptools.config.roadmaptools_config
 from roadmaptools.config.roadmaptools_config import RoadmaptoolsConfig
 

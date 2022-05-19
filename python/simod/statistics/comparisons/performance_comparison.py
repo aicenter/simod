@@ -16,10 +16,10 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from init import config
+from simod.init import config
 
 import matplotlib.pyplot as plt
-import amodsim.statistics.model.ridesharing as ridesharing
+import simod.statistics.model.ridesharing as ridesharing
 
 
 ih_capacity1_stats = ridesharing.load(config.comparison.experiment_1_dir)

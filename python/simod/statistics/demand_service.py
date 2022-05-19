@@ -17,7 +17,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from simod.init import config, roadmaptools_config
+from simod.init import config
+from roadmaptools.config import roadmaptools_config
 
 from tqdm import tqdm
 import numpy as np

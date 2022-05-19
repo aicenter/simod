@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from amodsim.init import config
+from simod.init import config
 
 import numpy as np
 import pandas as pd
@@ -24,8 +24,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 import datetime
 import roadmaptools.inout
-import amodsim.statistics.model.occupancy as occupancy
-import amodsim.statistics.comparisons.common as common
+import simod.statistics.model.occupancy as occupancy
+import simod.statistics.comparisons.common as common
 
 from matplotlib.ticker import FuncFormatter
 

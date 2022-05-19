@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from amodsim.init import config
+from simod.init import config
 
 import numpy as np
 import matplotlib
@@ -26,7 +26,7 @@ import roadmaptools.plotting
 import roadmaptools.utm
 import matplotlib
 import matplotlib.font_manager as fm
-import amodsim.demand
+import simod.demand
 
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
 from matplotlib.colors import LogNorm
@@ -69,7 +69,7 @@ map = np.zeros((len(lat_range), len(lon_range)))
 # map = np.random.rand(len(lon_range), len(lat_range))
 
 # - fill heatmap
-demand_data = amodsim.demand.load(config.trips_path)
+demand_data = simod.demand.load(config.trips_path)
 xlist, ylist = roadmaptools.plotting.export_nodes_for_matplotlib(demand_data[["from_lat", "from_lon"]].to_numpy())
 for i, x in enumerate(xlist):
 	y = ylist[i]

@@ -16,17 +16,17 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from amodsim.init import config
+from simod.init import config
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import rcParams
 
 from roadmaptools.printer import print_info, print_table
-from amodsim.statistics.model.traffic_load import WINDOW_START, WINDOW_END, WINDOW_LENGTH
-from amodsim.statistics.model.vehicle_state import VehicleState
-from amodsim.utils import to_percetnt, col_to_percent
-import amodsim.statistics.model.traffic_load as traffic_load
+from simod.statistics.model.traffic_load import WINDOW_START, WINDOW_END, WINDOW_LENGTH
+from simod.statistics.model.vehicle_state import VehicleState
+from simod.utils import to_percetnt, col_to_percent
+import simod.statistics.model.traffic_load as traffic_load
 
 
 HISTOGRAM_SAMPLES = 16

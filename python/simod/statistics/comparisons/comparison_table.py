@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from amodsim.init import config
+from simod.init import config
 
 import numpy as np
 import roadmaptools.inout
@@ -25,7 +25,7 @@ import statistics.model.traffic_load as traffic_load
 from typing import List
 # from scripts.printer import print_table
 # from statistics.model.traffic_load import VehiclePhase
-from amodsim.statistics.traffic_density_histogram import TrafficDensityHistogram
+from simod.statistics.traffic_density_histogram import TrafficDensityHistogram
 
 
 def compute_stats(result: List, histogram: TrafficDensityHistogram, load) -> List:

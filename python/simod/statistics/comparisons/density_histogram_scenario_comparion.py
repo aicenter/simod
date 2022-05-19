@@ -17,14 +17,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from amodsim.init import config
+from simod.init import config
 
 import matplotlib.pyplot as plt
 import numpy as np
 import statistics.model.traffic_load as traffic_load
 
 from matplotlib.axes import Axes
-from amodsim.statistics.traffic_density_histogram import TrafficDensityHistogram, HIGH_THRESHOLD, HISTOGRAM_SAMPLES
+from simod.statistics.traffic_density_histogram import TrafficDensityHistogram, HIGH_THRESHOLD, HISTOGRAM_SAMPLES
 from statistics.model.traffic_load import VehiclePhase
 
 

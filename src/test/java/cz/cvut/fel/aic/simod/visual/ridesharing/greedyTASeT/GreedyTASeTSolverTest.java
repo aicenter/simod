@@ -96,7 +96,7 @@ public class GreedyTASeTSolverTest {
         );
 
         // Time providers
-        AstarTravelTimeProvider astarTravelTimeProvider = new AstarTravelTimeProvider(timeProvider1, tripsUtil, graph, moveUtil);
+        AstarTravelTimeProvider astarTravelTimeProvider = new AstarTravelTimeProvider(timeProvider1, tripsUtil, null, moveUtil);
         StandardTimeProvider standardTimeProvider = new StandardTimeProvider(eventProcessor);
 
         StandardPlanCostProvider travelCostProvider = new StandardPlanCostProvider(simodConfig);

@@ -31,6 +31,7 @@ import cz.cvut.fel.aic.alite.common.event.typed.AliteEntity;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.simod.CsvWriter;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
+import cz.cvut.fel.aic.simod.config.InsertionHeuristic;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
@@ -38,7 +39,12 @@ import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.io.Common;
 import cz.cvut.fel.aic.simod.ridesharing.DARPSolver;
+import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
+import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.InsertionHeuristicSolver;
+import org.jgrapht.alg.util.Pair;
 import cz.cvut.fel.aic.simod.ridesharing.RidesharingDispatcher;
+import cz.cvut.fel.aic.simod.ridesharing.greedyTASeT.GreedyTASeTSolver;
+import cz.cvut.fel.aic.simod.ridesharing.transferinsertion.TransferInsertionSolver;
 import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStats;
 import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStatsIH;
 import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStatsVGA;
@@ -123,6 +129,8 @@ public class Statistics extends AliteEntity implements EventHandler{
 	private long totalDistanceToStation;
 	
 	private long totalDistanceRebalancing;
+
+	private int transfersDone;
 	
 	
 	
@@ -158,6 +166,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 		tickCount = 0;
 		averageEdgeLoad = new LinkedList<>();
 		maxLoad = 0;
+		transfersDone = 0;
 		
 		eventProcessor.addEventHandler(this);
 		init(eventProcessor);
@@ -178,6 +187,9 @@ public class Statistics extends AliteEntity implements EventHandler{
 					break;
 				case DEMAND_DROPPED_OFF:
 					handleDemandDropoff((DemandServiceStatistic) event.getContent());
+					break;
+				case DEMAND_DROPPED_AT_TRANSFER:
+					handleTransfer();
 					break;
 			}
 		}
@@ -215,6 +227,10 @@ public class Statistics extends AliteEntity implements EventHandler{
 		countEdgeLoadForInterval();
 		countVehicleOccupancyForInterval();
 	}
+
+	private void handleTransfer() {
+		transfersDone++;
+	}
 	
 	
 	private void saveResult(){
@@ -226,7 +242,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 				onDemandVehicleStationsCentral.getNumberOfDemandsDropped(), 
 				onDemandVehicleStationsCentral.getDemandsCount(), numberOfVehicles,
 				onDemandVehicleStationsCentral.getNumberOfRebalancingDropped(), totalDistanceWithPassenger,
-		totalDistanceToStartLocation, totalDistanceToStation, totalDistanceRebalancing);
+		totalDistanceToStartLocation, totalDistanceToStation, totalDistanceRebalancing, transfersDone);
 		
 		ObjectMapper mapper = new ObjectMapper();
 		
@@ -246,6 +262,8 @@ public class Statistics extends AliteEntity implements EventHandler{
 		saveOnDemandVehicleEvents();
 		saveDistances();
 		saveOccupancies();
+		saveInactiveVehicles();
+		saveWaitingTimes();
 		saveServiceStatistics();
 		if(onDemandVehicleStationsCentral instanceof RidesharingDispatcher){
 			saveDarpSolverComputationalTimes();
@@ -271,6 +289,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 		typesToHandle.add(OnDemandVehicleEvent.REACH_NEAREST_STATION);
 		typesToHandle.add(DriveEvent.VEHICLE_ENTERED_EDGE);
 		typesToHandle.add(StatisticEvent.DEMAND_DROPPED_OFF);
+		typesToHandle.add(StatisticEvent.DEMAND_DROPPED_AT_TRANSFER);
 		return typesToHandle;
 	}
 	
@@ -425,6 +444,91 @@ public class Statistics extends AliteEntity implements EventHandler{
 		} catch (IOException ex) {
 			LOGGER.error(null, ex);
 		}
+	}
+
+	private void saveWaitingTimes() {
+		if (dARPSolver instanceof TransferInsertionSolver) {
+			TransferInsertionSolver transferInsertionSolver = (TransferInsertionSolver) dARPSolver;
+			if (transferInsertionSolver.getWaitingTimes().size() < 1) {
+				return;
+			}
+			try {
+				CsvWriter writer = new CsvWriter(Common.getFileWriter(config.statistics.waitingTimesFilePath));
+				writer.writeLine("id", "waiting_time");
+				for (Pair<String,Integer> waitingTimesPair : transferInsertionSolver.getWaitingTimes()) {
+					writer.writeLine(waitingTimesPair.getFirst(), Integer.toString(waitingTimesPair.getSecond()));
+				}
+				writer.close();
+			} catch (IOException ex) {
+				LOGGER.error(null, ex);
+			}
+		} else if (dARPSolver instanceof GreedyTASeTSolver) {
+			GreedyTASeTSolver greedyTASeTSolver = (GreedyTASeTSolver) dARPSolver;
+			if (greedyTASeTSolver.getInactiveVehicles().size() < 1) {
+				return;
+			}
+			try {
+				CsvWriter writer = new CsvWriter(Common.getFileWriter(config.statistics.waitingTimesFilePath));
+				writer.writeLine("id", "waiting_time");
+				for (Pair<String,Integer> waitingTimesPair : greedyTASeTSolver.getWaitingTimes()) {
+					writer.writeLine(waitingTimesPair.getFirst(), Integer.toString(waitingTimesPair.getSecond()));
+				}
+				writer.close();
+			} catch (IOException ex) {
+				LOGGER.error(null, ex);
+			}
+		}
+	}
+	private void saveInactiveVehicles() {
+		if (dARPSolver instanceof TransferInsertionSolver) {
+			TransferInsertionSolver transferInsertionSolver = (TransferInsertionSolver) dARPSolver;
+			if (transferInsertionSolver.getInactiveVehicles().size() < 1) {
+				return;
+			}
+			try {
+				CsvWriter writer = new CsvWriter(Common.getFileWriter(config.statistics.inactiveVehiclesFilePath));
+				writer.writeLine("id", "time");
+				for (Pair<String,Integer> inactiveVehiclePair: transferInsertionSolver.getInactiveVehicles()) {
+					writer.writeLine(inactiveVehiclePair.getFirst(), Integer.toString(inactiveVehiclePair.getSecond()));
+				}
+				writer.close();
+			} catch (IOException ex) {
+				LOGGER.error(null, ex);
+			}
+
+		} else if (dARPSolver instanceof GreedyTASeTSolver) {
+			GreedyTASeTSolver greedyTASeTSolver = (GreedyTASeTSolver) dARPSolver;
+			if (greedyTASeTSolver.getInactiveVehicles().size() < 1) {
+				return;
+			}
+			try {
+				CsvWriter writer = new CsvWriter(Common.getFileWriter(config.statistics.inactiveVehiclesFilePath));
+				writer.writeLine("id", "time");
+				for (Pair<String,Integer> inactiveVehiclePair: greedyTASeTSolver.getInactiveVehicles()) {
+					writer.writeLine(inactiveVehiclePair.getFirst(), Integer.toString(inactiveVehiclePair.getSecond()));
+				}
+				writer.close();
+			} catch (IOException ex) {
+				LOGGER.error(null, ex);
+			}
+		} else if (dARPSolver instanceof InsertionHeuristicSolver) {
+			InsertionHeuristicSolver insertionHeuristicSolver = (InsertionHeuristicSolver) dARPSolver;
+			if (insertionHeuristicSolver.getInactiveVehicles().size() < 1) {
+				return;
+			}
+			try {
+				CsvWriter writer = new CsvWriter(Common.getFileWriter(config.statistics.inactiveVehiclesFilePath));
+				writer.writeLine("id", "time");
+				for (Pair<String,Integer> inactiveVehiclePair: insertionHeuristicSolver.getInactiveVehicles()) {
+					writer.writeLine(inactiveVehiclePair.getFirst(), Integer.toString(inactiveVehiclePair.getSecond()));
+				}
+				writer.close();
+			} catch (IOException ex) {
+				LOGGER.error(null, ex);
+			}
+
+		}
+
 	}
 	
 	private void saveRidesharingStatistics() {

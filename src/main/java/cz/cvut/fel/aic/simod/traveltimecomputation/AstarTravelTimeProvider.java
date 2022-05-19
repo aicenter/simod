@@ -49,28 +49,16 @@ public class AstarTravelTimeProvider extends TravelTimeProvider{
 	private final MoveUtil moveUtil;
 
 	
-//	@Inject
-//	public AstarTravelTimeProvider(
-//			TimeProvider timeProvider,
-//			TripsUtil tripsUtil,
-//			TransportNetworks transportNetworks,
-//			MoveUtil moveUtil) {
-//		super(timeProvider);
-//		this.tripsUtil = tripsUtil;
-//		this.moveUtil = moveUtil;
-//		this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
-//	}
-
 	@Inject
 	public AstarTravelTimeProvider(
 			TimeProvider timeProvider,
 			TripsUtil tripsUtil,
-			Graph<SimulationNode, SimulationEdge> graph,
+			TransportNetworks transportNetworks,
 			MoveUtil moveUtil) {
 		super(timeProvider);
 		this.tripsUtil = tripsUtil;
 		this.moveUtil = moveUtil;
-		this.graph = graph;
+		this.graph = transportNetworks.getGraph(EGraphType.HIGHWAY);
 	}
 	
 	

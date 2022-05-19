@@ -20,8 +20,12 @@ package cz.cvut.fel.aic.simod;
 
 import com.google.inject.Injector;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
+import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.config.TransferInsertion;
@@ -29,6 +33,7 @@ import cz.cvut.fel.aic.simod.init.EventInitializer;
 import cz.cvut.fel.aic.simod.init.StationsInitializer;
 import cz.cvut.fel.aic.simod.init.StatisticInitializer;
 import cz.cvut.fel.aic.simod.init.TransferPointsInitializer;
+import cz.cvut.fel.aic.simod.io.TimeTrip;
 import cz.cvut.fel.aic.simod.io.TripTransform;
 import cz.cvut.fel.aic.simod.rebalancing.ReactiveRebalancing;
 import cz.cvut.fel.aic.simod.ridesharing.greedyTASeT.GreedyTASeTSolver;
@@ -39,6 +44,10 @@ import cz.cvut.fel.aic.simod.statistics.Statistics;
 import cz.cvut.fel.aic.simod.tripUtil.TripsUtilCached;
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 import org.slf4j.LoggerFactory;
 
 /**
@@ -134,6 +143,29 @@ public class OnDemandVehiclesSimulation {
 		TripTransform tripTransform = injector.getInstance(TripTransform.class);
 		injector.getInstance(EventInitializer.class).initialize(
 		tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
+
+//		USED TO COMPUTE STATISTICS OF DEMAND
+//		List<Long> lengths = new ArrayList<>();
+//		List<TimeTrip<SimulationNode>> trips = tripTransform.loadTripsFromTxt(new File(config.tripsPath));
+//		for (TimeTrip<SimulationNode> trip : trips) {
+//			SimulationNode origin = trip.getAllLocations()[0];
+//			SimulationNode destination = trip.getAllLocations()[1];
+//			Trip t = injector.getInstance(TripsUtil.class).createTrip(origin, destination);
+//			long l = injector.getInstance(VisioPositionUtil.class).getTripLengthInMeters(t);
+//			lengths.add(l);
+//		}
+//
+////		get max, min and avg
+//		lengths.stream() //
+//				.max(Comparator.comparing(i -> i)) //
+//				.ifPresent(max -> System.out.println("Maximum found is " + max));
+//		lengths.stream() //
+//				.min(Comparator.comparing(i -> i)) //
+//				.ifPresent(min -> System.out.println("Minimum found is " + min));
+//		lengths.stream() //
+//				.mapToLong(i -> i) //
+//				.average() //
+//				.ifPresent(avg -> System.out.println("Average found is " + avg));
 
 		injector.getInstance(StatisticInitializer.class).initialize();
             

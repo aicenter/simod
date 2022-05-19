@@ -3,14 +3,19 @@ package cz.cvut.fel.aic.simod.ridesharing.transferinsertion;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
+import cz.cvut.fel.aic.geographtools.Node;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.ridesharing.DARPSolver;
@@ -50,6 +55,12 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
 
     private Map<RideSharingOnDemandVehicle, DriverPlan> planMap;
 
+    protected List<Pair<String, Integer>> inactiveVehicles;
+
+    protected List<Pair<String, Integer>> waitingTimes;
+
+    protected List<Pair<String, Long>> demandTripMinimalLength;
+
 
     @Inject
     public TransferInsertionSolver(
@@ -73,6 +84,9 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
         this.droppedDemandsAnalyzer = droppedDemandsAnalyzer;
         this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
         this.requestFactory = requestFactory;
+        inactiveVehicles = new ArrayList<>();
+        waitingTimes = new ArrayList<>();
+        demandTripMinimalLength = new ArrayList<>();
 
         setEventHandeling();
     }
@@ -96,6 +110,21 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
 
         typesToHandle.add(OnDemandVehicleEvent.PICKUP);
         eventProcessor.addEventHandler(this, typesToHandle);
+    }
+
+    private void logWaitingTime(RideSharingOnDemandVehicle vehicle, Integer waitTimeInSeconds) {
+        waitingTimes.add(new Pair<String, Integer>(vehicle.getId(), waitTimeInSeconds));
+    }
+
+    private void logInactiveVehicles(List<RideSharingOnDemandVehicle> vehicles) {
+        for (RideSharingOnDemandVehicle vehicle : vehicles) {
+            if (vehicle.getCurrentPlanNoUpdate().plan.size() == 1) {
+                if (!planMap.containsKey(vehicle)) {
+                    // toto vozidlo ma prazdny plan
+                    inactiveVehicles.add(new Pair<String, Integer>(vehicle.getId(), (int) Math.round(timeProvider.getCurrentSimTime() / 1000.0)));
+                }
+            }
+        }
     }
 
     @Override
@@ -248,16 +277,41 @@ public class TransferInsertionSolver extends DARPSolver implements EventHandler 
                 List<RideSharingOnDemandVehicle> vehicles = key.getSecond();
                 for (int q = 0; q < vehicles.size(); q++) {
                     List<PlanAction> vehPlan = plansForVehicles.get(q);
+                    int waitTime = findWaitingAction(vehPlan, vehicles.get(q), request);
+                    if (waitTime > 0) {
+                        logWaitingTime(vehicles.get(q), waitTime);
+                    }
                     DriverPlan dp = new DriverPlan(vehPlan, 0, 0);
                     planMap.put(vehicles.get(q), dp);
                 }
 
             }
         }
+
+        logInactiveVehicles(taxis);
+
         return planMap;
     }
 
+    public Integer findWaitingAction(List<PlanAction> plan, RideSharingOnDemandVehicle vehicle, PlanComputationRequest request) {
+        for (PlanAction action : plan) {
+            if (action instanceof PlanActionWait) {
+                if (((PlanActionWait) action).getRequest() == request) {
+                    PlanActionWait wait = (PlanActionWait) action;
+                    return (int) Math.round(wait.getWaitTime() / 1000.0);
+                }
+            }
+        }
+        return 0;
+    }
 
+    public List<Pair<String, Integer>> getInactiveVehicles() {
+        return inactiveVehicles;
+    }
+
+    public List<Pair<String, Integer>> getWaitingTimes() {
+        return waitingTimes;
+    }
 
     public List<PlanAction> findItineraryBestInsertionFirstSegment(PlanAction pickup, PlanAction dropoff, RideSharingOnDemandVehicle vehicle) {
         DriverPlan currentVehiclePlan;

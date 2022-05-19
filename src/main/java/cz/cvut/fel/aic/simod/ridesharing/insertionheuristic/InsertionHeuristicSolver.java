@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.tongfei.progressbar.ProgressBar;
+import org.jgrapht.alg.util.Pair;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -116,6 +117,8 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	private int[] usedVehiclesPerStation;
 	
 	private List<OnDemandVehicle> vehiclesForPlanning;
+
+	protected List<Pair<String, Integer>> inactiveVehicles;
 	
 	
 	
@@ -140,6 +143,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		this.eventProcessor = eventProcessor;
 		this.droppedDemandsAnalyzer = droppedDemandsAnalyzer;
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
+		inactiveVehicles = new ArrayList<>();
                         
 		
 		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
@@ -159,6 +163,12 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			List<PlanComputationRequest> waitingRequests) {
 		callCount++;
 		long startTime = System.nanoTime();
+
+		List<RideSharingOnDemandVehicle> taxis = new ArrayList<>();
+		for(AgentPolisEntity tVvehicle: vehicleStorage.getEntitiesForIteration()) {
+			RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
+			taxis.add(vehicle);
+		}
 		
 		planMap = new ConcurrentHashMap<>();
 		
@@ -219,6 +229,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		}
 		
 		logRidesharingStats(newRequests);
+		logInactiveVehicles(taxis);
 		
 		return planMap;
 	}
@@ -454,6 +465,17 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 				requests.size()));
 	}
 
+	private void logInactiveVehicles(List<RideSharingOnDemandVehicle> vehicles) {
+		for (RideSharingOnDemandVehicle vehicle : vehicles) {
+			if (vehicle.getCurrentPlanNoUpdate().plan.size() == 1) {
+				if (!planMap.containsKey(vehicle)) {
+					// toto vozidlo ma prazdny plan
+					inactiveVehicles.add(new Pair<String, Integer>(vehicle.getId(), (int) Math.round(timeProvider.getCurrentSimTime() / 1000.0)));
+				}
+			}
+		}
+	}
+
 	private void computeBestPlanForRequest(PlanComputationRequest request) {
 		resetBestPlan();
 		
@@ -545,6 +567,10 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 //		}
 //		return listForPlanning;
 //	}
+
+	public List<Pair<String, Integer>> getInactiveVehicles() {
+		return inactiveVehicles;
+	}
 	
 	private List<OnDemandVehicle> getVehiclesForPlanning() {
 		vehiclesForPlanning = new ArrayList<>();

@@ -49,7 +49,9 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
 
     private Map<RideSharingOnDemandVehicle, DriverPlan> planMap;
 
+    protected List<Pair<String, Integer>> inactiveVehicles;
 
+    protected List<Pair<String, Integer>> waitingTimes;
 
 
     @Inject
@@ -74,6 +76,8 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
         this.droppedDemandsAnalyzer = droppedDemandsAnalyzer;
         this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
         this.requestFactory = requestFactory;
+        inactiveVehicles = new ArrayList<>();
+        waitingTimes = new ArrayList<>();
 
         setEventHandeling();
     }
@@ -144,6 +148,22 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
             }
         }
         return false;
+    }
+
+
+    private void logInactiveVehicles(List<RideSharingOnDemandVehicle> vehicles) {
+        for (RideSharingOnDemandVehicle vehicle : vehicles) {
+            if (vehicle.getCurrentPlanNoUpdate().plan.size() == 1) {
+                if (!planMap.containsKey(vehicle)) {
+                    // toto vozidlo ma prazdny plan
+                    inactiveVehicles.add(new Pair<String, Integer>(vehicle.getId(), (int) Math.round(timeProvider.getCurrentSimTime() / 1000.0)));
+                }
+            }
+        }
+    }
+
+    private void logWaitingTime(RideSharingOnDemandVehicle vehicle, Integer waitTimeInSeconds) {
+        waitingTimes.add(new Pair<String, Integer>(vehicle.getId(), waitTimeInSeconds));
     }
 
     private int findLastPickupIndex(DriverPlan plan) {
@@ -532,6 +552,10 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                     List<PlanAction> planWithPos = new ArrayList<>();
                     planWithPos.add(vehicles.get(q).getCurrentPlanNoUpdate().plan.get(0));
                     planWithPos.addAll(vehPlan);
+                    int waitTime = findWaitingAction(vehPlan, vehicles.get(q), request);
+                    if (waitTime > 0) {
+                        logWaitingTime(vehicles.get(q), waitTime);
+                    }
                     DriverPlan dp = new DriverPlan(planWithPos, 0, 0);
                     planMap.put(vehicles.get(q), dp);
                 }
@@ -640,7 +664,30 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                 }
             }
         }
+
+        logInactiveVehicles(taxis);
+
         return planMap;
+    }
+
+    public Integer findWaitingAction(List<PlanAction> plan, RideSharingOnDemandVehicle vehicle, PlanComputationRequest request) {
+        for (PlanAction action : plan) {
+            if (action instanceof PlanActionWait) {
+                if (((PlanActionWait) action).getRequest() == request) {
+                    PlanActionWait wait = (PlanActionWait) action;
+                    return (int) Math.round(wait.getWaitTime() / 1000.0);
+                }
+            }
+        }
+        return 0;
+    }
+
+    public List<Pair<String, Integer>> getInactiveVehicles() {
+        return inactiveVehicles;
+    }
+
+    public List<Pair<String, Integer>> getWaitingTimes() {
+        return waitingTimes;
     }
 
     private boolean checkValidItinerary(List<PlanAction> itinerary, RideSharingOnDemandVehicle vehicle) {
@@ -1001,7 +1048,7 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
 
     private Pair<List<List<PlanAction>>, Long> createChargePlanNoNewRequestsWithRounding(List<PlanAction> itnryp1, List<PlanAction> itnryp2, RideSharingOnDemandVehicle veh1, RideSharingOnDemandVehicle veh2, PlanComputationRequest request) {
         long time1 = 0;
-        int time1Int = 0;
+        int time1Int = (int) Math.ceil(timeProvider.getCurrentSimTime() / 1000.0);
         long timeToFinishEdge1 = 0;
         SimulationNode previousDestination = veh1.getPosition();
 
@@ -1070,10 +1117,11 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
                 }
             }
         }
+        time1Int += 1;
         // expected arrival of second car
         int indexPickupSecondCar = 0;
         long time2 = 0;
-        int time2Int = 0;
+        int time2Int = (int) Math.floor(timeProvider.getCurrentSimTime() / 1000.0);
         long timeToFinishEdge2 = 0;
         PlanActionPickupTransfer pickup = null;
         previousDestination = veh2.getPosition();
@@ -1141,16 +1189,18 @@ public class GreedyTASeTSolver extends DARPSolver implements EventHandler {
             }
             indexPickupSecondCar++;
         }
-        int waitTimeInt = time2Int - time1Int;
+        time2Int -= 1;
+        int waitTimeInt = time1Int - time2Int;
 
         boolean valid = true;
 
-        if (waitTimeInt < 0) {
-            PlanActionWait waitAction = new PlanActionWait(request, pickup.getPosition(), pickup.getMaxTime(), -waitTimeInt * 1000);
+        if (waitTimeInt > 0) {
+            PlanActionWait waitAction = new PlanActionWait(request, pickup.getPosition(), pickup.getMaxTime(), waitTimeInt * 1000);
             transferTime = waitTimeInt * 1000;
             itnryp2.add(indexPickupSecondCar, waitAction);
 
-            long time = 0;
+            long time = timeProvider.getCurrentSimTime();
+//            int timeInt = (int) Math.round(timeProvider.getCurrentSimTime() / 1000.0);
             previousDestination = veh2.getPosition();
             if (veh2.getCurrentTripPlan() != null) {
                 if (veh2.getCurrentTripPlan().getSize() == 0) {

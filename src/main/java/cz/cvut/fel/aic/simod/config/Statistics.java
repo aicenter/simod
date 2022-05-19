@@ -9,6 +9,10 @@ public class Statistics {
 
   public String occupanciesFilePath;
 
+  public String inactiveVehiclesFilePath;
+
+  public String inactiveVehiclesFileName;
+
   public String ridesharingFileName;
 
   public Integer statisticIntervalMilis;
@@ -41,6 +45,10 @@ public class Statistics {
 
   public String ridesharingFilePath;
 
+  public String waitingTimesFilePath;
+
+  public String waitingTimesFileName;
+
   public Statistics(Map statistics) {
     this.resultFilePath = (String) statistics.get("result_file_path");
     this.occupanciesFilePath = (String) statistics.get("occupancies_file_path");
@@ -60,5 +68,9 @@ public class Statistics {
     this.serviceFileName = (String) statistics.get("service_file_name");
     this.serviceFilePath = (String) statistics.get("service_file_path");
     this.ridesharingFilePath = (String) statistics.get("ridesharing_file_path");
+    this.inactiveVehiclesFileName = (String) statistics.get("inactive_vehicles_file_name");
+    this.inactiveVehiclesFilePath = (String) statistics.get("inactive_vehicles_file_path");
+    this.waitingTimesFileName = (String) statistics.get("waiting_times_file_name");
+    this.waitingTimesFilePath = (String) statistics.get("waiting_times_file_path");
   }
 }

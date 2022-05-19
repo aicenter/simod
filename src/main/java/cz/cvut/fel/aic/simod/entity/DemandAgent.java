@@ -216,6 +216,9 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		else{
 			state = DemandAgentState.TRANSFERING;
 //			this.onDemandVehicle = null;
+			eventProcessor.addEvent(StatisticEvent.DEMAND_DROPPED_AT_TRANSFER, null, null,
+					null);
+
 		}
 	}
 
@@ -230,7 +233,6 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 //		}
 //		else{
 			state = DemandAgentState.DRIVING;
-			realPickupTime = timeProvider.getCurrentSimTime();
 			this.onDemandVehicle = vehicle;
 //		}
 	}

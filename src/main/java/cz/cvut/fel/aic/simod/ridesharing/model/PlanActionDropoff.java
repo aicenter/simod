@@ -36,7 +36,7 @@ public class PlanActionDropoff extends PlanRequestAction {
 
 	@Override
 	public String toString() {
-		return String.format("Drop off demand %s at node %s", request.getDemandAgent().getId(), location.id);
+		return String.format("Drop off demand %s at node %s", request.getDemandEntity().getId(), location.id);
 	}
 
 

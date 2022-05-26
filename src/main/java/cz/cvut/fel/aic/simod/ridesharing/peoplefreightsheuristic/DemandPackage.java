@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DemandPackage extends AgentPolisEntity implements TransportableEntity_2 {
+public class DemandPackage extends AgentPolisEntity implements TransportableDemandEntity {
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandAgent.class);
 
 	private final int simpleId;
@@ -152,7 +152,7 @@ public class DemandPackage extends AgentPolisEntity implements TransportableEnti
 
 
 	public void tripEnded() {
-		if (!transportEntity.getPosition().equals(trip.getLastLocation())) {
+		if (!getPosition().equals(trip.getLastLocation())) {
 			try {
 				throw new Exception("Demand package not served properly");
 			}

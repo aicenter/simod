@@ -36,7 +36,7 @@ import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleInterface;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
-import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.TransportableEntity_2;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.TransportableDemandEntity;
 import cz.cvut.fel.aic.simod.statistics.DemandServiceStatistic;
 import cz.cvut.fel.aic.simod.statistics.StatisticEvent;
 import cz.cvut.fel.aic.simod.storage.DemandStorage;
@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * @author F-I-D-O
  */
 
-public class DemandAgent extends Agent implements EventHandler, TransportableEntity_2 {
+public class DemandAgent extends Agent implements EventHandler, TransportableDemandEntity {
 
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DemandAgent.class);
 
@@ -182,7 +182,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 
 	@Override
 	public void handleEvent(Event event) {
-		this.onDemandVehicleInterface = (OnDemandVehicleInterface) event.getContent();    // TODO muze tu byt natvrdo ten Interface ???
+		this.onDemandVehicleInterface = (OnDemandVehicleInterface) event.getContent();
 //		vehicle = onDemandVehicle.getVehicle();
 //		rideAsPassengerActivity.usingVehicleAsPassenger(this.getId(), onDemandVehicle.getVehicleId(),
 //				onDemandVehicle.getDemandTrip(this), this);
@@ -190,7 +190,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 
 	@Override
 	public void tripEnded() {
-		if (!getPosition().equals(trip.getLastLocation())) {
+		if (!getPosition().equals(trip.getLastLocation())) {		// TODO proc nefunguje getPosition() z Agenta??
 			try {
 				throw new Exception("Demand not served properly");
 			}

@@ -19,7 +19,7 @@
 package cz.cvut.fel.aic.simod.ridesharing.model;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.TransportableDemandEntity;
 
 /**
  *
@@ -65,7 +65,7 @@ public interface PlanComputationRequest {
 	
 	public PlanActionDropoff getDropOffAction();
 	
-	public DemandAgent getDemandAgent();
+	public TransportableDemandEntity getDemandEntity();
 	
 	public int getId();
 	

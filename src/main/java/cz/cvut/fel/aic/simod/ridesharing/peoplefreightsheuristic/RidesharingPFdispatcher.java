@@ -47,9 +47,9 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 
 	private List<PlanComputationRequest> newRequestsPackages;
 
-	private final LinkedHashSet<PFPlanCompRequest> waitingRequestsPackages;
+	private final LinkedHashSet<PlanComputationRequest> waitingRequestsPackages;
 
-	private final Map<Integer, PFPlanCompRequest> requestsMapByDemandPackages;
+	private final Map<Integer, PlanComputationRequest> requestsMapByDemandPackages;
 
 //	private DARPSolverPFShared solver;
 
@@ -99,13 +99,12 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 		else {
 			newRequest = this.freightRequestFactory.create(requestCounter++, requestStartPosition,
 					demandData.locations[1], demandData.demandPackage, demandData.demandPackage.getWeight());
-			waitingRequestsPackages.add(newRequest);    					// TODO jak funguji waitingReuqests???
+			waitingRequestsPackages.add(newRequest);
 			newRequestsPackages.add(newRequest);
 			requestsMapByDemandPackages.put(newRequest.getDemandEntity().getSimpleId(), newRequest);
 		}
 	}
 
-	// TODO PlanActionPickup/Dropoff implementovat toString()
 
 	@Override
 	protected void replan() {
@@ -124,7 +123,7 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 		while(waitingRequestIterator.hasNext()){
 			PlanComputationRequest request = waitingRequestIterator.next();
 			if(request.getMaxPickupTime() + 5  < currentTimeSec){
-				((PFPlanCompRequest)request).getDemandEntity().setDropped(true);
+				request.getDemandEntity().setDropped(true);
 				numberOfDemandsDropped++;
 				droppedDemandsThisBatch++;
 				waitingRequestIterator.remove();
@@ -135,9 +134,9 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 		LOGGER.info("People-Demands dropped in this batch: {}", droppedDemandsThisBatch);
 
 		// dropping package-demands that waits too long
-		Iterator<PFPlanCompRequest> waitingPackageRequestIterator = waitingRequestsPackages.iterator();
+		Iterator<PlanComputationRequest> waitingPackageRequestIterator = waitingRequestsPackages.iterator();
 		while (waitingRequestIterator.hasNext()) {
-			PFPlanCompRequest request = waitingPackageRequestIterator.next();
+			PlanComputationRequest request = waitingPackageRequestIterator.next();
 			if (request.getMaxPickupTime() + 5 < currentTimeSec) {
 				request.getDemandEntity().setDropped(true);
 				numberOfDemandsDropped++;
@@ -250,7 +249,7 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 					request.setOnboard(true);
 				}
 				else {
-					PFPlanCompRequest packageRequest = requestsMapByDemandPackages.get(eventContent.getDemandId());
+					PlanComputationRequest packageRequest = requestsMapByDemandPackages.get(eventContent.getDemandId());
 					if(!waitingRequestsPackages.remove(packageRequest)){
 						try {
 							throw new cz.cvut.fel.aic.amodsim.SimodException("PackageRequest picked up but it is not present in the waiting request queue!");

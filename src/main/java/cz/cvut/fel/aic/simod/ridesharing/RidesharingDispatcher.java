@@ -138,7 +138,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 				demandData.locations[1], demandData.demandAgent);
 		waitingRequests.add(newRequest);
 		newRequests.add(newRequest);
-		requestsMapByDemandAgents.put(newRequest.getDemandAgent().getSimpleId(), newRequest);
+		requestsMapByDemandAgents.put(newRequest.getDemandEntity().getSimpleId(), newRequest);
 		
 		if(config.ridesharing.batchPeriod == 0){
 			replan();
@@ -159,7 +159,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		while(waitingRequestIterator.hasNext()){
 			PlanComputationRequest request = waitingRequestIterator.next();
 			if(request.getMaxPickupTime() + 5  < currentTimeSec){
-				request.getDemandAgent().setDropped(true);
+				request.getDemandEntity().setDropped(true);
 				numberOfDemandsDropped++;
 				droppedDemandsThisBatch++;
 				waitingRequestIterator.remove();

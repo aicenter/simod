@@ -6,11 +6,7 @@ import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
-import cz.cvut.fel.aic.agentpolis.simmodel.activity.Drive;
-import cz.cvut.fel.aic.agentpolis.simmodel.activity.PhysicalVehicleDrive;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
@@ -20,7 +16,6 @@ import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
-import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanRequestAction;
@@ -30,15 +25,9 @@ import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
-{
+public class PeopleFreightVehicle extends RideSharingOnDemandVehicle {
+
 	private boolean passengerOnboard;
-
-	private final int maxParcelsCapacity;
-
-	private int currentParcelsWeight;
-
-	// TODO najit vrstvu ktera zobrazuje vozidla - natvrdo zadany defaultni storage??
 
 	@Inject
 	public PeopleFreightVehicle(
@@ -57,8 +46,7 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
 			String vehicleId,
 			SimulationNode startPosition,
 			int maxParcelsCapacity,
-			@Assisted PhysicalPFVehicle physVehicle)
-	{
+			@Assisted PhysicalPFVehicle physVehicle) {
 		super(
 				vehicleStorage,
 				tripsUtil,
@@ -78,37 +66,24 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
 
 
 //		vehicle.setDriver(this);
-		this.maxParcelsCapacity = maxParcelsCapacity;
-		this.currentParcelsWeight = 0;
 		this.passengerOnboard = false;
 	}
 
 
-
-
-	public int getMaxParcelsCapacity()
-	{
-		return maxParcelsCapacity;
+	public int getMaxPackagesCapacity() {
+		return ((PhysicalPFVehicle) vehicle).getPackagesCapacity();
 	}
 
-	public int getCurrentParcelsWeight()
-	{
-		return currentParcelsWeight;
+	public int getCurrentPackagesWeight() {
+		return ((PhysicalPFVehicle) vehicle).getCurrentPackagesWeight();
 	}
 
-	public boolean isPassengerOnboard()
-	{
+	public boolean isPassengerOnboard() {
 		return passengerOnboard;
 	}
 
-	public void setPassengerOnboard(boolean passengerOnboard)
-	{
+	public void setPassengerOnboard(boolean passengerOnboard) {
 		this.passengerOnboard = passengerOnboard;
-	}
-
-	public void setCurrentParcelsWeight(int curWeight)
-	{
-		this.currentParcelsWeight = curWeight;
 	}
 
 
@@ -116,7 +91,7 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
 	protected void leavingStationEvent() {
 		eventProcessor.addEvent(OnDemandVehicleEvent.LEAVE_STATION, null, null,
 				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(),
-						((PFPlanCompRequest) ((PlanRequestAction) currentTask).getRequest()).getDemandEntity().getSimpleId(), getId()));
+						(((PlanRequestAction) currentTask).getRequest()).getDemandEntity().getSimpleId(), getId()));
 	}
 
 	@Override
@@ -153,18 +128,30 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
 	protected void pickupAndContinue() {
 		try {
 			DefaultPFPlanCompRequest request = (DefaultPFPlanCompRequest) ((PlanActionPickup) currentTask).getRequest();
-			TransportableEntity_2 demandEntity = request.getDemandEntity();
+			TransportableDemandEntity demandEntity = request.getDemandEntity();
+			if (passengerOnboard) {
+				throw new Exception(
+						String.format("Demand entity %s cannot be picked up, because passenger is onboard! Current simulation "
+								+ "time: %s", demandEntity, timeProvider.getCurrentSimTime()));
+			}
+
 			if (demandEntity.isDropped()) {
 				long currentTime = timeProvider.getCurrentSimTime();
 				long droppTime = demandEntity.getDemandTime() + config.ridesharing.maxProlongationInSeconds * 1000;
 				throw new Exception(
 						String.format("Demand entity %s cannot be picked up, it is already dropped! Current simulation "
 								+ "time: %s, drop time: %s", demandEntity, currentTime, droppTime));
+				// TODO Vehicle "2-0" Agent 14 is dropped
 			}
 			demandEntity.tripStarted(this);
 			vehicle.pickUp(demandEntity);
-			if (request instanceof PlanComputationRequestFreight) {
-				currentParcelsWeight += ((PlanComputationRequestFreight) request).getWeight();
+
+//			if (request instanceof PlanComputationRequestFreight) {
+//				int newParcelsWeight = getCurrentParcelsWeight() + ((PlanComputationRequestFreight) request).getWeight();
+//				setCurrentParcelsWeight(newParcelsWeight);
+//			}
+			if (request instanceof PlanComputationRequestPeople) {
+				passengerOnboard = true;
 			}
 
 			eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null,
@@ -181,15 +168,34 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle
 
 	@Override
 	protected void dropOffAndContinue() {
-		DefaultPFPlanCompRequest request = (DefaultPFPlanCompRequest) ((PlanActionDropoff) currentTask).getRequest();
-		TransportableEntity_2 demandEntity = request.getDemandEntity();
-		demandEntity.tripEnded();
-		vehicle.dropOff(demandEntity);
+		try {
+			DefaultPFPlanCompRequest request = (DefaultPFPlanCompRequest) ((PlanActionDropoff) currentTask).getRequest();
+			TransportableDemandEntity demandEntity = request.getDemandEntity();
 
-		eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null,
-				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(),
-						demandEntity.getSimpleId(), getId()));
-		currentPlan.taskCompleted();
-		driveToNextTask();
+			if (passengerOnboard && request instanceof PlanComputationRequestFreight) {
+				throw new Exception(
+						String.format("Demand entity %s cannot be dropped off, because passenger is onboard! Current simulation "
+								+ "time: %s", demandEntity, timeProvider.getCurrentSimTime()));
+			}
+			demandEntity.tripEnded();
+			vehicle.dropOff(demandEntity);
+
+			//		if (request instanceof PlanComputationRequestFreight) {
+			//			int newParcelsWeight = getCurrentParcelsWeight() - ((PlanComputationRequestFreight) request).getWeight();
+			//			setCurrentParcelsWeight(newParcelsWeight);
+			//		}
+			if (request instanceof PlanComputationRequestPeople) {
+				passengerOnboard = false;
+			}
+
+			eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null,
+					new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(),
+							demandEntity.getSimpleId(), getId()));
+			currentPlan.taskCompleted();
+			driveToNextTask();
+		}
+		catch (Exception ex) {
+			Logger.getLogger(PhysicalPFVehicle.class.getName()).log(Level.SEVERE, null, ex);
+		}
 	}
 }

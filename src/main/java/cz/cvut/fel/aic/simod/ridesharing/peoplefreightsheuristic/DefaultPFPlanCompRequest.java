@@ -4,16 +4,15 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
+import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
-import org.apache.commons.lang.NotImplementedException;
 
 import java.util.Random;
 
 
-public class DefaultPFPlanCompRequest implements PFPlanCompRequest {
+public class DefaultPFPlanCompRequest implements PlanComputationRequest {
 
 	public final int id;
 
@@ -22,7 +21,7 @@ public class DefaultPFPlanCompRequest implements PFPlanCompRequest {
 	 */
 	private final int originTime;
 
-	private final TransportableEntity_2 demandEntity;
+	private final TransportableDemandEntity demandEntity;
 
 	private final PlanActionPickup pickUpAction;
 
@@ -40,8 +39,8 @@ public class DefaultPFPlanCompRequest implements PFPlanCompRequest {
 
 	@Inject
 	public DefaultPFPlanCompRequest(TravelTimeProvider travelTimeProvider, @Assisted int id,
-									SimodConfig SimodConfig, @Assisted("origin") SimulationNode origin,
-									@Assisted("destination") SimulationNode destination, @Assisted TransportableEntity_2 demandEntity){
+									SimodConfig simodConfig, @Assisted("origin") SimulationNode origin,
+									@Assisted("destination") SimulationNode destination, @Assisted TransportableDemandEntity demandEntity){
 		this.id = id;
 
 		hash = 0;
@@ -51,14 +50,18 @@ public class DefaultPFPlanCompRequest implements PFPlanCompRequest {
 				travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
 
 		int maxProlongation;
-		if(SimodConfig.ridesharing.discomfortConstraint.equals("absolute")){
-			maxProlongation = SimodConfig.ridesharing.maxProlongationInSeconds;
+		if(simodConfig.ridesharing.discomfortConstraint.equals("absolute")){
+			maxProlongation = simodConfig.ridesharing.maxProlongationInSeconds;
 		}
 		else{
 			maxProlongation = (int) Math.round(
-					SimodConfig.ridesharing.maximumRelativeDiscomfort * minTravelTime);
+					simodConfig.ridesharing.maximumRelativeDiscomfort * minTravelTime);
 		}
 
+		// for packages, the delay can be long
+		if (demandEntity instanceof DemandPackage) {
+			maxProlongation += simodConfig.packagesMaxDelay;
+		}
 		int maxPickUpTime = originTime + maxProlongation;
 		int maxDropOffTime = originTime + minTravelTime + maxProlongation;
 
@@ -95,12 +98,7 @@ public class DefaultPFPlanCompRequest implements PFPlanCompRequest {
 	}
 
 	@Override
-	public DemandAgent getDemandAgent() {
-		throw new NotImplementedException("DemandAgent not implemented in default PF plan request.");
-	}
-
-	@Override
-	public TransportableEntity_2 getDemandEntity() {
+	public TransportableDemandEntity getDemandEntity() {
 		return demandEntity;
 	}
 
@@ -160,6 +158,6 @@ public class DefaultPFPlanCompRequest implements PFPlanCompRequest {
 
 	public interface DefaultPFPlanComputationRequestFactory {
 		public DefaultPFPlanCompRequest create(int id, @Assisted("origin") SimulationNode origin,
-										@Assisted("destination") SimulationNode destination, TransportableEntity_2 demandEntity);
+										@Assisted("destination") SimulationNode destination, TransportableDemandEntity demandEntity);
 	}
 }

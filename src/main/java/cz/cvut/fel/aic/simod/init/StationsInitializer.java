@@ -54,6 +54,8 @@ public class StationsInitializer {
 
 	private final SimodConfig config;
 
+	private final int cars_limit = 1;		// TODO toto je docasne nastaveni pro debugging
+	private final int stations_limit = 30;
 
 	@Inject
 	public StationsInitializer(OnDemandVehicleStationFactory onDemandVehicleStationFactory, NodesMappedByIndex
@@ -75,8 +77,8 @@ public class StationsInitializer {
 			int index = Integer.parseInt(row[0]);
 			SimulationNode node = nodesMappedByIndex.getNodeByIndex(index);
 
-			int cars_limit = 4;		// TODO toto je docasne nastaveni pro debugging
-			int stations_limit = 10;
+//			int cars_limit = 2;		// TODO toto je docasne nastaveni pro debugging
+//			int stations_limit = 30;
 
 			if (node == null) {
 				LOGGER.info("Station at node with index {} discarded as it is not in the Agentpolis road graph", index);

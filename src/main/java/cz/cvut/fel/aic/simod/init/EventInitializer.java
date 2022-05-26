@@ -193,7 +193,7 @@ public class EventInitializer {
 
 			int id = demandIdGenerator.getId();
 
-			DemandAgent demandAgent = demandAgentFactory.create("Demand " + Integer.toString(id), id, trip);
+			DemandAgent demandAgent = demandAgentFactory.create("Agent " + Integer.toString(id), id, trip);
 
 			demandAgent.born();
 		}

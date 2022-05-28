@@ -54,10 +54,10 @@ public class StationsInitializer {
 
 	private final SimodConfig config;
 
-	private final int cars_limit = 1;		// TODO toto je docasne nastaveni pro debugging
-	private final int stations_limit = 30;
-
+	private final int cars_limit = 10;		// TODO toto je docasne nastaveni pro debugging
+	private final int stations_limit = 43;
 	@Inject
+
 	public StationsInitializer(OnDemandVehicleStationFactory onDemandVehicleStationFactory, NodesMappedByIndex
 			nodesMappedByIndex, SimodConfig config) {
 		this.onDemandVehicleStationFactory = onDemandVehicleStationFactory;

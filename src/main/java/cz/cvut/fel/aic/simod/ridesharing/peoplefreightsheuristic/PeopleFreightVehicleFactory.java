@@ -69,7 +69,7 @@ public class PeopleFreightVehicleFactory implements PeopleFreightVehicleFactoryS
 		this.agentpolisConfig = agentpolisConfig;
 	}
 
-	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition, int freightCapacity) {
+	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition, int packagesCapacity) {
 		return	new PeopleFreightVehicle(
 				vehicleStorage,
 				tripsUtil,
@@ -85,12 +85,12 @@ public class PeopleFreightVehicleFactory implements PeopleFreightVehicleFactoryS
 				agentpolisConfig,
 				vehicleId,
 				startPosition,
-				freightCapacity,
+				packagesCapacity,
 				new PhysicalPFVehicle(
 						vehicleId,
 						DemandSimulationEntityType.VEHICLE,
 						LENGTH,
-						freightCapacity,
+						packagesCapacity,
 						EGraphType.HIGHWAY,
 						startPosition,
 						agentpolisConfig.maxVehicleSpeedInMeters));

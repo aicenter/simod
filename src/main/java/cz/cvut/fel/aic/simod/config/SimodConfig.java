@@ -61,6 +61,8 @@ public class SimodConfig implements GeneratedConfig {
 
   public int packagesMaxDelay;
 
+  public int packagesCapacity;
+
   public SimodConfig() {
   }
 
@@ -91,6 +93,7 @@ public class SimodConfig implements GeneratedConfig {
     this.statistics = new Statistics((Map) simodConfig.get("statistics"));
     this.packagesOn = (Boolean) simodConfig.get("packages_on");
     this.packagesMaxDelay = (int) simodConfig.get("packages_max_delay");
+    this.packagesCapacity = (int) simodConfig.get("packages_capacity");
     return this;
   }
 }

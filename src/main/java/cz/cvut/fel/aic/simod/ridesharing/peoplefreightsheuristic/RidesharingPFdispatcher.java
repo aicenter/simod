@@ -11,6 +11,7 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.simod.DemandData;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
+import cz.cvut.fel.aic.simod.entity.DemandEntityType;
 import cz.cvut.fel.aic.simod.event.DemandEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
@@ -33,14 +34,6 @@ import java.util.logging.Logger;
 @Singleton
 public class RidesharingPFdispatcher extends RidesharingDispatcher {
 
-//	TimeProvider timeProvider;
-
-//	PositionUtil positionUtil;
-
-//	IdGenerator tripIdGenerator;
-
-//	protected final DefaultPFPlanCompRequest.DefaultPFPlanComputationRequestFactory requestFactory;
-
 	protected final PlanComputationRequestPeople.PlanComputationRequestPeopleFactory peopleRequestFactory;
 
 	protected final PlanComputationRequestFreight.PlanComputationRequestFreightFactory freightRequestFactory;
@@ -51,9 +44,6 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 
 	private final Map<Integer, PlanComputationRequest> requestsMapByDemandPackages;
 
-//	private DARPSolverPFShared solver;
-
-//	private int requestCounter;
 
 	@Inject
 	public RidesharingPFdispatcher(OnDemandvehicleStationStorage onDemandvehicleStationStorage,
@@ -68,15 +58,12 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 								   IdGenerator tripIdGenerator) {
 		super(onDemandvehicleStationStorage, eventProcessor, config, solver, ticker, null, timeProvider, positionUtil, tripIdGenerator);
 
-//		this.timeProvider = timeProvider;
-//		this.positionUtil = positionUtil;
 		this.peopleRequestFactory = peopleRequestFactory;
 		this.freightRequestFactory = freightRequestFactory;
 		this.tripIdGenerator = tripIdGenerator;
 		newRequestsPackages = new ArrayList<>();
 		waitingRequestsPackages = new LinkedHashSet<>();
 		requestsMapByDemandPackages = new HashMap<>();
-
 
 		setEventHandeling();
 		solver.setDispatcher(this);
@@ -235,10 +222,10 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 		else{
 			OnDemandVehicleEvent eventType = (OnDemandVehicleEvent) event.getType();
 			if(eventType == OnDemandVehicleEvent.PICKUP){
-				OnDemandVehicleEventContent eventContent = (OnDemandVehicleEventContent) event.getContent();
+				PeopleFreightVehicleEventContent eventContent = (PeopleFreightVehicleEventContent) event.getContent();
 
-				PlanComputationRequest request = requestsMapByDemandAgents.get(eventContent.getDemandId());
-				if (request != null) {
+				if (eventContent.getType() == DemandEntityType.AGENT) {
+					PlanComputationRequest request = requestsMapByDemandAgents.get(eventContent.getDemandId());
 					if(!waitingRequests.remove(request)){
 						try {
 							throw new cz.cvut.fel.aic.amodsim.SimodException("Request picked up but it is not present in the waiting request queue!");

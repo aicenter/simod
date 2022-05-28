@@ -89,11 +89,11 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 
 
 		if (config.packagesOn) {
-			int vehicleCapacity = 50;
+			int vehiclePackagesCapacity = config.packagesCapacity;
 			PeopleFreightVehicleFactorySpec PFVehicleFactory = (PeopleFreightVehicleFactorySpec) onDemandVehicleFactory;
 			for (int i = 0; i < initialVehicleCount; i++) {
 				String onDemandVehicleId = String.format("%s-%d", id, i);
-				OnDemandVehicle newVehicle = PFVehicleFactory.create(onDemandVehicleId, getPosition(), vehicleCapacity);
+				OnDemandVehicle newVehicle = PFVehicleFactory.create(onDemandVehicleId, getPosition(), vehiclePackagesCapacity);
 				parkedVehicles.add(newVehicle);
 				newVehicle.setParkedIn(this);
 				onDemandVehicleStorage.addEntity(newVehicle);

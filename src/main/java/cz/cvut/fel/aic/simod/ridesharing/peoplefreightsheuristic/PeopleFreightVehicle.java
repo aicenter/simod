@@ -12,6 +12,7 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUti
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
+import cz.cvut.fel.aic.simod.entity.DemandEntityType;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
@@ -141,7 +142,7 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle {
 				throw new Exception(
 						String.format("Demand entity %s cannot be picked up, it is already dropped! Current simulation "
 								+ "time: %s, drop time: %s", demandEntity, currentTime, droppTime));
-				// TODO Vehicle "2-0" Agent 14 is dropped
+				// todo: time 526, vehicle 39-1, agent 341
 			}
 			demandEntity.tripStarted(this);
 			vehicle.pickUp(demandEntity);
@@ -150,14 +151,21 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle {
 //				int newParcelsWeight = getCurrentParcelsWeight() + ((PlanComputationRequestFreight) request).getWeight();
 //				setCurrentParcelsWeight(newParcelsWeight);
 //			}
+
+			DemandEntityType demandType;
 			if (request instanceof PlanComputationRequestPeople) {
 				passengerOnboard = true;
+				demandType = DemandEntityType.AGENT;
+			}
+			else {
+				demandType = DemandEntityType.PACKAGE;
 			}
 
+
 			eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null,
-					new PickupEventContent(timeProvider.getCurrentSimTime(),
+					new PeopleFreightVehicleEventContent(timeProvider.getCurrentSimTime(),
 							demandEntity.getSimpleId(), getId(),
-							(int) Math.round(demandEntity.getMinDemandServiceDuration() / 1000)));
+							(int) Math.round(demandEntity.getMinDemandServiceDuration() / 1000), demandType));
 			currentPlan.taskCompleted();
 			driveToNextTask();
 		}
@@ -176,6 +184,7 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle {
 				throw new Exception(
 						String.format("Demand entity %s cannot be dropped off, because passenger is onboard! Current simulation "
 								+ "time: %s", demandEntity, timeProvider.getCurrentSimTime()));
+				//TODO time=575, vehicle 1-5, package 44
 			}
 			demandEntity.tripEnded();
 			vehicle.dropOff(demandEntity);

@@ -214,7 +214,6 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
 		physVehicle.setDriver(this);
 
-
 		index = idGenerator.getId();
 
 		state = OnDemandVehicleState.WAITING;

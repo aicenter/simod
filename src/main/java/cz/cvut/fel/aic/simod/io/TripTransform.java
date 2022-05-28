@@ -64,8 +64,8 @@ public class TripTransform {
 
 	private IdGenerator tripIdGenerator;
 
-	private final int people_limit = 30;			// TODO docasne pro debugging
-	private final int packages_limit = 50;
+	private final int people_limit = 500;			// TODO docasne pro debugging
+	private final int packages_limit = 500;
 
 
 	@Inject

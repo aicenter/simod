@@ -21,9 +21,9 @@ import java.util.Set;
 @Singleton
 public class PackageLayer extends ClickableEntityLayer<DemandPackage> {
 
-	private static final Color DEMAND_COLOR = new Color(126, 0, 245);
+	private static final Color DEMAND_COLOR =  new Color(56, 227, 0);
 
-	private static final Color DROPPED_COLOR = Color.YELLOW;
+	private static final Color DROPPED_COLOR = new Color(22, 98, 0);
 
 	private static final int SIZE = 1;
 

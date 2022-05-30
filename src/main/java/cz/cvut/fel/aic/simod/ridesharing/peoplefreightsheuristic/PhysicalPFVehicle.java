@@ -24,7 +24,7 @@ public class PhysicalPFVehicle extends PhysicalTransportVehicle implements Trans
 	private static final int vehiclePassengerCapacity = 1;
 
 	protected final List<TransportableEntity> transportedPackages;
-	protected final int vehiclePackagesCapacity;
+	private final int vehiclePackagesCapacity;
 	private int currentPackagesWeight;
 
 

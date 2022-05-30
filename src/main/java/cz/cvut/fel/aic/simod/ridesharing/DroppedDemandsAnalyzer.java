@@ -158,7 +158,7 @@ public class DroppedDemandsAnalyzer {
 		
 		
 		int delta = 5000;
-		String requestId = request.getDemandAgent().getId();
+		String requestId = request.getDemandEntity().getId();
 		if(!freeVehicle){
 			LOGGER.info("Request " + requestId + ": Cannot serve request - No free vehicle");
 		}

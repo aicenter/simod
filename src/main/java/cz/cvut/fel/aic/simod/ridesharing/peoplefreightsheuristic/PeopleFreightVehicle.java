@@ -79,6 +79,10 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle {
 		return ((PhysicalPFVehicle) vehicle).getCurrentPackagesWeight();
 	}
 
+	public int getFreePackagesCapacity() {
+		return ((PhysicalPFVehicle) vehicle).getPackagesCapacity() - ((PhysicalPFVehicle) vehicle).getCurrentPackagesWeight();
+	}
+
 	public boolean isPassengerOnboard() {
 		return passengerOnboard;
 	}
@@ -142,7 +146,6 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle {
 				throw new Exception(
 						String.format("Demand entity %s cannot be picked up, it is already dropped! Current simulation "
 								+ "time: %s, drop time: %s", demandEntity, currentTime, droppTime));
-				// todo: time 526, vehicle 39-1, agent 341
 			}
 			demandEntity.tripStarted(this);
 			vehicle.pickUp(demandEntity);

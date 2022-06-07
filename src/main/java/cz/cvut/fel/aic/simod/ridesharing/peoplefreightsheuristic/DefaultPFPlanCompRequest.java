@@ -40,7 +40,7 @@ public class DefaultPFPlanCompRequest implements PlanComputationRequest {
 	@Inject
 	public DefaultPFPlanCompRequest(TravelTimeProvider travelTimeProvider, @Assisted int id,
 									SimodConfig simodConfig, @Assisted("origin") SimulationNode origin,
-									@Assisted("destination") SimulationNode destination, @Assisted TransportableDemandEntity demandEntity){
+									@Assisted("destination") SimulationNode destination, @Assisted TransportableDemandEntity demandEntity) {
 		this.id = id;
 
 		hash = 0;
@@ -50,18 +50,19 @@ public class DefaultPFPlanCompRequest implements PlanComputationRequest {
 				travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
 
 		int maxProlongation;
-		if(simodConfig.ridesharing.discomfortConstraint.equals("absolute")){
+		if (simodConfig.ridesharing.discomfortConstraint.equals("absolute")) {
 			maxProlongation = simodConfig.ridesharing.maxProlongationInSeconds;
 		}
-		else{
+		else {
 			maxProlongation = (int) Math.round(
 					simodConfig.ridesharing.maximumRelativeDiscomfort * minTravelTime);
 		}
 
-		// for packages, the delay can be long
+		// for packages, the delay can be longer
 		if (demandEntity instanceof DemandPackage) {
 			maxProlongation += simodConfig.packagesMaxDelay;
 		}
+
 		int maxPickUpTime = originTime + maxProlongation;
 		int maxDropOffTime = originTime + minTravelTime + maxProlongation;
 
@@ -114,12 +115,12 @@ public class DefaultPFPlanCompRequest implements PlanComputationRequest {
 
 	@Override
 	public int hashCode() {
-		if(hash == 0){
+		if (hash == 0) {
 			int p = 1_200_007;
 			Random rand = new Random();
 			int a = rand.nextInt(p) + 1;
 			int b = rand.nextInt(p);
-			hash = (int) (((long) a * demandEntity.getSimpleId() + b) % p) % 1_200_000 ;
+			hash = (int) (((long) a * demandEntity.getSimpleId() + b) % p) % 1_200_000;
 		}
 		return hash;
 	}
@@ -155,9 +156,8 @@ public class DefaultPFPlanCompRequest implements PlanComputationRequest {
 	}
 
 
-
 	public interface DefaultPFPlanComputationRequestFactory {
 		public DefaultPFPlanCompRequest create(int id, @Assisted("origin") SimulationNode origin,
-										@Assisted("destination") SimulationNode destination, TransportableDemandEntity demandEntity);
+											   @Assisted("destination") SimulationNode destination, TransportableDemandEntity demandEntity);
 	}
 }

@@ -5,95 +5,94 @@ import java.lang.Double;
 import java.lang.Integer;
 import java.lang.String;
 import java.util.Map;
-
 import ninja.fido.config.GeneratedConfig;
 
 public class SimodConfig implements GeneratedConfig {
+  public String simodDataDir;
+
+  public Integer packagesMaxDelay;
+
+  public String edgePairsFilePath;
+
+  public Boolean packagesOn;
+
+  public String tripCacheFile;
+
+  public String packagesFilename;
+
+  public String mapDir;
+
+  public Shortestpaths shortestpaths;
+
+  public String tripsPath;
+
+  public String edgesFilePath;
+
+  public Integer packagesCapacity;
+
+  public Double tripsMultiplier;
+
+  public Integer vehiclesPerStation;
+
+  public Ridesharing ridesharing;
+
+  public String stationPositionFilepath;
+
   public Boolean useTripCache;
 
   public String simodExperimentDir;
 
   public String experimentName;
 
-  public String simodDataDir;
-
   public String tripsFilename;
 
   public String distanceMatrixFilepath;
 
-  public String edgePairsFilePath;
-
-  public String tripCacheFile;
-
   public Stations stations;
-
-  public String packagesFilename;
-
-  public String mapDir;
 
   public String travelTimeProvider;
 
-  public Shortestpaths shortestpaths;
-
   public Integer startTime;
-
-  public String tripsPath;
-
-  public String edgesFilePath;
 
   public String packagesPath;
 
-  public Double tripsMultiplier;
-
-  public Integer vehiclesPerStation;
-
   public Boolean simplifyGraph;
-
-  public Ridesharing ridesharing;
-
-  public String stationPositionFilepath;
 
   public Rebalancing rebalancing;
 
   public Statistics statistics;
 
-  public Boolean packagesOn;
-
-  public int packagesMaxDelay;
-
-  public int packagesCapacity;
-
   public SimodConfig() {
   }
 
   public SimodConfig fill(Map simodConfig) {
+    this.simodDataDir = (String) simodConfig.get("simod_data_dir");
+    this.packagesMaxDelay = (Integer) simodConfig.get("packages_max_delay");
+    this.edgePairsFilePath = (String) simodConfig.get("edge_pairs_file_path");
+    this.packagesOn = (Boolean) simodConfig.get("packages_on");
+    this.tripCacheFile = (String) simodConfig.get("trip_cache_file");
+    this.packagesFilename = (String) simodConfig.get("packages_filename");
+    this.mapDir = (String) simodConfig.get("map_dir");
+    this.shortestpaths = new Shortestpaths((Map) simodConfig.get("shortestpaths"));
+    this.tripsPath = (String) simodConfig.get("trips_path");
+    this.edgesFilePath = (String) simodConfig.get("edges_file_path");
+    this.packagesCapacity = (Integer) simodConfig.get("packages_capacity");
+    this.tripsMultiplier = (Double) simodConfig.get("trips_multiplier");
+    this.vehiclesPerStation = (Integer) simodConfig.get("vehicles_per_station");
+    this.ridesharing = new Ridesharing((Map) simodConfig.get("ridesharing"));
+    this.stationPositionFilepath = (String) simodConfig.get("station_position_filepath");
     this.useTripCache = (Boolean) simodConfig.get("use_trip_cache");
     this.simodExperimentDir = (String) simodConfig.get("simod_experiment_dir");
     this.experimentName = (String) simodConfig.get("experiment_name");
-    this.simodDataDir = (String) simodConfig.get("simod_data_dir");
     this.tripsFilename = (String) simodConfig.get("trips_filename");
     this.distanceMatrixFilepath = (String) simodConfig.get("distance_matrix_filepath");
-    this.edgePairsFilePath = (String) simodConfig.get("edge_pairs_file_path");
-    this.tripCacheFile = (String) simodConfig.get("trip_cache_file");
     this.stations = new Stations((Map) simodConfig.get("stations"));
-    this.packagesFilename = (String) simodConfig.get("packages_filename");
-    this.mapDir = (String) simodConfig.get("map_dir");
     this.travelTimeProvider = (String) simodConfig.get("travel_time_provider");
-    this.shortestpaths = new Shortestpaths((Map) simodConfig.get("shortestpaths"));
     this.startTime = (Integer) simodConfig.get("start_time");
-    this.tripsPath = (String) simodConfig.get("trips_path");
-    this.edgesFilePath = (String) simodConfig.get("edges_file_path");
     this.packagesPath = (String) simodConfig.get("packages_path");
-    this.tripsMultiplier = (Double) simodConfig.get("trips_multiplier");
-    this.vehiclesPerStation = (Integer) simodConfig.get("vehicles_per_station");
     this.simplifyGraph = (Boolean) simodConfig.get("simplify_graph");
-    this.ridesharing = new Ridesharing((Map) simodConfig.get("ridesharing"));
-    this.stationPositionFilepath = (String) simodConfig.get("station_position_filepath");
     this.rebalancing = new Rebalancing((Map) simodConfig.get("rebalancing"));
     this.statistics = new Statistics((Map) simodConfig.get("statistics"));
-    this.packagesOn = (Boolean) simodConfig.get("packages_on");
-    this.packagesMaxDelay = (int) simodConfig.get("packages_max_delay");
-    this.packagesCapacity = (int) simodConfig.get("packages_capacity");
     return this;
   }
 }

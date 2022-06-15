@@ -17,14 +17,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from amodsim.init import config
+from simod.init import config
 
 from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import roadmaptools.inout
-import amodsim.utils
+import simod.utils
 
 from matplotlib.ticker import FuncFormatter
 from pandas import DataFrame

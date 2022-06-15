@@ -47,7 +47,7 @@ import javax.vecmath.Point2d;
 @Singleton
 public class DemandLayer extends ClickableEntityLayer<DemandAgent> {
 
-	private static final Color DEMAND_COLOR = Color.MAGENTA;
+	private static final Color DEMAND_COLOR = new Color(222, 0, 0);
 
 	private static final Color DROPPED_COLOR = new Color(82, 20, 190);
 

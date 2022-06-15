@@ -160,7 +160,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 			PlanComputationRequest request = waitingRequestIterator.next();
 			if(request.getMaxPickupTime() + 5  < currentTimeSec){
 				request.getDemandEntity().setDropped(true);
-				numberOfDemandsDropped++;
+				numberOfPassangersDropped++;
 				droppedDemandsThisBatch++;
 				waitingRequestIterator.remove();
 				eventProcessor.addEvent(DemandEvent.LEFT, null, null, request);
@@ -168,7 +168,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 			}
 		}		
 		LOGGER.info("Demands dropped in this batch: {}", droppedDemandsThisBatch);
-		LOGGER.info("Total dropped demands count: {}", numberOfDemandsDropped);
+		LOGGER.info("Total dropped demands count: {}", numberOfPassangersDropped);
 
 		// DARP solving
 		long startTime = System.nanoTime();

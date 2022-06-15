@@ -18,7 +18,7 @@
 #
 from pandas.io.formats.format import return_docstring
 
-from amodsim.init import config
+from simod.init import config
 
 import json
 import matplotlib
@@ -28,7 +28,7 @@ from enum import Enum
 from matplotlib import cm
 
 from roadmaptools.printer import print_info
-from amodsim.json_cache import load_json_file
+from simod.json_cache import load_json_file
 
 CRITICAL_DENSITY = config.critical_density
 

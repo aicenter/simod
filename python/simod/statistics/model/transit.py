@@ -16,13 +16,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from amodsim.init import config
+from simod.init import config
 
 import pandas
 
 from typing import Union
 from pandas import DataFrame
-from amodsim.statistics.model.vehicle_state import VehicleState
+from simod.statistics.model.vehicle_state import VehicleState
 
 cols = ["time", "edge_id", "vehicle_state"]
 

@@ -48,8 +48,10 @@ public class StationsDispatcher extends EventHandlerAdapter{
 	
 	
 	
-	protected int numberOfDemandsDropped;
-	
+	protected int numberOfPassangersDropped;
+
+	protected int numberOfPackagesDropped;
+
 	private int demandsCount;
 	
 	private int rebalancingDropped;
@@ -63,7 +65,7 @@ public class StationsDispatcher extends EventHandlerAdapter{
 	}
 
 	public int getNumberOfDemandsDropped() {
-		return numberOfDemandsDropped;
+		return numberOfPassangersDropped;
 	}
 
 	public int getDemandsCount() {
@@ -89,7 +91,8 @@ public class StationsDispatcher extends EventHandlerAdapter{
 		this.eventProcessor = eventProcessor;
 		this.config = config;
 		this.tripIdGenerator = tripIdGenerator;
-		numberOfDemandsDropped = 0;
+		numberOfPassangersDropped = 0;
+		numberOfPackagesDropped = 0;
 		demandsCount = 0;
 		rebalancingDropped = 0;
 	}
@@ -170,7 +173,7 @@ public class StationsDispatcher extends EventHandlerAdapter{
 			nearestStation.handleTripRequest(demandData);
 		}
 		else{
-			numberOfDemandsDropped++;
+			numberOfPassangersDropped++;
 		}
 	}
 

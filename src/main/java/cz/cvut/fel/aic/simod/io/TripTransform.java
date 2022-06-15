@@ -64,9 +64,6 @@ public class TripTransform {
 
 	private IdGenerator tripIdGenerator;
 
-	private final int people_limit = 500;			// TODO docasne pro debugging
-	private final int packages_limit = 500;
-
 
 	@Inject
 	public TripTransform(HighwayNetwork highwayNetwork, NearestElementUtils nearestElementUtils, IdGenerator tripIdGenerator) {
@@ -128,11 +125,7 @@ public class TripTransform {
 		LOGGER.info("Loading trips from: {}", inputFile);
 		try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
 			String line;
-			int counter = 0;
 			while ((line = br.readLine()) != null) {
-				if (++counter > people_limit) {		// TODO odstranit counter
-					break;
-				}
 
 				String[] parts = line.split(" ");
 				GPSLocation startLocation
@@ -171,11 +164,7 @@ public class TripTransform {
 		LOGGER.info("Loading trips from: {}", inputFile);
 		try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
 			String line;
-			int counter = 0;
 			while ((line = br.readLine()) != null) {
-				if (++counter > packages_limit) {		// TODO odstranit counter
-					break;
-				}
 
 				String[] parts = line.split(" ");
 				GPSLocation startLocation
@@ -189,7 +178,7 @@ public class TripTransform {
 				else {
 					gpsTrips.add(
 							new TimeTrip<>(tripIdGenerator.getId(), Long.parseLong(parts[0].split("\\.")[0]), startLocation, targetLocation));
-					weights.add(Integer.parseInt(parts[6]));    // loading package weight
+					weights.add(Integer.parseInt(parts[6]));    // parsing package weight
 				}
 			}
 		}

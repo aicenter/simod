@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-from amodsim.init import config
+from simod.init import config
 
 import pandas
 
@@ -30,10 +30,24 @@ def load(experiment_dir: str) -> DataFrame:
 		= pandas.read_csv(experiment_dir + config.statistics.occupancies_file_name, names=occupancy_cols)
 	return occupancy_data
 
+def load_no_people(experiment_dir: str) -> DataFrame:
+	occupancy_data \
+		= pandas.read_csv(experiment_dir + config.statistics.no_people_occupancies_file_name, names=occupancy_cols)
+	return occupancy_data
+
+def load_people_onboard(experiment_dir: str) -> DataFrame:
+	occupancy_data \
+		= pandas.read_csv(experiment_dir + config.statistics.people_onboard_occupancies_file_name, names=occupancy_cols)
+	return occupancy_data
+
+# def load_packages(experiment_dir: str) -> DataFrame:
+# 	occupancy_data \
+# 		= pandas.read_csv(experiment_dir + config.statistics.packages_occupancies_file_name, names=occupancy_cols)
+# 	return occupancy_data
 
 def filter_window(data: DataFrame) -> DataFrame:
 	tick_start = config.analysis.chosen_window_start * 10
-	return  data[data.tick > tick_start]
+	return data[data.tick > tick_start]
 
 
 def get_occupancies(data: DataFrame, window_only: bool = False):

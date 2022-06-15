@@ -39,8 +39,9 @@ import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.io.Common;
 import cz.cvut.fel.aic.simod.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.simod.ridesharing.RidesharingDispatcher;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PhysicalPFVehicle;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.RidesharingBatchStatsPFH;
 import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStats;
-import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStatsIH;
 import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStatsVGA;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import java.io.File;
@@ -60,73 +61,77 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 public class Statistics extends AliteEntity implements EventHandler{
-	
+
 	private static final int TRANSIT_OUTPUT_BATCH_SIZE = 1000000;
-	
+
 	private static final int MILLION = 1000000;
-	
+
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Statistics.class);
-	
+
 	private final EventProcessor eventProcessor;
-	
+
 	private final LinkedList<Double> averageEdgeLoad;
-	
+
 	private final Provider<EdgesLoadByState> allEdgesLoadProvider;
-	
+
 	private final OnDemandVehicleStorage onDemandVehicleStorage;
-	
+
 	private final StationsDispatcher onDemandVehicleStationsCentral;
-	
+
 	private final LinkedList<HashMap<BigInteger,Integer>> allEdgesLoadHistory;
-	
+
 	private final HashMap<OnDemandVehicleState, LinkedList<HashMap<BigInteger,Integer>>> allEdgesLoadHistoryPerState;
-	
+
 	private final SimodConfig config;
-	
+
 	private final LinkedList<Long> vehicleLeftStationToServeDemandTimes;
-	
+
 	private final LinkedList<DemandServiceStatistic> demandServiceStatistics;
-	
+
 	private LinkedList<TransitRecord> allTransit;
-	
+
 	private final CsvWriter transitWriter;
-	
+
 	private final HashMap<OnDemandVehicleEvent,LinkedList<OnDemandVehicleEventContent>> onDemandVehicleEvents;
-	
+
 	private final LinkedList<Integer> tripDistances;
-	
+
 	private final List<Map<String,Integer>> vehicleOccupancy;
-	
+
+	private final List<Map<String,Integer>> noPeopleVehicleOccupancy;
+
+	private final List<Map<String,Integer>> peopleOnboardVehicleOccupancy;
+
 	private final List<Long> darpSolverComputationalTimes;
-	
+
 	private final DARPSolver dARPSolver;
-   
-	
+
+
 	private long tickCount;
-	
+
 	private int maxLoad;
-	
+
 	private double averageKmWithPassenger;
-	
+
 	private double averageKmToStartLocation;
-	
+
 	private double averageKmToStation;
-	
+
 	private double averageKmRebalancing;
-	
+
 	private int numberOfVehicles;
-	
+
 	private long totalDistanceWithPassenger;
-	
+
 	private long totalDistanceToStartLocation;
-	
+
 	private long totalDistanceToStation;
-	
+
 	private long totalDistanceRebalancing;
-	
-	
-	
-	
+
+
+
+
 	@Inject
 	public Statistics(TypedSimulation eventProcessor,
 					  Provider<EdgesLoadByState> allEdgesLoadProvider,
@@ -148,6 +153,8 @@ public class Statistics extends AliteEntity implements EventHandler{
 		onDemandVehicleEvents = new HashMap<>();
 		tripDistances = new LinkedList<>();
 		vehicleOccupancy = new LinkedList<>();
+		noPeopleVehicleOccupancy = new LinkedList<>();
+		peopleOnboardVehicleOccupancy = new LinkedList<>();
 		transitWriter = new CsvWriter(
 					Common.getFileWriter(config.statistics.transitStatisticFilePath));
 		darpSolverComputationalTimes = new ArrayList<>();
@@ -157,17 +164,17 @@ public class Statistics extends AliteEntity implements EventHandler{
 		for(OnDemandVehicleEvent onDemandVehicleEvent : OnDemandVehicleEvent.values()){
 			onDemandVehicleEvents.put(onDemandVehicleEvent, new LinkedList<>());
 		}
-		
+
 		tickCount = 0;
 		averageEdgeLoad = new LinkedList<>();
 		maxLoad = 0;
-		
+
 		eventProcessor.addEventHandler(this);
 		init(eventProcessor);
 	}
-	
-	
-	
+
+
+
 	public int getNumberOfVehiclsLeftStationToServeDemand(){
 		return onDemandVehicleEvents.get(OnDemandVehicleEvent.LEAVE_STATION).size();
 	}
@@ -200,13 +207,13 @@ public class Statistics extends AliteEntity implements EventHandler{
 				saveTransit();
 			}
 		}
-		
+
 	}
 
 	public void addDarpSolverComputationalTime(long totalTimeNano){
 		darpSolverComputationalTimes.add(totalTimeNano);
 	}
-	
+
 	private void handleTick() {
 		tickCount++;
 		measure();
@@ -218,21 +225,21 @@ public class Statistics extends AliteEntity implements EventHandler{
 		countEdgeLoadForInterval();
 		countVehicleOccupancyForInterval();
 	}
-	
-	
+
+
 	private void saveResult(){
 		double averageLoadTotal = countAverageEdgeLoad();
-		
-		Result result = new Result(tickCount, averageLoadTotal, maxLoad, averageKmWithPassenger, 
-				averageKmToStartLocation, averageKmToStation, averageKmRebalancing, 
-				onDemandVehicleStationsCentral.getNumberOfDemandsNotServedFromNearestStation(), 
-				onDemandVehicleStationsCentral.getNumberOfDemandsDropped(), 
+
+		Result result = new Result(tickCount, averageLoadTotal, maxLoad, averageKmWithPassenger,
+				averageKmToStartLocation, averageKmToStation, averageKmRebalancing,
+				onDemandVehicleStationsCentral.getNumberOfDemandsNotServedFromNearestStation(),
+				onDemandVehicleStationsCentral.getNumberOfDemandsDropped(),
 				onDemandVehicleStationsCentral.getDemandsCount(), numberOfVehicles,
 				onDemandVehicleStationsCentral.getNumberOfRebalancingDropped(), totalDistanceWithPassenger,
 		totalDistanceToStartLocation, totalDistanceToStation, totalDistanceRebalancing);
-		
+
 		ObjectMapper mapper = new ObjectMapper();
-		
+
 		try {
 			mapper.writeValue(new File(config.statistics.resultFilePath), result);
 		} catch (IOException ex) {
@@ -276,29 +283,29 @@ public class Statistics extends AliteEntity implements EventHandler{
 		typesToHandle.add(StatisticEvent.DEMAND_DROPPED_OFF);
 		return typesToHandle;
 	}
-	
-	
+
+
 
 	@Inject
 	private void countEdgeLoadForInterval() {
 		EdgesLoadByState allEdgesLoad = allEdgesLoadProvider.get();
-		
-		if(tickCount % (config.statistics.allEdgesLoadIntervalMilis 
+
+		if(tickCount % (config.statistics.allEdgesLoadIntervalMilis
 				/ config.statistics.statisticIntervalMilis) == 0){
 			allEdgesLoadHistory.add(allEdgesLoad.getLoadPerEdge());
-			for (Map.Entry<OnDemandVehicleState,HashMap<BigInteger, Integer>> stateEntry 
+			for (Map.Entry<OnDemandVehicleState,HashMap<BigInteger, Integer>> stateEntry
 					: allEdgesLoad.getEdgeLoadsPerState().entrySet()) {
 				OnDemandVehicleState onDemandVehicleState = stateEntry.getKey();
 				HashMap<BigInteger, Integer> loadPerState = stateEntry.getValue();
 				allEdgesLoadHistoryPerState.get(onDemandVehicleState).add(loadPerState);
 			}
-			
+
 		}
-		
+
 		int edgeLoadTotal = 0;
-		
+
 //		ArrayList<Integer> test = allEdgesLoad.test;
-		
+
 		for (Integer edgeLoad : (Iterable<Integer>) allEdgesLoad.loadsIterable) {
 			edgeLoadTotal += edgeLoad;
 			if(edgeLoad > maxLoad){
@@ -321,17 +328,17 @@ public class Statistics extends AliteEntity implements EventHandler{
 		totalDistanceToStartLocation = 0;
 		totalDistanceToStation = 0;
 		totalDistanceRebalancing = 0;
-		
-		
+
+
 		for (OnDemandVehicle onDemandVehicle : onDemandVehicleStorage) {
 			totalDistanceWithPassenger += onDemandVehicle.getMetersWithPassenger();
 			totalDistanceToStartLocation += onDemandVehicle.getMetersToStartLocation();
 			totalDistanceToStation += onDemandVehicle.getMetersToStation();
 			totalDistanceRebalancing += onDemandVehicle.getMetersRebalancing();
 		}
-		
+
 		numberOfVehicles = onDemandVehicleStorage.getEntities().size();
-		
+
 		averageKmWithPassenger = (double) totalDistanceWithPassenger / numberOfVehicles / 1000;
 		averageKmToStartLocation = (double) totalDistanceToStartLocation / numberOfVehicles / 1000;
 		averageKmToStation = (double) totalDistanceToStation / numberOfVehicles / 1000;
@@ -340,25 +347,25 @@ public class Statistics extends AliteEntity implements EventHandler{
 
 	private void saveAllEdgesLoadHistory() {
 		ObjectMapper mapper = new ObjectMapper();
-		
+
 		Map<String,Object> outputMap = new HashMap<>();
 		outputMap.put("ALL", allEdgesLoadHistory);
-		for (Map.Entry<OnDemandVehicleState, LinkedList<HashMap<BigInteger,Integer>>> stateEntry 
+		for (Map.Entry<OnDemandVehicleState, LinkedList<HashMap<BigInteger,Integer>>> stateEntry
 				: allEdgesLoadHistoryPerState.entrySet()) {
 			outputMap.put(stateEntry.getKey().name(), stateEntry.getValue());
 		}
-		
+
 		try {
 			mapper.writeValue(new File(config.statistics.allEdgesLoadHistoryFilePath), outputMap);
 		} catch (IOException ex) {
 			LOGGER.error(null, ex);
 		}
 	}
-	
+
 	private void saveTransit() {
 		try {
 			for (TransitRecord transit : allTransit) {
-				transitWriter.writeLine(Long.toString(transit.time), transit.staticId.toString(), 
+				transitWriter.writeLine(Long.toString(transit.time), transit.staticId.toString(),
 						Integer.toString(transit.vehicleState.ordinal()));
 			}
 			transitWriter.flush();
@@ -367,7 +374,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 			LOGGER.error(null, ex);
 		}
 	}
-	
+
 	private void saveDistances() {
 		try {
 			CsvWriter writer = new CsvWriter(
@@ -380,24 +387,63 @@ public class Statistics extends AliteEntity implements EventHandler{
 			LOGGER.error(null, ex);
 		}
 	}
-	
+
 	private void saveOccupancies() {
 		try {
 			CsvWriter writer = new CsvWriter(
 					Common.getFileWriter(config.statistics.occupanciesFilePath));
 			int period = 0;
-			for (Map<String,Integer> occupanciesInPeriod: vehicleOccupancy) {
-				for(Map.Entry<String,Integer> entry: occupanciesInPeriod.entrySet()){
+			for (Map<String,Integer> occupanciesInPeriod : vehicleOccupancy) {
+				for(Map.Entry<String,Integer> entry : occupanciesInPeriod.entrySet()){
 					writer.writeLine(Integer.toString(period), entry.getKey(), Integer.toString(entry.getValue()));
 				}
 				period++;
 			}
 			writer.close();
+
+			if (config.packagesOn)
+			{
+//				writer = new CsvWriter(
+//						Common.getFileWriter(config.statistics.packagesOccupanciesFilePath));
+//				period = 0;
+//				for (Map<String, Integer> occupanciesInPeriod : packageVehicleOccupancy) {
+//					for (Map.Entry<String, Integer> entry : occupanciesInPeriod.entrySet()) {
+//						writer.writeLine(Integer.toString(period), entry.getKey(), Integer.toString(entry.getValue()));
+//					}
+//					period++;
+//				}
+//				writer.close();
+
+				writer = new CsvWriter(
+						Common.getFileWriter(config.statistics.noPeopleOccupanciesFilePath));
+				period = 0;
+				for (Map<String, Integer> noPeopleOccupanciesInPeriod : noPeopleVehicleOccupancy) {
+					for (Map.Entry<String, Integer> entry : noPeopleOccupanciesInPeriod.entrySet()) {
+						writer.writeLine(Integer.toString(period), entry.getKey(), Integer.toString(entry.getValue()));
+					}
+					period++;
+				}
+				writer.close();
+
+				writer = new CsvWriter(
+						Common.getFileWriter(config.statistics.peopleOnboardOccupanciesFilePath));
+				period = 0;
+				for (Map<String, Integer> peopleOnboardOccupanciesInPeriod : peopleOnboardVehicleOccupancy) {
+					for (Map.Entry<String, Integer> entry : peopleOnboardOccupanciesInPeriod.entrySet()) {
+						writer.writeLine(Integer.toString(period), entry.getKey(), Integer.toString(entry.getValue()));
+					}
+					period++;
+				}
+				writer.close();
+			}
+
+
+
 		} catch (IOException ex) {
 			LOGGER.error(null, ex);
 		}
 	}
-	
+
 	private void saveDarpSolverComputationalTimes() {
 		List<Long> times = ((RidesharingDispatcher) onDemandVehicleStationsCentral).getDarpSolverComputationalTimes();
 		try {
@@ -412,16 +458,16 @@ public class Statistics extends AliteEntity implements EventHandler{
 			LOGGER.error(null, ex);
 		}
 	}
-	
+
 	private void saveServiceStatistics() {
 		try {
 			CsvWriter writer = new CsvWriter(
 					Common.getFileWriter(config.statistics.serviceFilePath));
 			for (DemandServiceStatistic demandServiceStatistic: demandServiceStatistics) {
-				writer.writeLine(Long.toString(demandServiceStatistic.getDemandTime()), 
-						demandServiceStatistic.getDemandId(), demandServiceStatistic.getVehicleId(), 
-						Long.toString(demandServiceStatistic.getPickupTime()), 
-						Long.toString(demandServiceStatistic.getDropoffTime()), 
+				writer.writeLine(Long.toString(demandServiceStatistic.getDemandTime()),
+						demandServiceStatistic.getDemandId(), demandServiceStatistic.getVehicleId(),
+						Long.toString(demandServiceStatistic.getPickupTime()),
+						Long.toString(demandServiceStatistic.getDropoffTime()),
 						Long.toString(demandServiceStatistic.getMinPossibleServiceDelay()));
 			}
 			writer.close();
@@ -429,7 +475,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 			LOGGER.error(null, ex);
 		}
 	}
-	
+
 	private void saveRidesharingStatistics() {
                 int highestGroup = 0;
 		if(dARPSolver.getRidesharingStats().size() < 1){
@@ -438,11 +484,11 @@ public class Statistics extends AliteEntity implements EventHandler{
 		try {
 			CsvWriter writer = new CsvWriter(
 					Common.getFileWriter(config.statistics.ridesharingFilePath));
-			
+
 			// header line
 			if(config.ridesharing.method.equals("vga")){
-				
-				RidesharingBatchStatsVGA longestGroupStat 
+
+				RidesharingBatchStatsVGA longestGroupStat
 						= (RidesharingBatchStatsVGA) dARPSolver.getRidesharingStats().get(0);
 				for(RidesharingBatchStats stat: dARPSolver.getRidesharingStats()){
 					RidesharingBatchStatsVGA statVga = (RidesharingBatchStatsVGA) stat;
@@ -450,12 +496,12 @@ public class Statistics extends AliteEntity implements EventHandler{
 						longestGroupStat = statVga;
 					}
 				}
-				
+
                 highestGroup = longestGroupStat.groupSizeData.length;
-                                
-				List<String> writerLine = new ArrayList(Arrays.asList("Batch", "New Request Count", "Active Request Count", 
+
+				List<String> writerLine = new ArrayList(Arrays.asList("Batch", "New Request Count", "Active Request Count",
 						"Group Generation Time", "Solver Time", "Solver gap"));
-				
+
 				for(int i = 0; i < longestGroupStat.groupSizeData.length; i++){
 					writerLine.add(String.format("%s Groups Count", i + 1));
 					writerLine.add(String.format("%s Groups Total Time", i + 1));
@@ -466,16 +512,16 @@ public class Statistics extends AliteEntity implements EventHandler{
 				}
 				writer.writeLine(writerLine.toArray(new String[0]));
 			}
-			else{				
-				writer.writeLine("Batch", "New Request Count", "Fail Fast Time", "Insertion Heuristic Time", 
+			else{
+				writer.writeLine("Batch", "New Request Count", "Fail Fast Time", "PeopleFreight Heuristic Time",
 						"Log Fail Time");
 			}
-			
+
 			int batch = 0;
 			for (RidesharingBatchStats ridesharingStat: dARPSolver.getRidesharingStats()) {
-				if(config.ridesharing.method.equals("vga")){	
+				if(config.ridesharing.method.equals("vga")){
 					RidesharingBatchStatsVGA vgaStat = (RidesharingBatchStatsVGA) ridesharingStat;
-					
+
 					List<String> writerLine = new ArrayList<>();
 					writerLine.add(Integer.toString(batch));
 					writerLine.add(Integer.toString(vgaStat.newRequestCount));
@@ -483,7 +529,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 					writerLine.add(Integer.toString(vgaStat.groupGenerationTime));
 					writerLine.add(Integer.toString(vgaStat.solverTime));
 					writerLine.add(Double.toString(vgaStat.gap));
-					
+
 					for(int i = 0; i < highestGroup; i++){
 						if(i < vgaStat.groupSizeDataPlanExists.length){
 							writerLine.add(Integer.toString(vgaStat.groupSizeData[i].groupCount));
@@ -494,7 +540,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 							writerLine.add(Integer.toString(0));
 						}
 					}
-					
+
 					for(int i = 0; i < highestGroup; i++){
 						if(i < vgaStat.groupSizeDataPlanExists.length){
 							writerLine.add(Integer.toString(vgaStat.groupSizeDataPlanExists[i].groupCount));
@@ -505,14 +551,14 @@ public class Statistics extends AliteEntity implements EventHandler{
 							writerLine.add(Integer.toString(0));
 						}
 					}
-					
+
 					writer.writeLine(writerLine.toArray(new String[writerLine.size()]));
 				}
 				else{
-					RidesharingBatchStatsIH vgaStat = (RidesharingBatchStatsIH) ridesharingStat;
-					
-					writer.writeLine(Integer.toString(batch), Integer.toString(vgaStat.newRequestCount), 
-					Integer.toString(vgaStat.failFastTime), Integer.toString(vgaStat.ihTime),
+					RidesharingBatchStatsPFH vgaStat = (RidesharingBatchStatsPFH) ridesharingStat;
+
+					writer.writeLine(Integer.toString(batch), Integer.toString(vgaStat.newRequestCount),
+					Integer.toString(vgaStat.failFastTime), Long.toString(vgaStat.pfhTime),
 					Integer.toString(vgaStat.logFailTime));
 				}
 				batch++;
@@ -552,7 +598,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 					filepath = config.statistics.onDemandVehicleStatistic.finishRebalancingFilePath;
 					break;
 			}
-			
+
 			try {
 				CsvWriter writer = new CsvWriter(Common.getFileWriter(filepath));
 				for (OnDemandVehicleEventContent event : events) {
@@ -567,13 +613,25 @@ public class Statistics extends AliteEntity implements EventHandler{
 
 	private void countVehicleOccupancyForInterval() {
 		Map<String,Integer> occupancies = new HashMap<>();
+		Map<String,Integer> noPeopleOccupancies = new HashMap<>();
+		Map<String,Integer> peopleOnboardOccupancies = new HashMap<>();
 		for(OnDemandVehicle onDemandVehicle: onDemandVehicleStorage){
-			if(onDemandVehicle.getState() != OnDemandVehicleState.WAITING 
+			if(onDemandVehicle.getState() != OnDemandVehicleState.WAITING
 					&& onDemandVehicle.getState() != OnDemandVehicleState.REBALANCING){
 				occupancies.put(onDemandVehicle.getId(), onDemandVehicle.getVehicle().getTransportedEntities().size());
+				if (config.packagesOn) {
+					if (onDemandVehicle.getVehicle().getTransportedEntities().size() == 0) {
+						noPeopleOccupancies.put(onDemandVehicle.getId(), ((PhysicalPFVehicle )onDemandVehicle.getVehicle()).getTransportedPackages().size());
+					}
+					else {
+						peopleOnboardOccupancies.put(onDemandVehicle.getId(), ((PhysicalPFVehicle )onDemandVehicle.getVehicle()).getTransportedPackages().size());
+					}
+				}
 			}
 		}
 		vehicleOccupancy.add(occupancies);
+		noPeopleVehicleOccupancy.add(noPeopleOccupancies);
+		peopleOnboardVehicleOccupancy.add(peopleOnboardOccupancies);
 	}
 
 	private void handleDemandDropoff(DemandServiceStatistic demandServiceStatistic) {

@@ -5,14 +5,14 @@ import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStats;
 public class RidesharingBatchStatsPFH extends RidesharingBatchStats {
 	public final int failFastTime;
 
-	public final int pfhTime;
+	public final long pfhTime;
 
 	public final int logFailTime;
 
-	public RidesharingBatchStatsPFH(int newRequestCount, int failFastTime, int pfhTime, int logFailTime) {
+	public RidesharingBatchStatsPFH(int newRequestCount, long pfhTime, int failFastTime, int logFailTime) {
 		super(newRequestCount);
-		this.failFastTime = failFastTime;
 		this.pfhTime = pfhTime;
+		this.failFastTime = failFastTime;
 		this.logFailTime = logFailTime;
 	}
 }

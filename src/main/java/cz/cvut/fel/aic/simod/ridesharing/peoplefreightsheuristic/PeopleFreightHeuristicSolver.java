@@ -226,28 +226,39 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 		List<PeopleFreightVehicle> availableTaxis;
 
 		for (int i = 0; i < newRequestsAll.size(); i++) {
- 			DefaultPFPlanCompRequest currentRequest = (DefaultPFPlanCompRequest) newRequestsAll.get(i);
+			DefaultPFPlanCompRequest currentRequest = (DefaultPFPlanCompRequest) newRequestsAll.get(i);
 
 			// select vehicles available at the moment
 			availableTaxis = new ArrayList<>();
 			for (int j = 0; j < allVehicles.size(); j++) {
-				// if taxi j is not carrying person at the moment
-				if (!allVehicles.get(j).isPassengerOnboard()) {
-
-					// if currentRequest is of type package: check if vehicle has enough space for the package
-					if (currentRequest instanceof PlanComputationRequestFreight) {
-						if (((PlanComputationRequestFreight) currentRequest).getWeight() <= allVehicles.get(j).getFreePackagesCapacity()) {
-							availableTaxis.add(allVehicles.get(j));
-						}
-					}
-					// otherwise add it right away
-					else {
+				// if currentRequest is a package: check if vehicle has enough space for the package
+				if (currentRequest instanceof PlanComputationRequestFreight) {
+					if (((PlanComputationRequestFreight) currentRequest).getWeight() <= allVehicles.get(j).getFreePackagesCapacity()) {
 						availableTaxis.add(allVehicles.get(j));
 					}
-
-//					availableTaxis.add(allVehicles.get(j));
+				}
+				// if currentRequest is a person
+				else {
+					if (allVehicles.get(j).getFreeCapacity() > 0) {
+						availableTaxis.add(allVehicles.get(j));
+					}
 				}
 			}
+//				// if taxi j has free capacity for a passanger at the moment
+//				if (allVehicles.get(j).getFreeCapacity() > 0) {
+//
+//					// if currentRequest is of type package: check if vehicle has enough space for the package
+//					if (currentRequest instanceof PlanComputationRequestFreight) {
+//						if (((PlanComputationRequestFreight) currentRequest).getWeight() <= allVehicles.get(j).getFreePackagesCapacity()) {
+//							availableTaxis.add(allVehicles.get(j));
+//						}
+//					}
+//					// otherwise add it right away
+//					else {
+//						availableTaxis.add(allVehicles.get(j));
+//					}
+//
+//					availableTaxis.add(allVehicles.get(j));
 
 			double bestBenefit;         // f_i* - best total benefit, if request i is served
 			int bestTaxiIdx = -1;        // k* - taxi to serve request i to get the best total benefit
@@ -272,7 +283,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 					// benefit_k_i = new total benefit if taxi k serves request i
 					// TODO implement - calculate passenger's revenue ???
 					double passengerRevenue = 0;
-					double benefit_k_i = passengerRevenue - planCostProvider.calculatePlanCost(planDiscomfort, (int)(bestSchedule.duration / 1000));
+					double benefit_k_i = passengerRevenue - planCostProvider.calculatePlanCost(planDiscomfort, (int) (bestSchedule.duration / 1000));
 					if (benefit_k_i > bestBenefit) {
 						bestBenefit = benefit_k_i;
 						bestTaxiIdx = allVehicles.indexOf(currentTaxi);        // updating the idx of best taxi so far
@@ -320,7 +331,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 		List<PlanAction> possibleTaxiSchedule = new ArrayList<>(taxiSchedules.get(taxiIndex));
 
 		possibleTaxiSchedule.add(newRequest.getPickUpAction());
-		possibleTaxiSchedule.add(newRequest.getDropOffAction());        // TODO: maybe VYLEPSENI - implementovat vlastni insert = rychlejsi?
+		possibleTaxiSchedule.add(newRequest.getDropOffAction());
 		possibleTaxiSchedule.sort(new SortActionsByMaxTime());
 
 		// pairs of EarlyTime and LateTime
@@ -344,29 +355,31 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 		}
 
 		// for every Node: check if taxi is capable of carrying the passenger or package and whether it's possible to get to the next node
-		boolean personOnBoard = allVehicles.get(taxiIndex).isPassengerOnboard();
-		String personOnBoardId = "";
-		if (personOnBoard) {
-			personOnBoardId = ((DemandAgent) allVehicles.get(taxiIndex).getVehicle().getTransportedEntities().get(0)).getId();
-		}    
+//		boolean personOnBoard = allVehicles.get(taxiIndex).isPassengerOnboard();
+//		String personOnBoardId = "";
+//		if (personOnBoard) {
+//			personOnBoardId = ((DemandAgent) allVehicles.get(taxiIndex).getVehicle().getTransportedEntities().get(0)).getId();
+//		}
+		int curNumPassengers = allVehicles.get(taxiIndex).getOnBoardCount();
+		final int taxiMaxPassengers = allVehicles.get(taxiIndex).getCapacity();
 		int curFreightWeight = allVehicles.get(taxiIndex).getCurrentPackagesWeight();
-		final int taxiMaxCapacity = allVehicles.get(taxiIndex).getMaxPackagesCapacity();
+		final int taxiMaxFreightCapacity = allVehicles.get(taxiIndex).getMaxPackagesCapacity();
+
 		for (int i = 0; i < possibleTaxiSchedule.size() - 1; i++)   // size-1 ... the last Node of taxi has no following Node to be checked
 		{
-			// check for sufficient person capacity
 			PlanAction action = possibleTaxiSchedule.get(i);
 			if (action instanceof PlanActionPickup) {
-				// if person is on board, reject
-				if (personOnBoard) {
-					return;
-				}
+//				// if person is on board, reject
+//				if (personOnBoard) {
+//					return;
+//				}
 				PlanActionPickup pickAction = (PlanActionPickup) action;
 				PlanComputationRequest pickRequest = pickAction.request;
 				// if Package
 				// checking sufficient freight capacity
 				if (pickRequest instanceof PlanComputationRequestFreight) {
 					// if not sufficient freight capacity, reject
-					if (((PlanComputationRequestFreight) pickRequest).getWeight() + curFreightWeight > taxiMaxCapacity) {
+					if (((PlanComputationRequestFreight) pickRequest).getWeight() + curFreightWeight > taxiMaxFreightCapacity) {
 						return;
 					}
 					// adding the package onBoard
@@ -374,9 +387,13 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 				}
 				// if Agent
 				else {
-					// adding the person onBoard
-					personOnBoard = true;
-					personOnBoardId = pickRequest.getDemandEntity().getId();
+					if (curNumPassengers + 1 > taxiMaxPassengers) {
+						return;
+					}
+					else {
+						// adding the person onBoard
+						curNumPassengers += 1;
+					}
 				}
 			}
 			else if (action instanceof PlanActionDropoff) {
@@ -385,23 +402,12 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 
 				// if Agent
 				if (dropRequest instanceof PlanComputationRequestPeople) {
-					if (personOnBoard && (((PlanActionDropoff) action).request).getDemandEntity().getId().equals(personOnBoardId)) {
-						// remove the person from the taxi
-						personOnBoard = false;
-						personOnBoardId = "";
-					}
-					else {
-						return;
-					}
+					// remove the person from the taxi
+					curNumPassengers -= 1;
 				}
 				// if Package
 				else {
-					if (personOnBoard) {
-						return;
-					}
-					else {
-						curFreightWeight -= ((PlanComputationRequestFreight) dropRequest).getWeight();
-					}
+					curFreightWeight -= ((PlanComputationRequestFreight) dropRequest).getWeight();
 				}
 			}
 			else {
@@ -411,7 +417,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 
 			TimeWindow currentTimeWindow = timeWindows.get(i);
 			long travelTime = travelTimeProvider.getExpectedTravelTime(possibleTaxiSchedule.get(i).getPosition(),
-																			possibleTaxiSchedule.get(i + 1).getPosition());
+					possibleTaxiSchedule.get(i + 1).getPosition());
 			long earlyTime = currentTimeWindow.earlyTime + travelTime;
 			long lateTime = currentTimeWindow.lateTime + travelTime;
 
@@ -421,7 +427,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 				return;
 			}
 			timeWindows.set(i + 1, new TimeWindow(Math.max(earlyTime, timeWindows.get(i + 1).earlyTime),
-													Math.min(lateTime, timeWindows.get(i + 1).lateTime)) );
+					Math.min(lateTime, timeWindows.get(i + 1).lateTime)));
 		}
 		// planTime = earlyTime of last time window - earlyTime of first time window
 		long planTime = timeWindows.get(timeWindows.size() - 1).earlyTime - timeWindows.get(0).earlyTime;
@@ -430,8 +436,7 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 	}
 
 
-	private void logRidesharingStats(List<PlanComputationRequest> requests)
-	{
+	private void logRidesharingStats(List<PlanComputationRequest> requests) {
 		ridesharingStats.add(new RidesharingBatchStatsPFH(requests.size(), peopleFreightHeuristicTime, 0, 0));
 	}
 
@@ -459,9 +464,6 @@ public class PeopleFreightHeuristicSolver extends DARPSolverPFShared implements 
 	}
 
 }
-
-
-
 
 
 // ======================================================= NOT PART OF ALGORITHM ================================================================

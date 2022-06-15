@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 public class PhysicalPFVehicle extends PhysicalTransportVehicle implements TransportEntity
 {
 	// the vehiclePassengerCapacity is always 1 for PF vehicles
-	private static final int vehiclePassengerCapacity = 1;
+	private static final int vehiclePassengerCapacity = 4;
 
 	protected final List<TransportableEntity> transportedPackages;
 	private final int vehiclePackagesCapacity;

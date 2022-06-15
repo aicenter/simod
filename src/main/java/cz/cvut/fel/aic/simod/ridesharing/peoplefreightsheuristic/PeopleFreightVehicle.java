@@ -66,7 +66,6 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle {
 				physVehicle);
 
 
-//		vehicle.setDriver(this);
 		this.passengerOnboard = false;
 	}
 
@@ -134,11 +133,11 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle {
 		try {
 			DefaultPFPlanCompRequest request = (DefaultPFPlanCompRequest) ((PlanActionPickup) currentTask).getRequest();
 			TransportableDemandEntity demandEntity = request.getDemandEntity();
-			if (passengerOnboard) {
-				throw new Exception(
-						String.format("Demand entity %s cannot be picked up, because passenger is onboard! Current simulation "
-								+ "time: %s", demandEntity, timeProvider.getCurrentSimTime()));
-			}
+//			if (passengerOnboard) {
+//				throw new Exception(
+//						String.format("Demand entity %s cannot be picked up, because passenger is onboard! Current simulation "
+//								+ "time: %s", demandEntity, timeProvider.getCurrentSimTime()));
+//			}
 
 			if (demandEntity.isDropped()) {
 				long currentTime = timeProvider.getCurrentSimTime();
@@ -183,12 +182,11 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle {
 			DefaultPFPlanCompRequest request = (DefaultPFPlanCompRequest) ((PlanActionDropoff) currentTask).getRequest();
 			TransportableDemandEntity demandEntity = request.getDemandEntity();
 
-			if (passengerOnboard && request instanceof PlanComputationRequestFreight) {
-				throw new Exception(
-						String.format("Demand entity %s cannot be dropped off, because passenger is onboard! Current simulation "
-								+ "time: %s", demandEntity, timeProvider.getCurrentSimTime()));
-				//TODO time=575, vehicle 1-5, package 44
-			}
+//			if (passengerOnboard && request instanceof PlanComputationRequestFreight) {
+//				throw new Exception(
+//						String.format("Demand entity %s cannot be dropped off, because passenger is onboard! Current simulation "
+//								+ "time: %s", demandEntity, timeProvider.getCurrentSimTime()));
+//			}
 			demandEntity.tripEnded();
 			vehicle.dropOff(demandEntity);
 

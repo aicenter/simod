@@ -24,6 +24,7 @@ import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.TransportableDemandEntity;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 
 /**
@@ -115,7 +116,7 @@ public class TestPlanRequest implements PlanComputationRequest
 	}
 
 	@Override
-	public DemandAgent getDemandAgent() {
+	public TransportableDemandEntity getDemandEntity() {
 		return null;
 	}
 

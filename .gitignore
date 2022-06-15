@@ -6,6 +6,7 @@
 
 data
 /data/data.zip
+PLOTS
 
 nbactions*.xml
 nb-configuration.xml

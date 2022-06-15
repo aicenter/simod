@@ -24,6 +24,8 @@ import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.TransportableDemandEntity;
+
 import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Objects;
@@ -300,7 +302,7 @@ public class SetBenchmark {
 		}
 
 		@Override
-		public DemandAgent getDemandAgent() {
+		public TransportableDemandEntity getDemandEntity() {
 			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 		}
 

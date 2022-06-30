@@ -161,7 +161,7 @@ public class MainModule extends StandardAgentPolisModule{
 //						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
 //			}
 
-			switch(simodConfig.ridesharing.method){
+			switch(simodConfig.ridesharing.method) {
 				case "insertion-heuristic":
 					bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
 					break;
@@ -170,14 +170,17 @@ public class MainModule extends StandardAgentPolisModule{
 					bind(SingleVehicleDARPSolver.class).to(ArrayOptimalVehiclePlanFinder.class);
 		//			bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
 					break;
-				case "people-freight-heuristic":
+				case "pf-base":
 //					bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
-					bind(DARPSolver.class).to(PeopleFreightHeuristicSolver.class);
-					bind(DARPSolverPFShared.class).to(PeopleFreightHeuristicSolver.class);
+					bind(DARPSolver.class).to(PFSolverMultiInsertion.class);
+					bind(DARPSolverPFShared.class).to(PFSolverMultiInsertion.class);
 					break;
+				case "pf-multi-insertion":
+					bind(DARPSolver.class).to(PFSolverMultiInsertion.class);
+					bind(DARPSolverPFShared.class).to(PFSolverMultiInsertion.class);
 			}
 		}
-		else{
+		else {
 			bind(OnDemandVehicleFactorySpec.class).to(OnDemandVehicleFactory.class);
 		}
 

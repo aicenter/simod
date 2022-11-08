@@ -11,6 +11,8 @@ class Statistics:
         self.occupancies_file_path = properties.get("occupancies_file_path")
         self.packages_occupancies_file_name = properties.get("packages_occupancies_file_name")
         self.packages_occupancies_file_path = properties.get("packages_occupancies_file_path")
+        self.combined_occupancies_file_path = properties.get("combined_occupancies_file_path")
+        self.combined_occupancies_file_name = properties.get("combined_occupancies_file_name")
 
         self.no_people_occupancies_file_name = properties.get("no_people_occupancies_file_name")
         self.no_people_occupancies_file_path = properties.get("no_people_occupancies_file_path")

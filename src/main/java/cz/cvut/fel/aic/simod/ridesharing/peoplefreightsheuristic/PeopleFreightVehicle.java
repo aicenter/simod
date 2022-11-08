@@ -20,15 +20,21 @@ import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanRequestAction;
-import cz.cvut.fel.aic.simod.statistics.PickupEventContent;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class PeopleFreightVehicle extends RideSharingOnDemandVehicle {
 
 	private boolean passengerOnboard;
+
+	private int totalSharedRequestsCount;
+
+	private int requestsOnboardCount;
+
+	private HashSet<String> alreadySharedEntitiesOnboard;
 
 	@Inject
 	public PeopleFreightVehicle(
@@ -67,6 +73,9 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle {
 
 
 		this.passengerOnboard = false;
+		this.totalSharedRequestsCount = 0;
+		this.requestsOnboardCount = 0;
+		alreadySharedEntitiesOnboard = new HashSet<>();
 	}
 
 
@@ -90,6 +99,9 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle {
 		this.passengerOnboard = passengerOnboard;
 	}
 
+	public int getTotalSharedRequestsCount() {
+		return totalSharedRequestsCount;
+	}
 
 	@Override
 	protected void leavingStationEvent() {
@@ -128,16 +140,31 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle {
 		}
 	}
 
+	// returns boolean whether the only entity onboard was already counted as shared, or not
+	private boolean isCurrentSingleRequestOnboardShared() {
+		return alreadySharedEntitiesOnboard.contains( getOnlyEntityOnboardId() );
+	}
+
+	// returns Id of the only entity onboard
+	private String getOnlyEntityOnboardId() {
+		if (vehicle.getTransportedEntities().size() == 1) {
+			return ((TransportableDemandEntity) vehicle.getTransportedEntities().get(0)).getId();
+		}
+		else {
+			return ((TransportableDemandEntity) ((PhysicalPFVehicle) vehicle).getTransportedPackages().get(0)).getId();
+		}
+	}
+
 	@Override
 	protected void pickupAndContinue() {
 		try {
 			DefaultPFPlanCompRequest request = (DefaultPFPlanCompRequest) ((PlanActionPickup) currentTask).getRequest();
 			TransportableDemandEntity demandEntity = request.getDemandEntity();
-//			if (passengerOnboard) {
-//				throw new Exception(
-//						String.format("Demand entity %s cannot be picked up, because passenger is onboard! Current simulation "
-//								+ "time: %s", demandEntity, timeProvider.getCurrentSimTime()));
-//			}
+			if (config.ridesharing.method.equals("pf-base") && passengerOnboard) {
+				throw new Exception(
+						String.format("Demand entity %s cannot be picked up, because passenger is onboard! Current simulation "
+								+ "time: %s", demandEntity, timeProvider.getCurrentSimTime()));
+			}
 
 			if (demandEntity.isDropped()) {
 				long currentTime = timeProvider.getCurrentSimTime();
@@ -146,13 +173,28 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle {
 						String.format("Demand entity %s cannot be picked up, it is already dropped! Current simulation "
 								+ "time: %s, drop time: %s", demandEntity, currentTime, droppTime));
 			}
+
+			// Statistics
+			if (requestsOnboardCount == 1) {
+				if (isCurrentSingleRequestOnboardShared()) {
+					totalSharedRequestsCount++;
+					alreadySharedEntitiesOnboard.add(demandEntity.getId());
+				}
+				else {
+					totalSharedRequestsCount += 2;
+					alreadySharedEntitiesOnboard.add(getOnlyEntityOnboardId());
+					alreadySharedEntitiesOnboard.add(demandEntity.getId());
+				}
+			}
+			else if (requestsOnboardCount >= 2) {
+				totalSharedRequestsCount++;
+				alreadySharedEntitiesOnboard.add(demandEntity.getId());
+			}
+
 			demandEntity.tripStarted(this);
 			vehicle.pickUp(demandEntity);
+			requestsOnboardCount += 1;
 
-//			if (request instanceof PlanComputationRequestFreight) {
-//				int newParcelsWeight = getCurrentParcelsWeight() + ((PlanComputationRequestFreight) request).getWeight();
-//				setCurrentParcelsWeight(newParcelsWeight);
-//			}
 
 			DemandEntityType demandType;
 			if (request instanceof PlanComputationRequestPeople) {
@@ -182,18 +224,18 @@ public class PeopleFreightVehicle extends RideSharingOnDemandVehicle {
 			DefaultPFPlanCompRequest request = (DefaultPFPlanCompRequest) ((PlanActionDropoff) currentTask).getRequest();
 			TransportableDemandEntity demandEntity = request.getDemandEntity();
 
-//			if (passengerOnboard && request instanceof PlanComputationRequestFreight) {
-//				throw new Exception(
-//						String.format("Demand entity %s cannot be dropped off, because passenger is onboard! Current simulation "
-//								+ "time: %s", demandEntity, timeProvider.getCurrentSimTime()));
-//			}
+			if (config.ridesharing.method.equals("pf-base") && passengerOnboard && request instanceof PlanComputationRequestFreight) {
+				throw new Exception(
+						String.format("Demand entity %s cannot be dropped off, because passenger is onboard! Current simulation "
+								+ "time: %s", demandEntity, timeProvider.getCurrentSimTime()));
+			}
+			alreadySharedEntitiesOnboard.remove(demandEntity.getId());
+
 			demandEntity.tripEnded();
 			vehicle.dropOff(demandEntity);
+			requestsOnboardCount -= 1;
 
-			//		if (request instanceof PlanComputationRequestFreight) {
-			//			int newParcelsWeight = getCurrentParcelsWeight() - ((PlanComputationRequestFreight) request).getWeight();
-			//			setCurrentParcelsWeight(newParcelsWeight);
-			//		}
+
 			if (request instanceof PlanComputationRequestPeople) {
 				passengerOnboard = false;
 			}

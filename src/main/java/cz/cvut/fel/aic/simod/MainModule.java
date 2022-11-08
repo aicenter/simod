@@ -171,9 +171,12 @@ public class MainModule extends StandardAgentPolisModule{
 		//			bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
 					break;
 				case "pf-base":
-//					bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
-					bind(DARPSolver.class).to(PFSolverMultiInsertion.class);
-					bind(DARPSolverPFShared.class).to(PFSolverMultiInsertion.class);
+					bind(DARPSolver.class).to(PFSolverBase.class);
+					bind(DARPSolverPFShared.class).to(PFSolverBase.class);
+					break;
+				case "pf-multipass":
+					bind(DARPSolver.class).to(PFSolverMultipass.class);
+					bind(DARPSolverPFShared.class).to(PFSolverMultipass.class);
 					break;
 				case "pf-multi-insertion":
 					bind(DARPSolver.class).to(PFSolverMultiInsertion.class);

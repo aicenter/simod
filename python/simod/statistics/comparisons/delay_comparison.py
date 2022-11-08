@@ -29,7 +29,7 @@ from matplotlib.ticker import FuncFormatter
 
 FONT_SIZE = 18
 
-matplotlib.rcParams['text.usetex'] = True
+matplotlib.rcParams['text.usetex'] = False
 matplotlib.rcParams.update({'font.size': FONT_SIZE})
 
 
@@ -100,7 +100,7 @@ axes.yaxis.set_major_formatter(FuncFormatter(to_percent))
 
 plt.legend(loc='upper right')
 
-plt.savefig(config.images.delay_histogram_comparison, bbox_inches='tight', transparent=True)
+# plt.savefig(config.images.delay_histogram_comparison, bbox_inches='tight', transparent=True)
 
 
 # combined plots
@@ -141,7 +141,7 @@ for patch_set, hatch in zip(patches, common.hatches[1:]):
 
 plt.legend(loc='upper right', labelspacing=0.01)
 
-plt.savefig(config.images.delay_histogram_comparison_combined, bbox_inches='tight', transparent=True, pad_inches=0.0, dpi=fig.dpi)
+# plt.savefig(config.images.delay_histogram_comparison_combined, bbox_inches='tight', transparent=True, pad_inches=0.0, dpi=fig.dpi)
 
 plt.show()
 

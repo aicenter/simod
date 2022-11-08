@@ -14,6 +14,7 @@ import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
+import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.ridesharing.*;
@@ -30,42 +31,6 @@ import java.util.*;
 import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.LoggerFactory;
 
-/**
- * comparator for sorting Requests
- */
-//class SortRequestsByOriginTime implements Comparator<PlanComputationRequest> {
-//	public int compare(PlanComputationRequest a, PlanComputationRequest b) {
-//		return a.getOriginTime() - b.getOriginTime();
-//	}
-//}
-//
-//class SortActionsByMaxTime implements Comparator<PlanAction> {
-//	public int compare(PlanAction a, PlanAction b) {
-//		return ((PlanRequestAction) a).getMaxTime() - ((PlanRequestAction) b).getMaxTime();
-//	}
-//}
-//
-//// structure to store a taxi schedule and it's duration
-//class ScheduleWithDuration {
-//	protected final List<PlanAction> schedule;
-//	protected final long duration;
-//
-//	public ScheduleWithDuration(List<PlanAction> schedule, long duration) {
-//		this.schedule = schedule;
-//		this.duration = duration;
-//	}
-//}
-//
-//class TimeWindow {
-//	protected long earlyTime;
-//	protected long lateTime;
-//
-//	public TimeWindow(long earlyTime, long lateTime) {
-//		this.earlyTime = earlyTime;
-//		this.lateTime = lateTime;
-//	}
-//}
-
 
 @Singleton
 public class PFSolverBase extends DARPSolverPFShared implements EventHandler {
@@ -78,11 +43,11 @@ public class PFSolverBase extends DARPSolverPFShared implements EventHandler {
 
 	private final SimodConfig config;
 
-	private final double maxDistance = 10;
+	private final double maxDistance;
 
-	private final double maxDistanceSquared = 100;
+	private final double maxDistanceSquared;
 
-	private final int maxDelayTime = 1000;
+	private final int maxDelayTime;
 
 	private final TimeProvider timeProvider;
 
@@ -152,15 +117,13 @@ public class PFSolverBase extends DARPSolverPFShared implements EventHandler {
 		setEventHandeling();
 
 
-/*
-        // max distance in meters between vehicle and request for the vehicle to be considered to serve the request
-        maxDistance = (double) config.ridesharing.maxProlongationInSeconds
-                * agentpolisConfig.maxVehicleSpeedInMeters;
-        maxDistanceSquared = maxDistance * maxDistance;
-        // the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the
-        // vehicle to be considered to serve the request
-        maxDelayTime = config.ridesharing.maxProlongationInSeconds * 1000;
-*/
+		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
+		maxDistance = (double) config.ridesharing.maxProlongationInSeconds
+				* agentpolisConfig.maxVehicleSpeedInMeters;
+		maxDistanceSquared = maxDistance * maxDistance;
+		// the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the
+		// vehicle to be considered to serve the request
+		maxDelayTime = config.ridesharing.maxProlongationInSeconds * 1000;
 
 
 	}
@@ -230,6 +193,11 @@ public class PFSolverBase extends DARPSolverPFShared implements EventHandler {
 			// select vehicles available at the moment
 			availableTaxis = new ArrayList<>();
 			for (int j = 0; j < allVehicles.size(); j++) {
+				// first check if vehicle is in a range of maxDistance
+				if (!(canServeRequest(allVehicles.get(j), currentRequest))) {
+					continue;
+				}
+
 				// if taxi j is not carrying person at the moment
 				if (!allVehicles.get(j).isPassengerOnboard()) {
 
@@ -243,8 +211,6 @@ public class PFSolverBase extends DARPSolverPFShared implements EventHandler {
 					else {
 						availableTaxis.add(allVehicles.get(j));
 					}
-
-//					availableTaxis.add(allVehicles.get(j));
 				}
 			}
 
@@ -269,9 +235,8 @@ public class PFSolverBase extends DARPSolverPFShared implements EventHandler {
 					}
 
 					// benefit_k_i = new total benefit if taxi k serves request i
-					// TODO implement - calculate passenger's revenue ???
 					double passengerRevenue = 0;
-					double benefit_k_i = passengerRevenue - planCostProvider.calculatePlanCost(planDiscomfort, (int)(bestSchedule.duration / 1000));
+					double benefit_k_i = passengerRevenue - planCostProvider.calculatePlanCost(planDiscomfort, (int) (bestSchedule.duration / 1000));
 					if (benefit_k_i > bestBenefit) {
 						bestBenefit = benefit_k_i;
 						bestTaxiIdx = allVehicles.indexOf(currentTaxi);        // updating the idx of best taxi so far
@@ -351,8 +316,7 @@ public class PFSolverBase extends DARPSolverPFShared implements EventHandler {
 		}
 		int curFreightWeight = allVehicles.get(taxiIndex).getCurrentPackagesWeight();
 		final int taxiMaxCapacity = allVehicles.get(taxiIndex).getMaxPackagesCapacity();
-		for (int i = 0; i < possibleTaxiSchedule.size() - 1; i++)   // size-1 ... the last Node of taxi has no following Node to be checked
-		{
+		for (int i = 0; i < possibleTaxiSchedule.size() - 1; i++) {  	// "size - 1" ... the last Node of taxi has no following Node to be checked
 			// check for sufficient person capacity
 			PlanAction action = possibleTaxiSchedule.get(i);
 			if (action instanceof PlanActionPickup) {
@@ -421,7 +385,7 @@ public class PFSolverBase extends DARPSolverPFShared implements EventHandler {
 				return;
 			}
 			timeWindows.set(i + 1, new TimeWindow(Math.max(earlyTime, timeWindows.get(i + 1).earlyTime),
-					Math.min(lateTime, timeWindows.get(i + 1).lateTime)) );
+					Math.min(lateTime, timeWindows.get(i + 1).lateTime)));
 		}
 		// planDuration = earlyTime of last time window - earlyTime of first time window
 		long planDuration = timeWindows.get(timeWindows.size() - 1).earlyTime - timeWindows.get(0).earlyTime;
@@ -431,9 +395,37 @@ public class PFSolverBase extends DARPSolverPFShared implements EventHandler {
 	}
 
 
-	private void logRidesharingStats(List<PlanComputationRequest> requests)
-	{
+	private void logRidesharingStats(List<PlanComputationRequest> requests) {
 		ridesharingStats.add(new RidesharingBatchStatsPFH(requests.size(), peopleFreightHeuristicTime, 0, 0));
+	}
+
+	private boolean canServeRequest(RideSharingOnDemandVehicle vehicle, PlanComputationRequest request) {
+		canServeRequestCallCount++;
+
+		// do not mess with rebalancing
+		if (vehicle.getState() == OnDemandVehicleState.REBALANCING) {
+			return false;
+		}
+
+		// node identity
+		if (vehicle.getPosition() == request.getFrom()) {
+			return true;
+		}
+
+		// euclidean distance check
+		double dist_x = vehicle.getPosition().getLatitudeProjected() - request.getFrom().getLatitudeProjected();
+		double dist_y = vehicle.getPosition().getLongitudeProjected() - request.getFrom().getLongitudeProjected();
+		double distanceSquared = dist_x * dist_x + dist_y * dist_y;
+		if (distanceSquared > maxDistanceSquared) {
+			return false;
+		}
+
+		// real feasibility check
+		boolean canServe = travelTimeProvider.getTravelTime(vehicle, request.getFrom())
+				< maxDelayTime;
+
+
+		return canServe;
 	}
 
 	@Override

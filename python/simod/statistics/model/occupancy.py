@@ -23,11 +23,21 @@ import pandas
 from pandas import DataFrame
 
 occupancy_cols = ["tick", "vehicle_id", "occupancy"]
+combined_occupancy_cols = ["tick", "vehicle_id", "people_occupancy", "package_occupancy"]
 
 
 def load(experiment_dir: str) -> DataFrame:
 	occupancy_data \
 		= pandas.read_csv(experiment_dir + config.statistics.occupancies_file_name, names=occupancy_cols)
+	return occupancy_data
+
+def load_packages(experiment_dir: str) -> DataFrame:
+	occupancy_data \
+		= pandas.read_csv(experiment_dir + config.statistics.packages_occupancies_file_name, names=occupancy_cols)
+	return occupancy_data
+
+def load_combined_occupancy(experiment_dir: str) -> DataFrame:
+	occupancy_data = pandas.read_csv(experiment_dir + config.statistics.combined_occupancies_file_name, names=combined_occupancy_cols)
 	return occupancy_data
 
 def load_no_people(experiment_dir: str) -> DataFrame:
@@ -40,11 +50,6 @@ def load_people_onboard(experiment_dir: str) -> DataFrame:
 		= pandas.read_csv(experiment_dir + config.statistics.people_onboard_occupancies_file_name, names=occupancy_cols)
 	return occupancy_data
 
-# def load_packages(experiment_dir: str) -> DataFrame:
-# 	occupancy_data \
-# 		= pandas.read_csv(experiment_dir + config.statistics.packages_occupancies_file_name, names=occupancy_cols)
-# 	return occupancy_data
-
 def filter_window(data: DataFrame) -> DataFrame:
 	tick_start = config.analysis.chosen_window_start * 10
 	return data[data.tick > tick_start]
@@ -56,3 +61,11 @@ def get_occupancies(data: DataFrame, window_only: bool = False):
 		data = data[data.tick > tick_start]
 
 	return data["occupancy"]
+
+
+def get_combined_occupancies(data: DataFrame, window_only: bool = False):
+	if window_only:
+		tick_start = config.analysis.chosen_window_start * 10
+		data = data[data.tick > tick_start]
+
+	return [data["people_occupancy"], data["package_occupancy"]]

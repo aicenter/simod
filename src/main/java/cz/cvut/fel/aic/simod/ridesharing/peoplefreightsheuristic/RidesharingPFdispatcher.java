@@ -42,6 +42,7 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 
 	private final Map<Integer, PlanComputationRequest> requestsMapByDemandPackages;
 
+	private int totalSharedRequestsCount;
 
 	@Inject
 	public RidesharingPFdispatcher(OnDemandvehicleStationStorage onDemandvehicleStationStorage,
@@ -62,6 +63,7 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 		newRequestsPackages = new ArrayList<>();
 		waitingRequestsPackages = new LinkedHashSet<>();
 		requestsMapByDemandPackages = new HashMap<>();
+		totalSharedRequestsCount = 0;
 
 		setEventHandeling();
 		solver.setDispatcher(this);
@@ -73,6 +75,13 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 		return numberOfPassangersDropped + numberOfPackagesDropped;
 	}
 
+	public int getNumberOfPassengersDropped() {
+		return numberOfPassangersDropped;
+	}
+
+	public int getNumberOfPackagesDropped() {
+		return numberOfPackagesDropped;
+	}
 
 	@Override
 	protected void serveDemand(SimulationNode startNode, DemandData demandData) {
@@ -101,6 +110,7 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 	protected void replan() {
 		int droppedDemandsThisBatch = 0;
 		int droppedPackageDemandsThisBatch = 0;
+		totalSharedRequestsCount = 0;
 
 		// logger info
 		int currentTimeSec = (int) Math.round(timeProvider.getCurrentSimTime() / 1000.0);
@@ -161,7 +171,10 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 			if (plan.getLength() > 0) {
 				vehicle.replan(plan);
 			}
+			// adding shared requests count
+			totalSharedRequestsCount += vehicle.getTotalSharedRequestsCount();
 		}
+		LOGGER.info("Number of shared requests: {}", totalSharedRequestsCount);
 
 		// printing nice plans
 		if (false) {

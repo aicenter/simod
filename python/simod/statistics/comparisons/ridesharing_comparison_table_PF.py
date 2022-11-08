@@ -35,6 +35,11 @@ from simod.statistics.traffic_density_histogram import TrafficDensityHistogram
 from simod.statistics.model.vehicle_state import VehicleState
 
 
+
+
+
+
+
 def compute_stats_current_state(experiment_dir: str, result: Dict, histogram: TrafficDensityHistogram, load) -> List:
 
 	# distance
@@ -80,19 +85,23 @@ def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, experi
 	# congested_count_in_time_window = np.where(average_density_list_total_future > config.critical_density)[0].size
 
 	dropped_demand_count = result["numberOfDemandsDropped"]
+	dropped_passengers_count = result["numberPassengersDropped"]
+	dropped_packages_count = result["numberPackagesDropped"]
 
 	# half congested edges
 	# half_congested_count_in_time_window \
 	# 	= np.where(average_density_list_total_future > (config.critical_density / 2))[0].size
 
 	# used_cars = set()
-	# for row in occuopancies:
+	# for row in occupancies:
 	# 	used_cars.add(row[1])
 
-	occuopancies = occupancy.load(experiment_dir)
-	occupancies_in_window = occupancy.filter_window(occuopancies)
+	occupancies = occupancy.load(experiment_dir)
+	occupancies_in_window = occupancy.filter_window(occupancies)
 	# used_cars_count = len(occupancies_in_window[occupancies_in_window.occupancy > 0].vehicle_id.unique())
 	used_cars_count = len(occupancies_in_window.vehicle_id.unique())
+
+	total_shared_requests = result["totalSharedRequests"]
 
 	# performance
 	try:
@@ -113,83 +122,240 @@ def compute_stats(result: Dict, histogram: TrafficDensityHistogram, load, experi
 	mean_delay = int(round(delays_window.mean() / 1000))
 	# mean_delay = delays_window.mean()
 
-	return [km_total_window, 0, 0, dropped_demand_count, 0, used_cars_count, avg_time, mean_delay]
+	return [km_total_window, dropped_passengers_count, dropped_packages_count, total_shared_requests, used_cars_count, avg_time, mean_delay]
 
 
 # result data load
 
 # edges
-
 loaded_edges = roadmaptools.inout.load_geojson(config.agentpolis.map_edges_filepath)
 edge_data = edges.make_data_frame(loaded_edges)
 edge_object_data = edges.load_edges_mapped_by_id(loaded_edges)
 
 
-exp_dir_1 = config.comparison.experiment_1_dir
+
+exp_dir_8 = config.comparison.experiment_8_dir		# 25k 1h manhattan
+exp_dir_9 = config.comparison.experiment_9_dir
+exp_dir_10 = config.comparison.experiment_10_dir
+
+exp_dir_11 = config.comparison.experiment_11_dir		# 50k 1h manhattan
+exp_dir_12 = config.comparison.experiment_12_dir
+exp_dir_13 = config.comparison.experiment_13_dir
+
+exp_dir_14 = config.comparison.experiment_14_dir		# 20k 24h manhattan
+exp_dir_15 = config.comparison.experiment_15_dir
+exp_dir_16 = config.comparison.experiment_16_dir
+
+
+# exp_dir_1 = config.comparison.experiment_1_dir		# 20k
 # exp_dir_2 = config.comparison.experiment_2_dir
-# exp_dir_3 = config.comparison.experiment_3_dir
+# exp_dir_3 = config.comparison.experiment_3_dir		# 20k 10h
 # exp_dir_4 = config.comparison.experiment_4_dir
-# exp_dir_5 = config.comparison.experiment_9_dir
-# exp_dir_1 = config.comparison.experiment_5_dir
-# exp_dir_2 = config.comparison.experiment_6_dir
-# exp_dir_3 = config.comparison.experiment_7_dir
-# exp_dir_4 = config.comparison.experiment_8_dir
-# exp_dir_5 = config.comparison.experiment_10_dir
+# exp_dir_5 = config.comparison.experiment_5_dir		# 20k 2h
+# exp_dir_6 = config.comparison.experiment_6_dir
+# exp_dir_7 = config.comparison.experiment_7_dir		# 20k 1h
+# exp_dir_8 = config.comparison.experiment_8_dir
+# exp_dir_9 = config.comparison.experiment_9_dir		# 20k Manhattan 1h
+# exp_dir_10 = config.comparison.experiment_10_dir
+
+
 
 # result json files
-results_PF_heuristic \
+
+results_base_25k \
+	= roadmaptools.inout.load_json(exp_dir_8 + config.statistics.result_file_name)
+results_multipass_25k \
+	= roadmaptools.inout.load_json(exp_dir_9 + config.statistics.result_file_name)
+results_insertion_25k\
+	= roadmaptools.inout.load_json(exp_dir_10 + config.statistics.result_file_name)
+
+results_base_50k \
+	= roadmaptools.inout.load_json(exp_dir_11 + config.statistics.result_file_name)
+results_multipass_50k \
+	= roadmaptools.inout.load_json(exp_dir_12 + config.statistics.result_file_name)
+results_insertion_50k\
+	= roadmaptools.inout.load_json(exp_dir_13 + config.statistics.result_file_name)
+
+results_base_24k_24h \
+	= roadmaptools.inout.load_json(exp_dir_14 + config.statistics.result_file_name)
+results_multipass_24k_24h \
+	= roadmaptools.inout.load_json(exp_dir_15 + config.statistics.result_file_name)
+results_insertion_24k_24h\
+	= roadmaptools.inout.load_json(exp_dir_16 + config.statistics.result_file_name)
+
+"""
+results_PF_base \
 	= roadmaptools.inout.load_json(exp_dir_1 + config.statistics.result_file_name)
-# results_insertion_heuristic\
-# 	= roadmaptools.inout.load_json(exp_dir_2 + config.statistics.result_file_name)
-# results_vga \
-# 	= roadmaptools.inout.load_json(exp_dir_3 + config.statistics.result_file_name)
-#
-# results_vga_group_limit \
-# 	= roadmaptools.inout.load_json(exp_dir_4 + config.statistics.result_file_name)
-# results_vga_pnas \
-# 	= roadmaptools.inout.load_json(exp_dir_5 + config.statistics.result_file_name)
+results_PF_insertion\
+	= roadmaptools.inout.load_json(exp_dir_2 + config.statistics.result_file_name)
+
+results_PF_base_10h \
+	= roadmaptools.inout.load_json(exp_dir_3 + config.statistics.result_file_name)
+results_PF_insertion_10h \
+	= roadmaptools.inout.load_json(exp_dir_4 + config.statistics.result_file_name)
+
+results_PF_base_2h \
+	= roadmaptools.inout.load_json(exp_dir_5 + config.statistics.result_file_name)
+results_PF_insertion_2h\
+	= roadmaptools.inout.load_json(exp_dir_6 + config.statistics.result_file_name)
+
+results_PF_base_1h \
+	= roadmaptools.inout.load_json(exp_dir_7 + config.statistics.result_file_name)
+results_PF_insertion_1h\
+	= roadmaptools.inout.load_json(exp_dir_8 + config.statistics.result_file_name)
+
+results_PF_base_1h_manhattan \
+	= roadmaptools.inout.load_json(exp_dir_9 + config.statistics.result_file_name)
+results_PF_insertion_1h_manhattan\
+	= roadmaptools.inout.load_json(exp_dir_10 + config.statistics.result_file_name)
+"""
 
 # traffic load
-loads_PF_heuristic = traffic_load.load_all_edges_load_history(
+
+loads_base_25k = traffic_load.load_all_edges_load_history(
+	exp_dir_8 + config.statistics.all_edges_load_history_file_name)
+loads_multipass_25k = traffic_load.load_all_edges_load_history(
+	exp_dir_9 + config.statistics.all_edges_load_history_file_name)
+loads_insertion_25k = traffic_load.load_all_edges_load_history(
+	exp_dir_10 + config.statistics.all_edges_load_history_file_name)
+
+loads_base_50k = traffic_load.load_all_edges_load_history(
+	exp_dir_11 + config.statistics.all_edges_load_history_file_name)
+loads_multipass_50k = traffic_load.load_all_edges_load_history(
+	exp_dir_12 + config.statistics.all_edges_load_history_file_name)
+loads_insertion_50k = traffic_load.load_all_edges_load_history(
+	exp_dir_13 + config.statistics.all_edges_load_history_file_name)
+
+loads_base_24k_24h = traffic_load.load_all_edges_load_history(
+	exp_dir_14 + config.statistics.all_edges_load_history_file_name)
+loads_multipass_24k_24h = traffic_load.load_all_edges_load_history(
+	exp_dir_15 + config.statistics.all_edges_load_history_file_name)
+loads_insertion_24k_24h = traffic_load.load_all_edges_load_history(
+	exp_dir_16 + config.statistics.all_edges_load_history_file_name)
+
+"""
+loads_PF_base = traffic_load.load_all_edges_load_history(
 	exp_dir_1 + config.statistics.all_edges_load_history_file_name)
-# loads_insertion_heuristic = traffic_load.load_all_edges_load_history(
-# 	exp_dir_2 + config.statistics.all_edges_load_history_file_name)
-# loads_vga = traffic_load.load_all_edges_load_history(
-# 	exp_dir_3 + config.statistics.all_edges_load_history_file_name)
-# loads_vga_group_limit = traffic_load.load_all_edges_load_history(
-# 	exp_dir_4 + config.statistics.all_edges_load_history_file_name)
-# loads_vga_pnas = traffic_load.load_all_edges_load_history(
-# 	exp_dir_5 + config.statistics.all_edges_load_history_file_name)
+loads_PF_insertion = traffic_load.load_all_edges_load_history(
+	exp_dir_2 + config.statistics.all_edges_load_history_file_name)
+
+loads_PF_base_10h = traffic_load.load_all_edges_load_history(
+	exp_dir_3 + config.statistics.all_edges_load_history_file_name)
+loads_PF_insertion_10h = traffic_load.load_all_edges_load_history(
+	exp_dir_4 + config.statistics.all_edges_load_history_file_name)
+
+loads_PF_base_2h = traffic_load.load_all_edges_load_history(
+	exp_dir_5 + config.statistics.all_edges_load_history_file_name)
+loads_PF_insertion_2h = traffic_load.load_all_edges_load_history(
+	exp_dir_6 + config.statistics.all_edges_load_history_file_name)
+
+loads_PF_base_1h = traffic_load.load_all_edges_load_history(
+	exp_dir_7 + config.statistics.all_edges_load_history_file_name)
+loads_PF_insertion_1h = traffic_load.load_all_edges_load_history(
+	exp_dir_8 + config.statistics.all_edges_load_history_file_name)
+
+loads_PF_base_1h_manhattan = traffic_load.load_all_edges_load_history(
+	exp_dir_9 + config.statistics.all_edges_load_history_file_name)
+loads_PF_insertion_1h_manhattan = traffic_load.load_all_edges_load_history(
+	exp_dir_10 + config.statistics.all_edges_load_history_file_name)
+"""
+
+
 
 histogram = TrafficDensityHistogram(edge_object_data)
 
 # compute data for output from result
-present_state_data = compute_stats_current_state(exp_dir_1, results_PF_heuristic, histogram,
-												 loads_PF_heuristic[VehicleState.DRIVING_TO_TARGET_LOCATION.name])
-pf_heuristic_data = compute_stats(results_PF_heuristic, histogram, loads_PF_heuristic["ALL"], exp_dir_1, edge_data)
-# insertion_heuristic_data = compute_stats(results_insertion_heuristic, histogram, loads_insertion_heuristic["ALL"],
-# 					exp_dir_2, edge_data)
-# vga_data = compute_stats(results_vga, histogram, loads_vga["ALL"], exp_dir_3,
-# 						 edge_data)
-# vga_limited_data = compute_stats(results_vga_group_limit, histogram, loads_vga_group_limit["ALL"],
-# 								 exp_dir_4, edge_data)
-# vga_pnas_data = compute_stats(results_vga_pnas, histogram, loads_vga_pnas["ALL"],
-# 								 exp_dir_5, edge_data)
 
-output_table = np.array([["X", "PRESENT STATE", "PEOPLEFREIGHT HEURISTIC"],
-						 ["Total veh. dist. traveled (km)", present_state_data[0], pf_heuristic_data[0]],
-						 # ["avg. density", present_state_data[1], pf_heuristic_data[1]],
-						 # ["cong. segments count", present_state_data[2], pf_heuristic_data[2]],
-						 ["dropped demand count", present_state_data[3], pf_heuristic_data[3]],
-						 # ["half congested edges", present_state_data[4], pf_heuristic_data[4]],
-						 ["used car count", present_state_data[5], pf_heuristic_data[5]],
-						 ["avg. delay", present_state_data[7], pf_heuristic_data[7]],
-						 ["avg. comp. time", present_state_data[6], pf_heuristic_data[6]]])
+base_data_1h_25k = compute_stats(results_base_25k, histogram, loads_base_25k["ALL"], exp_dir_8, edge_data)
+multipass_data_1h_25k = compute_stats(results_multipass_25k, histogram, loads_multipass_25k["ALL"], exp_dir_9, edge_data)
+insertion_data_1h_25k = compute_stats(results_insertion_25k, histogram, loads_insertion_25k["ALL"], exp_dir_10, edge_data)
+
+base_data_1h_50k = compute_stats(results_base_50k, histogram, loads_base_50k["ALL"], exp_dir_11, edge_data)
+multipass_data_1h_50k = compute_stats(results_multipass_50k, histogram, loads_multipass_50k["ALL"], exp_dir_12, edge_data)
+insertion_data_1h_50k = compute_stats(results_insertion_50k, histogram, loads_insertion_50k["ALL"], exp_dir_13, edge_data)
+
+base_data_24h_24k = compute_stats(results_base_24k_24h, histogram, loads_base_24k_24h["ALL"], exp_dir_14, edge_data)
+multipass_data_24h_24k = compute_stats(results_multipass_24k_24h, histogram, loads_multipass_24k_24h["ALL"], exp_dir_15, edge_data)
+insertion_data_24h_24k = compute_stats(results_insertion_24k_24h, histogram, loads_insertion_24k_24h["ALL"], exp_dir_16, edge_data)
+
+"""
+# pf_base_data = compute_stats(results_PF_base, histogram, loads_PF_base["ALL"], exp_dir_1, edge_data)
+# pf_insertion_data = compute_stats(results_PF_insertion, histogram, loads_PF_insertion["ALL"],
+# 								  exp_dir_2, edge_data)
+#
+# pf_base_data_10h = compute_stats(results_PF_base_10h, histogram, loads_PF_base_10h["ALL"], exp_dir_3, edge_data)
+# pf_insertion_data_10h = compute_stats(results_PF_insertion_10h, histogram, loads_PF_insertion_10h["ALL"],
+# 								  exp_dir_4, edge_data)
+#
+# pf_base_data_2h = compute_stats(results_PF_base_2h, histogram, loads_PF_base_2h["ALL"], exp_dir_5, edge_data)
+# pf_insertion_data_2h = compute_stats(results_PF_insertion_2h, histogram, loads_PF_insertion_2h["ALL"],
+# 								  exp_dir_6, edge_data)
+#
+# pf_base_data_1h = compute_stats(results_PF_base_1h, histogram, loads_PF_base_1h["ALL"], exp_dir_7, edge_data)
+# pf_insertion_data_1h = compute_stats(results_PF_insertion_1h, histogram, loads_PF_insertion_1h["ALL"],
+# 								  exp_dir_8, edge_data)
+#
+# # Manhattan only
+# pf_base_data_1h_manhattan = compute_stats(results_PF_base_1h_manhattan, histogram, loads_PF_base_1h_manhattan["ALL"], exp_dir_9, edge_data)
+# pf_insertion_data_1h_manhattan = compute_stats(results_PF_insertion_1h_manhattan, histogram, loads_PF_insertion_1h_manhattan["ALL"],
+# 											   exp_dir_10, edge_data)
+"""
+
+
+output_table = np.array([["X", "1h 25k Manhattan BASE", "1h 25k Manhattan MULTIPASS", "1h 25k Manhattan INSERTION"],
+						 ["Total veh. dist. traveled (km)", base_data_1h_25k[0], multipass_data_1h_25k[0], insertion_data_1h_25k[0]],
+						 ["dropped passengers count", base_data_1h_25k[1], multipass_data_1h_25k[1], insertion_data_1h_25k[1]],
+						 ["dropped packages count", base_data_1h_25k[2], multipass_data_1h_25k[2], insertion_data_1h_25k[2]],
+						 ["shared demand count", base_data_1h_25k[3], multipass_data_1h_25k[3], insertion_data_1h_25k[3]],
+						 ["used car count", base_data_1h_25k[4], multipass_data_1h_25k[4], insertion_data_1h_25k[4]],
+						 ["avg. delay", base_data_1h_25k[6], multipass_data_1h_25k[6], insertion_data_1h_25k[6]],
+						 ["avg. comp. time", base_data_1h_25k[5], multipass_data_1h_25k[5], insertion_data_1h_25k[5]]])
+
+output_table_2 = np.array([["X", "1h 50k Manhattan BASE", "1h 50k Manhattan MULTIPASS", "1h 50k Manhattan INSERTION"],
+						 ["Total veh. dist. traveled (km)", base_data_1h_50k[0], multipass_data_1h_50k[0], insertion_data_1h_50k[0]],
+						 ["dropped passengers count", base_data_1h_50k[1], multipass_data_1h_50k[1], insertion_data_1h_50k[1]],
+						 ["dropped packages count", base_data_1h_50k[2], multipass_data_1h_50k[2], insertion_data_1h_50k[2]],
+						 ["shared demand count", base_data_1h_50k[3], multipass_data_1h_50k[3], insertion_data_1h_50k[3]],
+						 ["used car count", base_data_1h_50k[4], multipass_data_1h_50k[4], insertion_data_1h_50k[4]],
+						 ["avg. delay", base_data_1h_50k[6], multipass_data_1h_50k[6], insertion_data_1h_50k[6]],
+						 ["avg. comp. time", base_data_1h_50k[5], multipass_data_1h_50k[5], insertion_data_1h_50k[5]]])
+
+output_table_3 = np.array([["X", "24h 24k Manhattan BASE", "24h 24k Manhattan MULTIPASS", "24h 24k Manhattan INSERTION"],
+						   ["Total veh. dist. traveled (km)", base_data_24h_24k[0], multipass_data_24h_24k[0], insertion_data_24h_24k[0]],
+						   ["dropped passengers count", base_data_24h_24k[1], multipass_data_24h_24k[1], insertion_data_24h_24k[1]],
+						   ["dropped packages count", base_data_24h_24k[2], multipass_data_24h_24k[2], insertion_data_24h_24k[2]],
+						   ["shared demand count", base_data_24h_24k[3], multipass_data_24h_24k[3], insertion_data_24h_24k[3]],
+						   ["used car count", base_data_24h_24k[4], multipass_data_24h_24k[4], insertion_data_24h_24k[4]],
+						   ["avg. delay", base_data_24h_24k[6], multipass_data_24h_24k[6], insertion_data_24h_24k[6]],
+						   ["avg. comp. time", base_data_24h_24k[5], multipass_data_24h_24k[5], insertion_data_24h_24k[5]]])
+
+"""
+# output_table = np.array([["X", "BASE", "INSERTION", "10h BASE", "10h INSERTION", "2h BASE", "2h INSERTION"],
+# 						 ["Total veh. dist. traveled (km)", pf_base_data[0], pf_insertion_data[0], pf_base_data_10h[0], pf_insertion_data_10h[0], pf_base_data_2h[0], pf_insertion_data_2h[0]],
+# 						 ["dropped passengers count", pf_base_data[1], pf_insertion_data[1], pf_base_data_10h[1], pf_insertion_data_10h[1], pf_base_data_2h[1], pf_insertion_data_2h[1]],
+# 						 ["dropped packages count", pf_base_data[2], pf_insertion_data[2], pf_base_data_10h[2], pf_insertion_data_10h[2], pf_base_data_2h[2], pf_insertion_data_2h[2]],
+# 						 ["shared demand count", pf_base_data[3], pf_insertion_data[3], pf_base_data_10h[3], pf_insertion_data_10h[3], pf_base_data_2h[3], pf_insertion_data_2h[3]],
+# 						 ["used car count", pf_base_data[4], pf_insertion_data[4], pf_base_data_10h[4], pf_insertion_data_10h[4], pf_base_data_2h[4], pf_insertion_data_2h[4]],
+# 						 ["avg. delay", pf_base_data[6], pf_insertion_data[6], pf_base_data_10h[6], pf_insertion_data_10h[6], pf_base_data_2h[6], pf_insertion_data_2h[6]],
+# 						 ["avg. comp. time", pf_base_data[5], pf_insertion_data[5], pf_base_data_10h[5], pf_insertion_data_10h[5], pf_base_data_2h[5], pf_insertion_data_2h[5]]])
+#
+# output_table_2 = np.array([["X", "1h BASE", "1h INSERTION", "1h Manhattan BASE", "1h Manhattan INSERTION"],
+# 						   ["Total veh. dist. traveled (km)", pf_base_data_1h[0], pf_insertion_data_1h[0], pf_base_data_1h_manhattan[0], pf_insertion_data_1h_manhattan[0]],
+# 						   ["dropped passengers count", pf_base_data_1h[1], pf_insertion_data_1h[1], pf_base_data_1h_manhattan[1], pf_insertion_data_1h_manhattan[1]],
+# 						   ["dropped packages count", pf_base_data_1h[2], pf_insertion_data_1h[2], pf_base_data_1h_manhattan[2], pf_insertion_data_1h_manhattan[2]],
+# 						   ["shared demand count", pf_base_data_1h[3], pf_insertion_data_1h[3], pf_base_data_1h_manhattan[3], pf_insertion_data_1h_manhattan[3]],
+# 						   ["used car count", pf_base_data_1h[4], pf_base_data_1h[4], pf_base_data_1h_manhattan[4], pf_insertion_data_1h_manhattan[4]],
+# 						   ["avg. delay", pf_base_data_1h[6], pf_base_data_1h[6], pf_base_data_1h_manhattan[6], pf_insertion_data_1h_manhattan[6]],
+# 						   ["avg. comp. time", pf_base_data_1h[5], pf_base_data_1h[5], pf_base_data_1h_manhattan[5], pf_insertion_data_1h_manhattan[5]]])
+"""
 
 # console results
 print("COMPARISON:")
-print()
 print_table(output_table)
+print()
+print_table(output_table_2)
+print()
+print_table(output_table_3)
 
 """
 # latex table

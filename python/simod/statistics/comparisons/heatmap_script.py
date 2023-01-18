@@ -7,7 +7,6 @@ import seaborn as sns
 import shapely
 # from mpl_toolkits.basemap import Basemap
 import rasterio.crs
-from ctypes.util import find_library
 
 
 
@@ -19,13 +18,19 @@ def add_basemap(ax, zoom, url='http://tile.stamen.com/terrain/tileZ/tileX/tileY.
     ax.axis((xmin, xmax, ymin, ymax))
 
 
+save_dir = '/home/martin/Documents/01_Bakalarka/02_PLOTS_RESULTS/heatmap/'
 
-# find_library('geos_c')
+# data = pd.read_csv('/home/martin/Documents/01_Bakalarka/03_DATA/manhattan_TEST_data.txt', sep=" ", header=None)
+# filename = "TEST_heatmap"
 
-# data = gpd.read_file('/Users/adela/Documents/bakalarka/randomdemand/maps/edges.geojson')
-save_dir = '/home/martin/Documents/01_Bakalarka/02_PLOTS_RESULTS/'
+data = pd.read_csv('/home/martin/Documents/01_Bakalarka/03_DATA/manhattan_taxi_data_01_12_24k.txt', sep=" ", header=None)
+filename = "scatterplot_24k_better"
+# data = pd.read_csv('/home/martin/Documents/01_Bakalarka/03_DATA/manhattan_trips_0_to_1.txt', sep=" ", header=None)
+# filename = "heatmap_25k_better"
+# data = pd.read_csv('/home/martin/Documents/01_Bakalarka/03_DATA/manhattan_trips_13_to_14_50k.txt', sep=" ", header=None)
+# filename = "heatmap_50k_better"
 
-data = pd.read_csv('/home/martin/Documents/01_Bakalarka/03_DATA/manhattan_trips_13_to_14_50k.txt', sep=" ", header=None)
+
 data.columns = ["time", "y", "x", "y2", "x2", "count", "newline"]
 data_part1 = data[['y', 'x']]
 data_part2 = data[['y2', 'x2']]
@@ -44,7 +49,7 @@ gdf = gdf['geometry']
 df_wm = gdf.to_crs(epsg=3857)
 # ax = gdf.plot(figsize=(10, 10), alpha=0.7, c='grey')
 
-ax = gdf.plot(figsize=(10, 10), alpha=0, c='grey')
+ax = gdf.plot(figsize=(5, 10), alpha=0, c='grey')
 # ctx.add_basemap(ax, crs='EPSG:3857', source=ctx.providers.Stamen.TonerLite)
 
 sns.kdeplot(data=new_data,
@@ -53,10 +58,14 @@ sns.kdeplot(data=new_data,
             fill=True,
             cmap='coolwarm',
             alpha=0.6,
-            gridsize=300,
-            levels=10,
+            gridsize=1000,
+            levels=20,
             ax=ax,
             legend=False)
+# sns.scatterplot(data=new_data,
+#                 x='x',
+#                 y='y',
+#                 ax=ax)
 
 # ax = gdf.plot(figsize=(10, 10), alpha=0.1, c='grey')
 
@@ -83,8 +92,8 @@ sns.kdeplot(data=new_data,
 ax.set_ylabel('')
 ax.set_xlabel('')
 
-# plt.savefig(save_dir + 'road_graph', bbox_inches='tight', transparent=True)
-# plt.savefig(save_dir + 'demand_locations', bbox_inches='tight', transparent=True)
-plt.savefig(save_dir + 'demand_heatmap', bbox_inches='tight', transparent=True)
+# plt.xticks(np.arange(0, 25, 2))
+plt.xticks(rotation=-30)
+# plt.savefig(save_dir + filename, bbox_inches='tight', transparent=True)
 
 plt.show()

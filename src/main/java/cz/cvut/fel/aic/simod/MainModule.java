@@ -133,7 +133,7 @@ public class MainModule extends StandardAgentPolisModule{
 			if (simodConfig.packagesOn) {
 				bind(OnDemandVehicleFactorySpec.class).to(PeopleFreightVehicleFactory.class);
 				bind(PeopleFreightVehicleFactorySpec.class).to(PeopleFreightVehicleFactory.class);
-				bind(StationsDispatcher.class).to(RidesharingPFdispatcher.class);
+				bind(StationsDispatcher.class).to(RidesharingPFDispatcher.class);
 
 				install(new FactoryModuleBuilder().implement(DefaultPFPlanCompRequest.class, DefaultPFPlanCompRequest.class)
 						.build(DefaultPFPlanCompRequest.DefaultPFPlanComputationRequestFactory.class));

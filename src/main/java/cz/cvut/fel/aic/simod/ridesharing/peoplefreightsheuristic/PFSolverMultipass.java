@@ -13,13 +13,11 @@ import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.ridesharing.*;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.simod.ridesharing.model.*;
-import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStatsIH;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
@@ -125,7 +123,7 @@ public class PFSolverMultipass extends DARPSolverPFShared implements EventHandle
 
 	List<PlanActionCurrentPosition> taxiCurrentPositionsActions;
 
-	ScheduleWithDuration bestSchedule;
+	ScheduleWithDuration newSchedule;
 
 	@Inject
 	public PFSolverMultipass(
@@ -147,7 +145,7 @@ public class PFSolverMultipass extends DARPSolverPFShared implements EventHandle
 		this.eventProcessor = eventProcessor;
 		this.droppedDemandsAnalyzer = droppedDemandsAnalyzer;
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
-		this.bestSchedule = null;
+		this.newSchedule = null;
 
 		setEventHandeling();
 
@@ -246,32 +244,33 @@ public class PFSolverMultipass extends DARPSolverPFShared implements EventHandle
 			}
 
 
-			double bestBenefit;         // f_i* - best total benefit, if request i is served
+			double lowestCostIncrease;         // f_i* - best total benefit, if request i is served
 			int bestTaxiIdx = -1;        // k* - taxi to serve request i to get the best total benefit
 
 			if (availableTaxis.size() > 0) {
-				bestBenefit = Double.NEGATIVE_INFINITY;
+				lowestCostIncrease = Double.POSITIVE_INFINITY;
 				for (int k = 0; k < availableTaxis.size(); k++) {
 					PeopleFreightVehicle currentTaxi = availableTaxis.get(k);
-					// check if schedule is feasible
+					// current plan cost
+					double currentPlanCost_k = planCostProvider.calculatePlanCost(planDiscomfort, (int) (currentTaxi.getCurrentPlanNoUpdate().totalTime / 1000));
 
+
+
+					// check if schedule is feasible
 					Benchmark benchmark = new Benchmark();
 					benchmark.measureTime(() -> trySchedule(allVehicles.indexOf(currentTaxi), currentRequest));
 					peopleFreightHeuristicTime += benchmark.getDurationMsInt();
 
-//					trySchedule(allVehicles.indexOf(currentTaxi), currentRequest);
-
 					// if not feasible, continue to next taxi
-					if (bestSchedule == null) {
+					if (newSchedule == null) {
 						continue;
 					}
 
-					// benefit_k_i = new total benefit if taxi k serves request i
-					// TODO implement - calculate passenger's revenue ???
-					double passengerRevenue = 0;
-					double benefit_k_i = passengerRevenue - planCostProvider.calculatePlanCost(planDiscomfort, (int) (bestSchedule.duration / 1000));
-					if (benefit_k_i > bestBenefit) {
-						bestBenefit = benefit_k_i;
+					// new plan cost if taxi k serves request i
+					double newCost_k_i = planCostProvider.calculatePlanCost(planDiscomfort, (int) (newSchedule.duration / 1000));
+					double costIncrease_k_i = newCost_k_i - currentPlanCost_k;
+					if (costIncrease_k_i < lowestCostIncrease) {
+						lowestCostIncrease = costIncrease_k_i;
 						bestTaxiIdx = allVehicles.indexOf(currentTaxi);        // updating the idx of best taxi so far
 					}
 				}
@@ -279,11 +278,11 @@ public class PFSolverMultipass extends DARPSolverPFShared implements EventHandle
 				if (bestTaxiIdx != -1) {
 					// Insert request i into route of taxi k∗
 					trySchedule(bestTaxiIdx, currentRequest);
-					taxiSchedules.set(bestTaxiIdx, bestSchedule.schedule);  // NullPointerException won't happen, because this block happens only if at least 1 taxi was found
-					planDurations.set(bestTaxiIdx, (int) (bestSchedule.duration / 1000));
+					taxiSchedules.set(bestTaxiIdx, newSchedule.schedule);  // NullPointerException won't happen, because this block happens only if at least 1 taxi was found
+					planDurations.set(bestTaxiIdx, (int) (newSchedule.duration / 1000));
 
 					// update total benefit
-					totalBenefit += bestBenefit;
+					totalBenefit += lowestCostIncrease;
 				}
 			}
 			// else: reject request i => DO nothing
@@ -314,7 +313,7 @@ public class PFSolverMultipass extends DARPSolverPFShared implements EventHandle
 	private void trySchedule(int taxiIndex, PlanComputationRequest newRequest) {
 
 		int planDiscomfort = 0;
-		bestSchedule = null;
+		newSchedule = null;
 		List<PlanAction> possibleTaxiSchedule = new ArrayList<>(taxiSchedules.get(taxiIndex));
 
 		possibleTaxiSchedule.add(newRequest.getPickUpAction());
@@ -416,7 +415,7 @@ public class PFSolverMultipass extends DARPSolverPFShared implements EventHandle
 		long planDuration = timeWindows.get(timeWindows.size() - 1).earlyTime - timeWindows.get(0).earlyTime;
 		double planCost = planCostProvider.calculatePlanCost(planDiscomfort, (int) planDuration / 1000);
 
-		bestSchedule = new ScheduleWithDuration(possibleTaxiSchedule, planDuration, planCost);
+		newSchedule = new ScheduleWithDuration(possibleTaxiSchedule, planDuration, planCost);
 	}
 
 

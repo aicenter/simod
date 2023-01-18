@@ -14,7 +14,7 @@ import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.ridesharing.DroppedDemandsAnalyzer;
-import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PeopleFreightHeuristicSolver;
+import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.PFSolverMultiInsertion;
 import cz.cvut.fel.aic.simod.storage.*;
 import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
 import org.junit.Test;
@@ -56,7 +56,7 @@ public class InitTest
 
 
 
-        PeopleFreightHeuristicSolver solver = new PeopleFreightHeuristicSolver(
+        PFSolverMultiInsertion solver = new PFSolverMultiInsertion(
                                                     astarTravelTimeProvider,
                                                     null,
                                                     vehicleStorage,

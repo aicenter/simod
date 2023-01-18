@@ -20,10 +20,8 @@ package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic;
 
 import cz.cvut.fel.aic.simod.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.simod.ridesharing.PlanCostProvider;
-import cz.cvut.fel.aic.simod.ridesharing.RidesharingDispatcher;
 //import cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic.RidesharingPFDispatcher;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
-import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;  //.DefaultPlanComputationRequestFactory;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
@@ -48,7 +46,7 @@ public abstract class DARPSolverPFShared extends DARPSolver {
     protected final List<RidesharingBatchStats> ridesharingStats;
 
 
-    protected RidesharingPFdispatcher ridesharingDispatcher;
+    protected RidesharingPFDispatcher ridesharingDispatcher;
 
 
 
@@ -57,7 +55,7 @@ public abstract class DARPSolverPFShared extends DARPSolver {
     }
 
 
-    public void setDispatcher(RidesharingPFdispatcher ridesharingDispatcher){
+    public void setDispatcher(RidesharingPFDispatcher ridesharingDispatcher){
         this.ridesharingDispatcher = ridesharingDispatcher;
     }
 

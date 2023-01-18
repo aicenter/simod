@@ -250,8 +250,8 @@ public class Statistics extends AliteEntity implements EventHandler{
 			result = new ResultPF(tickCount, averageLoadTotal, maxLoad, averageKmWithPassenger,
 					averageKmToStartLocation, averageKmToStation, averageKmRebalancing,
 					onDemandVehicleStationsCentral.getNumberOfDemandsNotServedFromNearestStation(),
-					((RidesharingPFdispatcher) onDemandVehicleStationsCentral).getNumberOfPassengersDropped(),
-					((RidesharingPFdispatcher) onDemandVehicleStationsCentral).getNumberOfPackagesDropped(),
+					((RidesharingPFDispatcher) onDemandVehicleStationsCentral).getNumberOfPassengersDropped(),
+					((RidesharingPFDispatcher) onDemandVehicleStationsCentral).getNumberOfPackagesDropped(),
 					onDemandVehicleStationsCentral.getDemandsCount(), numberOfVehicles,
 					onDemandVehicleStationsCentral.getNumberOfRebalancingDropped(), totalDistanceWithPassenger,
 					totalDistanceToStartLocation, totalDistanceToStation, totalDistanceRebalancing, totalSharedRequests);

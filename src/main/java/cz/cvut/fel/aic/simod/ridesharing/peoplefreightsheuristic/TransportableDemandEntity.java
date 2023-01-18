@@ -3,7 +3,7 @@ package cz.cvut.fel.aic.simod.ridesharing.peoplefreightsheuristic;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleInterface;
 
-// interface for PeopleFreightVehicle to handle Agents and Packages without difference
+// interface for PeopleFreightVehicle to handle Agents and Packages
 public interface TransportableDemandEntity extends TransportableEntity {
 	void tripStarted(OnDemandVehicleInterface vehicle);
 

@@ -94,10 +94,6 @@ public class PFSolverMultiInsertion extends DARPSolverPFShared implements EventH
 
 	int bestPlanTaxiIndex;
 
-	public final int maxStopsDuringPassenger = 2;
-
-	long longPlanCounter = 0;
-
 	@Inject
 	public PFSolverMultiInsertion(
 			TravelTimeProvider travelTimeProvider,
@@ -148,9 +144,6 @@ public class PFSolverMultiInsertion extends DARPSolverPFShared implements EventH
 			List<PlanComputationRequest> newRequestsFreight,
 			List<PlanComputationRequest> waitingRequestsFreight) {
 
-//		if (timeProvider.getCurrentSimTime() > 70000000L) {
-//			longPlanCounter += 1;
-//		}
 
 // --------------------------- INIT ---------------------------------------
 		allVehicles = new ArrayList<>();
@@ -234,9 +227,6 @@ public class PFSolverMultiInsertion extends DARPSolverPFShared implements EventH
 				// set the bestPlan to
 				if (bestPlanTaxiIndex != -1 ) {
 					taxiSchedules.set(bestPlanTaxiIndex, bestPlan.schedule);
-					if (bestPlan.schedule.size() > 4) {
-						longPlanCounter++;
-					}
 				}
 			}
 

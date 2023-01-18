@@ -52,10 +52,8 @@ public class Result {
 	private final long totalDistanceToStartLocation;
 	
 	private final long totalDistanceToStation;
-	
-	private final long totalDistanceRebalancing;
 
-	
+	private final long totalDistanceRebalancing;
 	
 	
 	
@@ -122,19 +120,14 @@ public class Result {
 	public long getTotalDistanceRebalancing() {
 		return totalDistanceRebalancing;
 	}
-	
-	
-	
-	
-	
-	
-	
 
-	public Result(long tickCount, double averageLoadTotal, int maxLoad, double averageKmWithPassenger, 
-			double averageKmToStartLocation, double averageKmToStation, double averageKmRebalancing,
-			int numberOfDemandsNotServedFromNearestStation, int numberOfDemandsDropped, int demandsCount,
-			int numberOfVehicles, int numberOfRebalancingDropped, long totalDistanceWithPassenger, 
-			long totalDistanceToStartLocation, long totalDistanceToStation, long totalDistanceRebalancing) {
+
+
+	public Result(long tickCount, double averageLoadTotal, int maxLoad, double averageKmWithPassenger,
+				  double averageKmToStartLocation, double averageKmToStation, double averageKmRebalancing,
+				  int numberOfDemandsNotServedFromNearestStation, int numberOfDemandsDropped, int demandsCount,
+				  int numberOfVehicles, int numberOfRebalancingDropped, long totalDistanceWithPassenger,
+				  long totalDistanceToStartLocation, long totalDistanceToStation, long totalDistanceRebalancing) {
 		this.tickCount = tickCount;
 		this.averageLoadTotal = averageLoadTotal;
 		this.maxLoad = maxLoad;

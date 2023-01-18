@@ -21,8 +21,8 @@ from simod.init import config
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib.ticker import PercentFormatter
 import pandas as pd
-import datetime
 import roadmaptools.inout
 import simod.statistics.model.occupancy as occupancy
 import simod.statistics.comparisons.common as common
@@ -420,175 +420,9 @@ plt.legend(loc='upper right', labelspacing=0.01)
 """
 
 # plt.savefig(config.images.occupancy_histogram_comparison_combined, bbox_inches='tight', transparent=True, pad_inches=0.0, dpi=fig.dpi)
+save_dir = '/home/martin/Documents/01_Bakalarka/02_PLOTS_RESULTS/occupancy_new/'
 
 
-""" --------------------- 3D Histogram experiment 8 = 1h 25k BASE -------------------- """
-# x = data_8_combined["people_occupancy"]
-# y = data_8_combined["package_occupancy"]
-#
-# fig = plt.figure()
-# ax = fig.add_subplot(projection='3d')
-# ax.set_xlabel("Passengers per vehicle")
-# ax.set_ylabel("Packages per vehicle")
-# ax.set_zlabel("Vehicle hours", labelpad=10.0)
-# ax.zaxis.set_ticks(np.arange(0, 1020001, 30000))
-# ax.zaxis.set_major_formatter(FuncFormatter(format_time))
-#
-# hist, xedges, yedges = np.histogram2d(x, y, bins=4, range=[[0, 4], [0, 4]])
-#
-# # Construct arrays for the anchor positions of the 16 bars.
-# xpos, ypos = np.meshgrid(xedges[:-1] - 0.5, yedges[:-1] - 0.5, indexing="ij")
-# xpos = xpos.ravel()
-# ypos = ypos.ravel()
-# zpos = np.zeros_like(xpos)
-#
-# # Construct arrays with the dimensions for the 16 bars.
-# dx = dy = 0.9 * np.ones_like(zpos)
-# dz = hist.ravel()
-#
-# ax.bar3d(xpos, ypos, zpos, dx, dy, dz, zsort='average')
-""" -----------------------------------------------------------------------------"""
-
-""" --------------------------3D Histogram experiment 9 = 1h 25k MULTIPASS -------------------- """
-# x = data_9_combined["people_occupancy"]
-# y = data_9_combined["package_occupancy"]
-#
-# fig = plt.figure()
-# ax = fig.add_subplot(projection='3d')
-# ax.set_xlabel("Passengers per vehicle")
-# ax.set_ylabel("Packages per vehicle")
-# ax.set_zlabel("Vehicle hours", labelpad=10.0)
-# ax.zaxis.set_ticks(np.arange(0, 1020001, 30000))
-# ax.zaxis.set_major_formatter(FuncFormatter(format_time))
-#
-# hist, xedges, yedges = np.histogram2d(x, y, bins=4, range=[[0, 4], [0, 4]])
-#
-# # Construct arrays for the anchor positions of the 16 bars.
-# xpos, ypos = np.meshgrid(xedges[:-1] - 0.5, yedges[:-1] - 0.5, indexing="ij")
-# xpos = xpos.ravel()
-# ypos = ypos.ravel()
-# zpos = np.zeros_like(xpos)
-#
-# # Construct arrays with the dimensions for the 16 bars.
-# dx = dy = 0.9 * np.ones_like(zpos)
-# dz = hist.ravel()
-#
-# ax.bar3d(xpos, ypos, zpos, dx, dy, dz, zsort='average')
-""" -----------------------------------------------------------------------------"""
-
-""" --------------------------------- 3D Histogram experiment 10 1h 25k INSERTION ------------ """
-# x = data_10_combined["people_occupancy"]
-# y = data_10_combined["package_occupancy"]
-#
-# fig = plt.figure()
-# ax = fig.add_subplot(projection='3d')
-# ax.set_xlabel("Passengers per vehicle")
-# ax.set_ylabel("Packages per vehicle")
-# ax.set_zlabel("Vehicle hours", labelpad=10.0)
-# ax.zaxis.set_ticks(np.arange(0, 1020001, 30000))
-# ax.zaxis.set_major_formatter(FuncFormatter(format_time))
-#
-# hist, xedges, yedges = np.histogram2d(x, y, bins=4, range=[[0, 4], [0, 4]])
-# # print(hist)
-#
-# # Construct arrays for the anchor positions of the 16 bars.
-# xpos, ypos = np.meshgrid(xedges[:-1] - 0.5, yedges[:-1] - 0.5, indexing="ij")
-# # print(xpos)
-# # print(ypos)
-# xpos = xpos.ravel()
-# ypos = ypos.ravel()
-# zpos = np.zeros_like(xpos)
-#
-# # Construct arrays with the dimensions for the 16 bars.
-# dx = dy = 0.9 * np.ones_like(zpos)
-# dz = hist.ravel()
-#
-# ax.bar3d(xpos, ypos, zpos, dx, dy, dz, zsort='average')
-""" -----------------------------------------------------------------------------"""
-
-""" --------------------- 3D Histogram experiment 11 = 1h 50k BASE -------------------- """
-# x = data_11_combined["people_occupancy"]
-# y = data_11_combined["package_occupancy"]
-#
-# fig = plt.figure()
-# ax = fig.add_subplot(projection='3d')
-# ax.set_xlabel("Passengers per vehicle")
-# ax.set_ylabel("Packages per vehicle")
-# ax.set_zlabel("Vehicle hours", labelpad=10.0)
-# ax.zaxis.set_ticks(np.arange(0, 1020001, 60000))
-# ax.zaxis.set_major_formatter(FuncFormatter(format_time))
-#
-# hist, xedges, yedges = np.histogram2d(x, y, bins=4, range=[[0, 4], [0, 4]])
-#
-# # Construct arrays for the anchor positions of the 16 bars.
-# xpos, ypos = np.meshgrid(xedges[:-1] - 0.5, yedges[:-1] - 0.5, indexing="ij")
-# xpos = xpos.ravel()
-# ypos = ypos.ravel()
-# zpos = np.zeros_like(xpos)
-#
-# # Construct arrays with the dimensions for the 16 bars.
-# dx = dy = 0.9 * np.ones_like(zpos)
-# dz = hist.ravel()
-#
-# ax.bar3d(xpos, ypos, zpos, dx, dy, dz, zsort='average')
-""" -----------------------------------------------------------------------------"""
-
-""" --------------------------3D Histogram experiment 12 = 1h 50k MULTIPASS -------------------- """
-# x = data_12_combined["people_occupancy"]
-# y = data_12_combined["package_occupancy"]
-#
-# fig = plt.figure()
-# ax = fig.add_subplot(projection='3d')
-# ax.set_xlabel("Passengers per vehicle")
-# ax.set_ylabel("Packages per vehicle")
-# ax.set_zlabel("Vehicle hours", labelpad=10.0)
-# ax.zaxis.set_ticks(np.arange(0, 1020001, 30000))
-# ax.zaxis.set_major_formatter(FuncFormatter(format_time))
-#
-# hist, xedges, yedges = np.histogram2d(x, y, bins=4, range=[[0, 4], [0, 4]])
-#
-# # Construct arrays for the anchor positions of the 16 bars.
-# xpos, ypos = np.meshgrid(xedges[:-1] - 0.5, yedges[:-1] - 0.5, indexing="ij")
-# xpos = xpos.ravel()
-# ypos = ypos.ravel()
-# zpos = np.zeros_like(xpos)
-#
-# # Construct arrays with the dimensions for the 16 bars.
-# dx = dy = 0.9 * np.ones_like(zpos)
-# dz = hist.ravel()
-#
-# ax.bar3d(xpos, ypos, zpos, dx, dy, dz, zsort='average')
-""" -----------------------------------------------------------------------------"""
-
-""" --------------------------------- 3D Histogram experiment 13 1h 50k INSERTION ------------ """
-# x = data_13_combined["people_occupancy"]
-# y = data_13_combined["package_occupancy"]
-#
-# fig = plt.figure()
-# ax = fig.add_subplot(projection='3d')
-# ax.set_xlabel("Passengers per vehicle")
-# ax.set_ylabel("Packages per vehicle")
-# ax.set_zlabel("Vehicle hours", labelpad=10.0)
-# ax.zaxis.set_ticks(np.arange(0, 1020001, 30000))
-# ax.zaxis.set_major_formatter(FuncFormatter(format_time))
-#
-# hist, xedges, yedges = np.histogram2d(x, y, bins=4, range=[[0, 4], [0, 4]])
-# # print(hist)
-#
-# # Construct arrays for the anchor positions of the 16 bars.
-# xpos, ypos = np.meshgrid(xedges[:-1] - 0.5, yedges[:-1] - 0.5, indexing="ij")
-# # print(xpos)
-# # print(ypos)
-# xpos = xpos.ravel()
-# ypos = ypos.ravel()
-# zpos = np.zeros_like(xpos)
-#
-# # Construct arrays with the dimensions for the 16 bars.
-# dx = dy = 0.9 * np.ones_like(zpos)
-# dz = hist.ravel()
-#
-# ax.bar3d(xpos, ypos, zpos, dx, dy, dz, zsort='average')
-""" -----------------------------------------------------------------------------"""
 
 """ --------------------- 3D Histogram experiment 14 = 24h 24k BASE -------------------- """
 x = data_14_combined["people_occupancy"]
@@ -598,11 +432,20 @@ fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
 ax.set_xlabel("Passengers per vehicle")
 ax.set_ylabel("Packages per vehicle")
-ax.set_zlabel("Vehicle hours", labelpad=10.0)
-ax.zaxis.set_ticks(np.arange(0, 1020001, 60000))
-ax.zaxis.set_major_formatter(FuncFormatter(format_time))
+# ax.set_zlabel("Vehicle hours", labelpad=10.0)
+# ax.zaxis.set_ticks(np.arange(0, 1020001, 60000))
+# ax.zaxis.set_major_formatter(FuncFormatter(format_time))
+ax.zaxis.set_ticks(np.arange(0, 1, 0.05))
+ax.zaxis.set_major_formatter(PercentFormatter(xmax=1.0, decimals=0))
 
-hist, xedges, yedges = np.histogram2d(x, y, bins=4, range=[[0, 4], [0, 4]])
+hist, xedges, yedges = np.histogram2d(x, y, bins=4, normed=True, range=[[0, 4], [0, 4]])
+print("======== RIDESHARING RATES: ==============")
+print("'R' = any ridesharing, 'RwD' = Ridesharing with Delivery")
+print("24k Base:")
+print("R: ", end="")
+print(np.round(100*(np.sum(hist) - hist[0][0] - hist[0][1] - hist[1][0]), decimals=2), end="")
+print(" ; RwD: ", end="")
+print(np.round(100*(np.sum(hist) - np.sum(hist[0,:]) - np.sum(hist[:,0]) + hist[0][0]), decimals=2), end="\n")
 
 # Construct arrays for the anchor positions of the 16 bars.
 xpos, ypos = np.meshgrid(xedges[:-1] - 0.5, yedges[:-1] - 0.5, indexing="ij")
@@ -615,6 +458,8 @@ dx = dy = 0.9 * np.ones_like(zpos)
 dz = hist.ravel()
 
 ax.bar3d(xpos, ypos, zpos, dx, dy, dz, zsort='average')
+ax.view_init(15, 45)
+plt.savefig(save_dir + 'occ_24h_24k_Base', bbox_inches='tight', transparent=True)
 """ -----------------------------------------------------------------------------"""
 
 """ --------------------------3D Histogram experiment 15 = 24h 24k MULTIPASS -------------------- """
@@ -625,11 +470,18 @@ fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
 ax.set_xlabel("Passengers per vehicle")
 ax.set_ylabel("Packages per vehicle")
-ax.set_zlabel("Vehicle hours", labelpad=10.0)
-ax.zaxis.set_ticks(np.arange(0, 1020001, 30000))
-ax.zaxis.set_major_formatter(FuncFormatter(format_time))
+# ax.set_zlabel("Vehicle hours", labelpad=10.0)
+# ax.zaxis.set_ticks(np.arange(0, 1020001, 30000))
+# ax.zaxis.set_major_formatter(FuncFormatter(format_time))
+ax.zaxis.set_ticks(np.arange(0, 1, 0.05))
+ax.zaxis.set_major_formatter(PercentFormatter(xmax=1.0, decimals=0))
 
-hist, xedges, yedges = np.histogram2d(x, y, bins=4, range=[[0, 4], [0, 4]])
+hist, xedges, yedges = np.histogram2d(x, y, bins=4, normed=True, range=[[0, 4], [0, 4]])
+print("24k Multipass:")
+print("R: ", end="")
+print(np.round(100*(np.sum(hist) - hist[0][0] - hist[0][1] - hist[1][0]), decimals=2), end="")
+print(" ; RwD: ", end="")
+print(np.round(100*(np.sum(hist) - np.sum(hist[0,:]) - np.sum(hist[:,0]) + hist[0][0]), decimals=2), end="\n")
 
 # Construct arrays for the anchor positions of the 16 bars.
 xpos, ypos = np.meshgrid(xedges[:-1] - 0.5, yedges[:-1] - 0.5, indexing="ij")
@@ -642,6 +494,8 @@ dx = dy = 0.9 * np.ones_like(zpos)
 dz = hist.ravel()
 
 ax.bar3d(xpos, ypos, zpos, dx, dy, dz, zsort='average')
+ax.view_init(15, 45)
+plt.savefig(save_dir + 'occ_24h_24k_Multipass', bbox_inches='tight', transparent=True)
 """ -----------------------------------------------------------------------------"""
 
 """ --------------------------------- 3D Histogram experiment 16 24h 24k INSERTION ------------ """
@@ -652,12 +506,126 @@ fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
 ax.set_xlabel("Passengers per vehicle")
 ax.set_ylabel("Packages per vehicle")
-ax.set_zlabel("Vehicle hours", labelpad=10.0)
-ax.zaxis.set_ticks(np.arange(0, 1020001, 30000))
-ax.zaxis.set_major_formatter(FuncFormatter(format_time))
+# ax.set_zlabel("Vehicle hours", labelpad=10.0)
+# ax.zaxis.set_ticks(np.arange(0, 1020001, 30000))
+# ax.zaxis.set_major_formatter(FuncFormatter(format_time))
+ax.zaxis.set_ticks(np.arange(0, 1, 0.05))
+ax.zaxis.set_major_formatter(PercentFormatter(xmax=1.0, decimals=0))
 
-hist, xedges, yedges = np.histogram2d(x, y, bins=4, range=[[0, 4], [0, 4]])
-# print(hist)
+hist, xedges, yedges = np.histogram2d(x, y, bins=4, normed=True, range=[[0, 4], [0, 4]])
+print("24k Insertion:")
+print("R: ", end="")
+print(np.round(100*(np.sum(hist) - hist[0][0] - hist[0][1] - hist[1][0]), decimals=2), end="")
+print(" ; RwD: ", end="")
+print(np.round(100*(np.sum(hist) - np.sum(hist[0,:]) - np.sum(hist[:,0]) + hist[0][0]), decimals=2), end="\n\n")
+
+# Construct arrays for the anchor positions of the 16 bars.
+xpos, ypos = np.meshgrid(xedges[:-1] - 0.5, yedges[:-1] - 0.5, indexing="ij")
+xpos = xpos.ravel()
+ypos = ypos.ravel()
+zpos = np.zeros_like(xpos)
+
+# Construct arrays with the dimensions for the 16 bars.
+dx = dy = 0.9 * np.ones_like(zpos)
+dz = hist.ravel()
+
+ax.bar3d(xpos, ypos, zpos, dx, dy, dz, zsort='average')
+ax.view_init(15, 45)
+plt.savefig(save_dir + 'occ_24h_24k_Insertion', bbox_inches='tight', transparent=True)
+""" -----------------------------------------------------------------------------"""
+
+""" --------------------- 3D Histogram experiment 8 = 1h 25k BASE -------------------- """
+x = data_8_combined["people_occupancy"]
+y = data_8_combined["package_occupancy"]
+
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+ax.set_xlabel("Passengers per vehicle")
+ax.set_ylabel("Packages per vehicle")
+# ax.set_zlabel("Vehicle hours", labelpad=10.0)
+# ax.zaxis.set_ticks(np.arange(0, 1020001, 30000))
+# ax.zaxis.set_major_formatter(FuncFormatter(format_time))
+ax.zaxis.set_ticks(np.arange(0, 1, 0.05))
+ax.zaxis.set_major_formatter(PercentFormatter(xmax=1.0, decimals=0))
+
+hist, xedges, yedges = np.histogram2d(x, y, bins=4, normed=True, range=[[0, 4], [0, 4]])
+print("25k Base:")
+print("R: ", end="")
+print(np.round(100*(np.sum(hist) - hist[0][0] - hist[0][1] - hist[1][0]), decimals=2), end="")
+print(" ; RwD: ", end="")
+print(np.round(100*(np.sum(hist) - np.sum(hist[0,:]) - np.sum(hist[:,0]) + hist[0][0]), decimals=2), end="\n")
+
+# Construct arrays for the anchor positions of the 16 bars.
+xpos, ypos = np.meshgrid(xedges[:-1] - 0.5, yedges[:-1] - 0.5, indexing="ij")
+xpos = xpos.ravel()
+ypos = ypos.ravel()
+zpos = np.zeros_like(xpos)
+
+# Construct arrays with the dimensions for the 16 bars.
+dx = dy = 0.9 * np.ones_like(zpos)
+dz = hist.ravel()
+
+ax.bar3d(xpos, ypos, zpos, dx, dy, dz, zsort='average')
+ax.view_init(15, 45)
+plt.savefig(save_dir + 'occ_1h_25k_Base', bbox_inches='tight', transparent=True)
+""" -----------------------------------------------------------------------------"""
+
+""" --------------------------3D Histogram experiment 9 = 1h 25k MULTIPASS -------------------- """
+x = data_9_combined["people_occupancy"]
+y = data_9_combined["package_occupancy"]
+
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+ax.set_xlabel("Passengers per vehicle")
+ax.set_ylabel("Packages per vehicle")
+# ax.set_zlabel("Vehicle hours", labelpad=10.0)
+# ax.zaxis.set_ticks(np.arange(0, 1020001, 30000))
+# ax.zaxis.set_major_formatter(FuncFormatter(format_time))
+ax.zaxis.set_ticks(np.arange(0, 1, 0.05))
+ax.zaxis.set_major_formatter(PercentFormatter(xmax=1.0, decimals=0))
+
+hist, xedges, yedges = np.histogram2d(x, y, bins=4, normed=True, range=[[0, 4], [0, 4]])
+print("25k Multipass:")
+print("R: ", end="")
+print(np.round(100*(np.sum(hist) - hist[0][0] - hist[0][1] - hist[1][0]), decimals=2), end="")
+print(" ; RwD: ", end="")
+print(np.round(100*(np.sum(hist) - np.sum(hist[0,:]) - np.sum(hist[:,0]) + hist[0][0]), decimals=2), end="\n")
+
+# Construct arrays for the anchor positions of the 16 bars.
+xpos, ypos = np.meshgrid(xedges[:-1] - 0.5, yedges[:-1] - 0.5, indexing="ij")
+xpos = xpos.ravel()
+ypos = ypos.ravel()
+zpos = np.zeros_like(xpos)
+
+# Construct arrays with the dimensions for the 16 bars.
+dx = dy = 0.9 * np.ones_like(zpos)
+dz = hist.ravel()
+
+ax.bar3d(xpos, ypos, zpos, dx, dy, dz, zsort='average')
+ax.view_init(15, 45)
+plt.savefig(save_dir + 'occ_1h_25k_Multipass', bbox_inches='tight', transparent=True)
+""" -----------------------------------------------------------------------------"""
+
+""" --------------------------------- 3D Histogram experiment 10 1h 25k INSERTION ------------ """
+x = data_10_combined["people_occupancy"]
+y = data_10_combined["package_occupancy"]
+
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+ax.set_xlabel("Passengers per vehicle")
+ax.set_ylabel("Packages per vehicle")
+# ax.set_zlabel("Vehicle hours", labelpad=10.0)
+# ax.zaxis.set_ticks(np.arange(0, 1020001, 30000))
+# ax.zaxis.set_major_formatter(FuncFormatter(format_time))
+ax.zaxis.set_ticks(np.arange(0, 1, 0.05))
+ax.zaxis.set_major_formatter(PercentFormatter(xmax=1.0, decimals=0))
+
+hist, xedges, yedges = np.histogram2d(x, y, bins=4, normed=True, range=[[0, 4], [0, 4]])
+print("25k Insertion:")
+print("R: ", end="")
+print(np.round(100*(np.sum(hist) - hist[0][0] - hist[0][1] - hist[1][0]), decimals=2), end="")
+print(" ; RwD: ", end="")
+print(np.round(100*(np.sum(hist) - np.sum(hist[0,:]) - np.sum(hist[:,0]) + hist[0][0]), decimals=2), end="\n\n")
 
 # Construct arrays for the anchor positions of the 16 bars.
 xpos, ypos = np.meshgrid(xedges[:-1] - 0.5, yedges[:-1] - 0.5, indexing="ij")
@@ -672,7 +640,131 @@ dx = dy = 0.9 * np.ones_like(zpos)
 dz = hist.ravel()
 
 ax.bar3d(xpos, ypos, zpos, dx, dy, dz, zsort='average')
+ax.view_init(15, 45)
+plt.savefig(save_dir + 'occ_1h_25k_Insertion', bbox_inches='tight', transparent=True)
 """ -----------------------------------------------------------------------------"""
 
+""" --------------------- 3D Histogram experiment 11 = 1h 50k BASE -------------------- """
+x = data_11_combined["people_occupancy"]
+y = data_11_combined["package_occupancy"]
+
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+ax.set_xlabel("Passengers per vehicle")
+ax.set_ylabel("Packages per vehicle")
+# ax.set_zlabel("Vehicle hours", labelpad=10.0)
+# ax.zaxis.set_ticks(np.arange(0, 1020001, 60000))
+# ax.zaxis.set_major_formatter(FuncFormatter(format_time))
+ax.zaxis.set_ticks(np.arange(0, 1, 0.05))
+ax.zaxis.set_major_formatter(PercentFormatter(xmax=1.0, decimals=0))
+
+hist, xedges, yedges = np.histogram2d(x, y, bins=4, normed=True, range=[[0, 4], [0, 4]])
+print("50k Base:")
+print("R: ", end="")
+print(np.round(100*(np.sum(hist) - hist[0][0] - hist[0][1] - hist[1][0]), decimals=2), end="")
+print(" ; RwD: ", end="")
+print(np.round(100*(np.sum(hist) - np.sum(hist[0,:]) - np.sum(hist[:,0]) + hist[0][0]), decimals=2), end="\n")
+# print(100*hist)
+# print("sum: ", end="")
+# print(100*np.sum(hist))
+# print("first row: ", end="")
+# # print(100*np.sum(hist[0][:]))
+# print(100*hist[0, :])
+# print("first column: ", end="")
+# print(100*hist[:, 0])
+# print(100*hist[0][0])
+# print(100*hist[1][0])
+# print("empty taxi: ", end="")
+# print(100*hist[0][0])
+
+
+# Construct arrays for the anchor positions of the 16 bars.
+xpos, ypos = np.meshgrid(xedges[:-1] - 0.5, yedges[:-1] - 0.5, indexing="ij")
+xpos = xpos.ravel()
+ypos = ypos.ravel()
+zpos = np.zeros_like(xpos)
+
+# Construct arrays with the dimensions for the 16 bars.
+dx = dy = 0.9 * np.ones_like(zpos)
+dz = hist.ravel()
+
+ax.bar3d(xpos, ypos, zpos, dx, dy, dz, zsort='average')
+ax.view_init(15, 45)
+plt.savefig(save_dir + 'occ_1h_50k_Base', bbox_inches='tight', transparent=True)
+""" -----------------------------------------------------------------------------"""
+
+""" --------------------------3D Histogram experiment 12 = 1h 50k MULTIPASS -------------------- """
+x = data_12_combined["people_occupancy"]
+y = data_12_combined["package_occupancy"]
+
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+ax.set_xlabel("Passengers per vehicle")
+ax.set_ylabel("Packages per vehicle")
+# ax.set_zlabel("Vehicle hours", labelpad=10.0)
+# ax.zaxis.set_ticks(np.arange(0, 1020001, 30000))
+# ax.zaxis.set_major_formatter(FuncFormatter(format_time))
+ax.zaxis.set_ticks(np.arange(0, 1, 0.05))
+ax.zaxis.set_major_formatter(PercentFormatter(xmax=1.0, decimals=0))
+
+hist, xedges, yedges = np.histogram2d(x, y, bins=4, normed=True, range=[[0, 4], [0, 4]])
+print("50k Multipass:")
+print("R: ", end="")
+print(np.round(100*(np.sum(hist) - hist[0][0] - hist[0][1] - hist[1][0]), decimals=2), end="")
+print(" ; RwD: ", end="")
+print(np.round(100*(np.sum(hist) - np.sum(hist[0][:]) - np.sum(hist[:][0]) + hist[0][0]), decimals=2), end="\n")
+
+# Construct arrays for the anchor positions of the 16 bars.
+xpos, ypos = np.meshgrid(xedges[:-1] - 0.5, yedges[:-1] - 0.5, indexing="ij")
+xpos = xpos.ravel()
+ypos = ypos.ravel()
+zpos = np.zeros_like(xpos)
+
+# Construct arrays with the dimensions for the 16 bars.
+dx = dy = 0.9 * np.ones_like(zpos)
+dz = hist.ravel()
+
+ax.bar3d(xpos, ypos, zpos, dx, dy, dz, zsort='average')
+ax.view_init(15, 45)
+plt.savefig(save_dir + 'occ_1h_50k_Multipass', bbox_inches='tight', transparent=True)
+""" -----------------------------------------------------------------------------"""
+
+""" --------------------------------- 3D Histogram experiment 13 1h 50k INSERTION ------------ """
+x = data_13_combined["people_occupancy"]
+y = data_13_combined["package_occupancy"]
+
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+ax.set_xlabel("Passengers per vehicle")
+ax.set_ylabel("Packages per vehicle")
+# ax.set_zlabel("Vehicle hours", labelpad=10.0)
+# ax.zaxis.set_ticks(np.arange(0, 1020001, 30000))
+# ax.zaxis.set_major_formatter(FuncFormatter(format_time))
+ax.zaxis.set_ticks(np.arange(0, 1, 0.05))
+ax.zaxis.set_major_formatter(PercentFormatter(xmax=1.0, decimals=0))
+
+hist, xedges, yedges = np.histogram2d(x, y, bins=4, normed=True, range=[[0, 4], [0, 4]])
+print("50k Insertion:")
+print("R: ", end="")
+print(np.round(100*(np.sum(hist) - hist[0][0] - hist[0][1] - hist[1][0]), decimals=2), end="")
+print(" ; RwD: ", end="")
+print(np.round(100*(np.sum(hist) - np.sum(hist[0][:]) - np.sum(hist[:][0]) + hist[0][0]), decimals=2), end="\n")
+
+# Construct arrays for the anchor positions of the 16 bars.
+xpos, ypos = np.meshgrid(xedges[:-1] - 0.5, yedges[:-1] - 0.5, indexing="ij")
+# print(xpos)
+# print(ypos)
+xpos = xpos.ravel()
+ypos = ypos.ravel()
+zpos = np.zeros_like(xpos)
+
+# Construct arrays with the dimensions for the 16 bars.
+dx = dy = 0.9 * np.ones_like(zpos)
+dz = hist.ravel()
+
+ax.bar3d(xpos, ypos, zpos, dx, dy, dz, zsort='average')
+ax.view_init(15, 45)
+plt.savefig(save_dir + 'occ_1h_50k_Insertion', bbox_inches='tight', transparent=True)
+""" -----------------------------------------------------------------------------"""
 
 plt.show()

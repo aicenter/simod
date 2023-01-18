@@ -30,7 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Singleton
-public class RidesharingPFdispatcher extends RidesharingDispatcher {
+public class RidesharingPFDispatcher extends RidesharingDispatcher {
 
 	protected final PlanComputationRequestPeople.PlanComputationRequestPeopleFactory peopleRequestFactory;
 
@@ -45,7 +45,7 @@ public class RidesharingPFdispatcher extends RidesharingDispatcher {
 	private int totalSharedRequestsCount;
 
 	@Inject
-	public RidesharingPFdispatcher(OnDemandvehicleStationStorage onDemandvehicleStationStorage,
+	public RidesharingPFDispatcher(OnDemandvehicleStationStorage onDemandvehicleStationStorage,
 								   TypedSimulation eventProcessor,
 								   SimodConfig config,
 								   DARPSolverPFShared solver,

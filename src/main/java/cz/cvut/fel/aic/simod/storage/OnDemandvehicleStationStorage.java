@@ -75,8 +75,11 @@ public class OnDemandvehicleStationStorage extends EntityStorage<OnDemandVehicle
 	public OnDemandVehicleStation getNearestStation(SimulationNode position){
 		return getNearestStation(position, NearestType.EUCLIDEAN);
 	}
-	
+
 	public OnDemandVehicleStation getNearestStation(SimulationNode position, NearestType type){
+		return getNearestStation(position, type, true);
+	}
+	public OnDemandVehicleStation getNearestStation(SimulationNode position, NearestType type, boolean skipEmpty){
 		switch(type){
 			case EUCLIDEAN:
 				return getNearestStationByEuclideanDistance(position);
@@ -85,6 +88,10 @@ public class OnDemandvehicleStationStorage extends EntityStorage<OnDemandVehicle
 				double bestTraveltime = Double.MAX_VALUE;
 				OnDemandVehicleStation bestStation = null;
 				for(OnDemandVehicleStation station: this){
+					if(skipEmpty && station.isEmpty()){
+						continue;
+					}
+
 					SimulationNode stationPosition = station.getPosition();
 					double traveltime;
 					if(type == NearestType.TRAVELTIME_FROM){

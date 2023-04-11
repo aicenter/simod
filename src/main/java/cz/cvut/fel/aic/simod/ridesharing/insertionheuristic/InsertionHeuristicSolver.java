@@ -112,7 +112,10 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	private PlanData bestPlan;
 	
 	OnDemandVehicle vehicleFromNearestStation;
-	
+
+	/**
+	 * Used vehicles per station in the current iteration of the solver
+	 */
 	private int[] usedVehiclesPerStation;
 	
 	private List<OnDemandVehicle> vehiclesForPlanning;
@@ -461,15 +464,19 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		if(config.stations.on){ //!onDemandvehicleStationStorage.isEmpty()){ //
 			OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(request.getFrom(), 
 							OnDemandvehicleStationStorage.NearestType.TRAVELTIME_FROM);
-			int indexFromEnd = usedVehiclesPerStation[Integer.parseInt(nearestStation.getId())];
-			int index = nearestStation.getParkedVehiclesCount() - 1 - indexFromEnd;
+			if(nearestStation != null) {
+				int indexFromEnd = usedVehiclesPerStation[Integer.parseInt(nearestStation.getId())];
+				int index = nearestStation.getParkedVehiclesCount() - 1 - indexFromEnd;
 
-			if(index >= 0){
-				vehicleFromNearestStation = nearestStation.getVehicle(index);
-				vehiclesForPlanning.add(vehicleFromNearestStation);
+				if (index >= 0) {
+					vehicleFromNearestStation = nearestStation.getVehicle(index);
+					vehiclesForPlanning.add(vehicleFromNearestStation);
+				} else {
+					LOGGER.warn("Nearest station {} empty for request {}", nearestStation, request);
+				}
 			}
 			else{
-				LOGGER.warn("Nearest station {} empty for request {}", nearestStation, request);
+				LOGGER.warn("All stations empty for request {}", request);
 			}
 		}
 		
@@ -514,6 +521,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 
 	private void processRequest(PlanComputationRequest request) {
 		Benchmark benchmark = new Benchmark();
+		vehicleFromNearestStation = null;
 		benchmark.measureTime(() -> computeBestPlanForRequest(request));
 		insertionHeuristicTime += benchmark.getDurationMsInt();
 

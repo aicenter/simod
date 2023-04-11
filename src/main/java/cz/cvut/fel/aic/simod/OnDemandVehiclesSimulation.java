@@ -20,7 +20,9 @@ package cz.cvut.fel.aic.simod;
 
 import com.google.inject.Injector;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
+import cz.cvut.fel.aic.agentpolis.simulator.MapData;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
@@ -29,11 +31,16 @@ import cz.cvut.fel.aic.simod.init.StationsInitializer;
 import cz.cvut.fel.aic.simod.init.StatisticInitializer;
 import cz.cvut.fel.aic.simod.io.TripTransform;
 import cz.cvut.fel.aic.simod.rebalancing.ReactiveRebalancing;
+import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.statistics.Statistics;
 import cz.cvut.fel.aic.simod.tripUtil.TripsUtilCached;
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.PrimitiveIterator;
+import java.util.Random;
+import java.util.stream.IntStream;
+
 import org.slf4j.LoggerFactory;
 
 /**
@@ -83,6 +90,33 @@ public class OnDemandVehiclesSimulation {
 		}
 	}
 
+	private static void checkTravelTimeProvider(Injector injector) {
+		TravelTimeProvider travelTimeProvider = injector.getInstance(TravelTimeProvider.class);
+		if(!(travelTimeProvider instanceof AstarTravelTimeProvider)){
+			AstarTravelTimeProvider astarTravelTimeProvider = injector.getInstance(AstarTravelTimeProvider.class);
+
+			MapData map = injector.getInstance(MapInitializer.class).getMap();
+			PrimitiveIterator.OfInt ris = new Random().ints(0, map.nodesFromAllGraphs.size()).iterator();
+			boolean fail = false;
+			for (int i = 0; i < 5; i++) {
+				SimulationNode from = map.nodesFromAllGraphs.get(ris.nextInt());
+				SimulationNode to = map.nodesFromAllGraphs.get(ris.nextInt());
+				long time = travelTimeProvider.getExpectedTravelTime(from, to);
+				long timeAstar = astarTravelTimeProvider.getExpectedTravelTime(from, to);
+				if (time != timeAstar) {
+					LOGGER.error("Travel time provider is not consistent with AstarTravelTimeProvider.\n"
+							+ "Time from {} to {}\n" +
+								"AstarTravelTimeProvider: {}\n" +
+								"{}: {}", from, to, timeAstar, travelTimeProvider.getClass().getSimpleName(), time);
+					fail = true;
+				}
+			}
+			if (fail) {
+				throw new RuntimeException("Travel time provider is not consistent with AstarTravelTimeProvider.");
+			}
+		}
+	}
+
 	public void run(String[] args) {
 		SimodConfig config = new SimodConfig();
 		
@@ -105,7 +139,10 @@ public class OnDemandVehiclesSimulation {
 		// prepare map, entity storages...
 		creator.prepareSimulation(injector.getInstance(MapInitializer.class).getMap());
 
-		
+		// check that travel time provider provides the same results as AstarTravelTimeProvider
+		// Need to be done after map initialization in SimulationCreator.prepareSimulation()
+		checkTravelTimeProvider(injector);
+
 		// load stations
 		injector.getInstance(StationsInitializer.class).loadStations();
 
@@ -133,4 +170,6 @@ public class OnDemandVehiclesSimulation {
 		injector.getInstance(TravelTimeProvider.class).printCalls();
 		injector.getInstance(TravelTimeProvider.class).close();
 	}
+
+
 }

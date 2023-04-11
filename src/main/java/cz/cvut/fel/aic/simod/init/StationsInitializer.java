@@ -78,9 +78,9 @@ public class StationsInitializer {
 				discarded++;
 			}
 			else{
-				int initCount = Integer.parseInt(row[1]) + 100;
+				int initCount = Integer.parseInt(row[1]) + config.stations.vehicleBuffer;
 				if(initCount < 500){
-					initCount += 100;
+					initCount += config.stations.vehicleBufferUnpopulatedStations;
 				}
 				createStation(node, initCount, counter++);
 			}

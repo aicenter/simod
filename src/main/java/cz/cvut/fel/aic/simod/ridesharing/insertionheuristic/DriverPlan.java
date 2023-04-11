@@ -31,6 +31,9 @@ import java.util.List;
 public class DriverPlan implements Iterable<PlanAction>{
 	public final List<PlanAction> plan;
 
+	/**
+	 * Total time of the plan in milliseconds
+	 */
 	public final long totalTime;
 	
 	public final double cost;

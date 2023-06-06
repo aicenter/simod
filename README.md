@@ -81,6 +81,34 @@ Simulation speed can be adjusted by '+' , '-' , '*' or 'Ctrl *' and paused by 'S
 If you let the simulation finish, you should see the reuslt files with various statistics in your experiment folder (inside `data_dir`).
 
 
+# Result Files
+The simulation exports the following files:
+- `allEdgesLoadHistory.json`: records of the load of all edges in the road network. It represents the number of vehicles that were on the edge in each time interval.
+- `darp_times.csv`: records the totla solver time for each batch. Old file, not used anymore.
+- `demand_trip_lengths.csv`: lengths of each passanger trip
+- `result.json`: the main result file with the aggregated statistics of the simulation
+- `ridesharing.csv`: ridesharing statistics aggregated over batches (one row per batch)
+- `service.csv`: request service statistic for each request. The columns are:
+    - request announcmnet time
+    - request id
+    - vehicle id
+    - pickup time
+    - dropoff time
+    - minimum possible service delay (if the request was served immediately by the nearest vehicle)
+- `transit.csv` detailed transite statistics for each edge. Each row represent one vehicle transfering over single edge. The columns are:
+    - time of the transfer
+    - edge id
+    - vehicle state:
+        - 0: waiting (there should be no transfers with this state)
+        - 1: driving to pickup
+        - 2: driving to dropoff
+        - 3: driving to station
+        - 4: rebalancing (only possible if rebalancing is enabled)
+- `vehicle_occupancy.csv`: vehicle occupancy for each vehicle in each batch. The columns are:
+    - batch id
+    - vehicle id
+    - occupancy
+
 
 
 # Usage

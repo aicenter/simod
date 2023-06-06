@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 import datetime
 import roadmaptools.inout
 import amodsim.statistics.model.occupancy as occupancy
-import amodsim.statistics.comparisons.common as common
+import simod.statistics.comparisons.common as common
 
 from matplotlib.ticker import FuncFormatter
 

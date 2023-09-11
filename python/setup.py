@@ -21,13 +21,22 @@ from setuptools import setup
 
 setup(
 	name='simod',
-	version='1.0.0',
+	version='1.0.1',
 	description='service scripts for SiMoD agentpolis simulation',
 	author='David Fiedler',
 	author_email='david.fido.fiedler@gmail.com',
 	license='MIT',
 	packages=setuptools.find_packages(),
-	install_requires=['roadmaptools>=4.1.0', 'agentpolis>=0.1.2', 'fconfig', 'numpy', 'pandas', 'matplotlib', 'tqdm', 'typing'],
+	install_requires=[
+		'roadmaptools>=5.0.0',
+		'agentpolis>=0.2.0',
+		'fconfig',
+		'numpy',
+		'pandas',
+		'matplotlib',
+		'tqdm',
+		'typing'
+	],
 	python_requires='>=3',
 	package_data={'simod.resources': ['*.cfg']}
 )

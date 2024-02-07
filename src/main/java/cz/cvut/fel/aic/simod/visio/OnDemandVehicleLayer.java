@@ -96,7 +96,7 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
 	@Override
 	protected Color getEntityDrawColor(PhysicalTransportVehicle vehicle) {
 		OnDemandVehicle onDemandVehicle = (OnDemandVehicle) vehicle.getDriver();
-		if (onDemandVehicle.getVehicleId().equals(OnDemandVehicleLayer.highlightedVehicleID) || vehicle.isHighlited()) {
+		if (onDemandVehicle.getVehicleId().equals(OnDemandVehicleLayer.highlightedVehicleID) || vehicle.isHighlighted()) {
  			return HIGHLIGHTED_COLOR;
 		}
 
@@ -116,7 +116,7 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
 
 	@Override
 	public boolean checkIfTransformSize(PhysicalTransportVehicle representative) {
-		if(representative.getId().equals(OnDemandVehicleLayer.highlightedVehicleID) || representative.isHighlited()){
+		if(representative.getId().equals(OnDemandVehicleLayer.highlightedVehicleID) || representative.isHighlighted()){
 			return false;
 		}
 		else{

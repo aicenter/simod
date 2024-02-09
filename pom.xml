@@ -36,8 +36,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>18</source>
+					<target>18</target>
 				</configuration>
 			</plugin>
 
@@ -142,11 +142,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 			<artifactId>guice-assistedinject</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.gurobi</groupId>
-			<artifactId>gurobi</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
 			<groupId>javax.vecmath</groupId>
 			<artifactId>vecmath</artifactId>
 		</dependency>
@@ -161,6 +156,50 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 			<type>jar</type>
 		</dependency>
 	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>with-gurobi</id>
+			<dependencies>
+				<dependency>
+					<groupId>com.gurobi</groupId>
+					<artifactId>gurobi</artifactId>
+					<version>1.0</version>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<source>18</source>
+							<target>18</target>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.codehouse.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>add-source</id>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>add-source</goal>
+								</goals>
+								<configuration>
+									<sources>
+<!--										<source>${project.basedir}/src/main/java</source>-->
+										<source>${project.basedir}/src/main/java-gurobi_dependent</source>
+									</sources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 	
 	<repositories>
 		<repository>

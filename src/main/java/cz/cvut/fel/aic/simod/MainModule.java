@@ -46,7 +46,6 @@ import cz.cvut.fel.aic.simod.entity.DemandAgent.DemandAgentFactory;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactory;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactorySpec;
-import cz.cvut.fel.aic.simod.rebalancing.RebalancingOnDemandVehicleStation;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.InsertionHeuristicSolver;
 import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.simod.ridesharing.vga.VehicleGroupAssignmentSolver;
@@ -76,6 +75,19 @@ import org.slf4j.LoggerFactory;
 public class MainModule extends StandardAgentPolisModule{
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(MainModule.class);
+
+
+
+	public static boolean gurobiAvailable(){
+		try {
+			Class.forName("com.gurobi.gurobi.GRBEnv");
+			return true;
+		} catch (ClassNotFoundException e) {
+			return false;
+		}
+	}
+
+
 	
 	private final SimodConfig SimodConfig;
 	
@@ -153,10 +165,23 @@ public class MainModule extends StandardAgentPolisModule{
 		}
 		install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
 			.build(DemandAgentFactory.class));
+
+		boolean initRebalancing = SimodConfig.rebalancing.on;
+		if(!gurobiAvailable() && initRebalancing){
+			LOGGER.error("Gurobi not available, rebalancing will not be used");
+			initRebalancing = false;
+		}
 		
-		if(SimodConfig.rebalancing.on){
-			install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, RebalancingOnDemandVehicleStation.class)
-				.build(RebalancingOnDemandVehicleStation.OnDemandVehicleStationFactory.class));
+		if(initRebalancing){
+            try {
+				Class<? extends OnDemandVehicleStation> rebalancingStationClass
+						= (Class<? extends OnDemandVehicleStation>) Class.forName(
+								"cz.cvut.fel.aic.rebalancing.RebalancingOnDemandVehicleStation");
+				install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, rebalancingStationClass)
+						.build(rebalancingStationClass.OnDemandVehicleStationFactory.class));
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
 		}
 		else{
 			install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, OnDemandVehicleStation.class)

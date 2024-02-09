@@ -30,16 +30,15 @@ import cz.cvut.fel.aic.simod.init.EventInitializer;
 import cz.cvut.fel.aic.simod.init.StationsInitializer;
 import cz.cvut.fel.aic.simod.init.StatisticInitializer;
 import cz.cvut.fel.aic.simod.io.TripTransform;
-import cz.cvut.fel.aic.simod.rebalancing.ReactiveRebalancing;
+import rebalancing.ReactiveRebalancing;
 import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.statistics.Statistics;
-import cz.cvut.fel.aic.simod.tripUtil.TripsUtilCached;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.PrimitiveIterator;
 import java.util.Random;
-import java.util.stream.IntStream;
 
 import org.slf4j.LoggerFactory;
 

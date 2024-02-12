@@ -29,6 +29,7 @@ import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.init.EventInitializer;
 import cz.cvut.fel.aic.simod.init.StationsInitializer;
 import cz.cvut.fel.aic.simod.init.StatisticInitializer;
+import cz.cvut.fel.aic.simod.init.VehicleInitializer;
 import cz.cvut.fel.aic.simod.io.TripTransform;
 import cz.cvut.fel.aic.simod.rebalancing.ReactiveRebalancing;
 import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
@@ -145,6 +146,11 @@ public class OnDemandVehiclesSimulation {
 
 		// load stations
 		injector.getInstance(StationsInitializer.class).loadStations();
+
+		// load vehicles if they are in a separate file
+		if(!config.vehiclesFilePath.isBlank()){
+			injector.getInstance(VehicleInitializer.class).run();
+		}
 
 		if(config.rebalancing.on){
 

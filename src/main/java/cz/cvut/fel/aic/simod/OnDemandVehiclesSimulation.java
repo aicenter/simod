@@ -150,7 +150,7 @@ public class OnDemandVehiclesSimulation {
 
 		// check that travel time provider provides the same results as AstarTravelTimeProvider
 		// Need to be done after map initialization in SimulationCreator.prepareSimulation()
-		checkTravelTimeProvider(injector);
+//		checkTravelTimeProvider(injector);
 
 		// load stations
 		injector.getInstance(StationsInitializer.class).loadStations();

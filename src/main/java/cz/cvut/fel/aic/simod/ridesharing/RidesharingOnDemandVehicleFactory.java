@@ -24,6 +24,8 @@ import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
@@ -31,6 +33,7 @@ import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactory;
+import cz.cvut.fel.aic.simod.entity.vehicle.SpecializedTransportVehicle;
 import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
 
 /**
@@ -66,22 +69,26 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 	}
 
 	@Override
-	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition) {
+	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition,
+		PhysicalTransportVehicle<TransportableEntity> vehicle
+	) {
 		return new RideSharingOnDemandVehicle(
-				vehicleStorage, 
-				tripsUtil, 
-				onDemandVehicleStationsCentral, 
-				driveActivityFactory, 
-				positionUtil,
-				rebalancingIdGenerator, 
-				eventProcessor,
-				timeProvider, 
-				rebalancingIdGenerator, 
-				config, 
-				idGenerator, 
-				agentpolisConfig,
-				vehicleId, 
-				startPosition);
+			vehicleStorage,
+			tripsUtil,
+			onDemandVehicleStationsCentral,
+			driveActivityFactory,
+			positionUtil,
+			rebalancingIdGenerator,
+			eventProcessor,
+			timeProvider,
+			rebalancingIdGenerator,
+			config,
+			idGenerator,
+			agentpolisConfig,
+			vehicleId,
+			startPosition,
+			vehicle
+		);
 	}
 	
 	

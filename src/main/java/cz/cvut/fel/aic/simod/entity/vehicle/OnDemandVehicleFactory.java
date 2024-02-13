@@ -25,6 +25,8 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
@@ -92,20 +94,24 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 	
 	
 	@Override
-	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition){
+	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition,
+		PhysicalTransportVehicle<TransportableEntity> vehicle
+	){
 		return new OnDemandVehicle(
-				vehicleStorage, 
-				tripsUtil, 
-				onDemandVehicleStationsCentral, 
-				driveActivityFactory,
-				positionUtil, 
-				eventProcessor, 
-				timeProvider, 
-				rebalancingIdGenerator, 
-				config, 
-				idGenerator, 
-				agentpolisConfig,
-				vehicleId, 
-				startPosition);
+			vehicleStorage,
+			tripsUtil,
+			onDemandVehicleStationsCentral,
+			driveActivityFactory,
+			positionUtil,
+			eventProcessor,
+			timeProvider,
+			rebalancingIdGenerator,
+			config,
+			idGenerator,
+			agentpolisConfig,
+			vehicleId,
+			startPosition,
+			vehicle
+		);
 	}
 }

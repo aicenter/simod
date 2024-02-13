@@ -37,6 +37,7 @@ import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
+import cz.cvut.fel.aic.simod.io.TimeTripWithRequirements;
 import cz.cvut.fel.aic.simod.statistics.DemandServiceStatistic;
 import cz.cvut.fel.aic.simod.statistics.StatisticEvent;
 import cz.cvut.fel.aic.simod.storage.DemandStorage;
@@ -70,6 +71,8 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	 * Request announcement time in milliseconds
 	 */
 	private final long demandTime;
+
+	private final SlotType requiredSlotType;
 	
 	
 	private DemandAgentState state;
@@ -137,16 +140,19 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	public boolean isDropped() {
 		return dropped;
 	}
-	
-	
 
-	
-	
-	
+
 	@Inject
-	public DemandAgent(StationsDispatcher onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
-			DemandStorage demandStorage, StandardTimeProvider timeProvider, TripsUtil tripsUtil,
-			@Assisted String agentId, @Assisted int id, @Assisted TimeTrip<SimulationNode> trip) {
+	public DemandAgent(
+		StationsDispatcher onDemandVehicleStationsCentral,
+		EventProcessor eventProcessor,
+		DemandStorage demandStorage,
+		StandardTimeProvider timeProvider,
+		TripsUtil tripsUtil,
+		@Assisted String agentId,
+		@Assisted int id,
+		@Assisted TimeTrip<SimulationNode> trip
+	) {
 		super(agentId, trip.getLocations()[0]);
 		this.simpleId = id;
 		this.trip = trip;
@@ -159,6 +165,13 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		dropped = false;
 		demandTime = timeProvider.getCurrentSimTime();
 		computeMinServiceDuration();
+
+		if(trip instanceof TimeTripWithRequirements){
+			requiredSlotType = ((TimeTripWithRequirements) trip).getRequiredSlotType();
+		}
+		else{
+			requiredSlotType = null;
+		}
 	}
 
 	

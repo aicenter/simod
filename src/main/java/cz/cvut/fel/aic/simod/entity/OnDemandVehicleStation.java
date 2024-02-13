@@ -20,8 +20,12 @@ package cz.cvut.fel.aic.simod.entity;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.SimpleTransportVehicle;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
@@ -56,6 +60,9 @@ import org.slf4j.LoggerFactory;
 public class OnDemandVehicleStation extends AgentPolisEntity implements EventHandler, WKTPrintableCoord{
 
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OnDemandVehicleStation.class);
+
+	private static final int LENGTH = 4;
+
 	
 	private final ArrayList<OnDemandVehicle> parkedVehicles;
 	
@@ -71,22 +78,47 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 	
 	private final SimodConfig config;
 
+	private final AgentpolisConfig agentpolisConfig;
+
 	
 	
 	@Inject
-	public OnDemandVehicleStation(SimodConfig config, EventProcessor eventProcessor, 
-			OnDemandVehicleFactorySpec onDemandVehicleFactory, NearestElementUtils nearestElementUtils, 
-			OnDemandvehicleStationStorage onDemandVehicleStationStorage, OnDemandVehicleStorage onDemandVehicleStorage, 
-			@Assisted String id, @Assisted SimulationNode node, 
-			@Assisted int initialVehicleCount, Transformer transformer, VisioPositionUtil positionUtil, 
-			StationsDispatcher onDemandVehicleStationsCentral) {
+	public OnDemandVehicleStation(
+		SimodConfig config,
+		AgentpolisConfig agentpolisConfig,
+		EventProcessor eventProcessor,
+		OnDemandVehicleFactorySpec onDemandVehicleFactory,
+		NearestElementUtils nearestElementUtils,
+		OnDemandvehicleStationStorage onDemandVehicleStationStorage,
+		OnDemandVehicleStorage onDemandVehicleStorage,
+		@Assisted String id,
+		@Assisted SimulationNode node,
+		@Assisted int initialVehicleCount,
+		Transformer transformer,
+		VisioPositionUtil positionUtil,
+		StationsDispatcher onDemandVehicleStationsCentral
+	) {
 		super(id, node);
 		this.eventProcessor = eventProcessor;
+		this.agentpolisConfig = agentpolisConfig;
 		parkedVehicles = new ArrayList<>();
 //		initialVehicleCount = 10;
+
 		for (int i = 0; i < initialVehicleCount; i++) {
 			String onDemandVehicelId = String.format("%s-%d", id, i);
-			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, getPosition());
+
+			// physical vehicle creation
+			SimpleTransportVehicle vehicle = new SimpleTransportVehicle(
+				onDemandVehicelId + " - vehicle",
+				DemandSimulationEntityType.VEHICLE,
+				LENGTH,
+				EGraphType.HIGHWAY,
+				getPosition(),
+				agentpolisConfig.maxVehicleSpeedInMeters,
+				config.ridesharing.vehicleCapacity
+			);
+
+			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, getPosition(), vehicle);
 			parkedVehicles.add(newVehicle);
 			newVehicle.setParkedIn(this);
 			onDemandVehicleStorage.addEntity(newVehicle);

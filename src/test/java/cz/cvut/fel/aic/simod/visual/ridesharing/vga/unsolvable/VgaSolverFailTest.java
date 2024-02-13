@@ -93,7 +93,7 @@ public class VgaSolverFailTest {
 		int counter = 0;
 		for (SimulationNode vehiclePosition: vehicalInitPositions) {
 			String onDemandVehicelId = String.format("%s", counter);
-			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, vehiclePosition);
+			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, vehiclePosition, vehicle);
 			onDemandVehicleStorage.addEntity(newVehicle);
 			counter++;
 		}

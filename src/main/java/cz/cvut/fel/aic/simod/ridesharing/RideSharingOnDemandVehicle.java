@@ -128,10 +128,6 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		return vehicle.getTransportedEntities().size();
 	}
 	
-	public int getFreeCapacity(){
-		return vehicle.getCapacity() - vehicle.getTransportedEntities().size();
-	}
-	
 	public void replan(DriverPlan plan){
 		currentPlan = plan;
 		// The vehicle now waits, we have to start moving.

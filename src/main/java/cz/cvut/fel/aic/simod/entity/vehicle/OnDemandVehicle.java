@@ -369,10 +369,6 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	public double getVelocity() {
 		return (double) vehicle.getVelocity();
 	}
-	
-	public int getCapacity(){
-		return vehicle.getCapacity();
-	}
 
 //	@Override
 //	public List<AgentPolisEntity> getTransportedEntities() {

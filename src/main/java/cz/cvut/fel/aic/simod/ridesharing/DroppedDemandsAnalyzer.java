@@ -144,7 +144,7 @@ public class DroppedDemandsAnalyzer {
 		*/
 		for(OnDemandVehicle tVvehicle: vehicleStorage){
 			RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
-			if(vehicle.hasFreeCapacity()){
+			if(vehicle.hasFreeCapacityFor(request.getDemandAgent())){
 				freeVehicle = true;
 				
 				// cartesian distance check

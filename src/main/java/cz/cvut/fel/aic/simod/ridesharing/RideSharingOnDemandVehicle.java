@@ -27,6 +27,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.PhysicalVehicleDrive;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
@@ -300,8 +301,8 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		return currentTrip;
 	}
 
-	public boolean hasFreeCapacity() {
-		return getFreeCapacity() > 0;
+	public boolean hasFreeCapacityFor(TransportableEntity entity) {
+		return vehicle.hasCapacityFor(entity);
 	}
 	
 	public List<PlanLayerTrip> getPlanForRendering(){

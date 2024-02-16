@@ -18,6 +18,7 @@
  */
 package cz.cvut.fel.aic.simod;
 
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.traveltimecomputation.DistanceMatrixTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TNRTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TNRAFTravelTimeProvider;
@@ -46,10 +47,8 @@ import cz.cvut.fel.aic.simod.entity.DemandAgent.DemandAgentFactory;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactory;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactorySpec;
-import cz.cvut.fel.aic.simod.rebalancing.RebalancingOnDemandVehicleStation;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.InsertionHeuristicSolver;
 import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;
-import cz.cvut.fel.aic.simod.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.simod.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.simod.ridesharing.vga.calculations.SingleVehicleDARPSolver;
 import cz.cvut.fel.aic.simod.tripUtil.TripsUtilCached;
@@ -76,7 +75,7 @@ import org.slf4j.LoggerFactory;
 public class MainModule extends StandardAgentPolisModule{
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(MainModule.class);
-	
+
 	private final SimodConfig SimodConfig;
 	
 	public MainModule(SimodConfig SimodConfig, File localConfigFile) {
@@ -142,9 +141,22 @@ public class MainModule extends StandardAgentPolisModule{
 					bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
 					break;
 				case "vga":
-					bind(DARPSolver.class).to(VehicleGroupAssignmentSolver.class);
-					bind(SingleVehicleDARPSolver.class).to(ArrayOptimalVehiclePlanFinder.class);
-		//			bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
+					if(OnDemandVehiclesSimulation.gurobiAvailable()) {
+                        try {
+                            Class<? extends DARPSolver> VGASolverClass = (Class<? extends DARPSolver>) Class.forName(
+									"cz.cvut.fel.aic.simod.ridesharing.vga.VehicleGroupAssignmentSolver");
+							bind(DARPSolver.class).to(VGASolverClass);
+							bind(SingleVehicleDARPSolver.class).to(ArrayOptimalVehiclePlanFinder.class);
+							//			bind(OptimalVehiclePlanFinder.class).to(PlanBuilderOptimalVehiclePlanFinder.class);
+                        } catch (ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+
+					}
+					else {
+						LOGGER.error("Gurobi not available, IH will be used instead of VGA");
+						bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
+					}
 					break;
 			}
 		}
@@ -153,10 +165,39 @@ public class MainModule extends StandardAgentPolisModule{
 		}
 		install(new FactoryModuleBuilder().implement(DemandAgent.class, DemandAgent.class)
 			.build(DemandAgentFactory.class));
+
+		boolean initRebalancing = SimodConfig.rebalancing.on;
+		if(!OnDemandVehiclesSimulation.gurobiAvailable() && initRebalancing){
+			LOGGER.error("Gurobi not available, rebalancing will not be used");
+			initRebalancing = false;
+		}
 		
-		if(SimodConfig.rebalancing.on){
-			install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, RebalancingOnDemandVehicleStation.class)
-				.build(RebalancingOnDemandVehicleStation.OnDemandVehicleStationFactory.class));
+		if(initRebalancing){
+            try {
+				Class<? extends OnDemandVehicleStation> rebalancingStationClass
+						= (Class<? extends OnDemandVehicleStation>) Class.forName(
+								"cz.cvut.fel.aic.rebalancing.RebalancingOnDemandVehicleStation");
+				install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, rebalancingStationClass)
+						.build(OnDemandVehicleStation.OnDemandVehicleStationFactory.class));
+
+				// Bind the factory to create instances of the dynamically loaded class
+				bind(OnDemandVehicleStation.OnDemandVehicleStationFactory.class).toInstance(
+					new OnDemandVehicleStation.OnDemandVehicleStationFactory()
+				{
+					@Override
+					public OnDemandVehicleStation create(String id, SimulationNode node, int initialVehicleCount) {
+						// Use reflection or your preferred method to instantiate the dynamic class
+						try {
+							return rebalancingStationClass.getDeclaredConstructor().newInstance(
+									id, node, initialVehicleCount);
+						} catch (Exception e) {
+							throw new RuntimeException("Failed to create instance of Vehicle", e);
+						}
+					}
+				});
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
 		}
 		else{
 			install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, OnDemandVehicleStation.class)

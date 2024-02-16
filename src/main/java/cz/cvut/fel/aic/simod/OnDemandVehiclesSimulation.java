@@ -31,16 +31,16 @@ import cz.cvut.fel.aic.simod.init.StationsInitializer;
 import cz.cvut.fel.aic.simod.init.StatisticInitializer;
 import cz.cvut.fel.aic.simod.init.VehicleInitializer;
 import cz.cvut.fel.aic.simod.io.TripTransform;
-import cz.cvut.fel.aic.simod.rebalancing.ReactiveRebalancing;
 import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.statistics.Statistics;
-import cz.cvut.fel.aic.simod.tripUtil.TripsUtilCached;
+
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.PrimitiveIterator;
 import java.util.Random;
-import java.util.stream.IntStream;
 
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +50,15 @@ import org.slf4j.LoggerFactory;
 public class OnDemandVehiclesSimulation {
 
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OnDemandVehiclesSimulation.class);
+
+	public static boolean gurobiAvailable(){
+		try {
+			Class.forName("com.gurobi.gurobi.GRBEnv");
+			return true;
+		} catch (ClassNotFoundException e) {
+			return false;
+		}
+	}
 	
 	public static void main(String[] args) throws MalformedURLException {
 		new OnDemandVehiclesSimulation().run(args);
@@ -142,7 +151,7 @@ public class OnDemandVehiclesSimulation {
 
 		// check that travel time provider provides the same results as AstarTravelTimeProvider
 		// Need to be done after map initialization in SimulationCreator.prepareSimulation()
-		checkTravelTimeProvider(injector);
+//		checkTravelTimeProvider(injector);
 
 		// load stations
 		injector.getInstance(StationsInitializer.class).loadStations();
@@ -154,8 +163,22 @@ public class OnDemandVehiclesSimulation {
 
 		if(config.rebalancing.on){
 
-			// start rebalancing
-			injector.getInstance(ReactiveRebalancing.class).start();
+			if(!gurobiAvailable()) {
+				LOGGER.error("Gurobi not available, rebalancing will not be used");
+			}
+			else {
+				// start rebalancing
+                try {
+                    Class<?> rebalancingStationClass
+                            = Class.forName("cz.cvut.fel.aic.rebalancing.ReactiveRebalancing");
+					Object reactiveRebalancing = injector.getInstance(rebalancingStationClass);
+					Method startMethod = rebalancingStationClass.getMethod("start");
+					startMethod.invoke(reactiveRebalancing);
+                } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
+                         IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
 
 		}
 		

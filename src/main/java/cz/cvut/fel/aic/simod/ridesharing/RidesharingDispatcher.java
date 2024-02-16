@@ -43,7 +43,6 @@ import cz.cvut.fel.aic.simod.ridesharing.model.PlanAction;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
-import cz.cvut.fel.aic.simod.ridesharing.vga.VehicleGroupAssignmentSolver;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -260,7 +259,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 					try {
 						throw new SimodException("Request picked up but it is not present in the waiting request queue!");
 					} catch (Exception ex) {
-						Logger.getLogger(VehicleGroupAssignmentSolver.class.getName()).log(Level.SEVERE, null, ex);
+						Logger.getLogger(RidesharingDispatcher.class.getName()).log(Level.SEVERE, null, ex);
 					}
 				};
 				request.setOnboard(true);

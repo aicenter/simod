@@ -23,6 +23,7 @@ import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.DemandAgent;
+import cz.cvut.fel.aic.simod.entity.SlotType;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import java.util.Random;
 
@@ -41,7 +42,7 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 	private final PlanActionPickup pickUpAction;
 	
 	private final PlanActionDropoff dropOffAction;
-	
+
 	/**
 	 * Min travel time in seconds
 	 */
@@ -86,9 +87,14 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 
 
 	@Inject
-	private DefaultPlanComputationRequest(TravelTimeProvider travelTimeProvider, @Assisted int id, 
-			SimodConfig SimodConfig, @Assisted("origin") SimulationNode origin, 
-			@Assisted("destination") SimulationNode destination, @Assisted DemandAgent demandAgent){
+	private DefaultPlanComputationRequest(
+		TravelTimeProvider travelTimeProvider,
+		@Assisted int id,
+		SimodConfig SimodConfig,
+		@Assisted("origin") SimulationNode origin,
+		@Assisted("destination") SimulationNode destination,
+		@Assisted DemandAgent demandAgent
+	) {
 		this.id = id;
 		
 		hash = 0;
@@ -186,7 +192,7 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 	
 	
 	public interface DefaultPlanComputationRequestFactory {
-		public DefaultPlanComputationRequest create(int id, @Assisted("origin") SimulationNode origin, 
+		public DefaultPlanComputationRequest create(int id, @Assisted("origin") SimulationNode origin,
 				@Assisted("destination") SimulationNode destination, DemandAgent demandAgent);
 	}
 

@@ -63,10 +63,7 @@ import java.util.List;
  */
 public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgent,
 		Driver<PhysicalTransportVehicle>{
-	
-	private static final int LENGTH = 4;
-	
-	
+
 	private final int index;
 	
 	protected PhysicalTransportVehicle vehicle;
@@ -176,18 +173,21 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	
 	@Inject
 	public OnDemandVehicle(
-			PhysicalTransportVehicleStorage vehicleStorage, 
-			TripsUtil tripsUtil, 
-			StationsDispatcher onDemandVehicleStationsCentral, 
-			PhysicalVehicleDriveFactory driveFactory, 
-			VisioPositionUtil positionUtil, 
-			EventProcessor eventProcessor,
-			StandardTimeProvider timeProvider, 
-			IdGenerator rebalancingIdGenerator, 
-			SimodConfig config, 
-			IdGenerator idGenerator,
-			AgentpolisConfig agentpolisConfig,
-			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
+		PhysicalTransportVehicleStorage vehicleStorage,
+		TripsUtil tripsUtil,
+		StationsDispatcher onDemandVehicleStationsCentral,
+		PhysicalVehicleDriveFactory driveFactory,
+		VisioPositionUtil positionUtil,
+		EventProcessor eventProcessor,
+		StandardTimeProvider timeProvider,
+		IdGenerator rebalancingIdGenerator,
+		SimodConfig config,
+		IdGenerator idGenerator,
+		AgentpolisConfig agentpolisConfig,
+		@Assisted String vehicleId,
+		@Assisted SimulationNode startPosition,
+		@Assisted PhysicalTransportVehicle vehicle
+	) {
 		super(vehicleId, startPosition);
 		this.tripsUtil = tripsUtil;
 		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
@@ -197,14 +197,9 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		this.timeProvider = timeProvider;
 		this.rebalancingIdGenerator = rebalancingIdGenerator;
 		this.config = config;
+		this.vehicle = vehicle;
 		
 		index = idGenerator.getId();
-		
-		vehicle = new PhysicalTransportVehicle(vehicleId + " - vehicle", 
-				DemandSimulationEntityType.VEHICLE, LENGTH, config.ridesharing.vehicleCapacity, 
-				EGraphType.HIGHWAY, startPosition, 
-				agentpolisConfig.maxVehicleSpeedInMeters);
-		
 		vehicleStorage.addEntity(vehicle);
 		vehicle.setDriver(this);
 		state = OnDemandVehicleState.WAITING;

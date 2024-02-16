@@ -27,6 +27,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.PhysicalVehicleDrive;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
@@ -77,33 +78,38 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	
 	@Inject
 	public RideSharingOnDemandVehicle(
-			PhysicalTransportVehicleStorage vehicleStorage, 
-			TripsUtil tripsUtil, 
-			StationsDispatcher onDemandVehicleStationsCentral, 
-			PhysicalVehicleDriveFactory driveActivityFactory, 
-			VisioPositionUtil positionUtil,
-			IdGenerator tripIdGenerator,
-			EventProcessor eventProcessor,
-			StandardTimeProvider timeProvider, 
-			IdGenerator rebalancingIdGenerator, 
-			SimodConfig config, 
-			IdGenerator idGenerator,
-			AgentpolisConfig agentpolisConfig,
-			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
+		PhysicalTransportVehicleStorage vehicleStorage,
+		TripsUtil tripsUtil,
+		StationsDispatcher onDemandVehicleStationsCentral,
+		PhysicalVehicleDriveFactory driveActivityFactory,
+		VisioPositionUtil positionUtil,
+		IdGenerator tripIdGenerator,
+		EventProcessor eventProcessor,
+		StandardTimeProvider timeProvider,
+		IdGenerator rebalancingIdGenerator,
+		SimodConfig config,
+		IdGenerator idGenerator,
+		AgentpolisConfig agentpolisConfig,
+		@Assisted String vehicleId,
+		@Assisted SimulationNode startPosition,
+		@Assisted PhysicalTransportVehicle vehicle
+	) {
 		super(
-				vehicleStorage, 
-				tripsUtil, 
-				onDemandVehicleStationsCentral,
-				driveActivityFactory, 
-				positionUtil, 
-				eventProcessor, 
-				timeProvider, 
-				rebalancingIdGenerator, 
-				config, 
-				idGenerator,
-				agentpolisConfig,
-				vehicleId, 
-				startPosition);
+			vehicleStorage,
+			tripsUtil,
+			onDemandVehicleStationsCentral,
+			driveActivityFactory,
+			positionUtil,
+			eventProcessor,
+			timeProvider,
+			rebalancingIdGenerator,
+			config,
+			idGenerator,
+			agentpolisConfig,
+			vehicleId,
+			startPosition,
+			vehicle
+		);
 		this.positionUtil = positionUtil;
 		this.tripIdGenerator = tripIdGenerator;
 		

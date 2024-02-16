@@ -44,6 +44,8 @@ public class SimodConfig implements GeneratedConfig {
 
   public Integer vehiclesPerStation;
 
+  public String vehiclesFilePath;
+
   public Boolean simplifyGraph;
 
   public Ridesharing ridesharing;
@@ -76,6 +78,7 @@ public class SimodConfig implements GeneratedConfig {
     this.edgesFilePath = (String) simodConfig.get("edges_file_path");
     this.tripsMultiplier = (Double) simodConfig.get("trips_multiplier");
     this.vehiclesPerStation = (Integer) simodConfig.get("vehicles_per_station");
+    this.vehiclesFilePath = (String) simodConfig.get("vehicles_file_path");
     this.simplifyGraph = (Boolean) simodConfig.get("simplify_graph");
     this.ridesharing = new Ridesharing((Map) simodConfig.get("ridesharing"));
     this.stationPositionFilepath = (String) simodConfig.get("station_position_filepath");

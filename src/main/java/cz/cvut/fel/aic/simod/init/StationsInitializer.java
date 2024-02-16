@@ -78,11 +78,22 @@ public class StationsInitializer {
 				discarded++;
 			}
 			else{
-				int initCount = Integer.parseInt(row[1]) + config.stations.vehicleBuffer;
-				if(initCount < 500){
-					initCount += config.stations.vehicleBufferUnpopulatedStations;
+				switch (row.length){
+					case 1: // empty stations, vehicles will be loaded from a vehicle file
+						createStation(node, 0, counter++);
+						break;
+					case 2: // homogenous vehicles will,be generated according to the second column of the station file
+						int initCount = Integer.parseInt(row[1]) + config.stations.vehicleBuffer;
+						if(initCount < 500){
+							initCount += config.stations.vehicleBufferUnpopulatedStations;
+						}
+						createStation(node, initCount, counter++);
+						break;
+					default:
+						LOGGER.error("Station file has wrong format");
+						System.exit(-1);
 				}
-				createStation(node, initCount, counter++);
+
 			}
 		}
 		LOGGER.info("{} Stations Discarded", discarded);

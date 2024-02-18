@@ -141,6 +141,9 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		return dropped;
 	}
 
+	public SlotType getRequiredSlotType() {
+		return requiredSlotType;
+	}
 
 	@Inject
 	public DemandAgent(

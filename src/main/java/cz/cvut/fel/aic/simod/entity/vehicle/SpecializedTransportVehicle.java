@@ -70,4 +70,11 @@ public class SpecializedTransportVehicle<T extends TransportableEntity> extends 
             slots.put(SlotType.STANDARD_SEAT, slots.get(SlotType.STANDARD_SEAT) + 1);
         }
     }
+
+    public int getCapacityFor(SlotType requiredSlotType) {
+        if(slots.containsKey(requiredSlotType)){
+            return slots.get(requiredSlotType);
+        }
+        return 0;
+    }
 }

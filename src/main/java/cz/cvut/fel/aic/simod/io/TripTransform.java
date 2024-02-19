@@ -31,6 +31,11 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.WKTPrintableCoord;
+import cz.cvut.fel.aic.simod.config.SimodConfig;
+import cz.cvut.fel.aic.simod.entity.SlotType;
+import me.tongfei.progressbar.ProgressBar;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -39,13 +44,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.SlotType;
-import me.tongfei.progressbar.ProgressBar;
-import org.slf4j.LoggerFactory;
-
 /**
- *
  * @author F-I-D-O
  */
 @Singleton
@@ -61,7 +60,7 @@ public class TripTransform {
 
 	private int sameStartAndTargetInDataCount = 0;
 
-	private final Graph<SimulationNode,SimulationEdge> highwayGraph;
+	private final Graph<SimulationNode, SimulationEdge> highwayGraph;
 
 	private final NearestElementUtils nearestElementUtils;
 
@@ -82,11 +81,7 @@ public class TripTransform {
 	}
 
 
-
-
-
-
-//	public List<TimeTrip<Long>> gpsTripsToOsmNodeTrips(List<TimeTrip<GPSLocation>> gpsTrips, 
+//	public List<TimeTrip<Long>> gpsTripsToOsmNodeTrips(List<TimeTrip<GPSLocation>> gpsTrips,
 //			File osmFile, int srid){
 //		return gpsTripsToOsmNodeTrips(gpsTrips, osmFile, srid, true);
 //	}
@@ -119,27 +114,33 @@ public class TripTransform {
 //		return osmNodeTrips;
 //	}
 
-	public static <T extends WKTPrintableCoord> void tripsToJson(List<TimeTrip<T>> trips, File outputFile) throws IOException{
+	public static <T extends WKTPrintableCoord> void tripsToJson(
+		List<TimeTrip<T>> trips,
+		File outputFile
+	) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 
 		mapper.writeValue(outputFile, trips);
 	}
 
-	public static <T extends WKTPrintableCoord> List<TimeTrip<T>> jsonToTrips(File inputFile, Class<T> locationType) throws IOException{
+	public static <T extends WKTPrintableCoord> List<TimeTrip<T>> jsonToTrips(
+		File inputFile,
+		Class<T> locationType
+	) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		TypeFactory typeFactory = mapper.getTypeFactory();
 
 		return mapper.readValue(inputFile, typeFactory.constructCollectionType(
-				List.class, typeFactory.constructParametricType(TimeTrip.class, locationType)));
+			List.class, typeFactory.constructParametricType(TimeTrip.class, locationType)));
 	}
 
-	public List<TimeTrip<SimulationNode>> loadTripsFromTxt(File inputFile){
+	public List<TimeTrip<SimulationNode>> loadTripsFromTxt(File inputFile) {
 		List<TimeTrip<GPSLocation>> gpsTrips = new LinkedList<>();
 		LOGGER.info("Loading trips from: {}", inputFile);
 		try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
 			String line;
 			while ((line = br.readLine()) != null) {
-			   String[] parts = line.split(" ");
+				String[] parts = line.split(" ");
 				GPSLocation startLocation = new GPSLocation(
 					Double.parseDouble(parts[1]),
 					Double.parseDouble(parts[2]),
@@ -153,29 +154,27 @@ public class TripTransform {
 					0
 				);
 
-			   if(startLocation.equals(targetLocation)){
-				   sameStartAndTargetInDataCount++;
-			   }
-			   else{
-				   if(config.heterogeneousVehicles){
-					   SlotType requiredSlotType = SlotType.valueOf(parts[5]);
-					   gpsTrips.add(new TimeTripWithRequirements<>(
-						   tripIdGenerator.getId(),
-						   Long.parseLong(parts[0].split("\\.")[0]),
-						   requiredSlotType,
-						   startLocation,
-						   targetLocation
-					   ));
-				   }
-				   else {
-					   gpsTrips.add(new TimeTrip<>(
-						   tripIdGenerator.getId(),
-						   Long.parseLong(parts[0].split("\\.")[0]),
-						   startLocation,
-						   targetLocation
-					   ));
-				   }
-			   }
+				if (startLocation.equals(targetLocation)) {
+					sameStartAndTargetInDataCount++;
+				} else {
+					if (config.heterogeneousVehicles) {
+						SlotType requiredSlotType = SlotType.valueOf(parts[5]);
+						gpsTrips.add(new TimeTripWithRequirements<>(
+							tripIdGenerator.getId(),
+							getStartTime(parts),
+							requiredSlotType,
+							startLocation,
+							targetLocation
+						));
+					} else {
+						gpsTrips.add(new TimeTrip<>(
+							tripIdGenerator.getId(),
+							getStartTime(parts),
+							startLocation,
+							targetLocation
+						));
+					}
+				}
 			}
 		} catch (IOException ex) {
 			LOGGER.error(null, ex);
@@ -193,19 +192,23 @@ public class TripTransform {
 		return trips;
 	}
 
-	private void processGpsTrip(TimeTrip<GPSLocation> gpsTrip, List<TimeTrip<SimulationNode>>trips) {
+	private static long getStartTime(String[] parts) {
+
+		return Long.parseLong(parts[0].split("\\.")[0]);
+	}
+
+	private void processGpsTrip(TimeTrip<GPSLocation> gpsTrip, List<TimeTrip<SimulationNode>> trips) {
 		GPSLocation[] locations = gpsTrip.getLocations();
 		SimulationNode startNode = nearestElementUtils.getNearestElement(locations[0], EGraphType.HIGHWAY);
 		SimulationNode targetNode
-				= nearestElementUtils.getNearestElement(locations[locations.length - 1], EGraphType.HIGHWAY);
+			= nearestElementUtils.getNearestElement(locations[locations.length - 1], EGraphType.HIGHWAY);
 
-		if(startNode != targetNode){
+		if (startNode != targetNode) {
 			SimulationNode[] nodesList = new SimulationNode[2];
 			nodesList[0] = startNode;
 			nodesList[1] = targetNode;
-			trips.add(new TimeTrip<>(tripIdGenerator.getId(),gpsTrip.getStartTime(), gpsTrip.getEndTime(), nodesList));
-		}
-		else{
+			trips.add(new TimeTrip<>(tripIdGenerator.getId(), gpsTrip.getStartTime(), gpsTrip.getEndTime(), nodesList));
+		} else {
 			zeroLenghtTripsCount++;
 		}
 	}

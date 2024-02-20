@@ -266,7 +266,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	
 	
 	public interface DemandAgentFactory {
-		public DemandAgent create(String agentId, int id, TimeTrip<SimulationNode> osmNodeTrip);
+		DemandAgent create(String agentId, int id, TimeTrip<SimulationNode> osmNodeTrip);
 	}
 	
 }

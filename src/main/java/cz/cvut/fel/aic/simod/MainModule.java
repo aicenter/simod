@@ -20,13 +20,7 @@ package cz.cvut.fel.aic.simod;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.IHSolverHeterogenousVehicles;
-import cz.cvut.fel.aic.simod.traveltimecomputation.DistanceMatrixTravelTimeProvider;
-import cz.cvut.fel.aic.simod.traveltimecomputation.TNRTravelTimeProvider;
-import cz.cvut.fel.aic.simod.traveltimecomputation.TNRAFTravelTimeProvider;
-import cz.cvut.fel.aic.simod.traveltimecomputation.CHTravelTimeProvider;
-import cz.cvut.fel.aic.simod.traveltimecomputation.EuclideanTravelTimeProvider;
-import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
-import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
+import cz.cvut.fel.aic.simod.traveltimecomputation.*;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.FileAppender;
 import com.google.common.collect.Sets;
@@ -124,6 +118,9 @@ public class MainModule extends StandardAgentPolisModule{
 				break;
 			case "tnraf":
 				bind(TravelTimeProvider.class).to(TNRAFTravelTimeProvider.class);
+				break;
+			case "astar-cached":
+				bind(TravelTimeProvider.class).to(AstarTravelTimeProviderCached.class);
 				break;
 			case "astar":
 			default:

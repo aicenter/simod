@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.simod;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.alite.common.event.Event;
@@ -45,6 +46,8 @@ public class StationsDispatcher extends EventHandlerAdapter{
 	protected final TypedSimulation eventProcessor;
 	
 	protected final SimodConfig config;
+
+	protected final TimeProvider timeProvider;
 	
 	
 	
@@ -83,12 +86,18 @@ public class StationsDispatcher extends EventHandlerAdapter{
 	
 	
 	@Inject
-	public StationsDispatcher(OnDemandvehicleStationStorage onDemandvehicleStationStorage,
-			TypedSimulation eventProcessor, SimodConfig config,IdGenerator tripIdGenerator) {
+	public StationsDispatcher(
+		OnDemandvehicleStationStorage onDemandvehicleStationStorage,
+		TypedSimulation eventProcessor,
+		SimodConfig config,
+		IdGenerator tripIdGenerator,
+		TimeProvider timeProvider
+	) {
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
 		this.eventProcessor = eventProcessor;
 		this.config = config;
 		this.tripIdGenerator = tripIdGenerator;
+		this.timeProvider = timeProvider;
 		numberOfDemandsDropped = 0;
 		demandsCount = 0;
 		rebalancingDropped = 0;
@@ -153,7 +162,8 @@ public class StationsDispatcher extends EventHandlerAdapter{
 		long finalStartDelay = inititalDelay;
 
 		for (int l = 0; l < amount; l++) {
-			TimeTrip<OnDemandVehicleStation> rebalancingTrip = new TimeTrip<>(tripIdGenerator.getId(),finalStartDelay, from, to);
+			TimeTrip<OnDemandVehicleStation> rebalancingTrip
+				= new TimeTrip<>(tripIdGenerator.getId(),timeProvider.getDateTimeFromSimTime(finalStartDelay), from, to);
 			eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.REBALANCING, this, 
 						null, rebalancingTrip, finalStartDelay);
 			finalStartDelay += intervalBetweenCars;

@@ -24,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.Trip;
 import cz.cvut.fel.aic.geographtools.WKTPrintableCoord;
 
+import java.time.ZonedDateTime;
+
 /**
  *
  * @author F-I-D-O
@@ -31,32 +33,32 @@ import cz.cvut.fel.aic.geographtools.WKTPrintableCoord;
  */
 public class TimeTrip<L extends WKTPrintableCoord> extends Trip<L>{
 		
-	private final long startTime;
+	private final ZonedDateTime startTime;
 	
-	private final long endTime;
+	private final ZonedDateTime endTime;
 
 	
 	
 	
-	public long getStartTime() {
+	public ZonedDateTime getStartTime() {
 		return startTime;
 	}
 
-	public long getEndTime() {
+	public ZonedDateTime getEndTime() {
 		return endTime;
 	}
 	
 	
 	@JsonCreator
-	public TimeTrip(int tripId,@JsonProperty("startTime") long startTime, @JsonProperty("endTime") long endTime, 
+	public TimeTrip(int tripId,@JsonProperty("startTime") ZonedDateTime startTime, @JsonProperty("endTime") ZonedDateTime endTime,
 			@JsonProperty("locations") L... locations){
 		super(tripId,locations);
 		this.startTime = startTime;
 		this.endTime = endTime;
 	}
 	
-	public TimeTrip(int tripId,long startTime, L... locations){
-		this(tripId,startTime, 0, locations);
+	public TimeTrip(int tripId,ZonedDateTime startTime, L... locations){
+		this(tripId,startTime, ZonedDateTime.now(), locations);
 	}
 
 	@Override

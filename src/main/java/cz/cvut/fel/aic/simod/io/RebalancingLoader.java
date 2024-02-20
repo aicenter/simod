@@ -21,6 +21,7 @@ package cz.cvut.fel.aic.simod.io;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
@@ -30,6 +31,9 @@ import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation.OnDemandVehicleStatio
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -61,6 +65,8 @@ public class RebalancingLoader {
 	private final OnDemandVehicleStationFactory onDemandVehicleStationFactory;
 	
 	private final NearestElementUtils nearestElementUtils;
+
+	private final TimeProvider timeProvider;
 	
 	private IdGenerator tripIdGenerator;
 	
@@ -78,13 +84,18 @@ public class RebalancingLoader {
 	
 	
 	@Inject
-	public RebalancingLoader(OnDemandVehicleStationFactory onDemandVehicleStationFactory, 
-			NearestElementUtils nearestElementUtils,IdGenerator tripIdGenerator) {
+	public RebalancingLoader(
+		OnDemandVehicleStationFactory onDemandVehicleStationFactory,
+		NearestElementUtils nearestElementUtils,
+		IdGenerator tripIdGenerator,
+		TimeProvider timeProvider
+	) {
 		this.onDemandVehicleStationFactory = onDemandVehicleStationFactory;
 		this.nearestElementUtils = nearestElementUtils;
 		this.onDemandVehicleStations = new ArrayList<>();
 		this.rebalancingTrips = new ArrayList<>();
 		this.tripIdGenerator = tripIdGenerator;
+		this.timeProvider = timeProvider;
 	}
 	
 	
@@ -130,7 +141,7 @@ public class RebalancingLoader {
 				ArrayList rebalancingStations = (ArrayList) rebalancingTimes.get(i);
 				for (int j = 0; j < rebalancingStations.size(); j++) {
 					ArrayList rebalancingTargetStations = (ArrayList) rebalancingStations.get(j);
-					long startTime = computeStartTime(i);
+					long startTimeSimulation = computeStartTime(i);
 					for (int k = 0; k < rebalancingTargetStations.size(); k++) {
 						int rebalancingTripsCount = (int) rebalancingTargetStations.get(k);
 						if(rebalancingTripsCount > 0){
@@ -142,13 +153,13 @@ public class RebalancingLoader {
 							}
 
 							int intervalBetweenCars = REBALANCING_INTERVAL / rebalancingTripsCount;
-							long finalStartTime = startTime;
+							ZonedDateTime finalStartTime = timeProvider.getDateTimeFromSimTime(startTimeSimulation);
 
 							rebalancingTripsCount = (int) ((double) rebalancingTripsCount / 4);
 							for (int l = 0; l < rebalancingTripsCount; l++) {
 								rebalancingTrips.add(new TimeTrip<>(tripIdGenerator.getId(),finalStartTime, onDemandVehicleStations.get(j), 
 										onDemandVehicleStations.get(k)));
-								finalStartTime += intervalBetweenCars;
+								finalStartTime = finalStartTime.plus(Duration.ofMillis(intervalBetweenCars));
 							}
 						}
 					}

@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.DateTimeParser;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
@@ -81,39 +82,6 @@ public class TripTransform {
 	}
 
 
-//	public List<TimeTrip<Long>> gpsTripsToOsmNodeTrips(List<TimeTrip<GPSLocation>> gpsTrips,
-//			File osmFile, int srid){
-//		return gpsTripsToOsmNodeTrips(gpsTrips, osmFile, srid, true);
-//	}
-
-//	public List<TimeTrip<Long>> gpsTripsToOsmNodeTrips(List<TimeTrip<GPSLocation>> gpsTrips, 
-//			File osmFile, int srid, boolean completedTrips){
-//		Graph<SimulationNode, SimulationEdge> highwayGraph = OsmUtil.getHigwayGraph(osmFile,srid);
-//
-//		List<NearestElementUtilPair<Coordinate, SimulationNode>> pairs = new ArrayList<>();
-//		
-//		for (SimulationNode roadNode : highwayGraph.getAllNodes()) {
-//			pairs.add(new NearestElementUtilPair<>(new Coordinate(roadNode.getLongitude(), roadNode.getLatitude()), roadNode));
-//		}
-//		
-//		NearestElementUtil<SimulationNode> nearestElementUtil = new NearestElementUtil<>(pairs, new Transformer(4326), 
-//				new SimulationNodeArrayConstructor());
-//		ArrayList<TimeTrip<Long>> osmNodeTrips = new ArrayList<>();
-//		
-//		if(completedTrips){
-//			pathPlanner = new PathPlanner(highwayGraph);
-//		}
-//		
-//		for (TimeTrip<GPSLocation> trip : gpsTrips) {
-//			processGpsTrip(trip, nearestElementUtil, osmNodeTrips, completedTrips);
-//		}
-//		
-//		LOGGER.info("Number of trips with same source and destination: " + sameStartAndTargetInDataCount);
-//		LOGGER.info(zeroLenghtTripsCount + " trips with zero lenght discarded");
-//		
-//		return osmNodeTrips;
-//	}
-
 	public static <T extends WKTPrintableCoord> void tripsToJson(
 		List<TimeTrip<T>> trips,
 		File outputFile
@@ -140,7 +108,7 @@ public class TripTransform {
 		try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
 			String line;
 			while ((line = br.readLine()) != null) {
-				String[] parts = line.split(" ");
+				String[] parts = line.split(",");
 				GPSLocation startLocation = new GPSLocation(
 					Double.parseDouble(parts[1]),
 					Double.parseDouble(parts[2]),
@@ -161,7 +129,7 @@ public class TripTransform {
 						SlotType requiredSlotType = SlotType.valueOf(parts[5]);
 						gpsTrips.add(new TimeTripWithRequirements<>(
 							tripIdGenerator.getId(),
-							getStartTime(parts),
+							DateTimeParser.parseDateTimeFromUnknownFormat(parts[0]),
 							requiredSlotType,
 							startLocation,
 							targetLocation
@@ -169,7 +137,7 @@ public class TripTransform {
 					} else {
 						gpsTrips.add(new TimeTrip<>(
 							tripIdGenerator.getId(),
-							getStartTime(parts),
+							DateTimeParser.parseDateTimeFromUnknownFormat(parts[0]),
 							startLocation,
 							targetLocation
 						));
@@ -190,11 +158,6 @@ public class TripTransform {
 		LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
 
 		return trips;
-	}
-
-	private static long getStartTime(String[] parts) {
-
-		return Long.parseLong(parts[0].split("\\.")[0]);
 	}
 
 	private void processGpsTrip(TimeTrip<GPSLocation> gpsTrip, List<TimeTrip<SimulationNode>> trips) {

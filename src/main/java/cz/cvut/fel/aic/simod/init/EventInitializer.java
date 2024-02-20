@@ -21,6 +21,7 @@ package cz.cvut.fel.aic.simod.init;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.SimulationUtils;
@@ -35,6 +36,8 @@ import cz.cvut.fel.aic.simod.entity.DemandAgent.DemandAgentFactory;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
+
+import java.time.Duration;
 import java.util.List;
 import java.util.Random;
 import org.slf4j.LoggerFactory;
@@ -72,22 +75,33 @@ public class EventInitializer {
 	private final AgentpolisConfig agentpolisConfig;
 	
 	private final SimulationUtils simulationUtils;
+
+	private final TimeProvider timeProvider;
 	
 	private long eventCount;
         
 	private long impossibleTripsCount;
+
+
 	
 	
 	@Inject
-	public EventInitializer(EventProcessor eventProcessor, 
-			StationsDispatcher onDemandVehicleStationsCentral, SimodConfig config, 
-			DemandEventHandler demandEventHandler, AgentpolisConfig agentpolisConfig, SimulationUtils simulationUtils) {
+	public EventInitializer(
+		EventProcessor eventProcessor,
+		StationsDispatcher onDemandVehicleStationsCentral,
+		SimodConfig config,
+		DemandEventHandler demandEventHandler,
+		AgentpolisConfig agentpolisConfig,
+		SimulationUtils simulationUtils,
+		TimeProvider timeProvider
+	) {
 		this.eventProcessor = eventProcessor;
 		this.demandEventHandler = demandEventHandler;
 		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
 		this.SimodConfig = config;
 		this.agentpolisConfig = agentpolisConfig;
 		this.simulationUtils = simulationUtils;
+		this.timeProvider = timeProvider;
 		eventCount = 0;
 		impossibleTripsCount = 0;
 	}
@@ -97,9 +111,9 @@ public class EventInitializer {
 		Random random = new Random(RANDOM_SEED);
 		
 		for (TimeTrip<SimulationNode> trip : trips) {
-			long startTime = trip.getStartTime() - SimodConfig.startTime;
+			long startTime = Duration.between(timeProvider.getInitDateTime(), trip.getStartTime()).toMillis();
 			// trip have to start at least 1ms after start of the simulation and no later then last
-			if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
+			if(startTime < 1 || startTime > simulationUtils.getSimulationDuration()){
 				impossibleTripsCount++;
 //				LOGGER.info("Trip out of simulation time. Total: {}", impossibleTripsCount);
 				continue;
@@ -123,8 +137,8 @@ public class EventInitializer {
 		}
 		if(rebalancingTrips != null){
 			for (TimeTrip<OnDemandVehicleStation> rebalancingTrip : rebalancingTrips) {
-				long startTime = rebalancingTrip.getStartTime() - SimodConfig.startTime;
-			if(startTime < 1 || startTime > simulationUtils.computeSimulationDuration()){
+				long startTime = Duration.between(timeProvider.getInitDateTime(), rebalancingTrip.getStartTime()).toMillis();
+			if(startTime < 1 || startTime > simulationUtils.getSimulationDuration()){
 				impossibleTripsCount++;
 				continue;
 			}

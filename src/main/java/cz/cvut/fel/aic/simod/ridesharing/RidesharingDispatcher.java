@@ -67,8 +67,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RidesharingDispatcher.class);
 	
-	
-	private final TimeProvider timeProvider;
+
 	
 	protected final DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory;
 	
@@ -102,12 +101,18 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	
 	
 	@Inject
-	public RidesharingDispatcher(OnDemandvehicleStationStorage onDemandvehicleStationStorage, 
-			TypedSimulation eventProcessor, SimodConfig config, DARPSolver solver, PeriodicTicker ticker,
-			DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory, 
-			TimeProvider timeProvider, PositionUtil positionUtil,IdGenerator tripIdGenerator) {
-		super(onDemandvehicleStationStorage, eventProcessor, config, tripIdGenerator);
-		this.timeProvider = timeProvider;
+	public RidesharingDispatcher(
+		OnDemandvehicleStationStorage onDemandvehicleStationStorage,
+		TypedSimulation eventProcessor,
+		SimodConfig config,
+		DARPSolver solver,
+		PeriodicTicker ticker,
+		DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory,
+		TimeProvider timeProvider,
+		PositionUtil positionUtil,
+		IdGenerator tripIdGenerator
+	) {
+		super(onDemandvehicleStationStorage, eventProcessor, config, tripIdGenerator, timeProvider);
 		this.solver = solver;
 		this.requestFactory = requestFactory;
 		this.positionUtil = positionUtil;

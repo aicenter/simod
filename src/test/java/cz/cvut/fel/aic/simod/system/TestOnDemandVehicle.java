@@ -71,29 +71,6 @@ public class TestOnDemandVehicle extends OnDemandVehicle{
 
 	}
 
-	/*@Override
-	public void finishedDriving() {
-		OnDemandVehicleState stateBeforeActions = state;   
-		
-		// normal actions
-		//super.finishedDriving();
-		
-		if(stateBeforeActions == OnDemandVehicleState.DRIVING_TO_STATION || 
-				(stateBeforeActions == OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION && tripToStation == null)){
-			tripsToStationFinished++;
-			Assert.assertEquals(droppOffCount, tripsToStationFinished);
-			
-			statisticControl.incrementDemandFinishDrivingCounter();
-			
-//			Assert.assertEquals(0, cargo.size());
-		}
-		if(stateBeforeActions == OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION){
-			demandTripsFinished++;
-		}
-		Assert.assertTrue(demandTripsFinished == tripsToStationFinished 
-				|| demandTripsFinished == tripsToStationFinished + 1);
-	}*/
-
 	@Override
 	protected void dropOffDemand() {
 		super.dropOffDemand(); 

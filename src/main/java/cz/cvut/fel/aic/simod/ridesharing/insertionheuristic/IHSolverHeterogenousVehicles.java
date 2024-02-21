@@ -11,10 +11,7 @@ import cz.cvut.fel.aic.simod.entity.vehicle.SpecializedTransportVehicle;
 import cz.cvut.fel.aic.simod.ridesharing.DroppedDemandsAnalyzer;
 import cz.cvut.fel.aic.simod.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
-import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanRequestAction;
+import cz.cvut.fel.aic.simod.ridesharing.model.*;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
@@ -65,13 +62,15 @@ public class IHSolverHeterogenousVehicles extends InsertionHeuristicSolver{
 	) {
 		if (evaluatedIndex < currentPlan.getLength()) { // no need to adjust if the evaluated index is the last one
 			SlotType requiredSlotType = planComputationRequest.getDemandAgent().getRequiredSlotType();
-			PlanRequestAction action = (PlanRequestAction) currentPlan.plan.get(evaluatedIndex);
-			SlotType currentSlotType = action.getRequest().getDemandAgent().getRequiredSlotType();
-			if (requiredSlotType.equals(currentSlotType)) {
-				if (currentPlan.plan.get(evaluatedIndex) instanceof PlanActionPickup) {
-					freeCapacity--;
-				} else {
-					freeCapacity++;
+			PlanAction action = currentPlan.plan.get(evaluatedIndex);
+			if(action instanceof PlanRequestAction) {
+				SlotType currentSlotType = ((PlanRequestAction) action).getRequest().getDemandAgent().getRequiredSlotType();
+				if (requiredSlotType.equals(currentSlotType)) {
+					if (currentPlan.plan.get(evaluatedIndex) instanceof PlanActionPickup) {
+						freeCapacity--;
+					} else {
+						freeCapacity++;
+					}
 				}
 			}
 		}

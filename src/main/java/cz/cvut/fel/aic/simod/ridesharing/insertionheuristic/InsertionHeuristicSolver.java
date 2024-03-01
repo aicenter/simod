@@ -331,8 +331,10 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	 * @return list of plan tasks with new request actions added at specified indexes or null if the plan is infeasible.
 	 */
 	private DriverPlan insertIntoPlan(
-		final DriverPlan currentPlan, final int pickupOptionIndex,
-		final int dropoffOptionIndex, final RideSharingOnDemandVehicle vehicle,
+		final DriverPlan currentPlan,
+		final int pickupOptionIndex,
+		final int dropoffOptionIndex,
+		final RideSharingOnDemandVehicle vehicle,
 		final PlanComputationRequest planComputationRequest
 	) {
 

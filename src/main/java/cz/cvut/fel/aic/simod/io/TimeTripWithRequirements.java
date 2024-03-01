@@ -1,7 +1,7 @@
 package cz.cvut.fel.aic.simod.io;
 
 import cz.cvut.fel.aic.geographtools.WKTPrintableCoord;
-import cz.cvut.fel.aic.simod.entity.SlotType;
+import cz.cvut.fel.aic.simod.entity.vehicle.SlotType;
 
 import java.time.ZonedDateTime;
 

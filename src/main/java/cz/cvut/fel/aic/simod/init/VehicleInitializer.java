@@ -5,20 +5,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
+import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
-import cz.cvut.fel.aic.simod.entity.vehicle.SlotType;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactorySpec;
-import cz.cvut.fel.aic.simod.entity.vehicle.SpecializedTransportVehicle;
+import cz.cvut.fel.aic.simod.entity.vehicle.*;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class VehicleInitializer {
 
@@ -51,6 +53,10 @@ public class VehicleInitializer {
 	}
 
 	public void run() {
+		if(!config.heterogeneousVehicles && !config.reconfigurableVehicles) {
+			throw new RuntimeException("Homogeneous vehicles are not supported for vehicle file yet");
+		}
+
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		File vehicleFile = new File(config.vehiclesFilePath);
@@ -58,19 +64,46 @@ public class VehicleInitializer {
 		try {
 			JsonNode vehicles = objectMapper.readTree(vehicleFile);
 			for (JsonNode vehicleNode : vehicles) {
-				if (config.heterogeneousVehicles) {
-					int vehicleId = vehicleNode.get("id").asInt();
-					String onDemandVehicelId = String.format("%d", vehicleId);
-					OnDemandVehicleStation station = onDemandVehicleStationStorage.getEntityById(vehicleNode.get(
-						"station_index").asText());
+				int vehicleId = vehicleNode.get("id").asInt();
+				String onDemandVehicelId = String.format("%d", vehicleId);
+				OnDemandVehicleStation station = onDemandVehicleStationStorage.getEntityById(vehicleNode.get(
+					"station_index").asText());
 
+				PhysicalTransportVehicle<DemandAgent> vehicle = null;
+				List<SlotConfiguration> slotConfigurations = new ArrayList<>();
+				for (JsonNode slotConfigurationNode: vehicleNode.get("configurations")) {
+					HashMap<SlotType, Integer> slots = new HashMap<>();
+					var it = slotConfigurationNode.fields();
+					int configurationId = slotConfigurationNode.get("configuration_id").asInt();
+					while (it.hasNext()) {
+						Map.Entry<String, JsonNode> slotTypeEntry = it.next();
+						if (slotTypeEntry.getKey().equals("configuration_id")) {
+							continue;
+						}
+						slots.put(SlotType.valueOf(slotTypeEntry.getKey()), slotTypeEntry.getValue().asInt());
+					}
+					slotConfigurations.add(new SlotConfiguration(Integer.toString(configurationId), slots));
+				}
+
+				if (config.reconfigurableVehicles) {
+					vehicle = new ReconfigurableVehicle(
+						String.format("%s - vehicle", onDemandVehicelId),
+						DemandSimulationEntityType.VEHICLE,
+						LENGTH,
+						EGraphType.HIGHWAY,
+						station.getPosition(),
+						agentpolisConfig.maxVehicleSpeedInMeters,
+						slotConfigurations
+					);
+				}
+				else {
 					// slot parsing
 					HashMap<SlotType, Integer> slots = new HashMap<>();
 					for (JsonNode slotNode : vehicleNode.get("slots")) {
 						slots.put(SlotType.valueOf(slotNode.get("type").asText()), slotNode.get("count").asInt());
 					}
 
-					SpecializedTransportVehicle<TransportableEntity> vehicle = new SpecializedTransportVehicle<>(
+					vehicle = new SpecializedTransportVehicle(
 						String.format("%s - vehicle", onDemandVehicelId),
 						DemandSimulationEntityType.VEHICLE,
 						LENGTH,
@@ -79,18 +112,16 @@ public class VehicleInitializer {
 						agentpolisConfig.maxVehicleSpeedInMeters,
 						slots
 					);
-
-					OnDemandVehicle vehicleAgent = onDemandVehicleFactory.create(
-						onDemandVehicelId,
-						station.getPosition(),
-						vehicle
-					);
-					station.parkVehicle(vehicleAgent);
-					vehicleAgent.setParkedIn(station);
-					onDemandVehicleStorage.addEntity(vehicleAgent);
-				} else {
-					throw new RuntimeException("Homogeneous vehicles are not supported for vehicle file yet");
 				}
+
+				OnDemandVehicle vehicleAgent = onDemandVehicleFactory.create(
+					onDemandVehicelId,
+					station.getPosition(),
+					vehicle
+				);
+				station.parkVehicle(vehicleAgent);
+				vehicleAgent.setParkedIn(station);
+				onDemandVehicleStorage.addEntity(vehicleAgent);
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);

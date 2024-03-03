@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.simod;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.IHSolverHeterogenousVehicles;
+import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.IHSolverReconfigurableVehicles;
 import cz.cvut.fel.aic.simod.traveltimecomputation.*;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.FileAppender;
@@ -136,7 +137,10 @@ public class MainModule extends StandardAgentPolisModule{
 						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));	
 			switch(SimodConfig.ridesharing.method){
 				case "insertion-heuristic":
-					if(SimodConfig.heterogeneousVehicles){
+					if(SimodConfig.reconfigurableVehicles){
+						bind(DARPSolver.class).to(IHSolverReconfigurableVehicles.class);
+					}
+					else if(SimodConfig.heterogeneousVehicles){
 						bind(DARPSolver.class).to(IHSolverHeterogenousVehicles.class);
 					}
 					else{

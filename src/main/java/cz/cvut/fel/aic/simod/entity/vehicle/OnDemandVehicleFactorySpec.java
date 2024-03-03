@@ -27,6 +27,6 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
  */
 public interface OnDemandVehicleFactorySpec {
 	public OnDemandVehicle create(
-		String vehicleId, SimulationNode startPosition, PhysicalTransportVehicle<TransportableEntity> vehicle
+		String vehicleId, SimulationNode startPosition, PhysicalTransportVehicle<? extends TransportableEntity> vehicle
 	);
 }

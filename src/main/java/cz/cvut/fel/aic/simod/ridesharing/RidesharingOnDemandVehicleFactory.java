@@ -70,7 +70,7 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 
 	@Override
 	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition,
-		PhysicalTransportVehicle<TransportableEntity> vehicle
+		PhysicalTransportVehicle<? extends TransportableEntity> vehicle
 	) {
 		return new RideSharingOnDemandVehicle(
 			vehicleStorage,

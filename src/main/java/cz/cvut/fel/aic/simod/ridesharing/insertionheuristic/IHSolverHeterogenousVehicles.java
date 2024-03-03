@@ -6,6 +6,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
+import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.vehicle.SlotType;
 import cz.cvut.fel.aic.simod.entity.vehicle.SpecializedTransportVehicle;
 import cz.cvut.fel.aic.simod.ridesharing.DroppedDemandsAnalyzer;
@@ -16,7 +17,7 @@ import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 
-public class IHSolverHeterogenousVehicles extends InsertionHeuristicSolver{
+public class IHSolverHeterogenousVehicles extends InsertionHeuristicSolver<Integer>{
 
 	@Inject
 	public IHSolverHeterogenousVehicles(
@@ -48,17 +49,27 @@ public class IHSolverHeterogenousVehicles extends InsertionHeuristicSolver{
 	}
 
 	@Override
-	protected int getFreeCapacityForRequest(
+	protected Integer initFreeCapacityForRequest(
 		RideSharingOnDemandVehicle vehicle,
 		PlanComputationRequest planComputationRequest
 	) {
 		SpecializedTransportVehicle specializedVehicle = (SpecializedTransportVehicle) vehicle.getVehicle();
-		return specializedVehicle.getCapacityFor(planComputationRequest.getDemandAgent().getRequiredSlotType());
+
+		SlotType requiredSlotType = planComputationRequest.getDemandAgent().getRequiredSlotType();
+		int usedCapacity = 0;
+		for(DemandAgent demandAgent: specializedVehicle.getTransportedEntities()){
+			if(demandAgent.getRequiredSlotType().equals(requiredSlotType)){
+				usedCapacity++;
+			}
+		}
+
+		return specializedVehicle.getCapacityFor(planComputationRequest.getDemandAgent().getRequiredSlotType()) - usedCapacity;
 	}
 
 	@Override
-	protected int adjustFreeCapacity(
-		int freeCapacity, DriverPlan currentPlan, int evaluatedIndex, PlanComputationRequest planComputationRequest
+	protected Integer adjustFreeCapacity(
+		DriverPlan currentPlan, int evaluatedIndex, PlanComputationRequest planComputationRequest,
+		Integer counter
 	) {
 		if (evaluatedIndex < currentPlan.getLength()) { // no need to adjust if the evaluated index is the last one
 			SlotType requiredSlotType = planComputationRequest.getDemandAgent().getRequiredSlotType();
@@ -67,13 +78,13 @@ public class IHSolverHeterogenousVehicles extends InsertionHeuristicSolver{
 				SlotType currentSlotType = ((PlanRequestAction) action).getRequest().getDemandAgent().getRequiredSlotType();
 				if (requiredSlotType.equals(currentSlotType)) {
 					if (currentPlan.plan.get(evaluatedIndex) instanceof PlanActionPickup) {
-						freeCapacity--;
+						counter--;
 					} else {
-						freeCapacity++;
+						counter++;
 					}
 				}
 			}
 		}
-		return freeCapacity;
+		return counter;
 	}
 }

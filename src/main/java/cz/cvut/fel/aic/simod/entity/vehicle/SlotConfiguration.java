@@ -1,6 +1,7 @@
 package cz.cvut.fel.aic.simod.entity.vehicle;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
+import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.TransportableEntityWithRequirement;
 import cz.cvut.fel.aic.simod.entity.vehicle.SlotType;
 
@@ -21,11 +22,8 @@ public class SlotConfiguration {
 		this.slots = slots;
 	}
 
-	public boolean canTransport(TransportableEntity entity) {
-		if (entity instanceof TransportableEntityWithRequirement entityWithRequirement) {
-			return slots.containsKey(entityWithRequirement.getRequiredSlotType());
-		}
-		return slots.containsKey(SlotType.STANDARD_SEAT);
+	public boolean canTransport(DemandAgent entity) {
+		return slots.containsKey(entity.getRequiredSlotType());
 	}
 
 	public int getSlotCount(SlotType slotType) {

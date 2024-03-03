@@ -1,6 +1,7 @@
 package cz.cvut.fel.aic.simod.entity.vehicle;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
+import cz.cvut.fel.aic.simod.entity.DemandAgent;
 
 
 import java.util.Arrays;
@@ -15,8 +16,8 @@ public class ConfigurationFilter {
 
 	private final HashMap<SlotType, Integer> usedSlots;
 
-	public ConfigurationFilter(List<SlotConfiguration> validConfigurations) {
-		this.validConfigurations = validConfigurations;
+	public ConfigurationFilter(ReconfigurableVehicle vehicle) {
+		this.validConfigurations = vehicle.getValidConfigurations();
 
 		this.remainingConfigurations = new boolean[validConfigurations.size()];
 		Arrays.fill(remainingConfigurations, true);
@@ -25,9 +26,14 @@ public class ConfigurationFilter {
 		for(SlotType slotType: SlotType.values()){
 			usedSlots.put(slotType, 0);
 		}
+
+		// Count onboard requests towards used slots
+		for(DemandAgent demandAgent: vehicle.getTransportedEntities()){
+			pickUp(demandAgent);
+		}
 	}
 
-	public boolean canTransport(TransportableEntity entity){
+	public boolean canTransport(DemandAgent entity){
 		for(var configuration: validConfigurations){
 			if(configuration.canTransport(entity)){
 				return true;
@@ -36,7 +42,7 @@ public class ConfigurationFilter {
 		return false;
 	}
 
-	public boolean hasCapacityFor(TransportableEntity entity){
+	public boolean hasCapacityFor(DemandAgent entity){
 		for(int i = 0; i < validConfigurations.size(); i++){
 			if(remainingConfigurations[i]){
 				var configuration = validConfigurations.get(i);
@@ -51,7 +57,7 @@ public class ConfigurationFilter {
 		return false;
 	}
 
-	public void pickUp(TransportableEntity entity){
+	public void pickUp(DemandAgent entity){
 		if(!hasCapacityFor(entity)){
 			throw new IllegalArgumentException("Cannot transport entity");
 		}
@@ -70,7 +76,7 @@ public class ConfigurationFilter {
 		}
 	}
 
-	public void dropOff(TransportableEntity entity){
+	public void dropOff(DemandAgent entity){
 		var slotType = SlotType.getRequiredSlotType(entity);
 		usedSlots.put(slotType, usedSlots.get(slotType) - 1);
 		for(int i = 0; i < validConfigurations.size(); i++){

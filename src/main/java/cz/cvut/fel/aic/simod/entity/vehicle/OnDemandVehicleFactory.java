@@ -95,7 +95,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 	
 	@Override
 	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition,
-		PhysicalTransportVehicle<TransportableEntity> vehicle
+		PhysicalTransportVehicle<? extends TransportableEntity> vehicle
 	){
 		return new OnDemandVehicle(
 			vehicleStorage,

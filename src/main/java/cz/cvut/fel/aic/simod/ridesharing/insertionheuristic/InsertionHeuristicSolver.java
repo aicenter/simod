@@ -55,7 +55,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author F.I.D.O.
  */
 @Singleton
-public class InsertionHeuristicSolver extends DARPSolver implements EventHandler {
+public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHandler {
 
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(InsertionHeuristicSolver.class);
 
@@ -103,6 +103,8 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 	private PlanData bestPlan;
 
 	OnDemandVehicle vehicleFromNearestStation;
+
+//	protected int freeCapacity;
 
 	/**
 	 * Used vehicles per station in the current iteration of the solver
@@ -267,17 +269,26 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		computeOptimalPlan(vehicle, vehicle.getCurrentPlan(), planComputationRequest);
 	}
 
+	/**
+	 * Main method for computing the optimal plan for a given request-vehicle combination. It iterates over all possible
+	 * pickup-dropoff combinations and tries to insert the request into the current plan. To actually try the insertion,
+	 * the insertIntoPlan method is called.
+	 * @param vehicle the vehicle to process
+	 * @param currentPlan the current plan of the vehicle
+	 * @param planComputationRequest the request to process
+	 */
 	private void computeOptimalPlan(
 		RideSharingOnDemandVehicle vehicle,
 		DriverPlan currentPlan,
 		PlanComputationRequest planComputationRequest
 	) {
-		int freeCapacity = getFreeCapacityForRequest(vehicle, planComputationRequest);
+		T counter = initFreeCapacityForRequest(vehicle, planComputationRequest);
 
 		for (int pickupOptionIndex = 1; pickupOptionIndex <= currentPlan.getLength(); pickupOptionIndex++) {
 
-			// continue if the vehicle is full
-			if (freeCapacity == 0) {
+			// continue if the vehicle is full. The capacity is checked inside the insertIntoPlan method, so this is
+			// just a cut-off
+			if (!hasCapacityForRequest(planComputationRequest, counter)) {
 				continue;
 			}
 
@@ -294,29 +305,36 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			}
 
 			// change free capacity for next index
-			freeCapacity = adjustFreeCapacity(freeCapacity, currentPlan, pickupOptionIndex, planComputationRequest);
+			adjustFreeCapacity(currentPlan, pickupOptionIndex, planComputationRequest, counter);
 		}
 	}
 
-	protected int adjustFreeCapacity(
-		int freeCapacity, DriverPlan currentPlan, int evaluatedIndex, PlanComputationRequest planComputationRequest
+	protected boolean hasCapacityForRequest(PlanComputationRequest planComputationRequest, T counter) {
+		int counterInt = (Integer) counter;
+		return counterInt > 0;
+	}
+
+	protected T adjustFreeCapacity(
+		DriverPlan currentPlan, int evaluatedIndex, PlanComputationRequest planComputationRequest, T counter
 	) {
+		int counterInt = (int) counter;
 		if (evaluatedIndex < currentPlan.getLength()) { // no need to adjust for the last index
+
 			if (currentPlan.plan.get(evaluatedIndex) instanceof PlanActionPickup) {
-				freeCapacity--;
+				counterInt--;
 			} else {
-				freeCapacity++;
+				counterInt++;
 			}
 		}
-		return freeCapacity;
+		return (T) (Integer.valueOf(counterInt));
 	}
 
-	protected int getFreeCapacityForRequest(
+	protected T initFreeCapacityForRequest(
 		RideSharingOnDemandVehicle vehicle,
 		PlanComputationRequest planComputationRequest
 	) {
 		SimpleTransportVehicle simpleVehicle = (SimpleTransportVehicle) vehicle.getVehicle();
-		return simpleVehicle.getFreeCapacity();
+		return (T) Integer.valueOf(simpleVehicle.getFreeCapacity());
 	}
 
 
@@ -353,7 +371,7 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		int indexInOldPlan = -1;
 
 		Iterator<PlanAction> oldPlanIterator = currentPlan.iterator();
-		int freeCapacity = getFreeCapacityForRequest(vehicle, planComputationRequest);
+		T counter = initFreeCapacityForRequest(vehicle, planComputationRequest);
 
 		for (int newPlanIndex = 0; newPlanIndex <= currentPlan.getLength() + 1; newPlanIndex++) {
 
@@ -428,12 +446,12 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 					- newRequest.getMinTravelTime() * 1000;
 			} else if (newTask instanceof PlanActionPickup) {
 				// capacity check
-				if (freeCapacity == 0) {
+				if (!hasCapacityForRequest(planComputationRequest, counter)) {
 					return null;
 				}
 			}
 
-			freeCapacity = adjustFreeCapacity(freeCapacity, currentPlan, newPlanIndex, planComputationRequest);
+			adjustFreeCapacity(currentPlan, newPlanIndex, planComputationRequest, counter);
 
 			// index in old plan if the action was not new
 			if (newPlanIndex != pickupOptionIndex && newPlanIndex != dropoffOptionIndex) {
@@ -466,6 +484,11 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		));
 	}
 
+	/**
+	 * This method first prepares the list of vehicles for which the insertions will be computed and then calls the
+	 * processRequestVehicleCombination method for each vehicle and request combination.
+	 * @param request the request to process
+	 */
 	private void computeBestPlanForRequest(PlanComputationRequest request) {
 		resetBestPlan();
 
@@ -500,6 +523,12 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		iterationTime += System.nanoTime() - iterationStartTime;
 	}
 
+	/**
+	 * Wrapper method for request-vehicle combination processing. It select the current vehicle plan and calls the
+	 * tryToAddRequestToPlan method.
+	 * @param request the request to process
+	 * @param tVvehicle the vehicle to process
+	 */
 	private void processRequestVehicleCombination(PlanComputationRequest request, AgentPolisEntity tVvehicle) {
 		RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
 
@@ -513,6 +542,13 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		tryToAddRequestToPlan(request, vehicle, currentPlan);
 	}
 
+	/**
+	 * Given a request, a vehicle and its current plan, this method tries to fail fast and if the request can be served,
+	 * it calls the computeOptimalPlan method.
+	 * @param request the request to process
+	 * @param vehicle the vehicle to process
+	 * @param plan the plan to process
+	 */
 	public void tryToAddRequestToPlan(
 		PlanComputationRequest request,
 		RideSharingOnDemandVehicle vehicle,
@@ -533,6 +569,10 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		}
 	}
 
+	/**
+	 * Process a single request and update the best plan if a better plan is found.
+	 * @param request the request to process
+	 */
 	private void processRequest(PlanComputationRequest request) {
 		Benchmark benchmark = new Benchmark();
 		vehicleFromNearestStation = null;

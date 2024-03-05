@@ -20,7 +20,7 @@ package cz.cvut.fel.aic.simod.visual.ridesharing.vga.mock;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import java.util.LinkedHashSet;
 

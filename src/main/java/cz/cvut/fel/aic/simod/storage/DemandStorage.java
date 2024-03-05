@@ -20,7 +20,7 @@ package cz.cvut.fel.aic.simod.storage;
 
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
 
 /**
  *

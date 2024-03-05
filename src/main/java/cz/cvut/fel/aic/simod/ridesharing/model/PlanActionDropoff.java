@@ -19,6 +19,7 @@
 package cz.cvut.fel.aic.simod.ridesharing.model;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
 
 public class PlanActionDropoff extends PlanRequestAction {
 
@@ -29,7 +30,7 @@ public class PlanActionDropoff extends PlanRequestAction {
 	 * @param maxTime Time constraint in seconds.
 	 */
 	public PlanActionDropoff(PlanComputationRequest request, SimulationNode node, int maxTime) {
-		super(request, node, maxTime);
+		super(request, node,maxTime);
 	}
 
 

@@ -24,20 +24,25 @@ import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.trip.VehicleTrip;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
+import cz.cvut.fel.aic.agentpolis.simmodel.Activity;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.PhysicalVehicleDrive;
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.Wait;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
+import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.WaitActivityFactory;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.vehicle.MoDVehicle;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
@@ -47,7 +52,7 @@ import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.simod.statistics.PickupEventContent;
-import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
+import cz.cvut.fel.aic.simod.storage.MoDVehicleStorage;
 import cz.cvut.fel.aic.simod.visio.PlanLayerTrip;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -62,6 +67,8 @@ import java.util.logging.Logger;
 public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
 	private final VisioPositionUtil positionUtil;
+
+	private final WaitActivityFactory waitActivityFactory;
 	
 	private DriverPlan currentPlan;
 	
@@ -79,7 +86,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	
 	@Inject
 	public RideSharingOnDemandVehicle(
-		PhysicalTransportVehicleStorage vehicleStorage,
+		MoDVehicleStorage vehicleStorage,
 		TripsUtil tripsUtil,
 		StationsDispatcher onDemandVehicleStationsCentral,
 		PhysicalVehicleDriveFactory driveActivityFactory,
@@ -91,9 +98,10 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		SimodConfig config,
 		IdGenerator idGenerator,
 		AgentpolisConfig agentpolisConfig,
+		WaitActivityFactory waitActivityFactory,
 		@Assisted String vehicleId,
 		@Assisted SimulationNode startPosition,
-		@Assisted PhysicalTransportVehicle vehicle
+		@Assisted MoDVehicle vehicle
 	) {
 		super(
 			vehicleStorage,
@@ -113,18 +121,15 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		);
 		this.positionUtil = positionUtil;
 		this.tripIdGenerator = tripIdGenerator;
-		
+		this.waitActivityFactory = waitActivityFactory;
+
 //		empty plan
 		LinkedList<PlanAction> plan = new LinkedList<>();
 		plan.add(new PlanActionCurrentPosition(getPosition()));
 		currentPlan = new DriverPlan(plan, 0, 0);
 	}
 
-	@Override
-	public void handleEvent(Event event) {
-		
-	}
-	
+
 	public int getOnBoardCount(){
 		return vehicle.getTransportedEntities().size();
 	}
@@ -195,6 +200,15 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		}
 	}
 
+
+	@Override
+	protected void onActivityFinish(Activity activity) {
+		super.onActivityFinish(activity);
+		if(activity instanceof Wait){
+			pickupAndContinue();
+		}
+	}
+
 	@Override
 	public void finishedDriving(boolean wasStopped) {
 		logTraveledDistance(wasStopped);
@@ -248,10 +262,19 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	}
 
 	private void pickupAndContinue() {
+		long minTime = ((PlanActionPickup) currentTask).getMinTime() * 1000L;
+		long currentTime = timeProvider.getCurrentSimTime();
+
+		// we have to wait for the pickup time
+		if(minTime > currentTime){
+			long waitTime = minTime - currentTime;
+			waitActivityFactory.runActivity(this, waitTime);
+			return;
+		}
+
 		try {
 			DemandAgent demandAgent = ((PlanActionPickup) currentTask).getRequest().getDemandAgent();
 			if(demandAgent.isDropped()){
-				long currentTime = timeProvider.getCurrentSimTime();
 				long droppTime = demandAgent.getDemandTime() + config.ridesharing.maxProlongationInSeconds * 1000;
 				throw new Exception(
 					String.format("Demand agent %s cannot be picked up, he is already dropped! Current simulation "
@@ -264,10 +287,13 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	//		demandTrip = tripsUtil.createTrip(currentTask.getDemandAgent().getPosition().id,
 	//				currentTask.getLocation().id, vehicle);
 			// demand trip length 0 - need to find out where the statistic is used, does it make sense with rebalancing?
-			eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
-					new PickupEventContent(timeProvider.getCurrentSimTime(), 
-							demandAgent.getSimpleId(), getId(), 
-							(int) Math.round(demandAgent.getMinDemandServiceDuration() / 1000)));
+			eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, new PickupEventContent(
+				timeProvider.getCurrentSimTime(),
+				demandAgent.getRequest().getId(),
+				demandAgent.getSimpleId(),
+				getId(),
+				(int) Math.round(demandAgent.getMinDemandServiceDuration() / 1000)
+			));
 			currentPlan.taskCompleted();
 			driveToNextTask();
 
@@ -282,18 +308,25 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		vehicle.dropOff(demandAgent);
 		
 		// statistics
-		eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
-				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-						demandAgent.getSimpleId(), getId()));
+		eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null,
+			new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(),
+				demandAgent.getRequest().getId(),
+				demandAgent.getSimpleId(),
+				getId()
+			)
+		);
 		currentPlan.taskCompleted();
 		driveToNextTask();
 	}
 
 	@Override
 	protected void leavingStationEvent() {
-		eventProcessor.addEvent(OnDemandVehicleEvent.LEAVE_STATION, null, null, 
-				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-						((PlanRequestAction) currentTask).getRequest().getDemandAgent().getSimpleId(), getId()));
+		eventProcessor.addEvent(OnDemandVehicleEvent.LEAVE_STATION, null, null, new OnDemandVehicleEventContent(
+			timeProvider.getCurrentSimTime(),
+			((PlanRequestAction) currentTask).getRequest().getId(),
+			((PlanRequestAction) currentTask).getRequest().getId(),
+			getId()
+		));
 	}
 	
 	@Override
@@ -301,8 +334,12 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		return currentTrip;
 	}
 
-	public boolean hasFreeCapacityFor(TransportableEntity entity) {
+	public boolean hasFreeCapacityFor(DemandAgent entity) {
 		return vehicle.hasCapacityFor(entity);
+	}
+
+	public boolean hasFreeCapacityFor(PlanComputationRequest request) {
+		return vehicle.hasCapacityFor(request);
 	}
 	
 	public List<PlanLayerTrip> getPlanForRendering(){

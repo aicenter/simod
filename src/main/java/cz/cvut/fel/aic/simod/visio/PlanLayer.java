@@ -30,7 +30,7 @@ import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.alite.vis.layer.AbstractLayer;
 import cz.cvut.fel.aic.simod.NearestVehicleComparator;
 import cz.cvut.fel.aic.simod.entity.PlanningAgent;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
 import cz.cvut.fel.aic.geographtools.Graph;

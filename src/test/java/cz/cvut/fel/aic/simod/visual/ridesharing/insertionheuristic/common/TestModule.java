@@ -27,12 +27,11 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
-import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.simod.ridesharing.*;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.InsertionHeuristicSolver;
-import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;
+import cz.cvut.fel.aic.simod.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.visual.ridesharing.vga.common.VGATestVisioInitializer;

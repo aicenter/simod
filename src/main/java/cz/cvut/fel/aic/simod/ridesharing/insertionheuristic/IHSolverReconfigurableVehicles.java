@@ -5,6 +5,8 @@ import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
+import cz.cvut.fel.aic.simod.DefaultPlanComputationRequest;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.vehicle.ConfigurationFilter;
 import cz.cvut.fel.aic.simod.entity.vehicle.ReconfigurableVehicle;
@@ -60,7 +62,7 @@ public class IHSolverReconfigurableVehicles extends InsertionHeuristicSolver<Con
 
 	@Override
 	protected boolean hasCapacityForRequest(PlanComputationRequest planComputationRequest, ConfigurationFilter counter){
-		return counter.hasCapacityFor(planComputationRequest.getDemandAgent());
+		return counter.hasCapacityFor(planComputationRequest);
 	}
 
 	@Override
@@ -73,9 +75,9 @@ public class IHSolverReconfigurableVehicles extends InsertionHeuristicSolver<Con
 			if(action instanceof PlanRequestAction) {
 				PlanComputationRequest evaluatedRequest = ((PlanRequestAction) action).getRequest();
 				if (currentPlan.plan.get(evaluatedIndex) instanceof PlanActionPickup) {
-					counter.pickUp(evaluatedRequest.getDemandAgent());
+					counter.pickUp(evaluatedRequest);
 				} else {
-					counter.dropOff(evaluatedRequest.getDemandAgent());
+					counter.dropOff(evaluatedRequest);
 				}
 			}
 		}

@@ -30,10 +30,10 @@ import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
-import cz.cvut.fel.aic.simod.init.EventInitializer;
+import cz.cvut.fel.aic.simod.init.RequestsInitializer;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.visual.ridesharing.EventOrderStorage;
@@ -41,7 +41,6 @@ import cz.cvut.fel.aic.simod.visual.ridesharing.RidesharingEventData;
 import cz.cvut.fel.aic.simod.visual.ridesharing.RidesharingTestEnvironment;
 import cz.cvut.fel.aic.geographtools.Graph;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.junit.Assert;
@@ -89,7 +88,7 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 		creator.prepareSimulation(mapInitializer.getMap());
 		
 		// requests
-		injector.getInstance(EventInitializer.class).initialize(trips, new ArrayList<>());
+		injector.getInstance(RequestsInitializer.class).initialize();
                 
 		// vehicles
 		OnDemandVehicleFactorySpec onDemandVehicleFactory = injector.getInstance(OnDemandVehicleFactorySpec.class);

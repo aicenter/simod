@@ -32,7 +32,8 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUti
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.storage.MoDVehicleStorage;
 
 /**
  *
@@ -56,7 +57,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 	
 	protected final IdGenerator rebalancingIdGenerator;
 	
-	protected final PhysicalTransportVehicleStorage vehicleStorage;
+	protected final MoDVehicleStorage vehicleStorage;
 	
 	protected final SimodConfig config;
 	
@@ -69,7 +70,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 	
 	@Inject
 	public OnDemandVehicleFactory(
-			PhysicalTransportVehicleStorage vehicleStorage, 
+			MoDVehicleStorage vehicleStorage,
 			TripsUtil tripsUtil, 
 			StationsDispatcher onDemandVehicleStationsCentral, 
 			VisioPositionUtil positionUtil, 
@@ -95,7 +96,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 	
 	@Override
 	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition,
-		PhysicalTransportVehicle<? extends TransportableEntity> vehicle
+		MoDVehicle vehicle
 	){
 		return new OnDemandVehicle(
 			vehicleStorage,

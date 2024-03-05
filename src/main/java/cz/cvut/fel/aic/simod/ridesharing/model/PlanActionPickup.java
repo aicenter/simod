@@ -19,8 +19,22 @@
 package cz.cvut.fel.aic.simod.ridesharing.model;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
 
 public class PlanActionPickup extends PlanRequestAction {
+
+	private final int minTime;
+
+
+
+	/**
+	 * Getter for min time.
+	 * @return Time constraint in seconds
+	 */
+	public int getMinTime() {
+		return minTime;
+	}
+
 
 	/**
 	 * Pickup action.
@@ -28,8 +42,9 @@ public class PlanActionPickup extends PlanRequestAction {
 	 * @param node Position where action takes place.
 	 * @param maxTime Time constraint in seconds.
 	 */
-	public PlanActionPickup(PlanComputationRequest request, SimulationNode node, int maxTime) {
+	public PlanActionPickup(PlanComputationRequest request, SimulationNode node, int minTime, int maxTime) {
 		super(request, node, maxTime);
+		this.minTime = minTime;
 	}
 
    

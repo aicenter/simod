@@ -23,8 +23,9 @@ import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VehicleLayer;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
-import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.vehicle.MoDVehicle;
+import cz.cvut.fel.aic.simod.storage.MoDVehicleStorage;
 import java.awt.Color;
 
 /**
@@ -32,7 +33,7 @@ import java.awt.Color;
  * @author F-I-D-O
  */
 @Singleton
-public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>{
+public class OnDemandVehicleLayer extends VehicleLayer<MoDVehicle>{
 	
 	private static final int STATIC_WIDTH = 24;
 	
@@ -50,8 +51,8 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
 	
 	
 	@Inject
-	public OnDemandVehicleLayer(PhysicalTransportVehicleStorage physicalTransportVehicleStorage, AgentpolisConfig agentpolisConfig) {
-		super(physicalTransportVehicleStorage, agentpolisConfig);
+	public OnDemandVehicleLayer(MoDVehicleStorage moDVehicleStorage, AgentpolisConfig agentpolisConfig) {
+		super(moDVehicleStorage, agentpolisConfig);
 	}
 
 
@@ -62,7 +63,7 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
 	}
 
 	@Override
-	protected boolean skipDrawing(PhysicalTransportVehicle vehicle) {
+	protected boolean skipDrawing(MoDVehicle vehicle) {
 		OnDemandVehicle onDemandVehicle = (OnDemandVehicle) vehicle.getDriver();
 		
 		if(onDemandVehicle.getParkedIn() != null){
@@ -74,27 +75,27 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
 	}
 
 	@Override
-	protected float getVehicleWidth(PhysicalTransportVehicle vehicle) {
+	protected float getVehicleWidth(MoDVehicle vehicle) {
 		return 3;
 	}
 
 	@Override
-	protected float getVehicleLength(PhysicalTransportVehicle vehicle) {
+	protected float getVehicleLength(MoDVehicle vehicle) {
 		return (float) vehicle.getLengthM();
 	}
 
 	@Override
-	protected float getVehicleStaticWidth(PhysicalTransportVehicle vehicle) {
+	protected float getVehicleStaticWidth(MoDVehicle vehicle) {
 		return STATIC_WIDTH;
 	}
 
 	@Override
-	protected float getVehicleStaticLength(PhysicalTransportVehicle vehicle) {
+	protected float getVehicleStaticLength(MoDVehicle vehicle) {
 		return (float) vehicle.getLengthM() * 8;
 	}
 
 	@Override
-	protected Color getEntityDrawColor(PhysicalTransportVehicle vehicle) {
+	protected Color getEntityDrawColor(MoDVehicle vehicle) {
 		OnDemandVehicle onDemandVehicle = (OnDemandVehicle) vehicle.getDriver();
 		if (onDemandVehicle.getVehicleId().equals(OnDemandVehicleLayer.highlightedVehicleID) || vehicle.isHighlighted()) {
  			return HIGHLIGHTED_COLOR;
@@ -115,7 +116,7 @@ public class OnDemandVehicleLayer extends VehicleLayer<PhysicalTransportVehicle>
 	}
 
 	@Override
-	public boolean checkIfTransformSize(PhysicalTransportVehicle representative) {
+	public boolean checkIfTransformSize(MoDVehicle representative) {
 		if(representative.getId().equals(OnDemandVehicleLayer.highlightedVehicleID) || representative.isHighlighted()){
 			return false;
 		}

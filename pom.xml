@@ -63,6 +63,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 					<argLine>-Dfile.encoding=UTF-8</argLine>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.6.1</version>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
@@ -116,6 +122,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
+			<version>33.0.0-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -130,6 +137,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-csv</artifactId>
+			<version>2.12.2</version>
+		</dependency>
+		<dependency>
 			<groupId>edu.mines.jtk</groupId>
 			<artifactId>edu-mines-jtk</artifactId>
 			<version>1.0.0</version>
@@ -137,10 +149,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
+			<version>7.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.inject.extensions</groupId>
 			<artifactId>guice-assistedinject</artifactId>
+			<version>7.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.vecmath</groupId>

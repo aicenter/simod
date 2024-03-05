@@ -23,5 +23,6 @@ package cz.cvut.fel.aic.simod.event;
  * @author david
  */
 public enum DemandEvent {
+	ANNOUNCEMENT,
 	LEFT
 }

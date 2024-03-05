@@ -22,16 +22,17 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage;
+import cz.cvut.fel.aic.simod.entity.vehicle.MoDVehicle;
 
 /**
  *
  * @author fido
  */
 @Singleton
-public class PhysicalTransportVehicleStorage extends EntityStorage<PhysicalTransportVehicle>{
+public class MoDVehicleStorage extends EntityStorage<MoDVehicle>{
 	
 	@Inject
-	public PhysicalTransportVehicleStorage() {
+	public MoDVehicleStorage() {
 		super();
 	}
 	

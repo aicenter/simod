@@ -23,7 +23,7 @@ public class AstarTravelTimeProviderCached extends TravelTimeProvider{
 	}
 
 	@Override
-	public long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
+	public synchronized long getTravelTime(MovingEntity entity, SimulationNode positionA, SimulationNode positionB) {
 		Key key = new Key(positionA.getId(), positionB.getId());
 		if(cache.containsKey(key)){
 			return cache.get(key);

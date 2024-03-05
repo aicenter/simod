@@ -21,7 +21,7 @@ package cz.cvut.fel.aic.simod.system;
 import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.statistics.EdgesLoadByState;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Node;

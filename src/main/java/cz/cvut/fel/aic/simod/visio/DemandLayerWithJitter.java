@@ -22,7 +22,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.alite.vis.Vis;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
 import cz.cvut.fel.aic.simod.storage.DemandStorage;
 import java.util.HashMap;
 import java.util.Random;

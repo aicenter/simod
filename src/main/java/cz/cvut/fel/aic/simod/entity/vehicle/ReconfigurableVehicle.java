@@ -1,15 +1,15 @@
 package cz.cvut.fel.aic.simod.entity.vehicle;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.GraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
 
 import java.util.List;
 
-public class ReconfigurableVehicle extends PhysicalTransportVehicle<DemandAgent> {
+public class ReconfigurableVehicle extends MoDVehicle {
 	private final List<SlotConfiguration> validConfigurations;
 
 	private final ConfigurationFilter configurationFilter;
@@ -38,21 +38,26 @@ public class ReconfigurableVehicle extends PhysicalTransportVehicle<DemandAgent>
 
 	@Override
 	public boolean hasCapacityFor(DemandAgent entity) {
-		return configurationFilter.hasCapacityFor(entity);
+		return configurationFilter.hasCapacityFor(entity.getRequest());
 	}
 
 	@Override
 	public void runPostPickUpActions(DemandAgent entity) {
-		configurationFilter.pickUp(entity);
+		configurationFilter.pickUp(entity.getRequest());
 	}
 
 	@Override
 	public void runPostDropOffActions(DemandAgent entity) {
-		configurationFilter.dropOff(entity);
+		configurationFilter.dropOff(entity.getRequest());
 	}
 
 	@Override
 	public boolean canTransport(DemandAgent entity) {
-		return configurationFilter.canTransport(entity);
+		return configurationFilter.canTransport(entity.getRequest());
+	}
+
+	@Override
+	public boolean hasCapacityFor(PlanComputationRequest request) {
+		return configurationFilter.hasCapacityFor(request);
 	}
 }

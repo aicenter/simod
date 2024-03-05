@@ -20,7 +20,7 @@ package cz.cvut.fel.aic.simod.ridesharing.vga.calculations;
 
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.ridesharing.StandardPlanCostProvider;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.ridesharing.vga.model.Plan;
 import java.util.LinkedHashSet;

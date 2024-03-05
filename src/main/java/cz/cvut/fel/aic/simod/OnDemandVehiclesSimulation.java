@@ -26,11 +26,10 @@ import cz.cvut.fel.aic.agentpolis.simulator.MapData;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.init.EventInitializer;
+import cz.cvut.fel.aic.simod.init.RequestsInitializer;
 import cz.cvut.fel.aic.simod.init.StationsInitializer;
 import cz.cvut.fel.aic.simod.init.StatisticInitializer;
 import cz.cvut.fel.aic.simod.init.VehicleInitializer;
-import cz.cvut.fel.aic.simod.io.TripTransform;
 import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.statistics.Statistics;
@@ -183,9 +182,7 @@ public class OnDemandVehiclesSimulation {
 		}
 		
 		// load trips
-		TripTransform tripTransform = injector.getInstance(TripTransform.class);
-		injector.getInstance(EventInitializer.class).initialize(
-		tripTransform.loadTripsFromTxt(new File(config.tripsPath)), null);
+		injector.getInstance(RequestsInitializer.class).initialize();
 
 		injector.getInstance(StatisticInitializer.class).initialize();
             

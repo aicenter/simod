@@ -30,8 +30,8 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUti
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
-import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.storage.MoDVehicleStorage;
 
 /**
  *
@@ -41,7 +41,7 @@ public class TestOnDemandVehicle extends OnDemandVehicle{
 	
 	@Inject
 	public TestOnDemandVehicle(
-			PhysicalTransportVehicleStorage vehicleStorage,
+			MoDVehicleStorage vehicleStorage,
 			TripsUtil tripsUtil, 
 			StationsDispatcher onDemandVehicleStationsCentral, 
 			StandardDriveFactory driveActivityFactory, 

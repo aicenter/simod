@@ -20,7 +20,7 @@ package cz.cvut.fel.aic.simod.ridesharing.vga.calculations;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
 import java.util.LinkedHashSet;
 
 /**

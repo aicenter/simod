@@ -4,13 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.entity.vehicle.*;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
@@ -69,7 +69,7 @@ public class VehicleInitializer {
 				OnDemandVehicleStation station = onDemandVehicleStationStorage.getEntityById(vehicleNode.get(
 					"station_index").asText());
 
-				PhysicalTransportVehicle<DemandAgent> vehicle = null;
+				MoDVehicle vehicle = null;
 				List<SlotConfiguration> slotConfigurations = new ArrayList<>();
 				for (JsonNode slotConfigurationNode: vehicleNode.get("configurations")) {
 					HashMap<SlotType, Integer> slots = new HashMap<>();

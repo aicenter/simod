@@ -1,21 +1,19 @@
 package cz.cvut.fel.aic.simod.entity.vehicle;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.GraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
-import cz.cvut.fel.aic.simod.entity.TransportableEntityWithRequirement;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
 
 import java.util.HashMap;
-import java.util.Objects;
 
 
 /**
  * Specialized transport vehicle with heterogeneous slots for transportable entities
  */
-public class SpecializedTransportVehicle extends PhysicalTransportVehicle<DemandAgent> {
+public class SpecializedTransportVehicle extends MoDVehicle {
 
     private final HashMap<SlotType, Integer> slots;
 
@@ -59,5 +57,10 @@ public class SpecializedTransportVehicle extends PhysicalTransportVehicle<Demand
             return slots.get(requiredSlotType);
         }
         return 0;
+    }
+
+    @Override
+    public boolean hasCapacityFor(PlanComputationRequest request) {
+        return slots.get(request.getRequiredSlotType()) > 0;
     }
 }

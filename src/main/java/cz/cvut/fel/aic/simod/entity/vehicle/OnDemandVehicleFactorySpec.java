@@ -21,12 +21,13 @@ package cz.cvut.fel.aic.simod.entity.vehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
 
 /**
  * @author fido
  */
 public interface OnDemandVehicleFactorySpec {
 	public OnDemandVehicle create(
-		String vehicleId, SimulationNode startPosition, PhysicalTransportVehicle<? extends TransportableEntity> vehicle
+		String vehicleId, SimulationNode startPosition, MoDVehicle vehicle
 	);
 }

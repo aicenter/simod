@@ -1,9 +1,7 @@
 package cz.cvut.fel.aic.simod.entity.vehicle;
 
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
-import cz.cvut.fel.aic.simod.entity.TransportableEntityWithRequirement;
-import cz.cvut.fel.aic.simod.entity.vehicle.SlotType;
+import cz.cvut.fel.aic.simod.DefaultPlanComputationRequest;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
 
 import java.util.HashMap;
 
@@ -22,8 +20,8 @@ public class SlotConfiguration {
 		this.slots = slots;
 	}
 
-	public boolean canTransport(DemandAgent entity) {
-		return slots.containsKey(entity.getRequiredSlotType());
+	public boolean canTransport(PlanComputationRequest request) {
+		return slots.containsKey(request.getRequiredSlotType());
 	}
 
 	public int getSlotCount(SlotType slotType) {

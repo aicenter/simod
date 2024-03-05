@@ -30,16 +30,18 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.vehicle.SimpleMoDVehicle;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.simod.ridesharing.DroppedDemandsAnalyzer;
 import cz.cvut.fel.aic.simod.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
-import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
+import cz.cvut.fel.aic.simod.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
 import cz.cvut.fel.aic.simod.ridesharing.model.*;
 import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStatsIH;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
@@ -333,7 +335,7 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 		RideSharingOnDemandVehicle vehicle,
 		PlanComputationRequest planComputationRequest
 	) {
-		SimpleTransportVehicle simpleVehicle = (SimpleTransportVehicle) vehicle.getVehicle();
+		SimpleMoDVehicle simpleVehicle = (SimpleMoDVehicle) vehicle.getVehicle();
 		return (T) Integer.valueOf(simpleVehicle.getFreeCapacity());
 	}
 
@@ -355,9 +357,7 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 		final RideSharingOnDemandVehicle vehicle,
 		final PlanComputationRequest planComputationRequest
 	) {
-
 		List<PlanAction> newPlanTasks = new LinkedList<>();
-
 
 		// travel time of the new plan in milliseconds
 		int newPlanTravelTime = 0;
@@ -365,61 +365,68 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 		// discomfort of the new plan in milliseconds
 		int newPlanDiscomfort = 0;
 
-		PlanAction previousTask = null;
-
-		// index of the lastly added action from the old plan (not considering current position action)
-		int indexInOldPlan = -1;
+		// index of the lastly added action from the old plan
+		int indexInOldPlan = 0;
 
 		Iterator<PlanAction> oldPlanIterator = currentPlan.iterator();
+
+		// process the current position action
+		PlanAction previousTask = oldPlanIterator.next(); // current position action
+		newPlanTasks.add(previousTask);
+
+		// free capacity counter
 		T counter = initFreeCapacityForRequest(vehicle, planComputationRequest);
 
-		for (int newPlanIndex = 0; newPlanIndex <= currentPlan.getLength() + 1; newPlanIndex++) {
+		// we start computing the time current time (we cannot plan for the past :))
+		long currentTaskTimeInSeconds = (timeProvider.getCurrentSimTime() + newPlanTravelTime) / 1000;
+
+		for (int newPlanIndex = 1; newPlanIndex <= currentPlan.getLength() + 1; newPlanIndex++) {
 
 			/* get new task */
-			PlanAction newTask = null;
+			PlanRequestAction newTask = null;
 			if (newPlanIndex == pickupOptionIndex) {
 				newTask = planComputationRequest.getPickUpAction();
-//						new PlanActionPickup(request.getDemandAgent(),  request.getDemandAgent().getPosition());
 			} else if (newPlanIndex == dropoffOptionIndex) {
 				newTask = planComputationRequest.getDropOffAction();
-//						= new DriverPlanTask(DriverPlanTaskType.DROPOFF, request.getDemandAgent(), 
-//						request.getTargetLocation());
 			} else {
-				newTask = oldPlanIterator.next();
+				newTask = (PlanRequestAction) oldPlanIterator.next();
+			}
+
+			// current time adjustment according to the new task min time
+			if(newTask instanceof PlanActionPickup){
+				var minTime = ((PlanActionPickup) newTask).getMinTime();
+				if (minTime > currentTaskTimeInSeconds) {
+					currentTaskTimeInSeconds = minTime;
+				}
 			}
 
 			// travel time increment
-			if (previousTask != null) {
-				if (previousTask instanceof PlanActionCurrentPosition) {
-					newPlanTravelTime += travelTimeProvider.getTravelTime(vehicle, newTask.getPosition());
-				} else {
-					newPlanTravelTime += travelTimeProvider.getTravelTime(vehicle, previousTask.getPosition(),
-						newTask.getPosition()
-					);
-				}
+			int travelTime;
+			if (previousTask instanceof PlanActionCurrentPosition) {
+		 		travelTime = (int) travelTimeProvider.getTravelTime(vehicle, newTask.getPosition()) / 1000;
+			} else {
+				travelTime = (int) travelTimeProvider.getTravelTime(vehicle, previousTask.getPosition(),
+					newTask.getPosition()
+				) / 1000;
 			}
-			long currentTaskTimeInSeconds = (timeProvider.getCurrentSimTime() + newPlanTravelTime) / 1000;
+			newPlanTravelTime += travelTime;
+			currentTaskTimeInSeconds += travelTime;
 //			LOGGER.debug("currentTaskTimeInSeconds: {}", currentTaskTimeInSeconds);
 
 			/* check max time for all unfinished demands */
 
 			// check max time check for the new action
-			if (newTask instanceof PlanRequestAction) {
-				int maxTime = ((PlanRequestAction) newTask).getMaxTime();
-				if (maxTime < currentTaskTimeInSeconds) {
+			int maxTime = newTask.getMaxTime();
+			if (maxTime < currentTaskTimeInSeconds) {
 //                                    LOGGER.debug("currentTaskTimeInSeconds {} \n> maxTime {}",currentTaskTimeInSeconds, maxTime);
-					return null;
-				}
+				return null;
 			}
 
 			// check max time for actions in the current plan
 			for (int index = indexInOldPlan + 1; index < currentPlan.getLength(); index++) {
-				PlanAction remainingAction = currentPlan.plan.get(index);
-				if (!(remainingAction instanceof PlanActionCurrentPosition)) {
-					PlanRequestAction remainingRequestAction = (PlanRequestAction) remainingAction;
-					if (remainingRequestAction.getMaxTime() < currentTaskTimeInSeconds) {
-						return null;
-					}
+				PlanRequestAction remainingRequestAction = (PlanRequestAction) currentPlan.plan.get(index);
+				if (remainingRequestAction.getMaxTime() < currentTaskTimeInSeconds) {
+					return null;
 				}
 			}
 
@@ -440,9 +447,9 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 			/* pickup and drop off handeling */
 			if (newTask instanceof PlanActionDropoff) {
 				// discomfort increment
-				PlanComputationRequest newRequest = ((PlanActionDropoff) newTask).getRequest();
+				PlanComputationRequest newRequest = newTask.getRequest();
 				long taskExecutionTime = timeProvider.getCurrentSimTime() + newPlanTravelTime;
-				newPlanDiscomfort += taskExecutionTime - newRequest.getOriginTime() * 1000
+				newPlanDiscomfort += taskExecutionTime - newRequest.getMinTime() * 1000
 					- newRequest.getMinTravelTime() * 1000;
 			} else if (newTask instanceof PlanActionPickup) {
 				// capacity check

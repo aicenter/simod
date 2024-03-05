@@ -1,7 +1,8 @@
 package cz.cvut.fel.aic.simod.entity.vehicle;
 
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
+import cz.cvut.fel.aic.simod.DefaultPlanComputationRequest;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
 
 
 import java.util.Arrays;
@@ -29,26 +30,26 @@ public class ConfigurationFilter {
 
 		// Count onboard requests towards used slots
 		for(DemandAgent demandAgent: vehicle.getTransportedEntities()){
-			pickUp(demandAgent);
+			pickUp(demandAgent.getRequest());
 		}
 	}
 
-	public boolean canTransport(DemandAgent entity){
+	public boolean canTransport(DefaultPlanComputationRequest request){
 		for(var configuration: validConfigurations){
-			if(configuration.canTransport(entity)){
+			if(configuration.canTransport(request)){
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public boolean hasCapacityFor(DemandAgent entity){
+	public boolean hasCapacityFor(PlanComputationRequest request){
 		for(int i = 0; i < validConfigurations.size(); i++){
 			if(remainingConfigurations[i]){
 				var configuration = validConfigurations.get(i);
-				if(configuration.canTransport(entity)){
-					var slotCount = configuration.getSlotCount(SlotType.getRequiredSlotType(entity));
-					if(slotCount > usedSlots.get(SlotType.getRequiredSlotType(entity))){
+				if(configuration.canTransport(request)){
+					var slotCount = configuration.getSlotCount(request.getRequiredSlotType());
+					if(slotCount > usedSlots.get(request.getRequiredSlotType())){
 						return true;
 					}
 				}
@@ -57,16 +58,16 @@ public class ConfigurationFilter {
 		return false;
 	}
 
-	public void pickUp(DemandAgent entity){
-		if(!hasCapacityFor(entity)){
+	public void pickUp(PlanComputationRequest request){
+		if(!hasCapacityFor(request)){
 			throw new IllegalArgumentException("Cannot transport entity");
 		}
-		var slotType = SlotType.getRequiredSlotType(entity);
+		var slotType = request.getRequiredSlotType();
 		usedSlots.put(slotType, usedSlots.get(slotType) + 1);
 		for(int i = 0; i < validConfigurations.size(); i++){
 			if(remainingConfigurations[i]){
 				var configuration = validConfigurations.get(i);
-				if(configuration.canTransport(entity)){
+				if(configuration.canTransport(request)){
 					var maxSlotCount = configuration.getSlotCount(slotType);
 					if(maxSlotCount < usedSlots.get(slotType)){
 						remainingConfigurations[i] = false;
@@ -76,13 +77,13 @@ public class ConfigurationFilter {
 		}
 	}
 
-	public void dropOff(DemandAgent entity){
-		var slotType = SlotType.getRequiredSlotType(entity);
+	public void dropOff(PlanComputationRequest request){
+		var slotType = request.getRequiredSlotType();
 		usedSlots.put(slotType, usedSlots.get(slotType) - 1);
 		for(int i = 0; i < validConfigurations.size(); i++){
 			if(!remainingConfigurations[i]){
 				var configuration = validConfigurations.get(i);
-				if(configuration.canTransport(entity)){
+				if(configuration.canTransport(request)){
 					boolean unblocked = true;
 					for(Map.Entry<SlotType, Integer> entry: configuration.getSlots().entrySet()){
 						if(usedSlots.get(entry.getKey()) > entry.getValue()){

@@ -20,7 +20,6 @@ package cz.cvut.fel.aic.simod;
 
 
 import cz.cvut.fel.aic.simod.io.TimeTrip;
-import cz.cvut.fel.aic.simod.io.TripTransform;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;

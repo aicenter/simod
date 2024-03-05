@@ -24,6 +24,8 @@ package cz.cvut.fel.aic.simod.event;
  */
 public class OnDemandVehicleEventContent {
 	private final long time;
+
+	private final int requestIndex;
 	
 	private final int demandId;
 	
@@ -31,6 +33,10 @@ public class OnDemandVehicleEventContent {
 
 	public long getTime() {
 		return time;
+	}
+
+	public int getRequestIndex() {
+		return requestIndex;
 	}
 
 	public int getDemandId() {
@@ -43,8 +49,9 @@ public class OnDemandVehicleEventContent {
 	
 	
 
-	public OnDemandVehicleEventContent(long time, int demandId, String onDemandVehicleId) {
+	public OnDemandVehicleEventContent(long time, int requestIndex, int demandId, String onDemandVehicleId) {
 		this.time = time;
+		this.requestIndex = requestIndex;
 		this.demandId = demandId;
 		this.onDemandVehicleId = onDemandVehicleId;
 	}

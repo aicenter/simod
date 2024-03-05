@@ -23,7 +23,6 @@ import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.SimpleTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
@@ -36,8 +35,10 @@ import cz.cvut.fel.aic.simod.DemandData;
 import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.vehicle.MoDVehicle;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactorySpec;
+import cz.cvut.fel.aic.simod.entity.vehicle.SimpleMoDVehicle;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
@@ -108,7 +109,7 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 			String onDemandVehicelId = String.format("%s-%d", id, i);
 
 			// physical vehicle creation
-			SimpleTransportVehicle vehicle = new SimpleTransportVehicle(
+			MoDVehicle vehicle = new SimpleMoDVehicle(
 				onDemandVehicelId + " - vehicle",
 				DemandSimulationEntityType.VEHICLE,
 				LENGTH,

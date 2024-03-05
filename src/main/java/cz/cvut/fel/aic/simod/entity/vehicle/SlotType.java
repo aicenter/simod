@@ -1,8 +1,7 @@
 package cz.cvut.fel.aic.simod.entity.vehicle;
 
 
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
-import cz.cvut.fel.aic.simod.entity.TransportableEntityWithRequirement;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
 
 /**
  * Type of the slot for heterogeneous vehicles

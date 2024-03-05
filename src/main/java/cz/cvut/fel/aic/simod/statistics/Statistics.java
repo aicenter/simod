@@ -30,10 +30,9 @@ import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.alite.common.event.typed.AliteEntity;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.simod.CsvWriter;
-import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.io.Common;
@@ -75,7 +74,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 	
 	private final OnDemandVehicleStorage onDemandVehicleStorage;
 	
-	private final StationsDispatcher onDemandVehicleStationsCentral;
+	private final RidesharingDispatcher dispatcher;
 	
 	private final LinkedList<HashMap<BigInteger,Integer>> allEdgesLoadHistory;
 	
@@ -130,11 +129,11 @@ public class Statistics extends AliteEntity implements EventHandler{
 	@Inject
 	public Statistics(TypedSimulation eventProcessor, Provider<EdgesLoadByState> allEdgesLoadProvider, 
 			OnDemandVehicleStorage onDemandVehicleStorage, 
-			StationsDispatcher onDemandVehicleStationsCentral, SimodConfig config, DARPSolver dARPSolver) throws IOException {
+			RidesharingDispatcher dispatcher, SimodConfig config, DARPSolver dARPSolver) throws IOException {
 		this.eventProcessor = eventProcessor;
 		this.allEdgesLoadProvider = allEdgesLoadProvider;
 		this.onDemandVehicleStorage = onDemandVehicleStorage;
-		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
+		this.dispatcher = dispatcher;
 		this.config = config;
 		this.dARPSolver = dARPSolver;
 		allEdgesLoadHistory = new LinkedList<>();
@@ -222,10 +221,10 @@ public class Statistics extends AliteEntity implements EventHandler{
 		
 		Result result = new Result(tickCount, averageLoadTotal, maxLoad, averageKmWithPassenger, 
 				averageKmToStartLocation, averageKmToStation, averageKmRebalancing, 
-				onDemandVehicleStationsCentral.getNumberOfDemandsNotServedFromNearestStation(), 
-				onDemandVehicleStationsCentral.getNumberOfDemandsDropped(), 
-				onDemandVehicleStationsCentral.getDemandsCount(), numberOfVehicles,
-				onDemandVehicleStationsCentral.getNumberOfRebalancingDropped(), totalDistanceWithPassenger,
+				dispatcher.getNumberOfDemandsNotServedFromNearestStation(),
+				dispatcher.getNumberOfDemandsDropped(),
+				dispatcher.getDemandsCount(), numberOfVehicles,
+				dispatcher.getNumberOfRebalancingDropped(), totalDistanceWithPassenger,
 		totalDistanceToStartLocation, totalDistanceToStation, totalDistanceRebalancing);
 		
 		ObjectMapper mapper = new ObjectMapper();
@@ -247,7 +246,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 		saveDistances();
 		saveOccupancies();
 		saveServiceStatistics();
-		if(onDemandVehicleStationsCentral instanceof RidesharingDispatcher){
+		if(dispatcher instanceof RidesharingDispatcher){
 			saveDarpSolverComputationalTimes();
 		}
 		if(config.ridesharing.on){
@@ -396,7 +395,7 @@ public class Statistics extends AliteEntity implements EventHandler{
 	}
 	
 	private void saveDarpSolverComputationalTimes() {
-		List<Long> times = ((RidesharingDispatcher) onDemandVehicleStationsCentral).getDarpSolverComputationalTimes();
+		List<Long> times = ((RidesharingDispatcher) dispatcher).getDarpSolverComputationalTimes();
 		try {
 			CsvWriter writer = new CsvWriter(
 					Common.getFileWriter(config.statistics.darpSolverComputationalTimesFilePath));

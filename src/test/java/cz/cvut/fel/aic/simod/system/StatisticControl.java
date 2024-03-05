@@ -37,7 +37,7 @@ public class StatisticControl implements EventHandler {
 
 	private final Statistics statistics;
 
-	private final StationsDispatcher onDemandVehicleStationsCentral;
+	private final StationsDispatcher dispatcher;
 
 //	private final SimulationCreator simulationCreator;
 
@@ -46,7 +46,7 @@ public class StatisticControl implements EventHandler {
 	public StatisticControl(Statistics statistics, StationsDispatcher onDemandVehicleStationsCentral,
 							SimulationCreator simulationCreator, EventProcessor eventProcessor) {
 		this.statistics = statistics;
-		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
+		this.dispatcher = onDemandVehicleStationsCentral;
 		this.demandFinishDrivingCounter = 0;
 		eventProcessor.addEventHandler(this);
 	}
@@ -58,11 +58,13 @@ public class StatisticControl implements EventHandler {
 	public void simulationFinished() {
 
 		// compares demand count in results with demands which really left the station
-		Assert.assertEquals(onDemandVehicleStationsCentral.getDemandsCount(),
+		Assert.assertEquals(
+			dispatcher.getDemandsCount(),
 				statistics.getNumberOfVehiclsLeftStationToServeDemand());
 
 		// compares demand count in results with demands which MOD vehicle reached target station
-		Assert.assertEquals(onDemandVehicleStationsCentral.getDemandsCount(),
+		Assert.assertEquals(
+			dispatcher.getDemandsCount(),
 				demandFinishDrivingCounter);
 	}
 

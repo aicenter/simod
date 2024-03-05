@@ -16,49 +16,61 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.simod.ridesharing.model;
+package cz.cvut.fel.aic.simod;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
+import cz.cvut.fel.aic.simod.entity.vehicle.SlotType;
+import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
+import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
+
+import javax.annotation.Nullable;
+import java.time.ZonedDateTime;
 import java.util.Random;
 
 
-public class DefaultPlanComputationRequest implements PlanComputationRequest{
-	
-	public final int id;
-	
-	/**
-	 * Request origin time in seconds.
-	 */
-	private final int originTime;
+public class DefaultPlanComputationRequest implements PlanComputationRequest {
 
-	private final DemandAgent demandAgent;
-	
+	/**
+	 * Request index in the trips.csv file.
+	 */
+	public final int id;
+
+	public final ZonedDateTime announcementTime;
+
+	/**
+	 * Request minimum pickup time in seconds.
+	 */
+	private final int minTime;
+
+	private final SlotType requiredSlotType;
+
+	private DemandAgent demandAgent;
+
 	private final PlanActionPickup pickUpAction;
-	
+
 	private final PlanActionDropoff dropOffAction;
 
 	/**
 	 * Min travel time in seconds
 	 */
 	private final int minTravelTime;
-	
+
 
 	private boolean onboard;
-	
+
 	private int hash;
 
-	
-	
+
 	@Override
 	public int getId() {
 		return id;
 	}
-	
+
 	@Override
 	public PlanActionPickup getPickUpAction() {
 		return pickUpAction;
@@ -77,56 +89,69 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 	public void setOnboard(boolean onboard) {
 		this.onboard = onboard;
 	}
-	
-	@Override
-	public DemandAgent getDemandAgent() { 
-		return demandAgent; 
-	}
-	
 
+	@Override
+	public DemandAgent getDemandAgent() {
+		return demandAgent;
+	}
+
+	@Override
+	public void setDemandAgent(DemandAgent demandAgent) {
+		this.demandAgent = demandAgent;
+	}
+
+	public SlotType getRequiredSlotType() {
+		return requiredSlotType;
+	}
 
 	@Inject
 	private DefaultPlanComputationRequest(
 		TravelTimeProvider travelTimeProvider,
-		@Assisted int id,
+		@Assisted("id") int id,
 		SimodConfig SimodConfig,
 		@Assisted("origin") SimulationNode origin,
 		@Assisted("destination") SimulationNode destination,
-		@Assisted DemandAgent demandAgent
+		@Assisted ZonedDateTime announcementTime,
+		@Assisted int minPickupTime,
+		@Assisted SlotType requiredSlotType,
+		@Assisted @Nullable DemandAgent demandAgent
 	) {
 		this.id = id;
-		
+		this.announcementTime = announcementTime;
+		this.requiredSlotType = requiredSlotType;
+
 		hash = 0;
-		
-		originTime = (int) Math.round(demandAgent.getDemandTime() / 1000.0);
+
+//		originTime = (int) Math.round(demandAgent.getDemandTime() / 1000.0);
+		this.minTime = minPickupTime;
 		minTravelTime = (int) Math.round(
-				travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
-		
+			travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
+
 		int maxProlongation;
-		if(SimodConfig.ridesharing.discomfortConstraint.equals("absolute")){
+		if (SimodConfig.ridesharing.discomfortConstraint.equals("absolute")) {
 			maxProlongation = SimodConfig.ridesharing.maxProlongationInSeconds;
-		}
-		else{
+		} else {
 			maxProlongation = (int) Math.round(
 				SimodConfig.ridesharing.maximumRelativeDiscomfort * minTravelTime);
-		}		
-		
-		int maxPickUpTime = originTime + maxProlongation;
-		int maxDropOffTime = originTime + minTravelTime + maxProlongation;
-		
+		}
+
+		int maxPickUpTime = minPickupTime + maxProlongation;
+		int maxDropOffTime = minPickupTime + minTravelTime + maxProlongation;
+
 		this.demandAgent = demandAgent;
 		onboard = false;
-		
-		pickUpAction = new PlanActionPickup(this, origin, maxPickUpTime);
+
+		pickUpAction = new PlanActionPickup(this, origin, minPickupTime, maxPickUpTime);
 		dropOffAction = new PlanActionDropoff(this, destination, maxDropOffTime);
 	}
 
+
+
 	@Override
-	public int getOriginTime() { 
-		return originTime; 
+	public int getMinTime() {
+		return minTime;
 	}
 
-	
 
 //	@Override
 //	public boolean equals(Object obj) {
@@ -139,26 +164,26 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 		return this == obj;
 	}
 
-//	@Override
+	//	@Override
 //	public int hashCode() {
 //		return demandAgent.getSimpleId();
 //	}
 	@Override
 	public int hashCode() {
-		if(hash == 0){
+		if (hash == 0) {
 			int p = 1_200_007;
 			Random rand = new Random();
 			int a = rand.nextInt(p) + 1;
 			int b = rand.nextInt(p);
-			hash = (int) (((long) a * demandAgent.getSimpleId() + b) % p) % 1_200_000 ;
+			hash = (int) (((long) a * getId() + b) % p) % 1_200_000;
 		}
 		return hash;
 	}
-	
+
 
 	@Override
 	public String toString() {
-		return String.format("%s - from: %s to: %s", demandAgent, getFrom(), getTo());
+		return String.format("%s - from: %s to: %s", getId(), getFrom(), getTo());
 	}
 
 	@Override
@@ -187,12 +212,16 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest{
 	}
 
 
-	
-	
-	
 	public interface DefaultPlanComputationRequestFactory {
-		public DefaultPlanComputationRequest create(int id, @Assisted("origin") SimulationNode origin,
-				@Assisted("destination") SimulationNode destination, DemandAgent demandAgent);
+		public DefaultPlanComputationRequest create(
+			@Assisted("id") int id,
+			@Assisted("origin") SimulationNode origin,
+			@Assisted("destination") SimulationNode destination,
+			ZonedDateTime announcementTime,
+			int minPickupTime,
+			SlotType requiredSlotType,
+			DemandAgent demandAgent
+		);
 	}
 
 }

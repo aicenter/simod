@@ -34,8 +34,8 @@ public class PickupEventContent extends OnDemandVehicleEventContent{
 	
 	
 	
-	public PickupEventContent(long time, int demandId, String onDemandVehicleId, int demandTripLength) {
-		super(time, demandId, onDemandVehicleId);
+	public PickupEventContent(long time, int requestIndex, int demandId, String onDemandVehicleId, int demandTripLength) {
+		super(time, requestIndex, demandId, onDemandVehicleId);
 		this.demandTripLength = demandTripLength;
 	}
 	

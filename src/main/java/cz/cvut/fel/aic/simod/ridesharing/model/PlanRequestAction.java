@@ -19,6 +19,8 @@
 package cz.cvut.fel.aic.simod.ridesharing.model;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
+
 import java.util.Objects;
 
 public abstract class PlanRequestAction extends PlanAction{
@@ -30,7 +32,10 @@ public abstract class PlanRequestAction extends PlanAction{
 	 * Time constraint in seconds
 	 */
 	private final int maxTime;
-	
+
+
+
+
 	public PlanComputationRequest getRequest() { 
 		return request; 
 	}
@@ -42,6 +47,7 @@ public abstract class PlanRequestAction extends PlanAction{
 	public int getMaxTime() {
 		return maxTime;
 	}
+
 	
 	
 

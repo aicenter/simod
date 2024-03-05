@@ -30,9 +30,14 @@ public class RebalancingEventContent extends OnDemandVehicleEventContent {
 	
 	public final OnDemandVehicleStation to;
 	
-	public RebalancingEventContent(long time, int demandId, String onDemandVehicleId, OnDemandVehicleStation from, 
-			OnDemandVehicleStation to) {
-		super(time, demandId, onDemandVehicleId);
+	public RebalancingEventContent(
+		long time,
+		int demandId,
+		String onDemandVehicleId,
+		OnDemandVehicleStation from,
+		OnDemandVehicleStation to
+	) {
+		super(time, 0, demandId, onDemandVehicleId);
 		this.from = from;
 		this.to = to;
 	}

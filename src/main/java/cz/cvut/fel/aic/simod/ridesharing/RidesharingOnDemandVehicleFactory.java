@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.simod.ridesharing;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
@@ -36,6 +37,8 @@ import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.entity.vehicle.MoDVehicle;
 import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactory;
 import cz.cvut.fel.aic.simod.storage.MoDVehicleStorage;
+
+import java.time.ZonedDateTime;
 
 /**
  *
@@ -76,7 +79,7 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 
 	@Override
 	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition,
-		MoDVehicle vehicle
+		MoDVehicle vehicle, ZonedDateTime operationStart, ZonedDateTime operationEnd
 	) {
 		return new RideSharingOnDemandVehicle(
 			vehicleStorage,
@@ -94,7 +97,9 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 			waitActivityFactory,
 			vehicleId,
 			startPosition,
-			vehicle
+			vehicle,
+			operationStart,
+			operationEnd
 		);
 	}
 	

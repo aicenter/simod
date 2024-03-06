@@ -53,12 +53,15 @@ import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
 import cz.cvut.fel.aic.simod.ridesharing.model.PlanRequestAction;
 import cz.cvut.fel.aic.simod.statistics.PickupEventContent;
 import cz.cvut.fel.aic.simod.storage.MoDVehicleStorage;
+import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.visio.PlanLayerTrip;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -66,21 +69,39 @@ import java.util.logging.Logger;
  */
 public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(RideSharingOnDemandVehicle.class.getName());
+
 	private final VisioPositionUtil positionUtil;
 
 	private final WaitActivityFactory waitActivityFactory;
 	
+	private final ZonedDateTime operationStart;
+
+	private final ZonedDateTime operationEnd;
+
+	private final TravelTimeProvider travelTimeProvider;
+
+
 	private DriverPlan currentPlan;
 	
 	private PlanAction currentTask;
 
 	private IdGenerator tripIdGenerator;
 
+
+
+	public ZonedDateTime getOperationStart() {
+		return operationStart;
+	}
+
+	public ZonedDateTime getOperationEnd() {
+		return operationEnd;
+	}
+
 	public DriverPlan getCurrentPlan() {
 		currentPlan.updateCurrentPosition(getPosition());
 		return currentPlan;
 	}
-	
 	
 	
 	
@@ -99,9 +120,12 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		IdGenerator idGenerator,
 		AgentpolisConfig agentpolisConfig,
 		WaitActivityFactory waitActivityFactory,
-		@Assisted String vehicleId,
-		@Assisted SimulationNode startPosition,
-		@Assisted MoDVehicle vehicle
+		TravelTimeProvider travelTimeProvider,
+		String vehicleId,
+		SimulationNode startPosition,
+		MoDVehicle vehicle,
+		ZonedDateTime operationStart,
+		ZonedDateTime operationEnd
 	) {
 		super(
 			vehicleStorage,
@@ -122,6 +146,9 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		this.positionUtil = positionUtil;
 		this.tripIdGenerator = tripIdGenerator;
 		this.waitActivityFactory = waitActivityFactory;
+		this.travelTimeProvider = travelTimeProvider;
+		this.operationStart = operationStart;
+		this.operationEnd = operationEnd;
 
 //		empty plan
 		LinkedList<PlanAction> plan = new LinkedList<>();
@@ -136,6 +163,9 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	
 	public void replan(DriverPlan plan){
 		currentPlan = plan;
+
+
+
 		// The vehicle now waits, we have to start moving.
 		if(state == OnDemandVehicleState.WAITING && plan.getLength() > 1){
 			driveToNextTask();
@@ -235,6 +265,20 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 	}
 
 	private void driveToNextTask() {
+		// operation time check
+		var currentDatetime = timeProvider.getCurrentSimDateTime();
+		if(operationStart != null && currentDatetime.isBefore(operationStart)){
+			LOGGER.error("Vehicle {} is trying to start operation before the operation start time. Current time: {}, operation start time: {}",
+				getId(), currentDatetime, operationStart);
+			return;
+		}
+		if(operationEnd != null && currentDatetime.isAfter(operationEnd)){
+			LOGGER.error("Vehicle {} is trying to start operation after the operation end time. Current time: {}, operation end time: {}",
+				getId(), currentDatetime, operationEnd);
+			return;
+		}
+
+
 		if(currentPlan.getLength() == 1){
 			currentTask = null;
 			if(state != OnDemandVehicleState.WAITING){
@@ -248,7 +292,11 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle{
 		}
 		else{
 			currentTask = currentPlan.getNextTask();
+
+			// vehicle is waiting in the station
 			if(parkedIn != null){
+				long travelTimeToTask = (getPosition(), currentTask.getPosition());
+
 				parkedIn.releaseVehicle(this);
 				leavingStationEvent();
 			}

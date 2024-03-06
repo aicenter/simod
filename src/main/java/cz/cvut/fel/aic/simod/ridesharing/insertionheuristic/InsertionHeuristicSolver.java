@@ -238,6 +238,12 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 		eventProcessor.addEventHandler(this, typesToHandle);
 	}
 
+	/**
+	 * Fast cut-off method for checking if a vehicle can possibly serve a request.
+	 * @param vehicle the vehicle to check
+	 * @param request the request to check
+	 * @return true if the vehicle can serve the request, false otherwise
+	 */
 	private boolean canServeRequest(RideSharingOnDemandVehicle vehicle, PlanComputationRequest request) {
 		canServeRequestCallCount++;
 
@@ -251,6 +257,13 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 			return true;
 		}
 
+		// vehicle operational time check
+		if(timeProvider.getDateTimeFromSimTime(request.getMinTime()).isAfter(vehicle.getOperationEnd())
+			|| timeProvider.getDateTimeFromSimTime(request.getMaxDropoffTime()).isBefore(vehicle.getOperationStart())
+		){
+			return false;
+		}
+
 		// euclidean distance check
 		double dist_x = vehicle.getPosition().getLatitudeProjected() - request.getFrom().getLatitudeProjected();
 		double dist_y = vehicle.getPosition().getLongitudeProjected() - request.getFrom().getLongitudeProjected();
@@ -262,7 +275,6 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 		// real feasibility check 
 		boolean canServe = travelTimeProvider.getTravelTime(vehicle, request.getFrom())
 			< maxDelayTime;
-
 
 		return canServe;
 	}
@@ -378,7 +390,13 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 		T counter = initFreeCapacityForRequest(vehicle, planComputationRequest);
 
 		// we start computing the time current time (we cannot plan for the past :))
-		long currentTaskTimeInSeconds = (timeProvider.getCurrentSimTime() + newPlanTravelTime) / 1000;
+		long currentTaskTimeInSeconds =
+			Math.max(
+				timeProvider.getCurrentSimTime(),
+				timeProvider.getSimTimeFromDateTime(vehicle.getOperationStart())
+			) / 1000;
+
+		long operationEndInSeconds = timeProvider.getSimTimeFromDateTime(vehicle.getOperationEnd()) / 1000;
 
 		for (int newPlanIndex = 1; newPlanIndex <= currentPlan.getLength() + 1; newPlanIndex++) {
 
@@ -412,6 +430,11 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 			newPlanTravelTime += travelTime;
 			currentTaskTimeInSeconds += travelTime;
 //			LOGGER.debug("currentTaskTimeInSeconds: {}", currentTaskTimeInSeconds);
+
+			// check max operation time
+			if(currentTaskTimeInSeconds > operationEndInSeconds){
+				return null;
+			}
 
 			/* check max time for all unfinished demands */
 
@@ -531,7 +554,7 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 	}
 
 	/**
-	 * Wrapper method for request-vehicle combination processing. It select the current vehicle plan and calls the
+	 * Wrapper method for request-vehicle combination processing. It selects the current vehicle plan and calls the
 	 * tryToAddRequestToPlan method.
 	 * @param request the request to process
 	 * @param tVvehicle the vehicle to process

@@ -23,11 +23,17 @@ import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehic
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
 
+import java.time.ZonedDateTime;
+
 /**
  * @author fido
  */
 public interface OnDemandVehicleFactorySpec {
 	public OnDemandVehicle create(
-		String vehicleId, SimulationNode startPosition, MoDVehicle vehicle
+		String vehicleId,
+		SimulationNode startPosition,
+		MoDVehicle vehicle,
+		ZonedDateTime operationStart,
+		ZonedDateTime operationEnd
 	);
 }

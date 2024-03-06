@@ -35,6 +35,8 @@ import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.storage.MoDVehicleStorage;
 
+import java.time.ZonedDateTime;
+
 /**
  *
  * @author fido
@@ -96,7 +98,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 	
 	@Override
 	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition,
-		MoDVehicle vehicle
+		MoDVehicle vehicle, ZonedDateTime operationStart, ZonedDateTime operationEnd
 	){
 		return new OnDemandVehicle(
 			vehicleStorage,

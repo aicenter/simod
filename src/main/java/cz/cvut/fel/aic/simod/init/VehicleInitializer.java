@@ -17,6 +17,7 @@ import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -114,10 +115,17 @@ public class VehicleInitializer {
 					);
 				}
 
+				// parse operation times
+				ZonedDateTime operationStart = ZonedDateTime.parse(vehicleNode.get("operation_start").asText());
+				ZonedDateTime operationEnd = ZonedDateTime.parse(vehicleNode.get("operation_end").asText());
+
+
 				OnDemandVehicle vehicleAgent = onDemandVehicleFactory.create(
 					onDemandVehicelId,
 					station.getPosition(),
-					vehicle
+					vehicle,
+					operationStart,
+					operationEnd
 				);
 				station.parkVehicle(vehicleAgent);
 				vehicleAgent.setParkedIn(station);

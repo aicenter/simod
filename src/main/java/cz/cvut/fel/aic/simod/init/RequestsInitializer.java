@@ -182,6 +182,13 @@ public class RequestsInitializer {
 							requiredSlotType = SlotType.STANDARD_SEAT;
 						}
 
+						// Required vehicle processing
+						int requiredVehicleId = -1;
+						if(row.containsKey("required_vehicle_id")){
+							String requiredVehicleIdStr = row.get("required_vehicle_id");
+							requiredVehicleId = Integer.parseInt(requiredVehicleIdStr);
+						}
+
 						for (int i = 0; i < config.tripsMultiplier; i++) {
 							if (i + 1 >= config.tripsMultiplier) {
 								double randomNum = random.nextDouble();
@@ -198,7 +205,8 @@ public class RequestsInitializer {
 								announcementTime,
 								(int) Math.round(startTime / 1000.0),
 								requiredSlotType,
-								null
+								null,
+								requiredVehicleId
 							);
 
 							// event for dispatcher

@@ -325,6 +325,11 @@ public class SetBenchmark {
 			return SlotType.STANDARD_SEAT;
 		}
 
+		@Override
+		public int getRequiredVehicleId() {
+			throw new UnsupportedOperationException("Not supported yet.");
+		}
+
 	}
 }
 

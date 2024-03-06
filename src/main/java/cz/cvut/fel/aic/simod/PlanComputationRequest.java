@@ -77,4 +77,6 @@ public interface PlanComputationRequest {
 	public void setOnboard(boolean onboard);
 
 	public SlotType getRequiredSlotType();
+
+	public int getRequiredVehicleId();
 }

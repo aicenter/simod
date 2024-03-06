@@ -23,13 +23,13 @@ import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.SimpleTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.utils.Benchmark;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
+import cz.cvut.fel.aic.simod.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
 import cz.cvut.fel.aic.simod.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
@@ -41,7 +41,6 @@ import cz.cvut.fel.aic.simod.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.simod.ridesharing.DroppedDemandsAnalyzer;
 import cz.cvut.fel.aic.simod.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
-import cz.cvut.fel.aic.simod.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
 import cz.cvut.fel.aic.simod.ridesharing.model.*;
 import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStatsIH;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
@@ -190,6 +189,19 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 
 		getVehiclesForPlanning();
 
+		// sort requests: first requests with required vehicles, then the rest
+		requests.sort((a, b) -> {
+			int aInt = 1;
+			int bInt = 1;
+			if (a.getRequiredVehicleId() > 0) {
+				aInt = 0;
+			}
+			if (b.getRequiredVehicleId() > 0) {
+				bInt = 0;
+			}
+			return aInt - bInt;
+		});
+
 		if (requests.size() > 10) {
 			for (PlanComputationRequest request : ProgressBar.wrap(requests, "Processing new requests")) {
 				processRequest(request);
@@ -240,6 +252,7 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 
 	/**
 	 * Fast cut-off method for checking if a vehicle can possibly serve a request.
+	 *
 	 * @param vehicle the vehicle to check
 	 * @param request the request to check
 	 * @return true if the vehicle can serve the request, false otherwise
@@ -258,9 +271,10 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 		}
 
 		// vehicle operational time check
-		if(timeProvider.getDateTimeFromSimTime(request.getMinTime() * 1000L).isAfter(vehicle.getOperationEnd())
-			|| timeProvider.getDateTimeFromSimTime(request.getMaxDropoffTime() * 1000L).isBefore(vehicle.getOperationStart())
-		){
+		if (timeProvider.getDateTimeFromSimTime(request.getMinTime() * 1000L).isAfter(vehicle.getOperationEnd())
+			|| timeProvider.getDateTimeFromSimTime(
+			request.getMaxDropoffTime() * 1000L).isBefore(vehicle.getOperationStart())
+		) {
 			return false;
 		}
 
@@ -287,8 +301,9 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 	 * Main method for computing the optimal plan for a given request-vehicle combination. It iterates over all possible
 	 * pickup-dropoff combinations and tries to insert the request into the current plan. To actually try the insertion,
 	 * the insertIntoPlan method is called.
-	 * @param vehicle the vehicle to process
-	 * @param currentPlan the current plan of the vehicle
+	 *
+	 * @param vehicle                the vehicle to process
+	 * @param currentPlan            the current plan of the vehicle
 	 * @param planComputationRequest the request to process
 	 */
 	private void computeOptimalPlan(
@@ -411,7 +426,7 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 			}
 
 			// current time adjustment according to the new task min time
-			if(newTask instanceof PlanActionPickup){
+			if (newTask instanceof PlanActionPickup) {
 				var minTime = ((PlanActionPickup) newTask).getMinTime();
 				if (minTime > currentTaskTimeInSeconds) {
 					currentTaskTimeInSeconds = minTime;
@@ -421,7 +436,7 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 			// travel time increment
 			int travelTime;
 			if (previousTask instanceof PlanActionCurrentPosition) {
-		 		travelTime = (int) travelTimeProvider.getTravelTime(vehicle, newTask.getPosition()) / 1000;
+				travelTime = (int) travelTimeProvider.getTravelTime(vehicle, newTask.getPosition()) / 1000;
 			} else {
 				travelTime = (int) travelTimeProvider.getTravelTime(vehicle, previousTask.getPosition(),
 					newTask.getPosition()
@@ -432,7 +447,7 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 //			LOGGER.debug("currentTaskTimeInSeconds: {}", currentTaskTimeInSeconds);
 
 			// check max operation time
-			if(currentTaskTimeInSeconds > operationEndInSeconds){
+			if (currentTaskTimeInSeconds > operationEndInSeconds) {
 				return null;
 			}
 
@@ -517,13 +532,14 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 	/**
 	 * This method first prepares the list of vehicles for which the insertions will be computed and then calls the
 	 * processRequestVehicleCombination method for each vehicle and request combination.
+	 *
 	 * @param request the request to process
 	 */
 	private void computeBestPlanForRequest(PlanComputationRequest request) {
 		resetBestPlan();
 
 		// in case of station system, add one vehicle from the nearest station
-		if (config.stations.on) { //!onDemandvehicleStationStorage.isEmpty()){ //
+		if (config.stations.on && request.getRequiredVehicleId() < 0) { //!onDemandvehicleStationStorage.isEmpty()){ //
 			OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(
 				request.getFrom(),
 				OnDemandvehicleStationStorage.NearestType.TRAVELTIME_FROM
@@ -546,9 +562,16 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 
 		long iterationStartTime = System.nanoTime();
 
-		vehiclesForPlanning.stream().parallel().forEach((tVvehicle) -> {
-			processRequestVehicleCombination(request, tVvehicle);
-		});
+		if (request.getRequiredVehicleId() > 0) {
+			processRequestVehicleCombination(
+				request,
+				(RideSharingOnDemandVehicle) vehicleStorage.getEntityById(Integer.toString(request.getRequiredVehicleId()))
+			);
+		} else {
+			vehiclesForPlanning.stream().parallel().forEach((tVvehicle) -> {
+				processRequestVehicleCombination(request, tVvehicle);
+			});
+		}
 
 		iterationTime += System.nanoTime() - iterationStartTime;
 	}
@@ -556,7 +579,8 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 	/**
 	 * Wrapper method for request-vehicle combination processing. It selects the current vehicle plan and calls the
 	 * tryToAddRequestToPlan method.
-	 * @param request the request to process
+	 *
+	 * @param request   the request to process
 	 * @param tVvehicle the vehicle to process
 	 */
 	private void processRequestVehicleCombination(PlanComputationRequest request, AgentPolisEntity tVvehicle) {
@@ -575,9 +599,10 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 	/**
 	 * Given a request, a vehicle and its current plan, this method tries to fail fast and if the request can be served,
 	 * it calls the computeOptimalPlan method.
+	 *
 	 * @param request the request to process
 	 * @param vehicle the vehicle to process
-	 * @param plan the plan to process
+	 * @param plan    the plan to process
 	 */
 	public void tryToAddRequestToPlan(
 		PlanComputationRequest request,
@@ -601,6 +626,7 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 
 	/**
 	 * Process a single request and update the best plan if a better plan is found.
+	 *
 	 * @param request the request to process
 	 */
 	private void processRequest(PlanComputationRequest request) {

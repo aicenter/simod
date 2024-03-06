@@ -254,7 +254,12 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 	protected void onActivityFinish(Activity activity) {
 		super.onActivityFinish(activity);
 		if (activity instanceof Wait) {
-			pickupAndContinue();
+			if(parkedIn == null) {
+				pickupAndContinue();
+			}
+			else {
+				driveToNextTask();
+			}
 		}
 	}
 
@@ -304,7 +309,6 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 			return;
 		}
 
-
 		if (currentPlan.getLength() == 1) {
 			currentTask = null;
 			if (state != OnDemandVehicleState.WAITING) {
@@ -315,26 +319,15 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 				}
 			}
 		} else {
+			// check if we should not wait in station till the next task is available
+			if(shouldWaitInStationForRequestMinTime()){
+				return;
+			}
+
 			currentTask = currentPlan.getNextTask();
 
 			// vehicle is waiting in the station
 			if (parkedIn != null) {
-
-				// wait in station to pick up the request on its min pickup time
-				long travelTimeToTask = travelTimeProvider.getTravelTime(
-					this,
-					getPosition(),
-					currentTask.getPosition()
-				);
-				long minPickupTime = ((PlanActionPickup) currentTask).getMinTime() * 1000L;
-				if (travelTimeToTask + timeProvider.getCurrentSimTime() < minPickupTime) {
-					waitActivityFactory.runActivity(
-						this,
-						minPickupTime - travelTimeToTask - timeProvider.getCurrentSimTime()
-					);
-					return;
-				}
-
 				parkedIn.releaseVehicle(this);
 				leavingStationEvent();
 			}
@@ -344,6 +337,29 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 				driveToTargetLocation();
 			}
 		}
+	}
+
+	private boolean shouldWaitInStationForRequestMinTime() {
+		// not in station -> no need to wait
+		if(parkedIn == null) {
+			return false;
+		}
+
+		var nextTask = currentPlan.getNextTask();
+		long travelTimeToTask = travelTimeProvider.getTravelTime(
+			this,
+			getPosition(),
+			nextTask.getPosition()
+		);
+		long minPickupTime = ((PlanActionPickup) nextTask).getMinTime() * 1000L;
+		if (travelTimeToTask + timeProvider.getCurrentSimTime() < minPickupTime) {
+			waitActivityFactory.runActivity(
+				this,
+				minPickupTime - travelTimeToTask - timeProvider.getCurrentSimTime()
+			);
+			return true;
+		}
+		return false;
 	}
 
 	private void pickupAndContinue() {

@@ -250,7 +250,12 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	public void doRoutine() {
 		replan();
 	}
-	
+
+	@Override
+	public boolean tickAtStart() {
+		return true;
+	}
+
 	@Override
 	public void handleEvent(Event event) {
 		// dispatcher common events

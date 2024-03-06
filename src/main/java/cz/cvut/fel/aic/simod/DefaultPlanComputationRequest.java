@@ -60,6 +60,8 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest {
 	 */
 	private final int minTravelTime;
 
+	private final int requiredVehicleId;
+
 
 	private boolean onboard;
 
@@ -114,11 +116,13 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest {
 		@Assisted ZonedDateTime announcementTime,
 		@Assisted int minPickupTime,
 		@Assisted SlotType requiredSlotType,
-		@Assisted @Nullable DemandAgent demandAgent
+		@Assisted @Nullable DemandAgent demandAgent,
+		@Assisted("requiredVehicleId") int requiredVehicleId
 	) {
 		this.id = id;
 		this.announcementTime = announcementTime;
 		this.requiredSlotType = requiredSlotType;
+		this.requiredVehicleId = requiredVehicleId;
 
 		hash = 0;
 
@@ -211,6 +215,11 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest {
 		return dropOffAction.getPosition();
 	}
 
+	@Override
+	public int getRequiredVehicleId() {
+		return requiredVehicleId;
+	}
+
 
 	public interface DefaultPlanComputationRequestFactory {
 		public DefaultPlanComputationRequest create(
@@ -220,7 +229,8 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest {
 			ZonedDateTime announcementTime,
 			int minPickupTime,
 			SlotType requiredSlotType,
-			DemandAgent demandAgent
+			DemandAgent demandAgent,
+			@Assisted("requiredVehicleId") int requiredVehicleId
 		);
 	}
 

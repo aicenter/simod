@@ -20,23 +20,22 @@ package cz.cvut.fel.aic.simod.ridesharing;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.WaitActivityFactory;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
+import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.entity.vehicle.MoDVehicle;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactory;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicleFactory;
 import cz.cvut.fel.aic.simod.storage.MoDVehicleStorage;
+import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 
 import java.time.ZonedDateTime;
 
@@ -48,6 +47,8 @@ import java.time.ZonedDateTime;
 public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 
 	private final WaitActivityFactory waitActivityFactory;
+
+	private final TravelTimeProvider travelTimeProvider;
 	
 	@Inject
 	public RidesharingOnDemandVehicleFactory(
@@ -61,7 +62,8 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 			SimodConfig config,
 			IdGenerator idGenerator,
 			AgentpolisConfig agentpolisConfig,
-		WaitActivityFactory waitActivityFactory
+		WaitActivityFactory waitActivityFactory,
+		TravelTimeProvider travelTimeProvider
 	) {
 		super(
 				vehicleStorage, 
@@ -75,11 +77,13 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 				idGenerator,
 				agentpolisConfig);
 		this.waitActivityFactory = waitActivityFactory;
+		this.travelTimeProvider = travelTimeProvider;
 	}
 
 	@Override
 	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition,
-		MoDVehicle vehicle, ZonedDateTime operationStart, ZonedDateTime operationEnd
+		MoDVehicle vehicle, ZonedDateTime operationStart, ZonedDateTime operationEnd,
+		OnDemandVehicleState onDemandVehicleState
 	) {
 		return new RideSharingOnDemandVehicle(
 			vehicleStorage,
@@ -95,11 +99,13 @@ public class RidesharingOnDemandVehicleFactory extends OnDemandVehicleFactory{
 			idGenerator,
 			agentpolisConfig,
 			waitActivityFactory,
+			travelTimeProvider,
 			vehicleId,
 			startPosition,
 			vehicle,
 			operationStart,
-			operationEnd
+			operationEnd,
+			onDemandVehicleState
 		);
 	}
 	

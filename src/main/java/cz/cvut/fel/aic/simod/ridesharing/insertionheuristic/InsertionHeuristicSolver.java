@@ -258,8 +258,8 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 		}
 
 		// vehicle operational time check
-		if(timeProvider.getDateTimeFromSimTime(request.getMinTime()).isAfter(vehicle.getOperationEnd())
-			|| timeProvider.getDateTimeFromSimTime(request.getMaxDropoffTime()).isBefore(vehicle.getOperationStart())
+		if(timeProvider.getDateTimeFromSimTime(request.getMinTime() * 1000L).isAfter(vehicle.getOperationEnd())
+			|| timeProvider.getDateTimeFromSimTime(request.getMaxDropoffTime() * 1000L).isBefore(vehicle.getOperationStart())
 		){
 			return false;
 		}

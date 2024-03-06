@@ -31,7 +31,7 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactorySpec;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.init.RequestsInitializer;
 import cz.cvut.fel.aic.simod.io.TimeTrip;

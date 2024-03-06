@@ -16,12 +16,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.simod.entity.vehicle;
+package cz.cvut.fel.aic.simod.entity.agent;
 
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.vehicle.MoDVehicle;
 
 import java.time.ZonedDateTime;
 
@@ -34,6 +34,7 @@ public interface OnDemandVehicleFactorySpec {
 		SimulationNode startPosition,
 		MoDVehicle vehicle,
 		ZonedDateTime operationStart,
-		ZonedDateTime operationEnd
+		ZonedDateTime operationEnd,
+		OnDemandVehicleState onDemandVehicleState
 	);
 }

@@ -21,7 +21,7 @@ package cz.cvut.fel.aic.simod.system;
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactorySpec;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.simod.statistics.EdgesLoadByState;
 
 /**

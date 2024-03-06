@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.simod.entity.vehicle;
+package cz.cvut.fel.aic.simod.entity.agent;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -25,14 +25,13 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.planner.TripsUtil;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.StandardTimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.activity.activityFactory.PhysicalVehicleDriveFactory;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.TransportableEntity;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
+import cz.cvut.fel.aic.simod.entity.vehicle.MoDVehicle;
 import cz.cvut.fel.aic.simod.storage.MoDVehicleStorage;
 
 import java.time.ZonedDateTime;
@@ -42,7 +41,7 @@ import java.time.ZonedDateTime;
  * @author fido
  */
 @Singleton
-public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
+public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec {
 	
 	protected final TripsUtil tripsUtil;
 	
@@ -98,7 +97,8 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 	
 	@Override
 	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition,
-		MoDVehicle vehicle, ZonedDateTime operationStart, ZonedDateTime operationEnd
+		MoDVehicle vehicle, ZonedDateTime operationStart, ZonedDateTime operationEnd,
+		OnDemandVehicleState onDemandVehicleState
 	){
 		return new OnDemandVehicle(
 			vehicleStorage,

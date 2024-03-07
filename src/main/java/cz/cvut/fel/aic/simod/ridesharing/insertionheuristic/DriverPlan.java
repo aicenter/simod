@@ -19,8 +19,8 @@
 package cz.cvut.fel.aic.simod.ridesharing.insertionheuristic;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanAction;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionCurrentPosition;
+import cz.cvut.fel.aic.simod.action.PlanAction;
+import cz.cvut.fel.aic.simod.action.PlanActionCurrentPosition;
 import java.util.Iterator;
 import java.util.List;
 

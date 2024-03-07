@@ -14,6 +14,8 @@ public class SimodConfig implements GeneratedConfig {
 
   public String edgePairsFilePath;
 
+  public Vehicles vehicles;
+
   public String tripCacheFile;
 
   public String mapDir;
@@ -65,6 +67,7 @@ public class SimodConfig implements GeneratedConfig {
     this.simodDataDir = (String) simodConfig.get("simod_data_dir");
     this.reconfigurableVehicles = (Boolean) simodConfig.get("reconfigurable_vehicles");
     this.edgePairsFilePath = (String) simodConfig.get("edge_pairs_file_path");
+    this.vehicles = new Vehicles((Map) simodConfig.get("vehicles"));
     this.tripCacheFile = (String) simodConfig.get("trip_cache_file");
     this.mapDir = (String) simodConfig.get("map_dir");
     this.shortestpaths = new Shortestpaths((Map) simodConfig.get("shortestpaths"));

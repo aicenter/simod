@@ -35,6 +35,7 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
+import cz.cvut.fel.aic.simod.action.*;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
@@ -43,7 +44,6 @@ import cz.cvut.fel.aic.simod.entity.vehicle.MoDVehicle;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
-import cz.cvut.fel.aic.simod.ridesharing.model.*;
 import cz.cvut.fel.aic.simod.statistics.PickupEventContent;
 import cz.cvut.fel.aic.simod.storage.MoDVehicleStorage;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
@@ -146,6 +146,14 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 		LinkedList<PlanAction> plan = new LinkedList<>();
 		plan.add(new PlanActionCurrentPosition(getPosition()));
 		currentPlan = new DriverPlan(plan, 0, 0);
+
+		if(config.vehicles.minPauseLength > 0){
+			generatePauseActions();
+		}
+	}
+
+	private void generatePauseActions() {
+		
 	}
 
 

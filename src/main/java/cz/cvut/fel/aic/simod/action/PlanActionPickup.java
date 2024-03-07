@@ -16,70 +16,43 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.simod.ridesharing.model;
+package cz.cvut.fel.aic.simod.action;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.PlanComputationRequest;
 
-import java.util.Objects;
+public class PlanActionPickup extends PlanRequestAction {
 
-public abstract class PlanRequestAction extends PlanAction{
-
-	public final PlanComputationRequest request;
-	
-	
-	/**
-	 * Time constraint in seconds
-	 */
-	private final int maxTime;
+	private final int minTime;
 
 
-
-
-	public PlanComputationRequest getRequest() { 
-		return request; 
-	}
 
 	/**
-	 * Getter for max time.
+	 * Getter for min time.
 	 * @return Time constraint in seconds
 	 */
-	public int getMaxTime() {
-		return maxTime;
+	public int getMinTime() {
+		return minTime;
 	}
 
-	
-	
 
-	public PlanRequestAction(PlanComputationRequest request, SimulationNode location, int maxTime) {
-		super(location);
-		this.request = request;
-		this.maxTime = maxTime;
+	/**
+	 * Pickup action.
+	 * @param request Request
+	 * @param node Position where action takes place.
+	 * @param maxTime Time constraint in seconds.
+	 */
+	public PlanActionPickup(PlanComputationRequest request, SimulationNode node, int minTime, int maxTime) {
+		super(request, node, maxTime);
+		this.minTime = minTime;
 	}
+
+   
 
 	@Override
-	public int hashCode() {
-		int hash = 7;
-		return hash;
+	public String toString() {
+		return String.format("Pick up demand %s at node %s", request.getDemandAgent().getId(), location.id);
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final PlanRequestAction other = (PlanRequestAction) obj;
-		if (!Objects.equals(this.request, other.request)) {
-			return false;
-		}
-		return this.getClass().equals(obj.getClass());
-	}
 
-	
 }

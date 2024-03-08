@@ -427,6 +427,24 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 				newTask = (PlanRequestAction) oldPlanIterator.next();
 			}
 
+			// travel time increment
+			int travelTime;
+			if (previousTask instanceof PlanActionCurrentPosition) {
+				travelTime = (int) travelTimeProvider.getTravelTime(vehicle, newTask.getPosition()) / 1000;
+			} else {
+				travelTime = (int) travelTimeProvider.getTravelTime(vehicle, previousTask.getPosition(),
+					newTask.getPosition()
+				) / 1000;
+			}
+			newPlanTravelTime += travelTime;
+			currentTaskTimeInSeconds += travelTime;
+			timeWithoutPause += travelTime;
+
+			// fail if time without pause is too long
+			if(timeWithoutPause > config.vehicles.maxPauseInterval * 60){
+				return null;
+			}
+
 			// current time adjustment according to the new task min time
 			if (newTask instanceof PlanActionPickup) {
 				int minTime = ((PlanActionPickup) newTask).getMinTime();
@@ -446,25 +464,9 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 				}
 			}
 
-			// travel time increment
-			int travelTime;
-			if (previousTask instanceof PlanActionCurrentPosition) {
-				travelTime = (int) travelTimeProvider.getTravelTime(vehicle, newTask.getPosition()) / 1000;
-			} else {
-				travelTime = (int) travelTimeProvider.getTravelTime(vehicle, previousTask.getPosition(),
-					newTask.getPosition()
-				) / 1000;
-			}
-			newPlanTravelTime += travelTime;
-			currentTaskTimeInSeconds += travelTime;
-			timeWithoutPause += travelTime;
-
-			// fail if time without pause is too long
-			if(timeWithoutPause > config.vehicles.maxPauseInterval * 60){
-				return null;
-			}
-
-//			LOGGER.debug("currentTaskTimeInSeconds: {}", currentTaskTimeInSeconds);
+			// service time increment
+			currentTaskTimeInSeconds += config.serviceTime;
+			timeWithoutPause += config.serviceTime;
 
 			// check max operation time
 			if (currentTaskTimeInSeconds > operationEndInSeconds) {

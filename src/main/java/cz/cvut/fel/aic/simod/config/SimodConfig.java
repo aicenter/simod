@@ -38,6 +38,8 @@ public class SimodConfig implements GeneratedConfig {
 
   public String simodExperimentDir;
 
+  public Integer serviceTime;
+
   public String experimentName;
 
   public String tripsFilename;
@@ -79,6 +81,7 @@ public class SimodConfig implements GeneratedConfig {
     this.stationPositionFilepath = (String) simodConfig.get("station_position_filepath");
     this.useTripCache = (Boolean) simodConfig.get("use_trip_cache");
     this.simodExperimentDir = (String) simodConfig.get("simod_experiment_dir");
+    this.serviceTime = (Integer) simodConfig.get("service_time");
     this.experimentName = (String) simodConfig.get("experiment_name");
     this.tripsFilename = (String) simodConfig.get("trips_filename");
     this.distanceMatrixFilepath = (String) simodConfig.get("distance_matrix_filepath");

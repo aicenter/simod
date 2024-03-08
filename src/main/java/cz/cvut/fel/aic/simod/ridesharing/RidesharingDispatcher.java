@@ -198,13 +198,6 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 
 		}
 
-
-//		try {
-//			createFile();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-
 		// printing nice plans
 		if(false){
 			for(Entry<RideSharingOnDemandVehicle,DriverPlan> entry: newPlans.entrySet()){

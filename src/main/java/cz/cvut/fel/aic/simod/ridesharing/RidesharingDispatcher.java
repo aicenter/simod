@@ -307,6 +307,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 					boolean isDropOff = action instanceof PlanActionDropoff;
 					String type = isPickup ? "pickup": isDropOff? "dopoff": "current";
 					DarpSolutionStopActionDetails details = new DarpSolutionStopActionDetails(action.getPosition().id, action.getPosition().getIndex(), type, new DarpSolutionPosition(action.getPosition().getIndex()),0,0,0);
+					//TODO: calculate times and cost properly.
 					planActions[j] = new DarpSolutionStopAction(0,0, details);
 				}
 				darpPlans[i] = new DarpSolutionPlan(cost,0,0, darpVehicle, planActions);

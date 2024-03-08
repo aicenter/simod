@@ -153,7 +153,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 	}
 
 	private void generatePauseActions() {
-		
+
 	}
 
 

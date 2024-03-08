@@ -110,11 +110,11 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest {
 	private DefaultPlanComputationRequest(
 		TravelTimeProvider travelTimeProvider,
 		@Assisted("id") int id,
-		SimodConfig SimodConfig,
+		SimodConfig config,
 		@Assisted("origin") SimulationNode origin,
 		@Assisted("destination") SimulationNode destination,
 		@Assisted ZonedDateTime announcementTime,
-		@Assisted int minPickupTime,
+		@Assisted int desiredPickupTime,
 		@Assisted SlotType requiredSlotType,
 		@Assisted @Nullable DemandAgent demandAgent,
 		@Assisted("requiredVehicleId") int requiredVehicleId
@@ -127,25 +127,39 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest {
 		hash = 0;
 
 //		originTime = (int) Math.round(demandAgent.getDemandTime() / 1000.0);
-		this.minTime = minPickupTime;
+		if(config.enableNegativeDelay){
+			minTime = Math.max(0, desiredPickupTime - config.maxPickupDelay);
+		}
+		else{
+			minTime = desiredPickupTime;
+		}
+
 		minTravelTime = (int) Math.round(
 			travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
 
 		int maxProlongation;
-		if (SimodConfig.ridesharing.discomfortConstraint.equals("absolute")) {
-			maxProlongation = SimodConfig.ridesharing.maxProlongationInSeconds;
+		if (config.maxTravelTimeDelay.mode.equals("absolute")) {
+			maxProlongation = config.maxTravelTimeDelay.seconds;
 		} else {
 			maxProlongation = (int) Math.round(
-				SimodConfig.ridesharing.maximumRelativeDiscomfort * minTravelTime);
+				config.maxTravelTimeDelay.relative * minTravelTime);
 		}
 
-		int maxPickUpTime = minPickupTime + maxProlongation;
-		int maxDropOffTime = minPickupTime + minTravelTime + maxProlongation;
+		int maxPickUpDelay;
+		if(config.maxPickupDelay >= 0){
+			maxPickUpDelay = config.maxPickupDelay;
+		}
+		else{
+			maxPickUpDelay = maxProlongation;
+		}
+
+		int maxPickUpTime = desiredPickupTime + maxPickUpDelay;
+		int maxDropOffTime = desiredPickupTime + minTravelTime + maxProlongation;
 
 		this.demandAgent = demandAgent;
 		onboard = false;
 
-		pickUpAction = new PlanActionPickup(this, origin, minPickupTime, maxPickUpTime);
+		pickUpAction = new PlanActionPickup(this, origin, desiredPickupTime, maxPickUpTime);
 		dropOffAction = new PlanActionDropoff(this, destination, maxDropOffTime);
 	}
 

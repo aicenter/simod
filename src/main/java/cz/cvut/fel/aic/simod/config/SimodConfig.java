@@ -46,6 +46,10 @@ public class SimodConfig implements GeneratedConfig {
 
   public String distanceMatrixFilepath;
 
+  public Boolean enableNegativeDelay;
+
+  public MaxTravelTimeDelay maxTravelTimeDelay;
+
   public Stations stations;
 
   public Boolean heterogeneousVehicles;
@@ -53,6 +57,8 @@ public class SimodConfig implements GeneratedConfig {
   public String travelTimeProvider;
 
   public Integer startTime;
+
+  public Integer maxPickupDelay;
 
   public String vehiclesFilePath;
 
@@ -85,10 +91,13 @@ public class SimodConfig implements GeneratedConfig {
     this.experimentName = (String) simodConfig.get("experiment_name");
     this.tripsFilename = (String) simodConfig.get("trips_filename");
     this.distanceMatrixFilepath = (String) simodConfig.get("distance_matrix_filepath");
+    this.enableNegativeDelay = (Boolean) simodConfig.get("enable_negative_delay");
+    this.maxTravelTimeDelay = new MaxTravelTimeDelay((Map) simodConfig.get("max_travel_time_delay"));
     this.stations = new Stations((Map) simodConfig.get("stations"));
     this.heterogeneousVehicles = (Boolean) simodConfig.get("heterogeneous_vehicles");
     this.travelTimeProvider = (String) simodConfig.get("travel_time_provider");
     this.startTime = (Integer) simodConfig.get("start_time");
+    this.maxPickupDelay = (Integer) simodConfig.get("max_pickup_delay");
     this.vehiclesFilePath = (String) simodConfig.get("vehicles_file_path");
     this.simplifyGraph = (Boolean) simodConfig.get("simplify_graph");
     this.rebalancing = new Rebalancing((Map) simodConfig.get("rebalancing"));

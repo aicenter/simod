@@ -31,6 +31,7 @@ import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.simod.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
 import cz.cvut.fel.aic.simod.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.action.*;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
@@ -41,7 +42,6 @@ import cz.cvut.fel.aic.simod.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.simod.ridesharing.DroppedDemandsAnalyzer;
 import cz.cvut.fel.aic.simod.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
-import cz.cvut.fel.aic.simod.ridesharing.model.*;
 import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStatsIH;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
@@ -139,13 +139,12 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 
 
 		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
-		maxDistance = (double) config.ridesharing.maxProlongationInSeconds
-			* agentpolisConfig.maxVehicleSpeedInMeters;
+		maxDistance = (double) config.maxPickupDelay * agentpolisConfig.maxVehicleSpeedInMeters;
 		maxDistanceSquared = maxDistance * maxDistance;
 
 		// the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the
 		// vehicle to be considered to serve the request
-		maxDelayTime = config.ridesharing.maxProlongationInSeconds * 1000;
+		maxDelayTime = config.maxPickupDelay * 1000;
 
 		setEventHandeling();
 	}
@@ -399,6 +398,8 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 		// index of the lastly added action from the old plan
 		int indexInOldPlan = 0;
 
+		int timeWithoutPause = 0;
+
 		Iterator<PlanAction> oldPlanIterator = currentPlan.iterator();
 
 		// process the current position action
@@ -409,11 +410,11 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 		T counter = initFreeCapacityForRequest(vehicle, planComputationRequest);
 
 		// we start computing the time current time (we cannot plan for the past :))
-		long currentTaskTimeInSeconds =
-			Math.max(
-				timeProvider.getCurrentSimTime(),
-				timeProvider.getSimTimeFromDateTime(vehicle.getOperationStart())
-			) / 1000;
+		int currentTaskTimeInSeconds =
+			(int) (Math.max(
+							timeProvider.getCurrentSimTime(),
+							timeProvider.getSimTimeFromDateTime(vehicle.getOperationStart())
+						) / 1000);
 
 		long operationEndInSeconds = timeProvider.getSimTimeFromDateTime(vehicle.getOperationEnd()) / 1000;
 
@@ -429,14 +430,6 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 				newTask = (PlanRequestAction) oldPlanIterator.next();
 			}
 
-			// current time adjustment according to the new task min time
-			if (newTask instanceof PlanActionPickup) {
-				var minTime = ((PlanActionPickup) newTask).getMinTime();
-				if (minTime > currentTaskTimeInSeconds) {
-					currentTaskTimeInSeconds = minTime;
-				}
-			}
-
 			// travel time increment
 			int travelTime;
 			if (previousTask instanceof PlanActionCurrentPosition) {
@@ -448,7 +441,35 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 			}
 			newPlanTravelTime += travelTime;
 			currentTaskTimeInSeconds += travelTime;
-//			LOGGER.debug("currentTaskTimeInSeconds: {}", currentTaskTimeInSeconds);
+			timeWithoutPause += travelTime;
+
+			// fail if time without pause is too long
+			if(timeWithoutPause > config.vehicles.maxPauseInterval * 60){
+				return null;
+			}
+
+			// current time adjustment according to the new task min time
+			if (newTask instanceof PlanActionPickup) {
+				int minTime = ((PlanActionPickup) newTask).getMinTime();
+				if (minTime > currentTaskTimeInSeconds) {
+
+					// measure pause length
+					if(config.vehicles.minPauseLength > 0){
+						int pauseLength = minTime - currentTaskTimeInSeconds;
+
+						// pause long enough -> reset time without pause counter
+						if(pauseLength > config.vehicles.minPauseLength * 60){
+							timeWithoutPause = 0;
+						}
+					}
+
+					currentTaskTimeInSeconds = minTime;
+				}
+			}
+
+			// service time increment
+			currentTaskTimeInSeconds += config.serviceTime;
+			timeWithoutPause += config.serviceTime;
 
 			// check max operation time
 			if (currentTaskTimeInSeconds > operationEndInSeconds) {

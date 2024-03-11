@@ -16,25 +16,53 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.simod.ridesharing.model;
+package cz.cvut.fel.aic.simod.action;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
 
-/**
- *
- * @author david
- */
-public class PlanActionCurrentPosition extends PlanAction{
-	
-	public PlanActionCurrentPosition(SimulationNode position) {
-		super(position);
+import java.util.Objects;
+
+public abstract class PlanRequestAction extends TimeWindowAction{
+
+	public final PlanComputationRequest request;
+
+
+
+	public PlanComputationRequest getRequest() { 
+		return request; 
+	}
+
+
+
+	public PlanRequestAction(PlanComputationRequest request, SimulationNode location, int maxTime) {
+		super(location, 0, maxTime);
+		this.request = request;
 	}
 
 	@Override
-	public String toString() {
-		return String.format("Current position at node %s", location.id);
+	public int hashCode() {
+		int hash = 7;
+		return hash;
 	}
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final PlanRequestAction other = (PlanRequestAction) obj;
+		if (!Objects.equals(this.request, other.request)) {
+			return false;
+		}
+		return this.getClass().equals(obj.getClass());
+	}
+
 	
 }
- 

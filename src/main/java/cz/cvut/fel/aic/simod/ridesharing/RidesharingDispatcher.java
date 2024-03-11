@@ -38,9 +38,9 @@ import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.simod.DefaultPlanComputationRequest;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanAction;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
+import cz.cvut.fel.aic.simod.action.PlanAction;
+import cz.cvut.fel.aic.simod.action.PlanActionDropoff;
+import cz.cvut.fel.aic.simod.action.PlanActionPickup;
 import cz.cvut.fel.aic.simod.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 import java.util.ArrayList;
@@ -55,6 +55,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -83,6 +85,8 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	private final Map<Integer,PlanComputationRequest> requests;
 	
 	private final PositionUtil positionUtil;
+
+	private final TravelTimeProvider travelTimeProvider;
 	
 	
 	private List<PlanComputationRequest> newRequests;
@@ -120,13 +124,15 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory,
 		TimeProvider timeProvider,
 		PositionUtil positionUtil,
-		IdGenerator tripIdGenerator
+		IdGenerator tripIdGenerator,
+		TravelTimeProvider travelTimeProvider
 	) {
 		super(onDemandvehicleStationStorage, eventProcessor, config, tripIdGenerator, timeProvider);
 		this.solver = solver;
 		this.requestFactory = requestFactory;
 		this.positionUtil = positionUtil;
 		this.tripIdGenerator = tripIdGenerator;
+		this.travelTimeProvider = travelTimeProvider;
 		newRequests = new ArrayList<>();
 		waitingRequests = new LinkedHashSet<>();
 		darpSolverComputationalTimes = new ArrayList();

@@ -19,6 +19,8 @@
 package cz.cvut.fel.aic.simod.visual.ridesharing.insertionheuristic.common;
 
 import com.google.inject.Injector;
+import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.SimpleTransportVehicle;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.MapInitializer;
@@ -26,11 +28,12 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.Sim
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.alite.common.event.Event;
+import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactorySpec;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
-import cz.cvut.fel.aic.simod.init.EventInitializer;
+import cz.cvut.fel.aic.simod.init.RequestsInitializer;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.visual.ridesharing.EventOrderStorage;
@@ -38,7 +41,6 @@ import cz.cvut.fel.aic.simod.visual.ridesharing.RidesharingEventData;
 import cz.cvut.fel.aic.simod.visual.ridesharing.RidesharingTestEnvironment;
 import cz.cvut.fel.aic.geographtools.Graph;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.junit.Assert;
@@ -86,7 +88,7 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 		creator.prepareSimulation(mapInitializer.getMap());
 		
 		// requests
-		injector.getInstance(EventInitializer.class).initialize(trips, new ArrayList<>());
+		injector.getInstance(RequestsInitializer.class).initialize();
                 
 		// vehicles
 		OnDemandVehicleFactorySpec onDemandVehicleFactory = injector.getInstance(OnDemandVehicleFactorySpec.class);
@@ -95,7 +97,19 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
                                                             
 		for (SimulationNode vehiclePosition: vehicalInitPositions) {
 			String onDemandVehicelId = String.format("%s", counter);
-			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, vehiclePosition);
+
+			// physical vehicle creation
+			SimpleTransportVehicle vehicle = new SimpleTransportVehicle(
+				onDemandVehicelId + " - vehicle",
+				DemandSimulationEntityType.VEHICLE,
+				2,
+				EGraphType.HIGHWAY,
+				vehiclePosition,
+				30,
+				config.ridesharing.vehicleCapacity
+			);
+
+			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, vehiclePosition, vehicle);
 			onDemandVehicleStorage.addEntity(newVehicle);
 			counter++;
 		}

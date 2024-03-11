@@ -24,8 +24,8 @@ import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
@@ -72,12 +72,11 @@ public class DroppedDemandsAnalyzer {
                 this.config = config;
 		
 		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
-		maxDistance = (double) config.ridesharing.maxProlongationInSeconds 
-				* agentpolisConfig.maxVehicleSpeedInMeters;
+		maxDistance = (double) config.maxPickupDelay * agentpolisConfig.maxVehicleSpeedInMeters;
 		
 		// the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the
 		// vehicle to be considered to serve the request
-		maxDelayTime = config.ridesharing.maxProlongationInSeconds  * 1000;
+		maxDelayTime = config.maxPickupDelay  * 1000;
 	}
 	
 	
@@ -144,7 +143,7 @@ public class DroppedDemandsAnalyzer {
 		*/
 		for(OnDemandVehicle tVvehicle: vehicleStorage){
 			RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
-			if(vehicle.hasFreeCapacity()){
+			if(vehicle.hasFreeCapacityFor(request)){
 				freeVehicle = true;
 				
 				// cartesian distance check
@@ -170,7 +169,7 @@ public class DroppedDemandsAnalyzer {
 		
 		
 		int delta = 5000;
-		String requestId = request.getDemandAgent().getId();
+		var requestId = request.getId();
 		if(!freeVehicle){
 			LOGGER.info("Request " + requestId + ": Cannot serve request - No free vehicle");
 		}

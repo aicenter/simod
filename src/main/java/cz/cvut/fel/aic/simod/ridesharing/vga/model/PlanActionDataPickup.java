@@ -18,7 +18,7 @@
  */
 package cz.cvut.fel.aic.simod.ridesharing.vga.model;
 
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanRequestAction;
+import cz.cvut.fel.aic.simod.action.PlanRequestAction;
 
 /**
  *

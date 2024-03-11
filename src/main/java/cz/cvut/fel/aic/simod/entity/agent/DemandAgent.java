@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.simod.entity;
+package cz.cvut.fel.aic.simod.entity.agent;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -31,12 +31,9 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
-import cz.cvut.fel.aic.simod.DemandData;
-import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
-import cz.cvut.fel.aic.simod.StationsDispatcher;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
-import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
-import cz.cvut.fel.aic.simod.io.TimeTrip;
+import cz.cvut.fel.aic.simod.*;
+import cz.cvut.fel.aic.simod.entity.DemandAgentState;
+import cz.cvut.fel.aic.simod.entity.vehicle.SlotType;
 import cz.cvut.fel.aic.simod.statistics.DemandServiceStatistic;
 import cz.cvut.fel.aic.simod.statistics.StatisticEvent;
 import cz.cvut.fel.aic.simod.storage.DemandStorage;
@@ -54,7 +51,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	
 	private final int simpleId;
 	
-	private final TimeTrip<SimulationNode> trip;
+	private final DefaultPlanComputationRequest request;
 	
 	private final StationsDispatcher onDemandVehicleStationsCentral;
 	
@@ -70,6 +67,8 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	 * Request announcement time in milliseconds
 	 */
 	private final long demandTime;
+
+	private final SlotType requiredSlotType;
 	
 	
 	private DemandAgentState state;
@@ -137,19 +136,29 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	public boolean isDropped() {
 		return dropped;
 	}
-	
-	
 
-	
-	
-	
+	public SlotType getRequiredSlotType() {
+		return requiredSlotType;
+	}
+
+	public DefaultPlanComputationRequest getRequest() {
+		return request;
+	}
+
 	@Inject
-	public DemandAgent(StationsDispatcher onDemandVehicleStationsCentral, EventProcessor eventProcessor, 
-			DemandStorage demandStorage, StandardTimeProvider timeProvider, TripsUtil tripsUtil,
-			@Assisted String agentId, @Assisted int id, @Assisted TimeTrip<SimulationNode> trip) {
-		super(agentId, trip.getLocations()[0]);
+	public DemandAgent(
+		StationsDispatcher onDemandVehicleStationsCentral,
+		EventProcessor eventProcessor,
+		DemandStorage demandStorage,
+		StandardTimeProvider timeProvider,
+		TripsUtil tripsUtil,
+		@Assisted String agentId,
+		@Assisted int id,
+		@Assisted DefaultPlanComputationRequest request
+	) {
+		super(agentId, request.getFrom());
 		this.simpleId = id;
-		this.trip = trip;
+		this.request = request;
 		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
 		this.eventProcessor = eventProcessor;
 		this.demandStorage = demandStorage;
@@ -159,6 +168,8 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 		dropped = false;
 		demandTime = timeProvider.getCurrentSimTime();
 		computeMinServiceDuration();
+		requiredSlotType = request.getRequiredSlotType();
+		request.setDemandAgent(this);
 	}
 
 	
@@ -167,8 +178,8 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	@Override
 	public void born() {
 		demandStorage.addEntity(this);
-		eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.DEMAND, onDemandVehicleStationsCentral, null, 
-				new DemandData(trip.getLocations(), this));
+//		eventProcessor.addEvent(OnDemandVehicleStationsCentralEvent.DEMAND, onDemandVehicleStationsCentral, null,
+//				new DemandData(request.getLocations(), this));
 	}
 
 	@Override
@@ -191,7 +202,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 
 
 	public void tripEnded() {
-		if(!getPosition().equals(trip.getLastLocation())){
+		if(!getPosition().equals(request.getTo())){
 			try {
 				throw new Exception("Demand not served properly");
 			} catch (Exception ex) {
@@ -242,7 +253,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	}
 
 	private void computeMinServiceDuration() {
-		Trip<SimulationNode> minTrip = tripsUtil.createTrip(getPosition(), trip.getLastLocation());
+		Trip<SimulationNode> minTrip = tripsUtil.createTrip(getPosition(), request.getTo());
 		minDemandServiceDuration = tripsUtil.getTripDuration(minTrip);
 	}
 
@@ -250,7 +261,7 @@ public class DemandAgent extends Agent implements EventHandler, TransportableEnt
 	
 	
 	public interface DemandAgentFactory {
-		public DemandAgent create(String agentId, int id, TimeTrip<SimulationNode> osmNodeTrip);
+		DemandAgent create(String agentId, int id, DefaultPlanComputationRequest request);
 	}
 	
 }

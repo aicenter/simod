@@ -19,10 +19,10 @@
 package cz.cvut.fel.aic.simod.ridesharing.vga.planBuilder;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanRequestAction;
+import cz.cvut.fel.aic.simod.action.PlanActionDropoff;
+import cz.cvut.fel.aic.simod.action.PlanActionPickup;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.action.PlanRequestAction;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import java.util.*;
@@ -89,7 +89,7 @@ public class VGAVehiclePlan {
 //			discomfort += getCurrentTime() - action.request.getOriginTime() -
 //					MathUtils.getTravelTimeProvider().getExpectedTravelTime(
 //							action.getRequest().getFrom(), action.getRequest().getTo()) / 1000.0;
-			discomfort += getCurrentTime() - action.request.getOriginTime() - action.request.getMinTravelTime();
+			discomfort += getCurrentTime() - action.request.getMinTime() - action.request.getMinTravelTime();
 			onboardRequests.remove(action.getRequest());
 		}
 	}

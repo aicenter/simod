@@ -19,13 +19,9 @@
 package cz.cvut.fel.aic.simod;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.simod.traveltimecomputation.DistanceMatrixTravelTimeProvider;
-import cz.cvut.fel.aic.simod.traveltimecomputation.TNRTravelTimeProvider;
-import cz.cvut.fel.aic.simod.traveltimecomputation.TNRAFTravelTimeProvider;
-import cz.cvut.fel.aic.simod.traveltimecomputation.CHTravelTimeProvider;
-import cz.cvut.fel.aic.simod.traveltimecomputation.EuclideanTravelTimeProvider;
-import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
-import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
+import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.IHSolverHeterogenousVehicles;
+import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.IHSolverReconfigurableVehicles;
+import cz.cvut.fel.aic.simod.traveltimecomputation.*;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.FileAppender;
 import com.google.common.collect.Sets;
@@ -42,13 +38,12 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.init.Map
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer;
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
-import cz.cvut.fel.aic.simod.entity.DemandAgent.DemandAgentFactory;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent.DemandAgentFactory;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactory;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactorySpec;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicleFactory;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.InsertionHeuristicSolver;
-import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.simod.ridesharing.vga.calculations.ArrayOptimalVehiclePlanFinder;
 import cz.cvut.fel.aic.simod.ridesharing.vga.calculations.SingleVehicleDARPSolver;
 import cz.cvut.fel.aic.simod.tripUtil.TripsUtilCached;
@@ -124,6 +119,9 @@ public class MainModule extends StandardAgentPolisModule{
 			case "tnraf":
 				bind(TravelTimeProvider.class).to(TNRAFTravelTimeProvider.class);
 				break;
+			case "astar-cached":
+				bind(TravelTimeProvider.class).to(AstarTravelTimeProviderCached.class);
+				break;
 			case "astar":
 			default:
 				bind(TravelTimeProvider.class).to(AstarTravelTimeProvider.class);
@@ -138,7 +136,15 @@ public class MainModule extends StandardAgentPolisModule{
 						.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));	
 			switch(SimodConfig.ridesharing.method){
 				case "insertion-heuristic":
-					bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
+					if(SimodConfig.reconfigurableVehicles){
+						bind(DARPSolver.class).to(IHSolverReconfigurableVehicles.class);
+					}
+					else if(SimodConfig.heterogeneousVehicles){
+						bind(DARPSolver.class).to(IHSolverHeterogenousVehicles.class);
+					}
+					else{
+						bind(DARPSolver.class).to(InsertionHeuristicSolver.class);
+					}
 					break;
 				case "vga":
 					if(OnDemandVehiclesSimulation.gurobiAvailable()) {

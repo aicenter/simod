@@ -24,7 +24,7 @@ import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.ClickableEntityLayer;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioUtils;
 import cz.cvut.fel.aic.alite.vis.Vis;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.DemandAgentState;
 import cz.cvut.fel.aic.simod.storage.DemandStorage;
 import java.awt.Color;

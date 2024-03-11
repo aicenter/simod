@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.simod.entity.vehicle;
+package cz.cvut.fel.aic.simod.entity.agent;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -33,7 +33,6 @@ import cz.cvut.fel.aic.agentpolis.simmodel.agent.DelayData;
 import cz.cvut.fel.aic.agentpolis.simmodel.agent.Driver;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
@@ -43,15 +42,15 @@ import cz.cvut.fel.aic.simod.DemandData;
 import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
 import cz.cvut.fel.aic.simod.entity.PlanningAgent;
+import cz.cvut.fel.aic.simod.entity.vehicle.MoDVehicle;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.event.RebalancingEventContent;
 import cz.cvut.fel.aic.simod.statistics.PickupEventContent;
-import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
+import cz.cvut.fel.aic.simod.storage.MoDVehicleStorage;
 import cz.cvut.fel.aic.geographtools.Node;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,14 +61,11 @@ import java.util.List;
  * @author fido
  */
 public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgent,
-		Driver<PhysicalTransportVehicle>{
-	
-	private static final int LENGTH = 4;
-	
-	
+		Driver<MoDVehicle>{
+
 	private final int index;
 	
-	protected PhysicalTransportVehicle vehicle;
+	protected MoDVehicle vehicle;
 	
 	protected final TripsUtil tripsUtil;
 	
@@ -176,18 +172,21 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	
 	@Inject
 	public OnDemandVehicle(
-			PhysicalTransportVehicleStorage vehicleStorage, 
-			TripsUtil tripsUtil, 
-			StationsDispatcher onDemandVehicleStationsCentral, 
-			PhysicalVehicleDriveFactory driveFactory, 
-			VisioPositionUtil positionUtil, 
-			EventProcessor eventProcessor,
-			StandardTimeProvider timeProvider, 
-			IdGenerator rebalancingIdGenerator, 
-			SimodConfig config, 
-			IdGenerator idGenerator,
-			AgentpolisConfig agentpolisConfig,
-			@Assisted String vehicleId, @Assisted SimulationNode startPosition) {
+		MoDVehicleStorage vehicleStorage,
+		TripsUtil tripsUtil,
+		StationsDispatcher onDemandVehicleStationsCentral,
+		PhysicalVehicleDriveFactory driveFactory,
+		VisioPositionUtil positionUtil,
+		EventProcessor eventProcessor,
+		StandardTimeProvider timeProvider,
+		IdGenerator rebalancingIdGenerator,
+		SimodConfig config,
+		IdGenerator idGenerator,
+		AgentpolisConfig agentpolisConfig,
+		@Assisted String vehicleId,
+		@Assisted SimulationNode startPosition,
+		@Assisted MoDVehicle vehicle
+	) {
 		super(vehicleId, startPosition);
 		this.tripsUtil = tripsUtil;
 		this.onDemandVehicleStationsCentral = onDemandVehicleStationsCentral;
@@ -197,14 +196,9 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 		this.timeProvider = timeProvider;
 		this.rebalancingIdGenerator = rebalancingIdGenerator;
 		this.config = config;
+		this.vehicle = vehicle;
 		
 		index = idGenerator.getId();
-		
-		vehicle = new PhysicalTransportVehicle(vehicleId + " - vehicle", 
-				DemandSimulationEntityType.VEHICLE, LENGTH, config.ridesharing.vehicleCapacity, 
-				EGraphType.HIGHWAY, startPosition, 
-				agentpolisConfig.maxVehicleSpeedInMeters);
-		
 		vehicleStorage.addEntity(vehicle);
 		vehicle.setDriver(this);
 		state = OnDemandVehicleState.WAITING;
@@ -348,7 +342,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
 	public void startRebalancing(OnDemandVehicleStation targetStation) {
 		eventProcessor.addEvent(OnDemandVehicleEvent.START_REBALANCING, null, null, 
-				new RebalancingEventContent(timeProvider.getCurrentSimTime(), currentRebalancingId, 
+				new RebalancingEventContent(timeProvider.getCurrentSimTime(), currentRebalancingId,
 						getId(), getParkedIn(), targetStation));
 		
 		parkedIn.releaseVehicle(this);
@@ -366,17 +360,13 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	}
 
 	@Override
-	public PhysicalTransportVehicle getVehicle() {
+	public MoDVehicle getVehicle() {
 		return vehicle;
 	}
 
 	@Override
 	public double getVelocity() {
 		return (double) vehicle.getVelocity();
-	}
-	
-	public int getCapacity(){
-		return vehicle.getCapacity();
 	}
 
 //	@Override
@@ -396,32 +386,45 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
 	protected void leavingStationEvent() {
 		eventProcessor.addEvent(OnDemandVehicleEvent.LEAVE_STATION, null, null, 
-				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-						currentlyServedDemmand.demandAgent.getSimpleId(), getId()));
+				new OnDemandVehicleEventContent(
+					timeProvider.getCurrentSimTime(),
+					currentlyServedDemmand.demandAgent.getRequest().getId(),
+					currentlyServedDemmand.demandAgent.getSimpleId(),
+					getId()
+				)
+		);
 	}
 
 	protected void pickupDemand() {
 		currentlyServedDemmand.demandAgent.tripStarted(this);
 		vehicle.pickUp(currentlyServedDemmand.demandAgent);
-		eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, 
-				new PickupEventContent(timeProvider.getCurrentSimTime(), 
-						currentlyServedDemmand.demandAgent.getSimpleId(), getId(),
-						positionUtil.getTripLengthInMeters(demandTrip)));
+		eventProcessor.addEvent(OnDemandVehicleEvent.PICKUP, null, null, new PickupEventContent(
+			timeProvider.getCurrentSimTime(),
+			currentlyServedDemmand.demandAgent.getSimpleId(),
+			currentlyServedDemmand.demandAgent.getRequest().getId(),
+			getId(),
+			positionUtil.getTripLengthInMeters(demandTrip)
+		));
 	}
 	
 	protected void dropOffDemand() {
 		currentlyServedDemmand.demandAgent.tripEnded();
 		vehicle.dropOff(currentlyServedDemmand.demandAgent);
 		eventProcessor.addEvent(OnDemandVehicleEvent.DROP_OFF, null, null, 
-				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-						currentlyServedDemmand.demandAgent.getSimpleId(), getId()));
+				new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(),
+					currentlyServedDemmand.demandAgent.getRequest().getId(),
+					currentlyServedDemmand.demandAgent.getSimpleId(), getId()
+				)
+		);
 	}
 
 	@Override
 	protected void onActivityFinish(Activity activity) {
 		super.onActivityFinish(activity);
-		PhysicalVehicleDrive drive = (PhysicalVehicleDrive) activity;
-		finishedDriving(drive.isStoped());
+		if (activity instanceof PhysicalVehicleDrive) {
+			PhysicalVehicleDrive drive = (PhysicalVehicleDrive) activity;
+			finishedDriving(drive.isStoped());
+		}
 	}
 
 	@Override
@@ -431,7 +434,7 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 
 
 	@Override
-	public void startDriving(PhysicalTransportVehicle vehicle){
+	public void startDriving(MoDVehicle vehicle){
 		this.vehicle = vehicle;
 	}
 
@@ -458,9 +461,13 @@ public class OnDemandVehicle extends Agent implements EventHandler, PlanningAgen
 	}
 
 	protected void finishDrivingToStation() {
-		eventProcessor.addEvent(OnDemandVehicleEvent.REACH_NEAREST_STATION, null, null, 
-					new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(), 
-						-1, getId()));
+		eventProcessor.addEvent(OnDemandVehicleEvent.REACH_NEAREST_STATION, null, null,
+			new OnDemandVehicleEventContent(timeProvider.getCurrentSimTime(),
+				-1,
+				-1,
+				getId()
+			)
+		);
 		waitInStation();
 	}
 	

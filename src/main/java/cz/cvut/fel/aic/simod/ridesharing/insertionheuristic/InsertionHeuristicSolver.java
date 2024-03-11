@@ -29,113 +29,106 @@ import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
+import cz.cvut.fel.aic.simod.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.action.*;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.vehicle.SimpleMoDVehicle;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.ridesharing.DARPSolver;
 import cz.cvut.fel.aic.simod.ridesharing.DroppedDemandsAnalyzer;
 import cz.cvut.fel.aic.simod.ridesharing.PlanCostProvider;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
-import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanAction;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionCurrentPosition;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanRequestAction;
-import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStatsIH;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import me.tongfei.progressbar.ProgressBar;
 import org.slf4j.LoggerFactory;
 
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
- *
  * @author F.I.D.O.
  */
 @Singleton
-public class InsertionHeuristicSolver extends DARPSolver implements EventHandler{
-	
+public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHandler {
+
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(InsertionHeuristicSolver.class);
-	
-	private static final int INFO_PERIOD = 1000;		
+
+	private static final int INFO_PERIOD = 1000;
 
 	private final PositionUtil positionUtil;
-	
+
 	private final SimodConfig config;
-	
+
 	private final double maxDistance;
-	
+
 	private final double maxDistanceSquared;
-	
+
 	private final int maxDelayTime;
-	
+
 	private final TimeProvider timeProvider;
-	
+
 	private final TypedSimulation eventProcessor;
-	
+
 	private final DroppedDemandsAnalyzer droppedDemandsAnalyzer;
-	
+
 	private final OnDemandvehicleStationStorage onDemandvehicleStationStorage;
-	
-	
-	
+
+
 	private long callCount = 0;
-	
+
 	private long totalTime = 0;
-	
+
 	private long iterationTime = 0;
-	
+
 	private volatile long canServeRequestCallCount = 0;
-	
+
 	private long vehiclePlanningAllCallCount = 0;
-	
+
 	private Map<RideSharingOnDemandVehicle, DriverPlan> planMap;
-	
+
 	private int failFastTime;
-	
+
 	private int insertionHeuristicTime;
-	
+
 	private int debugFailTime;
-	
+
 	private double minCostIncrement;
-	
+
 	private PlanData bestPlan;
-	
+
 	OnDemandVehicle vehicleFromNearestStation;
+
+//	protected int freeCapacity;
 
 	/**
 	 * Used vehicles per station in the current iteration of the solver
 	 */
 	private int[] usedVehiclesPerStation;
-	
+
 	private List<OnDemandVehicle> vehiclesForPlanning;
-	
-	
-	
-	
+
+
 	@Inject
 	public InsertionHeuristicSolver(
-			TravelTimeProvider travelTimeProvider, 
-			PlanCostProvider travelCostProvider, 
-			OnDemandVehicleStorage vehicleStorage, 
-			PositionUtil positionUtil,
-			SimodConfig config, 
-			TimeProvider timeProvider, 
-			DefaultPlanComputationRequestFactory requestFactory,
-			TypedSimulation eventProcessor, 
-			DroppedDemandsAnalyzer droppedDemandsAnalyzer,
-			OnDemandvehicleStationStorage onDemandvehicleStationStorage,
-			AgentpolisConfig agentpolisConfig) {
+		TravelTimeProvider travelTimeProvider,
+		PlanCostProvider travelCostProvider,
+		OnDemandVehicleStorage vehicleStorage,
+		PositionUtil positionUtil,
+		SimodConfig config,
+		TimeProvider timeProvider,
+		DefaultPlanComputationRequestFactory requestFactory,
+		TypedSimulation eventProcessor,
+		DroppedDemandsAnalyzer droppedDemandsAnalyzer,
+		OnDemandvehicleStationStorage onDemandvehicleStationStorage,
+		AgentpolisConfig agentpolisConfig
+	) {
 		super(vehicleStorage, travelTimeProvider, travelCostProvider, requestFactory);
 		this.positionUtil = positionUtil;
 		this.config = config;
@@ -143,75 +136,88 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		this.eventProcessor = eventProcessor;
 		this.droppedDemandsAnalyzer = droppedDemandsAnalyzer;
 		this.onDemandvehicleStationStorage = onDemandvehicleStationStorage;
-                        
-		
+
+
 		// max distance in meters between vehicle and request for the vehicle to be considered to serve the request
-		maxDistance = (double) config.ridesharing.maxProlongationInSeconds 
-				* agentpolisConfig.maxVehicleSpeedInMeters;
+		maxDistance = (double) config.maxPickupDelay * agentpolisConfig.maxVehicleSpeedInMeters;
 		maxDistanceSquared = maxDistance * maxDistance;
-		
+
 		// the traveltime from vehicle to request cannot be greater than max prolongation in milliseconds for the
 		// vehicle to be considered to serve the request
-		maxDelayTime = config.ridesharing.maxProlongationInSeconds  * 1000;
-		
+		maxDelayTime = config.maxPickupDelay * 1000;
+
 		setEventHandeling();
 	}
 
 	@Override
-	public Map<RideSharingOnDemandVehicle, DriverPlan> solve(List<PlanComputationRequest> newRequests, 
-			List<PlanComputationRequest> waitingRequests) {
+	public Map<RideSharingOnDemandVehicle, DriverPlan> solve(
+		List<PlanComputationRequest> newRequests,
+		List<PlanComputationRequest> waitingRequests
+	) {
 		callCount++;
 		long startTime = System.nanoTime();
-		
+
 		planMap = new ConcurrentHashMap<>();
-		
+
 		// statistics
 		failFastTime = 0;
 		insertionHeuristicTime = 0;
 		debugFailTime = 0;
-		
-		List<PlanComputationRequest> requests = config.ridesharing.insertionHeuristic.recomputeWaitingRequests 
-				? waitingRequests : newRequests;
-		
+
+		List<PlanComputationRequest> requests = config.ridesharing.insertionHeuristic.recomputeWaitingRequests
+			? waitingRequests : newRequests;
+
 		// discard current plans if the recomputing is on
-		if(config.ridesharing.insertionHeuristic.recomputeWaitingRequests){
-			for(AgentPolisEntity tVvehicle: vehicleStorage.getEntitiesForIteration()){
+		if (config.ridesharing.insertionHeuristic.recomputeWaitingRequests) {
+			for (AgentPolisEntity tVvehicle : vehicleStorage.getEntitiesForIteration()) {
 				RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
 				DriverPlan currentPlan = vehicle.getCurrentPlan();
 				Iterator<PlanAction> actionIterator = currentPlan.iterator();
-				while(actionIterator.hasNext()){
+				while (actionIterator.hasNext()) {
 					PlanAction action = actionIterator.next();
-					if(action instanceof PlanRequestAction && !((PlanRequestAction) action).request.isOnboard()){
+					if (action instanceof PlanRequestAction && !((PlanRequestAction) action).request.isOnboard()) {
 						actionIterator.remove();
 					}
 				}
 				planMap.put(vehicle, currentPlan);
 			}
 		}
-		
+
 //		List<OnDemandVehicle> vehiclesForPlanning = getDrivingVehicles();
 		usedVehiclesPerStation = new int[onDemandvehicleStationStorage.size()];
-		
+
 		getVehiclesForPlanning();
-		
-		if(requests.size() > 10){
-			for(PlanComputationRequest request: ProgressBar.wrap(requests, "Processing new requests")){
+
+		// sort requests: first requests with required vehicles, then the rest
+		requests.sort((a, b) -> {
+			int aInt = 1;
+			int bInt = 1;
+			if (a.getRequiredVehicleId() > 0) {
+				aInt = 0;
+			}
+			if (b.getRequiredVehicleId() > 0) {
+				bInt = 0;
+			}
+			return aInt - bInt;
+		});
+
+		if (requests.size() > 10) {
+			for (PlanComputationRequest request : ProgressBar.wrap(requests, "Processing new requests")) {
+				processRequest(request);
+			}
+		} else {
+			for (PlanComputationRequest request : requests) {
 				processRequest(request);
 			}
 		}
-		else{
-			for(PlanComputationRequest request: requests){
-				processRequest(request);
-			}
-		}
-		
+
 		totalTime += System.nanoTime() - startTime;
-		if(callCount % InsertionHeuristicSolver.INFO_PERIOD == 0){
+		if (callCount % InsertionHeuristicSolver.INFO_PERIOD == 0) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Insetrion Heuristic Stats: \n");
 			sb.append("Real time: ").append(System.nanoTime()).append(readableTime(System.nanoTime())).append("\n");
 			sb.append("Simulation time: ").append(timeProvider.getCurrentSimTime())
-					.append(readableTime(timeProvider.getCurrentSimTime() * 1000000)).append("\n");
+				.append(readableTime(timeProvider.getCurrentSimTime() * 1000000)).append("\n");
 			sb.append("Call count: ").append(callCount).append("\n");
 			sb.append("Total time: ").append(totalTime).append(readableTime(totalTime)).append("\n");
 			sb.append("Iteration time: ").append(iterationTime).append(readableTime(iterationTime)).append("\n");
@@ -220,225 +226,311 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			sb.append("Traveltime call count: ").append((travelTimeProvider).getCallCount()).append("\n");
 			LOGGER.info(sb.toString());
 		}
-		
+
 		logRidesharingStats(newRequests);
-		
+
 		return planMap;
 	}
-	
+
 	@Override
 	public void handleEvent(Event event) {
-            
+
 	}
-	
+
 	@Override
 	public EventProcessor getEventProcessor() {
 		return eventProcessor;
 	}
-	
-	
+
+
 	private void setEventHandeling() {
 		List<Enum> typesToHandle = new LinkedList<>();
 		typesToHandle.add(OnDemandVehicleEvent.PICKUP);
 		eventProcessor.addEventHandler(this, typesToHandle);
 	}
-	
-	private boolean canServeRequest(RideSharingOnDemandVehicle vehicle, PlanComputationRequest request){
+
+	/**
+	 * Fast cut-off method for checking if a vehicle can possibly serve a request.
+	 *
+	 * @param vehicle the vehicle to check
+	 * @param request the request to check
+	 * @return true if the vehicle can serve the request, false otherwise
+	 */
+	private boolean canServeRequest(RideSharingOnDemandVehicle vehicle, PlanComputationRequest request) {
 		canServeRequestCallCount++;
-		
+
 		// do not mess with rebalancing
-		if(vehicle.getState() == OnDemandVehicleState.REBALANCING){
+		if (vehicle.getState() == OnDemandVehicleState.REBALANCING) {
 			return false;
 		}
-		
+
 		// node identity
-		if(vehicle.getPosition() == request.getFrom()){
+		if (vehicle.getPosition() == request.getFrom()) {
 			return true;
 		}
-		
+
+		// vehicle operational time check
+		if (timeProvider.getDateTimeFromSimTime(request.getMinTime() * 1000L).isAfter(vehicle.getOperationEnd())
+			|| timeProvider.getDateTimeFromSimTime(
+			request.getMaxDropoffTime() * 1000L).isBefore(vehicle.getOperationStart())
+		) {
+			return false;
+		}
+
 		// euclidean distance check
 		double dist_x = vehicle.getPosition().getLatitudeProjected() - request.getFrom().getLatitudeProjected();
 		double dist_y = vehicle.getPosition().getLongitudeProjected() - request.getFrom().getLongitudeProjected();
 		double distanceSquared = dist_x * dist_x + dist_y * dist_y;
-		if(distanceSquared > maxDistanceSquared){
+		if (distanceSquared > maxDistanceSquared) {
 			return false;
 		}
-		
+
 		// real feasibility check 
-		boolean canServe = travelTimeProvider.getTravelTime(vehicle, request.getFrom()) 
-				< maxDelayTime;
-	
-                
+		boolean canServe = travelTimeProvider.getTravelTime(vehicle, request.getFrom())
+			< maxDelayTime;
+
 		return canServe;
 	}
-	
+
 	private void computeOptimalPlan(RideSharingOnDemandVehicle vehicle, PlanComputationRequest planComputationRequest) {
 		computeOptimalPlan(vehicle, vehicle.getCurrentPlan(), planComputationRequest);
 	}
 
-	private void computeOptimalPlan(RideSharingOnDemandVehicle vehicle, DriverPlan currentPlan, PlanComputationRequest planComputationRequest) {
-		
-		int freeCapacity = vehicle.getFreeCapacity();
-		
-		for(int pickupOptionIndex = 1; pickupOptionIndex <= currentPlan.getLength(); pickupOptionIndex++){
-			
-			// continue if the vehicle is full
-			if(freeCapacity == 0){
+	/**
+	 * Main method for computing the optimal plan for a given request-vehicle combination. It iterates over all possible
+	 * pickup-dropoff combinations and tries to insert the request into the current plan. To actually try the insertion,
+	 * the insertIntoPlan method is called.
+	 *
+	 * @param vehicle                the vehicle to process
+	 * @param currentPlan            the current plan of the vehicle
+	 * @param planComputationRequest the request to process
+	 */
+	private void computeOptimalPlan(
+		RideSharingOnDemandVehicle vehicle,
+		DriverPlan currentPlan,
+		PlanComputationRequest planComputationRequest
+	) {
+		T counter = initFreeCapacityForRequest(vehicle, planComputationRequest);
+
+		for (int pickupOptionIndex = 1; pickupOptionIndex <= currentPlan.getLength(); pickupOptionIndex++) {
+
+			// continue if the vehicle is full. The capacity is checked inside the insertIntoPlan method, so this is
+			// just a cut-off
+			if (!hasCapacityForRequest(planComputationRequest, counter)) {
 				continue;
 			}
-			
-			for(int dropoffOptionIndex = pickupOptionIndex + 1; dropoffOptionIndex <= currentPlan.getLength() + 1; 
-					dropoffOptionIndex++){
-				DriverPlan potentialPlan = insertIntoPlan(currentPlan, pickupOptionIndex, dropoffOptionIndex, 
-						vehicle, planComputationRequest);
-				if(potentialPlan != null){
+
+			for (int dropoffOptionIndex = pickupOptionIndex + 1; dropoffOptionIndex <= currentPlan.getLength() + 1;
+				 dropoffOptionIndex++) {
+				DriverPlan potentialPlan = insertIntoPlan(currentPlan, pickupOptionIndex, dropoffOptionIndex,
+					vehicle, planComputationRequest
+				);
+				if (potentialPlan != null) {
 					double costIncrement = potentialPlan.cost - currentPlan.cost;
 					PlanData bestPlanData = new PlanData(vehicle, potentialPlan, costIncrement);
 					tryUpdateBestPlan(bestPlanData);
 				}
 			}
-			
+
 			// change free capacity for next index
-			if(pickupOptionIndex < currentPlan.getLength()){
-				if(currentPlan.plan.get(pickupOptionIndex) instanceof PlanActionPickup){
-					freeCapacity--;
-				}
-				else{
-					freeCapacity++;
-				}
-			}
+			adjustFreeCapacity(currentPlan, pickupOptionIndex, planComputationRequest, counter);
 		}
 	}
 
-	
+	protected boolean hasCapacityForRequest(PlanComputationRequest planComputationRequest, T counter) {
+		int counterInt = (Integer) counter;
+		return counterInt > 0;
+	}
+
+	protected T adjustFreeCapacity(
+		DriverPlan currentPlan, int evaluatedIndex, PlanComputationRequest planComputationRequest, T counter
+	) {
+		int counterInt = (int) counter;
+		if (evaluatedIndex < currentPlan.getLength()) { // no need to adjust for the last index
+
+			if (currentPlan.plan.get(evaluatedIndex) instanceof PlanActionPickup) {
+				counterInt--;
+			} else {
+				counterInt++;
+			}
+		}
+		return (T) (Integer.valueOf(counterInt));
+	}
+
+	protected T initFreeCapacityForRequest(
+		RideSharingOnDemandVehicle vehicle,
+		PlanComputationRequest planComputationRequest
+	) {
+		SimpleMoDVehicle simpleVehicle = (SimpleMoDVehicle) vehicle.getVehicle();
+		return (T) Integer.valueOf(simpleVehicle.getFreeCapacity());
+	}
+
+
 	/**
 	 * Returns list of plan tasks with new request actions added at specified indexes or null if the plan is infeasible.
-	 * @param currentPlan Current plan, starting with the current position action
-	 * @param pickupOptionIndex Pick up index: 1 - current plan length
-	 * @param dropoffOptionIndex Drop off index: 2 - current plan length + 1
+	 *
+	 * @param currentPlan            Current plan, starting with the current position action
+	 * @param pickupOptionIndex      Pick up index: 1 - current plan length
+	 * @param dropoffOptionIndex     Drop off index: 2 - current plan length + 1
 	 * @param vehicle
 	 * @param planComputationRequest
 	 * @return list of plan tasks with new request actions added at specified indexes or null if the plan is infeasible.
 	 */
-	private DriverPlan insertIntoPlan(final DriverPlan currentPlan, final int pickupOptionIndex, 
-			final int dropoffOptionIndex, final RideSharingOnDemandVehicle vehicle, 
-			final PlanComputationRequest planComputationRequest) {
-            
+	private DriverPlan insertIntoPlan(
+		final DriverPlan currentPlan,
+		final int pickupOptionIndex,
+		final int dropoffOptionIndex,
+		final RideSharingOnDemandVehicle vehicle,
+		final PlanComputationRequest planComputationRequest
+	) {
 		List<PlanAction> newPlanTasks = new LinkedList<>();
-		
-		
+
 		// travel time of the new plan in milliseconds
 		int newPlanTravelTime = 0;
-		
+
 		// discomfort of the new plan in milliseconds
 		int newPlanDiscomfort = 0;
-		
-		PlanAction previousTask = null;
-		
-		// index of the lastly added action from the old plan (not considering current position action)
-		int indexInOldPlan = -1;
-		
+
+		// index of the lastly added action from the old plan
+		int indexInOldPlan = 0;
+
+		int timeWithoutPause = 0;
+
 		Iterator<PlanAction> oldPlanIterator = currentPlan.iterator();
-		int freeCapacity = vehicle.getFreeCapacity();
-		
-		for(int newPlanIndex = 0; newPlanIndex <= currentPlan.getLength() + 1; newPlanIndex++){
-			
+
+		// process the current position action
+		PlanAction previousTask = oldPlanIterator.next(); // current position action
+		newPlanTasks.add(previousTask);
+
+		// free capacity counter
+		T counter = initFreeCapacityForRequest(vehicle, planComputationRequest);
+
+		// we start computing the time current time (we cannot plan for the past :))
+		int currentTaskTimeInSeconds =
+			(int) (Math.max(
+							timeProvider.getCurrentSimTime(),
+							timeProvider.getSimTimeFromDateTime(vehicle.getOperationStart())
+						) / 1000);
+
+		long operationEndInSeconds = timeProvider.getSimTimeFromDateTime(vehicle.getOperationEnd()) / 1000;
+
+		for (int newPlanIndex = 1; newPlanIndex <= currentPlan.getLength() + 1; newPlanIndex++) {
+
 			/* get new task */
-			PlanAction newTask = null;
-			if(newPlanIndex == pickupOptionIndex){
+			PlanRequestAction newTask = null;
+			if (newPlanIndex == pickupOptionIndex) {
 				newTask = planComputationRequest.getPickUpAction();
-//						new PlanActionPickup(request.getDemandAgent(),  request.getDemandAgent().getPosition());
-			}
-			else if(newPlanIndex == dropoffOptionIndex){
+			} else if (newPlanIndex == dropoffOptionIndex) {
 				newTask = planComputationRequest.getDropOffAction();
-//						= new DriverPlanTask(DriverPlanTaskType.DROPOFF, request.getDemandAgent(), 
-//						request.getTargetLocation());
-			}
-			else{
-				newTask = oldPlanIterator.next();
-			}
-			
-			// travel time increment
-			if(previousTask != null){
-				if(previousTask instanceof PlanActionCurrentPosition){
-					newPlanTravelTime += travelTimeProvider.getTravelTime(vehicle, newTask.getPosition());
-				}
-				else{
-					newPlanTravelTime += travelTimeProvider.getTravelTime(vehicle, previousTask.getPosition(), 
-							newTask.getPosition());
-				}
-			}
-			long currentTaskTimeInSeconds = (timeProvider.getCurrentSimTime() + newPlanTravelTime) / 1000;
-//			LOGGER.debug("currentTaskTimeInSeconds: {}", currentTaskTimeInSeconds);
-			
-			/* check max time for all unfinished demands */
-			
-			// check max time check for the new action
-			if(newTask instanceof PlanRequestAction){
-				int maxTime = ((PlanRequestAction) newTask).getMaxTime();
-				if(maxTime < currentTaskTimeInSeconds){
-//                                    LOGGER.debug("currentTaskTimeInSeconds {} \n> maxTime {}",currentTaskTimeInSeconds, maxTime);
-					return null;
-				}
-			}
-			
-			// check max time for actions in the current plan
-			for(int index = indexInOldPlan + 1; index < currentPlan.getLength(); index++){
-				PlanAction remainingAction = currentPlan.plan.get(index);
-				if(!(remainingAction instanceof PlanActionCurrentPosition)){
-					PlanRequestAction remainingRequestAction = (PlanRequestAction) remainingAction;
-					if(remainingRequestAction.getMaxTime() < currentTaskTimeInSeconds){                                            
-						return null;
-					}
-				}
-			}
-			
-			// check max time for pick up action
-			if(newPlanIndex <= pickupOptionIndex){
-				if(planComputationRequest.getPickUpAction().getMaxTime() < currentTaskTimeInSeconds){
-                    return null;
-				}
-			}
-			
-			// check max time for drop off action
-			if(newPlanIndex <= dropoffOptionIndex){
-				if(planComputationRequest.getDropOffAction().getMaxTime() < currentTaskTimeInSeconds){
-					return null;
-				}
-			}
-			
-			
-			/* pickup and drop off handeling */
-			if(newTask instanceof PlanActionDropoff){
-				freeCapacity++;
-				
-				// discomfort increment
-				PlanComputationRequest newRequest = ((PlanActionDropoff) newTask).getRequest();
-				long taskExecutionTime = timeProvider.getCurrentSimTime() + newPlanTravelTime;
-				newPlanDiscomfort += taskExecutionTime - newRequest.getOriginTime() * 1000 
-						- newRequest.getMinTravelTime() * 1000;
-			}
-			else if(newTask instanceof PlanActionPickup){
-				// capacity check
-				if(freeCapacity == 0){
-					return null;
-				}
-				freeCapacity--;
+			} else {
+				newTask = (PlanRequestAction) oldPlanIterator.next();
 			}
 
-			
+			// travel time increment
+			int travelTime;
+			if (previousTask instanceof PlanActionCurrentPosition) {
+				travelTime = (int) travelTimeProvider.getTravelTime(vehicle, newTask.getPosition()) / 1000;
+			} else {
+				travelTime = (int) travelTimeProvider.getTravelTime(vehicle, previousTask.getPosition(),
+					newTask.getPosition()
+				) / 1000;
+			}
+			newPlanTravelTime += travelTime;
+			currentTaskTimeInSeconds += travelTime;
+			timeWithoutPause += travelTime;
+
+			// fail if time without pause is too long
+			if(timeWithoutPause > config.vehicles.maxPauseInterval * 60){
+				return null;
+			}
+
+			// current time adjustment according to the new task min time
+			if (newTask instanceof PlanActionPickup) {
+				int minTime = ((PlanActionPickup) newTask).getMinTime();
+				if (minTime > currentTaskTimeInSeconds) {
+
+					// measure pause length
+					if(config.vehicles.minPauseLength > 0){
+						int pauseLength = minTime - currentTaskTimeInSeconds;
+
+						// pause long enough -> reset time without pause counter
+						if(pauseLength > config.vehicles.minPauseLength * 60){
+							timeWithoutPause = 0;
+						}
+					}
+
+					currentTaskTimeInSeconds = minTime;
+				}
+			}
+
+			// service time increment
+			currentTaskTimeInSeconds += config.serviceTime;
+			timeWithoutPause += config.serviceTime;
+
+			// check max operation time
+			if (currentTaskTimeInSeconds > operationEndInSeconds) {
+				return null;
+			}
+
+			/* check max time for all unfinished demands */
+
+			// check max time check for the new action
+			int maxTime = newTask.getMaxTime();
+			if (maxTime < currentTaskTimeInSeconds) {
+//                                    LOGGER.debug("currentTaskTimeInSeconds {} \n> maxTime {}",currentTaskTimeInSeconds, maxTime);
+				return null;
+			}
+
+			// check max time for actions in the current plan
+			for (int index = indexInOldPlan + 1; index < currentPlan.getLength(); index++) {
+				PlanRequestAction remainingRequestAction = (PlanRequestAction) currentPlan.plan.get(index);
+				if (remainingRequestAction.getMaxTime() < currentTaskTimeInSeconds) {
+					return null;
+				}
+			}
+
+			// check max time for pick up action
+			if (newPlanIndex <= pickupOptionIndex) {
+				if (planComputationRequest.getPickUpAction().getMaxTime() < currentTaskTimeInSeconds) {
+					return null;
+				}
+			}
+
+			// check max time for drop off action
+			if (newPlanIndex <= dropoffOptionIndex) {
+				if (planComputationRequest.getDropOffAction().getMaxTime() < currentTaskTimeInSeconds) {
+					return null;
+				}
+			}
+
+			/* pickup and drop off handeling */
+			if (newTask instanceof PlanActionDropoff) {
+				// discomfort increment
+				PlanComputationRequest newRequest = newTask.getRequest();
+				long taskExecutionTime = timeProvider.getCurrentSimTime() + newPlanTravelTime;
+				newPlanDiscomfort += taskExecutionTime - newRequest.getMinTime() * 1000
+					- newRequest.getMinTravelTime() * 1000;
+			} else if (newTask instanceof PlanActionPickup) {
+				// capacity check
+				if (!hasCapacityForRequest(planComputationRequest, counter)) {
+					return null;
+				}
+			}
+
+			adjustFreeCapacity(currentPlan, newPlanIndex, planComputationRequest, counter);
+
 			// index in old plan if the action was not new
-			if(newPlanIndex != pickupOptionIndex && newPlanIndex != dropoffOptionIndex){
+			if (newPlanIndex != pickupOptionIndex && newPlanIndex != dropoffOptionIndex) {
 				indexInOldPlan++;
 			}
-			
+
 			newPlanTasks.add(newTask);
 			previousTask = newTask;
 		}
-		
+
 		// cost computation
 		double newPlanCost = planCostProvider.calculatePlanCost(newPlanDiscomfort, newPlanTravelTime);
-		
+
 		return new DriverPlan(newPlanTasks, newPlanTravelTime, newPlanCost);
 	}
 
@@ -448,23 +540,32 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		long second = (milisTotal / 1000) % 60;
 		long minute = (milisTotal / (1000 * 60)) % 60;
 		long hour = (milisTotal / (1000 * 60 * 60)) % 24;
-		
+
 		return String.format(" (%02d:%02d:%02d:%d)", hour, minute, second, millis);
 	}
 
 	private void logRidesharingStats(List<PlanComputationRequest> requests) {
-		ridesharingStats.add(new RidesharingBatchStatsIH(failFastTime, insertionHeuristicTime, debugFailTime, 
-				requests.size()));
+		ridesharingStats.add(new RidesharingBatchStatsIH(failFastTime, insertionHeuristicTime, debugFailTime,
+			requests.size()
+		));
 	}
 
+	/**
+	 * This method first prepares the list of vehicles for which the insertions will be computed and then calls the
+	 * processRequestVehicleCombination method for each vehicle and request combination.
+	 *
+	 * @param request the request to process
+	 */
 	private void computeBestPlanForRequest(PlanComputationRequest request) {
 		resetBestPlan();
-		
+
 		// in case of station system, add one vehicle from the nearest station
-		if(config.stations.on){ //!onDemandvehicleStationStorage.isEmpty()){ //
-			OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(request.getFrom(), 
-							OnDemandvehicleStationStorage.NearestType.TRAVELTIME_FROM);
-			if(nearestStation != null) {
+		if (config.stations.on && request.getRequiredVehicleId() < 0) { //!onDemandvehicleStationStorage.isEmpty()){ //
+			OnDemandVehicleStation nearestStation = onDemandvehicleStationStorage.getNearestStation(
+				request.getFrom(),
+				OnDemandvehicleStationStorage.NearestType.TRAVELTIME_FROM
+			);
+			if (nearestStation != null) {
 				int indexFromEnd = usedVehiclesPerStation[Integer.parseInt(nearestStation.getId())];
 				int index = nearestStation.getParkedVehiclesCount() - 1 - indexFromEnd;
 
@@ -474,72 +575,101 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 				} else {
 					LOGGER.warn("Nearest station {} empty for request {}", nearestStation, request);
 				}
-			}
-			else{
+			} else {
 				LOGGER.warn("All stations empty for request {}", request);
 			}
 		}
-		
-		
+
+
 		long iterationStartTime = System.nanoTime();
 
-		vehiclesForPlanning.stream().parallel().forEach((tVvehicle) -> {
-			processRequestVehicleCombination(request, tVvehicle);
-		});
+		if (request.getRequiredVehicleId() > 0) {
+			processRequestVehicleCombination(
+				request,
+				(RideSharingOnDemandVehicle) vehicleStorage.getEntityById(Integer.toString(request.getRequiredVehicleId()))
+			);
+		} else {
+			vehiclesForPlanning.stream().parallel().forEach((tVvehicle) -> {
+				processRequestVehicleCombination(request, tVvehicle);
+			});
+		}
 
 		iterationTime += System.nanoTime() - iterationStartTime;
 	}
-	
-	private void processRequestVehicleCombination(PlanComputationRequest request, AgentPolisEntity tVvehicle){
+
+	/**
+	 * Wrapper method for request-vehicle combination processing. It selects the current vehicle plan and calls the
+	 * tryToAddRequestToPlan method.
+	 *
+	 * @param request   the request to process
+	 * @param tVvehicle the vehicle to process
+	 */
+	private void processRequestVehicleCombination(PlanComputationRequest request, AgentPolisEntity tVvehicle) {
 		RideSharingOnDemandVehicle vehicle = (RideSharingOnDemandVehicle) tVvehicle;
-		
+
 		DriverPlan currentPlan = vehicle.getCurrentPlan();
-		
+
 		// if the plan was already changed
-		if(planMap.containsKey(vehicle)){
+		if (planMap.containsKey(vehicle)) {
 			currentPlan = planMap.get(vehicle);
 		}
-		
+
 		tryToAddRequestToPlan(request, vehicle, currentPlan);
 	}
-	
-	public void tryToAddRequestToPlan(PlanComputationRequest request, RideSharingOnDemandVehicle vehicle, DriverPlan plan){
+
+	/**
+	 * Given a request, a vehicle and its current plan, this method tries to fail fast and if the request can be served,
+	 * it calls the computeOptimalPlan method.
+	 *
+	 * @param request the request to process
+	 * @param vehicle the vehicle to process
+	 * @param plan    the plan to process
+	 */
+	public void tryToAddRequestToPlan(
+		PlanComputationRequest request,
+		RideSharingOnDemandVehicle vehicle,
+		DriverPlan plan
+	) {
 		// fail fast
-		if(canServeRequest(vehicle, request)){
+		if (canServeRequest(vehicle, request)) {
 			computeOptimalPlan(vehicle, plan, request);
 		}
 	}
-	
-	private synchronized void tryUpdateBestPlan(PlanData newPlanData){
+
+	private synchronized void tryUpdateBestPlan(PlanData newPlanData) {
 		vehiclePlanningAllCallCount++;
-		
-		if(newPlanData != null && newPlanData.increment < minCostIncrement){
+
+		if (newPlanData != null && newPlanData.increment < minCostIncrement) {
 			minCostIncrement = newPlanData.increment;
 			bestPlan = newPlanData;
 		}
 	}
 
+	/**
+	 * Process a single request and update the best plan if a better plan is found.
+	 *
+	 * @param request the request to process
+	 */
 	private void processRequest(PlanComputationRequest request) {
 		Benchmark benchmark = new Benchmark();
 		vehicleFromNearestStation = null;
 		benchmark.measureTime(() -> computeBestPlanForRequest(request));
 		insertionHeuristicTime += benchmark.getDurationMsInt();
 
-		if(bestPlan != null){
+		if (bestPlan != null) {
 			planMap.put(bestPlan.vehicle, bestPlan.plan);
-			
-			if(bestPlan.vehicle == vehicleFromNearestStation){
+
+			if (bestPlan.vehicle == vehicleFromNearestStation) {
 				usedVehiclesPerStation[Integer.parseInt(vehicleFromNearestStation.getParkedIn().getId())]++;
 			}
 			// remove nearest vehicle if not used
-			else{
+			else {
 				vehiclesForPlanning.remove(vehicleFromNearestStation);
 			}
-		}
-		else{
+		} else {
 			LOGGER.debug("Request {} cannot be served!", request);
-            benchmark = new Benchmark();
-			benchmark.measureTime(() ->	droppedDemandsAnalyzer.debugFail(request, usedVehiclesPerStation));
+			benchmark = new Benchmark();
+			benchmark.measureTime(() -> droppedDemandsAnalyzer.debugFail(request, usedVehiclesPerStation));
 			debugFailTime += benchmark.getDurationMs();
 		}
 	}
@@ -553,16 +683,16 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 //		}
 //		return listForPlanning;
 //	}
-	
+
 	private List<OnDemandVehicle> getVehiclesForPlanning() {
 		vehiclesForPlanning = new ArrayList<>();
-		for(OnDemandVehicle vehicle: vehicleStorage){
-			if(vehicle.getState() != OnDemandVehicleState.REBALANCING 
-					&& (!config.stations.on || vehicle.getState() != OnDemandVehicleState.WAITING)){
+		for (OnDemandVehicle vehicle : vehicleStorage) {
+			if (vehicle.getState() != OnDemandVehicleState.REBALANCING
+				&& (!config.stations.on || vehicle.getState() != OnDemandVehicleState.WAITING)) {
 				vehiclesForPlanning.add(vehicle);
 			}
 		}
-		
+
 		return vehiclesForPlanning;
 	}
 
@@ -570,19 +700,19 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 		minCostIncrement = Double.MAX_VALUE;
 		bestPlan = null;
 	}
-	
-	public DriverPlan getBestPlan(){
-		if(bestPlan == null){
+
+	public DriverPlan getBestPlan() {
+		if (bestPlan == null) {
 			return null;
 		}
 		return bestPlan.plan;
 	}
-	
-	private class PlanData{
+
+	private class PlanData {
 		final DriverPlan plan;
-		
+
 		final double increment;
-		
+
 		final RideSharingOnDemandVehicle vehicle;
 
 		public PlanData(RideSharingOnDemandVehicle vehicle, DriverPlan plan, double increment) {
@@ -591,5 +721,5 @@ public class InsertionHeuristicSolver extends DARPSolver implements EventHandler
 			this.increment = increment;
 		}
 	}
-	
+
 }

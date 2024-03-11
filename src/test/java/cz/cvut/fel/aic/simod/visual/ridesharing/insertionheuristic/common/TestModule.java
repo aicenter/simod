@@ -27,20 +27,15 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer
 import cz.cvut.fel.aic.agentpolis.system.StandardAgentPolisModule;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
-import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactorySpec;
-import rebalancing.RebalancingOnDemandVehicleStation;
-import cz.cvut.fel.aic.simod.ridesharing.DARPSolver;
-import cz.cvut.fel.aic.simod.ridesharing.PlanCostProvider;
-import cz.cvut.fel.aic.simod.ridesharing.RidesharingDispatcher;
-import cz.cvut.fel.aic.simod.ridesharing.RidesharingOnDemandVehicleFactory;
-import cz.cvut.fel.aic.simod.ridesharing.StandardPlanCostProvider;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicleFactorySpec;
+import cz.cvut.fel.aic.simod.ridesharing.*;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.InsertionHeuristicSolver;
-import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;
+import cz.cvut.fel.aic.simod.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.simod.traveltimecomputation.AstarTravelTimeProvider;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.visual.ridesharing.vga.common.VGATestVisioInitializer;
+
 import java.io.File;
 
 /**
@@ -85,8 +80,8 @@ public class TestModule extends StandardAgentPolisModule{
 				.build(DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory.class));
                 
                 
-                install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, RebalancingOnDemandVehicleStation.class)
-				.build(RebalancingOnDemandVehicleStation.OnDemandVehicleStationFactory.class));
+//                install(new FactoryModuleBuilder().implement(OnDemandVehicleStation.class, OnDemandVehicleStation.class)
+//				.build(RebalancingOnDemandVehicleStation.OnDemandVehicleStationFactory.class));
 	}
 	
 

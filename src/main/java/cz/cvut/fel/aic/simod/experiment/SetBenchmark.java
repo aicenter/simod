@@ -20,10 +20,11 @@ package cz.cvut.fel.aic.simod.experiment;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.utils.Benchmark;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
+import cz.cvut.fel.aic.simod.entity.vehicle.SlotType;
+import cz.cvut.fel.aic.simod.action.PlanActionDropoff;
+import cz.cvut.fel.aic.simod.action.PlanActionPickup;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
 import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Objects;
@@ -265,7 +266,7 @@ public class SetBenchmark {
 		}
 
 		@Override
-		public int getOriginTime() {
+		public int getMinTime() {
 			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 		}
 
@@ -305,6 +306,11 @@ public class SetBenchmark {
 		}
 
 		@Override
+		public void setDemandAgent(DemandAgent demandAgent) {
+			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		}
+
+		@Override
 		public int getId() {
 			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 		}
@@ -313,7 +319,17 @@ public class SetBenchmark {
 		public void setOnboard(boolean onboard) {
 			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 		}
-		
+
+		@Override
+		public SlotType getRequiredSlotType() {
+			return SlotType.STANDARD_SEAT;
+		}
+
+		@Override
+		public int getRequiredVehicleId() {
+			throw new UnsupportedOperationException("Not supported yet.");
+		}
+
 	}
 }
 

@@ -20,10 +20,10 @@ package cz.cvut.fel.aic.simod.visual.ridesharing.vga.mock;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
+import cz.cvut.fel.aic.simod.action.PlanActionDropoff;
+import cz.cvut.fel.aic.simod.action.PlanActionPickup;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 
 /**
@@ -90,7 +90,7 @@ public class TestPlanRequest implements PlanComputationRequest
 	}
 
 	@Override
-	public int getOriginTime() {
+	public int getMinTime() {
 		return originTime;
 	}
 

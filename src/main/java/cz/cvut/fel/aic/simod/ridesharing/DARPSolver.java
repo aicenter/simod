@@ -19,8 +19,8 @@
 package cz.cvut.fel.aic.simod.ridesharing;
 
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
-import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.statistics.content.RidesharingBatchStats;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;

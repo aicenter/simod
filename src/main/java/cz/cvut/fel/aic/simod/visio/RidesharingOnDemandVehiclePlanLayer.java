@@ -27,8 +27,8 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUti
 import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioUtils;
 import cz.cvut.fel.aic.alite.vis.Vis;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanRequestAction;
+import cz.cvut.fel.aic.simod.action.PlanActionPickup;
+import cz.cvut.fel.aic.simod.action.PlanRequestAction;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import static cz.cvut.fel.aic.simod.visio.OnDemandVehicleLayer.NORMAL_COLOR;
 import java.awt.BasicStroke;

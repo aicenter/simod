@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.simod.entity.vehicle;
+package cz.cvut.fel.aic.simod.entity.agent;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -30,14 +30,18 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUti
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
+import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
+import cz.cvut.fel.aic.simod.entity.vehicle.MoDVehicle;
+import cz.cvut.fel.aic.simod.storage.MoDVehicleStorage;
+
+import java.time.ZonedDateTime;
 
 /**
  *
  * @author fido
  */
 @Singleton
-public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
+public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec {
 	
 	protected final TripsUtil tripsUtil;
 	
@@ -54,7 +58,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 	
 	protected final IdGenerator rebalancingIdGenerator;
 	
-	protected final PhysicalTransportVehicleStorage vehicleStorage;
+	protected final MoDVehicleStorage vehicleStorage;
 	
 	protected final SimodConfig config;
 	
@@ -67,7 +71,7 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 	
 	@Inject
 	public OnDemandVehicleFactory(
-			PhysicalTransportVehicleStorage vehicleStorage, 
+			MoDVehicleStorage vehicleStorage,
 			TripsUtil tripsUtil, 
 			StationsDispatcher onDemandVehicleStationsCentral, 
 			VisioPositionUtil positionUtil, 
@@ -92,20 +96,25 @@ public class OnDemandVehicleFactory implements OnDemandVehicleFactorySpec{
 	
 	
 	@Override
-	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition){
+	public OnDemandVehicle create(String vehicleId, SimulationNode startPosition,
+		MoDVehicle vehicle, ZonedDateTime operationStart, ZonedDateTime operationEnd,
+		OnDemandVehicleState onDemandVehicleState
+	){
 		return new OnDemandVehicle(
-				vehicleStorage, 
-				tripsUtil, 
-				onDemandVehicleStationsCentral, 
-				driveActivityFactory,
-				positionUtil, 
-				eventProcessor, 
-				timeProvider, 
-				rebalancingIdGenerator, 
-				config, 
-				idGenerator, 
-				agentpolisConfig,
-				vehicleId, 
-				startPosition);
+			vehicleStorage,
+			tripsUtil,
+			onDemandVehicleStationsCentral,
+			driveActivityFactory,
+			positionUtil,
+			eventProcessor,
+			timeProvider,
+			rebalancingIdGenerator,
+			config,
+			idGenerator,
+			agentpolisConfig,
+			vehicleId,
+			startPosition,
+			vehicle
+		);
 	}
 }

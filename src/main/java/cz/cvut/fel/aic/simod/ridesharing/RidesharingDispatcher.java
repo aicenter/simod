@@ -32,7 +32,6 @@ import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
-import cz.cvut.fel.aic.simod.DemandData;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.SimodException;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
@@ -44,11 +43,11 @@ import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.jackson.DarpSolutionSerializer;
 import cz.cvut.fel.aic.simod.jackson.MyModule;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
-import cz.cvut.fel.aic.simod.ridesharing.model.DefaultPlanComputationRequest;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanAction;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.DefaultPlanComputationRequest;
+import cz.cvut.fel.aic.simod.action.PlanAction;
+import cz.cvut.fel.aic.simod.action.PlanActionDropoff;
+import cz.cvut.fel.aic.simod.action.PlanActionPickup;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 
 import java.io.File;
@@ -81,9 +80,6 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RidesharingDispatcher.class);
 
-
-	private final TimeProvider timeProvider;
-
 	protected final DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory;
 
 	private final DARPSolver solver;
@@ -92,8 +88,12 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 
 	private final LinkedHashSet<PlanComputationRequest> waitingRequests;
 
-	private final Map<Integer,PlanComputationRequest> requestsMapByDemandAgents;
-
+	/**
+	 * Requests mapped by the index in the request input file. Map is used to not leave space for skipped or
+	 * invalid rows in the input file.
+	 */
+	private final Map<Integer,PlanComputationRequest> requests;
+	
 	private final PositionUtil positionUtil;
 
 
@@ -102,6 +102,10 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	private int requestCounter;
 
 	private IdGenerator tripIdGenerator;
+
+	private int demandsCount;
+	
+	
 
 
 
@@ -113,15 +117,27 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	}
 
 
-
-
+	@Override
+	public int getDemandsCount() {
+		return demandsCount;
+	}
+	
+	
+	
+	
 	@Inject
-	public RidesharingDispatcher(OnDemandvehicleStationStorage onDemandvehicleStationStorage,
-			TypedSimulation eventProcessor, SimodConfig config, DARPSolver solver, PeriodicTicker ticker,
-			DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory,
-			TimeProvider timeProvider, PositionUtil positionUtil,IdGenerator tripIdGenerator) {
-		super(onDemandvehicleStationStorage, eventProcessor, config, tripIdGenerator);
-		this.timeProvider = timeProvider;
+	public RidesharingDispatcher(
+		OnDemandvehicleStationStorage onDemandvehicleStationStorage,
+		TypedSimulation eventProcessor,
+		SimodConfig config,
+		DARPSolver solver,
+		PeriodicTicker ticker,
+		DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory,
+		TimeProvider timeProvider,
+		PositionUtil positionUtil,
+		IdGenerator tripIdGenerator
+	) {
+		super(onDemandvehicleStationStorage, eventProcessor, config, tripIdGenerator, timeProvider);
 		this.solver = solver;
 		this.requestFactory = requestFactory;
 		this.positionUtil = positionUtil;
@@ -129,7 +145,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		newRequests = new ArrayList<>();
 		waitingRequests = new LinkedHashSet<>();
 		darpSolverComputationalTimes = new ArrayList();
-		requestsMapByDemandAgents = new HashMap<>();
+		requests = new HashMap<>();
 		requestCounter = 0;
 		if(config.ridesharing.batchPeriod != 0){
 			ticker.registerRoutine(this, config.ridesharing.batchPeriod * 1000);
@@ -142,15 +158,12 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 
 
 
-	@Override
-	protected void serveDemand(SimulationNode startNode, DemandData demandData) {
-		SimulationNode requestStartPosition = demandData.locations[0];
-		DefaultPlanComputationRequest newRequest = requestFactory.create(requestCounter++, requestStartPosition,
-				demandData.locations[1], demandData.demandAgent);
-		waitingRequests.add(newRequest);
-		newRequests.add(newRequest);
-		requestsMapByDemandAgents.put(newRequest.getDemandAgent().getSimpleId(), newRequest);
+	protected void processRequest(DefaultPlanComputationRequest request) {
+		demandsCount++;
 
+		waitingRequests.add(request);
+		newRequests.add(request);
+		requests.put(request.getId(), request);
 		if(config.ridesharing.batchPeriod == 0){
 			replan();
 		}
@@ -258,17 +271,25 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	}
 
 	@Override
+	public boolean tickAtStart() {
+		return true;
+	}
+
+	@Override
 	public void handleEvent(Event event) {
 		// dispatcher common events
 		if(event.getType() instanceof OnDemandVehicleStationsCentralEvent){
 			super.handleEvent(event);
+		}
+		else if(event.getType() instanceof DemandEvent && event.getType() == DemandEvent.ANNOUNCEMENT) {
+			processRequest((DefaultPlanComputationRequest) event.getContent());
 		}
 		// pickup event
 		else{
 			OnDemandVehicleEvent eventType = (OnDemandVehicleEvent) event.getType();
 			if(eventType == OnDemandVehicleEvent.PICKUP){
 				OnDemandVehicleEventContent eventContent = (OnDemandVehicleEventContent) event.getContent();
-				PlanComputationRequest request = requestsMapByDemandAgents.get(eventContent.getDemandId());
+				PlanComputationRequest request = requests.get(eventContent.getRequestIndex());
 				if(!waitingRequests.remove(request)){
 					try {
 						throw new SimodException("Request picked up but it is not present in the waiting request queue!");
@@ -282,7 +303,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	}
 
 	public PlanComputationRequest getRequest(int demandId){
-		return requestsMapByDemandAgents.get(demandId);
+		return requests.get(demandId);
 	}
 
 	private void setEventHandeling() {

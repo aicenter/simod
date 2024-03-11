@@ -26,11 +26,11 @@ import cz.cvut.fel.aic.amodsim.SimodException;
 import cz.cvut.fel.aic.simod.ridesharing.RideSharingOnDemandVehicle;
 import cz.cvut.fel.aic.simod.ridesharing.StandardPlanCostProvider;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanAction;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionDropoff;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionPickup;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanComputationRequest;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanRequestAction;
+import cz.cvut.fel.aic.simod.action.PlanAction;
+import cz.cvut.fel.aic.simod.action.PlanActionDropoff;
+import cz.cvut.fel.aic.simod.action.PlanActionPickup;
+import cz.cvut.fel.aic.simod.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.action.PlanRequestAction;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import cz.cvut.fel.aic.simod.ridesharing.vga.model.Plan;
 import cz.cvut.fel.aic.simod.ridesharing.vga.model.PlanActionData;
@@ -195,7 +195,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 							// compute necessary variables as if going deep
 							int endTimeTemp = (int) Math.round((float) (endTime + durationMs) / 1000);
 							PlanComputationRequest request = newAction.getRequest();
-							int discomfort = endTimeTemp - request.getOriginTime() - request.getMinTravelTime();
+							int discomfort = endTimeTemp - request.getMinTime() - request.getMinTravelTime();
 							
 							//TODO add onboard vehicles previous discomfort
 							
@@ -234,7 +234,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 							if(newAction instanceof PlanActionDropoff){
 								PlanComputationRequest request = newAction.getRequest();
 								int endTimeS = (int) Math.round((float) endTime / 1000);
-								int discomfort = endTimeS - request.getOriginTime() - request.getMinTravelTime();
+								int discomfort = endTimeS - request.getMinTime() - request.getMinTravelTime();
 								newActionData.setDiscomfort(discomfort);
 								totalDiscomfort += discomfort;
 								onBoardCount--;
@@ -415,7 +415,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 							lastPosition = newAction.getPosition();
 							if(newAction instanceof PlanActionDropoff){
 								PlanComputationRequest request = newAction.getRequest();
-								int discomfort = endTime - request.getOriginTime() - request.getMinTravelTime();
+								int discomfort = endTime - request.getMinTime() - request.getMinTravelTime();
 								newActionData.setDiscomfort(discomfort);
 							}
 							else{

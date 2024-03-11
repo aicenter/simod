@@ -16,10 +16,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.simod.ridesharing.model;
+package cz.cvut.fel.aic.simod;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
-import cz.cvut.fel.aic.simod.entity.DemandAgent;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
+import cz.cvut.fel.aic.simod.entity.vehicle.SlotType;
+import cz.cvut.fel.aic.simod.action.PlanActionDropoff;
+import cz.cvut.fel.aic.simod.action.PlanActionPickup;
 
 /**
  *
@@ -47,7 +50,7 @@ public interface PlanComputationRequest {
 	 * Returns request origin time in seconds.
 	 * @return Request origin time in seconds.
 	 */
-	public int getOriginTime();
+	public int getMinTime();
 	
 	/**
 	 * Returns min travel time in seconds.
@@ -66,8 +69,14 @@ public interface PlanComputationRequest {
 	public PlanActionDropoff getDropOffAction();
 	
 	public DemandAgent getDemandAgent();
+
+	public void setDemandAgent(DemandAgent demandAgent);
 	
 	public int getId();
 	
 	public void setOnboard(boolean onboard);
+
+	public SlotType getRequiredSlotType();
+
+	public int getRequiredVehicleId();
 }

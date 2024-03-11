@@ -27,8 +27,8 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioInitializer
 import cz.cvut.fel.aic.simod.MainModule;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleStation;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactory;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicleFactorySpec;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicleFactory;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicleFactorySpec;
 import cz.cvut.fel.aic.simod.visio.MapVisualizerVisioInitializer;
 import cz.cvut.fel.aic.geographtools.TransportMode;
 import java.io.File;

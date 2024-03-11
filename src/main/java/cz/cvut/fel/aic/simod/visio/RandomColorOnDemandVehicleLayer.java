@@ -22,7 +22,8 @@ package cz.cvut.fel.aic.simod.visio;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
-import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
+import cz.cvut.fel.aic.simod.entity.vehicle.MoDVehicle;
+import cz.cvut.fel.aic.simod.storage.MoDVehicleStorage;
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Random;
@@ -45,14 +46,14 @@ public class RandomColorOnDemandVehicleLayer extends OnDemandVehicleLayer{
 	
 	
 	
-	public RandomColorOnDemandVehicleLayer(PhysicalTransportVehicleStorage physicalTransportVehicleStorage, AgentpolisConfig agentpolisConfig) {
-		super(physicalTransportVehicleStorage, agentpolisConfig);
+	public RandomColorOnDemandVehicleLayer(MoDVehicleStorage moDVehicleStorage, AgentpolisConfig agentpolisConfig) {
+		super(moDVehicleStorage, agentpolisConfig);
 		this.random = new Random();
 		agentColors = new HashMap<>();
 	}
 
 	@Override
-	protected Color getEntityDrawColor(PhysicalTransportVehicle agent) {
+	protected Color getEntityDrawColor(MoDVehicle agent) {
 		if(agentColors.containsKey(agent)){
 			return agentColors.get(agent);
 		}

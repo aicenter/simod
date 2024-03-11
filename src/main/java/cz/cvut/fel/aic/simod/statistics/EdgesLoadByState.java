@@ -23,7 +23,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.load.All
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.agentpolis.utils.CollectionUtil;
 import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.storage.OnDemandVehicleStorage;
 import java.math.BigInteger;
 import java.util.HashMap;

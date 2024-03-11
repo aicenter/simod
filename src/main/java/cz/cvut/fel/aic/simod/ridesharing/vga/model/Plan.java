@@ -19,9 +19,9 @@
 package cz.cvut.fel.aic.simod.ridesharing.vga.model;
 
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanAction;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanActionCurrentPosition;
-import cz.cvut.fel.aic.simod.ridesharing.model.PlanRequestAction;
+import cz.cvut.fel.aic.simod.action.PlanAction;
+import cz.cvut.fel.aic.simod.action.PlanActionCurrentPosition;
+import cz.cvut.fel.aic.simod.action.PlanRequestAction;
 import cz.cvut.fel.aic.simod.ridesharing.vga.calculations.IOptimalPlanVehicle;
 import java.util.ArrayList;
 import java.util.List;

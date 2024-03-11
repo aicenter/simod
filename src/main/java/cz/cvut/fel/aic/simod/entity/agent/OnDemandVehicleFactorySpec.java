@@ -16,28 +16,25 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.simod.ridesharing.model;
+package cz.cvut.fel.aic.simod.entity.agent;
 
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.vehicle.MoDVehicle;
+
+import java.time.ZonedDateTime;
 
 /**
- *
- * @author david
+ * @author fido
  */
-public class PlanAction {
-	protected final SimulationNode location;
-	
-	
-		
-	public SimulationNode getPosition(){
-		return location;
-	}
-	
-	
-
-	public PlanAction(SimulationNode location) {
-		this.location = location;
-	}
-	
-	
+public interface OnDemandVehicleFactorySpec {
+	public OnDemandVehicle create(
+		String vehicleId,
+		SimulationNode startPosition,
+		MoDVehicle vehicle,
+		ZonedDateTime operationStart,
+		ZonedDateTime operationEnd,
+		OnDemandVehicleState onDemandVehicleState
+	);
 }

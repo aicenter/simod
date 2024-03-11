@@ -16,23 +16,28 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.fel.aic.simod.storage;
+package cz.cvut.fel.aic.simod.action;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import cz.cvut.fel.aic.agentpolis.simmodel.entity.vehicle.PhysicalTransportVehicle;
-import cz.cvut.fel.aic.agentpolis.simmodel.environment.EntityStorage;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 
 /**
  *
- * @author fido
+ * @author david
  */
-@Singleton
-public class PhysicalTransportVehicleStorage extends EntityStorage<PhysicalTransportVehicle>{
+public class PlanAction {
+	protected final SimulationNode location;
 	
-	@Inject
-	public PhysicalTransportVehicleStorage() {
-		super();
+	
+		
+	public SimulationNode getPosition(){
+		return location;
 	}
+	
+	
+
+	public PlanAction(SimulationNode location) {
+		this.location = location;
+	}
+	
 	
 }

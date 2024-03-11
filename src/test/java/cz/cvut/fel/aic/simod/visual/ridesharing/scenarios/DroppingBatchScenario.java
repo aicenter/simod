@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.simod.visual.ridesharing.scenarios;
 
 import com.google.inject.Injector;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.DateTimeParser;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.Utils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationEdge;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
@@ -57,8 +58,8 @@ public class DroppingBatchScenario {
 		
 		// trips
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(0,8000, graph.getNode(1), graph.getNode(3)));
-		trips.add(new TimeTrip<>(1,1000, graph.getNode(19), graph.getNode(0)));
+		trips.add(new TimeTrip<>(0, DateTimeParser.createDateTimeFromMillis(8000L), graph.getNode(1), graph.getNode(3)));
+		trips.add(new TimeTrip<>(1, DateTimeParser.createDateTimeFromMillis(1000), graph.getNode(19), graph.getNode(0)));
 		
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
 		vehicalInitPositions.add(graph.getNode(0));

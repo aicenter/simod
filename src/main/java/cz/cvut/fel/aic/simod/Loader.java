@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.simod;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.DateTimeParser;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
 import cz.cvut.fel.aic.geographtools.GPSLocation;
@@ -83,10 +84,11 @@ public class Loader {
 
 						while (resultSet.next()) {
 							trips.add(new TimeTrip(
-									tripIdGenerator.getId(),
-									resultSet.getLong("start_time"), 
-									resultSet.getLong("end_time"), 
-									getLocationsFromJson(resultSet.getString("path")).toArray(new GPSLocation[0])));
+								tripIdGenerator.getId(),
+								DateTimeParser.parseDateTime(resultSet.getString("start_time")),
+								DateTimeParser.parseDateTime(resultSet.getString("end_time")),
+								getLocationsFromJson(resultSet.getString("path")).toArray(new GPSLocation[0]))
+							);
 						}
 					}
 				}

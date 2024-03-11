@@ -30,8 +30,8 @@ import cz.cvut.fel.aic.agentpolis.simulator.visualization.visio.VisioPositionUti
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
-import cz.cvut.fel.aic.simod.entity.vehicle.OnDemandVehicle;
-import cz.cvut.fel.aic.simod.storage.PhysicalTransportVehicleStorage;
+import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.storage.MoDVehicleStorage;
 
 /**
  *
@@ -41,7 +41,7 @@ public class TestOnDemandVehicle extends OnDemandVehicle{
 	
 	@Inject
 	public TestOnDemandVehicle(
-			PhysicalTransportVehicleStorage vehicleStorage,
+			MoDVehicleStorage vehicleStorage,
 			TripsUtil tripsUtil, 
 			StationsDispatcher onDemandVehicleStationsCentral, 
 			StandardDriveFactory driveActivityFactory, 
@@ -70,29 +70,6 @@ public class TestOnDemandVehicle extends OnDemandVehicle{
 				startPosition);
 
 	}
-
-	/*@Override
-	public void finishedDriving() {
-		OnDemandVehicleState stateBeforeActions = state;   
-		
-		// normal actions
-		//super.finishedDriving();
-		
-		if(stateBeforeActions == OnDemandVehicleState.DRIVING_TO_STATION || 
-				(stateBeforeActions == OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION && tripToStation == null)){
-			tripsToStationFinished++;
-			Assert.assertEquals(droppOffCount, tripsToStationFinished);
-			
-			statisticControl.incrementDemandFinishDrivingCounter();
-			
-//			Assert.assertEquals(0, cargo.size());
-		}
-		if(stateBeforeActions == OnDemandVehicleState.DRIVING_TO_TARGET_LOCATION){
-			demandTripsFinished++;
-		}
-		Assert.assertTrue(demandTripsFinished == tripsToStationFinished 
-				|| demandTripsFinished == tripsToStationFinished + 1);
-	}*/
 
 	@Override
 	protected void dropOffDemand() {

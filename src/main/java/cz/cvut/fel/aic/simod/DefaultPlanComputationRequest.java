@@ -154,7 +154,7 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest {
 		}
 
 		int maxPickUpTime = desiredPickupTime + maxPickUpDelay;
-		int maxDropOffTime = desiredPickupTime + minTravelTime + maxProlongation;
+		int maxDropOffTime = maxPickUpTime + minTravelTime + maxProlongation;
 
 		this.demandAgent = demandAgent;
 		onboard = false;

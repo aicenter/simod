@@ -97,7 +97,6 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 
 	private final TravelTimeProvider travelTimeProvider;
 
-
 	private List<PlanComputationRequest> newRequests;
 
 	private int requestCounter;

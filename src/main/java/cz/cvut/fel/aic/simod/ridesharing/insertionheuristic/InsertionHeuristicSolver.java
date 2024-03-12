@@ -285,9 +285,13 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 			return false;
 		}
 
-		// real feasibility check 
-		boolean canServe = travelTimeProvider.getTravelTime(vehicle, request.getFrom())
-			< maxDelayTime;
+		// real feasibility check
+		long vehicleMinDepartureTime = Math.max(
+			timeProvider.getSimTimeFromDateTime(vehicle.getOperationStart()),
+			timeProvider.getCurrentSimTime()
+		);
+		long availableTime = request.getMaxPickupTime() * 1000L - vehicleMinDepartureTime + maxDelayTime;
+		boolean canServe = travelTimeProvider.getTravelTime(vehicle, request.getFrom()) < availableTime;
 
 		return canServe;
 	}

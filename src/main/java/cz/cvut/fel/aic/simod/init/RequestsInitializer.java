@@ -234,7 +234,7 @@ public class RequestsInitializer {
 							}
 
 							// event for demand event handler
-							eventProcessor.addEvent(null, demandEventHandler, null, newRequest, startTime);
+							eventProcessor.addEvent(null, demandEventHandler, null, newRequest, newRequest.getMinTime());
 
 							eventCount++;
 							if (MAX_EVENTS != 0 && eventCount >= MAX_EVENTS) {

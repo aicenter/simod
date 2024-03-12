@@ -159,7 +159,7 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest {
 		this.demandAgent = demandAgent;
 		onboard = false;
 
-		pickUpAction = new PlanActionPickup(this, origin, desiredPickupTime, maxPickUpTime);
+		pickUpAction = new PlanActionPickup(this, origin, minTime, maxPickUpTime);
 		dropOffAction = new PlanActionDropoff(this, destination, maxDropOffTime);
 	}
 

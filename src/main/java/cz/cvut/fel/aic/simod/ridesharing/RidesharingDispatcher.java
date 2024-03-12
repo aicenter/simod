@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.simod.ridesharing;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -365,7 +366,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 			DarpSolution solution =new DarpSolution(true, totalCost, totalCost/60, darpPlans, new DarpSolutionDroppedRequest[]{});
 
 			File outputFile = new File(config.bezbaOutputFilePath);
-			ObjectMapper mapper = new ObjectMapper();
+			ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 			mapper.registerModule(new MyModule());
 			mapper.writeValue(outputFile, solution);
 			plansExported = true;

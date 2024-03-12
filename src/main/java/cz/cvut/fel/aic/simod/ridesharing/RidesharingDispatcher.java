@@ -205,7 +205,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 				= solver.solve(newRequests, new ArrayList<>(waitingRequests));
 		long totalTime = System.nanoTime() - startTime;
 		darpSolverComputationalTimes.add(totalTime);
-		savePlans(newPlans, config.serviceTime );
+		savePlans(newPlans, config );
 
 		// executing new plans
 		for(Entry<RideSharingOnDemandVehicle,DriverPlan> entry: newPlans.entrySet()){
@@ -317,7 +317,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		eventProcessor.addEventHandler(this, typesToHandle);
 	}
 
-	public void savePlans(Map<RideSharingOnDemandVehicle, DriverPlan> plans, int serviceTime) {
+	public void savePlans(Map<RideSharingOnDemandVehicle, DriverPlan> plans, SimodConfig config) {
 		if(plansExported) return;
 		try {
 			DarpSolutionPlan[] darpPlans = new DarpSolutionPlan[plans.size()];
@@ -354,7 +354,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 					long arrivalTime = t;
 					globalArrivalTime = arrivalTime;
 					long waitForMinTime = planRequestAction.getMinTime() - t;
-					long departureTime = arrivalTime+serviceTime;
+					long departureTime = arrivalTime + config.serviceTime;
 					if (waitForMinTime>0) departureTime += waitForMinTime;
 					t = departureTime;
 					lastPosition = action.getPosition();
@@ -365,7 +365,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 
 			DarpSolution solution =new DarpSolution(true, totalCost, totalCost/60, darpPlans, new DarpSolutionDroppedRequest[]{});
 
-			File outputFile = new File("data/serialized/config.yaml-solution.json");
+			File outputFile = new File(config.bezbaOutputFilePath);
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.registerModule(new MyModule());
 			mapper.writeValue(outputFile, solution);

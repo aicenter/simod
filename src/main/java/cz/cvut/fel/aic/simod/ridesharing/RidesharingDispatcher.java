@@ -34,19 +34,16 @@ import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.SimodException;
+import cz.cvut.fel.aic.simod.action.*;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.darp.*;
 import cz.cvut.fel.aic.simod.event.DemandEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
-import cz.cvut.fel.aic.simod.jackson.DarpSolutionSerializer;
 import cz.cvut.fel.aic.simod.jackson.MyModule;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.simod.DefaultPlanComputationRequest;
-import cz.cvut.fel.aic.simod.action.PlanAction;
-import cz.cvut.fel.aic.simod.action.PlanActionDropoff;
-import cz.cvut.fel.aic.simod.action.PlanActionPickup;
 import cz.cvut.fel.aic.simod.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 
@@ -65,6 +62,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -96,6 +95,8 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	
 	private final PositionUtil positionUtil;
 
+	private final TravelTimeProvider travelTimeProvider;
+
 
 	private List<PlanComputationRequest> newRequests;
 
@@ -104,6 +105,8 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	private IdGenerator tripIdGenerator;
 
 	private int demandsCount;
+
+	private boolean plansExported = false;
 	
 	
 
@@ -135,13 +138,15 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory,
 		TimeProvider timeProvider,
 		PositionUtil positionUtil,
-		IdGenerator tripIdGenerator
+		IdGenerator tripIdGenerator,
+		TravelTimeProvider travelTimeProvider
 	) {
 		super(onDemandvehicleStationStorage, eventProcessor, config, tripIdGenerator, timeProvider);
 		this.solver = solver;
 		this.requestFactory = requestFactory;
 		this.positionUtil = positionUtil;
 		this.tripIdGenerator = tripIdGenerator;
+		this.travelTimeProvider = travelTimeProvider;
 		newRequests = new ArrayList<>();
 		waitingRequests = new LinkedHashSet<>();
 		darpSolverComputationalTimes = new ArrayList();
@@ -200,7 +205,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 				= solver.solve(newRequests, new ArrayList<>(waitingRequests));
 		long totalTime = System.nanoTime() - startTime;
 		darpSolverComputationalTimes.add(totalTime);
-		savePlans(newPlans );
+		savePlans(newPlans, config.serviceTime );
 
 		// executing new plans
 		for(Entry<RideSharingOnDemandVehicle,DriverPlan> entry: newPlans.entrySet()){
@@ -312,34 +317,59 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		eventProcessor.addEventHandler(this, typesToHandle);
 	}
 
-	public void savePlans(Map<RideSharingOnDemandVehicle, DriverPlan> plans) {
+	public void savePlans(Map<RideSharingOnDemandVehicle, DriverPlan> plans, int serviceTime) {
+		if(plansExported) return;
 		try {
 			DarpSolutionPlan[] darpPlans = new DarpSolutionPlan[plans.size()];
+			int totalCost = 0;
 			for (int i = 0; i < plans.size(); i++) {
 				Entry<RideSharingOnDemandVehicle, DriverPlan> entry = (Entry<RideSharingOnDemandVehicle, DriverPlan>) plans.entrySet().toArray()[i];
 				RideSharingOnDemandVehicle vehicle = entry.getKey();
 				DriverPlan plan = entry.getValue();
    				int cost = (int) (plan.cost);
-				DarpSolutionPlanVehicle darpVehicle = new DarpSolutionPlanVehicle(vehicle.getIndex(), new DarpSolutionPosition(vehicle.getPosition().getIndex()), vehicle.getCapacity() );
-				DarpSolutionStopAction[] planActions = new DarpSolutionStopAction[plan.plan.size()];
+				totalCost += cost;
+				DarpSolutionPlanVehicle darpVehicle = new DarpSolutionPlanVehicle(vehicle.getIndex(), new DarpSolutionPosition(vehicle.getPosition().getIndex()));
+				DarpSolutionStopAction[] planActions = new DarpSolutionStopAction[plan.plan.size()-1];
+
+				SimulationNode lastPosition = plan.plan.get(0).getPosition();
+				long t = 0;
+				long globalDepartureTime = 0;
+				long globalArrivalTime = 0;
 				for (int j = 0; j < plan.plan.size(); j++) {
 					PlanAction action = plan.plan.get(j);
 					boolean isPickup = action instanceof PlanActionPickup;
 					boolean isDropOff = action instanceof PlanActionDropoff;
 					String type = isPickup ? "pickup": isDropOff? "dopoff": "current";
-					DarpSolutionStopActionDetails details = new DarpSolutionStopActionDetails(action.getPosition().id, action.getPosition().getIndex(), type, new DarpSolutionPosition(action.getPosition().getIndex()),0,0,0);
-					//TODO: calculate times and cost properly.
-					planActions[j] = new DarpSolutionStopAction(0,0, details);
+					if (action instanceof PlanActionCurrentPosition) continue;
+					PlanRequestAction planRequestAction = (PlanRequestAction) action;
+
+					DarpSolutionStopActionDetails details = new DarpSolutionStopActionDetails(0, 0, type, new DarpSolutionPosition(action.getPosition().getIndex()),planRequestAction.getMinTime(),planRequestAction.getMaxTime(),0);
+					long travelTime = travelTimeProvider.getTravelTime(vehicle, lastPosition, action.getPosition()) / 1000;
+					if(t==0) {
+						t = planRequestAction.getMinTime()-travelTime;
+						globalDepartureTime = t;
+					}
+
+					t += travelTime;
+					long arrivalTime = t;
+					globalArrivalTime = arrivalTime;
+					long waitForMinTime = planRequestAction.getMinTime() - t;
+					long departureTime = arrivalTime+serviceTime;
+					if (waitForMinTime>0) departureTime += waitForMinTime;
+					t = departureTime;
+					lastPosition = action.getPosition();
+					planActions[j-1] = new DarpSolutionStopAction((int) arrivalTime,(int) departureTime, details);
 				}
-				darpPlans[i] = new DarpSolutionPlan(cost,0,0, darpVehicle, planActions);
+				darpPlans[i] = new DarpSolutionPlan(cost,(int) globalDepartureTime,(int) globalArrivalTime, darpVehicle, planActions);
 			}
 
-			DarpSolution solution =new DarpSolution(true, 100, 200, darpPlans,new DarpSolutionDroppedRequest[]{});
+			DarpSolution solution =new DarpSolution(true, totalCost, totalCost/60, darpPlans, new DarpSolutionDroppedRequest[]{});
 
 			File outputFile = new File("data/serialized/config.yaml-solution.json");
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.registerModule(new MyModule());
 			mapper.writeValue(outputFile, solution);
+			plansExported = true;
 
 		} catch (IOException e) {
 			Logger.getLogger(TripsUtilCached.class.getName()).log(Level.SEVERE, null, e);

@@ -18,6 +18,10 @@
  */
 package cz.cvut.fel.aic.simod.ridesharing;
 
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.ticker.PeriodicTicker;
@@ -31,18 +35,22 @@ import cz.cvut.fel.aic.alite.common.event.EventHandler;
 import cz.cvut.fel.aic.alite.common.event.typed.TypedSimulation;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.amodsim.SimodException;
+import cz.cvut.fel.aic.simod.action.*;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
+import cz.cvut.fel.aic.simod.entity.darp.*;
 import cz.cvut.fel.aic.simod.event.DemandEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
+import cz.cvut.fel.aic.simod.jackson.MyModule;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.simod.DefaultPlanComputationRequest;
-import cz.cvut.fel.aic.simod.action.PlanAction;
-import cz.cvut.fel.aic.simod.action.PlanActionDropoff;
-import cz.cvut.fel.aic.simod.action.PlanActionPickup;
 import cz.cvut.fel.aic.simod.PlanComputationRequest;
 import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,6 +65,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import cz.cvut.fel.aic.simod.tripUtil.TripsUtilCached;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -65,17 +77,15 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 public class RidesharingDispatcher extends StationsDispatcher implements Routine, EventHandler{
-	
-	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RidesharingDispatcher.class);
-	
 
-	
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RidesharingDispatcher.class);
+
 	protected final DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory;
-	
+
 	private final DARPSolver solver;
-	
+
 	private final List darpSolverComputationalTimes;
-	
+
 	private final LinkedHashSet<PlanComputationRequest> waitingRequests;
 
 	/**
@@ -87,24 +97,28 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 	private final PositionUtil positionUtil;
 
 	private final TravelTimeProvider travelTimeProvider;
-	
-	
+
 	private List<PlanComputationRequest> newRequests;
-	
+
 	private int requestCounter;
-	
+
 	private IdGenerator tripIdGenerator;
 
 	private int demandsCount;
+
+	private boolean plansExported = false;
 	
 	
 
-	
-	
-	
+
+
+
+
+
 	public List getDarpSolverComputationalTimes() {
 		return darpSolverComputationalTimes;
 	}
+
 
 	@Override
 	public int getDemandsCount() {
@@ -142,9 +156,10 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 			ticker.registerRoutine(this, config.ridesharing.batchPeriod * 1000);
 		}
 		setEventHandeling();
-		
+
 		solver.setDispatcher(this);
 	}
+
 
 
 
@@ -158,16 +173,16 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 			replan();
 		}
 	}
-	
+
 	protected void replan(){
 		int droppedDemandsThisBatch = 0;
-		
+
 		// logger info
 		int currentTimeSec = (int) Math.round(timeProvider.getCurrentSimTime() / 1000.0);
 		LOGGER.info("Current sim time is: {} seconds", currentTimeSec);
 		LOGGER.info("No. of new requests: {}", newRequests.size());
 		LOGGER.info("No. of waiting requests: {}", waitingRequests.size());
-		
+
 		// dropping demands that waits too long
 		Iterator<PlanComputationRequest> waitingRequestIterator = waitingRequests.iterator();
 		while(waitingRequestIterator.hasNext()){
@@ -180,35 +195,38 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 				eventProcessor.addEvent(DemandEvent.LEFT, null, null, request);
 				LOGGER.info("Demand {} dropped", request.getId());
 			}
-		}		
+		}
 		LOGGER.info("Demands dropped in this batch: {}", droppedDemandsThisBatch);
 		LOGGER.info("Total dropped demands count: {}", numberOfDemandsDropped);
-		
+
 		// DARP solving
 		long startTime = System.nanoTime();
-		Map<RideSharingOnDemandVehicle,DriverPlan> newPlans 
+		Map<RideSharingOnDemandVehicle,DriverPlan> newPlans
 				= solver.solve(newRequests, new ArrayList<>(waitingRequests));
 		long totalTime = System.nanoTime() - startTime;
 		darpSolverComputationalTimes.add(totalTime);
+		savePlans(newPlans, config );
 
 		// executing new plans
 		for(Entry<RideSharingOnDemandVehicle,DriverPlan> entry: newPlans.entrySet()){
 			RideSharingOnDemandVehicle vehicle = entry.getKey();
     			DriverPlan plan = entry.getValue();
+
 			vehicle.replan(plan);
+
 		}
-		
+
 		// printing nice plans
 		if(false){
 			for(Entry<RideSharingOnDemandVehicle,DriverPlan> entry: newPlans.entrySet()){
 				RideSharingOnDemandVehicle vehicle = entry.getKey();
 				DriverPlan plan = entry.getValue();
-				
+
 				int pickupCount = 0;
 				int dropoffCount = 0;
 				Set<SimulationNode> positions = new HashSet<>();
 				boolean positionOverlaps = false;
-				
+
 				for(PlanAction planAction: plan){
 					if(positions.contains(planAction.getPosition())){
 						positionOverlaps = true;
@@ -222,10 +240,10 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 						dropoffCount++;
 					}
 				}
-				
+
 				if(!positionOverlaps && pickupCount > 1 && dropoffCount > 1){
 					boolean nearby = false;
-				
+
 					for(SimulationNode node: positions){
 						for(SimulationNode node2: positions){
 							if(node != node2){
@@ -288,15 +306,76 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 			}
 		}
 	}
-	
+
 	public PlanComputationRequest getRequest(int demandId){
 		return requests.get(demandId);
 	}
-	
+
 	private void setEventHandeling() {
 		List<Enum> typesToHandle = new LinkedList<>();
 		typesToHandle.add(OnDemandVehicleEvent.PICKUP);
 		eventProcessor.addEventHandler(this, typesToHandle);
+	}
+
+	public void savePlans(Map<RideSharingOnDemandVehicle, DriverPlan> plans, SimodConfig config) {
+		if(plansExported) return;
+		try {
+			DarpSolutionPlan[] darpPlans = new DarpSolutionPlan[plans.size()];
+			int totalCost = 0;
+			for (int i = 0; i < plans.size(); i++) {
+				Entry<RideSharingOnDemandVehicle, DriverPlan> entry = (Entry<RideSharingOnDemandVehicle, DriverPlan>) plans.entrySet().toArray()[i];
+				RideSharingOnDemandVehicle vehicle = entry.getKey();
+				DriverPlan plan = entry.getValue();
+   				int cost = (int) (plan.cost);
+				totalCost += cost;
+				DarpSolutionPlanVehicle darpVehicle = new DarpSolutionPlanVehicle(vehicle.getIndex(), new DarpSolutionPosition(vehicle.getPosition().getIndex()));
+				DarpSolutionStopAction[] planActions = new DarpSolutionStopAction[plan.plan.size()-1];
+
+				SimulationNode lastPosition = plan.plan.get(0).getPosition();
+				long t = 0;
+				long globalDepartureTime = 0;
+				long globalArrivalTime = 0;
+				for (int j = 0; j < plan.plan.size(); j++) {
+					PlanAction action = plan.plan.get(j);
+					boolean isPickup = action instanceof PlanActionPickup;
+					boolean isDropOff = action instanceof PlanActionDropoff;
+					String type = isPickup ? "pickup": isDropOff? "dopoff": "current";
+					if (action instanceof PlanActionCurrentPosition) continue;
+					PlanRequestAction planRequestAction = (PlanRequestAction) action;
+
+					DarpSolutionStopActionDetails details = new DarpSolutionStopActionDetails(0, 0, type, new DarpSolutionPosition(action.getPosition().getIndex()),planRequestAction.getMinTime(),planRequestAction.getMaxTime(),0);
+					long travelTime = travelTimeProvider.getTravelTime(vehicle, lastPosition, action.getPosition()) / 1000;
+					if(t==0) {
+						t = planRequestAction.getMinTime()-travelTime;
+						globalDepartureTime = t;
+					}
+
+					t += travelTime;
+					long arrivalTime = t;
+					globalArrivalTime = arrivalTime;
+					long waitForMinTime = planRequestAction.getMinTime() - t;
+					long departureTime = arrivalTime + config.serviceTime;
+					if (waitForMinTime>0) departureTime += waitForMinTime;
+					t = departureTime;
+					lastPosition = action.getPosition();
+					planActions[j-1] = new DarpSolutionStopAction((int) arrivalTime,(int) departureTime, details);
+				}
+				darpPlans[i] = new DarpSolutionPlan(cost,(int) globalDepartureTime,(int) globalArrivalTime, darpVehicle, planActions);
+			}
+
+			DarpSolution solution =new DarpSolution(true, totalCost, totalCost/60, darpPlans, new DarpSolutionDroppedRequest[]{});
+
+			File outputFile = new File(config.bezbaOutputFilePath);
+			ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+			mapper.registerModule(new MyModule());
+			mapper.writeValue(outputFile, solution);
+			plansExported = true;
+
+		} catch (IOException e) {
+			Logger.getLogger(TripsUtilCached.class.getName()).log(Level.SEVERE, null, e);
+			e.printStackTrace();
+		}
+
 	}
 	
 }

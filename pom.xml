@@ -38,6 +38,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 				<configuration>
 					<source>18</source>
 					<target>18</target>
+<!--					<compilerArgs>-->
+<!--						<arg>-classpath</arg>-->
+<!--						<arg>${class}${env.HDFQL_HOME}/wrapper/java/</arg>-->
+<!--					</compilerArgs>-->
 				</configuration>
 			</plugin>
 
@@ -69,6 +73,23 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>3.6.1</version>
 			</plugin>
+
+<!--			<plugin>-->
+<!--				<groupId>org.codehaus.mojo</groupId>-->
+<!--				<artifactId>exec-maven-plugin</artifactId>-->
+<!--				<version>3.1.0</version>-->
+<!--				<configuration>-->
+<!--					<executable>java</executable>-->
+<!--					<commandlineArgs>-Djava.library.path="${env.HDFQL_HOME}/wrapper/java/as/hdfql" -classpath %classpath cz.cvut.fel.aic.simod.OnDemandVehiclesSimulation</commandlineArgs>-->
+<!--&lt;!&ndash;					<mainClass>cz.cvut.fel.aic.simod.OnDemandVehiclesSimulation</mainClass>&ndash;&gt;-->
+<!--&lt;!&ndash;					<systemProperties>&ndash;&gt;-->
+<!--&lt;!&ndash;						<systemProperty>&ndash;&gt;-->
+<!--&lt;!&ndash;							<key>java.library.path</key>&ndash;&gt;-->
+<!--&lt;!&ndash;							<value>${env.HDFQL_HOME}/wrapper/java/as/hdfql</value>&ndash;&gt;-->
+<!--&lt;!&ndash;						</systemProperty>&ndash;&gt;-->
+<!--&lt;!&ndash;					</systemProperties>&ndash;&gt;-->
+<!--				</configuration>-->
+<!--			</plugin>-->
 		</plugins>
 	</build>
 	<dependencies>
@@ -170,6 +191,16 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 			<version>2.8.2</version>
 			<type>jar</type>
 		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.hdfgroup</groupId>-->
+<!--			<artifactId>hdf-java</artifactId>-->
+<!--			<version>2.6.1</version>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>io.jhdf</groupId>-->
+<!--			<artifactId>jhdf</artifactId>-->
+<!--			<version>0.6.10</version>-->
+<!--		</dependency>-->
 	</dependencies>
 
 	<profiles>
@@ -213,6 +244,45 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 					</plugin>
 				</plugins>
 			</build>
+		</profile>
+		<profile>
+			<id>with-hdf5</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<version>3.3.0</version>
+						<executions>
+							<execution>
+								<id>add-source-directory</id>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>add-source</goal>
+								</goals>
+								<configuration>
+									<sources>
+										<source>${env.HDFQL_HOME}/wrapper/java/</source>
+									</sources>
+								</configuration>
+							</execution>
+							<execution>
+								<id>add-source</id>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>add-source</goal>
+								</goals>
+								<configuration>
+									<sources>
+										<source>${project.basedir}/src/main/java-hdf5_dependent</source>
+									</sources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+
 		</profile>
 	</profiles>
 	

@@ -26,6 +26,7 @@ import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.MovingEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.agentpolis.utils.PositionUtil;
+import cz.cvut.fel.aic.simod.OnDemandVehiclesSimulation;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -33,9 +34,14 @@ import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+//import io.jhdf.HdfFile;
+//import io.jhdf.api.Dataset;
 import me.tongfei.progressbar.ProgressBar;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +70,26 @@ public class DistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 		super(timeProvider);
 		this.positionUtil = positionUtil;
 		this.config = config;
-		distanceMatrix = loadDistanceMatrix(config.distanceMatrixFilepath);
+		if(config.distanceMatrixFilepath.endsWith(".h5")){
+			if(!OnDemandVehiclesSimulation.hdf5Available()){
+				throw new RuntimeException("HDF5 file specified, but HDF5 library not available");
+			}
+			distanceMatrix = loadDistanceMatrixHDF5(config.distanceMatrixFilepath);
+		}
+		else {
+			distanceMatrix = loadDistanceMatrixFromCsv(config.distanceMatrixFilepath);
+		}
+	}
+
+	private int[][] loadDistanceMatrixHDF5(String distanceMatrixFilepath) {
+		try {
+			Class<?> HDFLoaderClass = Class.forName("cz.cvut.fel.aic.simod.traveltimecomputation.HDFLoader");
+			Method method = HDFLoaderClass.getMethod("loadDistanceMatrix", String.class);
+			return (int[][]) method.invoke(null, distanceMatrixFilepath);
+		} catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+//		return HDFLoader.loadDistanceMatrix(distanceMatrixFilepath);
 	}
 
 	@Override
@@ -73,7 +98,7 @@ public class DistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 		return durationInMilliseconds;
 	}
 
-	private int[][] loadDistanceMatrix(String distanceMatrixFilepath) {
+	private int[][] loadDistanceMatrixFromCsv(String distanceMatrixFilepath) {
 		LOGGER.info("Loading distance matrix from: {}", distanceMatrixFilepath);
 		try {
 			Reader reader

@@ -58,6 +58,15 @@ public class OnDemandVehiclesSimulation {
 			return false;
 		}
 	}
+
+	public static boolean hdf5Available(){
+		try {
+			Class.forName("as.hdfql.HDFql");
+			return true;
+		} catch (ClassNotFoundException e) {
+			return false;
+		}
+	}
 	
 	public static void main(String[] args) throws MalformedURLException {
 		new OnDemandVehiclesSimulation().run(args);

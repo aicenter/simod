@@ -62,6 +62,8 @@ public class SimodConfig implements GeneratedConfig {
 
   public String vehiclesFilePath;
 
+  public String bezbaOutputFilePath;
+
   public Boolean simplifyGraph;
 
   public Rebalancing rebalancing;
@@ -99,6 +101,7 @@ public class SimodConfig implements GeneratedConfig {
     this.startTime = (Integer) simodConfig.get("start_time");
     this.maxPickupDelay = (Integer) simodConfig.get("max_pickup_delay");
     this.vehiclesFilePath = (String) simodConfig.get("vehicles_file_path");
+    this.bezbaOutputFilePath = (String) simodConfig.get("bezba_output_file_path");
     this.simplifyGraph = (Boolean) simodConfig.get("simplify_graph");
     this.rebalancing = new Rebalancing((Map) simodConfig.get("rebalancing"));
     this.statistics = new Statistics((Map) simodConfig.get("statistics"));

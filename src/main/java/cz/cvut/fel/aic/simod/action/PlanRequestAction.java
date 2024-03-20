@@ -18,21 +18,50 @@
  */
 package cz.cvut.fel.aic.simod.action;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.PlanComputationRequest;
 
+import java.io.IOException;
 import java.util.Objects;
 
-public abstract class PlanRequestAction extends TimeWindowAction{
+@JsonSerialize(using = PlanRequestAction.PlanRequestActionSerializer.class)
+public abstract class PlanRequestAction extends TimeWindowAction {
+
+	public static class PlanRequestActionSerializer extends JsonSerializer<PlanRequestAction> {
+		@Override
+		public void serialize(
+			PlanRequestAction action,
+			JsonGenerator gen,
+			SerializerProvider serializers
+		) throws IOException {
+			gen.writeStartObject();
+			gen.writeFieldName("request_index");
+			gen.writeObject(action.getRequest().getId());
+			gen.writeFieldName("type");
+			if(action instanceof PlanActionPickup)
+				gen.writeObject("pickup");
+			else
+				gen.writeObject("dropoff");
+			gen.writeFieldName("position");
+			gen.writeObject(action.getPosition().getIndex());
+			gen.writeFieldName("min_time");
+			gen.writeObject(action.getMinTime());
+			gen.writeFieldName("max_time");
+			gen.writeObject(action.getMaxTime());
+			gen.writeEndObject();
+		}
+	}
 
 	public final PlanComputationRequest request;
 
 
-
-	public PlanComputationRequest getRequest() { 
-		return request; 
+	public PlanComputationRequest getRequest() {
+		return request;
 	}
-
 
 
 	public PlanRequestAction(PlanComputationRequest request, SimulationNode location, int maxTime) {
@@ -64,5 +93,5 @@ public abstract class PlanRequestAction extends TimeWindowAction{
 		return this.getClass().equals(obj.getClass());
 	}
 
-	
+
 }

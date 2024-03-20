@@ -18,6 +18,7 @@
  */
 package cz.cvut.fel.aic.simod;
 
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.vehicle.SlotType;
@@ -28,6 +29,7 @@ import cz.cvut.fel.aic.simod.action.PlanActionPickup;
  *
  * @author LocalAdmin
  */
+@JsonIncludeProperties({"id", "pickUpAction", "dropOffAction", "minTime"})
 public interface PlanComputationRequest {
 
 	@Override

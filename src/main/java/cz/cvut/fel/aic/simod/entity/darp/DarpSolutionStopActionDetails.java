@@ -5,11 +5,11 @@ public class DarpSolutionStopActionDetails {
     private int request_index;
     private String type;
     private DarpSolutionPosition position;
-    private int min_time;
-    private int max_time;
+    private String min_time;
+    private String max_time;
     private int service_duration;
 
-    public DarpSolutionStopActionDetails(int id, int request_index, String type, DarpSolutionPosition position, int min_time, int max_time, int service_duration) {
+    public DarpSolutionStopActionDetails(int id, int request_index, String type, DarpSolutionPosition position, String min_time, String max_time, int service_duration) {
         this.id = id;
         this.request_index = request_index;
         this.type = type;
@@ -52,19 +52,19 @@ public class DarpSolutionStopActionDetails {
         this.position = position;
     }
 
-    public int getMin_time() {
+    public String getMin_time() {
         return min_time;
     }
 
-    public void setMin_time(int min_time) {
+    public void setMin_time(String min_time) {
         this.min_time = min_time;
     }
 
-    public int getMax_time() {
+    public String getMax_time() {
         return max_time;
     }
 
-    public void setMax_time(int max_time) {
+    public void setMax_time(String max_time) {
         this.max_time = max_time;
     }
 

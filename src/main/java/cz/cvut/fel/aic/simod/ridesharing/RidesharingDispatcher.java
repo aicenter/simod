@@ -24,6 +24,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.ticker.PeriodicTicker;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.ticker.Routine;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.DateTimeParser;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
@@ -48,6 +49,8 @@ import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -304,6 +307,8 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 		for (PlanComputationRequest request : requests) {
 			droppedRequests.put(request.getId(), request);
 		}
+		String datePattern = "yyyy-MM-dd HH:mm:ss";
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(datePattern);
 
 		try {
 			DarpSolutionPlan[] darpPlans = new DarpSolutionPlan[plans.size()];
@@ -331,18 +336,12 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 					String type = isPickup ? "pickup" : isDropOff ? "dopoff" : "current";
 					if (action instanceof PlanActionCurrentPosition) continue;
 					PlanRequestAction planRequestAction = (PlanRequestAction) action;
-
-					DarpSolutionStopActionDetails details = new DarpSolutionStopActionDetails(
-						0,
-						0,
-						type,
-						new DarpSolutionPosition(action.getPosition().getIndex()),
-						planRequestAction.getMinTime(),
-						planRequestAction.getMaxTime(),
-						0
-					);
-					long travelTime =
-						travelTimeProvider.getTravelTime(vehicle, lastPosition, action.getPosition()) / 1000;
+					long minTimeInt= (long) planRequestAction.getMinTime() * 1000;
+					long maxTimeInt= (long) planRequestAction.getMaxTime() * 1000;
+					String minTimeStr = dateTimeFormatter.format(DateTimeParser.createDateTimeFromMillis(minTimeInt));
+					String maxTimeStr = dateTimeFormatter.format(DateTimeParser.createDateTimeFromMillis(maxTimeInt));
+					DarpSolutionStopActionDetails details = new DarpSolutionStopActionDetails(0, 0, type, new DarpSolutionPosition(action.getPosition().getIndex()),minTimeStr,maxTimeStr,0);
+					long travelTime = travelTimeProvider.getTravelTime(vehicle, lastPosition, action.getPosition()) / 1000;
 					if (t == 0) {
 						t = planRequestAction.getMinTime() - travelTime;
 						globalDepartureTime = t;
@@ -356,20 +355,19 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 					if (waitForMinTime > 0) departureTime += waitForMinTime;
 					t = departureTime;
 					lastPosition = action.getPosition();
-					planActions[j - 1] = new DarpSolutionStopAction((int) arrivalTime, (int) departureTime, details);
+
+					String arrivalTimeStr = dateTimeFormatter.format(DateTimeParser.createDateTimeFromMillis(arrivalTime * 1000));
+					String departureTimeStr = dateTimeFormatter.format(DateTimeParser.createDateTimeFromMillis(departureTime * 1000));
+					planActions[j-1] = new DarpSolutionStopAction(arrivalTimeStr, departureTimeStr, details);
 
 					if (isPickup) {
 						PlanComputationRequest request = planRequestAction.getRequest();
 						droppedRequests.remove(request.getId());
 					}
 				}
-				darpPlans[i] = new DarpSolutionPlan(
-					cost,
-					(int) globalDepartureTime,
-					(int) globalArrivalTime,
-					darpVehicle,
-					planActions
-				);
+				String globalDepartureTimeStr = dateTimeFormatter.format(DateTimeParser.createDateTimeFromMillis(globalDepartureTime * 1000));;
+				String globalArrivalTimeStr = dateTimeFormatter.format(DateTimeParser.createDateTimeFromMillis(globalArrivalTime * 1000));
+				darpPlans[i] = new DarpSolutionPlan(cost,globalDepartureTimeStr,globalArrivalTimeStr, darpVehicle, planActions);
 			}
 
 

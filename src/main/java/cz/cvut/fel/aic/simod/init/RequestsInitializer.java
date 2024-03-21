@@ -48,10 +48,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Stream;
 
 /**
  * @author fido
@@ -127,11 +130,17 @@ public class RequestsInitializer {
 		CsvSchema headerSchema = CsvSchema.emptySchema().withHeader();
 		CsvMapper mapper = new CsvMapper();
 		try {
-			LOGGER.info("Loading trips from: {}", config.tripsPath);
+			long numRequests;
+			Path requestsFilePath = Path.of(config.tripsPath);
+			try (Stream<String> lines = Files.lines(requestsFilePath)) {
+				 numRequests = lines.count() - 1;
+			}
+
+			LOGGER.info("Loading trips from: {}, the file contains {} requests", config.tripsPath, numRequests);
 			MappingIterator<Map<String, String>> it = mapper
 				.readerForMapOf(String.class)
 				.with(headerSchema)
-				.readValues(new File(config.tripsPath));
+				.readValues(requestsFilePath.toFile());
 
 			Iterator<Map<String, String>> iter = ProgressBar.wrap(it, "Loading trips");
 			while(iter.hasNext()) {
@@ -198,8 +207,14 @@ public class RequestsInitializer {
 							}
 							startTime = startTime + i * TRIP_MULTIPLICATION_TIME_SHIFT;
 
+							int requestId = requestCounter;
+							if(row.containsKey("id")){
+								int id = Integer.parseInt(row.get("id"));
+								requestId = (int) (id + numRequests * i);
+							}
+
 							DefaultPlanComputationRequest newRequest = requestFactory.create(
-								requestCounter,
+								requestId,
 								startNode,
 								targetNode,
 								announcementTime,
@@ -240,10 +255,11 @@ public class RequestsInitializer {
 							if (MAX_EVENTS != 0 && eventCount >= MAX_EVENTS) {
 								return;
 							}
+
+							requestCounter++;
 						}
 					}
 				}
-				requestCounter++;
 			}
 
 		} catch (IOException e) {

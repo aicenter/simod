@@ -110,6 +110,56 @@ The simulation exports the following files:
     - occupancy
 
 
+# Advanced Configuration
+In this section, we describe how to more complex features that are not covered in the quick start guide.
+
+## Travel Time Computation
+Travel time computation is a crucial part of SiMoD, needed for various tasks including:
+- dispatching vehicles,
+- rebalancing,
+- and simulation of travel.
+
+There are multiple travel time providers available in SiMoD each with a different trade-off between speed, memory usage, ease of setup, and initial loading time. Currently, there are seven travel time providers available in SiMoD:
+- AStar
+- Astar Cached
+- Distance Matrix
+- Contraction Hierarchies
+- Transit Node Routing
+- Transit Node Routing with Arc Flags
+- Euclidean
+
+These providers will be described in more detail in the following sections. The general properties of the providers are described in the table below:
+
+| Provider | Precise | Preprocessing by an external tool required | Speed | Memory Requirements |
+| --- | --- | --- | --- | --- |
+| AStar | yes | no | very slow | low |
+| AStar Cached | yes | no | slow | medium |
+| Distance Matrix | yes | yes | super fast | very high |
+| Contraction Hierarchies | yes | yes | medium | medium |
+| Transit Node Routing | yes | yes | fast | high |
+| Transit Node Routing with Arc Flags | yes | yes | fast | high |
+| Euclidean | no | no | very fast | none |
+
+
+### Distance Matrix Travel Time Provider
+The distance matrix travel time provider is the fastest travel time provider in SiMoD and also fundamentally, there cannot be any faster exact travel time provider. It stores travel times between all pairs of road network nodes in a distance matrix. 
+
+This distance matrix needs to be prepared in advance by an external tool. Two formats of the matrix are supported:
+- Comma-separated values (`*.csv`): Text format, slow to load, works out of the box.
+- [Hierarchical Data Format](https://en.wikipedia.org/wiki/Hierarchical_Data_Format) (`*.h5`): Binary format, fast to load, but it requires an external native library and a compilation with a dedicated maven profile.
+
+At the and, the amount of memory required for the distance matrix is the same for both formats. The difference is in the loading time, for the `*.csv` format it can be several minutes, while for the `*.h5` format it is just a few seconds.
+
+#### Use the Distance Matrix Travel Time Provider with HDF5 format
+The HDF support is provided by the [`HDFQL`](https://www.hdfql.com/) library. To use the HDF5 format, you need to work through the following steps:
+1. Prepare the distance matrix in the HDF5 format by an external tool.
+1. Download the HDFQL library from the [official website](https://www.hdfql.com/).
+2. Add a new environment variable `HDFQL_HOME` with the path to the root directory of the HDFQL library (should be `hdfql-<version>`).
+3. Compile the SiMoD project with the `with-hdf5` maven profile.
+4. Run the simulation with a library path pointing to the HDFQL library java wrapper: `-Djava.library.path=<HDFQL HOME>/wrapper/java/as/hdfql`.
+
+
+
 
 # Usage
 

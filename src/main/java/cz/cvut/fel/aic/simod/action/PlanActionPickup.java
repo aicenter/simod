@@ -18,36 +18,32 @@
  */
 package cz.cvut.fel.aic.simod.action;
 
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.PlanComputationRequest;
 
+import java.time.ZonedDateTime;
+
 public class PlanActionPickup extends PlanRequestAction {
-
-	private final int minTime;
-
-
-
-	/**
-	 * Getter for min time.
-	 * @return Time constraint in seconds
-	 */
-	public int getMinTime() {
-		return minTime;
-	}
 
 
 	/**
 	 * Pickup action.
+	 *
 	 * @param request Request
-	 * @param node Position where action takes place.
+	 * @param node    Position where action takes place.
 	 * @param maxTime Time constraint in seconds.
 	 */
-	public PlanActionPickup(PlanComputationRequest request, SimulationNode node, int minTime, int maxTime) {
-		super(request, node, maxTime);
-		this.minTime = minTime;
+	public PlanActionPickup(
+		TimeProvider timeProvider,
+		PlanComputationRequest request,
+		SimulationNode node,
+		ZonedDateTime minTime,
+		ZonedDateTime maxTime
+	) {
+		super(timeProvider, request, node, minTime, maxTime);
 	}
 
-   
 
 	@Override
 	public String toString() {

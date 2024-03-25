@@ -46,7 +46,6 @@ import cz.cvut.fel.aic.simod.event.DemandEvent;
 import me.tongfei.progressbar.ProgressBar;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -64,7 +63,7 @@ public class RequestsInitializer {
 
 	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RequestsInitializer.class);
 
-	private static final long TRIP_MULTIPLICATION_TIME_SHIFT = 240_000;
+	private static final long TRIP_MULTIPLICATION_TIME_SHIFT = 240;
 
 	private static final long MAX_EVENTS = 0;
 
@@ -133,7 +132,7 @@ public class RequestsInitializer {
 			long numRequests;
 			Path requestsFilePath = Path.of(config.tripsPath);
 			try (Stream<String> lines = Files.lines(requestsFilePath)) {
-				 numRequests = lines.count() - 1;
+				numRequests = lines.count() - 1;
 			}
 
 			LOGGER.info("Loading trips from: {}, the file contains {} requests", config.tripsPath, numRequests);
@@ -143,7 +142,7 @@ public class RequestsInitializer {
 				.readValues(requestsFilePath.toFile());
 
 			Iterator<Map<String, String>> iter = ProgressBar.wrap(it, "Loading trips");
-			while(iter.hasNext()) {
+			while (iter.hasNext()) {
 				Map<String, String> row = iter.next();
 //				 = it.next();
 
@@ -176,8 +175,7 @@ public class RequestsInitializer {
 
 						// min travel time processing
 						var desiredPickupTime = DateTimeParser.parseDateTimeFromUnknownFormat(row.get("Pickup_Time"));
-						long startTime = Duration.between(timeProvider.getInitDateTime(), desiredPickupTime).toMillis();
-						if (startTime < 1 || startTime > simulationUtils.getSimulationDuration()) {
+						if (desiredPickupTime.isBefore(timeProvider.getInitDateTime())) {
 							impossibleTripsCount++;
 							//				LOGGER.info("Trip out of simulation time. Total: {}", impossibleTripsCount);
 							continue;
@@ -193,7 +191,7 @@ public class RequestsInitializer {
 
 						// Required vehicle processing
 						int requiredVehicleId = -1;
-						if(row.containsKey("required_vehicle_id")){
+						if (row.containsKey("required_vehicle_id")) {
 							String requiredVehicleIdStr = row.get("required_vehicle_id");
 							requiredVehicleId = Integer.parseInt(requiredVehicleIdStr);
 						}
@@ -205,10 +203,10 @@ public class RequestsInitializer {
 									break;
 								}
 							}
-							startTime = startTime + i * TRIP_MULTIPLICATION_TIME_SHIFT;
+							desiredPickupTime = desiredPickupTime.plusSeconds(i * TRIP_MULTIPLICATION_TIME_SHIFT);
 
 							int requestId = requestCounter;
-							if(row.containsKey("id")){
+							if (row.containsKey("id")) {
 								int id = Integer.parseInt(row.get("id"));
 								requestId = (int) (id + numRequests * i);
 							}
@@ -218,7 +216,7 @@ public class RequestsInitializer {
 								startNode,
 								targetNode,
 								announcementTime,
-								(int) Math.round(startTime / 1000.0),
+								desiredPickupTime,
 								requiredSlotType,
 								null,
 								requiredVehicleId
@@ -227,18 +225,16 @@ public class RequestsInitializer {
 							// event for dispatcher
 							long annoucementTimeMillis
 								= Duration.between(timeProvider.getInitDateTime(), announcementTime).toMillis();
-							if(annoucementTimeMillis < 0){
+							if (annoucementTimeMillis < 0) {
 								throw new RuntimeException("Announcement time is before simulation start time");
-							}
-							else if(annoucementTimeMillis == 0){
+							} else if (annoucementTimeMillis == 0) {
 								eventProcessor.addEvent(
 									DemandEvent.ANNOUNCEMENT,
 									dispatcher,
 									null,
 									newRequest
 								);
-							}
-							else {
+							} else {
 								eventProcessor.addEvent(
 									DemandEvent.ANNOUNCEMENT,
 									dispatcher,
@@ -249,7 +245,13 @@ public class RequestsInitializer {
 							}
 
 							// event for demand event handler
-							eventProcessor.addEvent(null, demandEventHandler, null, newRequest, newRequest.getMinTime());
+							eventProcessor.addEvent(
+								null,
+								demandEventHandler,
+								null,
+								newRequest,
+								newRequest.getMinSimulationTimeSeconds()
+							);
 
 							eventCount++;
 							if (MAX_EVENTS != 0 && eventCount >= MAX_EVENTS) {

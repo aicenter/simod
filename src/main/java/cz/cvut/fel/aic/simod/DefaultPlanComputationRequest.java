@@ -20,6 +20,7 @@ package cz.cvut.fel.aic.simod;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
@@ -35,6 +36,8 @@ import java.util.Random;
 
 public class DefaultPlanComputationRequest implements PlanComputationRequest {
 
+	private final TimeProvider timeProvider;
+
 	/**
 	 * Request index in the trips.csv file.
 	 */
@@ -45,7 +48,7 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest {
 	/**
 	 * Request minimum pickup time in seconds.
 	 */
-	private final int minTime;
+	private final ZonedDateTime minTime;
 
 	private final SlotType requiredSlotType;
 
@@ -109,16 +112,18 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest {
 	@Inject
 	private DefaultPlanComputationRequest(
 		TravelTimeProvider travelTimeProvider,
+		TimeProvider timeProvider,
 		@Assisted("id") int id,
 		SimodConfig config,
 		@Assisted("origin") SimulationNode origin,
 		@Assisted("destination") SimulationNode destination,
-		@Assisted ZonedDateTime announcementTime,
-		@Assisted int desiredPickupTime,
+		@Assisted("announcementTime") ZonedDateTime announcementTime,
+		@Assisted("desiredPickupTime") ZonedDateTime desiredPickupTime,
 		@Assisted SlotType requiredSlotType,
 		@Assisted @Nullable DemandAgent demandAgent,
 		@Assisted("requiredVehicleId") int requiredVehicleId
 	) {
+		this.timeProvider = timeProvider;
 		this.id = id;
 		this.announcementTime = announcementTime;
 		this.requiredSlotType = requiredSlotType;
@@ -128,7 +133,13 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest {
 
 //		originTime = (int) Math.round(demandAgent.getDemandTime() / 1000.0);
 		if(config.enableNegativeDelay){
-			minTime = Math.max(0, desiredPickupTime - config.maxPickupDelay);
+			ZonedDateTime minTimeIncludingNegativeDelay = desiredPickupTime.minusSeconds(config.maxPickupDelay);
+			if(timeProvider.getCurrentSimDateTime().isBefore(minTimeIncludingNegativeDelay)){
+				minTime = minTimeIncludingNegativeDelay;
+			}
+			else{
+				minTime = timeProvider.getCurrentSimDateTime();
+			}
 		}
 		else{
 			minTime = desiredPickupTime;
@@ -153,21 +164,21 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest {
 			maxPickUpDelay = maxProlongation;
 		}
 
-		int maxPickUpTime = desiredPickupTime + maxPickUpDelay;
-		int maxDropOffTime = maxPickUpTime + minTravelTime + maxProlongation;
+		ZonedDateTime maxPickUpTime = desiredPickupTime.plusSeconds(maxPickUpDelay);
+		ZonedDateTime maxDropOffTime = maxPickUpTime.plusSeconds(minTravelTime + maxProlongation);
 
 		this.demandAgent = demandAgent;
 		onboard = false;
 
-		pickUpAction = new PlanActionPickup(this, origin, minTime, maxPickUpTime);
-		dropOffAction = new PlanActionDropoff(this, destination, maxDropOffTime);
+		pickUpAction = new PlanActionPickup(timeProvider, this, origin, minTime, maxPickUpTime);
+		dropOffAction = new PlanActionDropoff(timeProvider, this, destination, maxDropOffTime);
 	}
 
 
 
 	@Override
-	public int getMinTime() {
-		return minTime;
+	public int getMinSimulationTimeSeconds() {
+		return (int) (timeProvider.getSimTimeFromDateTime(minTime) / 1000);
 	}
 
 
@@ -206,12 +217,12 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest {
 
 	@Override
 	public int getMaxPickupTime() {
-		return pickUpAction.getMaxTime();
+		return pickUpAction.getMaxTimeInSimulationTimeSeconds();
 	}
 
 	@Override
 	public int getMaxDropoffTime() {
-		return dropOffAction.getMaxTime();
+		return dropOffAction.getMaxTimeInSimulationTimeSeconds();
 	}
 
 	@Override
@@ -240,8 +251,8 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest {
 			@Assisted("id") int id,
 			@Assisted("origin") SimulationNode origin,
 			@Assisted("destination") SimulationNode destination,
-			ZonedDateTime announcementTime,
-			int minPickupTime,
+			@Assisted("announcementTime") ZonedDateTime announcementTime,
+			@Assisted("desiredPickupTime") ZonedDateTime minPickupTime,
 			SlotType requiredSlotType,
 			DemandAgent demandAgent,
 			@Assisted("requiredVehicleId") int requiredVehicleId

@@ -47,12 +47,12 @@ public class TestPlanRequest implements PlanComputationRequest
 	
 	@Override
 	public int getMaxPickupTime() {
-		return pickUpAction.getMaxTime();
+		return pickUpAction.getMaxTimeInSimulationTimeSeconds();
 	}
 
 	@Override
 	public int getMaxDropoffTime() {
-		return dropOffAction.getMaxTime();
+		return dropOffAction.getMaxTimeInSimulationTimeSeconds();
 	}
 
 	@Override
@@ -90,7 +90,7 @@ public class TestPlanRequest implements PlanComputationRequest
 	}
 
 	@Override
-	public int getMinTime() {
+	public int getMinSimulationTimeSeconds() {
 		return originTime;
 	}
 

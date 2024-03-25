@@ -266,7 +266,7 @@ public class SetBenchmark {
 		}
 
 		@Override
-		public int getMinTime() {
+		public int getMinSimulationTimeSeconds() {
 			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 		}
 

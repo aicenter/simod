@@ -20,6 +20,8 @@ package cz.cvut.fel.aic.simod.ridesharing;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.ticker.PeriodicTicker;
@@ -42,6 +44,7 @@ import cz.cvut.fel.aic.simod.event.OnDemandVehicleEvent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleStationsCentralEvent;
 import cz.cvut.fel.aic.simod.jackson.MyModule;
+import cz.cvut.fel.aic.simod.jackson.ZoneDateTypeSerializer;
 import cz.cvut.fel.aic.simod.ridesharing.insertionheuristic.DriverPlan;
 import cz.cvut.fel.aic.simod.DefaultPlanComputationRequest;
 import cz.cvut.fel.aic.simod.PlanComputationRequest;
@@ -49,7 +52,6 @@ import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -332,25 +334,18 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 				for (int j = 0; j < plan.plan.size(); j++) {
 					PlanAction action = plan.plan.get(j);
 					boolean isPickup = action instanceof PlanActionPickup;
-					boolean isDropOff = action instanceof PlanActionDropoff;
-					String type = isPickup ? "pickup" : isDropOff ? "dopoff" : "current";
 					if (action instanceof PlanActionCurrentPosition) continue;
 					PlanRequestAction planRequestAction = (PlanRequestAction) action;
-					long minTimeInt= (long) planRequestAction.getMinTime() * 1000;
-					long maxTimeInt= (long) planRequestAction.getMaxTime() * 1000;
-					String minTimeStr = dateTimeFormatter.format(DateTimeParser.createDateTimeFromMillis(minTimeInt));
-					String maxTimeStr = dateTimeFormatter.format(DateTimeParser.createDateTimeFromMillis(maxTimeInt));
-					DarpSolutionStopActionDetails details = new DarpSolutionStopActionDetails(0, 0, type, new DarpSolutionPosition(action.getPosition().getIndex()),minTimeStr,maxTimeStr,0);
 					long travelTime = travelTimeProvider.getTravelTime(vehicle, lastPosition, action.getPosition()) / 1000;
 					if (t == 0) {
-						t = planRequestAction.getMinTime() - travelTime;
+						t = planRequestAction.getMinTimeInSimulationTimeSeconds() - travelTime;
 						globalDepartureTime = t;
 					}
 
 					t += travelTime;
 					long arrivalTime = t;
 					globalArrivalTime = arrivalTime;
-					long waitForMinTime = planRequestAction.getMinTime() - t;
+					long waitForMinTime = planRequestAction.getMinTimeInSimulationTimeSeconds() - t;
 					long departureTime = arrivalTime + config.serviceTime;
 					if (waitForMinTime > 0) departureTime += waitForMinTime;
 					t = departureTime;
@@ -358,7 +353,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 
 					String arrivalTimeStr = dateTimeFormatter.format(DateTimeParser.createDateTimeFromMillis(arrivalTime * 1000));
 					String departureTimeStr = dateTimeFormatter.format(DateTimeParser.createDateTimeFromMillis(departureTime * 1000));
-					planActions[j-1] = new DarpSolutionStopAction(arrivalTimeStr, departureTimeStr, details);
+					planActions[j-1] = new DarpSolutionStopAction(arrivalTimeStr, departureTimeStr, planRequestAction);
 
 					if (isPickup) {
 						PlanComputationRequest request = planRequestAction.getRequest();
@@ -369,8 +364,6 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 				String globalArrivalTimeStr = dateTimeFormatter.format(DateTimeParser.createDateTimeFromMillis(globalArrivalTime * 1000));
 				darpPlans[i] = new DarpSolutionPlan(cost,globalDepartureTimeStr,globalArrivalTimeStr, darpVehicle, planActions);
 			}
-
-
 
 			DarpSolution solution = new DarpSolution(
 				true,
@@ -388,6 +381,13 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 			File outputFile = new File(filePath);
 			outputFile.getParentFile().mkdirs();
 			ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+
+			// datetime setup
+			SimpleModule datetimeModule = new JavaTimeModule();
+			datetimeModule.addSerializer(ZonedDateTime.class, new ZoneDateTypeSerializer());
+			mapper.registerModule(datetimeModule);
+			mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
 			mapper.registerModule(new MyModule());
 			mapper.writeValue(outputFile, solution);
 		} catch (IOException e) {

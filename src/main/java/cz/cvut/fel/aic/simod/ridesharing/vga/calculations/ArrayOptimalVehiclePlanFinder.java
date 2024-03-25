@@ -195,7 +195,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 							// compute necessary variables as if going deep
 							int endTimeTemp = (int) Math.round((float) (endTime + durationMs) / 1000);
 							PlanComputationRequest request = newAction.getRequest();
-							int discomfort = endTimeTemp - request.getMinTime() - request.getMinTravelTime();
+							int discomfort = endTimeTemp - request.getMinSimulationTimeSeconds() - request.getMinTravelTime();
 							
 							//TODO add onboard vehicles previous discomfort
 							
@@ -234,7 +234,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 							if(newAction instanceof PlanActionDropoff){
 								PlanComputationRequest request = newAction.getRequest();
 								int endTimeS = (int) Math.round((float) endTime / 1000);
-								int discomfort = endTimeS - request.getMinTime() - request.getMinTravelTime();
+								int discomfort = endTimeS - request.getMinSimulationTimeSeconds() - request.getMinTravelTime();
 								newActionData.setDiscomfort(discomfort);
 								totalDiscomfort += discomfort;
 								onBoardCount--;
@@ -415,7 +415,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 							lastPosition = newAction.getPosition();
 							if(newAction instanceof PlanActionDropoff){
 								PlanComputationRequest request = newAction.getRequest();
-								int discomfort = endTime - request.getMinTime() - request.getMinTravelTime();
+								int discomfort = endTime - request.getMinSimulationTimeSeconds() - request.getMinTravelTime();
 								newActionData.setDiscomfort(discomfort);
 							}
 							else{

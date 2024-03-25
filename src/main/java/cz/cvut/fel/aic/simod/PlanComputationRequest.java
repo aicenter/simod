@@ -52,7 +52,7 @@ public interface PlanComputationRequest {
 	 * Returns request origin time in seconds.
 	 * @return Request origin time in seconds.
 	 */
-	public int getMinTime();
+	public int getMinSimulationTimeSeconds();
 	
 	/**
 	 * Returns min travel time in seconds.

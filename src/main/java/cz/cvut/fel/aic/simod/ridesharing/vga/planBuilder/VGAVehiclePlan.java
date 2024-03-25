@@ -89,7 +89,7 @@ public class VGAVehiclePlan {
 //			discomfort += getCurrentTime() - action.request.getOriginTime() -
 //					MathUtils.getTravelTimeProvider().getExpectedTravelTime(
 //							action.getRequest().getFrom(), action.getRequest().getTo()) / 1000.0;
-			discomfort += getCurrentTime() - action.request.getMinTime() - action.request.getMinTravelTime();
+			discomfort += getCurrentTime() - action.request.getMinSimulationTimeSeconds() - action.request.getMinTravelTime();
 			onboardRequests.remove(action.getRequest());
 		}
 	}

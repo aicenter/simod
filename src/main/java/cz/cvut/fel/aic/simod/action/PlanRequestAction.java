@@ -22,10 +22,12 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.PlanComputationRequest;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 @JsonSerialize(using = PlanRequestAction.PlanRequestActionSerializer.class)
@@ -42,7 +44,7 @@ public abstract class PlanRequestAction extends TimeWindowAction {
 			gen.writeFieldName("request_index");
 			gen.writeObject(action.getRequest().getId());
 			gen.writeFieldName("type");
-			if(action instanceof PlanActionPickup)
+			if (action instanceof PlanActionPickup)
 				gen.writeObject("pickup");
 			else
 				gen.writeObject("dropoff");
@@ -64,8 +66,24 @@ public abstract class PlanRequestAction extends TimeWindowAction {
 	}
 
 
-	public PlanRequestAction(PlanComputationRequest request, SimulationNode location, int maxTime) {
-		super(location, 0, maxTime);
+	public PlanRequestAction(
+		TimeProvider timeProvider,
+		PlanComputationRequest request,
+		SimulationNode location,
+		ZonedDateTime maxTime
+	) {
+		super(timeProvider, location, timeProvider.getInitDateTime(), maxTime);
+		this.request = request;
+	}
+
+	public PlanRequestAction(
+		TimeProvider timeProvider,
+		PlanComputationRequest request,
+		SimulationNode location,
+		ZonedDateTime minTime,
+		ZonedDateTime maxTime
+	) {
+		super(timeProvider, location, minTime, maxTime);
 		this.request = request;
 	}
 

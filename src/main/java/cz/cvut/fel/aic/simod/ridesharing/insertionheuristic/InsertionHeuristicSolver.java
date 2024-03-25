@@ -270,7 +270,7 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 		}
 
 		// vehicle operational time check
-		if (timeProvider.getDateTimeFromSimTime(request.getMinTime() * 1000L).isAfter(vehicle.getOperationEnd())
+		if (timeProvider.getDateTimeFromSimTime(request.getMinSimulationTimeSeconds() * 1000L).isAfter(vehicle.getOperationEnd())
 			|| timeProvider.getDateTimeFromSimTime(
 			request.getMaxDropoffTime() * 1000L).isBefore(vehicle.getOperationStart())
 		) {
@@ -450,7 +450,7 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 
 			// current time adjustment according to the new task min time
 			if (newTask instanceof PlanActionPickup) {
-				int minTime = ((PlanActionPickup) newTask).getMinTime();
+				int minTime = ((PlanActionPickup) newTask).getMinTimeInSimulationTimeSeconds();
 				if (minTime > currentTaskTimeInSeconds) {
 
 					// measure pause length
@@ -479,7 +479,7 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 			/* check max time for all unfinished demands */
 
 			// check max time check for the new action
-			int maxTime = newTask.getMaxTime();
+			int maxTime = newTask.getMaxTimeInSimulationTimeSeconds();
 			if (maxTime < currentTaskTimeInSeconds) {
 //                                    LOGGER.debug("currentTaskTimeInSeconds {} \n> maxTime {}",currentTaskTimeInSeconds, maxTime);
 				return null;
@@ -488,21 +488,21 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 			// check max time for actions in the current plan
 			for (int index = indexInOldPlan + 1; index < currentPlan.getLength(); index++) {
 				PlanRequestAction remainingRequestAction = (PlanRequestAction) currentPlan.plan.get(index);
-				if (remainingRequestAction.getMaxTime() < currentTaskTimeInSeconds) {
+				if (remainingRequestAction.getMaxTimeInSimulationTimeSeconds() < currentTaskTimeInSeconds) {
 					return null;
 				}
 			}
 
 			// check max time for pick up action
 			if (newPlanIndex <= pickupOptionIndex) {
-				if (planComputationRequest.getPickUpAction().getMaxTime() < currentTaskTimeInSeconds) {
+				if (planComputationRequest.getPickUpAction().getMaxTimeInSimulationTimeSeconds() < currentTaskTimeInSeconds) {
 					return null;
 				}
 			}
 
 			// check max time for drop off action
 			if (newPlanIndex <= dropoffOptionIndex) {
-				if (planComputationRequest.getDropOffAction().getMaxTime() < currentTaskTimeInSeconds) {
+				if (planComputationRequest.getDropOffAction().getMaxTimeInSimulationTimeSeconds() < currentTaskTimeInSeconds) {
 					return null;
 				}
 			}
@@ -512,7 +512,7 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 				// discomfort increment
 				PlanComputationRequest newRequest = newTask.getRequest();
 				long taskExecutionTime = timeProvider.getCurrentSimTime() + newPlanTravelTime;
-				newPlanDiscomfort += taskExecutionTime - newRequest.getMinTime() * 1000
+				newPlanDiscomfort += taskExecutionTime - newRequest.getMinSimulationTimeSeconds() * 1000
 					- newRequest.getMinTravelTime() * 1000;
 			} else if (newTask instanceof PlanActionPickup) {
 				// capacity check

@@ -359,7 +359,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 			getPosition(),
 			nextTask.getPosition()
 		);
-		long minPickupTime = ((PlanActionPickup) nextTask).getMinTime() * 1000L;
+		long minPickupTime = ((PlanActionPickup) nextTask).getMinTimeInSimulationTimeSeconds() * 1000L;
 		if (travelTimeToTask + timeProvider.getCurrentSimTime() < minPickupTime) {
 			waitActivityFactory.runActivity(
 				this,
@@ -371,7 +371,7 @@ public class RideSharingOnDemandVehicle extends OnDemandVehicle {
 	}
 
 	private void pickupAndContinue() {
-		long minTime = ((PlanActionPickup) currentTask).getMinTime() * 1000L;
+		long minTime = ((PlanActionPickup) currentTask).getMinTimeInSimulationTimeSeconds() * 1000L;
 		long currentTime = timeProvider.getCurrentSimTime();
 
 		// we have to wait for the pickup time

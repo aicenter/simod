@@ -1,11 +1,13 @@
 package cz.cvut.fel.aic.simod.entity.darp;
 
+import cz.cvut.fel.aic.simod.action.PlanRequestAction;
+
 public class DarpSolutionStopAction {
     private String arrival_time;
     private String departure_time;
-    private DarpSolutionStopActionDetails action;
+    private PlanRequestAction action;
 
-    public DarpSolutionStopAction(String arrival_time, String departure_time, DarpSolutionStopActionDetails action) {
+    public DarpSolutionStopAction(String arrival_time, String departure_time, PlanRequestAction action) {
         this.arrival_time = arrival_time;
         this.departure_time = departure_time;
         this.action = action;
@@ -28,11 +30,11 @@ public class DarpSolutionStopAction {
         this.departure_time = departure_time;
     }
 
-    public DarpSolutionStopActionDetails getAction() {
+    public PlanRequestAction getAction() {
         return action;
     }
 
-    public void setAction(DarpSolutionStopActionDetails action) {
+    public void setAction(PlanRequestAction action) {
         this.action = action;
     }
 }

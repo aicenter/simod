@@ -329,8 +329,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 				DarpSolutionStopAction[] planActions = new DarpSolutionStopAction[plan.plan.size() - 1];
 
 				SimulationNode lastPosition = plan.plan.get(0).getPosition();
-				boolean planStarted = false;
-				ZonedDateTime time = ZonedDateTime.now();
+				ZonedDateTime time = null;
 				ZonedDateTime globalDepartureTime = ZonedDateTime.now();
 				ZonedDateTime globalArrivalTime = ZonedDateTime.now();
 				for (int j = 0; j < plan.plan.size(); j++) {
@@ -339,10 +338,9 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 					if (action instanceof PlanActionCurrentPosition) continue;
 					PlanRequestAction planRequestAction = (PlanRequestAction) action;
 					long travelTime = travelTimeProvider.getTravelTime(vehicle, lastPosition, action.getPosition()) / 1000;
-					if (!planStarted) {
+					if (time == null) {
 						time = planRequestAction.getMinTime().minus(travelTime, ChronoUnit.SECONDS);
 						globalDepartureTime = planRequestAction.getMinTime().minus(travelTime, ChronoUnit.SECONDS);
-						planStarted = true;
 					}
 
 					time = time.plus(travelTime, ChronoUnit.SECONDS);

@@ -320,19 +320,17 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 
 			// continue if the vehicle is full. The capacity is checked inside the insertIntoPlan method, so this is
 			// just a cut-off
-			if (!hasCapacityForRequest(planComputationRequest, counter)) {
-				continue;
-			}
-
-			for (int dropoffOptionIndex = pickupOptionIndex + 1; dropoffOptionIndex <= currentPlan.getLength() + 1;
-				 dropoffOptionIndex++) {
-				DriverPlan potentialPlan = insertIntoPlan(currentPlan, pickupOptionIndex, dropoffOptionIndex,
-					vehicle, planComputationRequest
-				);
-				if (potentialPlan != null) {
-					double costIncrement = potentialPlan.cost - currentPlan.cost;
-					PlanData bestPlanData = new PlanData(vehicle, potentialPlan, costIncrement);
-					tryUpdateBestPlan(bestPlanData);
+			if (hasCapacityForRequest(planComputationRequest, counter)) {
+				for (int dropoffOptionIndex = pickupOptionIndex + 1; dropoffOptionIndex <= currentPlan.getLength() + 1;
+					 dropoffOptionIndex++) {
+					DriverPlan potentialPlan = insertIntoPlan(currentPlan, pickupOptionIndex, dropoffOptionIndex,
+						vehicle, planComputationRequest
+					);
+					if (potentialPlan != null) {
+						double costIncrement = potentialPlan.cost - currentPlan.cost;
+						PlanData bestPlanData = new PlanData(vehicle, potentialPlan, costIncrement);
+						tryUpdateBestPlan(bestPlanData);
+					}
 				}
 			}
 

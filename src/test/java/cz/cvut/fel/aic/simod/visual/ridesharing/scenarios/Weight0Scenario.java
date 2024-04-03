@@ -29,6 +29,10 @@ import cz.cvut.fel.aic.simod.visual.ridesharing.RidesharingEventData;
 import cz.cvut.fel.aic.simod.visual.ridesharing.RidesharingTestEnvironment;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,7 +48,7 @@ public class Weight0Scenario {
 		
 		// config
 		testEnvironment.getConfig().ridesharing.weightParameter = 0.0;
-		testEnvironment.getConfig().ridesharing.maximumRelativeDiscomfort = 3.0;
+		testEnvironment.getConfig().maxTravelTimeDelay.relative = 3.0;
 		
 		// set roadgraph - grid 5x4
 		Graph<SimulationNode, SimulationEdge> graph 
@@ -53,8 +57,8 @@ public class Weight0Scenario {
 		
 		// demand trips
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(0, 1000, graph.getNode(1), graph.getNode(6)));
-		trips.add(new TimeTrip<>(1, 3000, graph.getNode(5), graph.getNode(7)));
+		trips.add(new TimeTrip<>(0, ZonedDateTime.ofInstant(Instant.ofEpochSecond(1), ZoneId.systemDefault()), graph.getNode(1), graph.getNode(6)));
+		trips.add(new TimeTrip<>(1, ZonedDateTime.ofInstant(Instant.ofEpochSecond(3), ZoneId.systemDefault()), graph.getNode(5), graph.getNode(7)));
 		
 		// vehicles
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();

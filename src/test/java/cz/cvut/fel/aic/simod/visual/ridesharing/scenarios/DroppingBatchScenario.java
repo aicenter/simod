@@ -47,7 +47,7 @@ public class DroppingBatchScenario {
 		
 		// set batch time
 		injector.getInstance(SimodConfig.class).ridesharing.batchPeriod = 10;
-		injector.getInstance(SimodConfig.class).ridesharing.maximumRelativeDiscomfort = 0.8;
+		injector.getInstance(SimodConfig.class).maxTravelTimeDelay.relative = 0.8;
 		injector.getInstance(AgentpolisConfig.class).simulationDuration.days = 0;
 		injector.getInstance(AgentpolisConfig.class).simulationDuration.seconds = 240;
 		

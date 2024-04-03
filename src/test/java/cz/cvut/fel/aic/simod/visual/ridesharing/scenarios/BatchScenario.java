@@ -30,6 +30,10 @@ import cz.cvut.fel.aic.simod.visual.ridesharing.RidesharingEventData;
 import cz.cvut.fel.aic.simod.visual.ridesharing.RidesharingTestEnvironment;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.Test;
@@ -49,7 +53,7 @@ public class BatchScenario {
 		injector.getInstance(SimodConfig.class).ridesharing.batchPeriod = 10; //10
                 
 		// set relative discomfort to 2.1 to deal with batch delay + some tiny implicit simulation delay
-		injector.getInstance(SimodConfig.class).ridesharing.maximumRelativeDiscomfort = 2.5; //2.5		
+		injector.getInstance(SimodConfig.class).maxTravelTimeDelay.relative = 2.5; //2.5
                 
                 //graph
 		Graph<SimulationNode, SimulationEdge> graph 
@@ -58,8 +62,9 @@ public class BatchScenario {
 		
                 //trips
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();		
-		trips.add(new TimeTrip<>(0,8000, graph.getNode(1), graph.getNode(3)));
-		trips.add(new TimeTrip<>(0,1000, graph.getNode(2), graph.getNode(4)));               
+		trips.add(new TimeTrip<>(0,
+			ZonedDateTime.ofInstant(Instant.ofEpochSecond(8), ZoneId.systemDefault()), graph.getNode(1), graph.getNode(3)));
+		trips.add(new TimeTrip<>(0, ZonedDateTime.ofInstant(Instant.ofEpochSecond(1), ZoneId.systemDefault()), graph.getNode(2), graph.getNode(4)));
                 
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
 		vehicalInitPositions.add(graph.getNode(0));

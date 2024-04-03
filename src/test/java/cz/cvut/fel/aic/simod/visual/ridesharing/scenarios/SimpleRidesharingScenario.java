@@ -29,6 +29,10 @@ import cz.cvut.fel.aic.simod.visual.ridesharing.RidesharingEventData;
 import cz.cvut.fel.aic.simod.visual.ridesharing.RidesharingTestEnvironment;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -48,8 +52,8 @@ public class SimpleRidesharingScenario {
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(0, 1000, graph.getNode(1), graph.getNode(3)));
-		trips.add(new TimeTrip<>(1, 1000, graph.getNode(2), graph.getNode(4)));
+		trips.add(new TimeTrip<>(0, ZonedDateTime.ofInstant(Instant.ofEpochSecond(1), ZoneId.systemDefault()), graph.getNode(1), graph.getNode(3)));
+		trips.add(new TimeTrip<>(1, ZonedDateTime.ofInstant(Instant.ofEpochSecond(1), ZoneId.systemDefault()), graph.getNode(2), graph.getNode(4)));
                 
 //                System.out.println("ridesharing.maxProlongationInSeconds: " + testEnvironment.getConfig().ridesharing.maxProlongationInSeconds);
 		

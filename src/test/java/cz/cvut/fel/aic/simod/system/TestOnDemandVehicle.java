@@ -31,6 +31,7 @@ import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.StationsDispatcher;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
+import cz.cvut.fel.aic.simod.entity.vehicle.MoDVehicle;
 import cz.cvut.fel.aic.simod.storage.MoDVehicleStorage;
 
 /**
@@ -54,7 +55,9 @@ public class TestOnDemandVehicle extends OnDemandVehicle{
 			IdGenerator idGenerator, 
 			AgentpolisConfig agentpolisConfig,
 			@Assisted String vehicleId, 
-			@Assisted SimulationNode startPosition) {
+			@Assisted SimulationNode startPosition,
+			@Assisted MoDVehicle vehicle
+	) {
 		super(vehicleStorage, 
 				tripsUtil, 
 				onDemandVehicleStationsCentral, 
@@ -67,7 +70,9 @@ public class TestOnDemandVehicle extends OnDemandVehicle{
 				idGenerator, 
 				agentpolisConfig,
 				vehicleId, 
-				startPosition);
+				startPosition,
+				vehicle
+		);
 
 	}
 

@@ -18,33 +18,38 @@
  */
 package cz.cvut.fel.aic.simod.visual.ridesharing.vga.mock;
 
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
 import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
 import cz.cvut.fel.aic.simod.action.PlanActionDropoff;
 import cz.cvut.fel.aic.simod.action.PlanActionPickup;
 import cz.cvut.fel.aic.simod.PlanComputationRequest;
+import cz.cvut.fel.aic.simod.entity.vehicle.SlotType;
 import cz.cvut.fel.aic.simod.traveltimecomputation.TravelTimeProvider;
 
+import java.time.Duration;
+import java.time.ZonedDateTime;
+
 /**
- *
  * @author F.I.D.O.
  */
-public class TestPlanRequest implements PlanComputationRequest
-{
+public class TestPlanRequest implements PlanComputationRequest {
 	private boolean onboard;
-	
+
 	public final int minTravelTime;
-	
-	private final int originTime;
-	
+
+	private final ZonedDateTime originTime;
+
 	private final int id;
-	
+
 	private final PlanActionPickup pickUpAction;
-	
+
 	private final PlanActionDropoff dropOffAction;
-	
-	
+
+	private final TimeProvider timeProvider;
+
+
 	@Override
 	public int getMaxPickupTime() {
 		return pickUpAction.getMaxTimeInSimulationTimeSeconds();
@@ -70,28 +75,37 @@ public class TestPlanRequest implements PlanComputationRequest
 		return dropOffAction.getPosition();
 	}
 
-	
-	public TestPlanRequest(int id, SimodConfig SimodConfig, SimulationNode origin, 
-			SimulationNode destination, int originTime, boolean onboard, TravelTimeProvider travelTimeProvider){
-		
+
+	public TestPlanRequest(
+		TimeProvider timeProvider,
+		int id,
+		SimodConfig SimodConfig,
+		SimulationNode origin,
+		SimulationNode destination,
+		ZonedDateTime originTime,
+		boolean onboard,
+		TravelTimeProvider travelTimeProvider
+	) {
+
 		minTravelTime = (int) Math.round(
-				travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
-		int maxProlongation = SimodConfig.ridesharing.maxProlongationInSeconds;
-		
-		int maxPickUpTime = originTime + maxProlongation;
-		int maxDropOffTime = originTime + minTravelTime + maxProlongation;
+			travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
+		int maxProlongation = SimodConfig.maxPickupDelay;
+
+		ZonedDateTime maxPickUpTime = originTime.plusSeconds(maxProlongation);
+		ZonedDateTime maxDropOffTime = originTime.plusSeconds(minTravelTime).plusSeconds(maxProlongation);
 
 		this.onboard = onboard;
 		this.originTime = originTime;
 		this.id = id;
-		
-		pickUpAction = new PlanActionPickup(this, origin, maxPickUpTime);
-		dropOffAction = new PlanActionDropoff(this, destination, maxDropOffTime);
+		this.timeProvider = timeProvider;
+
+		pickUpAction = new PlanActionPickup(timeProvider,this, origin, originTime, maxPickUpTime);
+		dropOffAction = new PlanActionDropoff(timeProvider, this, destination, maxDropOffTime);
 	}
 
 	@Override
 	public int getMinSimulationTimeSeconds() {
-		return originTime;
+		return (int) timeProvider.getSimTimeFromDateTime(originTime) / 1000;
 	}
 
 	@Override
@@ -120,6 +134,11 @@ public class TestPlanRequest implements PlanComputationRequest
 	}
 
 	@Override
+	public void setDemandAgent(DemandAgent demandAgent) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
 	public int getId() {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
@@ -129,5 +148,15 @@ public class TestPlanRequest implements PlanComputationRequest
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 
-	
+	@Override
+	public SlotType getRequiredSlotType() {
+		return null;
+	}
+
+	@Override
+	public int getRequiredVehicleId() {
+		return 0;
+	}
+
+
 }

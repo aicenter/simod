@@ -53,7 +53,7 @@ public class TestModule extends StandardAgentPolisModule{
                 
 		SimodConfig.startTime = 0;
 		SimodConfig.tripsMultiplier = 1.0;  //1.0
-                SimodConfig.ridesharing.maxProlongationInSeconds = 300;                
+                SimodConfig.maxTravelTimeDelay.seconds = 300;
                 
 		agentpolisConfig.simulationDuration.days = 0;
 		agentpolisConfig.simulationDuration.hours = 0;

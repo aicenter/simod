@@ -57,7 +57,7 @@ public class TimeTrip<L extends WKTPrintableCoord> extends Trip<L>{
 		this.endTime = endTime;
 	}
 	
-	public TimeTrip(int tripId,ZonedDateTime startTime, L... locations){
+	public TimeTrip(int tripId, ZonedDateTime startTime, L... locations){
 		this(tripId,startTime, ZonedDateTime.now(), locations);
 	}
 

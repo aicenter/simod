@@ -29,6 +29,10 @@ import cz.cvut.fel.aic.simod.visual.ridesharing.RidesharingEventData;
 import cz.cvut.fel.aic.simod.visual.ridesharing.RidesharingTestEnvironment;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,8 +48,8 @@ public class CapacityScenario {
 		
 		// config
 		testEnvironment.getConfig().ridesharing.vehicleCapacity = 1;
-		testEnvironment.getConfig().ridesharing.discomfortConstraint = "relative";
-		testEnvironment.getConfig().ridesharing.maximumRelativeDiscomfort = 0.6;
+		testEnvironment.getConfig().maxTravelTimeDelay.mode = "relative";
+		testEnvironment.getConfig().maxTravelTimeDelay.relative = 0.6;
 		
                 
                 
@@ -56,8 +60,9 @@ public class CapacityScenario {
 		injector.getInstance(SimpleMapInitializer.class).setGraph(graph);
 		
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(0,1000, graph.getNode(1), graph.getNode(3)));
-		trips.add(new TimeTrip<>(0,1000, graph.getNode(2), graph.getNode(4)));
+		trips.add(new TimeTrip<>(0,
+			ZonedDateTime.ofInstant(Instant.ofEpochSecond(1), ZoneId.systemDefault()), graph.getNode(1), graph.getNode(3)));
+		trips.add(new TimeTrip<>(0, ZonedDateTime.ofInstant(Instant.ofEpochSecond(1), ZoneId.systemDefault()), graph.getNode(2), graph.getNode(4)));
 		
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();
 		vehicalInitPositions.add(graph.getNode(0));

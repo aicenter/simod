@@ -30,8 +30,11 @@ import cz.cvut.fel.aic.agentpolis.system.AgentPolisInitializer;
 import cz.cvut.fel.aic.alite.common.event.Event;
 import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
+import cz.cvut.fel.aic.simod.entity.OnDemandVehicleState;
+import cz.cvut.fel.aic.simod.entity.agent.DemandAgent;
 import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicle;
 import cz.cvut.fel.aic.simod.entity.agent.OnDemandVehicleFactorySpec;
+import cz.cvut.fel.aic.simod.entity.vehicle.SimpleMoDVehicle;
 import cz.cvut.fel.aic.simod.event.OnDemandVehicleEventContent;
 import cz.cvut.fel.aic.simod.init.RequestsInitializer;
 import cz.cvut.fel.aic.simod.io.TimeTrip;
@@ -72,9 +75,9 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
                 
 		// config changes
 		config.ridesharing.batchPeriod = 0;
-		config.ridesharing.maximumRelativeDiscomfort = 2.0;
-		config.ridesharing.discomfortConstraint = "relative";
-                config.stations.on = false;
+		config.maxTravelTimeDelay.relative = 2.0;
+		config.maxTravelTimeDelay.mode = "relative";
+		config.stations.on = false;
 	}
 	
 	@Override
@@ -99,7 +102,7 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 			String onDemandVehicelId = String.format("%s", counter);
 
 			// physical vehicle creation
-			SimpleTransportVehicle vehicle = new SimpleTransportVehicle(
+			SimpleMoDVehicle vehicle = new SimpleMoDVehicle(
 				onDemandVehicelId + " - vehicle",
 				DemandSimulationEntityType.VEHICLE,
 				2,
@@ -109,7 +112,9 @@ public class InsertionHeuristicTestEnvironment implements RidesharingTestEnviron
 				config.ridesharing.vehicleCapacity
 			);
 
-			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(onDemandVehicelId, vehiclePosition, vehicle);
+			OnDemandVehicle newVehicle = onDemandVehicleFactory.create(
+				onDemandVehicelId, vehiclePosition, vehicle, null, null, OnDemandVehicleState.WAITING
+			);
 			onDemandVehicleStorage.addEntity(newVehicle);
 			counter++;
 		}

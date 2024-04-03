@@ -29,6 +29,10 @@ import cz.cvut.fel.aic.simod.visual.ridesharing.RidesharingEventData;
 import cz.cvut.fel.aic.simod.visual.ridesharing.RidesharingTestEnvironment;
 import cz.cvut.fel.aic.geographtools.Graph;
 import cz.cvut.fel.aic.geographtools.util.Transformer;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.Test;
@@ -45,7 +49,7 @@ public class ComplexScenario {
 		Injector injector = testEnvironment.getInjector();
 		
 		// config
-		testEnvironment.getConfig().ridesharing.maximumRelativeDiscomfort = 3.0;
+		testEnvironment.getConfig().maxTravelTimeDelay.relative = 3.0;
                 testEnvironment.getConfig().ridesharing.weightParameter = 0.2;
 		
 		// set roadgraph - grid 5x4
@@ -55,11 +59,11 @@ public class ComplexScenario {
 		
 		// demand trips
 		List<TimeTrip<SimulationNode>> trips = new LinkedList<>();
-		trips.add(new TimeTrip<>(0,1000, graph.getNode(17), graph.getNode(3)));
-		trips.add(new TimeTrip<>(1,3000, graph.getNode(16), graph.getNode(14)));
-		trips.add(new TimeTrip<>(2,4000, graph.getNode(5), graph.getNode(10)));
-		trips.add(new TimeTrip<>(3,7000, graph.getNode(12), graph.getNode(9)));
-		trips.add(new TimeTrip<>(4,8000, graph.getNode(11), graph.getNode(0)));
+		trips.add(new TimeTrip<>(0, ZonedDateTime.ofInstant(Instant.ofEpochSecond(1), ZoneId.systemDefault()), graph.getNode(17), graph.getNode(3)));
+		trips.add(new TimeTrip<>(1, ZonedDateTime.ofInstant(Instant.ofEpochSecond(2), ZoneId.systemDefault()), graph.getNode(16), graph.getNode(14)));
+		trips.add(new TimeTrip<>(2, ZonedDateTime.ofInstant(Instant.ofEpochSecond(4), ZoneId.systemDefault()), graph.getNode(5), graph.getNode(10)));
+		trips.add(new TimeTrip<>(3, ZonedDateTime.ofInstant(Instant.ofEpochSecond(7), ZoneId.systemDefault()), graph.getNode(12), graph.getNode(9)));
+		trips.add(new TimeTrip<>(4, ZonedDateTime.ofInstant(Instant.ofEpochSecond(8), ZoneId.systemDefault()), graph.getNode(11), graph.getNode(0)));
 		
 		// vehicles
 		List<SimulationNode> vehicalInitPositions = new LinkedList<>();

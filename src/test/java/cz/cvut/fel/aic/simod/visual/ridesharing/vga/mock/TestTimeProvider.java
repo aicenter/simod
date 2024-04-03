@@ -22,6 +22,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 
+import java.time.ZonedDateTime;
+
 /**
  *
  * @author david
@@ -35,12 +37,31 @@ public class TestTimeProvider implements TimeProvider{
 	public TestTimeProvider() {
 		this.simulationTime = 0;
 	}
-	
-	
+
+
+	@Override
+	public ZonedDateTime getInitDateTime() {
+		return null;
+	}
 
 	@Override
 	public long getCurrentSimTime() {
 		return simulationTime;
+	}
+
+	@Override
+	public ZonedDateTime getCurrentSimDateTime() {
+		return null;
+	}
+
+	@Override
+	public ZonedDateTime getDateTimeFromSimTime(long simTime) {
+		return null;
+	}
+
+	@Override
+	public long getSimTimeFromDateTime(ZonedDateTime dateTime) {
+		return 0;
 	}
 
 	public void setSimulationTime(long simulationTime) {

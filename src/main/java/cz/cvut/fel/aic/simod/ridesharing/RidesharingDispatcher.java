@@ -54,6 +54,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -328,31 +329,31 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 				DarpSolutionStopAction[] planActions = new DarpSolutionStopAction[plan.plan.size() - 1];
 
 				SimulationNode lastPosition = plan.plan.get(0).getPosition();
-				long t = 0;
-				long globalDepartureTime = 0;
-				long globalArrivalTime = 0;
+				ZonedDateTime time = null;
+				ZonedDateTime globalDepartureTime = ZonedDateTime.now();
+				ZonedDateTime globalArrivalTime = ZonedDateTime.now();
 				for (int j = 0; j < plan.plan.size(); j++) {
 					PlanAction action = plan.plan.get(j);
 					boolean isPickup = action instanceof PlanActionPickup;
 					if (action instanceof PlanActionCurrentPosition) continue;
 					PlanRequestAction planRequestAction = (PlanRequestAction) action;
 					long travelTime = travelTimeProvider.getTravelTime(vehicle, lastPosition, action.getPosition()) / 1000;
-					if (t == 0) {
-						t = planRequestAction.getMinTimeInSimulationTimeSeconds() - travelTime;
-						globalDepartureTime = t;
+					if (time == null) {
+						time = planRequestAction.getMinTime().minus(travelTime, ChronoUnit.SECONDS);
+						globalDepartureTime = planRequestAction.getMinTime().minus(travelTime, ChronoUnit.SECONDS);
 					}
 
-					t += travelTime;
-					long arrivalTime = t;
-					globalArrivalTime = arrivalTime;
-					long waitForMinTime = planRequestAction.getMinTimeInSimulationTimeSeconds() - t;
-					long departureTime = arrivalTime + config.serviceTime;
-					if (waitForMinTime > 0) departureTime += waitForMinTime;
-					t = departureTime;
+					time = time.plus(travelTime, ChronoUnit.SECONDS);
+					ZonedDateTime actionArrivalTime = time;
+					globalArrivalTime = actionArrivalTime;
+					long waitForMinTime = planRequestAction.getMinTime().toEpochSecond() - time.toEpochSecond();
+					ZonedDateTime actionDepartureTime = actionArrivalTime.plus(config.serviceTime, ChronoUnit.SECONDS) ;
+					if (waitForMinTime > 0) actionDepartureTime = actionDepartureTime.plus( waitForMinTime, ChronoUnit.SECONDS);
+					time = actionDepartureTime;
 					lastPosition = action.getPosition();
 
-					String arrivalTimeStr = dateTimeFormatter.format(DateTimeParser.createDateTimeFromMillis(arrivalTime * 1000));
-					String departureTimeStr = dateTimeFormatter.format(DateTimeParser.createDateTimeFromMillis(departureTime * 1000));
+					String arrivalTimeStr = dateTimeFormatter.format(actionArrivalTime);
+					String departureTimeStr = dateTimeFormatter.format(actionDepartureTime);
 					planActions[j-1] = new DarpSolutionStopAction(arrivalTimeStr, departureTimeStr, planRequestAction);
 
 					if (isPickup) {
@@ -360,8 +361,8 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 						droppedRequests.remove(request.getId());
 					}
 				}
-				String globalDepartureTimeStr = dateTimeFormatter.format(DateTimeParser.createDateTimeFromMillis(globalDepartureTime * 1000));;
-				String globalArrivalTimeStr = dateTimeFormatter.format(DateTimeParser.createDateTimeFromMillis(globalArrivalTime * 1000));
+				String globalDepartureTimeStr = dateTimeFormatter.format(globalDepartureTime);;
+				String globalArrivalTimeStr = dateTimeFormatter.format(globalArrivalTime);
 				darpPlans[i] = new DarpSolutionPlan(cost,globalDepartureTimeStr,globalArrivalTimeStr, darpVehicle, planActions);
 			}
 

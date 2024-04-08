@@ -70,7 +70,7 @@ public class DistanceMatrixTravelTimeProvider extends TravelTimeProvider{
 		super(timeProvider);
 		this.positionUtil = positionUtil;
 		this.config = config;
-		if(config.distanceMatrixFilepath.endsWith(".h5")){
+		if(config.distanceMatrixFilepath.endsWith(".h5") || config.distanceMatrixFilepath.endsWith(".hdf5")){
 			if(!OnDemandVehiclesSimulation.hdf5Available()){
 				throw new RuntimeException("HDF5 file specified, but HDF5 library not available");
 			}

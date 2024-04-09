@@ -61,7 +61,9 @@ public class OnDemandVehiclesSimulation {
 
 	public static boolean hdf5Available(){
 		try {
-			Class.forName("as.hdfql.HDFql");
+//			Class.forName("as.hdfql.HDFql");
+			System.load("C:/Program Files/HDF_Group/HDF5/1.14.3/bin/hdf5.dll");
+			Class.forName("hdf.hdf5lib.H5");
 			return true;
 		} catch (ClassNotFoundException e) {
 			return false;

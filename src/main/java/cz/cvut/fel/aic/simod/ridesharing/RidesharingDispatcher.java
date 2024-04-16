@@ -323,8 +323,8 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 				int cost = (int) (plan.cost);
 				totalCost += cost;
 				DarpSolutionPlanVehicle darpVehicle = new DarpSolutionPlanVehicle(
-					vehicle.getIndex(),
-					new DarpSolutionPosition(vehicle.getPosition().getIndex())
+						Integer.parseInt(vehicle.getId()),
+					new DarpSolutionPosition(vehicle.getParkedIn().getIndex())
 				);
 				DarpSolutionStopAction[] planActions = new DarpSolutionStopAction[plan.plan.size() - 1];
 

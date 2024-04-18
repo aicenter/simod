@@ -158,8 +158,15 @@ The HDF support is provided by the [`HDFQL`](https://www.hdfql.com/) library. To
 3. Compile the SiMoD project with the `with-hdf5` maven profile.
 4. Run the simulation with a library path pointing to the HDFQL library java wrapper: `-Djava.library.path=<HDFQL HOME>/wrapper/java/as/hdfql`.
 
+#### HDFql installation Notes for MacOS:
+1. download `HDFql-2.5.0_Darwin64.zip` (Serial) and extract it.
+2. install libomp: `brew install libomp`
+3. go to lipomp folder (brew info libomp) and copy the file `libomp.dylib` to `/opt/local/lib/libgcc/libgomp.1.dylib` (create folder and rename if needed)
+5. open folder from step 1 in terminal and run launch script: `./bin/launch.sh`
+6. If a security dialog opens select cancel and go to system settings->Privacy & Security->Security, there should be a blocked item "HDFqlCLI was blocked from use..." click on allow anyway and run the launch script again. repeat the process if other files are also blocked.
+7. If it was successfull you should see a message like "HDFqlCLI version 2.5.0 (using HDFql version 2.5.0 64 bit library)" and the command line tool.
 
-
+#### Note: when using distance matrix you might get an error about heap memory, make sure to increase memory by adding the argunment -Xmx16g to the run configuration or to the command in the terminal
 
 # Usage
 

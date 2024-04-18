@@ -334,13 +334,13 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 					boolean isPickup = action instanceof PlanActionPickup;
 					if (action instanceof PlanActionCurrentPosition) continue;
 					PlanRequestAction planRequestAction = (PlanRequestAction) action;
-					long travelTime = travelTimeProvider.getTravelTime(vehicle, lastPosition, action.getPosition()) / 1000;
+					long travelTime = travelTimeProvider.getTravelTime(vehicle, lastPosition, action.getPosition());
 					if (time == null) {
-						time = planRequestAction.getMinTime().minus(travelTime, ChronoUnit.SECONDS);
-						globalDepartureTime = planRequestAction.getMinTime().minus(travelTime, ChronoUnit.SECONDS);
+						time = planRequestAction.getMinTime().minus(travelTime, ChronoUnit.MILLIS);
+						globalDepartureTime = planRequestAction.getMinTime().minus(travelTime, ChronoUnit.MILLIS);
 					}
 
-					time = time.plus(travelTime, ChronoUnit.SECONDS);
+					time = time.plus(travelTime, ChronoUnit.MILLIS);
 					ZonedDateTime actionArrivalTime = time;
 					globalArrivalTime = actionArrivalTime;
 					long waitForMinTime = planRequestAction.getMinTime().toEpochSecond() - time.toEpochSecond();

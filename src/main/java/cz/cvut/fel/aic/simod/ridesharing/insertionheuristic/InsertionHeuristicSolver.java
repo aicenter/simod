@@ -429,17 +429,17 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 			}
 
 			// travel time increment
-			int travelTime;
+			long travelTime;
 			if (previousTask instanceof PlanActionCurrentPosition) {
-				travelTime = (int) travelTimeProvider.getTravelTime(vehicle, newTask.getPosition()) / 1000;
+				travelTime = travelTimeProvider.getTravelTime(vehicle, newTask.getPosition());
 			} else {
-				travelTime = (int) travelTimeProvider.getTravelTime(vehicle, previousTask.getPosition(),
+				travelTime = travelTimeProvider.getTravelTime(vehicle, previousTask.getPosition(),
 					newTask.getPosition()
-				) / 1000;
+				);
 			}
 			newPlanTravelTime += travelTime;
-			currentTaskTimeInSeconds += travelTime;
-			timeWithoutPause += travelTime;
+			currentTaskTimeInSeconds += travelTime / 1000;
+			timeWithoutPause += travelTime / 1000;
 
 			// fail if time without pause is too long
 			if(timeWithoutPause > config.vehicles.maxPauseInterval * 60){
@@ -509,7 +509,7 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 			if (newTask instanceof PlanActionDropoff) {
 				// discomfort increment
 				PlanComputationRequest newRequest = newTask.getRequest();
-				long taskExecutionTime = timeProvider.getCurrentSimTime() + newPlanTravelTime;
+				long taskExecutionTime = timeProvider.getCurrentSimTime() + (newPlanTravelTime/1000);
 				newPlanDiscomfort += taskExecutionTime - newRequest.getMinSimulationTimeSeconds() * 1000
 					- newRequest.getMinTravelTime() * 1000;
 			} else if (newTask instanceof PlanActionPickup) {
@@ -531,9 +531,9 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 		}
 
 		// cost computation
-		double newPlanCost = planCostProvider.calculatePlanCost(newPlanDiscomfort, newPlanTravelTime);
+		double newPlanCost = planCostProvider.calculatePlanCost(newPlanDiscomfort, newPlanTravelTime / 1000);
 
-		return new DriverPlan(newPlanTasks, newPlanTravelTime, newPlanCost);
+		return new DriverPlan(newPlanTasks, newPlanTravelTime / 1000, newPlanCost);
 	}
 
 	private String readableTime(long nanoTime) {

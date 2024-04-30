@@ -408,13 +408,13 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 		T counter = initFreeCapacityForRequest(vehicle, planComputationRequest);
 
 		// we start computing the time current time (we cannot plan for the past :))
-		int currentTaskTimeInSeconds =
+		int currentTaskTime =
 			(int) (Math.max(
 							timeProvider.getCurrentSimTime(),
 							timeProvider.getSimTimeFromDateTime(vehicle.getOperationStart())
-						) / 1000);
+						));
 
-		long operationEndInSeconds = timeProvider.getSimTimeFromDateTime(vehicle.getOperationEnd()) / 1000;
+		long operationEnd = timeProvider.getSimTimeFromDateTime(vehicle.getOperationEnd());
 
 		for (int newPlanIndex = 1; newPlanIndex <= currentPlan.getLength() + 1; newPlanIndex++) {
 
@@ -438,22 +438,22 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 				);
 			}
 			newPlanTravelTime += travelTime;
-			currentTaskTimeInSeconds += travelTime / 1000;
-			timeWithoutPause += travelTime / 1000;
+			currentTaskTime += travelTime;
+			timeWithoutPause += travelTime;
 
 			// fail if time without pause is too long
-			if(timeWithoutPause > config.vehicles.maxPauseInterval * 60){
+			if(timeWithoutPause > config.vehicles.maxPauseInterval * 60 * 1000){
 				return null;
 			}
 
 			// current time adjustment according to the new task min time
 			if (newTask instanceof PlanActionPickup) {
-				int minTime = ((PlanActionPickup) newTask).getMinTimeInSimulationTimeSeconds();
-				if (minTime > currentTaskTimeInSeconds) {
+				int minTime = ((PlanActionPickup) newTask).getMinTimeInSimulationTimeSeconds() * 1000;
+				if (minTime > currentTaskTime) {
 
 					// measure pause length
 					if(config.vehicles.minPauseLength > 0){
-						int pauseLength = minTime - currentTaskTimeInSeconds;
+						int pauseLength = minTime - currentTaskTime;
 
 						// pause long enough -> reset time without pause counter
 						if(pauseLength > config.vehicles.minPauseLength * 60){
@@ -461,24 +461,24 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 						}
 					}
 
-					currentTaskTimeInSeconds = minTime;
+					currentTaskTime = minTime;
 				}
 			}
 
 			// service time increment
-			currentTaskTimeInSeconds += config.serviceTime;
-			timeWithoutPause += config.serviceTime;
+			currentTaskTime += config.serviceTime * 1000;
+			timeWithoutPause += config.serviceTime * 1000;
 
 			// check max operation time
-			if (currentTaskTimeInSeconds > operationEndInSeconds) {
+			if (currentTaskTime > operationEnd) {
 				return null;
 			}
 
 			/* check max time for all unfinished demands */
 
 			// check max time check for the new action
-			int maxTime = newTask.getMaxTimeInSimulationTimeSeconds();
-			if (maxTime < currentTaskTimeInSeconds) {
+			int maxTime = newTask.getMaxTimeInSimulationTimeSeconds() * 1000;
+			if (maxTime < currentTaskTime) {
 //                                    LOGGER.debug("currentTaskTimeInSeconds {} \n> maxTime {}",currentTaskTimeInSeconds, maxTime);
 				return null;
 			}
@@ -486,21 +486,21 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 			// check max time for actions in the current plan
 			for (int index = indexInOldPlan + 1; index < currentPlan.getLength(); index++) {
 				PlanRequestAction remainingRequestAction = (PlanRequestAction) currentPlan.plan.get(index);
-				if (remainingRequestAction.getMaxTimeInSimulationTimeSeconds() < currentTaskTimeInSeconds) {
+				if (remainingRequestAction.getMaxTimeInSimulationTimeSeconds()*1000 < currentTaskTime) {
 					return null;
 				}
 			}
 
 			// check max time for pick up action
 			if (newPlanIndex <= pickupOptionIndex) {
-				if (planComputationRequest.getPickUpAction().getMaxTimeInSimulationTimeSeconds() < currentTaskTimeInSeconds) {
+				if (planComputationRequest.getPickUpAction().getMaxTimeInSimulationTimeSeconds() * 1000 < currentTaskTime) {
 					return null;
 				}
 			}
 
 			// check max time for drop off action
 			if (newPlanIndex <= dropoffOptionIndex) {
-				if (planComputationRequest.getDropOffAction().getMaxTimeInSimulationTimeSeconds() < currentTaskTimeInSeconds) {
+				if (planComputationRequest.getDropOffAction().getMaxTimeInSimulationTimeSeconds() * 1000 < currentTaskTime) {
 					return null;
 				}
 			}

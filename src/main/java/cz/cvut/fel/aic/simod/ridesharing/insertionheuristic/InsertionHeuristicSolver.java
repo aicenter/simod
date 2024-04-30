@@ -229,7 +229,11 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 
 		logRidesharingStats(newRequests);
 
-		return planMap;
+		TreeMap<RideSharingOnDemandVehicle, DriverPlan> result  = new TreeMap<>(
+			Comparator.comparingInt(o -> Integer.parseInt(o.getId()))
+		);
+		result.putAll(planMap);
+		return result;
 	}
 
 	@Override

@@ -200,11 +200,11 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 							//TODO add onboard vehicles previous discomfort
 							
 							int totalDuration = endTimeTemp - startTime;
-							int planCost = planCostComputation.calculatePlanCost(totalDiscomfort + discomfort,
+							double planCost = planCostComputation.calculatePlanCost(totalDiscomfort + discomfort,
 									totalDuration);
 
 							if(planCost < bestPlanCost){
-								bestPlanCost = planCost;
+								bestPlanCost = (int) planCost;
 								bestPlanEndTime = endTime + durationMs;
 
 								// save best plan

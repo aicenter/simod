@@ -23,5 +23,5 @@ package cz.cvut.fel.aic.simod.ridesharing;
  * @author F.I.D.O.
  */
 public interface PlanCostProvider {
-	public double calculatePlanCost(int planDiscomfort, double planDuration);
+	public double calculatePlanCost(int planDiscomfort, int planDuration);
 }

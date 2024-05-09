@@ -1,18 +1,18 @@
 package cz.cvut.fel.aic.simod.entity.darp;
 
 public class DarpSolutionPlanVehicle {
-    private int index;
+    private String id;
 
-    public DarpSolutionPlanVehicle(int index) {
-        this.index = index;
+    public DarpSolutionPlanVehicle(String id) {
+        this.id = id;
     }
     
-    public int getIndex() {
-        return index;
+    public String getId() {
+        return id;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
+    public void setId(String id) {
+        this.id = id;
     }
 
 }

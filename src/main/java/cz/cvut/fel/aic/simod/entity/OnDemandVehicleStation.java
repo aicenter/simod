@@ -21,6 +21,7 @@ package cz.cvut.fel.aic.simod.entity;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
+import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.DateTimeParser;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.AgentPolisEntity;
 import cz.cvut.fel.aic.agentpolis.simmodel.entity.EntityType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
@@ -49,6 +50,8 @@ import cz.cvut.fel.aic.simod.storage.OnDemandvehicleStationStorage;
 import org.locationtech.jts.geom.Coordinate;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -102,6 +105,9 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 		this.agentpolisConfig = agentpolisConfig;
 		parkedVehicles = new ArrayList<>();
 //		initialVehicleCount = 10;
+		// default setting for operation time for vehicles
+		var operationStart = DateTimeParser.parseDateTime(agentpolisConfig.startTime).minus(Duration.ofHours(1));
+		var operationEnd = DateTimeParser.parseDateTime(agentpolisConfig.endTime).plus(Duration.ofHours(1));
 
 		for (int i = 0; i < initialVehicleCount; i++) {
 			String onDemandVehicelId = String.format("%s-%d", id, i);
@@ -121,8 +127,8 @@ public class OnDemandVehicleStation extends AgentPolisEntity implements EventHan
 				onDemandVehicelId,
 				getPosition(),
 				vehicle,
-				null,
-				null,
+				operationStart,
+				operationEnd,
 				OnDemandVehicleState.WAITING
 			);
 			parkedVehicles.add(newVehicle);

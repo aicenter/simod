@@ -322,7 +322,7 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 				DriverPlan plan = entry.getValue();
 				double cost = plan.cost;
 				totalCost += cost;
-				DarpSolutionPlanVehicle darpVehicle = new DarpSolutionPlanVehicle(Integer.parseInt(vehicle.getId()));
+				DarpSolutionPlanVehicle darpVehicle = new DarpSolutionPlanVehicle(vehicle.getId());
 				DarpSolutionStopAction[] planActions = new DarpSolutionStopAction[plan.plan.size() - 1];
 
 				SimulationNode lastPosition = plan.plan.get(0).getPosition();

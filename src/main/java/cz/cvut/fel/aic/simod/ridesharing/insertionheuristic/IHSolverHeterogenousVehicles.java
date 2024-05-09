@@ -72,23 +72,21 @@ public class IHSolverHeterogenousVehicles extends InsertionHeuristicSolver<Integ
 
 	@Override
 	protected Integer adjustFreeCapacity(
-		DriverPlan currentPlan, int evaluatedIndex, PlanComputationRequest planComputationRequest,
+		PlanRequestAction action,
+		PlanComputationRequest planComputationRequest,
 		Integer counter
 	) {
-		if (evaluatedIndex < currentPlan.getLength()) { // no need to adjust if the evaluated index is the last one
-			SlotType requiredSlotType = planComputationRequest.getDemandAgent().getRequiredSlotType();
-			PlanAction action = currentPlan.plan.get(evaluatedIndex);
-			if(action instanceof PlanRequestAction) {
-				SlotType currentSlotType = ((PlanRequestAction) action).getRequest().getDemandAgent().getRequiredSlotType();
-				if (requiredSlotType.equals(currentSlotType)) {
-					if (currentPlan.plan.get(evaluatedIndex) instanceof PlanActionPickup) {
-						counter--;
-					} else {
-						counter++;
-					}
-				}
+		SlotType requiredSlotType = planComputationRequest.getDemandAgent().getRequiredSlotType();
+
+		SlotType currentSlotType = action.getRequest().getDemandAgent().getRequiredSlotType();
+		if (requiredSlotType.equals(currentSlotType)) {
+			if(action instanceof PlanActionPickup) {
+				counter--;
+			} else {
+				counter++;
 			}
 		}
+
 		return counter;
 	}
 }

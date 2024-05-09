@@ -69,20 +69,17 @@ public class IHSolverReconfigurableVehicles extends InsertionHeuristicSolver<Con
 
 	@Override
 	protected ConfigurationFilter adjustFreeCapacity(
-		DriverPlan currentPlan, int evaluatedIndex, PlanComputationRequest planComputationRequest,
+		PlanRequestAction action,
+		PlanComputationRequest planComputationRequest,
 		ConfigurationFilter counter
 	){
-		if (evaluatedIndex < currentPlan.getLength()) { // no need to adjust if the evaluated index is the last one
-			PlanAction action = currentPlan.plan.get(evaluatedIndex);
-			if(action instanceof PlanRequestAction) {
-				PlanComputationRequest evaluatedRequest = ((PlanRequestAction) action).getRequest();
-				if (currentPlan.plan.get(evaluatedIndex) instanceof PlanActionPickup) {
-					counter.pickUp(evaluatedRequest);
-				} else {
-					counter.dropOff(evaluatedRequest);
-				}
-			}
+		PlanComputationRequest evaluatedRequest = action.getRequest();
+		if (action instanceof PlanActionPickup) {
+			counter.pickUp(evaluatedRequest);
+		} else {
+			counter.dropOff(evaluatedRequest);
 		}
+
 		return counter;
 	}
 }

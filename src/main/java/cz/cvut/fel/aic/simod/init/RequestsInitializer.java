@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -152,6 +153,7 @@ public class RequestsInitializer {
 			Iterator<Map<String, String>> iter = ProgressBar.wrap(it, "Loading trips");
 			boolean first = true;
 			boolean coordinates = false;
+			boolean separatePickupTime = false;
 			while (iter.hasNext()) {
 				Map<String, String> row = iter.next();
 
@@ -161,6 +163,9 @@ public class RequestsInitializer {
 					if (row.containsKey("Latitude_From") && row.containsKey("Longitude_From")) {
 						coordinates = true;
 					}
+					if (row.containsKey("Pickup_Time")) {
+						separatePickupTime = true;
+					}
 				}
 
 				SimulationNode startNode = null;
@@ -168,6 +173,11 @@ public class RequestsInitializer {
 
 				if(coordinates){
 					var nodes = getNodesFromCoordinates(row);
+
+					if (nodes == null) {
+						continue;
+					}
+
 					startNode = nodes[0];
 					targetNode = nodes[1];
 				}
@@ -184,8 +194,13 @@ public class RequestsInitializer {
 					var announcementTime = DateTimeParser.parseDateTimeFromUnknownFormat(row.get(
 						"Announcement_Time"));
 
-					// min travel time processing
-					var desiredPickupTime = DateTimeParser.parseDateTimeFromUnknownFormat(row.get("Pickup_Time"));
+					ZonedDateTime desiredPickupTime;
+					if (separatePickupTime) {
+						desiredPickupTime = DateTimeParser.parseDateTimeFromUnknownFormat(row.get("Pickup_Time"));
+					} else {
+						desiredPickupTime = announcementTime;
+					}
+
 					if (desiredPickupTime.isBefore(timeProvider.getInitDateTime())) {
 						impossibleTripsCount++;
 						//				LOGGER.info("Trip out of simulation time. Total: {}", impossibleTripsCount);
@@ -261,7 +276,7 @@ public class RequestsInitializer {
 							demandEventHandler,
 							null,
 							newRequest,
-							newRequest.getMinSimulationTimeSeconds()
+							newRequest.getMinSimulationTimeSeconds() * 1000L
 						);
 
 						eventCount++;

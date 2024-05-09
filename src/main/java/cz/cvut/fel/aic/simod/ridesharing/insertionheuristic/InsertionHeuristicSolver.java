@@ -230,7 +230,8 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 		logRidesharingStats(newRequests);
 
 		TreeMap<RideSharingOnDemandVehicle, DriverPlan> result  = new TreeMap<>(
-			Comparator.comparingInt(o -> Integer.parseInt(o.getId()))
+			// sort vehicles by id string
+			Comparator.comparing(RideSharingOnDemandVehicle::getId)
 		);
 		result.putAll(planMap);
 		return result;
@@ -338,8 +339,10 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 				}
 			}
 
-			// change free capacity for next index
-			adjustFreeCapacity(currentPlan, pickupOptionIndex, planComputationRequest, counter);
+			if (pickupOptionIndex < currentPlan.getLength()) { // no need to adjust for the last index
+				// change free capacity for next index
+				adjustFreeCapacity((PlanRequestAction) currentPlan.plan.get(pickupOptionIndex), planComputationRequest, counter);
+			}
 		}
 	}
 
@@ -349,17 +352,18 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 	}
 
 	protected T adjustFreeCapacity(
-		DriverPlan currentPlan, int evaluatedIndex, PlanComputationRequest planComputationRequest, T counter
+		PlanRequestAction action,
+		PlanComputationRequest planComputationRequest,
+		T counter
 	) {
 		int counterInt = (int) counter;
-		if (evaluatedIndex < currentPlan.getLength()) { // no need to adjust for the last index
 
-			if (currentPlan.plan.get(evaluatedIndex) instanceof PlanActionPickup) {
-				counterInt--;
-			} else {
-				counterInt++;
-			}
+		if (action instanceof PlanActionPickup) {
+			counterInt--;
+		} else {
+			counterInt++;
 		}
+
 		return (T) (Integer.valueOf(counterInt));
 	}
 
@@ -446,7 +450,9 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 			timeWithoutPause += travelTime;
 
 			// fail if time without pause is too long
-			if(timeWithoutPause > config.vehicles.maxPauseInterval * 60 * 1000){
+			if(config.vehicles.maxPauseInterval > 0
+				&& timeWithoutPause > config.vehicles.maxPauseInterval * 60 * 10003
+			){
 				return null;
 			}
 
@@ -523,7 +529,7 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 				}
 			}
 
-			adjustFreeCapacity(currentPlan, newPlanIndex, planComputationRequest, counter);
+			adjustFreeCapacity(newTask, planComputationRequest, counter);
 
 			// index in old plan if the action was not new
 			if (newPlanIndex != pickupOptionIndex && newPlanIndex != dropoffOptionIndex) {

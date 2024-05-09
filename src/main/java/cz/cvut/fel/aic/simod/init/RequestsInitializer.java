@@ -30,6 +30,7 @@ import cz.cvut.fel.aic.agentpolis.simmodel.IdGenerator;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.NearestElementUtils;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.agentpolis.simulator.SimulationUtils;
 import cz.cvut.fel.aic.agentpolis.simulator.creator.SimulationCreator;
 import cz.cvut.fel.aic.alite.common.event.Event;
@@ -86,12 +87,16 @@ public class RequestsInitializer {
 
 	private final NearestElementUtils nearestElementUtils;
 
+	private final HighwayNetwork highwayNetwork;
+
 	protected final DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory;
 
 
 	private long eventCount;
 
 	private long impossibleTripsCount;
+
+	int sameStartAndTargetInDataCount = 0; // trips with same start and target coordinates in the data
 
 
 	@Inject
@@ -104,7 +109,8 @@ public class RequestsInitializer {
 		SimulationUtils simulationUtils,
 		TimeProvider timeProvider,
 		NearestElementUtils nearestElementUtils,
-		DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory
+		DefaultPlanComputationRequest.DefaultPlanComputationRequestFactory requestFactory,
+		HighwayNetwork highwayNetwork
 	) {
 		this.eventProcessor = eventProcessor;
 		this.demandEventHandler = demandEventHandler;
@@ -115,6 +121,7 @@ public class RequestsInitializer {
 		this.timeProvider = timeProvider;
 		this.nearestElementUtils = nearestElementUtils;
 		this.requestFactory = requestFactory;
+		this.highwayNetwork = highwayNetwork;
 		eventCount = 0;
 		impossibleTripsCount = 0;
 	}
@@ -122,13 +129,14 @@ public class RequestsInitializer {
 
 	public void initialize() {
 		Random random = new Random(RANDOM_SEED);
-		int sameStartAndTargetInDataCount = 0; // trips with same start and target coordinates in the data
+
 		int zeroLenghtTripsCount = 0; // trips with same start and target node in the road network
 		int requestCounter = 0;
 
 		CsvSchema headerSchema = CsvSchema.emptySchema().withHeader();
 		CsvMapper mapper = new CsvMapper();
 		try {
+			// count lines in the file
 			long numRequests;
 			Path requestsFilePath = Path.of(config.tripsPath);
 			try (Stream<String> lines = Files.lines(requestsFilePath)) {
@@ -142,160 +150,162 @@ public class RequestsInitializer {
 				.readValues(requestsFilePath.toFile());
 
 			Iterator<Map<String, String>> iter = ProgressBar.wrap(it, "Loading trips");
+			boolean first = true;
+			boolean coordinates = false;
 			while (iter.hasNext()) {
 				Map<String, String> row = iter.next();
-//				 = it.next();
 
-				GPSLocation startLocation = new GPSLocation(
-					Double.parseDouble(row.get("Latitude_From")),
-					Double.parseDouble(row.get("Longitude_From")),
-					0,
-					0
-				);
-				GPSLocation targetLocation = new GPSLocation(
-					Double.parseDouble(row.get("Latitude_To")),
-					Double.parseDouble(row.get("Longitude_To")),
-					0,
-					0
-				);
+				// first line special processing
+				if (first) {
+					first = false;
+					if (row.containsKey("Latitude_From") && row.containsKey("Longitude_From")) {
+						coordinates = true;
+					}
+				}
 
-				if (startLocation.equals(targetLocation)) {
-					sameStartAndTargetInDataCount++;
-				} else {
-					SimulationNode startNode = nearestElementUtils.getNearestElement(startLocation, EGraphType.HIGHWAY);
-					SimulationNode targetNode
-						= nearestElementUtils.getNearestElement(targetLocation, EGraphType.HIGHWAY);
+				SimulationNode startNode = null;
+				SimulationNode targetNode = null;
 
-					if (startNode == targetNode) {
-						zeroLenghtTripsCount++;
+				if(coordinates){
+					var nodes = getNodesFromCoordinates(row);
+					startNode = nodes[0];
+					targetNode = nodes[1];
+				}
+				else {
+					startNode = highwayNetwork.getNetwork().getNode(Integer.parseInt(row.get("From")));
+					targetNode = highwayNetwork.getNetwork().getNode(Integer.parseInt(row.get("To")));
+				}
+
+				if (startNode == targetNode) {
+					zeroLenghtTripsCount++;
+				}
+				else {
+					// announcement time processing
+					var announcementTime = DateTimeParser.parseDateTimeFromUnknownFormat(row.get(
+						"Announcement_Time"));
+
+					// min travel time processing
+					var desiredPickupTime = DateTimeParser.parseDateTimeFromUnknownFormat(row.get("Pickup_Time"));
+					if (desiredPickupTime.isBefore(timeProvider.getInitDateTime())) {
+						impossibleTripsCount++;
+						//				LOGGER.info("Trip out of simulation time. Total: {}", impossibleTripsCount);
+						continue;
+					}
+
+					// slot type processing
+					SlotType requiredSlotType;
+					if (config.heterogeneousVehicles) {
+						requiredSlotType = SlotType.valueOf(row.get("Slot_Type"));
 					} else {
-						// announcement time processing
-						var announcementTime = DateTimeParser.parseDateTimeFromUnknownFormat(row.get(
-							"Announcement_Time"));
+						requiredSlotType = SlotType.STANDARD_SEAT;
+					}
 
-						// min travel time processing
-						var desiredPickupTime = DateTimeParser.parseDateTimeFromUnknownFormat(row.get("Pickup_Time"));
-						if (desiredPickupTime.isBefore(timeProvider.getInitDateTime())) {
-							impossibleTripsCount++;
-							//				LOGGER.info("Trip out of simulation time. Total: {}", impossibleTripsCount);
-							continue;
+					// Required vehicle processing
+					int requiredVehicleId = -1;
+					if (row.containsKey("required_vehicle_id")) {
+						String requiredVehicleIdStr = row.get("required_vehicle_id");
+						requiredVehicleId = Integer.parseInt(requiredVehicleIdStr);
+					}
+
+					for (int i = 0; i < config.tripsMultiplier; i++) {
+						if (i + 1 >= config.tripsMultiplier) {
+							double randomNum = random.nextDouble();
+							if (randomNum > config.tripsMultiplier - i) {
+								break;
+							}
+						}
+						desiredPickupTime = desiredPickupTime.plusSeconds(i * TRIP_MULTIPLICATION_TIME_SHIFT);
+
+						int requestId = requestCounter;
+						if (row.containsKey("id")) {
+							int id = Integer.parseInt(row.get("id"));
+							requestId = (int) (id + numRequests * i);
 						}
 
-						// slot type processing
-						SlotType requiredSlotType;
-						if (config.heterogeneousVehicles) {
-							requiredSlotType = SlotType.valueOf(row.get("Slot_Type"));
-						} else {
-							requiredSlotType = SlotType.STANDARD_SEAT;
-						}
+						DefaultPlanComputationRequest newRequest = requestFactory.create(
+							requestId,
+							startNode,
+							targetNode,
+							announcementTime,
+							desiredPickupTime,
+							requiredSlotType,
+							null,
+							requiredVehicleId
+						);
 
-						// Required vehicle processing
-						int requiredVehicleId = -1;
-						if (row.containsKey("required_vehicle_id")) {
-							String requiredVehicleIdStr = row.get("required_vehicle_id");
-							requiredVehicleId = Integer.parseInt(requiredVehicleIdStr);
-						}
-
-						for (int i = 0; i < config.tripsMultiplier; i++) {
-							if (i + 1 >= config.tripsMultiplier) {
-								double randomNum = random.nextDouble();
-								if (randomNum > config.tripsMultiplier - i) {
-									break;
-								}
-							}
-							desiredPickupTime = desiredPickupTime.plusSeconds(i * TRIP_MULTIPLICATION_TIME_SHIFT);
-
-							int requestId = requestCounter;
-							if (row.containsKey("id")) {
-								int id = Integer.parseInt(row.get("id"));
-								requestId = (int) (id + numRequests * i);
-							}
-
-							DefaultPlanComputationRequest newRequest = requestFactory.create(
-								requestId,
-								startNode,
-								targetNode,
-								announcementTime,
-								desiredPickupTime,
-								requiredSlotType,
-								null,
-								requiredVehicleId
-							);
-
-							// event for dispatcher
-							long annoucementTimeMillis
-								= Duration.between(timeProvider.getInitDateTime(), announcementTime).toMillis();
-							if (annoucementTimeMillis < 0) {
-								throw new RuntimeException("Announcement time is before simulation start time");
-							} else if (annoucementTimeMillis == 0) {
-								eventProcessor.addEvent(
-									DemandEvent.ANNOUNCEMENT,
-									dispatcher,
-									null,
-									newRequest
-								);
-							} else {
-								eventProcessor.addEvent(
-									DemandEvent.ANNOUNCEMENT,
-									dispatcher,
-									null,
-									newRequest,
-									annoucementTimeMillis
-								);
-							}
-
-							// event for demand event handler
+						// event for dispatcher
+						long annoucementTimeMillis
+							= Duration.between(timeProvider.getInitDateTime(), announcementTime).toMillis();
+						if (annoucementTimeMillis < 0) {
+							throw new RuntimeException("Announcement time is before simulation start time");
+						} else if (annoucementTimeMillis == 0) {
 							eventProcessor.addEvent(
+								DemandEvent.ANNOUNCEMENT,
+								dispatcher,
 								null,
-								demandEventHandler,
+								newRequest
+							);
+						} else {
+							eventProcessor.addEvent(
+								DemandEvent.ANNOUNCEMENT,
+								dispatcher,
 								null,
 								newRequest,
-								newRequest.getMinSimulationTimeSeconds()
+								annoucementTimeMillis
 							);
-
-							eventCount++;
-							if (MAX_EVENTS != 0 && eventCount >= MAX_EVENTS) {
-								return;
-							}
-
-							requestCounter++;
 						}
+
+						// event for demand event handler
+						eventProcessor.addEvent(
+							null,
+							demandEventHandler,
+							null,
+							newRequest,
+							newRequest.getMinSimulationTimeSeconds()
+						);
+
+						eventCount++;
+						if (MAX_EVENTS != 0 && eventCount >= MAX_EVENTS) {
+							return;
+						}
+
+						requestCounter++;
 					}
 				}
 			}
-
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 
-//		for (TimeTrip<SimulationNode> trip : trips) {
-//			long startTime = Duration.between(timeProvider.getInitDateTime(), trip.getStartTime()).toMillis();
-//			// trip have to start at least 1ms after start of the simulation and no later then last
-//			if(startTime < 1 || startTime > simulationUtils.getSimulationDuration()){
-//				impossibleTripsCount++;
-////				LOGGER.info("Trip out of simulation time. Total: {}", impossibleTripsCount);
-//				continue;
-//			}
-//
-//			for(int i = 0; i < config.tripsMultiplier; i++){
-//				if(i + 1 >= config.tripsMultiplier){
-//					double randomNum = random.nextDouble();
-//					if(randomNum > config.tripsMultiplier - i){
-//						break;
-//					}
-//				}
-//
-//				startTime = startTime + i * TRIP_MULTIPLICATION_TIME_SHIFT;
-//				eventProcessor.addEvent(null, demandEventHandler, null, trip, startTime);
-//				eventCount++;
-//				if(MAX_EVENTS != 0 && eventCount >= MAX_EVENTS){
-//					return;
-//				}
-//			}
-//		}
 		LOGGER.info("Number of trips with same source and destination: {}", sameStartAndTargetInDataCount);
 		LOGGER.info("{} trips with zero lenght discarded", zeroLenghtTripsCount);
 		LOGGER.info("{} trips discarded because they are not within simulation time bounds", impossibleTripsCount);
+	}
+
+	private SimulationNode[] getNodesFromCoordinates(Map<String, String> row) {
+		GPSLocation startLocation = new GPSLocation(
+			Double.parseDouble(row.get("Latitude_From")),
+			Double.parseDouble(row.get("Longitude_From")),
+			0,
+			0
+		);
+		GPSLocation targetLocation = new GPSLocation(
+			Double.parseDouble(row.get("Latitude_To")),
+			Double.parseDouble(row.get("Longitude_To")),
+			0,
+			0
+		);
+
+		if (startLocation.equals(targetLocation)) {
+			sameStartAndTargetInDataCount++;
+			return null;
+		}
+
+		SimulationNode startNode = nearestElementUtils.getNearestElement(startLocation, EGraphType.HIGHWAY);
+		SimulationNode targetNode
+			= nearestElementUtils.getNearestElement(targetLocation, EGraphType.HIGHWAY);
+		return new SimulationNode[]{startNode, targetNode};
 	}
 
 

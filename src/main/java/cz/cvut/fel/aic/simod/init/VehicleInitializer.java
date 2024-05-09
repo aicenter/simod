@@ -7,6 +7,8 @@ import cz.cvut.fel.aic.agentpolis.config.AgentpolisConfig;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.DateTimeParser;
 import cz.cvut.fel.aic.agentpolis.siminfrastructure.time.TimeProvider;
 import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.EGraphType;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.elements.SimulationNode;
+import cz.cvut.fel.aic.agentpolis.simmodel.environment.transportnetwork.networks.HighwayNetwork;
 import cz.cvut.fel.aic.alite.common.event.EventProcessor;
 import cz.cvut.fel.aic.simod.DemandSimulationEntityType;
 import cz.cvut.fel.aic.simod.config.SimodConfig;
@@ -47,6 +49,8 @@ public class VehicleInitializer {
 
 	private final EventProcessor eventProcessor;
 
+	private final HighwayNetwork highwayNetwork;
+
 
 
 
@@ -58,7 +62,8 @@ public class VehicleInitializer {
 		OnDemandvehicleStationStorage onDemandVehicleStationStorage,
 		OnDemandVehicleStorage onDemandVehicleStorage,
 		TimeProvider timeProvider,
-		EventProcessor eventProcessor
+		EventProcessor eventProcessor,
+		HighwayNetwork highwayNetwork
 	) {
 		this.config = config;
 		this.agentpolisConfig = agentpolisConfig;
@@ -67,6 +72,7 @@ public class VehicleInitializer {
 		this.onDemandVehicleStorage = onDemandVehicleStorage;
 		this.timeProvider = timeProvider;
 		this.eventProcessor = eventProcessor;
+		this.highwayNetwork = highwayNetwork;
 	}
 
 	public void run() {
@@ -82,38 +88,47 @@ public class VehicleInitializer {
 			JsonNode vehicles = objectMapper.readTree(vehicleFile);
 			for (JsonNode vehicleNode : vehicles) {
 				int vehicleId = vehicleNode.get("id").asInt();
-				String onDemandVehicelId = String.format("%d", vehicleId);
-				OnDemandVehicleStation station = onDemandVehicleStationStorage.getEntityById(vehicleNode.get(
-					"station_index").asText());
-
-				MoDVehicle vehicle = null;
-				List<SlotConfiguration> slotConfigurations = new ArrayList<>();
-				for (JsonNode slotConfigurationNode: vehicleNode.get("configurations")) {
-					HashMap<SlotType, Integer> slots = new HashMap<>();
-					var it = slotConfigurationNode.fields();
-					int configurationId = slotConfigurationNode.get("configuration_id").asInt();
-					while (it.hasNext()) {
-						Map.Entry<String, JsonNode> slotTypeEntry = it.next();
-						if (slotTypeEntry.getKey().equals("configuration_id")) {
-							continue;
-						}
-						slots.put(SlotType.valueOf(slotTypeEntry.getKey()), slotTypeEntry.getValue().asInt());
-					}
-					slotConfigurations.add(new SlotConfiguration(Integer.toString(configurationId), slots));
+				String onDemandVehicleId = String.format("%d", vehicleId);
+				OnDemandVehicleStation station = null;
+				SimulationNode initialPosition = null;
+				if (config.stations.on){
+					station = onDemandVehicleStationStorage.getEntityById(vehicleNode.get(
+						"station_index").asText());
+					initialPosition = station.getPosition();
+				}
+				else {
+					initialPosition = highwayNetwork.getNetwork().getNode(vehicleNode.get("node_index").asInt());
 				}
 
+				MoDVehicle vehicle = null;
+
 				if (config.reconfigurableVehicles) {
+					List<SlotConfiguration> slotConfigurations = new ArrayList<>();
+					for (JsonNode slotConfigurationNode: vehicleNode.get("configurations")) {
+						HashMap<SlotType, Integer> slots = new HashMap<>();
+						var it = slotConfigurationNode.fields();
+						int configurationId = slotConfigurationNode.get("configuration_id").asInt();
+						while (it.hasNext()) {
+							Map.Entry<String, JsonNode> slotTypeEntry = it.next();
+							if (slotTypeEntry.getKey().equals("configuration_id")) {
+								continue;
+							}
+							slots.put(SlotType.valueOf(slotTypeEntry.getKey()), slotTypeEntry.getValue().asInt());
+						}
+						slotConfigurations.add(new SlotConfiguration(Integer.toString(configurationId), slots));
+					}
+
 					vehicle = new ReconfigurableVehicle(
-						String.format("%s - vehicle", onDemandVehicelId),
+						String.format("%s - vehicle", onDemandVehicleId),
 						DemandSimulationEntityType.VEHICLE,
 						LENGTH,
 						EGraphType.HIGHWAY,
-						station.getPosition(),
+						initialPosition,
 						agentpolisConfig.maxVehicleSpeedInMeters,
 						slotConfigurations
 					);
 				}
-				else {
+				else if(vehicleNode.has("slots")){
 					// slot parsing
 					HashMap<SlotType, Integer> slots = new HashMap<>();
 					for (JsonNode slotNode : vehicleNode.get("slots")) {
@@ -121,13 +136,24 @@ public class VehicleInitializer {
 					}
 
 					vehicle = new SpecializedTransportVehicle(
-						String.format("%s - vehicle", onDemandVehicelId),
+						String.format("%s - vehicle", onDemandVehicleId),
 						DemandSimulationEntityType.VEHICLE,
 						LENGTH,
 						EGraphType.HIGHWAY,
-						station.getPosition(),
+						initialPosition,
 						agentpolisConfig.maxVehicleSpeedInMeters,
 						slots
+					);
+				}
+				else {
+					vehicle = new SimpleMoDVehicle(
+						String.format("%s - vehicle", onDemandVehicleId),
+						DemandSimulationEntityType.VEHICLE,
+						LENGTH,
+						EGraphType.HIGHWAY,
+						initialPosition,
+						agentpolisConfig.maxVehicleSpeedInMeters,
+						vehicleNode.get("capacity").asInt()
 					);
 				}
 
@@ -154,15 +180,19 @@ public class VehicleInitializer {
 				OnDemandVehicleState onDemandVehicleState = startsImmediately ? OnDemandVehicleState.WAITING : OnDemandVehicleState.NON_ACTIVE;
 
 				OnDemandVehicle vehicleAgent = onDemandVehicleFactory.create(
-					onDemandVehicelId,
-					station.getPosition(),
+					onDemandVehicleId,
+					initialPosition,
 					vehicle,
 					operationStart,
 					operationEnd,
 					onDemandVehicleState
 				);
-				station.parkVehicle(vehicleAgent);
-				vehicleAgent.setParkedIn(station);
+
+				if(config.stations.on) {
+					station.parkVehicle(vehicleAgent);
+					vehicleAgent.setParkedIn(station);
+				}
+
 				onDemandVehicleStorage.addEntity(vehicleAgent);
 
 				// create start operation event if the vehicle does not start immediately

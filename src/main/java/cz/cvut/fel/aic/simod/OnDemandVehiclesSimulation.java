@@ -38,6 +38,8 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.PrimitiveIterator;
 import java.util.Random;
 
@@ -73,12 +75,14 @@ public class OnDemandVehiclesSimulation {
 	}
 
 	public static void checkPaths(SimodConfig config, AgentpolisConfig agentpolisConfig){
-		String[] pathsForRead = {
+		ArrayList<String> pathsForRead = new ArrayList<>(Arrays.asList(
 			config.tripsPath,
-			config.stationPositionFilepath,
 			agentpolisConfig.mapNodesFilepath,
 			agentpolisConfig.mapEdgesFilepath
-		};
+		));
+		if(config.stations.on){
+			pathsForRead.add(config.stationPositionFilepath);
+		}
 		
 		String[] pathsForWrite = {
 			config.statistics.allEdgesLoadHistoryFilePath,

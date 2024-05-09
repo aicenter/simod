@@ -315,12 +315,12 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 
 		try {
 			DarpSolutionPlan[] darpPlans = new DarpSolutionPlan[plans.size()];
-			int totalCost = 0;
+			double totalCost = 0;
 			for (int i = 0; i < plans.size(); i++) {
 				Entry<RideSharingOnDemandVehicle, DriverPlan> entry = (Entry<RideSharingOnDemandVehicle, DriverPlan>) plans.entrySet().toArray()[i];
 				RideSharingOnDemandVehicle vehicle = entry.getKey();
 				DriverPlan plan = entry.getValue();
-				int cost = (int) (plan.cost);
+				double cost = plan.cost;
 				totalCost += cost;
 				DarpSolutionPlanVehicle darpVehicle = new DarpSolutionPlanVehicle(Integer.parseInt(vehicle.getId()));
 				DarpSolutionStopAction[] planActions = new DarpSolutionStopAction[plan.plan.size() - 1];
@@ -360,13 +360,13 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 				}
 				String globalDepartureTimeStr = dateTimeFormatter.format(globalDepartureTime);;
 				String globalArrivalTimeStr = dateTimeFormatter.format(globalArrivalTime);
-				darpPlans[i] = new DarpSolutionPlan(cost,globalDepartureTimeStr,globalArrivalTimeStr, darpVehicle, planActions);
+				darpPlans[i] = new DarpSolutionPlan((int)(cost),globalDepartureTimeStr,globalArrivalTimeStr, darpVehicle, planActions);
 			}
 
 			DarpSolution solution = new DarpSolution(
 				true,
-				totalCost,
-				totalCost / 60,
+				(int)(totalCost),
+				(int)(totalCost / 60),
 				darpPlans,
 				droppedRequests.values().toArray(new PlanComputationRequest[0])
 			);

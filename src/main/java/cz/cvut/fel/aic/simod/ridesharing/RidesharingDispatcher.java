@@ -336,8 +336,13 @@ public class RidesharingDispatcher extends StationsDispatcher implements Routine
 					PlanRequestAction planRequestAction = (PlanRequestAction) action;
 					long travelTime = travelTimeProvider.getTravelTime(vehicle, lastPosition, action.getPosition());
 					if (time == null) {
-						time = planRequestAction.getMinTime().minus(travelTime, ChronoUnit.MILLIS);
-						globalDepartureTime = planRequestAction.getMinTime().minus(travelTime, ChronoUnit.MILLIS);
+						ZonedDateTime startDrivingTime = planRequestAction.getMinTime().minus(travelTime, ChronoUnit.MILLIS);
+						time = startDrivingTime;
+						globalDepartureTime = startDrivingTime;
+						if(time.toEpochSecond() < vehicle.getOperationStart().toEpochSecond()){
+							time = vehicle.getOperationStart();
+							globalDepartureTime = vehicle.getOperationStart();
+						}
 					}
 
 					time = time.plus(travelTime, ChronoUnit.MILLIS);

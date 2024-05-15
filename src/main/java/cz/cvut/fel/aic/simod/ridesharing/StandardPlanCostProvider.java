@@ -45,8 +45,8 @@ public class StandardPlanCostProvider implements PlanCostProvider{
 	}
 	
 	@Override
-	public int calculatePlanCost(int discomfort, int duration) {
-		return (int) (weight_parameter * discomfort + (1 - weight_parameter) * duration);
+	public double calculatePlanCost(int discomfort, int duration) {
+		return (weight_parameter * discomfort + (1 - weight_parameter) * duration);
 	}
 	
 }

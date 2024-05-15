@@ -541,9 +541,9 @@ public class InsertionHeuristicSolver<T> extends DARPSolver implements EventHand
 		}
 
 		// cost computation
-		double newPlanCost = planCostProvider.calculatePlanCost(newPlanDiscomfort, newPlanTravelTime / 1000);
+		double newPlanCost = planCostProvider.calculatePlanCost(newPlanDiscomfort, newPlanTravelTime);
 
-		return new DriverPlan(newPlanTasks, newPlanTravelTime / 1000, newPlanCost);
+		return new DriverPlan(newPlanTasks, newPlanTravelTime / 1000, newPlanCost / 1000);
 	}
 
 	private String readableTime(long nanoTime) {

@@ -123,7 +123,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 		
 		// best plan
 		PlanRequestAction[] bestPlan = null;
-		int bestPlanCost = Integer.MAX_VALUE;
+		double bestPlanCost = Integer.MAX_VALUE;
 		long bestPlanEndTime = 0;
 		
 		// indexes
@@ -200,7 +200,7 @@ public class ArrayOptimalVehiclePlanFinder<V extends IOptimalPlanVehicle>
 							//TODO add onboard vehicles previous discomfort
 							
 							int totalDuration = endTimeTemp - startTime;
-							int planCost = planCostComputation.calculatePlanCost(totalDiscomfort + discomfort,
+							double planCost = planCostComputation.calculatePlanCost(totalDiscomfort + discomfort,
 									totalDuration);
 
 							if(planCost < bestPlanCost){

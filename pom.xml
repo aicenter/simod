@@ -132,9 +132,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 			<artifactId>progressbar</artifactId>
 			<version>0.7.2</version>
 		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>junit</groupId>-->
+<!--			<artifactId>junit</artifactId>-->
+<!--		</dependency>-->
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>5.11.3</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>ninja.fido.config</groupId>

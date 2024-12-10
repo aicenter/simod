@@ -56,6 +56,8 @@ public class SimodConfig implements GeneratedConfig {
 
   public String travelTimeProvider;
 
+  public Integer travelTimeProviderErrorTolerance;
+
   public Integer startTime;
 
   public Integer maxPickupDelay;
@@ -98,6 +100,7 @@ public class SimodConfig implements GeneratedConfig {
     this.stations = new Stations((Map) simodConfig.get("stations"));
     this.heterogeneousVehicles = (Boolean) simodConfig.get("heterogeneous_vehicles");
     this.travelTimeProvider = (String) simodConfig.get("travel_time_provider");
+    this.travelTimeProviderErrorTolerance = (Integer) simodConfig.get("travel_time_provider_error_tolerance");
     this.startTime = (Integer) simodConfig.get("start_time");
     this.maxPickupDelay = (Integer) simodConfig.get("max_pickup_delay");
     this.vehiclesFilePath = (String) simodConfig.get("vehicles_file_path");

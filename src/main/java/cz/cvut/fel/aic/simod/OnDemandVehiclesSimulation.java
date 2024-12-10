@@ -112,7 +112,7 @@ public class OnDemandVehiclesSimulation {
 		}
 	}
 
-	private static void checkTravelTimeProvider(Injector injector) {
+	private static void checkTravelTimeProvider(Injector injector, int maxTolerance) {
 		TravelTimeProvider travelTimeProvider = injector.getInstance(TravelTimeProvider.class);
 		if(!(travelTimeProvider instanceof AstarTravelTimeProvider)){
 			AstarTravelTimeProvider astarTravelTimeProvider = injector.getInstance(AstarTravelTimeProvider.class);
@@ -125,7 +125,8 @@ public class OnDemandVehiclesSimulation {
 				SimulationNode to = map.nodesFromAllGraphs.get(ris.nextInt());
 				long time = travelTimeProvider.getExpectedTravelTime(from, to);
 				long timeAstar = astarTravelTimeProvider.getExpectedTravelTime(from, to);
-				if (time != timeAstar) {
+
+				if (Math.abs(time - timeAstar) > maxTolerance){
 					LOGGER.error("Travel time provider is not consistent with AstarTravelTimeProvider.\n"
 							+ "Time from {} to {}\n" +
 								"AstarTravelTimeProvider: {}\n" +
@@ -163,7 +164,7 @@ public class OnDemandVehiclesSimulation {
 
 		// check that travel time provider provides the same results as AstarTravelTimeProvider
 		// Need to be done after map initialization in SimulationCreator.prepareSimulation()
-//		checkTravelTimeProvider(injector);
+		checkTravelTimeProvider(injector, config.travelTimeProviderErrorTolerance);
 
 		// load stations
 		injector.getInstance(StationsInitializer.class).loadStations();

@@ -132,40 +132,36 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest {
 		hash = 0;
 
 //		originTime = (int) Math.round(demandAgent.getDemandTime() / 1000.0);
-		if(config.enableNegativeDelay){
+		if (config.enableNegativeDelay) {
 			ZonedDateTime minTimeIncludingNegativeDelay = desiredPickupTime.minusSeconds(config.maxPickupDelay);
-			if(timeProvider.getCurrentSimDateTime().isBefore(minTimeIncludingNegativeDelay)){
+			if (timeProvider.getCurrentSimDateTime().isBefore(minTimeIncludingNegativeDelay)) {
 				minTime = minTimeIncludingNegativeDelay;
-			}
-			else{
+			} else {
 				minTime = timeProvider.getCurrentSimDateTime();
 			}
-		}
-		else{
+		} else {
 			minTime = desiredPickupTime;
 		}
 
-		minTravelTime = (int) Math.round(
-			travelTimeProvider.getExpectedTravelTime(origin, destination) / 1000.0);
+		long minTravelTimeMs = travelTimeProvider.getExpectedTravelTime(origin, destination);
+		minTravelTime = (int) Math.round(minTravelTimeMs / 1000.0);
 
-		int maxProlongation;
+		long maxProlongationMs;
 		if (config.maxTravelTimeDelay.mode.equals("absolute")) {
-			maxProlongation = config.maxTravelTimeDelay.seconds;
+			maxProlongationMs = config.maxTravelTimeDelay.seconds * 1000;
 		} else {
-			maxProlongation = (int) Math.round(
-				config.maxTravelTimeDelay.relative * minTravelTime);
+			maxProlongationMs = Math.round(config.maxTravelTimeDelay.relative * minTravelTimeMs);
 		}
 
-		int maxPickUpDelay;
-		if(config.maxPickupDelay >= 0){
-			maxPickUpDelay = config.maxPickupDelay;
-		}
-		else{
-			maxPickUpDelay = maxProlongation;
+		long maxPickUpDelayMs;
+		if (config.maxPickupDelay >= 0) {
+			maxPickUpDelayMs = config.maxPickupDelay * 1000;
+		} else {
+			maxPickUpDelayMs = maxProlongationMs;
 		}
 
-		ZonedDateTime maxPickUpTime = desiredPickupTime.plusSeconds(maxPickUpDelay);
-		ZonedDateTime maxDropOffTime = maxPickUpTime.plusSeconds(minTravelTime + maxProlongation);
+		ZonedDateTime maxPickUpTime = desiredPickupTime.plusNanos(maxPickUpDelayMs * 1_000_000L);
+		ZonedDateTime maxDropOffTime = getMaxDropOffTime(config, desiredPickupTime, minTravelTimeMs, maxProlongationMs);
 
 		this.demandAgent = demandAgent;
 		onboard = false;
@@ -174,6 +170,23 @@ public class DefaultPlanComputationRequest implements PlanComputationRequest {
 		dropOffAction = new PlanActionDropoff(timeProvider, this, destination, maxDropOffTime);
 	}
 
+	public static ZonedDateTime getMaxDropOffTime(
+		SimodConfig config,
+		ZonedDateTime desiredPickupTime,
+		long minTravelTimeMs,
+		long maxProlongationMs
+	) {
+		ZonedDateTime maxDropOffTime = desiredPickupTime.plusNanos(
+			(minTravelTimeMs + maxProlongationMs + config.maxPickupDelay * 1000) * 1_000_000L);
+
+		// round up to seconds
+		if(maxDropOffTime.getNano() > 0){
+			maxDropOffTime = maxDropOffTime.plusSeconds(1);
+			maxDropOffTime = maxDropOffTime.withNano(0);
+		}
+
+		return maxDropOffTime;
+	}
 
 
 	@Override

@@ -251,9 +251,11 @@ public class RequestsInitializer {
 						// event for dispatcher
 						long annoucementTimeMillis
 							= Duration.between(timeProvider.getInitDateTime(), announcementTime).toMillis();
-						if (annoucementTimeMillis < 0) {
-							throw new RuntimeException("Announcement time is before simulation start time");
-						} else if (annoucementTimeMillis == 0) {
+
+						// set announcement time to 0 if it is before simulation start time
+						annoucementTimeMillis = Math.max(annoucementTimeMillis, 0);
+
+						if (annoucementTimeMillis == 0) {
 							eventProcessor.addEvent(
 								DemandEvent.ANNOUNCEMENT,
 								dispatcher,
